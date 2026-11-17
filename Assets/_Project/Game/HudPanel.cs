@@ -65,9 +65,7 @@ namespace Signal.Game
         {
             _status.text = _clock.Label
                          + "    $" + _stats.Money
-                         + "    HP " + _stats.Health
-                         + "    Heat " + _heat.Heat
-                         + "    Rent " + _rent.Amount + " every " + _rent.IntervalDays + " days (missed " + _rent.MissedPayments + ")";
+                         + "    HP " + _stats.Health;
         }
 
         private void Build()
