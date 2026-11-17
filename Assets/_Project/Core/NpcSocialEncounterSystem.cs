@@ -11,25 +11,30 @@ namespace Signal.Core
     public sealed class NpcSocialEncounterSystem
     {
         private readonly int _pairCooldownMinutes;
+        private readonly int _npcCooldownMinutes;
         private readonly float _maximumDistance;
         private readonly float _familiarityGain;
         private readonly Dictionary<string, int> _lastEncounterByPair = new Dictionary<string, int>();
+        private readonly Dictionary<string, int> _lastEncounterByNpc = new Dictionary<string, int>();
         private int _lastProcessedMinute = -1;
         private int _encounterSequence;
 
         public int EncounterCount { get; private set; }
 
         public NpcSocialEncounterSystem(int pairCooldownMinutes = 720,
-            float maximumDistance = 3f, float familiarityGain = 0.01f)
+            int npcCooldownMinutes = 180, float maximumDistance = 3f, float familiarityGain = 0.01f)
         {
             if (pairCooldownMinutes <= 0)
                 throw new ArgumentOutOfRangeException(nameof(pairCooldownMinutes));
+            if (npcCooldownMinutes <= 0)
+                throw new ArgumentOutOfRangeException(nameof(npcCooldownMinutes));
             if (maximumDistance <= 0f)
                 throw new ArgumentOutOfRangeException(nameof(maximumDistance));
             if (familiarityGain < 0f || familiarityGain > 1f)
                 throw new ArgumentOutOfRangeException(nameof(familiarityGain));
 
             _pairCooldownMinutes = pairCooldownMinutes;
+            _npcCooldownMinutes = npcCooldownMinutes;
             _maximumDistance = maximumDistance;
             _familiarityGain = familiarityGain;
         }
@@ -50,7 +55,10 @@ namespace Signal.Core
             if (absoluteMinute == _lastProcessedMinute)
                 return 0;
             if (_lastProcessedMinute >= 0 && absoluteMinute < _lastProcessedMinute)
+            {
                 _lastEncounterByPair.Clear();
+                _lastEncounterByNpc.Clear();
+            }
             _lastProcessedMinute = absoluteMinute;
 
             var candidates = new List<string>();
@@ -86,12 +94,17 @@ namespace Signal.Core
                     if (_lastEncounterByPair.TryGetValue(pairKey, out int lastMinute) &&
                         absoluteMinute - lastMinute < _pairCooldownMinutes)
                         continue;
+                    if (IsNpcOnCooldown(firstId, absoluteMinute) ||
+                        IsNpcOnCooldown(secondId, absoluteMinute))
+                        continue;
 
                     if (!world.TryGetNpc(secondId, out NpcAgentState second))
                         continue;
 
                     ResolveEncounter(world, first, second, safeDay, safeMinute, absoluteMinute);
                     _lastEncounterByPair[pairKey] = absoluteMinute;
+                    _lastEncounterByNpc[firstId] = absoluteMinute;
+                    _lastEncounterByNpc[secondId] = absoluteMinute;
                     occupiedThisPass.Add(firstId);
                     occupiedThisPass.Add(secondId);
                     created++;
@@ -103,7 +116,13 @@ namespace Signal.Core
             return created;
         }
 
-        private void ResolveEncounter(NpcSocialWorld world, NpcAgentState first,
+        private bool IsNpcOnCooldown(string npcId, int absoluteMinute)
+        {
+            return _lastEncounterByNpc.TryGetValue(npcId, out int lastMinute) &&
+                absoluteMinute - lastMinute < _npcCooldownMinutes;
+        }
+
+        private void ResolveEncounter(NpcSocialWorld world, first,
             NpcAgentState second, int day, int minuteOfDay, int absoluteMinute)
         {
             IncreaseFamiliarity(world, first.Id, second.Id);
