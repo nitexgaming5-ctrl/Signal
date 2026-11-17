@@ -44,13 +44,13 @@ namespace Signal.Game
             _socialWorld = socialWorld;
             _clock.Changed += OnClockChanged;
             BuildVisual();
-            RefreshFromClock(true);
-            _initialized = true;
             if (_socialWorld != null)
             {
                 _socialWorld.RegisterNpc(NpcId, ActivityPlace(_activity), transform.position.x, transform.position.y, 8f);
                 _registeredInSocialWorld = true;
             }
+            RefreshFromClock(true);
+            _initialized = true;
         }
 
         public void SetCurrentPlace(string place)
@@ -143,7 +143,10 @@ namespace Signal.Game
             if (_clock == null)
                 return;
 
-            NpcActivity next = _brain.AdvanceTo(_clock.Day, _clock.MinuteOfDay);
+            NpcPerception perception = _socialWorld != null && _registeredInSocialWorld
+                ? _socialWorld.BuildPerceptionFor(NpcId, 8f)
+                : null;
+            NpcActivity next = _brain.AdvanceTo(_clock.Day, _clock.MinuteOfDay, perception);
             if (next != _activity || snapToDestination)
             {
                 bool wasInCurrentPlace = ActivityPlace(_activity) == _currentPlace;
