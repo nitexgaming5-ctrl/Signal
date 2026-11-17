@@ -240,7 +240,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 94d8bf17c40e29a44ab548aa5ce85238, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Signal.Game::Signal.Game.GameSession
-  items: []
+  items:
+  - {fileID: 11400000, guid: 39a634896790a6f42aa67446e05bb8de, type: 2}
+  - {fileID: 11400000, guid: 75b48d016f3192c4291650c7100322ae, type: 2}
+  - {fileID: 11400000, guid: 93ce0b046196ab54ea7ba4defbc4c608, type: 2}
   startingMoney: 0
   rentAmount: 0
   rentEveryDays: 7
