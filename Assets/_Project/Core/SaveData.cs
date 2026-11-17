@@ -12,6 +12,10 @@ namespace Signal.Core
         public int y;
         public bool rotated;
         public int count;
+        public int quality;
+        public int condition;
+        public int authenticity;
+        public int ownership;
     }
 
     [Serializable]
@@ -43,7 +47,7 @@ namespace Signal.Core
 
     public static class SaveMigrator
     {
-        public const int CurrentVersion = 3;
+        public const int CurrentVersion = 4;
 
         /// <summary>Accepts the first public save format and the current hideout-storage format.</summary>
         public static bool TryMigrate(SaveData data, out string error)
@@ -79,6 +83,8 @@ namespace Signal.Core
             var usedIds = new HashSet<Guid>();
             EnsureInstanceIds(data.items, usedIds);
             EnsureInstanceIds(data.storageItems, usedIds);
+            // Version 3 introduced stable stack identity but had no per-stack state. The new
+            // enum fields default to their zero values, which are the neutral starting state.
             data.version = CurrentVersion;
 
             return true;
@@ -198,7 +204,11 @@ namespace Signal.Core
                     x = item.X,
                     y = item.Y,
                     rotated = item.Rotated,
-                    count = item.Count
+                    count = item.Count,
+                    quality = (int)item.State.Quality,
+                    condition = (int)item.State.Condition,
+                    authenticity = (int)item.State.Authenticity,
+                    ownership = (int)item.State.Ownership
                 });
             }
         }
@@ -218,8 +228,20 @@ namespace Signal.Core
                 }
 
                 ItemType? type = resolve(id);
+                ItemInstanceState state;
+                try
+                {
+                    state = new ItemInstanceState((ItemQuality)saved.quality, (ItemCondition)saved.condition,
+                        (ItemAuthenticity)saved.authenticity, (ItemOwnershipStatus)saved.ownership);
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+                    skipped++;
+                    continue;
+                }
+
                 if (!type.HasValue || !destination.Place(type.Value, saved.x, saved.y, saved.rotated, saved.count,
-                    Guid.TryParse(saved.instanceId, out Guid instanceId) ? instanceId : Guid.Empty).HasValue)
+                    Guid.TryParse(saved.instanceId, out Guid instanceId) ? instanceId : Guid.Empty, state).HasValue)
                     skipped++;
             }
 
