@@ -30,6 +30,7 @@ namespace Signal.Game
         private readonly List<NpcCharacterDefinition> _temporaryDefinitions = new List<NpcCharacterDefinition>();
         private GameClock _clock;
         private NpcSocialWorld _socialWorld;
+        private NpcSocialEncounterSystem _socialEncounterSystem;
 
         private static readonly Vector2 HomeDoor = new Vector2(10f, -1.5f);
         private static readonly Vector2 ShopDoor = new Vector2(0.5f, -10.8f);
@@ -39,6 +40,7 @@ namespace Signal.Game
         public bool IsAtHome => _place == Place.Hideout;
         public string CurrentPlace => _place.ToString();
         public int ResidentCount => _residents.Count;
+        public int SocialEncounterCount => _socialEncounterSystem != null ? _socialEncounterSystem.EncounterCount : 0;
 
         public Vector2 GetResidentPosition(string npcId)
         {
@@ -62,9 +64,13 @@ namespace Signal.Game
                 characterDefinitions.AddRange(definitions);
             }
 
+            if (_clock != null)
+                _clock.Changed -= OnClockChanged;
+
             _player = player;
             _clock = clock ?? new GameClock();
             _socialWorld = new NpcSocialWorld();
+            _socialEncounterSystem = new NpcSocialEncounterSystem();
             _body = body;
             _cameraFollow = camera != null ? camera.GetComponent<CameraFollow2D>() : null;
 
@@ -82,6 +88,7 @@ namespace Signal.Game
 
             _place = Place.Hideout;
             SetResidentsActivePlace(_place.ToString());
+            _clock.Changed += OnClockChanged;
             if (_cameraFollow != null)
                 _cameraFollow.Configure(_player, _worldBounds);
         }
@@ -234,6 +241,23 @@ namespace Signal.Game
                     _residents[i].SetActivePlace(place);
         }
 
+        private void OnClockChanged(GameClock clock)
+        {
+            if (_socialEncounterSystem == null || _socialWorld == null)
+                return;
+
+            var socializingNpcIds = new List<string>();
+            for (int i = 0; i < _residents.Count; i++)
+            {
+                NpcPresenter resident = _residents[i];
+                if (resident != null && resident.Activity == NpcActivity.Socialize)
+                    socializingNpcIds.Add(resident.NpcId);
+            }
+
+            _socialEncounterSystem.AdvanceTo(_socialWorld, socializingNpcIds,
+                clock.Day, clock.MinuteOfDay);
+        }
+
         private static bool Near(Vector2 position, Vector2 target)
         {
             return Vector2.Distance(position, target) <= InteractionDistance;
@@ -350,6 +374,9 @@ namespace Signal.Game
 
         private void OnDestroy()
         {
+            if (_clock != null)
+                _clock.Changed -= OnClockChanged;
+
             for (int i = 0; i < _temporaryDefinitions.Count; i++)
             {
                 if (_temporaryDefinitions[i] == null)
