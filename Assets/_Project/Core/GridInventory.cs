@@ -85,16 +85,19 @@ namespace Signal.Core
             return Fits(type, x, y, rotated, NoInstance);
         }
 
-        public int? Place(ItemType type, int x, int y, bool rotated = false, int count = 1)
+        public int? Place(ItemType type, int x, int y, bool rotated = false, int count = 1, Guid? itemInstanceId = null)
         {
             if (count < 1 || count > type.MaxStack)
                 return null;
             if (!CanPlace(type, x, y, rotated))
                 return null;
 
+            Guid stableId = itemInstanceId ?? Guid.NewGuid();
+            if (stableId == Guid.Empty || _items.Exists(existing => existing.ItemInstanceId == stableId))
+                return null;
+
             int id = _nextInstanceId++;
-            Guid itemInstanceId = Guid.NewGuid();
-            _items.Add(new PlacedItem(id, itemInstanceId, type, x, y, rotated, count));
+            _items.Add(new PlacedItem(id, stableId, type, x, y, rotated, count));
             Changed?.Invoke(this);
             return id;
         }
