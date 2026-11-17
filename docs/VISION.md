@@ -1,41 +1,58 @@
 # Vision — Signal
 
 ## One sentence
-A grim, pixel-art urban hybrid RPG about running a small illegal chemistry shop in a city that wants you gone. Deep management and simulation systems create the pressure; characters, relationships, choices, and consequences turn that simulation into a personal story.
+Signal is an immersive top-down 2D urban RPG about making a precarious living in a hostile city: travel, take small jobs, scavenge and loot, earn money, take risks, lose things, meet people, and slowly build a place worth coming home to.
 
-## Genre and experience
-Signal is deliberately a hybrid of:
-- **Management/simulation RPG:** the player plans days, manages scarce space and resources, operates a shop, produces goods, handles obligations, and responds to systemic consequences.
-- **Narrative-driven RPG:** the player meets memorable people, builds or damages relationships, navigates factions and local power structures, and experiences authored stories shaped by their choices.
+## Genre and player fantasy
+Signal blends:
+- **Urban hustle and survival simulation:** the player moves through a compact but explorable city, performs many small interactions for money or resources, carries limited supplies, takes calculated risks, and lives with losses.
+- **Narrative-driven RPG:** locations, characters, factions, relationships and authored events give context and human stakes to the player's daily struggle.
+- **Hands-on immersive interaction:** important activities happen through places and objects in the world, not only through abstract menus.
 
-The simulation should generate meaningful situations rather than busywork. Narrative should give emotional context and human stakes to the player's economic and practical decisions. Neither side is merely a minigame attached to the other.
+The player is not primarily operating a shop. A shop or counter may exist as one activity among many, but it is not the game's central identity. The wider loop is going out, doing things, bringing something back, deciding what to keep or risk, and returning to a hideout that gradually becomes more useful and personal.
 
-## Pillars (in priority order)
-1. **Shop & trade** — the core fantasy: stock it, price it, sell it, get caught. Mirrors the "Probably Stolen PC" feel of running a counter.
-2. **Inventory as pressure** — grid inventory, Tarkov/Stalker style. Space is scarce, and what you carry matters.
-3. **Hands-on chemistry** — Drug Dealer Simulator style: drag components, mix, measure, watch results. Satisfying feedback matters more than realism.
-4. **Consequences** — heat, rent, rackets, faction standing, and relationships that can stay damaged.
-5. **Daily rhythm** — a schedule with day/night, sleep, and time spent. Stardew-style routine, not grind.
-6. **Place** — a modern, gritty, neon-accented city seen from top-down. Pokémon/Stardew-style readability.
-7. **People and stories** — characters and factions should have motives, routines, needs, and histories. Player choices should affect how the city and its inhabitants respond.
+## Core pillars (current priority)
+1. **A lived-in hideout:** a small house or planque that the player physically inhabits. Walk around it, use furniture, store belongings, decorate it, and return to it between outings.
+2. **Hands-on workspaces:** the workbench is a real visual object and a dedicated interaction space. The player approaches it, focuses into a close-up workspace, manipulates represented objects, then returns to the room. It should feel tactile rather than like opening a generic crafting menu.
+3. **City exploration and movement:** a compact top-down city with streets and buildings. Buildings should be enterable; interiors can begin as simple spaces and gain purpose over time.
+4. **Small interactions, money and resources:** many modest activities create the player's income and supplies. The player chooses what to do, what to carry, and what to bring home.
+5. **Risk, loss and pressure:** outings and decisions can cost time, money, goods or safety. Consequences should be understandable and earned.
+6. **Progression through place and possessions:** improve the hideout with furniture, equipment, storage and decoration. Upgrades should be visible in the world.
+7. **People and stories:** characters and factions have motives, routines and histories. Their presence makes the city feel inhabited and makes choices matter.
 
-## Reference games: what to take, what to leave
+## Reference games: what to learn from
 | Reference | Take | Leave |
 |---|---|---|
-| Stalker / Tarkov | Grid inventory, weight/space pressure, dread | Shooter combat, realism tuning |
-| Drug Dealer Simulator | Mixing and dragging components, lab feel, heat | Its action sequences, its scale |
-| Stardew Valley / Pokémon | Top-down readability, daily routine, town life | Farming, battles |
-| Probably Stolen PC | Shop counter loop, customers, one-room economy | Its specific UI and humour as copies |
+| Schedule I | A compact city loop, returning to a base, visible progression of a working hideout | Copying its exact economy, scale or progression |
+| Drug Dealer Simulator | Physical-feeling workspaces, preparation and storage interactions, atmosphere and pressure | Its specific systems or presentation copied literally |
+| Probably Stolen | Close-up object interaction and tactile work surfaces | Treating the whole game as a shop simulation |
+| Stardew Valley | Readable top-down spaces, approachable visual language, expressive interiors, decoration and a world that feels lived in | Farming as a required core loop, or copying its exact art style |
+| Stalker / Tarkov | Scarcity, inventory pressure, meaningful loot choices and risk | Shooter-first gameplay or realism for its own sake |
 
-## Tone
-Dry, dark humour. Short sentences. Neon for accents only (the palette rule is in ART_AND_UI.md). Never grim for shock value; the consequences should feel earned.
+These are reference points for experience and interaction quality, not templates to reproduce.
+
+## First playable slice: the hideout and its surrounding block
+The first target is deliberately small:
+- A compact, walkable outdoor city block.
+- A few visible buildings with basic enter/exit transitions; interiors may initially be simple.
+- One small starter house/hideout, built as a real walkable interior.
+- A readable set of furniture and props: at minimum a bed, table, chair, storage and workbench.
+- Basic object interaction with clear prompts and feedback.
+- A workbench interaction that transitions into a dedicated visual close-up workspace and back to the same room.
+- A visual style pass that makes the hideout feel inhabited rather than like a debug room.
+
+The hideout is the focus of this first slice. The city gives it context and a reason to leave.
+
+## Visual direction
+Top-down 2D with the readability and warmth of a game like Stardew Valley, adapted to a gritty contemporary urban setting. Prioritise clear silhouettes, readable rooms, expressive props, layered interiors, restrained neon accents and atmospheric lighting. The hideout should feel modest, personal and lived-in — not like a sterile management interface.
 
 ## Design principles
-- Systems should interact: time, money, inventory, production, customers, heat, obligations, factions, and relationships should create connected choices.
-- Prefer legible rules and strong feedback over hidden simulation for its own sake.
-- Let systemic play create stories, while authored characters and events give the player reasons to care.
-- Preserve player agency: consequences should be understandable, even when they are harsh.
-- New mechanics are proposals until the user explicitly approves their rules.
+- Build connected player experiences, not isolated systems.
+- Prefer world objects and spatial interactions when they strengthen immersion.
+- Simulation should create meaningful pressure; narrative should make the pressure matter.
+- Progression should be visible in places, equipment and possessions.
+- Keep the first playable area small and coherent. Add scale only when the current space is enjoyable.
+- New gameplay rules beyond the approved direction remain proposals until their player-facing behavior is agreed.
 
-## Out of scope for slice 0.1
-Combat, multiple districts, romance, branching story, online features, and anything not in the roadmap's current milestone. These are slice constraints, not a permanent ban on future design.
+## Not the first slice
+A full drug economy, complex police simulation, faction warfare, multiple districts, a large quest structure, deep NPC schedules, or a complete progression/equipment economy. These may become part of Signal later, but they do not block making the first house and city block feel good.
