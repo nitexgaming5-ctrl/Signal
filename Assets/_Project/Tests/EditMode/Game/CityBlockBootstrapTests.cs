@@ -54,6 +54,10 @@ namespace Signal.Game.Tests
             try
             {
                 city.Build(player.transform, body, camera, clock);
+                Assert.That(city.SocialWorld, Is.Not.Null);
+                Assert.That(city.SocialWorld.NpcCount, Is.EqualTo(1));
+                Assert.That(city.SocialWorld.TryGetNpc("milo", out NpcAgentState registeredMilo), Is.True);
+                Assert.That(registeredMilo.LocationId, Is.EqualTo("CornerShop"));
                 Assert.That(city.TryRestorePlace("CornerShop", new Vector2(1000f, 999f)), Is.True);
                 Assert.That(city.NeighbourActivity, Is.EqualTo(NpcActivity.Work));
 
@@ -61,6 +65,8 @@ namespace Signal.Game.Tests
                 Assert.That(city.GetPrompt(npcPosition), Is.EqualTo("E  Talk to Milo"));
                 Assert.That(city.TryInteractNpc(npcPosition, out string workDialogue), Is.True);
                 StringAssert.Contains("baker", workDialogue);
+                Assert.That(city.SocialWorld.EventCount, Is.EqualTo(1));
+                Assert.That(registeredMilo.KnowsEvent("milo-conversation-1"), Is.True);
 
                 clock.Advance(11 * 60);
                 Assert.That(city.NeighbourActivity, Is.EqualTo(NpcActivity.Socialize));
