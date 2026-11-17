@@ -52,9 +52,9 @@ namespace Signal.Core.Tests
             var encounters = new NpcSocialEncounterSystem(pairCooldownMinutes: 720);
 
             Assert.That(encounters.AdvanceTo(world, new[] { "a", "b", "c" }, 1, 700), Is.EqualTo(1));
-            Assert.That(encounters.AdvanceTo(world, new[] { "a", "b", "c" }, 1, 701), Is.EqualTo(0));
-            Assert.That(encounters.AdvanceTo(world, new[] { "a", "b", "c" }, 1, 1419), Is.EqualTo(0));
-            Assert.That(encounters.AdvanceTo(world, new[] { "a", "b", "c" }, 2, 0), Is.EqualTo(1));
+            Assert.That(encounters.AdvanceTo(world, new[] { "a", "b" }, 1, 701), Is.EqualTo(0));
+            Assert.That(encounters.AdvanceTo(world, new[] { "a", "b" }, 1, 1419), Is.EqualTo(0));
+            Assert.That(encounters.AdvanceTo(world, new[] { "a", "b" }, 2, 0), Is.EqualTo(1));
             Assert.That(encounters.EncounterCount, Is.EqualTo(2));
         }
 
