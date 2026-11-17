@@ -91,6 +91,38 @@ namespace Signal.Game.Tests
         }
 
         [Test]
+        public void OffscreenWorldEventsReachNpcsInTheirOwnLocation()
+        {
+            var host = new GameObject("CityHost");
+            var player = new GameObject("Player");
+            var cameraObject = new GameObject("MainCamera");
+            Rigidbody2D body = player.AddComponent<Rigidbody2D>();
+            Camera camera = cameraObject.AddComponent<Camera>();
+            var clock = new GameClock(1, 8 * 60);
+            CityBlockBootstrap city = host.AddComponent<CityBlockBootstrap>();
+
+            try
+            {
+                city.Build(player.transform, body, camera, clock);
+                Assert.That(city.CurrentPlace, Is.EqualTo("Hideout"));
+                Assert.That(city.SocialWorld.TryGetNpc("milo", out NpcAgentState milo), Is.True);
+
+                city.PublishWorldEventAt("CornerShop", "delivery-outside",
+                    "A delivery van stopped outside the bakery.", new Vector2(1000f, 1000.4f), 3f);
+
+                Assert.That(milo.KnowsEvent("delivery-outside"), Is.True);
+                Assert.That(milo.FindKnowledge("delivery-outside").Origin,
+                    Is.EqualTo(NpcKnowledgeOrigin.DirectObservation));
+            }
+            finally
+            {
+                Object.DestroyImmediate(host);
+                Object.DestroyImmediate(player);
+                Object.DestroyImmediate(cameraObject);
+            }
+        }
+
+        [Test]
         public void PlayerCanTravelBetweenHideoutStreetAndBothInteriors()
         {
             var host = new GameObject("CityHost");
