@@ -117,9 +117,14 @@ namespace Signal.Game
             NpcActivity next = _brain.AdvanceTo(_clock.Day, _clock.MinuteOfDay);
             if (next != _activity || snapToDestination)
             {
+                bool wasInCurrentPlace = ActivityPlace(_activity) == _currentPlace;
+                bool willBeInCurrentPlace = ActivityPlace(next) == _currentPlace;
                 _activity = next;
                 _destination = PositionFor(next);
-                if (snapToDestination || ActivityPlace(next) != _currentPlace)
+
+                // Only animate between points inside the same active location. Cross-location
+                // travel is resolved off-screen so distant interiors are never traversed on foot.
+                if (snapToDestination || !wasInCurrentPlace || !willBeInCurrentPlace)
                     transform.position = new Vector3(_destination.x, _destination.y, 0f);
             }
         }
