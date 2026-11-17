@@ -81,6 +81,7 @@ namespace Signal.Game
             _apartmentRoot.SetActive(false);
 
             _place = Place.Hideout;
+            SetResidentsActivePlace(_place.ToString());
             if (_cameraFollow != null)
                 _cameraFollow.Configure(_player, _worldBounds);
         }
@@ -223,8 +224,14 @@ namespace Signal.Game
             if (_cameraFollow != null)
                 _cameraFollow.Configure(_player, cameraBounds);
 
+            SetResidentsActivePlace(next.ToString());
+        }
+
+        private void SetResidentsActivePlace(string place)
+        {
             for (int i = 0; i < _residents.Count; i++)
-                _residents[i].SnapToAuthoredDestination();
+                if (_residents[i] != null)
+                    _residents[i].SetActivePlace(place);
         }
 
         private static bool Near(Vector2 position, Vector2 target)
