@@ -102,6 +102,46 @@ namespace Signal.Game.Tests
         }
 
         [Test]
+        public void ResidentsDevelopFamiliarityWhenTheirSchedulesBringThemTogether()
+        {
+            var host = new GameObject("CityHost");
+            var player = new GameObject("Player");
+            var cameraObject = new GameObject("MainCamera");
+            Rigidbody2D body = player.AddComponent<Rigidbody2D>();
+            Camera camera = cameraObject.AddComponent<Camera>();
+            var clock = new GameClock(1, 8 * 60);
+            CityBlockBootstrap city = host.AddComponent<CityBlockBootstrap>();
+
+            try
+            {
+                city.Build(player.transform, body, camera, clock);
+                Assert.That(city.SocialEncounterCount, Is.EqualTo(0));
+
+                clock.Advance(10 * 60);
+
+                Assert.That(city.GetResidentActivity("milo"), Is.EqualTo(NpcActivity.Socialize));
+                Assert.That(city.GetResidentActivity("rhea"), Is.EqualTo(NpcActivity.Socialize));
+                Assert.That(city.SocialEncounterCount, Is.EqualTo(1));
+
+                NpcRelationship miloToRhea = city.SocialWorld.GetRelationship("milo", "rhea");
+                NpcRelationship rheaToMilo = city.SocialWorld.GetRelationship("rhea", "milo");
+                Assert.That(miloToRhea.Familiarity, Is.EqualTo(0.01f).Within(0.0001f));
+                Assert.That(rheaToMilo.Familiarity, Is.EqualTo(0.01f).Within(0.0001f));
+                Assert.That(miloToRhea.Trust, Is.EqualTo(0.5f));
+                Assert.That(rheaToMilo.Trust, Is.EqualTo(0.5f));
+
+                clock.Advance(1);
+                Assert.That(city.SocialEncounterCount, Is.EqualTo(1));
+            }
+            finally
+            {
+                Object.DestroyImmediate(host);
+                Object.DestroyImmediate(player);
+                Object.DestroyImmediate(cameraObject);
+            }
+        }
+
+        [Test]
         public void BuildUsesSuppliedCharacterDefinitionsWithTheSamePresenter()
         {
             var host = new GameObject("CityHost");
