@@ -16,7 +16,7 @@ namespace Signal.Core
         public bool Success { get; }
     }
 
-    /// <summary>Moves item quantities between inventories without losing items when capacity is limited.</summary>
+    /// <summary>Moves complete matching stacks between inventories while preserving stable identity.</summary>
     public static class InventoryTransfer
     {
         public static InventoryTransferResult MoveAll(GridInventory source, GridInventory destination, ItemType type)
