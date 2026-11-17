@@ -64,7 +64,7 @@ namespace Signal.Game
             _motor = _room.Player.GetComponent<PlayerMotor2D>();
 
             _city = gameObject.AddComponent<CityBlockBootstrap>();
-            _city.Build(_room.Player, _room.PlayerBody, camera);
+            _city.Build(_room.Player, _room.PlayerBody, camera, _clock);
 
             _panel = gameObject.AddComponent<InventoryPanel>();
             _panel.Bind(_inventory, items);
@@ -130,7 +130,9 @@ namespace Signal.Game
             else if (!workspaceOpen && !inventoryOpen && !storageOpen && !nearWorkbench && !nearStorage &&
                      cityPrompt.Length > 0 && keyboard.eKey.wasPressedThisFrame)
             {
-                if (_city.TryInteract(playerPosition))
+                if (_city.TryInteractNpc(playerPosition, out string npcDialogue))
+                    Say(npcDialogue, 5f);
+                else if (_city.TryInteract(playerPosition))
                     Say("Location: " + _city.CurrentPlace);
             }
 
