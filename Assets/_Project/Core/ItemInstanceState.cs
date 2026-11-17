@@ -96,9 +96,11 @@ namespace Signal.Core
             ConditionMultiplier = conditionMultiplier;
             AuthenticityMultiplier = authenticityMultiplier;
             OwnershipMultiplier = ownershipMultiplier;
-            FinalValue = (int)Math.Round(BaseValue * qualityMultiplier * conditionMultiplier *
-                                         authenticityMultiplier * ownershipMultiplier,
-                                         MidpointRounding.AwayFromZero);
+            double calculated = BaseValue * (double)qualityMultiplier * conditionMultiplier *
+                                    authenticityMultiplier * ownershipMultiplier;
+            FinalValue = calculated >= int.MaxValue
+                ? int.MaxValue
+                : (int)Math.Round(calculated, MidpointRounding.AwayFromZero);
         }
 
         public int BaseValue { get; }
