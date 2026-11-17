@@ -72,11 +72,16 @@ ANSWER: `SignalSave/signal-save.json` beside the project in the editor (git igno
 
 
 ## Q17 — NPC life simulation approach
-STATUS: needs design; NPCs should feel like people with lives beyond the player's immediate interactions. The user is interested in a very lightweight AI, with low hardware cost as an important constraint.
+ANSWER: B — Lightweight utility simulation, paired with authored routines.
 
-Options:
-- **A — Authored schedules and state machines only:** very cheap and predictable, but can feel repetitive and brittle as NPC situations multiply.
-- **B — Lightweight utility simulation (recommended):** authored identities, routines and goals, with small rule-based decisions that choose among available actions. Simulate nearby/important NPCs in detail and advance distant NPCs in coarse time steps or event-driven updates. No per-NPC language model.
-- **C — On-device language-model agents:** potentially flexible dialogue and improvisation, but high and unpredictable CPU/RAM/battery cost, harder determinism, testing, save compatibility and content control. Not recommended for the baseline game.
+Approved approach:
+- NPCs have authored identities, public roles, routines and private lives.
+- A small deterministic utility brain chooses between a limited set of activities based on time and simple needs.
+- The first prototype evaluates decisions every 15 in-game minutes and tracks only energy and social needs.
+- Nearby NPC presentation uses ordinary Unity updates; world-clock progression drives the actual decision simulation.
+- Core decision logic remains plain C# with no Unity dependency, random inference, background workers or language model.
+- Start with one neighbourhood character, then expand only when a playable scenario needs more depth.
+- Dialogue is authored and can respond to the NPC's current activity.
+- This is a foundation, not a requirement to simulate every citizen in equal detail.
 
-Recommendation: prototype B as a hybrid of authored schedules and inexpensive utility/state logic. Keep the simulation deterministic where practical, data-driven, and independent of Unity presentation. Treat dialogue text and personality as authored content initially; do not require generative AI. Decide exact needs, goals, schedules, update rates, memory and persistence only when designing the first NPC scenario.
+The first implementation is Milo, a neighbourhood baker with Work, Rest, Socialize and Home activities. His evening dialogue hints that his public occupation is not his entire life. Persistent relationships, discovered secrets and a concrete side activity remain future work and must be designed as part of a connected scenario.
