@@ -73,7 +73,7 @@ namespace Signal.Game
             _panel = gameObject.AddComponent<InventoryPanel>();
             _panel.Bind(_inventory, items, _itemViewer.Open);
             _storagePanel = gameObject.AddComponent<StoragePanel>();
-            _storagePanel.Bind(_inventory, _storage, items);
+            _storagePanel.Bind(_inventory, _storage, items, _itemViewer.Open);
 
             _hud = gameObject.AddComponent<HudPanel>();
             _hud.Bind(_stats, _clock);
@@ -99,6 +99,8 @@ namespace Signal.Game
             bool itemViewerOpen = _itemViewer != null && _itemViewer.IsOpen;
             if (_panel != null)
                 _panel.enabled = !workspaceOpen && !storageOpen && !itemViewerOpen;
+            if (_storagePanel != null)
+                _storagePanel.enabled = !itemViewerOpen;
 
             _motor.enabled = !inventoryOpen && !workspaceOpen && !storageOpen && !itemViewerOpen;
 
