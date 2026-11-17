@@ -91,8 +91,8 @@ namespace Signal.Game
             Text hint = NewText(canvasObject.transform, "Hint", 14, TextAnchor.LowerLeft, HintColor,
                                 new Vector2(0f, 0f), new Vector2(12f, 10f), new Vector2(1600f, 24f));
             hint.text = "WASD move   E use workbench   Tab inventory   Esc close workspace   F6 sleep   F5 save   F9 load";
-            _prompt = NewText(canvasObject.transform, "InteractionPrompt", 20, MessageColor,
-                              TextAnchor.LowerCenter, new Vector2(0.5f, 0f), new Vector2(0f, 52f), new Vector2(720f, 34f));
+            _prompt = NewText(canvasObject.transform, "InteractionPrompt", 20, TextAnchor.LowerCenter,
+                              MessageColor, new Vector2(0.5f, 0f), new Vector2(0f, 52f), new Vector2(720f, 34f));
 
             _built = true;
         }
