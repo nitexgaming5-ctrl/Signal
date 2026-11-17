@@ -98,8 +98,8 @@ namespace Signal.Game
         {
             var detail = new GameObject(objectName);
             detail.transform.SetParent(parent, false);
-            detail.transform.localPosition = new Vector3(position.x, position.y, -0.05f);
             Vector3 parentScale = parent.lossyScale;
+            detail.transform.localPosition = new Vector3(position.x / parentScale.x, position.y / parentScale.y, -0.05f);
             detail.transform.localScale = new Vector3(size.x / parentScale.x, size.y / parentScale.y, 1f);
 
             SpriteRenderer renderer = detail.AddComponent<SpriteRenderer>();
