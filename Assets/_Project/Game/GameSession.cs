@@ -25,6 +25,7 @@ namespace Signal.Game
 
         private PlayerStats _stats;
         private GridInventory _inventory;
+        private GridInventory _storage;
         private GameClock _clock;
         private HeatMeter _heat;
         private RentLedger _rent;
@@ -32,6 +33,7 @@ namespace Signal.Game
         private RoomBootstrap _room;
         private PlayerMotor2D _motor;
         private InventoryPanel _panel;
+        private StoragePanel _storagePanel;
         private HudPanel _hud;
         private WorkbenchWorkspace _workspace;
         private CityBlockBootstrap _city;
@@ -42,6 +44,7 @@ namespace Signal.Game
         {
             _stats = new PlayerStats(startingMoney);
             _inventory = new GridInventory();
+            _storage = new GridInventory(8, 6);
             _clock = new GameClock();
             _heat = new HeatMeter();
             _rent = new RentLedger(rentAmount, rentEveryDays);
@@ -65,6 +68,8 @@ namespace Signal.Game
 
             _panel = gameObject.AddComponent<InventoryPanel>();
             _panel.Bind(_inventory, items);
+            _storagePanel = gameObject.AddComponent<StoragePanel>();
+            _storagePanel.Bind(_inventory, _storage, items);
 
             _hud = gameObject.AddComponent<HudPanel>();
             _hud.Bind(_stats, _clock);
@@ -86,23 +91,30 @@ namespace Signal.Game
 
             bool workspaceOpen = _workspace != null && _workspace.IsOpen;
             bool inventoryOpen = _panel != null && _panel.IsOpen;
+            bool storageOpen = _storagePanel != null && _storagePanel.IsOpen;
             if (_panel != null)
-                _panel.enabled = !workspaceOpen;
+                _panel.enabled = !workspaceOpen && !storageOpen;
 
-            _motor.enabled = !inventoryOpen && !workspaceOpen;
+            _motor.enabled = !inventoryOpen && !workspaceOpen && !storageOpen;
 
             Keyboard keyboard = Keyboard.current;
             Vector2 playerPosition = _room.Player.position;
             bool nearWorkbench = _room.Workbench != null &&
                 Vector2.Distance(playerPosition, _room.Workbench.position) <= 2.15f;
+            bool nearStorage = _city.IsAtHome && _room.Storage != null &&
+                Vector2.Distance(playerPosition, _room.Storage.position) <= 2.15f;
             string cityPrompt = _city.GetPrompt(playerPosition);
 
             if (workspaceOpen)
                 _hud.SetPrompt("ESC  Back to room");
+            else if (storageOpen)
+                _hud.SetPrompt("ESC  Close storage");
             else if (inventoryOpen)
                 _hud.SetPrompt(string.Empty);
             else if (nearWorkbench)
                 _hud.SetPrompt("E  Use workbench");
+            else if (nearStorage)
+                _hud.SetPrompt("E  Open home storage");
             else
                 _hud.SetPrompt(cityPrompt);
 
@@ -111,9 +123,11 @@ namespace Signal.Game
             if (keyboard == null)
                 return;
 
-            if (!workspaceOpen && !inventoryOpen && nearWorkbench && keyboard.eKey.wasPressedThisFrame)
+            if (!workspaceOpen && !inventoryOpen && !storageOpen && nearWorkbench && keyboard.eKey.wasPressedThisFrame)
                 _workspace.Open();
-            else if (!workspaceOpen && !inventoryOpen && !nearWorkbench &&
+            else if (!workspaceOpen && !inventoryOpen && !storageOpen && nearStorage && keyboard.eKey.wasPressedThisFrame)
+                _storagePanel.SetOpen(true);
+            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !nearWorkbench && !nearStorage &&
                      cityPrompt.Length > 0 && keyboard.eKey.wasPressedThisFrame)
             {
                 if (_city.TryInteract(playerPosition))
@@ -182,14 +196,9 @@ namespace Signal.Game
 
         private void SaveGame()
         {
-            if (_city != null && !_city.IsAtHome)
-            {
-                Say("Return to your hideout to save.");
-                return;
-            }
-
             Vector2 position = _room.PlayerBody.position;
-            SaveData data = SaveMapper.Capture(_stats, _inventory, _clock, _heat, _rent, position.x, position.y);
+            SaveData data = SaveMapper.Capture(_stats, _inventory, _storage, _clock, _heat, _rent,
+                                               _city.CurrentPlace, position.x, position.y);
 
             try
             {
@@ -205,19 +214,13 @@ namespace Signal.Game
 
         private void LoadGame()
         {
-            if (_city != null && !_city.IsAtHome)
-            {
-                Say("Return to your hideout to load.");
-                return;
-            }
-
             if (!SaveFileStore.TryLoad(SaveFileStore.DefaultPath, out SaveData data, out string error))
             {
                 Say(error);
                 return;
             }
 
-            LoadReport report = SaveMapper.Apply(data, _stats, _inventory, _clock, _heat, _rent, ResolveType);
+            LoadReport report = SaveMapper.Apply(data, _stats, _inventory, _storage, _clock, _heat, _rent, ResolveType);
             if (!report.Success)
             {
                 Say("Load failed: " + report.Error);
@@ -225,13 +228,16 @@ namespace Signal.Game
             }
 
             var position = new Vector2(data.playerX, data.playerY);
-            _room.Player.position = position;
-            _room.PlayerBody.position = position;
-            _room.PlayerBody.linearVelocity = Vector2.zero;
+            if (!_city.TryRestorePlace(data.worldPlace, position))
+            {
+                Say("Loaded inventory, but the saved location is unknown. Returned to the hideout.");
+                _city.TryRestorePlace("Hideout", new Vector2(10f, 5f));
+                return;
+            }
 
-            Say(report.SkippedItems > 0
-                ? "Loaded. " + report.SkippedItems + " item(s) could not be restored."
-                : "Loaded.");
+            Say(report.SkippedItems + report.SkippedStorageItems > 0
+                ? "Loaded. " + report.SkippedItems + " carried and " + report.SkippedStorageItems + " stored item(s) could not be restored."
+                : "Loaded at " + data.worldPlace + ".");
         }
 
         private void BuildCatalog()
