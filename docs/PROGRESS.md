@@ -57,7 +57,7 @@ The repository contains more of the intended hideout/city direction than the pre
 - HideoutSlice now references the existing ITEM_A/B/C sample definitions so the inventory and locker can be exercised immediately. They are temporary fixtures, not final item design.
 - Extended `SaveData` to version 2 with locker contents and the current place. Version-1 saves migrate to an empty locker and Hideout location.
 - Save/load is no longer restricted to the hideout. `CityBlockBootstrap.TryRestorePlace` restores the street or either interior and the saved player coordinates.
-- Added Core tests for capacity-aware transfers (including partial transfer and rollback), locker/location capture and restore, and version-1 migration; added a Game test for restoring city locations.
+- Added Core tests for capacity-aware transfers (including partial transfer and rollback), locker/location capture and restore, and version-1 migration; added Game tests for restoring city locations and JSON round-tripping of locker contents/location.
 - These changes have NOT yet been compiled or run in Unity. Storage UI layout/input, transfers, file replacement and location restoration require Play Mode verification.
 - The workbench remains a visual inspect/rearrange workspace. RecipeDefinition exists, but no recipe assets are currently authored; no new recipes or production rules have been invented.
 
