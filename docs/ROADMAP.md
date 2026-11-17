@@ -28,7 +28,7 @@ Milestones are dependency notes, not a mandate to build isolated systems in orde
 
 **Exit check:** the player can move between the hideout and street, enter and exit the initial buildings, and reliably return to the correct location. The user has confirmed the route works; automated test execution remains pending.
 
-### Slice C — make the hideout useful (active)
+### Slice C — make the hideout useful
 - [x] Expose the physical storage locker as an E interaction.
 - [x] Add a home-storage screen that transfers available quantities between carried inventory and a separate locker inventory, respecting destination capacity through a tested Core transfer service.
 - [x] Extend save format to version 2 with separate locker contents and the current world location/player coordinates.
@@ -43,15 +43,39 @@ Milestones are dependency notes, not a mandate to build isolated systems in orde
 
 **Exit check:** the player can take items into the city, return, store/retrieve them, and save/load carried inventory, locker contents and current location without losing the connected-world context.
 
-## Later experience layers (not active yet)
-These are broad directions, not approved detailed mechanics:
-- Small city activities and interactions that provide money or resources.
-- Outings with meaningful time, inventory, risk and possible loss.
-- Looting, carrying and bringing things back to the hideout.
-- Characters, relationships, factions and narrative events.
-- A broader economy and hands-on production systems.
+## Approved game direction — parallel lives in a living, dangerous city
 
-Each layer should be introduced through a complete playable scenario, not as an isolated subsystem.
+Signal is a balanced urban-life RPG where the city supports legitimate work, underground crime, relationships, opportunities and unpredictable events. The hideout remains the player's central hub and emotional anchor.
+
+These are approved design constraints:
+- **Parallel lifestyles:** legal and criminal activities are both available. Players may combine them freely; neither path locks the other.
+- **Harsh criminal failure:** crime should carry serious, potentially lasting consequences. Depending on the eventual activity and severity, failure may cause major losses or restrictions. Exact penalties and recovery rules still need design.
+- **Global crime progression:** criminal activities contribute to one overall criminal level/progression track, not separate skill trees for every crime. Individual activity mastery may be considered later, but is not approved as a required system.
+- **Legitimate progression is a real alternative:** farming, gathering, processing, crafting, services and selling goods (for example, growing wheat and making bread) should form satisfying lower-risk economic loops, not a consolation path.
+- **Crime is a core pillar:** fictional drug-related activity and other illegal activity are central game content, alongside theft, fraud, cybercrime, vandalism and other suitable fictional crime categories. Specific activities and rules need individual design.
+- **The city is shared by both lifestyles:** NPCs, clients, contacts, factions, locations and world events should create opportunities and consequences across legal and illegal play.
+- **The hideout supports both:** storage, preparation, recovery, workspaces, production spaces and personalisation should grow into a meaningful home base.
+
+## Next initiative — design and build the first connected activity slice
+
+Do not implement a standalone searchable container as the whole activity system. First design a small reusable activity framework that can support character requests, world interactions and event-driven opportunities. Then deliver one complete playable scenario that connects:
+1. A character, contact or discoverable opportunity.
+2. A clear activity objective and world interaction.
+3. A meaningful item/resource/reward outcome.
+4. A return-to-hideout or follow-up step.
+5. Persistence so completion and important state do not reset on reload.
+
+The first scenario can be modest, but should demonstrate the foundations rather than become a one-off hardcoded feature. The exact scenario, item, reward, repeatability and failure rules still need agreement before implementation.
+
+## Later experience layers (not active yet)
+
+- **Crime catalogue and progression:** a broad range of fictional illegal activities, with one global criminal progression level, escalating opportunities and serious consequences.
+- **Legal livelihood catalogue:** farming, gathering, processing, crafting, services, trade and small businesses, including delayed/passive production that still requires meaningful setup and collection.
+- **People and relationships:** NPC identities, routines, needs, client expectations, contacts, reputation and factions.
+- **World events:** incidents and changing conditions that affect opportunities, locations, NPCs and player plans.
+- **Economy and production:** coherent resource chains, item definitions, pricing and workbench/production interactions.
+
+These are broad approved directions, not detailed mechanics. Each should be introduced through a complete playable scenario, not as an isolated subsystem. New detailed rules for economy, production, police, risk, progression and specific crimes require explanation and user approval before implementation.
 
 ## Engineering safeguards
 - Preserve Unity asset GUIDs and existing scene references.
