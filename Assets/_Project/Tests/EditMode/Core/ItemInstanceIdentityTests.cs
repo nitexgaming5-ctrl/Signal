@@ -1,0 +1,126 @@
+using System;
+using NUnit.Framework;
+
+namespace Signal.Core.Tests
+{
+    public sealed class ItemInstanceIdentityTests
+    {
+        private static ItemType CreateItem()
+        {
+            return new ItemType(Guid.NewGuid(), 1, 1, 10);
+        }
+
+        [Test]
+        public void NewStacksReceiveDistinctStableIdentities()
+        {
+            ItemType type = CreateItem();
+            var inventory = new GridInventory();
+
+            inventory.Add(type, 12);
+
+            Assert.That(inventory.Items.Count, Is.EqualTo(2));
+            Assert.That(inventory.Items[0].ItemInstanceId, Is.Not.EqualTo(Guid.Empty));
+            Assert.That(inventory.Items[1].ItemInstanceId, Is.Not.EqualTo(Guid.Empty));
+            Assert.That(inventory.Items[0].ItemInstanceId, Is.Not.EqualTo(inventory.Items[1].ItemInstanceId));
+        }
+
+        [Test]
+        public void MovingAndRotatingAStackPreservesItsIdentity()
+        {
+            ItemType type = CreateItem();
+            var inventory = new GridInventory(3, 3);
+            int localId = inventory.Place(type, 0, 0).Value;
+            Guid identity = inventory.Items[0].ItemInstanceId;
+
+            Assert.That(inventory.TryMove(localId, 1, 1, true), Is.True);
+            Assert.That(inventory.TryGet(localId, out PlacedItem moved), Is.True);
+            Assert.That(moved.ItemInstanceId, Is.EqualTo(identity));
+        }
+
+        [Test]
+        public void SnapshotRestorePreservesStableIdentity()
+        {
+            ItemType type = CreateItem();
+            var inventory = new GridInventory();
+            int localId = inventory.Place(type, 0, 0).Value;
+            Guid identity = inventory.Items[0].ItemInstanceId;
+            InventorySnapshot snapshot = inventory.CreateSnapshot();
+
+            inventory.Remove(localId);
+            inventory.Restore(snapshot);
+
+            Assert.That(inventory.Items[0].ItemInstanceId, Is.EqualTo(identity));
+        }
+
+        [Test]
+        public void SaveCaptureAndApplyPreserveIdentityAcrossBothContainers()
+        {
+            ItemType type = CreateItem();
+            var stats = new PlayerStats(25);
+            var carried = new GridInventory();
+            var storage = new GridInventory(8, 6);
+            carried.Add(type, 3);
+            storage.Add(type, 2);
+            Guid carriedId = carried.Items[0].ItemInstanceId;
+            Guid storedId = storage.Items[0].ItemInstanceId;
+
+            SaveData save = SaveMapper.Capture(stats, carried, storage, new GameClock(),
+                new HeatMeter(), new RentLedger(0, 7), "Hideout", 1f, 2f);
+
+            Assert.That(save.version, Is.EqualTo(SaveMigrator.CurrentVersion));
+            Assert.That(save.items[0].instanceId, Is.EqualTo(carriedId.ToString()));
+            Assert.That(save.storageItems[0].instanceId, Is.EqualTo(storedId.ToString()));
+
+            var loadedCarried = new GridInventory();
+            var loadedStorage = new GridInventory(8, 6);
+            LoadReport report = SaveMapper.Apply(save, new PlayerStats(), loadedCarried, loadedStorage,
+                new GameClock(), new HeatMeter(), new RentLedger(0, 7),
+                id => id == type.Id ? type : (ItemType?)null);
+
+            Assert.That(report.Success, Is.True);
+            Assert.That(report.SkippedItems, Is.Zero);
+            Assert.That(report.SkippedStorageItems, Is.Zero);
+            Assert.That(loadedCarried.Items[0].ItemInstanceId, Is.EqualTo(carriedId));
+            Assert.That(loadedStorage.Items[0].ItemInstanceId, Is.EqualTo(storedId));
+        }
+
+        [Test]
+        public void VersionTwoSaveMigrationAssignsUniqueIdsAcrossCarriedAndStoredItems()
+        {
+            Guid typeId = Guid.NewGuid();
+            var save = new SaveData
+            {
+                version = 2,
+                items = { new SavedItem { typeId = typeId.ToString(), x = 0, y = 0, count = 1 } },
+                storageItems = { new SavedItem { typeId = typeId.ToString(), x = 0, y = 0, count = 1 } }
+            };
+
+            Assert.That(SaveMigrator.TryMigrate(save, out string error), Is.True, error);
+            Assert.That(save.version, Is.EqualTo(3));
+            Assert.That(Guid.TryParse(save.items[0].instanceId, out Guid carriedId), Is.True);
+            Assert.That(Guid.TryParse(save.storageItems[0].instanceId, out Guid storedId), Is.True);
+            Assert.That(carriedId, Is.Not.EqualTo(Guid.Empty));
+            Assert.That(storedId, Is.Not.EqualTo(Guid.Empty));
+            Assert.That(carriedId, Is.Not.EqualTo(storedId));
+        }
+
+        [Test]
+        public void MigrationRepairsMissingOrDuplicateInstanceIds()
+        {
+            string duplicate = Guid.NewGuid().ToString();
+            var save = new SaveData
+            {
+                version = 3,
+                items =
+                {
+                    new SavedItem { typeId = Guid.NewGuid().ToString(), instanceId = duplicate, count = 1 },
+                    new SavedItem { typeId = Guid.NewGuid().ToString(), instanceId = duplicate, count = 1 }
+                }
+            };
+
+            Assert.That(SaveMigrator.TryMigrate(save, out string error), Is.True, error);
+            Assert.That(save.items[0].instanceId, Is.Not.EqualTo(save.items[1].instanceId));
+            Assert.That(Guid.TryParse(save.items[1].instanceId, out _), Is.True);
+        }
+    }
+}
