@@ -24,6 +24,14 @@ namespace Signal.Core
             KnownEvents = knownEvents;
         }
 
+        public NpcKnowledge FindEvent(string eventId)
+        {
+            for (int i = 0; i < KnownEvents.Count; i++)
+                if (KnownEvents[i].EventId == eventId)
+                    return KnownEvents[i];
+            return null;
+        }
+
         public bool KnowsEvent(string eventId)
         {
             for (int i = 0; i < KnownEvents.Count; i++)
