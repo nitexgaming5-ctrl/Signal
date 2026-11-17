@@ -81,8 +81,8 @@ namespace Signal.Core.Tests
 
             Assert.That(director.TryAuthorizeDevelopment(true, 2, 69), Is.True);
             Assert.That(director.TryAuthorizeDevelopment(true, 1, 1439), Is.False);
-            Assert.That(director.TryAuthorizeDevelopment(true, 2, 138), Is.False);
-            Assert.That(director.TryAuthorizeDevelopment(true, 2, 147), Is.True);
+            Assert.That(director.TryAuthorizeDevelopment(true, 2, 128), Is.False);
+            Assert.That(director.TryAuthorizeDevelopment(true, 2, 129), Is.True);
         }
 
         [Test]
