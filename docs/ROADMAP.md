@@ -23,7 +23,7 @@ Milestones are dependency notes, not a mandate to build isolated systems in orde
 - [x] Add two enterable building shells with simple placeholder interiors (corner shop and apartment).
 - [x] Keep the first block compact, with short routes and a readable street layout.
 - [x] User confirmed the hideout/street/building travel loop is working in Play Mode.
-- [ ] Run the new EditMode transition test in Unity.
+- [ ] Run the new EditMode transition test in Unity (manual travel was confirmed in Play Mode).
 - [ ] Replace placeholder street/building geometry with cohesive authored city art.
 
 **Exit check:** the player can move between the hideout and street, enter and exit the initial buildings, and reliably return to the correct location. The user has confirmed the route works; automated test execution remains pending.
@@ -35,7 +35,8 @@ Milestones are dependency notes, not a mandate to build isolated systems in orde
 - [x] Add version-1 save migration so existing saves load with an empty locker and the player at the hideout.
 - [x] Allow save/load while in the city and restore the saved street/interior location.
 - [x] Wire the existing ITEM_A/B/C sample definitions into HideoutSlice so the storage interaction can be exercised; these remain temporary test content, not final item design.
-- [ ] Verify storage transfers, capacity behavior, save/load, and version-1 migration in Unity.
+- [x] Verify the normal locker transfer and save/load loop in Unity Play Mode (user confirmed 2026-11-17).
+- [ ] Verify full/blocked destination edge cases and version-1 save migration in Unity.
 - [ ] Connect authored RecipeDefinition assets to the physical workbench. No recipe assets currently exist, so do not invent recipes or production rules.
 - [ ] Give bed and other furniture meaningful interactions only after their player-facing rules are agreed.
 - [ ] Replace placeholder hideout art and improve interaction feedback.
