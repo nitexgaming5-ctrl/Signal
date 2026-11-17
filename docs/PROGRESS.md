@@ -1,7 +1,12 @@
 # Progress
 
-## Current initiative: connected NPC framework
-Status: NPC framework foundation implemented; the user confirmed 219/219 EditMode tests passed on 2026-11-17. A first Core-only WorldPacingDirector and focused tests have now been added, but this new work has NOT yet been run in Unity. The director is intentionally not wired into gameplay or scenario content: it is a shared permission gate awaiting authored scenario ownership and approved tuning. Next: user pulls the branch, compiles and runs the full EditMode suite; then resolve any failures. Storage edge cases, actual version-1 migration and target-platform save replacement remain follow-up verification. Work remains on `chore/collaboration-workflow-and-audit`; `main` is untouched.
+## Current status: connected NPC framework foundation and world-pacing foundation
+
+The connected NPC framework's first controlled milestone is implemented. The user confirmed **219/219 EditMode tests passed** after the generic presenter and scheduled social-encounter work. The separate WorldPacingDirector foundation was then added; the first Unity run reported 225/226 because one test expected a frozen ramp even though the same phase had advanced by 30 minutes. The test expectation was corrected (64 minutes is the correct ramp value), with no production-code change. The user has now confirmed the follow-up is good; record the current full EditMode baseline as **226/226 passing** (2026-11-17).
+
+The pacing director remains a Core policy foundation, deliberately not wired into gameplay or scenario content. It needs an authored scenario owner, approved tuning, persistence/reconstruction design and a real context-valid candidate source before live integration. Everyday NPC routines and restrained scheduled encounters remain outside this gate.
+
+Next recommended direction: stop expanding abstract simulation for its own sake and design one small, player-facing NPC scenario that uses the shared-city/NPC foundation. First agree its player-facing rules and consequences; then implement the smallest complete vertical slice. Before that, a short Inspector validation of authored NpcCharacterDefinition assets is useful. Work remains on `chore/collaboration-workflow-and-audit`; `main` is untouched.
 
 ## Approved project direction
 Signal is an immersive top-down 2D urban RPG about making a living in one layered city: meeting people, doing activities for money and resources, trading goods, taking risks, sometimes losing things, discovering secrets and returning to a personal hideout.
@@ -85,24 +90,35 @@ The repository contains more of the intended hideout/city direction than the pre
 - Added Game-layer NpcCharacterDefinition ScriptableObject assets and a generic NpcPresenter. GameSession exposes an NPC definitions array for authored assets; CityBlockBootstrap can spawn multiple definitions without per-character components. With no assets assigned, two temporary fallback definitions (Milo and Rhea) prove distinct routine schedules, appearance, dialogue and interaction through the same presenter. Residents are visible/interactable only in their current city location. Removed the superseded NeighbourNpc component.
 - Added Core EditMode tests for local presence, event perception, knowledge sharing, trust-based confidence, movement and duplicate IDs. Extended the city integration test to check registration and conversation event publication. The user's EditMode report confirms the full Core test assembly passes and the CityBlockBootstrap fixture passes; two unrelated legacy RoomBootstrap assertions required correction.
 - The social world is currently runtime-only. Save persistence and event-specific decision goals remain follow-up work. Character definitions now carry authored NpcUtilityProfile data and use the generic presenter; final narrative character assets are intentionally deferred.
-- Added the first controlled social-encounter pass: only residents currently following their authored Socialize activity are eligible, and the utility brain now hard-gates that activity to its authored social window; encounters require mutual proximity in the same location, each NPC can participate once per clock pass and once every three in-game hours, and pairs have a 12-hour cooldown. Each encounter adds 0.01 familiarity in both directions, leaves trust/affinity unchanged, exchanges at most one previously unknown event using existing trust-based confidence, and publishes a generic observable event. Added Core tests and a city-clock integration test. Unity verification is pending.
+- Added the first controlled social-encounter pass: only residents currently following their authored Socialize activity are eligible, and the utility brain hard-gates that activity to its authored social window; encounters require mutual proximity in the same location, each NPC can participate once per clock pass and once every three in-game hours, and pairs have a 12-hour cooldown. Each encounter adds 0.01 familiarity in both directions, leaves trust/affinity unchanged, exchanges at most one previously unknown event using existing trust-based confidence, and publishes a generic observable event. The user confirmed these tests as part of the 219/219 EditMode run.
 - Detailed design and sequencing: docs/NPC_FRAMEWORK.md.
+
+## World pacing foundation (first pass implemented; not gameplay-integrated)
+
+- Added `WorldPacingDirector` in Core with explicit configuration for minimum interval, maximum interval and ramp duration. It requires an authored scenario phase ID; there are intentionally no guessed default tuning values.
+- The interval ramps linearly from minimum to maximum as time passes within the same scenario phase. Reapplying the same phase does not reset the phase clock; changing phase starts a fresh quiet interval/ramp.
+- `TryAuthorizeDevelopment` is a shared permission gate for consequential developments. Callers must establish valid context first. Invalid candidates do not consume permission.
+- All categories/callers share one interval. Long idle time grants at most one authorization; no backlog or banked permissions accumulate. Clock rewinds cannot grant early authorization.
+- The director does not create, queue, select or resolve events. It does not manage categories or scenario logic, and it is not connected to everyday NPC routines or scheduled social encounters.
+- Added seven Core tests. The initial 225/226 run exposed an incorrect test expectation: the phase ramp correctly advanced from 60 to 64 after 30 minutes. Corrected the test only; production logic was unchanged. User confirmed the subsequent full suite is **226/226 passing** on 2026-11-17.
+- Still deferred: scenario owner, approved tuning, save/load persistence or reconstruction, and integration with any real consequential candidate.
 
 ## Verification status
 - User confirmed Slice A compilation and EditMode tests passed.
 - User confirmed the connected city travel loop works in Play Mode.
 - User confirmed the Slice C locker and save/load sequence works in Play Mode with no Console errors.
-- Assistant cannot run the user's local Unity Editor through the GitHub repository connection. The user's 2026-11-17 XML report initially showed 181/181 Core tests and 23/25 Game tests; both Game failures were stale RoomBootstrap expectations. After correction and the later generic-presenter/social-encounter work, the user confirmed 219/219 EditMode tests pass on 2026-11-17. This result predates the new WorldPacingDirector tests.
+- Assistant cannot run the user's local Unity Editor through the GitHub repository connection. The user's 2026-11-17 XML report initially showed 181/181 Core tests and 23/25 Game tests; both Game failures were stale RoomBootstrap expectations. After correction, the user confirmed 214/214, then 219/219 after the generic presenter and scheduled-social work. The WorldPacingDirector test's first run was 225/226; the only failure was an incorrect expected ramp value in the test, not a production defect. The expectation was corrected and the user confirmed the full EditMode suite is now 226/226 passing (2026-11-17).
 - Remaining verification: locker capacity edge cases, an actual version-1 save migration, automated city transition tests and platform-specific file replacement.
 
-## Next actions
+## Next actions and priorities
 
-1. Pull the latest shared branch, compile in Unity and rerun the full Core/Game EditMode suite. The confirmed 219/219 result predates the WorldPacingDirector addition.
-2. Create and assign one or more NpcCharacterDefinition assets through the GameSession Inspector to verify the content-authoring workflow in the active scene.
-3. Design stable-ID persistence for meaningful relationships, discoveries and selected memories with save migration tests.
-4. Verify population scale and event-driven simulation boundaries before adding many residents.
-5. Keep the shared-city model: lawful and illegal activity, public life and concealed dealings coexist in the same locations and social network.
-6. At a convenient verification pass, run the existing storage edge-case, version-1 migration, city transition and target-platform save replacement checks.
+1. **Recommended next initiative — design a compact player-facing NPC scenario.** Use the existing connected NPC framework to create a small situation in which the player can notice, investigate or interact with a resident's public/private life and experience a meaningful outcome. Agree the exact player-facing rules, clues, risks and consequences with the user before implementation. Do not assume the baker example is the final story.
+2. **Short technical validation:** create/assign one or more real `NpcCharacterDefinition` assets in the Unity Inspector and verify the authored-content path in `HideoutSlice`. The fallback Milo/Rhea definitions remain fixtures, not final cast.
+3. **Scenario and pacing ownership design:** decide which scenario system owns the current phase, what makes a candidate context-valid, when the shared `WorldPacingDirector` is called, and how phase/last-authorization state is saved or reconstructed. Do not wire arbitrary events into the director.
+4. **Persistence only when the scenario needs it:** design stable-ID persistence for meaningful relationships, selected memories, discoveries and durable world changes, with versioned save migration tests. Rebuild transient location/perception data after load.
+5. **Scale boundaries:** verify event-driven updates and location/area partitioning before adding many residents. Do not simulate every citizen at equal fidelity.
+6. **Parked verification:** storage capacity edge cases, actual version-1 save migration, automated city-transition tests and target-platform save replacement.
+7. Keep the shared-city model: lawful and illegal activity, public life and concealed dealings coexist in the same locations and social network.
 
 ## Work log
 - 2026-11-17: Confirmed GitHub access and created the working branch; documented the focus-friendly workflow and original hybrid RPG direction.
@@ -138,3 +154,11 @@ The repository contains more of the intended hideout/city direction than the pre
 - The first Unity EditMode run after adding WorldPacingDirector reported **225/226 passed**. The only failure was `WorldPacingDirectorTests.ChangingPhaseStartsFreshRampWithoutReleasingBacklog`: the test expected the interval to remain 60 minutes after observing the same phase 30 minutes later, while the implementation correctly reported 64 as the phase ramp progressed.
 - Corrected the test expectation to 64. No production code change was needed.
 - Awaiting the user's rerun of the EditMode suite; do not treat the pacing addition as verified until that run passes.
+
+
+## Handoff notes for the next agent
+
+- Read `docs/PROJECT_HANDOFF.md` first for the full game brief, approved decisions, current implementation map, constraints and suggested sequencing.
+- The 226/226 EditMode result is user-reported Unity verification, not an assistant-run test. No claim is made that a build or full Play Mode scenario was tested after the pacing addition.
+- The first NPC framework is deliberately generic and restrained. Do not turn it into a complex autonomous-life simulator before a player-facing scenario proves which deeper rules are useful.
+- The WorldPacingDirector is not a content scheduler. It is a shared authorization gate only; no event catalogue, backlog, auto-release or per-category cooldown system has been approved.
