@@ -64,7 +64,7 @@ namespace Signal.Game
             _panel.Bind(_inventory, items);
 
             _hud = gameObject.AddComponent<HudPanel>();
-            _hud.Bind(_stats, _clock, _heat, _rent);
+            _hud.Bind(_stats, _clock);
             _workspace = gameObject.AddComponent<WorkbenchWorkspace>();
             _workspace.Bind(_motor);
             _hud.ShowMessage("A small place to start. The workbench is ready.", 5f);
