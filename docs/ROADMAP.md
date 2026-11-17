@@ -83,8 +83,11 @@ The initiative is defined in detail in [NPC_FRAMEWORK.md](NPC_FRAMEWORK.md). Its
 - [x] Move routine windows, need drift and utility weights into a reusable Core NpcUtilityProfile; verify alternate work hours through a Core test.
 - [x] Replace Milo-specific runtime assumptions with ScriptableObject character definitions and a generic presenter. GameSession exposes an assignable NPC definitions array; the presenter owns generic movement, visuals, social registration and conversation publishing.
 - [x] Add a second temporary test profile (Rhea) with a different work schedule, appearance and dialogue; both profiles use the same generic component. Extended Game integration tests; rerun in Unity after the latest changes is pending.
+- [x] Add restrained schedule-driven social encounters: mutual proximity, one encounter per NPC per clock pass, pair cooldown, slow familiarity growth, at most one shared fact and an observable generic event. Unity verification pending.
+- [ ] Add player-driven relationship changes and controlled scenario advancement for major social consequences; ambient routines must not independently create dramatic trust/affinity changes, deaths, disappearances or wealth shifts.
 - [ ] Design persistence for stable NPC IDs, relationships, selected memories and discovered information, with save migration tests.
 - [ ] Verify performance boundaries and event-driven updates before scaling the population.
+- [ ] Run the full Core/Game EditMode suite after the scheduled-social-encounter implementation; the previous 214/214 result predates these changes.
 
 **Exit check:** two or more temporary NPC profiles can inhabit the same shared city, perceive local events, encounter one another, exchange information according to their relationships, and make decisions from their own incomplete knowledge. The same event can produce different beliefs in different characters. Adding a new character does not require a new character-specific runtime class.
 
