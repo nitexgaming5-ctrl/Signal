@@ -130,17 +130,24 @@ namespace Signal.Game
             _heat.NewDay();
 
             string message;
-            switch (_rent.Settle(clock.Day, _stats))
+            if (_rent.Amount <= 0)
             {
-                case RentOutcome.Paid:
-                    message = "Day " + clock.Day + ": rent paid (" + _rent.Amount + ")";
-                    break;
-                case RentOutcome.Missed:
-                    message = "Day " + clock.Day + ": rent MISSED (" + _rent.MissedPayments + " so far)";
-                    break;
-                default:
-                    message = "Day " + clock.Day + " begins";
-                    break;
+                message = "Day " + clock.Day + " begins";
+            }
+            else
+            {
+                switch (_rent.Settle(clock.Day, _stats))
+                {
+                    case RentOutcome.Paid:
+                        message = "Day " + clock.Day + ": rent paid (" + _rent.Amount + ")";
+                        break;
+                    case RentOutcome.Missed:
+                        message = "Day " + clock.Day + ": rent MISSED (" + _rent.MissedPayments + " so far)";
+                        break;
+                    default:
+                        message = "Day " + clock.Day + " begins";
+                        break;
+                }
             }
 
             Say(message);
