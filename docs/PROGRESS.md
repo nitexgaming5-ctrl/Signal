@@ -82,7 +82,7 @@ The repository contains more of the intended hideout/city direction than the pre
 - NpcPerception provides a safe decision snapshot containing nearby NPC IDs and their directed relationship impressions, plus the observing character's own knowledge (including event location/time); it excludes the global event journal.
 - CityBlockBootstrap.PublishWorldEventAt can publish events in locations other than the player's current location, supporting off-screen events in the shared city.
 - Connected the active CityBlockBootstrap to one shared NpcSocialWorld. Residents register, update simulated location/position and publish conversation events. Added PublishWorldEvent as the common integration point for future environmental and gameplay events.
-- Added Game-layer NpcCharacterDefinition ScriptableObject assets and a generic NpcPresenter. GameSession exposes an NPC definitions array for authored assets; CityBlockBootstrap can spawn multiple definitions without per-character components. With no assets assigned, two temporary fallback definitions (Milo and Rhea) prove distinct routine schedules, appearance, dialogue and interaction through the same presenter. Removed the superseded NeighbourNpc component.
+- Added Game-layer NpcCharacterDefinition ScriptableObject assets and a generic NpcPresenter. GameSession exposes an NPC definitions array for authored assets; CityBlockBootstrap can spawn multiple definitions without per-character components. With no assets assigned, two temporary fallback definitions (Milo and Rhea) prove distinct routine schedules, appearance, dialogue and interaction through the same presenter. Residents are visible/interactable only in their current city location. Removed the superseded NeighbourNpc component.
 - Added Core EditMode tests for local presence, event perception, knowledge sharing, trust-based confidence, movement and duplicate IDs. Extended the city integration test to check registration and conversation event publication. The user's EditMode report confirms the full Core test assembly passes and the CityBlockBootstrap fixture passes; two unrelated legacy RoomBootstrap assertions required correction.
 - The social world is currently runtime-only. Save persistence and event-specific decision goals remain follow-up work. Character definitions now carry authored NpcUtilityProfile data and use the generic presenter; final narrative character assets are intentionally deferred.
 - Detailed design and sequencing: docs/NPC_FRAMEWORK.md.
@@ -96,12 +96,12 @@ The repository contains more of the intended hideout/city direction than the pre
 
 ## Next actions
 
-1. Complete the shared NPC awareness foundation and run the Core/Game EditMode suites in Unity.
-2. Replace Milo-specific identity, dialogue, schedule and presentation assumptions with data-driven definitions and generic runtime components.
-3. Add a second temporary test profile to prove multiple characters can share the framework without another character-specific MonoBehaviour.
-4. Design stable-ID persistence for meaningful relationships, discoveries and memories with save migration tests.
-6. Keep the shared-city model: lawful and illegal activity, public life and concealed dealings coexist in the same locations and social network.
-7. At a convenient verification pass, run the existing storage edge-case, version-1 migration, city transition and target-platform save replacement checks.
+1. Pull the latest shared branch, compile in Unity and rerun the full Core/Game EditMode suite; the 214/214 result predates the generic presenter refactor and new integration test.
+2. Create and assign one or more NpcCharacterDefinition assets through the GameSession Inspector to verify the content-authoring workflow in the active scene.
+3. Design stable-ID persistence for meaningful relationships, discoveries and selected memories with save migration tests.
+4. Verify population scale and event-driven simulation boundaries before adding many residents.
+5. Keep the shared-city model: lawful and illegal activity, public life and concealed dealings coexist in the same locations and social network.
+6. At a convenient verification pass, run the existing storage edge-case, version-1 migration, city transition and target-platform save replacement checks.
 
 ## Work log
 - 2026-11-17: Confirmed GitHub access and created the working branch; documented the focus-friendly workflow and original hybrid RPG direction.
