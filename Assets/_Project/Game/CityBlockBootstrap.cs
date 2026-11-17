@@ -221,6 +221,9 @@ namespace Signal.Game
             AddBlock(root, "CornerShopDoor", ShopDoor, new Vector2(0.8f, 1.25f), new Color32(62, 49, 39, 255), false, 6);
             AddBlock(root, "ApartmentDoor", ApartmentDoor, new Vector2(0.8f, 1.25f), new Color32(49, 60, 66, 255), false, 6);
             AddBlock(root, "HideoutEntryMarker", HomeDoor, new Vector2(2.2f, 0.18f), new Color32(173, 139, 89, 255), false, 4);
+            AddBlock(root, "StreetBenchSeat", new Vector2(3.5f, -17.5f), new Vector2(1.8f, 0.28f), new Color32(112, 81, 58, 255), false, 6);
+            AddBlock(root, "StreetBenchLeg", new Vector2(2.9f, -17.85f), new Vector2(0.18f, 0.45f), new Color32(76, 61, 49, 255), false, 5);
+            AddBlock(root, "StreetBenchLeg", new Vector2(4.1f, -17.85f), new Vector2(0.18f, 0.45f), new Color32(76, 61, 49, 255), false, 5);
 
             var npcObject = new GameObject("Milo - Neighbourhood Baker");
             npcObject.transform.SetParent(root, false);
