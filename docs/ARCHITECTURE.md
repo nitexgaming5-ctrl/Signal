@@ -69,10 +69,18 @@ The active HideoutSlice is a code-built first-pass room. It contains placeholder
 
 `CityBlockBootstrap` composes the compact outdoor street and two simple interior spaces under the active `GameSession`. It reuses the same player Rigidbody2D and keeps inventory, clock and other session state alive while changing the active visual root and camera bounds.
 
-The home locker is a second `GridInventory` owned by `GameSession`. `StoragePanel` presents carried and stored quantities; the Core `InventoryTransfer` service moves complete stacks while preserving stable stack identity and orientation. Distinct stack identities are not merged during transfer; a stack that does not fit remains in the source. Transfer rollback uses inventory snapshots. The panel does not invent item values or production rules. HideoutSlice currently references ITEM_A/B/C as temporary test fixtures from the existing inventory demo; these are not final content.
+The home locker is a second `GridInventory` owned by `GameSession`. `StoragePanel` lists individual stacks from both containers, exposes inspection and moves a selected whole stack with Core `InventoryTransfer.MoveStack`. The bulk `MoveAll` API remains available for system-level use. Transfers preserve stable identity, state and orientation; distinct stacks are never merged during transfer, and a stack that does not fit remains in the source. Transfer rollback uses inventory snapshots. HideoutSlice currently references ITEM_A/B/C as temporary test fixtures from the existing inventory demo; these are not final content.
 
-Each `PlacedItem` has a persistent `Guid ItemInstanceId` identifying its stack, separate from the inventory-local integer `InstanceId` used by the UI. Save format version 3 stores definition ID, stack identity, quantity, grid position and rotation for carried and stored inventories, alongside current place and player coordinates. v1/v2 migration assigns unique identities across both containers; v1 still defaults to an empty locker and Hideout. `CityBlockBootstrap.TryRestorePlace` restores the saved active world root and camera bounds. Item identity changes and migration tests are committed; Unity compilation, full EditMode and Play Mode verification are pending user run.
+Each `PlacedItem` has a persistent `Guid ItemInstanceId` identifying its stack, separate from the inventory-local integer `InstanceId` used by the UI. `ItemInstanceState` stores quality, condition, authenticity and ownership status per stack. `GridInventory.Add` merges only stacks whose definition and state match. Save format version 4 persists these state fields; v1/v2/v3 migration preserves existing identities where present and defaults new state to Standard/Good/Genuine/Legitimate. `CityBlockBootstrap.TryRestorePlace` restores the saved active world root and camera bounds. The user confirmed **235/235 EditMode tests passed** after Item Instance v1; the new state/viewer implementation and tests are awaiting Unity verification.
 
+## Item instance state and inspection
+
+- Core owns `ItemInstanceState` and `ItemValueCalculator`; Unity does not calculate item values itself.
+- A stack currently carries quality, condition, authenticity and ownership status. These are the item's actual facts, not yet the player's discovered knowledge. A future inspection/appraisal skill or uncertainty model must be a separate layer so the UI cannot accidentally expose secrets.
+- `ItemDefinition` authors the item's descriptive metadata, icon, base reference value and default state. Runtime stacks can differ from those defaults.
+- The viewer is a read-only presentation of the selected physical stack. Right-clicking an item in the carried grid or choosing INSPECT in home storage opens it; both paths use the same viewer.
+- The value calculation is provisional reference valuation only. It is not a transaction price, resale offer, market simulation or economy rule.
+- Save format v4 persists all four state enums. Existing v1/v2/v3 saves migrate to the neutral default state.
 
 ## Connected NPC simulation
 
