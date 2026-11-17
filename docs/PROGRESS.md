@@ -1,7 +1,7 @@
 # Progress
 
 ## Current initiative: first hideout and surrounding city block
-Status: first implementation in progress. Core/Game is now the single active runtime; the furnished HideoutSlice and visual workbench are wired into a new build scene. Unity verification is pending. Work remains on `chore/collaboration-workflow-and-audit`; `main` is untouched.
+Status: Slice A has been verified by the user (compilation and tests passed). Slice B source implementation is now in place and awaiting Unity Play Mode verification. Work remains on `chore/collaboration-workflow-and-audit`; `main` is untouched.
 
 ## Approved project direction
 Signal is an immersive top-down 2D urban RPG about travelling through a city, performing small interactions for money and resources, taking risks, looting, sometimes losing things, and returning to a personal hideout. It is not primarily a shop-management game.
@@ -17,8 +17,7 @@ Signal is an immersive top-down 2D urban RPG about travelling through a city, pe
 - Default branch: `main`
 - Working branch: `chore/collaboration-workflow-and-audit`
 - Unity version recorded in project: 6000.6.9f1.
-- The working branch now includes the first Core/Game hideout implementation and a new active build scene. No changes have been pushed to main.
-- No Unity compilation, EditMode test run, or Play Mode verification has been performed by the assistant.
+- The working branch contains the Core/Game hideout and connected city-block implementation. No changes have been pushed to main.
 
 ## Existing foundations found
 ### Current Game layer
@@ -30,54 +29,51 @@ The repository contains more of the intended hideout/city direction than the pre
 - `Assets/_Project/Scenes/Main.unity` includes objects named `ShelterEntrance`, `ShelterFloor`, `Workbench`, `StorageLocker`, `Bed`, `ExitDoor`, `--- CITY ---`, `--- SHELTER ---`, and street/building props.
 - The scene references prototype components including `InteractionController`, `ShelterSpaceController`, `ShelterManager`, `ShelterVisualController`, `WorkbenchInteractable`, `StorageLockerInteractable`, and `BedInteractable`.
 - `Assets/_Project/_Prototype/Scripts` contains a world interaction framework, shelter/city switching, bed/storage/workbench interactions, and related UI.
-- The existing `Workbench` scene object already has a visible sprite, trigger collider, and `WorkbenchInteractable`. Its current interaction performs a simple inventory conversion and displays text feedback; it is not yet the requested close-up, visual, object-manipulation workspace.
-- The existing scene also has a bed, storage locker, shelter entrance/exit, a small city root, a few city building sprites, and a player interaction prompt/HUD. This is a more useful starting point than the previous audit summary suggested.
-- Existing city art includes `Assets/_Project/Art/City` and `ArtSource/RoguelikeModernCity`; the latter includes its own source pack and license file. Check asset provenance and intended use before importing more art.
+- The existing scene and scripts remain legacy reference only. No new gameplay is being added to that architecture.
 
-These are repository observations, not claims that the scene currently compiles or runs. The prototype code is legacy reference only. Do not add new gameplay there; migrate only specific valuable behavior into Core/Game when required.
+## Slice A — hideout/workbench (user verified)
+- Added HideoutSlice as the active build scene.
+- Core/Game is the single active runtime.
+- RoomBootstrap creates the starter room, player and placeholder furniture.
+- E near the physical workbench opens a close-up UGUI workspace. Objects can be dragged and inspected; ESC/button closes it.
+- The user reported that the project compiled and the first-slice tests passed in Unity.
+- Authored art and meaningful bed/storage interactions remain future work.
+- The assistant did not independently run Unity; verification is based on the user's report.
 
-## Important risks and constraints
-- The legacy prototype save format remains separate. Core/Game now writes signal-core-save.json through a temporary file and File.Replace, so it does not overwrite the legacy signal-save.json. Verify the replacement behavior in Unity before expanding persistent world state.
-- `Main.unity` mixes legacy/prototype-style scene wiring and script references. Do not overwrite it or migrate scripts blindly; inspect its dependencies and reconcile with the user's local Unity project first.
-- The prototype scene is wired to a separate set of global-namespace components: `PlayerController`, `PlayerState`, `InventorySystem`, `DayCycle`, `GameSaveSystem`, and related systems. Core/Game is now the chosen active architecture. The legacy Main scene and its prototype components are preserved but are no longer the active build path. See docs/ARCHITECTURE.md.
-- The assistant cannot run Unity in the user's local editor through the GitHub repository connection. All Unity verification must be clearly delegated or run through an available Unity integration.
-
-## First implementation delivered
-
-- Added HideoutSlice as the active build scene and changed EditorBuildSettings to launch it. Main.unity remains intact as a legacy reference.
-- Consolidated new runtime work on Signal.Core + Signal.Game. The old Prototype scripts are no longer extended.
-- RoomBootstrap now builds a furnished placeholder hideout with bed, table, chair, storage and a physical workbench.
-- E near the workbench opens a close-up visual workspace. The scale, jars, notebook, tools and tray can be dragged around and clicked to inspect. ESC and the on-screen button close it; movement and inventory input are suspended while it is open.
-- Added EditMode tests for the furniture bootstrap and workspace focus/close behavior.
-- The workbench is visual only for now. No recipes, drug-production rules, money rules or new gameplay economy behavior were introduced.
+## Slice B — connected city block (implementation added; verification pending)
+- Added `CityBlockBootstrap.cs` to build a compact street with sidewalks, road markings, two placeholder building facades and simple street props.
+- Opened the hideout's south doorway so the player can physically walk out.
+- The same player, inventory, clock and GameSession persist while transitioning between hideout, street, corner shop interior and apartment interior. The city system activates the current location's visual root and updates camera bounds.
+- E at the street-facing hideout entrance returns home; E at either building entrance enters that interior; E at the interior exit returns to the street.
+- Save, load and sleep are currently limited to the hideout because save data does not yet include the current world location. This avoids loading a city coordinate into the hideout scene state.
+- Added `CityBlockBootstrapTests.cs` to cover the transition sequence. These new tests have NOT yet been run by the user or assistant.
+- City/building visuals are placeholders. Existing art assets and legacy scene references were inspected, but no unverified bulk migration was performed.
 
 ## Verification status
-
-- Source and scene YAML inspected through the repository.
-- Unity compilation, EditMode tests, Play Mode and build have NOT been run by the assistant.
-- New tests exist but remain unexecuted. Scene GUID references have only been checked textually.
-- Unity Editor import/compile and Play Mode verification are the next required checks.
+- User confirmed compilation and the first hideout slice tests passed before Slice B work began.
+- Slice B source and tests have been committed to the working branch, but the new code has not been compiled or run in Unity yet.
+- Assistant cannot run the user's local Unity Editor through the GitHub repository connection.
+- Next required check: pull the latest branch, let Unity compile, run EditMode tests, then test the full hideout → street → corner shop/apartment → street → hideout loop in Play Mode.
 
 ## Risks and constraints
-
-- Core/Game SaveFileStore now uses a temp file plus File.Replace, and a separate signal-core-save.json path. The previous save is no longer deleted before replacement; verify this behavior in Unity before adding persistent furniture or world state.
+- Core/Game SaveFileStore uses a temp file plus File.Replace and a separate `signal-core-save.json` path. The user has not yet reported platform-specific save replacement verification.
 - Main.unity and its old prototype scripts remain because they contain useful scene content and references. They are not in the active build list and should not receive new gameplay features.
+- Location persistence is not implemented; save/load/sleep are intentionally restricted to the hideout for now.
 - The assistant cannot run the user's local Unity Editor through the GitHub repository connection.
 
 ## Next actions
-
-1. Open HideoutSlice in Unity 6000.6.9f1; confirm scripts import and compile, then run EditMode tests.
-2. Play the scene: walk to the bench, press E, drag/click objects, close with ESC and the button, and confirm movement resumes.
-3. Fix any compile, UI layout, pointer input or collision issues found.
-4. After the hideout is verified, build the compact city block and enterable buildings using Core/Game.
-5. Verify the save replacement path in Unity before introducing persistent room customization.
+1. User pulls the latest working branch and checks for compile errors.
+2. Run EditMode tests, including `CityBlockBootstrapTests`.
+3. Play from HideoutSlice: walk through the south doorway, enter and leave both buildings, return home, and check that the camera follows and collisions feel reasonable.
+4. Fix any errors or layout/collision problems reported.
+5. Once Slice B is verified, improve the visual quality of the hideout and city before introducing additional economy or production mechanics.
 
 ## Work log
 - 2026-11-17: Confirmed GitHub access and created the working branch; documented the focus-friendly workflow and original hybrid RPG direction.
 - 2026-11-17: User clarified the core fantasy: immersive urban hustling, travel, small interactions, money/resources, loot, risk and loss; shop management is not the central game.
 - 2026-11-17: User approved a first-slice direction centered on a small playable hideout, visual furniture, a close-up interactive workbench, and a compact city with enterable buildings.
-- 2026-11-17: Repository inspection found an existing Main scene with a walkable shelter/city layout, a sprite-backed workbench, bed, storage, entrance/exit, and prototype interaction scripts. The old prototype and newer Core/Game systems are parallel architectures. No code or scene files changed during this audit.
-
-- 2026-11-17: Consolidated active runtime on Core/Game; kept Main and Prototype scripts as legacy references. Added HideoutSlice, starter furniture and the first draggable/inspectable workbench close-up. Unity verification pending.
-- 2026-11-17: Hardened Core/Game save replacement with File.Replace and isolated its filename from the legacy prototype save to prevent cross-architecture overwrite.
-- 2026-11-17: Fixed a compile error in HudPanel caused by passing the prompt text alignment and color in the wrong argument order to NewText.
+- 2026-11-17: Consolidated active runtime on Core/Game; kept Main and Prototype scripts as legacy references. Added HideoutSlice, starter furniture and the first draggable/inspectable workbench close-up.
+- 2026-11-17: Hardened Core/Game save replacement with File.Replace and isolated its filename from the legacy prototype save.
+- 2026-11-17: Fixed the HudPanel NewText argument-order compile error.
+- 2026-11-17: User confirmed compilation and first-slice tests passed in Unity.
+- 2026-11-17: Added the connected city street, hideout doorway transitions, corner shop and apartment placeholder interiors, camera-bound updates, and an EditMode transition test. Slice B verification pending.
