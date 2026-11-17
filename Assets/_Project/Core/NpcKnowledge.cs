@@ -45,7 +45,7 @@ namespace Signal.Core
         internal static NpcKnowledge Observe(NpcWorldEvent worldEvent)
         {
             return new NpcKnowledge(worldEvent.EventId, worldEvent.Kind, worldEvent.Description,
-                worldEvent.ActorNpcId, worldEvent.ActorNpcId, NpcKnowledgeOrigin.DirectObservation,
+                worldEvent.ActorNpcId, string.Empty, NpcKnowledgeOrigin.DirectObservation,
                 1f, worldEvent.Day, worldEvent.MinuteOfDay);
         }
 
