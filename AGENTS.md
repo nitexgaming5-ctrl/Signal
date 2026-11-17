@@ -26,6 +26,9 @@ The game is a hybrid of a deep management/simulation RPG and a narrative-driven 
 - Do not confuse a technical implementation choice with a gameplay-design decision.
 
 ## Architecture and implementation rules
+
+**Active architecture:** Signal.Core + Signal.Game are the single active gameplay architecture. Treat Assets/_Project/_Prototype/Scripts and Main.unity as legacy reference only: do not add new gameplay there, do not run both architectures in one active scene, and migrate only specific content needed by the current slice. See docs/ARCHITECTURE.md.
+
 1. **Foundations before dependent features.** Core logic (plain C#, tested) comes before UI, and UI comes before world content. Do not build a feature whose required data model does not exist.
 2. **Keep layers clean.** `Signal.Core` has no `UnityEngine` references. `Signal.Game` contains Unity-facing components and references Core. Content definitions belong in ScriptableObjects.
 3. **No string item or recipe IDs in gameplay code.** Reference definitions and stable asset IDs as specified in `docs/DATA_MODEL.md`.
