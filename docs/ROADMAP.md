@@ -93,7 +93,7 @@ Milestones are dependency notes, not a mandate to build isolated systems in orde
 4. **Keep the current block playable and readable.** Replace the most visible placeholders with cohesive art only when it improves the slice; preserve the compact scale and hideout as the anchor.
 5. **Close known reliability checks** when convenient: storage capacity/rollback, actual v1 migration, city transition tests and target-platform save replacement.
 
-The next recommended initiative is item 1, preceded by a design conversation. Do not start a new economy, crime catalogue or broad NPC feature set in parallel.
+The next recommended player-facing initiative remains item 1, preceded by a design conversation. The next technical foundation is Item Instance v1 (see the section below). Do not start a new economy, crime catalogue or broad NPC feature set in parallel.
 
 ## Medium-term goals — deepen the shared-city loop
 
