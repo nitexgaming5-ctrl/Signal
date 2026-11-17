@@ -61,7 +61,7 @@ namespace Signal.Game
             _motor = _room.Player.GetComponent<PlayerMotor2D>();
 
             _city = gameObject.AddComponent<CityBlockBootstrap>();
-            _city.Build(_room.Player, _room.PlayerBody, camera, _room.Bounds);
+            _city.Build(_room.Player, _room.PlayerBody, camera);
 
             _panel = gameObject.AddComponent<InventoryPanel>();
             _panel.Bind(_inventory, items);
