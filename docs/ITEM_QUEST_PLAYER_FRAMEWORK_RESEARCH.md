@@ -203,3 +203,25 @@ The user approved this as the next technical milestone on 2026-11-18. The first 
 ## 8. Approval boundary
 
 The user asked for research and a recommended next step. This document does not approve the detailed gameplay mechanics listed above. The Item Instance v1 proposal is intended as a technical data/persistence foundation only. Any player-facing quality, authenticity, ownership, price, risk, progression, quest outcome or character-stat rules must be explained and explicitly approved before implementation.
+
+
+## Implementation update — item state and inspection (2026-11-18)
+
+The user confirmed the Item Instance v1 foundation passed **235/235 EditMode tests**. They then approved proceeding with proper inspection/interaction and an item viewer, including different state values for different copies of the same definition.
+
+The active implementation now extends the original proposal:
+
+- `ItemInstanceState` is stored per stack and currently contains quality (Poor/Standard/Fine/Exceptional), condition (Damaged/Worn/Good/Pristine), authenticity (Genuine/Counterfeit) and ownership (Legitimate/Stolen).
+- These are authoritative facts for now. The player-knowledge layer is deliberately separate and not yet implemented; the current viewer displays the facts directly.
+- `ItemDefinition` now authors description, category, optional icon, base reference value and default instance state.
+- `ItemValueCalculator` combines the authored base value with central provisional state multipliers. This is an indicative reference valuation only, not a transaction price or economy.
+- Inventory stacking now requires both definition and matching state. Moving/rotating/transferring/saving/loading preserves state and stable stack identity.
+- Home storage lists individual stacks instead of aggregating all copies by definition. Each stack can be inspected or transferred individually.
+- The same read-only item viewer is opened by right-clicking a carried item or pressing INSPECT in home storage.
+- Save format is v4. v1/v2/v3 saves receive neutral defaults (Standard, Good, Genuine, Legitimate); stable IDs from v3 are preserved.
+
+### Verification still required
+The 235/235 result predates this new item-state/viewer code. Unity compilation, the full EditMode suite, Play Mode inspection in both containers, repeated targeted STORE/TAKE, and v3/v4 save-load checks remain pending.
+
+### Boundaries retained
+No split-stack behavior, per-unit identity, player discovery/knowledge, appraisal skill, hidden-fact reveal, provenance chain, durability decay, item use, equipment, crafting, weight, trading, bargaining or market economy is implemented. The next meaningful extension should be designed around a real player-facing scenario rather than a broad item-simulation catalogue.
