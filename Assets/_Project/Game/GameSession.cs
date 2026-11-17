@@ -9,8 +9,7 @@ namespace Signal.Game
     /// <summary>
     /// Composition root for the vertical slice. One GameObject with this component gives you:
     /// a walled room with a walking player, the grid inventory (Tab), a clock, rent and heat,
-    /// and save/load. Keys: F6 sleep, F5 save, F9 load, F7 debug sell, F8 debug craft.
-    /// Function keys are used because letter keys sit in different places on AZERTY keyboards.
+    /// and save/load. Keys: E workbench, Tab inventory, F6 sleep, F5 save, F9 load.
     /// </summary>
     public sealed class GameSession : MonoBehaviour
     {
@@ -84,6 +83,8 @@ namespace Signal.Game
 
             bool workspaceOpen = _workspace != null && _workspace.IsOpen;
             bool inventoryOpen = _panel != null && _panel.IsOpen;
+            if (_panel != null)
+                _panel.enabled = !workspaceOpen;
 
             // Menus and close-up workspaces own the player's focus.
             _motor.enabled = !inventoryOpen && !workspaceOpen;
