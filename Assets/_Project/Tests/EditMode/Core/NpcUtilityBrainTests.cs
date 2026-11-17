@@ -34,8 +34,13 @@ namespace Signal.Core.Tests
                 "known-delivery", "Delivery", "A parcel arrived.", null,
                 "Street", 0f, 0f, 0f, 1, 590));
 
-            var aloneBrain = new NpcUtilityBrain();
-            var socialBrain = new NpcUtilityBrain();
+            var restrainedSocialProfile = new NpcUtilityProfile
+            {
+                SocialNeedWeight = 20f,
+                SocialWindowBonus = 0f
+            };
+            var aloneBrain = new NpcUtilityBrain(restrainedSocialProfile);
+            var socialBrain = new NpcUtilityBrain(restrainedSocialProfile);
             aloneBrain.AdvanceTo(1, 1079);
             socialBrain.AdvanceTo(1, 1079);
 
@@ -44,7 +49,7 @@ namespace Signal.Core.Tests
             NpcActivity withFriendsAndKnowledge = socialBrain.AdvanceTo(
                 1, 1080, socialWorld.BuildPerceptionFor("observer", 8f));
 
-            Assert.That(alone, Is.EqualTo(NpcActivity.Work));
+            Assert.That(alone, Is.EqualTo(NpcActivity.Rest));
             Assert.That(withFriendsAndKnowledge, Is.EqualTo(NpcActivity.Socialize));
         }
 
