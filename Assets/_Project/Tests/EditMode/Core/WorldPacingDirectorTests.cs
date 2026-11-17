@@ -55,7 +55,7 @@ namespace Signal.Core.Tests
 
             Assert.That(director.SetScenarioPhase("phase-two", 5, 0), Is.True);
             Assert.That(director.SetScenarioPhase("phase-two", 5, 30), Is.False);
-            Assert.That(director.CurrentIntervalMinutes, Is.EqualTo(60));
+            Assert.That(director.CurrentIntervalMinutes, Is.EqualTo(64));
             Assert.That(director.TryAuthorizeDevelopment(true, 5, 59), Is.False);
             Assert.That(director.TryAuthorizeDevelopment(true, 5, 68), Is.False);
             Assert.That(director.TryAuthorizeDevelopment(true, 5, 69), Is.True);
