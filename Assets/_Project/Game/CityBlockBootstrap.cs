@@ -55,8 +55,15 @@ namespace Signal.Game
         }
         public NpcSocialWorld SocialWorld => _socialWorld;
 
-        public void Build(Transform player, Rigidbody2D body, Camera camera, GameClock clock = null)
+        public void Build(Transform player, Rigidbody2D body, Camera camera, GameClock clock = null,
+            NpcCharacterDefinition[] definitions = null)
         {
+            if (definitions != null)
+            {
+                characterDefinitions.Clear();
+                characterDefinitions.AddRange(definitions);
+            }
+
             _player = player;
             _clock = clock ?? new GameClock();
             _socialWorld = new NpcSocialWorld();
