@@ -69,3 +69,14 @@ ANSWER: `SignalSave/signal-save.json` beside the project in the editor (git igno
 - Factions and reputation, relationships, quests
 - What heat and missed rent actually cause
 - The mixing/chemistry interaction (drag, heat, contamination, quality)
+
+
+## Q17 — NPC life simulation approach
+STATUS: needs design; NPCs should feel like people with lives beyond the player's immediate interactions. The user is interested in a very lightweight AI, with low hardware cost as an important constraint.
+
+Options:
+- **A — Authored schedules and state machines only:** very cheap and predictable, but can feel repetitive and brittle as NPC situations multiply.
+- **B — Lightweight utility simulation (recommended):** authored identities, routines and goals, with small rule-based decisions that choose among available actions. Simulate nearby/important NPCs in detail and advance distant NPCs in coarse time steps or event-driven updates. No per-NPC language model.
+- **C — On-device language-model agents:** potentially flexible dialogue and improvisation, but high and unpredictable CPU/RAM/battery cost, harder determinism, testing, save compatibility and content control. Not recommended for the baseline game.
+
+Recommendation: prototype B as a hybrid of authored schedules and inexpensive utility/state logic. Keep the simulation deterministic where practical, data-driven, and independent of Unity presentation. Treat dialogue text and personality as authored content initially; do not require generative AI. Decide exact needs, goals, schedules, update rates, memory and persistence only when designing the first NPC scenario.
