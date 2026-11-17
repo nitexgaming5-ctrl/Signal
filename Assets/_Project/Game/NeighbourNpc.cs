@@ -10,9 +10,9 @@ namespace Signal.Game
     public sealed class NeighbourNpc : MonoBehaviour
     {
         private static readonly Vector2 WorkPosition = new Vector2(1.5f, -8.7f);
-        private static readonly Vector2 RestPosition = new Vector2(5.5f, -17.5f);
+        private static readonly Vector2 RestPosition = new Vector2(3.5f, -17.5f);
         private static readonly Vector2 SocialPosition = new Vector2(18.2f, -8.7f);
-        private static readonly Vector2 HomePosition = new Vector2(23.5f, -9.5f);
+        private static readonly Vector2 HomePosition = new Vector2(23.5f, -11.6f);
 
         [SerializeField] private float walkingSpeed = 1.6f;
 
