@@ -193,3 +193,30 @@ Reviewed the active Core/Game implementation and the reference-game list. The fu
 - This is a technical foundation proposal, not approval for quality/durability/counterfeit/stolen/provenance/price/equipment/crafting rules. Those remain separate design decisions.
 - The quest framework is sequenced after item identity and meaningful player interactions, and should be proven through one short authored opportunity rather than built as an abstract feature catalogue.
 - Player creation/customization and additional stats are deferred until their player-facing use cases are established.
+
+
+## Item Instance v1 — implemented, Unity verification pending (2026-11-18)
+
+The user approved Item Instance v1 as the next technical milestone. The first implementation pass is now on the shared branch.
+
+### Implemented
+- Added a stable `Guid ItemInstanceId` to each `PlacedItem` stack. The existing integer `InstanceId` remains as inventory-local UI/placement bookkeeping; it is not the persistent identity.
+- New placed stacks receive unique GUID identities. Explicit IDs can be supplied when restoring saves; duplicate IDs inside one inventory and empty IDs are rejected.
+- Moving/rotating a stack and taking/restoring an `InventorySnapshot` preserve its stable identity.
+- `InventoryTransfer.MoveAll` now transfers whole stacks while preserving their GUID identity and orientation. It does not merge two distinct stacks. If a complete stack cannot fit in the destination, it stays in the source; `Moved` and `Remaining` continue to report quantities.
+- Transfer still snapshots both inventories and rolls back if the source stack disappears during the destination change callback.
+- Save format is now version 3. `SavedItem` stores `instanceId`; capture/load round-trips identity for carried and home-storage stacks.
+- Save migration from v1 and v2 assigns missing identities across both containers and repairs empty/duplicate IDs. Existing definition, count, coordinates, rotation and v1 Hideout/default-storage behavior are preserved.
+- Updated the storage panel's transfer hint to explain that complete stacks move and separate stacks keep their identities.
+- Added `ItemInstanceIdentityTests` for unique IDs, duplicate rejection, move/rotation, snapshot restore, v1/v2 migration, duplicate-ID repair and save/load round-trip. Updated transfer tests to assert identity preservation and no stack merging, including orientation.
+
+### Deliberate boundaries
+- This is a stack-identity foundation, not a per-unit identity system. Units within one stack still share the stack identity.
+- No split-stack operation exists yet. Transfers move complete stacks only; if a future interaction needs to split a stack, it must explicitly allocate a new identity for the resulting stack.
+- `GridInventory.Add` may top up a same-definition stack because no per-instance mutable state exists yet. When state fields are introduced, the stack-compatibility rule must be expanded to compare those fields before merging.
+- No quality, condition, authenticity, ownership/provenance, pricing, equipment, crafting, weight or item-use mechanics were added.
+
+### Verification
+- Code and tests have been committed, but the assistant cannot run Unity locally through the GitHub connection.
+- **Awaiting user Unity compilation and full EditMode test run.** Do not mark this milestone verified until the user confirms the result.
+- Existing last confirmed full EditMode baseline before this work: 226/226.
