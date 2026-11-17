@@ -140,8 +140,8 @@ namespace Signal.Game
             if (next == _activity && !snapToDestination)
                 return;
 
-            bool wasInCurrentPlace = ActivityPlace(_activity) == _currentPlace;
-            bool willBeInCurrentPlace = ActivityPlace(next) == _currentPlace;
+            bool wasInCurrentPlace = ActivityPlace(_activity) == _activePlace;
+            bool willBeInCurrentPlace = ActivityPlace(next) == _activePlace;
             _activity = next;
             _destination = _definition.PositionFor(next);
 
