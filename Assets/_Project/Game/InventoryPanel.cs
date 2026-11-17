@@ -9,7 +9,7 @@ namespace Signal.Game
 {
     /// <summary>
     /// Grid inventory view, built entirely from code (placeholder look).
-    /// Tab opens or closes it, left mouse drags an item, R turns the dragged item, Esc cancels the drag.
+    /// Tab opens or closes it, left mouse drags an item, right mouse inspects an item, R turns the dragged item, Esc cancels the drag.
     /// All rules live in GridInventory; this class only reads input and draws.
     /// </summary>
     public sealed class InventoryPanel : MonoBehaviour
