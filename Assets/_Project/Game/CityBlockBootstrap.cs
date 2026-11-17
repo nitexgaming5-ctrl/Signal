@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Signal.Core;
 using UnityEngine;
 
@@ -24,7 +25,9 @@ namespace Signal.Game
         private GameObject _shopRoot;
         private GameObject _apartmentRoot;
         private Place _place;
-        private NeighbourNpc _neighbour;
+        [SerializeField] private List<NpcCharacterDefinition> characterDefinitions = new List<NpcCharacterDefinition>();
+        private readonly List<NpcPresenter> _residents = new List<NpcPresenter>();
+        private readonly List<NpcCharacterDefinition> _temporaryDefinitions = new List<NpcCharacterDefinition>();
         private GameClock _clock;
         private NpcSocialWorld _socialWorld;
 
@@ -35,8 +38,9 @@ namespace Signal.Game
 
         public bool IsAtHome => _place == Place.Hideout;
         public string CurrentPlace => _place.ToString();
-        public Vector2 NeighbourPosition => _neighbour != null ? _neighbour.Position : Vector2.zero;
-        public NpcActivity NeighbourActivity => _neighbour != null ? _neighbour.Activity : NpcActivity.Home;
+        public Vector2 NeighbourPosition => FindResident("milo") != null ? FindResident("milo").Position : Vector2.zero;
+        public NpcActivity NeighbourActivity => FindResident("milo") != null ? FindResident("milo").Activity : NpcActivity.Home;
+        public int ResidentCount => _residents.Count;
         public NpcSocialWorld SocialWorld => _socialWorld;
 
         public void Build(Transform player, Rigidbody2D body, Camera camera, GameClock clock = null)
@@ -109,8 +113,9 @@ namespace Signal.Game
 
         public string GetPrompt(Vector2 playerPosition)
         {
-            if (_neighbour != null && _neighbour.CanTalkFrom(playerPosition))
-                return "E  Talk to Milo";
+            for (int i = 0; i < _residents.Count; i++)
+                if (_residents[i].CanTalkFrom(playerPosition))
+                    return "E  Talk to " + _residents[i].DisplayName;
 
             switch (_place)
             {
@@ -136,7 +141,10 @@ namespace Signal.Game
         public bool TryInteractNpc(Vector2 playerPosition, out string dialogue)
         {
             dialogue = null;
-            return _neighbour != null && _neighbour.TryTalk(playerPosition, out dialogue);
+            for (int i = 0; i < _residents.Count; i++)
+                if (_residents[i].TryTalk(playerPosition, out dialogue))
+                    return true;
+            return false;
         }
 
         public bool TryInteract(Vector2 playerPosition)
@@ -198,8 +206,8 @@ namespace Signal.Game
             if (_cameraFollow != null)
                 _cameraFollow.Configure(_player, cameraBounds);
 
-            if (_neighbour != null)
-                _neighbour.SetCurrentPlace(next.ToString());
+            for (int i = 0; i < _residents.Count; i++)
+                _residents[i].SetCurrentPlace(next.ToString());
         }
 
         private static bool Near(Vector2 position, Vector2 target)
@@ -247,10 +255,86 @@ namespace Signal.Game
             AddBlock(root, "StreetBenchLeg", new Vector2(2.9f, -17.85f), new Vector2(0.18f, 0.45f), new Color32(76, 61, 49, 255), false, 5);
             AddBlock(root, "StreetBenchLeg", new Vector2(4.1f, -17.85f), new Vector2(0.18f, 0.45f), new Color32(76, 61, 49, 255), false, 5);
 
-            var npcObject = new GameObject("Milo - Neighbourhood Baker");
-            npcObject.transform.SetParent(transform, false);
-            _neighbour = npcObject.AddComponent<NeighbourNpc>();
-            _neighbour.Bind(_clock, _socialWorld);
+            SpawnResidents();
+        }
+
+        private void SpawnResidents()
+        {
+            _residents.Clear();
+            if (characterDefinitions.Count == 0)
+            {
+                characterDefinitions.Add(CreateTemporaryDefinition("milo", "Milo", "Baker",
+                    "The ovens are on before most of the street wakes up.",
+                    "Those ovens run hot, and my knees complain louder every year.",
+                    "The bakery is the part everyone sees. After closing, I help a few people with things they can't ask for at the counter.",
+                    "Shop's closed for today. I start before sunrise. Catch me when the shutters are up.",
+                    new Color32(65, 78, 83, 255), 390));
+                NpcCharacterDefinition rhea = CreateTemporaryDefinition("rhea", "Rhea", "Neighbour",
+                    "I'm just getting started for the day.",
+                    "Taking a breather before I head back out.",
+                    "You hear a lot when you spend time around this block.",
+                    "I'm home for the evening.",
+                    new Color32(89, 72, 91, 255), 540);
+                rhea.WorkPosition = new Vector2(1001.2f, 1000.4f);
+                rhea.RestPosition = new Vector2(4.8f, -17.5f);
+                rhea.SocialPosition = new Vector2(17.2f, -11.6f);
+                characterDefinitions.Add(rhea);
+            }
+
+            for (int i = 0; i < characterDefinitions.Count; i++)
+            {
+                NpcCharacterDefinition definition = characterDefinitions[i];
+                if (definition == null)
+                    continue;
+
+                var residentObject = new GameObject(definition.DisplayName + " - " + definition.PublicRole);
+                residentObject.transform.SetParent(transform, false);
+                NpcPresenter presenter = residentObject.AddComponent<NpcPresenter>();
+                presenter.Bind(definition, _clock, _socialWorld);
+                _residents.Add(presenter);
+            }
+        }
+
+        private NpcCharacterDefinition CreateTemporaryDefinition(string id, string displayName, string role,
+            string work, string rest, string social, string home, Color coat, int workStartMinute)
+        {
+            NpcCharacterDefinition definition = ScriptableObject.CreateInstance<NpcCharacterDefinition>();
+            definition.NpcId = id;
+            definition.DisplayName = displayName;
+            definition.PublicRole = role;
+            definition.AwarenessRadius = 8f;
+            definition.WalkingSpeed = 1.6f;
+            definition.UtilityProfile = NpcUtilityProfile.CreateDefault();
+            definition.UtilityProfile.WorkStartMinute = workStartMinute;
+            definition.WorkDialogue = work;
+            definition.RestDialogue = rest;
+            definition.SocialDialogue = social;
+            definition.HomeDialogue = home;
+            definition.CoatColor = coat;
+            _temporaryDefinitions.Add(definition);
+            return definition;
+        }
+
+        private NpcPresenter FindResident(string npcId)
+        {
+            for (int i = 0; i < _residents.Count; i++)
+                if (_residents[i] != null && _residents[i].NpcId == npcId)
+                    return _residents[i];
+            return null;
+        }
+
+        private void OnDestroy()
+        {
+            for (int i = 0; i < _temporaryDefinitions.Count; i++)
+            {
+                if (_temporaryDefinitions[i] == null)
+                    continue;
+                if (Application.isPlaying)
+                    Destroy(_temporaryDefinitions[i]);
+                else
+                    DestroyImmediate(_temporaryDefinitions[i]);
+            }
+            _temporaryDefinitions.Clear();
         }
 
         private static void BuildStreetBuilding(Transform root, string name, Vector2 centre, Color facade, Color trim)
