@@ -241,24 +241,16 @@ namespace Signal.Game
 
         private void Transfer(ItemType type, GridInventory source, GridInventory destination, string verb)
         {
-            int available = source.CountOf(type);
-            if (available <= 0) return;
+            InventoryTransferResult result = InventoryTransfer.MoveAll(source, destination, type);
+            string name = _names.TryGetValue(type.Id, out string displayName) ? displayName : "item";
 
-            InventorySnapshot sourceBefore = source.CreateSnapshot();
-            InventorySnapshot destinationBefore = destination.CreateSnapshot();
-            int leftover = destination.Add(type, available);
-            int moved = available - leftover;
-
-            if (moved > 0 && source.TryRemove(type, moved))
-                _status.text = verb + " " + moved + " x " + (_names.TryGetValue(type.Id, out string name) ? name : "item") + ".";
-            else if (moved > 0)
-            {
-                source.Restore(sourceBefore);
-                destination.Restore(destinationBefore);
+            if (!result.Success)
                 _status.text = "Transfer failed; nothing was moved.";
-            }
-            else
+            else if (result.Moved == 0)
                 _status.text = "No room in the destination.";
+            else
+                _status.text = verb + " " + result.Moved + " x " + name +
+                               (result.Remaining > 0 ? ". " + result.Remaining + " remain." : ".");
         }
 
         private void AddEmptyRow()
