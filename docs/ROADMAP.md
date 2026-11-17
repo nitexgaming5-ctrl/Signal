@@ -2,10 +2,11 @@
 
 Milestones are dependency notes, not a mandate to build isolated systems in order. Work is organised around one active, player-facing initiative at a time. Combine technical tasks whenever that produces a coherent playable result. See `docs/DEVELOPMENT_WORKFLOW.md` and `docs/ARCHITECTURE.md`.
 
-## Current initiative — the first hideout and city block
-**Player outcome:** the player can walk around a small starter house, interact with its furniture, use a tactile workbench workspace, leave the house, explore a compact city block, and enter/exit basic buildings.
+## Current initiative — make the hideout the centre of the city loop
 
-### Slice A — make the hideout feel like a place
+**Player outcome:** the player can leave home, explore the connected block, bring items back, store and retrieve them at the physical locker, and save/load the same carried items, home storage and location.
+
+### Slice A — establish the hideout
 - [x] Consolidate the active runtime on Signal.Core + Signal.Game; preserve the old Main/prototype path as legacy reference.
 - [x] Add HideoutSlice as the active build scene.
 - [x] Establish a walkable room with floor, walls and player collision.
@@ -13,27 +14,32 @@ Milestones are dependency notes, not a mandate to build isolated systems in orde
 - [x] Add E prompt and a close-up workspace with draggable/inspectable tabletop objects.
 - [x] User verified compilation and reported the first-slice tests passed in Unity.
 - [ ] Replace placeholder geometry with authored, cohesive hideout art and atmosphere.
-- [ ] Add meaningful interactions to bed, storage and other furniture after agreeing their player-facing rules.
 
-**Exit check:** the player can move around without clipping through furniture/walls, open the workbench from the physical bench, inspect/rearrange tabletop objects, close the workspace and resume movement. The first playable hideout/workbench loop has been verified by the user; the visual/art pass remains open.
+**Exit check:** the player can move around the room, interact with the workbench and return to movement. This first pass was verified by the user; visual polish remains open.
 
-### Slice B — the surrounding city block
+### Slice B — connect the first city block
 - [x] Build a compact outdoor street space using the existing Core/Game runtime and placeholder geometry.
 - [x] Connect the hideout entrance to the street and back without recreating the player or session.
 - [x] Add two enterable building shells with simple placeholder interiors (corner shop and apartment).
 - [x] Keep the first block compact, with short routes and a readable street layout.
-- [ ] Verify doorway reachability, collision, camera tracking and return paths in Unity Play Mode.
+- [x] User confirmed the hideout/street/building travel loop is working in Play Mode.
+- [ ] Run the new EditMode transition test in Unity.
 - [ ] Replace placeholder street/building geometry with cohesive authored city art.
 
-**Exit check:** the player can move between the hideout and street, enter and exit the initial buildings, and reliably return to the correct location. Source implementation is in place; Unity verification is pending.
+**Exit check:** the player can move between the hideout and street, enter and exit the initial buildings, and reliably return to the correct location. The user has confirmed the route works; automated test execution remains pending.
 
-### Slice C — make the hideout useful
-- Connect existing inventory and crafting capabilities to the physical storage/workbench interactions where appropriate.
-- Make important objects provide clear feedback and a satisfying interaction response.
-- Add decoration/furniture placement only after the basic room and interaction loop is stable; decide its exact rules with the user before implementation.
-- Ensure save/load preserves location and relevant hideout state before introducing persistent furnishing or world changes.
+### Slice C — make the hideout useful (active)
+- [x] Expose the physical storage locker as an E interaction.
+- [x] Add a home-storage screen that transfers available quantities between carried inventory and a separate locker inventory, respecting destination capacity.
+- [x] Extend save format to version 2 with separate locker contents and the current world location/player coordinates.
+- [x] Add version-1 save migration so existing saves load with an empty locker and the player at the hideout.
+- [x] Allow save/load while in the city and restore the saved street/interior location.
+- [ ] Verify storage transfers, capacity behavior, save/load, and version-1 migration in Unity.
+- [ ] Connect authored RecipeDefinition assets to the physical workbench. No recipe assets currently exist, so do not invent recipes or production rules.
+- [ ] Give bed and other furniture meaningful interactions only after their player-facing rules are agreed.
+- [ ] Replace placeholder hideout art and improve interaction feedback.
 
-**Exit check:** the player can use the hideout as a practical home base, and changes that are intended to persist survive a save/load cycle.
+**Exit check:** the player can take items into the city, return, store/retrieve them, and save/load carried inventory, locker contents and current location without losing the connected-world context.
 
 ## Later experience layers (not active yet)
 These are broad directions, not approved detailed mechanics:
@@ -49,8 +55,7 @@ Each layer should be introduced through a complete playable scenario, not as an 
 - Preserve Unity asset GUIDs and existing scene references.
 - Keep Main and its prototype scripts as legacy reference until valuable content is migrated and verified; do not add new features there.
 - Keep Core logic independent from UnityEngine where possible.
-- Protect save compatibility; Core/Game now uses safe replacement and a separate filename from the legacy prototype. Verify on the target Unity platform before relying on persistence for more world state.
-- Saving, loading and sleeping are currently restricted to the hideout because location persistence is not part of this slice yet.
+- Protect save compatibility; Core/Game uses a separate filename from the legacy prototype and now migrates version-1 saves to version 2. Verify file replacement on the target Unity platform.
 - Do not claim a scene, build or test is verified until it has actually been run in Unity.
 
 ## Definition of a complete slice
