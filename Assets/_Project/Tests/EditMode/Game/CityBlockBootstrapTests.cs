@@ -106,6 +106,7 @@ namespace Signal.Game.Tests
                 city.Build(player.transform, body, camera, clock);
                 Assert.That(city.CurrentPlace, Is.EqualTo("Hideout"));
                 Assert.That(city.SocialWorld.TryGetNpc("milo", out NpcAgentState milo), Is.True);
+                Assert.That(milo.LocationId, Is.EqualTo("CornerShop"));
 
                 city.PublishWorldEventAt("CornerShop", "delivery-outside",
                     "A delivery van stopped outside the bakery.", new Vector2(1000f, 1000.4f), 3f);
