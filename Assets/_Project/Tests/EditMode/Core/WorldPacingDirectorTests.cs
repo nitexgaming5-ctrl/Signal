@@ -42,8 +42,8 @@ namespace Signal.Core.Tests
             Assert.That(director.TryAuthorizeDevelopment(true, 1, 153), Is.True);
             Assert.That(director.TryAuthorizeDevelopment(true, 2, 0), Is.True);
             Assert.That(director.CurrentIntervalMinutes, Is.EqualTo(240));
-            Assert.That(director.TryAuthorizeDevelopment(true, 2, 59), Is.False);
-            Assert.That(director.TryAuthorizeDevelopment(true, 2, 60), Is.True);
+            Assert.That(director.TryAuthorizeDevelopment(true, 2, 239), Is.False);
+            Assert.That(director.TryAuthorizeDevelopment(true, 2, 240), Is.True);
         }
 
         [Test]
