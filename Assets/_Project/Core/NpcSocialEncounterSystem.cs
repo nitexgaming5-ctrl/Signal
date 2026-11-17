@@ -41,7 +41,7 @@ namespace Signal.Core
 
         /// <summary>
         /// Processes one deterministic encounter pass. Every supplied NPC can take part
-        /// in at most one encounter in this pass; each pair is then held by a cooldown.
+        /// in at most one encounter in this pass; resident and pair cooldowns limit repetition.
         /// </summary>
         public int AdvanceTo(NpcSocialWorld world, IList<string> socializingNpcIds,
             int day, int minuteOfDay)
