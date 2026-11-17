@@ -51,6 +51,24 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void MoveAllPreservesTheTransferredStacksRotation()
+        {
+            ItemType type = new ItemType(Guid.NewGuid(), 1, 2, 1);
+            var carried = new GridInventory(2, 2);
+            var storage = new GridInventory(2, 2);
+            int localId = carried.Place(type, 0, 0, rotated: true).Value;
+            Guid identity = carried.Items[0].ItemInstanceId;
+
+            InventoryTransferResult result = InventoryTransfer.MoveAll(carried, storage, type);
+
+            Assert.That(result.Moved, Is.EqualTo(1));
+            Assert.That(storage.Items.Count, Is.EqualTo(1));
+            Assert.That(storage.Items[0].ItemInstanceId, Is.EqualTo(identity));
+            Assert.That(storage.Items[0].Rotated, Is.True);
+            Assert.That(carried.TryGet(localId, out _), Is.False);
+        }
+
+        [Test]
         public void MoveAllChangesNothingWhenDestinationHasNoRoom()
         {
             ItemType type = Item();
