@@ -1,0 +1,272 @@
+# Signal — project handoff for the next agent
+
+> Read this document together with `AGENTS.md`, `docs/PROGRESS.md`, `docs/ROADMAP.md`, `docs/VISION.md`, `docs/ARCHITECTURE.md`, `docs/NPC_FRAMEWORK.md`, `docs/DESIGN.md`, `docs/OPEN_QUESTIONS.md` and `docs/DEVELOPMENT_WORKFLOW.md` before substantial work. This is the consolidated design and implementation handoff from the discussions and user-confirmed decisions through 2026-11-17. The user is the game director.
+
+## 1. What Signal is
+
+**Signal is an immersive top-down 2D urban RPG about making a precarious living in one layered city.** The player goes out into the neighbourhood, meets people, performs small activities for money or resources, trades/acquires goods, takes calculated risks, sometimes loses things, discovers what is happening around them, and returns to a personal hideout that gradually becomes more useful and personal.
+
+Signal blends:
+- Urban life and hustle simulation.
+- Legal and illegal livelihoods that coexist in the same city.
+- Narrative-driven role-playing through people, places, relationships, secrets and consequences.
+- Hands-on spatial interaction with objects, workspaces, shops, homes and residents, rather than everything being an abstract menu.
+
+The player is **not primarily managing a shop**. A shop or counter can be one activity, but the broader loop is about moving through the city, doing things, acquiring/handling goods, meeting people, making decisions under pressure and returning home.
+
+The hideout is the emotional anchor. It is a modest place the player physically inhabits, improves and personalises. It should feel like home, not a sterile management screen.
+
+## 2. The shared-city rule — especially important
+
+There is one shared city, one overlapping social world and eventually one connected economy.
+
+- Legitimate businesses, ordinary residents, criminal opportunities and concealed dealings coexist in the same streets, homes, shops and social networks.
+- Do not build a separate default "legal city" and "underground city". The underground is not a second world or a mandatory separate map. Specific criminal hideouts or discreet locations may exist later, but only as optional places inside the same city.
+- A person can have a normal public occupation and a concealed private activity. The user's example: a baker might be selling drugs without the player knowing. The player sees the ordinary baker first and discovers more through play.
+- Legal and illegal activities are parallel lifestyles. The player can combine them freely; choosing one does not lock out the other.
+- The same NPCs, contacts, customers, suppliers, rumours and events can connect lawful and unlawful activity.
+
+Do not make NPCs or entire locations automatically labelled "underground". Hidden activity should be discovered, not revealed by a map category or omniscient UI.
+
+## 3. Approved gameplay pillars and direction
+
+### Hideout and physical life
+- Walkable home with furniture and props.
+- Storage, preparation, recovery, workspaces, production spaces and personalisation can grow over time.
+- Improvements should be visible in the room.
+- The hideout remains the central hub between outings.
+
+### Goods and handling
+Goods may have properties beyond a name and stack count: quality, condition, authenticity, origin/provenance, ownership status and risk. Add these only where they create useful player decisions (inspection, appraisal, use, trade, concealment, resale, etc.), not for complexity alone.
+
+Examples discussed include water of different qualities, food/everyday goods, electronics/clothing/household goods and stolen items. These are examples, not a final catalogue or approved detailed rules.
+
+### Legal livelihoods
+The player should have satisfying ways to make a living without crime. Possible directions include trade, services, repair, gathering, processing, making goods and small businesses. Farming is optional. Wheat/crops/bread were an example, not a commitment to make farming the central legal loop.
+
+### Crime
+- Crime is a major pillar, including fictional drug-related activity and a broad range of other illegal activities.
+- All criminal activity contributes to one global criminal progression track, rather than separate skill trees for each crime.
+- Serious criminal failure should have harsh, potentially lasting consequences.
+- Exact crime activities, progression thresholds, penalties, police response, heat rules and recovery options are not designed yet. They require a separate design conversation and approval.
+
+### People and narrative
+NPCs are people first, not quest dispensers. They have public roles, private motives, routines, needs, relationships, incomplete knowledge, secrets and social networks. Their lives should not exist only when the player is nearby. The player discovers opportunities and truths through observation, conversation, requests, rumours, inspection and consequences.
+
+## 4. Visual and interaction direction
+
+- Top-down 2D.
+- Readability and approachable spatial clarity inspired by Stardew Valley, adapted to a gritty contemporary urban setting. This is not a request to copy Stardew's exact art style.
+- Clear silhouettes, readable rooms, expressive props, layered interiors, restrained neon accents and atmospheric lighting.
+- Hideout should feel modest, personal and lived-in.
+- Important activities should use world objects and physical-feeling interactions when they strengthen immersion.
+- Reference games are experience references, not templates: Schedule I (compact city/contact loop), Drug Dealer Simulator (hands-on workspace/storage atmosphere), Probably Stolen (goods quality/appraisal/trade-offs), Torn Crimes 2.0 (variety of crime categories/global progression inspiration), Stardew Valley (readable cozy spaces) and Stalker/Tarkov (scarcity, inventory pressure and meaningful loot choices). Do not copy their exact systems.
+
+## 5. Approved NPC simulation approach
+
+The user explicitly chose a lightweight utility simulation paired with authored routines:
+- Deterministic, affordable Core logic.
+- Authored character identity, public role, routine, dialogue and profile data.
+- A small utility brain chooses among a limited activity set based on time, needs and relevant local context.
+- No per-NPC language model, remote AI service, random inference, background worker or per-frame full-population scoring.
+- Important NPCs can receive richer simulation than distant/background residents.
+- NPCs must share awareness of people, events and surroundings. The framework should be connected, not a collection of isolated brains.
+- Milo was initially used as a baker prototype, but the user later clarified that the priority is a reusable connected framework, not Milo's personal story. Milo and Rhea are disposable fallback fixtures, not confirmed narrative characters.
+
+### Current NPC activity and decision model
+- Activities: Home, Work, Rest, Socialize.
+- Default day-worker profile retains the initial routine structure; profiles can change their work/social/home windows and utility/need weights without changing brain code.
+- Decisions are evaluated on a 15 in-game-minute cadence; needs drift with elapsed in-game time.
+- Socialize is hard-gated to the authored social window. Need and relationship context can influence activity selection only inside that window.
+- Decisions use an NPC's own `NpcPerception` snapshot, never the global event journal as an omniscient shortcut.
+
+### Shared social world already implemented
+Core types include `NpcSocialWorld`, `NpcAgentState`, `NpcWorldEvent`, `NpcKnowledge`, `NpcRelationship`, `NpcPerception` and `NpcPerceivedPerson`.
+- NPCs register with location, position and awareness radius.
+- Events are location/time/radius scoped and should describe only observable facts.
+- Direct observation requires same location and both NPC awareness and event visibility.
+- Each character has their own knowledge. A world event is not automatically known by all.
+- Knowledge sharing is explicit, retains original event identity and records who last told the listener. Trust influences confidence; hearsay is not objective truth.
+- Relationships are directed and distinguish familiarity, trust and affinity. One person can trust another more than the reverse.
+- `NpcPerception` exposes nearby people and their directed relationship impressions plus only the observer's knowledge. It deliberately excludes the global journal.
+- `ShareKnowledge` is an explicit communication operation. Do not add arbitrary proximity/channel restrictions without design; its caller is responsible for ensuring a valid conversation/contact.
+- Event descriptions must not reveal hidden causes, criminal identities or motives to witnesses.
+
+### Controlled ambient NPC-to-NPC encounters
+User-approved rules:
+- NPCs meet only when their authored schedules make them Socialize and they are mutually nearby in the same location.
+- Player dialogue remains simple for now; build NPC-to-NPC simulation first.
+- NPCs do not autonomously initiate conversations with the player.
+- Ambient meetings may happen even while the player is absent, but effects must remain restrained and predictable.
+Implemented first pass:
+- Clock-driven, deterministic encounter pass after NPC schedule updates.
+- Each NPC can encounter at most once per pass and once every 3 in-game hours; a pair has a 12-hour cooldown.
+- Encounter requires same location and mutual awareness/proximity.
+- Familiarity increases by 0.01 in each direction.
+- Trust and affinity do not change from ambient meetings.
+- At most one previously unknown event is exchanged; social-encounter events are excluded to prevent rumour chains.
+- One generic observable event is published. No autonomous agenda, dialogue generation or dramatic consequence.
+
+## 6. Approved world-pacing direction C
+
+The user raised the risk that a player who spends a long time farming/doing activities could accumulate many world events, then see them all trigger at once when story progression advances. The desired result is gradual and very slow toward the end, not a burst of queued content.
+
+Approved direction:
+- Everyday simulation continues (routines, scheduled meetings, small familiarity changes, limited knowledge exchange).
+- Meaningful/consequential world developments share one global pacing authority. Do not create separate independent cooldowns/event budgets for social, business, discovery, etc.
+- Scenario advancement gradually opens new possibilities but does not release a backlog.
+- A candidate must already be valid because of its context and scenario eligibility before requesting permission.
+- Time alone is insufficient; valid circumstances and pacing permission are both required.
+- Long idle periods never bank multiple authorizations. At most one can be granted; no catch-up burst.
+- The shared interval becomes progressively longer as the player remains in one scenario phase.
+- Major narrative beats remain explicitly authored and gated by scenario logic.
+- This pacing layer should protect narration, not generate story by itself.
+
+### WorldPacingDirector status
+Implemented in Core as a policy gate only:
+- Configured minimum interval, maximum interval and ramp duration (no guessed default tuning).
+- Requires an explicit scenario phase ID.
+- Same phase reapplication does not reset phase start; changing phase starts a fresh quiet interval/ramp.
+- Linear interval ramp from minimum to maximum as the phase continues.
+- One shared authorization across callers/categories.
+- Valid-context check happens before authorization; invalid context does not consume permission.
+- Long idle grants at most one; no backlog.
+- Clock rewind is rejected.
+- Does not create/select/queue events, own scenario logic, or connect to ambient NPC activity.
+- Not yet integrated with a scenario owner or save system. Do not wire it into gameplay until those responsibilities and real candidates are designed.
+
+The first Unity test run was 225/226. The only failure was a test expectation: after the same phase advanced 30 minutes, expected interval should have been 64, not 60. Test expectation was corrected; no production code changed. User confirmed the follow-up full EditMode suite **226/226 passed on 2026-11-17**.
+
+## 7. Current playable/technical state
+
+### Architecture
+- Active architecture: `Signal.Core` + `Signal.Game`.
+- Core is plain C# with no UnityEngine dependency; Game owns MonoBehaviours, UI, input, scene composition and Unity-facing presentation.
+- Content definitions belong in ScriptableObjects.
+- Dependency direction is Game → Core.
+- Active build scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
+- `Assets/_Project/Scenes/Main.unity` and `Assets/_Project/_Prototype/Scripts` are legacy reference only. Preserve them; do not add new gameplay there or run both architectures in the same active scene.
+- Do not bulk-migrate old prototype scripts. Rebuild only specific useful behavior against Core/Game.
+
+### Verified slices
+**Slice A — hideout/workbench**
+- Walkable procedural starter hideout with bed, table, chair, storage, workbench and placeholder props.
+- E opens a close-up UGUI tabletop workspace; props can be dragged/inspected; ESC/back closes.
+- Visual-only prototype: no crafting/production rules implied.
+- User confirmed compilation and tests passed.
+
+**Slice B — connected city block**
+- Compact procedural street, shop interior and apartment interior.
+- Same player Rigidbody2D, inventory, clock and GameSession persist through transitions.
+- E transitions hideout ↔ street ↔ shop/apartment; camera bounds update.
+- User confirmed Play Mode travel works.
+
+**Slice C — storage and persistence**
+- Separate 8×6 home locker inventory.
+- Physical locker interaction and STORE/TAKE panel.
+- Capacity-aware Core transfer service with rollback protection.
+- Save format v2 includes carried inventory, locker inventory, current place and player coordinates.
+- v1 migration defaults to empty locker and Hideout.
+- User confirmed normal locker transfer and save/load location restoration work with no new Console errors.
+- Still worth checking full/blocked capacity, actual v1 migration, city transition automated tests and platform-specific save replacement.
+
+### NPC framework
+See `docs/NPC_FRAMEWORK.md` for the technical contract. Two fallback profiles (Milo/Rhea) use one generic presenter. The authored-content workflow exists but should still be validated by creating/assigning real ScriptableObject definitions in the Inspector.
+
+### Test verification
+- User-reported progression: 214/214 passed after earlier RoomBootstrap test corrections; 219/219 passed after generic presenter and scheduled social encounter; latest 226/226 passed after WorldPacingDirector test correction.
+- These are Unity EditMode results reported by the user. The assistant cannot run the local Unity Editor through GitHub.
+- Do not claim Play Mode verification of the WorldPacingDirector: it is Core-only and not wired into gameplay.
+- The user confirmed HideoutSlice, city travel and storage/save-load normal flow in Play Mode as described above.
+
+## 8. Immediate goals and recommended sequencing
+
+### Next recommended initiative: one small NPC-driven playable scenario
+The framework is now broad enough to support a first scenario. Do not expand abstract simulation indefinitely. Design a small complete experience in which:
+1. The player encounters a resident in their public everyday role.
+2. The player can notice or learn something through authored observation, conversation, a request, a clue or a rumour.
+3. The player chooses whether/how to engage.
+4. The choice produces a clear, contained outcome or consequence.
+5. The event uses the same city, NPC network and places as ordinary life.
+
+This is a proposed scenario shape, not pre-approved content. The exact NPC, secret, activity, clues, dialogue, reward, risk, failure and persistence rules must be discussed with and approved by the user before implementation. The baker selling illicit goods is an illustrative example only.
+
+### Supporting short-term work
+- Validate one or two real `NpcCharacterDefinition` assets through Unity Inspector and active scene.
+- Define which NPC state must persist for the selected scenario (stable IDs, relationship values, selected memories, discovery flags or durable world changes) and add versioned migration/tests only for those needs.
+- Design the scenario phase owner and pacing-candidate contract if the scenario requires consequential background developments.
+- Close the known storage/save edge-case checks when convenient.
+- Improve placeholder art only when it materially improves the chosen playable slice.
+
+### Medium term
+- Add a few meaningful residents and locations with overlapping routines.
+- Add player-driven relationship interactions with explicit rules.
+- Build a small goods/trade loop with a limited authored item catalogue and meaningful quality/provenance/ownership decisions.
+- Demonstrate one legal livelihood and one illegal opportunity within the same block and economy.
+- Integrate controlled world developments through the shared pacing gate after phase ownership and persistence are designed.
+- Improve hideout/city visuals, sound and feedback.
+
+### Long term
+- A connected city economy with homes, shops, services, clients, suppliers, residents and criminal dealings sharing the same spaces and networks.
+- Parallel lawful and unlawful lifestyles with free mixing.
+- Broad legal livelihood choices (trade, services, repair, gathering, processing, making goods, small businesses; farming optional).
+- Varied fictional crime activities under one global criminal progression track.
+- Serious potentially lasting criminal failure, with carefully designed thresholds and recovery.
+- Goods whose quality, condition, authenticity, origin/provenance and ownership status create meaningful decisions.
+- NPCs with public/private lives, relationships, secrets, contacts, incomplete knowledge and ongoing routines.
+- A slow evolving city where everyday life continues but consequential developments remain globally paced and major narrative events authored.
+- Scale simulation fidelity by importance and distance rather than simulating every resident equally.
+
+## 9. Design approval gate — never skip
+
+The user welcomes ideas and wants the agent to act as a technical lead and creative systems partner, but remains the final game director.
+
+Before implementing a new gameplay mechanic or consequential design choice, explain:
+- What the player will do/experience.
+- The rules and outcomes.
+- How it interacts with existing systems.
+- Progression/balance implications.
+- Technical dependencies and meaningful alternatives.
+
+Wait for explicit user confirmation. Record approved decisions in the appropriate docs and unresolved questions in `docs/OPEN_QUESTIONS.md`.
+
+Already approved broad directions are not permission to invent their detailed rules. Examples:
+- Water grades/testing/filtering/bottling/selling are possibilities, not a designed loop.
+- Food, crops, wheat, bread and farming are possibilities, not a fixed legal path.
+- Stolen household goods circulating in the market are an example, not a finalized ownership/provenance system.
+- The baker with a concealed illicit business is an example, not a committed character or quest.
+- Crime is a pillar, but exact activities/progression/penalties/police rules remain open.
+- NPCs may have secrets, but no specific secret, faction or storyline is established.
+- World pacing direction C is approved, but tuning and scenario integration are not.
+
+## 10. Collaboration and repository workflow
+
+- Repository: `nitexgaming5-ctrl/Signal`.
+- Shared working branch: `chore/collaboration-workflow-and-audit`.
+- `main` is untouched; no PR workflow is required.
+- User normally runs `git pull` locally while already on the shared branch. If switching branches is necessary, explain carefully and warn about uncommitted changes.
+- Fetch current files and blob SHAs before updating; create new files with `create_file`.
+- Update `docs/PROGRESS.md` after every substantial initiative. Keep `docs/ROADMAP.md` and relevant design docs consistent.
+- User uses Unity 6000.6.9f1. Do not use standalone `dotnet`/`msbuild` commands; Unity owns compilation.
+- Assistant cannot run local Unity tests or Play Mode. Report only what code changed and what the user actually verified.
+- Prefer coherent end-to-end work over unnecessary micro-steps. User appreciates exact, practical explanations and clear file/Inspector locations when local work is needed.
+- Keep one active gameplay initiative. Capture tangents in `docs/IDEA_BACKLOG.md`; do not implement parked ideas automatically.
+- Preserve Unity .meta GUIDs, scenes and references. No new packages, asset packs or third-party code without permission.
+
+## 11. Files worth reading first
+
+- `AGENTS.md` — authority, safety, workflow and verification rules.
+- `docs/VISION.md` — concise game identity and pillars.
+- `docs/PROGRESS.md` — actual repository state and verification provenance.
+- `docs/ROADMAP.md` — short/medium/long-term milestones.
+- `docs/NPC_FRAMEWORK.md` — detailed NPC framework contract and boundaries.
+- `docs/ARCHITECTURE.md` — Core/Game boundary and legacy decision.
+- `docs/DESIGN.md` — first NPC utility design (some early Milo-specific prose is historical; current generic framework details are in NPC_FRAMEWORK.md).
+- `docs/OPEN_QUESTIONS.md` — decisions still requiring the user's input.
+- `docs/DEVELOPMENT_WORKFLOW.md` — one active initiative and vertical-slice-first process.
+- `docs/DATA_MODEL.md` — definitions, runtime state and save conventions.
+- `docs/IDEA_BACKLOG.md` — parked ideas, not an implementation queue.
+
+## 12. One-sentence instruction to the next agent
+
+**Build the next small, meaningful player experience in the one shared city using the connected NPC foundation; keep the simulation restrained, make consequential change gradual, and never turn an illustrative idea into a mechanic or story without the user's approval.**
