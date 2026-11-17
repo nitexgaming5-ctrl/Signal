@@ -5,7 +5,7 @@ namespace Signal.Core.Tests
     public sealed class NpcUtilityBrainTests
     {
         [Test]
-        public void BakerWorksDuringTheDayTakesABreakAndSocializesAfterClosing()
+        public void DefaultDayWorkerUsesWorkRestSocialAndHomeWindows()
         {
             var brain = new NpcUtilityBrain();
 
@@ -15,7 +15,6 @@ namespace Signal.Core.Tests
             Assert.That(brain.AdvanceTo(1, 19 * 60), Is.EqualTo(NpcActivity.Socialize));
             Assert.That(brain.AdvanceTo(1, 22 * 60), Is.EqualTo(NpcActivity.Home));
         }
-
 
         [Test]
         public void FamiliarNearbyPeopleAndPersonallyKnownEventsCanInfluenceSocialising()
@@ -35,13 +34,32 @@ namespace Signal.Core.Tests
                 "known-delivery", "Delivery", "A parcel arrived.", null,
                 "Street", 0f, 0f, 0f, 1, 590));
 
-            NpcActivity alone = new NpcUtilityBrain().AdvanceTo(
-                1, 10 * 60, aloneWorld.BuildPerceptionFor("observer", 8f));
-            NpcActivity withFriendsAndKnowledge = new NpcUtilityBrain().AdvanceTo(
-                1, 10 * 60, socialWorld.BuildPerceptionFor("observer", 8f));
+            var aloneBrain = new NpcUtilityBrain();
+            var socialBrain = new NpcUtilityBrain();
+            aloneBrain.AdvanceTo(1, 599);
+            socialBrain.AdvanceTo(1, 599);
+
+            NpcActivity alone = aloneBrain.AdvanceTo(
+                1, 600, aloneWorld.BuildPerceptionFor("observer", 8f));
+            NpcActivity withFriendsAndKnowledge = socialBrain.AdvanceTo(
+                1, 600, socialWorld.BuildPerceptionFor("observer", 8f));
 
             Assert.That(alone, Is.EqualTo(NpcActivity.Work));
             Assert.That(withFriendsAndKnowledge, Is.EqualTo(NpcActivity.Socialize));
+        }
+
+        [Test]
+        public void AuthoredRoutineProfileCanChangeWorkHoursWithoutChangingBrainCode()
+        {
+            var profile = new NpcUtilityProfile
+            {
+                WorkStartMinute = 600,
+                WorkEndMinute = 1080
+            };
+            var brain = new NpcUtilityBrain(profile);
+
+            Assert.That(brain.AdvanceTo(1, 8 * 60), Is.Not.EqualTo(NpcActivity.Work));
+            Assert.That(brain.AdvanceTo(1, 10 * 60), Is.EqualTo(NpcActivity.Work));
         }
 
         [Test]
