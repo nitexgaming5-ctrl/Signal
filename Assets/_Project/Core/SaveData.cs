@@ -49,7 +49,7 @@ namespace Signal.Core
     {
         public const int CurrentVersion = 4;
 
-        /// <summary>Accepts the first public save format and the current hideout-storage format.</summary>
+        /// <summary>Accepts save formats v1 through v4 and migrates them to the current item-state format.</summary>
         public static bool TryMigrate(SaveData data, out string error)
         {
             error = null;
