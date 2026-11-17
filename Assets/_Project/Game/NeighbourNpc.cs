@@ -21,6 +21,7 @@ namespace Signal.Game
         private GameClock _clock;
         private NpcSocialWorld _socialWorld;
         private int _conversationSequence;
+        private bool _registeredInSocialWorld;
         private Vector2 _destination;
         private NpcActivity _activity;
         private SpriteRenderer _bodyRenderer;
@@ -48,6 +49,7 @@ namespace Signal.Game
             if (_socialWorld != null)
             {
                 _socialWorld.RegisterNpc(NpcId, ActivityPlace(_activity), transform.position.x, transform.position.y, 8f);
+                _registeredInSocialWorld = true;
             }
         }
 
@@ -159,7 +161,7 @@ namespace Signal.Game
 
         private void SyncSocialPosition()
         {
-            if (_socialWorld == null || !_socialWorld.TryGetNpc(NpcId, out NpcAgentState state))
+            if (_socialWorld == null || !_registeredInSocialWorld)
                 return;
 
             _socialWorld.MoveNpc(NpcId, ActivityPlace(_activity), transform.position.x, transform.position.y);
