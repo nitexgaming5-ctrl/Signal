@@ -1,58 +1,85 @@
-# Signal — Agent Rules (read this first, every session)
+# Signal — Agent Rules
 
-Unity 6000.6.9f1, 2D URP, Input System 1.20.1, UGUI, Test Framework 1.8.0, Tilemap.
-Project root: X:\GameDev\Signal\UnityProject\Signal
+These rules govern technical work in the Signal repository. The user is the game director and final authority on game design.
 
-## Read order (every session)
-1. `docs/PROGRESS.md`: where we are and the one open task
-2. The task card you were given (`docs/tasks/<id>.md`): this is your whole scope
-3. `docs/OPEN_QUESTIONS.md`: read the ANSWER lines, they are binding decisions
-4. `docs/ARCHITECTURE.md`: where code goes and how systems talk
-5. `docs/DATA_MODEL.md`: only if your task touches data or state
-6. Any `AGENTS.md` in the folder you are about to edit
+## Project baseline
+- Unity 6000.6.9f1, 2D URP, Input System 1.20.1, UGUI, Test Framework 1.8.0, Tilemap.
+- Project root on the user's machine: `X:\GameDev\Signal\UnityProject\Signal`.
+- Read `docs/PROGRESS.md`, `docs/VISION.md`, `docs/OPEN_QUESTIONS.md`, `docs/ARCHITECTURE.md`, and `docs/DATA_MODEL.md` before substantial work. Read relevant task cards and folder-level AGENTS.md files when present.
 
-If there is no task card, STOP and ask which task to do. Do not pick one yourself.
+## Scope and authority
+The user has authorized the agent to act as a technical lead and gameplay-systems partner, not merely as a task-card executor.
+- Work may span multiple task cards and files when that is the coherent way to complete an initiative.
+- Work outside an existing task card is allowed. Track it explicitly in `docs/PROGRESS.md`; create or update a task/initiative note under `docs/tasks/` when the work is substantial.
+- Keep changes within the agreed initiative. Do not make unrelated opportunistic changes.
+- Technical implementation and architecture decisions may be made autonomously when they preserve the approved direction and project constraints.
+- Do not claim work is verified unless the relevant verification was actually performed.
 
-## The three rules that matter most
-1. **Build only what the task card asks for.** No extra items, recipes, stats, NPCs, prices, or systems.
-2. **Never invent game content.** Item names, prices, recipe steps, faction names, stat names, dialogue, and locations come from `docs/DESIGN.md`, `docs/OPEN_QUESTIONS.md` answers, or the user. If they are not written there, it is an open question.
-3. **Foundations before features.** Core logic (plain C#, tested) comes before UI, and UI comes before world content. Do not build a feature whose data model does not exist yet.
+## Game-design approval gate
+The game is a hybrid of a deep management/simulation RPG and a narrative-driven RPG.
+- Propose new mechanics freely. The user explicitly wants new mechanics to be developed.
+- Before implementing a new gameplay mechanic or making a consequential game-design decision, explain its purpose, player-facing rules, interactions, progression/balance implications, technical dependencies, and meaningful alternatives.
+- Wait for the user's explicit confirmation before implementing that mechanic or treating the design as approved.
+- Record approved decisions in the appropriate design documentation and unresolved decisions in `docs/OPEN_QUESTIONS.md`.
+- Existing approved decisions in `docs/OPEN_QUESTIONS.md` and decision records remain binding until the user changes them.
+- Do not confuse a technical implementation choice with a gameplay-design decision.
 
-## Hard rules
-- Stay inside the task card's "Files you may touch" list. Create files only if the card allows it.
-- Never delete or rename a file unless the card says so. Mark old code with `// DEPRECATED: <reason>` instead.
-- No new Unity packages, no Asset Store or resource packs, no third-party code without asking.
-- No `string` item or recipe ids in gameplay code. Reference definitions (ScriptableObjects) instead. See DATA_MODEL.md.
-- No `FindObjectOfType`, `GameObject.Find`, or new singletons. Pass dependencies through serialized fields or constructors.
-- Keep pure logic free of `UnityEngine` references so it can be tested in EditMode.
-- Placeholder art is allowed (solid colors, simple shapes). Log every placeholder in `docs/ART_TODO.md`.
-- Every change must compile. Check the Unity Console before reporting done. If it doesn't compile, fix it or stop and report. Do not move asmdefs or change project settings to get around an error.
-- Do NOT run `dotnet`, `msbuild`, or any build command. Unity compiles the project, not you.
-- Do NOT claim a file exists unless a command you ran shows it.
-- Run EditMode tests for any logic you added. Report the result.
+## Architecture and implementation rules
+1. **Foundations before dependent features.** Core logic (plain C#, tested) comes before UI, and UI comes before world content. Do not build a feature whose required data model does not exist.
+2. **Keep layers clean.** `Signal.Core` has no `UnityEngine` references. `Signal.Game` contains Unity-facing components and references Core. Content definitions belong in ScriptableObjects.
+3. **No string item or recipe IDs in gameplay code.** Reference definitions and stable asset IDs as specified in `docs/DATA_MODEL.md`.
+4. **No `FindObjectOfType`, `GameObject.Find`, or new singletons.** Pass dependencies through serialized fields or constructors.
+5. **Preserve Unity asset identity.** Do not casually move, rename, or delete Unity assets; preserve their `.meta` GUIDs and scene references.
+6. **No new Unity packages, Asset Store packs, external resource packs, or third-party code without asking.** Respect the accepted no-resource-packs decision.
+7. **Comments explain why, not what.** Keep public APIs focused and avoid unnecessary abstractions.
+8. **Avoid unrelated refactors.** Refactor when required by the initiative or when a concrete defect/risk justifies it; document material scope changes.
 
-## Stop and ask when
-- The task card conflicts with DESIGN.md or an OPEN_QUESTIONS answer
-- You need a decision the docs don't cover
-- Compile errors appear outside your files
-- You would need to touch more files than the card lists
+## Verification rules
+- Every code change must be checked for compilation and relevant tests when the necessary environment is available.
+- Run EditMode tests for logic added or changed when Unity is available.
+- Do NOT run `dotnet`, `msbuild`, or other standalone build commands for this Unity project. Unity compiles the project.
+- Do not claim a file exists unless a repository listing or command confirms it.
+- Separate verification states clearly: code inspected, automated tests run, Unity compilation checked, and in-Editor gameplay manually verified are different claims.
+- If Unity is unavailable, state exactly what remains for the user to verify in the Editor.
+- Do not modify Project Settings or package versions merely to work around errors.
 
-When you stop, don't decide the question yourself. Add it to `docs/OPEN_QUESTIONS.md` with two options and your recommendation, then end the session.
+## Documentation is part of the implementation
+Keep these documents consistent:
+- `docs/VISION.md`: approved high-level identity and pillars.
+- `docs/DESIGN.md`: detailed approved gameplay mechanics and rules (create when the first substantial mechanics are approved).
+- `docs/ROADMAP.md`: milestones, dependencies, and exit criteria.
+- `docs/PROGRESS.md`: actual repository state, completed work, verification status, blockers, and next recommended action.
+- `docs/OPEN_QUESTIONS.md`: unresolved design/technical decisions with options and a recommendation.
+- `docs/ARCHITECTURE.md`: technical boundaries and communication patterns.
+- `docs/DATA_MODEL.md`: persistent entities, definitions, and runtime state.
+- `docs/tasks/`: task cards and substantial ad-hoc initiatives.
+- `docs/ART_TODO.md`: placeholders and outstanding art.
 
-## Report format (end of every session, copy this block)
+For every substantial initiative, record:
+- scope and reason;
+- files changed;
+- implementation status;
+- tests and verification actually performed;
+- known limitations and follow-up work;
+- any user decisions still required.
+
+Do not rewrite progress history to make work appear more complete. Preserve previous results with their provenance and dates when known.
+
+## End-of-session report
+Use this format, adapting TASK to an initiative when work is not tied to a task card:
 ```
-TASK: <id>
+TASK / INITIATIVE: <id and title>
 STATUS: done | partial | blocked
-CHANGED: <list of files, created or modified>
-VERIFY IN UNITY: <exact steps the user should do to see it work>
-TESTS: <EditMode results, pass/fail counts>
-PLACEHOLDERS ADDED: <yes/no, and ART_TODO lines added>
-OPEN QUESTIONS ADDED: <list, or none>
+CHANGED: <files created or modified>
+VERIFICATION: <commands/tests actually run and results>
+VERIFY IN UNITY: <exact user steps, or not required>
+OPEN QUESTIONS: <list, or none>
 PROGRESS.md: updated | not updated (why)
+NEXT: <single recommended next action>
 ```
 
 ## Session end
-1. Update `docs/PROGRESS.md`: mark the task done and set the next task. Rewrite the whole file, don't append.
-2. Add any new questions to `docs/OPEN_QUESTIONS.md`.
-3. Write the report block above.
-4. Do not start the next task.
+1. Update `docs/PROGRESS.md` for every substantial initiative.
+2. Record approved mechanics and unresolved questions in their designated documents.
+3. Report verification honestly and list any Unity Editor steps still required.
+4. Do not silently start a separate, unrelated initiative.
