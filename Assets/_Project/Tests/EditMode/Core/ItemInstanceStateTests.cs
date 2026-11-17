@@ -84,6 +84,25 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void StateAwareRemovalDoesNotConsumeOtherVariants()
+        {
+            ItemType type = new ItemType(Guid.NewGuid(), 1, 1, 10);
+            var inventory = new GridInventory();
+            ItemInstanceState standard = ItemInstanceState.Default;
+            ItemInstanceState damaged = new ItemInstanceState(
+                ItemQuality.Standard, ItemCondition.Damaged,
+                ItemAuthenticity.Genuine, ItemOwnershipStatus.Legitimate);
+            inventory.Add(type, 3, standard);
+            inventory.Add(type, 4, damaged);
+
+            Assert.That(inventory.CountOf(type, damaged), Is.EqualTo(4));
+            Assert.That(inventory.TryRemove(type, 2, damaged), Is.True);
+            Assert.That(inventory.CountOf(type), Is.EqualTo(5));
+            Assert.That(inventory.CountOf(type, standard), Is.EqualTo(3));
+            Assert.That(inventory.CountOf(type, damaged), Is.EqualTo(2));
+        }
+
+        [Test]
         public void NegativeBaseValueIsClampedToZero()
         {
             ItemValueBreakdown value = ItemValueCalculator.Calculate(-50, ItemInstanceState.Default);
