@@ -25,6 +25,18 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void InventoryRejectsDuplicateStableIdentity()
+        {
+            ItemType type = CreateItem();
+            var inventory = new GridInventory(2, 1);
+            Guid identity = Guid.NewGuid();
+
+            Assert.That(inventory.Place(type, 0, 0, itemInstanceId: identity).HasValue, Is.True);
+            Assert.That(inventory.Place(type, 1, 0, itemInstanceId: identity).HasValue, Is.False);
+            Assert.That(inventory.Items.Count, Is.EqualTo(1));
+        }
+
+        [Test]
         public void MovingAndRotatingAStackPreservesItsIdentity()
         {
             ItemType type = CreateItem();
