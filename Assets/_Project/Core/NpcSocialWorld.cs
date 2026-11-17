@@ -50,7 +50,8 @@ namespace Signal.Core
                 throw new KeyNotFoundException("NPC is not registered: " + observerNpcId);
 
             var nearby = new List<string>();
-            float radiusSquared = radius * radius;
+            float effectiveRadius = Math.Min(radius, observer.AwarenessRadius);
+            float radiusSquared = effectiveRadius * effectiveRadius;
             foreach (KeyValuePair<string, NpcAgentState> pair in _npcs)
             {
                 NpcAgentState other = pair.Value;
@@ -92,8 +93,9 @@ namespace Signal.Core
             foreach (NpcAgentState npc in _npcs.Values)
             {
                 bool isActor = npc.Id == worldEvent.ActorNpcId;
+                float effectiveRadius = Math.Min(npc.AwarenessRadius, worldEvent.VisibilityRadius);
                 bool canObserve = npc.LocationId == worldEvent.LocationId &&
-                    DistanceSquared(npc.X, npc.Y, worldEvent.X, worldEvent.Y) <= worldEvent.VisibilityRadius * worldEvent.VisibilityRadius;
+                    DistanceSquared(npc.X, npc.Y, worldEvent.X, worldEvent.Y) <= effectiveRadius * effectiveRadius;
 
                 if (isActor || canObserve)
                     npc.Remember(NpcKnowledge.Observe(worldEvent));
