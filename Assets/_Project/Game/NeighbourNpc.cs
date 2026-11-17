@@ -22,6 +22,7 @@ namespace Signal.Game
         private NpcActivity _activity;
         private SpriteRenderer _bodyRenderer;
         private bool _initialized;
+        private string _currentPlace = "Hideout";
 
         public string DisplayName => "Milo";
         public NpcActivity Activity => _activity;
@@ -40,6 +41,12 @@ namespace Signal.Game
             BuildVisual();
             RefreshFromClock(true);
             _initialized = true;
+        }
+
+        public void SetCurrentPlace(string place)
+        {
+            _currentPlace = place ?? string.Empty;
+            transform.position = new Vector3(_destination.x, _destination.y, 0f);
         }
 
         public bool CanTalkFrom(Vector2 position)
@@ -112,8 +119,18 @@ namespace Signal.Game
             {
                 _activity = next;
                 _destination = PositionFor(next);
-                if (snapToDestination)
+                if (snapToDestination || ActivityPlace(next) != _currentPlace)
                     transform.position = new Vector3(_destination.x, _destination.y, 0f);
+            }
+        }
+
+        private static string ActivityPlace(NpcActivity activity)
+        {
+            switch (activity)
+            {
+                case NpcActivity.Work: return "CornerShop";
+                case NpcActivity.Home: return "Apartment";
+                default: return "Street";
             }
         }
 
