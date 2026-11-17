@@ -80,3 +80,4 @@ These are repository observations, not claims that the scene currently compiles 
 
 - 2026-11-17: Consolidated active runtime on Core/Game; kept Main and Prototype scripts as legacy references. Added HideoutSlice, starter furniture and the first draggable/inspectable workbench close-up. Unity verification pending.
 - 2026-11-17: Hardened Core/Game save replacement with File.Replace and isolated its filename from the legacy prototype save to prevent cross-architecture overwrite.
+- 2026-11-17: Fixed a compile error in HudPanel caused by passing the prompt text alignment and color in the wrong argument order to NewText.
