@@ -36,13 +36,13 @@ namespace Signal.Core.Tests
 
             var aloneBrain = new NpcUtilityBrain();
             var socialBrain = new NpcUtilityBrain();
-            aloneBrain.AdvanceTo(1, 599);
-            socialBrain.AdvanceTo(1, 599);
+            aloneBrain.AdvanceTo(1, 1079);
+            socialBrain.AdvanceTo(1, 1079);
 
             NpcActivity alone = aloneBrain.AdvanceTo(
-                1, 600, aloneWorld.BuildPerceptionFor("observer", 8f));
+                1, 1080, aloneWorld.BuildPerceptionFor("observer", 8f));
             NpcActivity withFriendsAndKnowledge = socialBrain.AdvanceTo(
-                1, 600, socialWorld.BuildPerceptionFor("observer", 8f));
+                1, 1080, socialWorld.BuildPerceptionFor("observer", 8f));
 
             Assert.That(alone, Is.EqualTo(NpcActivity.Work));
             Assert.That(withFriendsAndKnowledge, Is.EqualTo(NpcActivity.Socialize));
