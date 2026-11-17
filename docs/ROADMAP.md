@@ -79,7 +79,7 @@ The initiative is defined in detail in [NPC_FRAMEWORK.md](NPC_FRAMEWORK.md). Its
 - [x] Integrate one shared world context with the active city runtime; register Milo as a temporary fixture and provide event publishing for the current or another city location.
 - [x] Author Core and Game EditMode coverage for local presence, event visibility, knowledge exchange, trust confidence, character-scoped perception and off-screen events (execution still pending).
 - [ ] Run the Core/Game EditMode suites in Unity and resolve any failures.
-- [ ] Feed each NPC's own perceptions and social context into its decision layer; do not expose the omniscient world journal as character knowledge.
+- [x] Feed each NPC's own perception snapshot into utility decisions; nearby relationship impressions and personally known information influence socialising without exposing the global event journal.
 - [ ] Replace Milo-specific runtime assumptions with data-driven character definitions and a generic presenter.
 - [ ] Add a second temporary test profile to prove that multiple NPCs can be authored without another character-specific MonoBehaviour.
 - [ ] Design persistence for stable NPC IDs, relationships, selected memories and discovered information, with save migration tests.
