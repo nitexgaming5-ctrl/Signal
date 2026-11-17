@@ -38,8 +38,6 @@ namespace Signal.Game
 
         public bool IsAtHome => _place == Place.Hideout;
         public string CurrentPlace => _place.ToString();
-        public Vector2 NeighbourPosition => FindResident("milo") != null ? FindResident("milo").Position : Vector2.zero;
-        public NpcActivity NeighbourActivity => FindResident("milo") != null ? FindResident("milo").Activity : NpcActivity.Home;
         public int ResidentCount => _residents.Count;
 
         public Vector2 GetResidentPosition(string npcId)
