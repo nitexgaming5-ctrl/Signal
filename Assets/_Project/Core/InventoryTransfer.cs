@@ -32,8 +32,7 @@ namespace Signal.Core
 
             InventorySnapshot sourceBefore = source.CreateSnapshot();
             InventorySnapshot destinationBefore = destination.CreateSnapshot();
-            PlacedItem[] candidates = new PlacedItem[source.Items.Count];
-            source.Items.CopyTo(candidates, 0);
+            var candidates = new System.Collections.Generic.List<PlacedItem>(source.Items);
 
             int moved = 0;
             foreach (PlacedItem item in candidates)
