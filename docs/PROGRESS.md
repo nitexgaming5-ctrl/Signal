@@ -85,6 +85,7 @@ The repository contains more of the intended hideout/city direction than the pre
 - Added Game-layer NpcCharacterDefinition ScriptableObject assets and a generic NpcPresenter. GameSession exposes an NPC definitions array for authored assets; CityBlockBootstrap can spawn multiple definitions without per-character components. With no assets assigned, two temporary fallback definitions (Milo and Rhea) prove distinct routine schedules, appearance, dialogue and interaction through the same presenter. Residents are visible/interactable only in their current city location. Removed the superseded NeighbourNpc component.
 - Added Core EditMode tests for local presence, event perception, knowledge sharing, trust-based confidence, movement and duplicate IDs. Extended the city integration test to check registration and conversation event publication. The user's EditMode report confirms the full Core test assembly passes and the CityBlockBootstrap fixture passes; two unrelated legacy RoomBootstrap assertions required correction.
 - The social world is currently runtime-only. Save persistence and event-specific decision goals remain follow-up work. Character definitions now carry authored NpcUtilityProfile data and use the generic presenter; final narrative character assets are intentionally deferred.
+- Added the first controlled social-encounter pass: only residents currently following their authored Socialize activity are eligible; encounters require mutual proximity in the same location, each NPC can participate once per clock pass, and pairs have a 12-hour cooldown. Each encounter adds 0.01 familiarity in both directions, leaves trust/affinity unchanged, exchanges at most one previously unknown event using existing trust-based confidence, and publishes a generic observable event. Added Core tests and a city-clock integration test. Unity verification is pending.
 - Detailed design and sequencing: docs/NPC_FRAMEWORK.md.
 
 ## Verification status
@@ -98,10 +99,11 @@ The repository contains more of the intended hideout/city direction than the pre
 
 1. Pull the latest shared branch, compile in Unity and rerun the full Core/Game EditMode suite; the 214/214 result predates the generic presenter refactor and new integration test.
 2. Create and assign one or more NpcCharacterDefinition assets through the GameSession Inspector to verify the content-authoring workflow in the active scene.
-3. Design stable-ID persistence for meaningful relationships, discoveries and selected memories with save migration tests.
-4. Verify population scale and event-driven simulation boundaries before adding many residents.
-5. Keep the shared-city model: lawful and illegal activity, public life and concealed dealings coexist in the same locations and social network.
-6. At a convenient verification pass, run the existing storage edge-case, version-1 migration, city transition and target-platform save replacement checks.
+3. Run the full Core/Game EditMode suite after the scheduled-social-encounter implementation; the previous 214/214 pass predates the generic presenter and this social layer.
+4. Design stable-ID persistence for meaningful relationships, discoveries and selected memories with save migration tests.
+5. Verify population scale and event-driven simulation boundaries before adding many residents.
+6. Keep the shared-city model: lawful and illegal activity, public life and concealed dealings coexist in the same locations and social network.
+7. At a convenient verification pass, run the existing storage edge-case, version-1 migration, city transition and target-platform save replacement checks.
 
 ## Work log
 - 2026-11-17: Confirmed GitHub access and created the working branch; documented the focus-friendly workflow and original hybrid RPG direction.
@@ -128,3 +130,5 @@ The repository contains more of the intended hideout/city direction than the pre
 - 2026-11-17: User reran the corrected EditMode suite and confirmed 214/214 tests pass.
 - 2026-11-17: Replaced the Milo-specific Game component with NpcCharacterDefinition ScriptableObject content and one generic NpcPresenter. Added GameSession asset assignment, multi-resident city spawning and a second temporary profile with a different work start, dialogue and appearance. Extended CityBlockBootstrap tests for Rhea and Milo using the same presenter. Latest changes await Unity compilation and test execution.
 - 2026-11-17: Reviewed the user's initial EditMode XML report: 212/214 tests passed; all 181 Core tests passed, while the Game assembly had two failures in legacy RoomBootstrapTests. Corrected the floor assertions to check occupied cells and distinct floor tiles (GetUsedTilesCount counts distinct tile assets), and aligned the doorway assertion with RoomBootstrap's intentional open south entrance. The user reran the full EditMode suite and confirmed 214/214 tests pass; no Unity test execution was available through the repository connection.
+
+- 2026-11-17: Added a controlled scheduled NPC social layer. Clock changes trigger one deterministic encounter pass after NPC routine updates; only mutually nearby residents currently in Socialize can meet. Pair cooldowns and a one-encounter-per-NPC pass limit keep the simulation restrained. Encounters build familiarity slowly, preserve trust/affinity, exchange at most one known event and publish a generic observable event. Added Core coverage and a CityBlockBootstrap integration test; Unity verification is pending.
