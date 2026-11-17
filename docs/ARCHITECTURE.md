@@ -63,3 +63,20 @@ Put logic in Core, tested. Put presentation in Game. Put numbers and names in Co
 - `GameSession` is the only place that wires Core objects (stats, inventory, clock, rent, heat) to Game objects (room, panels, save file).
 - Core objects never know about Unity. Game objects only call Core methods and draw the result.
 
+
+
+## Active architecture decision (2026-11-17)
+
+**Signal.Core + Signal.Game are the single active gameplay architecture.** Core owns pure domain state and rules; Game owns Unity runtime, input, scene composition, world objects, UI and persistence adapters.
+
+The old `Assets/_Project/Scenes/Main.unity` and `Assets/_Project/_Prototype/Scripts` are retained as legacy references because the scene contains useful city/shelter art and gameplay experiments. They are not the active build path, and no new gameplay should be added there. The active build scene is `Assets/_Project/Scenes/HideoutSlice.unity`, composed by `Signal.Game.GameSession`.
+
+Why Core/Game: clearer boundaries, reusable domain rules, and focused EditMode coverage. The prototype contains useful ideas (outing/loot risk, shelter switching, factions and NPC interactions), but duplicates state and uses global lookups and tightly coupled scene wiring. Migrate only the useful behavior required by a slice; rewrite it against Core/Game rather than bulk-copying it.
+
+Do not run both architectures in the same active scene. Preserve Main and its asset GUIDs until valuable content has been migrated and verified. Remove the legacy scripts only in a separate cleanup after their scene references are gone.
+
+## First hideout implementation
+
+The active HideoutSlice is a code-built first-pass room. It contains placeholder bed, table, chair, storage and a physical workbench. The workbench opens a close-up UGUI tabletop with draggable and inspectable props. This is a visual interaction prototype only: it does not consume inventory or define production/economy rules.
+
+The workbench UI uses an EventSystem with InputSystemUIInputModule because it has pointer-driven buttons and drag interactions; ordinary world movement continues to use Input System polling.
