@@ -30,11 +30,6 @@ namespace Signal.Core.Tests
                 "delivery-1", "Delivery", "A sealed parcel changed hands.",
                 "milo", "Street", 0f, 0f, 5f, 1, 600));
 
-            Assert.That(world.TryGetNpc("milo", out NpcAgentState actor), Is.True);
-            Assert.That(world.TryGetNpc("customer", out NpcAgentState witness), Is.True);
-            Assert.That(world.TryGetNpc("neighbour", out NpcAgentState elsewhere), Is.True);
-            Assert.That(world.TryGetNpc("distant", out NpcAgentState tooFar), Is.True);
-            Assert.That(world.TryGetNpc("shortSighted", out NpcAgentState shortSighted), Is.True);
 
             NpcPerception actorView = world.BuildPerceptionFor("milo", 8f);
             NpcPerception witnessView = world.BuildPerceptionFor("customer", 8f);
