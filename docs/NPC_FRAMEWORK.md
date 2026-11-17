@@ -72,3 +72,15 @@ The first Milo implementation is a disposable test character. Its purpose is to 
 Two temporary character definitions now use the same NpcPresenter and register in the same shared world; the Game integration test exercises Rhea's separate routine and conversation alongside Milo. The extended test still needs to be rerun in Unity. Two characters in the same place can perceive a shared event, exchange information with different confidence based on their relationship, and retain distinct knowledge. A character in another location or outside the perception radius does not receive that knowledge automatically. The utility decision layer consumes the character-scoped context for its first social decision pass; event-specific goals remain future work.
 
 This is a framework milestone, not a narrative milestone. No new story arc, final NPC cast, crime activity, economy rule or relationship progression system is included.
+
+
+## Shared world pacing — first Core foundation
+
+- `WorldPacingDirector` is the single shared permission gate for consequential world developments. It does not create events, choose outcomes, or queue candidates.
+- A calling system must first establish that a development has valid context (for example, relevant circumstances and an eligible scenario condition), then call `TryAuthorizeDevelopment`. Invalid candidates do not consume pacing permission.
+- All development systems share one interval. There are no independent social/business/discovery event budgets in this first pass, and unused permission never accumulates into multiple future releases.
+- The director requires an authored scenario phase ID. Reapplying the same phase does not reset its clock. Changing phase starts a fresh restraint ramp and a quiet interval, so phase advancement cannot dump a backlog.
+- The permitted interval grows linearly from a configured minimum to a configured maximum over a configured phase-ramp duration. Long periods in one phase therefore make meaningful developments progressively less frequent.
+- The director is deliberately not connected to ambient NPC meetings, familiarity, routine decisions or ordinary perception. Those remain everyday simulation.
+- The director has no default tuning values and is not yet wired to scenario content. A future scenario owner must supply approved pacing values and call it only after validating a real candidate. No dramatic event catalogue or automatic catch-up scheduler is introduced.
+- Clock rewinds are rejected for authorization rather than treated as fresh time; persistence/reconstruction of the director's phase and last authorization will be designed alongside scenario/save state before this becomes live gameplay.
