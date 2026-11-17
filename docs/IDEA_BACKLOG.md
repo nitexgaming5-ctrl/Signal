@@ -24,6 +24,8 @@ Do not implement a parked idea until it is selected as the next initiative and i
 - **Goods with meaningful properties:** quality, condition, authenticity, origin/provenance and ownership status can influence inspection, use, trade and risk where they create interesting decisions.
 - **Shared people and events:** NPCs, clients, suppliers, contacts, factions, rumours and world events create opportunities and consequences for both lawful and illegal activity in the same neighbourhoods.
 
+- **Low-cost living NPCs:** approved direction is a hybrid of authored routines and a deterministic, needs-driven utility brain. Begin with a few meaningful activities and scale simulation detail by importance, not by running a heavyweight agent for every citizen.
+
 ## Candidate systems — needs design before implementation
 - **NPC depth and persistence:** determine when relationships, memories, discovered secrets and off-screen activity need persistent state. The first utility-brain prototype is in place; deeper behaviour should be driven by a connected scenario.
 - **Goods and item identity:** decide which goods need quality/condition/authenticity/provenance/ownership data, how players discover those properties, and how much information is hidden or uncertain.
