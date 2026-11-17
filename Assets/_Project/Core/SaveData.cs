@@ -25,29 +25,31 @@ namespace Signal.Core
         public int missedRent;
         public int inventoryWidth;
         public int inventoryHeight;
+        public int storageWidth;
+        public int storageHeight;
+        public string worldPlace = "Hideout";
         public float playerX;
         public float playerY;
         public List<SavedItem> items = new List<SavedItem>();
+        public List<SavedItem> storageItems = new List<SavedItem>();
     }
 
     public sealed class LoadReport
     {
         public bool Success { get; set; }
-
         public string Error { get; set; }
-
         public int SkippedItems { get; set; }
+        public int SkippedStorageItems { get; set; }
     }
 
     public static class SaveMigrator
     {
-        public const int CurrentVersion = 1;
+        public const int CurrentVersion = 2;
 
-        /// <summary>Brings older saves up to date. Version 1 is the first, so there is nothing to convert yet.</summary>
+        /// <summary>Accepts the first public save format and the current hideout-storage format.</summary>
         public static bool TryMigrate(SaveData data, out string error)
         {
             error = null;
-
             if (data == null)
             {
                 error = "No save data.";
@@ -66,6 +68,13 @@ namespace Signal.Core
                 return false;
             }
 
+            // Version 1 did not contain a separate home store or a world location.
+            if (data.version == 1)
+            {
+                data.worldPlace = "Hideout";
+                data.storageItems = new List<SavedItem>();
+            }
+
             return true;
         }
     }
@@ -74,6 +83,13 @@ namespace Signal.Core
     {
         public static SaveData Capture(PlayerStats stats, GridInventory inventory, GameClock clock, HeatMeter heat,
                                        RentLedger rent, float playerX, float playerY)
+        {
+            return Capture(stats, inventory, null, clock, heat, rent, "Hideout", playerX, playerY);
+        }
+
+        public static SaveData Capture(PlayerStats stats, GridInventory inventory, GridInventory storage,
+                                       GameClock clock, HeatMeter heat, RentLedger rent, string worldPlace,
+                                       float playerX, float playerY)
         {
             if (stats == null) throw new ArgumentNullException(nameof(stats));
             if (inventory == null) throw new ArgumentNullException(nameof(inventory));
@@ -91,31 +107,28 @@ namespace Signal.Core
                 missedRent = rent.MissedPayments,
                 inventoryWidth = inventory.Width,
                 inventoryHeight = inventory.Height,
+                storageWidth = storage != null ? storage.Width : 0,
+                storageHeight = storage != null ? storage.Height : 0,
+                worldPlace = string.IsNullOrWhiteSpace(worldPlace) ? "Hideout" : worldPlace,
                 playerX = playerX,
                 playerY = playerY
             };
 
-            foreach (var item in inventory.Items)
-            {
-                data.items.Add(new SavedItem
-                {
-                    typeId = item.Type.Id.ToString(),
-                    x = item.X,
-                    y = item.Y,
-                    rotated = item.Rotated,
-                    count = item.Count
-                });
-            }
+            CaptureItems(inventory, data.items);
+            if (storage != null)
+                CaptureItems(storage, data.storageItems);
 
             return data;
         }
 
-        /// <summary>
-        /// Applies a save to the live game objects. Items whose type is unknown, or that no longer fit,
-        /// are skipped and counted. A save that cannot be read changes nothing.
-        /// </summary>
         public static LoadReport Apply(SaveData data, PlayerStats stats, GridInventory inventory, GameClock clock,
                                        HeatMeter heat, RentLedger rent, Func<Guid, ItemType?> resolve)
+        {
+            return Apply(data, stats, inventory, null, clock, heat, rent, resolve);
+        }
+
+        public static LoadReport Apply(SaveData data, PlayerStats stats, GridInventory inventory, GridInventory storage,
+                                       GameClock clock, HeatMeter heat, RentLedger rent, Func<Guid, ItemType?> resolve)
         {
             if (stats == null) throw new ArgumentNullException(nameof(stats));
             if (inventory == null) throw new ArgumentNullException(nameof(inventory));
@@ -133,25 +146,58 @@ namespace Signal.Core
             rent.Restore(data.missedRent);
 
             inventory.Clear();
+            int skipped = RestoreItems(data.items, inventory, resolve);
 
-            int skipped = 0;
-            if (data.items != null)
+            int skippedStorage = 0;
+            if (storage != null)
             {
-                foreach (var saved in data.items)
-                {
-                    if (saved == null || !Guid.TryParse(saved.typeId, out Guid id))
-                    {
-                        skipped++;
-                        continue;
-                    }
-
-                    ItemType? type = resolve(id);
-                    if (!type.HasValue || !inventory.Place(type.Value, saved.x, saved.y, saved.rotated, saved.count).HasValue)
-                        skipped++;
-                }
+                storage.Clear();
+                skippedStorage = RestoreItems(data.storageItems, storage, resolve);
             }
 
-            return new LoadReport { Success = true, SkippedItems = skipped };
+            return new LoadReport
+            {
+                Success = true,
+                SkippedItems = skipped,
+                SkippedStorageItems = skippedStorage
+            };
+        }
+
+        private static void CaptureItems(GridInventory inventory, List<SavedItem> destination)
+        {
+            foreach (var item in inventory.Items)
+            {
+                destination.Add(new SavedItem
+                {
+                    typeId = item.Type.Id.ToString(),
+                    x = item.X,
+                    y = item.Y,
+                    rotated = item.Rotated,
+                    count = item.Count
+                });
+            }
+        }
+
+        private static int RestoreItems(List<SavedItem> savedItems, GridInventory destination, Func<Guid, ItemType?> resolve)
+        {
+            int skipped = 0;
+            if (savedItems == null)
+                return skipped;
+
+            foreach (var saved in savedItems)
+            {
+                if (saved == null || !Guid.TryParse(saved.typeId, out Guid id))
+                {
+                    skipped++;
+                    continue;
+                }
+
+                ItemType? type = resolve(id);
+                if (!type.HasValue || !destination.Place(type.Value, saved.x, saved.y, saved.rotated, saved.count).HasValue)
+                    skipped++;
+            }
+
+            return skipped;
         }
     }
 }
