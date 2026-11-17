@@ -1,7 +1,7 @@
 # Roadmap — foundations first
 
-Rule: a milestone is done only when its exit check passes in Unity. Do not start the next one early.
-Each milestone is split into task cards in `docs/tasks/`. One card per agent session.
+Rule: milestones are done only when their player-facing exit check passes in Unity. The roadmap is a dependency map, not a command to build isolated systems in sequence. Work is organized around one active vertical-slice initiative at a time; an initiative may span multiple task cards and sessions. See `docs/DEVELOPMENT_WORKFLOW.md`.
+Task cards are implementation aids, not session boundaries. Combine cards when that produces a coherent playable outcome.
 
 ## M0 — Project foundation
 Goal: a clean project the agent can work in safely.
@@ -72,3 +72,9 @@ Goal: leave the room to a street. Only after M1–M9 pass.
 
 ## Art track (parallel, optional)
 Placeholder art is replaced in a single pass after M4, using Aseprite files imported natively (see ART_AND_UI.md). Never mix art passes into logic tasks.
+
+
+## Integration rule — no isolated-system milestones
+M1–M9 describe foundations and capabilities, but they are not all valuable as standalone deliverables. As soon as the relevant foundations are stable, integrate them into the smallest complete playable loop. The target is a player-facing scenario with a real interaction, meaningful cost/reward, clear feedback, and a consequence. Expand the scenario only after it works in the Unity Editor.
+
+A milestone can be technically implemented but still be marked **not integrated** or **not verified**. Do not call the first vertical slice complete until a player can experience its full loop without debug-only shortcuts.
