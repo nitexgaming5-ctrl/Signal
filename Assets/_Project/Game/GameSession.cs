@@ -278,10 +278,10 @@ namespace Signal.Game
             return _catalog.TryGetValue(id, out ItemType type) ? type : (ItemType?)null;
         }
 
-        private void Say(string text)
+        private void Say(string text, float seconds = 3f)
         {
             if (_hud != null)
-                _hud.ShowMessage(text);
+                _hud.ShowMessage(text, seconds);
         }
 
         private static Camera CreateCamera()
