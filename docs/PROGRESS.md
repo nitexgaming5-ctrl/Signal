@@ -1,8 +1,8 @@
 # Progress
 
-## Current initiative: repository baseline audit and collaboration workflow
+## Current initiative: repository baseline audit and focus-friendly development workflow
 
-Status: in progress. The GitHub connection is confirmed and the current `main` branch has been inspected read-only. Work is being tracked on `chore/collaboration-workflow-and-audit`.
+Status: in progress. GitHub access is confirmed. Work is tracked on `chore/collaboration-workflow-and-audit`; `main` remains untouched.
 
 ## Approved project direction
 - Signal is a hybrid management/simulation RPG and narrative-driven RPG.
@@ -51,11 +51,17 @@ These are source-presence observations, not claims that the full gameplay loop i
 - The current `Main.unity` scene contains legacy/prototype-style scene objects. Scene composition and script references need a dedicated inspection before changing or replacing it.
 - The current code and tests have not been executed in Unity during this audit.
 
+## Focus and delivery workflow
+- One active gameplay initiative at a time; new ideas go to `docs/IDEA_BACKLOG.md` rather than interrupting active work.
+- Build connected vertical slices with player-facing acceptance criteria, not isolated systems for their own sake.
+- Protect the known-good Core, save compatibility, Unity asset GUIDs, and `main` branch. Use reversible initiative branches.
+- The user has explicitly asked for a focus-friendly process: keep one current objective and one recommended next action visible, and handle technical sequencing without repeatedly asking them to manage it.
+- `docs/DEVELOPMENT_WORKFLOW.md` defines the lifecycle and definition of done.
+
 ## Next
-1. Finish the source, scene, test, package, and documentation audit.
-2. Reconcile the remote repository state with the user's local Unity project before any scene migration or destructive changes.
-3. Produce the technical assessment and proposed development sequence.
-4. Propose the first batch of new gameplay mechanics with full rules and wait for user approval before implementing them.
+1. Finish the source, scene, test, package, and documentation audit, prioritizing risks to the existing playable baseline.
+2. Reconcile the remote repository state with the user's local Unity project before scene migration or destructive changes.
+3. Identify the smallest complete player-facing scenario that can be built from existing approved systems; propose any new gameplay rules before implementing them unless the user explicitly authorizes those exact rules.
 
 ## Work log
 - 2026-11-17: Confirmed GitHub repository access; inspected repository tree, core documentation, task cards, project settings, and a first pass of Core/Game code.
