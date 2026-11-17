@@ -1,0 +1,11 @@
+﻿<Solution>
+  <Project Path="MCPForUnity.Editor.csproj" />
+  <Project Path="Signal.Core.csproj" />
+  <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="Signal.Core.Tests.csproj" />
+  <Project Path="MCPForUnity.Runtime.csproj" />
+  <Project Path="Signal.Shop.csproj" />
+  <Project Path="Signal.Game.Tests.csproj" />
+  <Project Path="Signal.Game.csproj" />
+  <Project Path="Signal.Shop.EditModeTests.csproj" />
+</Solution>

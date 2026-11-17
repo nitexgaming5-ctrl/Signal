@@ -1,0 +1,2 @@
+Source: CP_V1.1.0_nyknck pack supplied for Signal prototyping.
+Keep this note with the source pack; confirm the original pack license before redistribution.

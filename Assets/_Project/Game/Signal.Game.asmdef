@@ -1,0 +1,14 @@
+{
+  "name": "Signal.Game",
+  "rootNamespace": "Signal.Game",
+  "references": ["Signal.Core", "UnityEngine.UI", "Unity.InputSystem"],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

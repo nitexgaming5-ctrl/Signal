@@ -1,0 +1,74 @@
+using System;
+using System.Runtime.CompilerServices;
+
+namespace Signal.Core
+{
+    /// <summary>
+    /// An item value for inventory logic.
+    /// </summary>
+    public readonly struct ItemType : IEquatable<ItemType>
+    {
+        private readonly Guid _id;
+        private readonly int _width;
+        private readonly int _height;
+        private readonly int _maxStack;
+
+        public Guid Id => _id;
+        public int Width => _width;
+        public int Height => _height;
+        public int MaxStack => _maxStack;
+
+        public ItemType(Guid id, int width, int height, int maxStack)
+        {
+            if (id == Guid.Empty)
+            {
+                throw new ArgumentException("Id must not be Guid.Empty", nameof(id));
+            }
+
+            if (width < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(width), "Width must be greater than zero");
+            }
+
+            if (height < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(height), "Height must be greater than zero");
+            }
+
+            if (maxStack < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(maxStack), "MaxStack must be greater than zero");
+            }
+
+            _id = id;
+            _width = width;
+            _height = height;
+            _maxStack = maxStack;
+        }
+
+        public bool Equals(ItemType other)
+        {
+            return _id == other._id;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is ItemType other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return _id.GetHashCode();
+        }
+
+        public static bool operator ==(ItemType left, ItemType right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(ItemType left, ItemType right)
+        {
+            return !(left == right);
+        }
+    }
+}

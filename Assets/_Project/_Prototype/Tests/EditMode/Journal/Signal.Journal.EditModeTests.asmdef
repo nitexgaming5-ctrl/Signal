@@ -1,0 +1,14 @@
+{
+  "name": "Signal.Journal.EditModeTests",
+  "rootNamespace": "",
+  "references": ["Signal.Journal"],
+  "includePlatforms": ["Editor"],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "optionalUnityReferences": ["TestAssemblies"]
+}

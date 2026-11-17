@@ -1,0 +1,2836 @@
+fileFormatVersion: 2
+guid: cfcb01ffd4087c44cae675cbb84b710a
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 1846967801125570398
+    second: LoBitCity_Clean_0
+  - first:
+      213: -6089399983547531850
+    second: LoBitCity_Clean_1
+  - first:
+      213: -6297924277288135930
+    second: LoBitCity_Clean_2
+  - first:
+      213: 8880990457342453169
+    second: LoBitCity_Clean_3
+  - first:
+      213: 1687311121527890477
+    second: LoBitCity_Clean_4
+  - first:
+      213: -2434878830345301915
+    second: LoBitCity_Clean_5
+  - first:
+      213: 3447354886477084681
+    second: LoBitCity_Clean_6
+  - first:
+      213: 5261040566625095335
+    second: LoBitCity_Clean_7
+  - first:
+      213: -7998869028689142323
+    second: LoBitCity_Clean_8
+  - first:
+      213: 733696972725847949
+    second: LoBitCity_Clean_9
+  - first:
+      213: -3423235519374423033
+    second: LoBitCity_Clean_10
+  - first:
+      213: -2430149954879171787
+    second: LoBitCity_Clean_11
+  - first:
+      213: 7521053032886434756
+    second: LoBitCity_Clean_12
+  - first:
+      213: -4737840983358229625
+    second: LoBitCity_Clean_13
+  - first:
+      213: -8298645320997197067
+    second: LoBitCity_Clean_14
+  - first:
+      213: 786339819329769751
+    second: LoBitCity_Clean_15
+  - first:
+      213: 4089489514241153861
+    second: LoBitCity_Clean_16
+  - first:
+      213: -8888624847350148594
+    second: LoBitCity_Clean_17
+  - first:
+      213: 4373982052991932427
+    second: LoBitCity_Clean_18
+  - first:
+      213: 6998629739413090659
+    second: LoBitCity_Clean_19
+  - first:
+      213: 3545911651063529316
+    second: LoBitCity_Clean_20
+  - first:
+      213: 3237487979528066598
+    second: LoBitCity_Clean_21
+  - first:
+      213: 5266021423691285525
+    second: LoBitCity_Clean_22
+  - first:
+      213: 4107861711980802970
+    second: LoBitCity_Clean_23
+  - first:
+      213: -5580126045882133709
+    second: LoBitCity_Clean_24
+  - first:
+      213: 2232924219974311195
+    second: LoBitCity_Clean_25
+  - first:
+      213: -7348507221710034138
+    second: LoBitCity_Clean_26
+  - first:
+      213: -5763390687444341487
+    second: LoBitCity_Clean_27
+  - first:
+      213: 2185241705147820836
+    second: LoBitCity_Clean_28
+  - first:
+      213: 6480060649740059959
+    second: LoBitCity_Clean_29
+  - first:
+      213: -7772148797194881771
+    second: LoBitCity_Clean_30
+  - first:
+      213: 5857353205380851703
+    second: LoBitCity_Clean_31
+  - first:
+      213: -3429405295381406217
+    second: LoBitCity_Clean_32
+  - first:
+      213: 794614540860872914
+    second: LoBitCity_Clean_33
+  - first:
+      213: 3338772030779851204
+    second: LoBitCity_Clean_34
+  - first:
+      213: 5162005094679912438
+    second: LoBitCity_Clean_35
+  - first:
+      213: 667640202309008462
+    second: LoBitCity_Clean_36
+  - first:
+      213: -7693145619017064247
+    second: LoBitCity_Clean_37
+  - first:
+      213: -5465159087629180324
+    second: LoBitCity_Clean_38
+  - first:
+      213: 4980400990061992945
+    second: LoBitCity_Clean_39
+  - first:
+      213: -186946024223252561
+    second: LoBitCity_Clean_40
+  - first:
+      213: -4986234978374328758
+    second: LoBitCity_Clean_41
+  - first:
+      213: 1304966593493330913
+    second: LoBitCity_Clean_42
+  - first:
+      213: 2127925910619465813
+    second: LoBitCity_Clean_43
+  - first:
+      213: -6418636167125650312
+    second: LoBitCity_Clean_44
+  - first:
+      213: -8500746791328344051
+    second: LoBitCity_Clean_45
+  - first:
+      213: 2403775594916127669
+    second: LoBitCity_Clean_46
+  - first:
+      213: -2113224643811367938
+    second: LoBitCity_Clean_47
+  - first:
+      213: -3124638005707054356
+    second: LoBitCity_Clean_48
+  - first:
+      213: -2808499222701159240
+    second: LoBitCity_Clean_49
+  - first:
+      213: -2913004956394759355
+    second: LoBitCity_Clean_50
+  - first:
+      213: -6117317677996568252
+    second: LoBitCity_Clean_51
+  - first:
+      213: -6420465753660823629
+    second: LoBitCity_Clean_52
+  - first:
+      213: 4066239617190586585
+    second: LoBitCity_Clean_53
+  - first:
+      213: 6863131903340338731
+    second: LoBitCity_Clean_54
+  - first:
+      213: 1310732158065659984
+    second: LoBitCity_Clean_55
+  - first:
+      213: 6042507220906435256
+    second: LoBitCity_Clean_56
+  - first:
+      213: -20807629627211465
+    second: LoBitCity_Clean_57
+  - first:
+      213: 4830460339627342646
+    second: LoBitCity_Clean_58
+  - first:
+      213: -2635909845559034463
+    second: LoBitCity_Clean_59
+  - first:
+      213: 3949116419349856040
+    second: LoBitCity_Clean_60
+  - first:
+      213: 6215115099801264643
+    second: LoBitCity_Clean_61
+  - first:
+      213: -5433868824886643634
+    second: LoBitCity_Clean_62
+  - first:
+      213: -4111518099423011031
+    second: LoBitCity_Clean_63
+  - first:
+      213: -8345800405855940954
+    second: LoBitCity_Clean_64
+  - first:
+      213: 4029119817827472086
+    second: LoBitCity_Clean_65
+  - first:
+      213: 1007421070543899469
+    second: LoBitCity_Clean_66
+  - first:
+      213: -8827621510178405133
+    second: LoBitCity_Clean_67
+  - first:
+      213: 666056582209781139
+    second: LoBitCity_Clean_68
+  - first:
+      213: -546317065448182747
+    second: LoBitCity_Clean_69
+  - first:
+      213: -1920931833876398428
+    second: LoBitCity_Clean_70
+  - first:
+      213: 1362844822973038699
+    second: LoBitCity_Clean_71
+  - first:
+      213: -4716060867152088193
+    second: LoBitCity_Clean_72
+  - first:
+      213: 556911915538577741
+    second: LoBitCity_Clean_73
+  - first:
+      213: 1751929459308634524
+    second: LoBitCity_Clean_74
+  - first:
+      213: 6456665631997077896
+    second: LoBitCity_Clean_75
+  - first:
+      213: 8692951466164343052
+    second: LoBitCity_Clean_76
+  - first:
+      213: -8853184682603356295
+    second: LoBitCity_Clean_77
+  - first:
+      213: 3763995424063865812
+    second: LoBitCity_Clean_78
+  - first:
+      213: 2868739513055023001
+    second: LoBitCity_Clean_79
+  - first:
+      213: 2572435610981472040
+    second: LoBitCity_Clean_80
+  - first:
+      213: -3514634026507602566
+    second: LoBitCity_Clean_81
+  - first:
+      213: 8834861782180382210
+    second: LoBitCity_Clean_82
+  - first:
+      213: 7126733409553656222
+    second: LoBitCity_Clean_83
+  - first:
+      213: 6174518452556719490
+    second: LoBitCity_Clean_84
+  - first:
+      213: -580071502950969026
+    second: LoBitCity_Clean_85
+  - first:
+      213: 4387599195645812653
+    second: LoBitCity_Clean_86
+  - first:
+      213: 5243152234392510969
+    second: LoBitCity_Clean_87
+  - first:
+      213: -3981189740208781785
+    second: LoBitCity_Clean_88
+  - first:
+      213: -259507799246686540
+    second: LoBitCity_Clean_89
+  - first:
+      213: 8683129679526402973
+    second: LoBitCity_Clean_90
+  - first:
+      213: 4412672366340630681
+    second: LoBitCity_Clean_91
+  - first:
+      213: 5315382715773336472
+    second: LoBitCity_Clean_92
+  - first:
+      213: -1034568469190852699
+    second: LoBitCity_Clean_93
+  - first:
+      213: -3749389763689422768
+    second: LoBitCity_Clean_94
+  - first:
+      213: 3766828581278594580
+    second: LoBitCity_Clean_95
+  - first:
+      213: 8010010645968710591
+    second: LoBitCity_Clean_96
+  - first:
+      213: -6811354518090202277
+    second: LoBitCity_Clean_97
+  - first:
+      213: 5287546677410561471
+    second: LoBitCity_Clean_98
+  - first:
+      213: -3426818355052995436
+    second: LoBitCity_Clean_99
+  - first:
+      213: -7322550187545714128
+    second: LoBitCity_Clean_100
+  - first:
+      213: 3525696011164069938
+    second: LoBitCity_Clean_101
+  - first:
+      213: 8756341571130902224
+    second: LoBitCity_Clean_102
+  - first:
+      213: -1320502700881291996
+    second: LoBitCity_Clean_103
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: LoBitCity_Clean_0
+      rect:
+        serializedVersion: 2
+        x: 207
+        y: 507
+        width: 7
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e578ca1fd6fb1a910800000000000000
+      internalID: 1846967801125570398
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_1
+      rect:
+        serializedVersion: 2
+        x: 223
+        y: 507
+        width: 7
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6bd316d5afa1e7ba0800000000000000
+      internalID: -6089399983547531850
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_2
+      rect:
+        serializedVersion: 2
+        x: 239
+        y: 518
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6039ee5dc374998a0800000000000000
+      internalID: -6297924277288135930
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_3
+      rect:
+        serializedVersion: 2
+        x: 266
+        y: 518
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1b5e78774cd9f3b70800000000000000
+      internalID: 8880990457342453169
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_4
+      rect:
+        serializedVersion: 2
+        x: 282
+        y: 507
+        width: 7
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d226c3876888a6710800000000000000
+      internalID: 1687311121527890477
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_5
+      rect:
+        serializedVersion: 2
+        x: 298
+        y: 507
+        width: 12
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5605626ba92953ed0800000000000000
+      internalID: -2434878830345301915
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_6
+      rect:
+        serializedVersion: 2
+        x: 367
+        y: 518
+        width: 34
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9087c2f110777df20800000000000000
+      internalID: 3447354886477084681
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_7
+      rect:
+        serializedVersion: 2
+        x: 415
+        y: 507
+        width: 23
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7aecb9a6588f20940800000000000000
+      internalID: 5261040566625095335
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_8
+      rect:
+        serializedVersion: 2
+        x: 458
+        y: 507
+        width: 23
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dcd1c1c8ffe4ef090800000000000000
+      internalID: -7998869028689142323
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_9
+      rect:
+        serializedVersion: 2
+        x: 543
+        y: 507
+        width: 7
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d878a18628d9e2a00800000000000000
+      internalID: 733696972725847949
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_10
+      rect:
+        serializedVersion: 2
+        x: 559
+        y: 507
+        width: 7
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 70c0035ae693e70d0800000000000000
+      internalID: -3423235519374423033
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_11
+      rect:
+        serializedVersion: 2
+        x: 575
+        y: 518
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 533de74dd7f564ed0800000000000000
+      internalID: -2430149954879171787
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_12
+      rect:
+        serializedVersion: 2
+        x: 602
+        y: 518
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4cbf11a92e5206860800000000000000
+      internalID: 7521053032886434756
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_13
+      rect:
+        serializedVersion: 2
+        x: 618
+        y: 507
+        width: 7
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 78335a05abecf3eb0800000000000000
+      internalID: -4737840983358229625
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_14
+      rect:
+        serializedVersion: 2
+        x: 634
+        y: 507
+        width: 12
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5fa21057c0a45dc80800000000000000
+      internalID: -8298645320997197067
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_15
+      rect:
+        serializedVersion: 2
+        x: 703
+        y: 518
+        width: 34
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 71155e346e3a9ea00800000000000000
+      internalID: 786339819329769751
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_16
+      rect:
+        serializedVersion: 2
+        x: 751
+        y: 507
+        width: 23
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 54b5701db09c0c830800000000000000
+      internalID: 4089489514241153861
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_17
+      rect:
+        serializedVersion: 2
+        x: 794
+        y: 507
+        width: 23
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e02dbf79bc245a480800000000000000
+      internalID: -8888624847350148594
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_18
+      rect:
+        serializedVersion: 2
+        x: 330
+        y: 507
+        width: 39
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b08948ab08183bc30800000000000000
+      internalID: 4373982052991932427
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_19
+      rect:
+        serializedVersion: 2
+        x: 399
+        y: 507
+        width: 18
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 361b33ceaa0202160800000000000000
+      internalID: 6998629739413090659
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_20
+      rect:
+        serializedVersion: 2
+        x: 666
+        y: 507
+        width: 39
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 46f7f8e0cdb953130800000000000000
+      internalID: 3545911651063529316
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_21
+      rect:
+        serializedVersion: 2
+        x: 735
+        y: 507
+        width: 18
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6261e581a2eddec20800000000000000
+      internalID: 3237487979528066598
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_22
+      rect:
+        serializedVersion: 2
+        x: 287
+        y: 379
+        width: 50
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 51447b2959aa41940800000000000000
+      internalID: 5266021423691285525
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_23
+      rect:
+        serializedVersion: 2
+        x: 351
+        y: 379
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a933b01767e020930800000000000000
+      internalID: 4107861711980802970
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_24
+      rect:
+        serializedVersion: 2
+        x: 383
+        y: 379
+        width: 50
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3335a411de86f82b0800000000000000
+      internalID: -5580126045882133709
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_25
+      rect:
+        serializedVersion: 2
+        x: 447
+        y: 331
+        width: 50
+        height: 98
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b1d5fed5fb0fcfe10800000000000000
+      internalID: 2232924219974311195
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_26
+      rect:
+        serializedVersion: 2
+        x: 511
+        y: 331
+        width: 50
+        height: 114
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 62ba49cad9bd40a90800000000000000
+      internalID: -7348507221710034138
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_27
+      rect:
+        serializedVersion: 2
+        x: 591
+        y: 395
+        width: 50
+        height: 50
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 11de51d94b25400b0800000000000000
+      internalID: -5763390687444341487
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_28
+      rect:
+        serializedVersion: 2
+        x: 31
+        y: 350
+        width: 18
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 42b64bfb0c9835e10800000000000000
+      internalID: 2185241705147820836
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_29
+      rect:
+        serializedVersion: 2
+        x: 575
+        y: 331
+        width: 82
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7354ebef3dccde950800000000000000
+      internalID: 6480060649740059959
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_30
+      rect:
+        serializedVersion: 2
+        x: 15
+        y: 299
+        width: 66
+        height: 50
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 51538b9f8d7c32490800000000000000
+      internalID: -7772148797194881771
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_31
+      rect:
+        serializedVersion: 2
+        x: 143
+        y: 283
+        width: 50
+        height: 57
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7f7a8bae4bf794150800000000000000
+      internalID: 5857353205380851703
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_32
+      rect:
+        serializedVersion: 2
+        x: 207
+        y: 315
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7fd92f9bd0e4860d0800000000000000
+      internalID: -3429405295381406217
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_33
+      rect:
+        serializedVersion: 2
+        x: 319
+        y: 300
+        width: 50
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2d85f5107b9070b00800000000000000
+      internalID: 794614540860872914
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_34
+      rect:
+        serializedVersion: 2
+        x: 384
+        y: 299
+        width: 48
+        height: 50
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4c184a0f873b55e20800000000000000
+      internalID: 3338772030779851204
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_35
+      rect:
+        serializedVersion: 2
+        x: 447
+        y: 203
+        width: 50
+        height: 114
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6ff172db84023a740800000000000000
+      internalID: 5162005094679912438
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_36
+      rect:
+        serializedVersion: 2
+        x: 511
+        y: 203
+        width: 98
+        height: 114
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e4cf5680a3fe34900800000000000000
+      internalID: 667640202309008462
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_37
+      rect:
+        serializedVersion: 2
+        x: 79
+        y: 139
+        width: 50
+        height: 146
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9c0a22dc1d47c3590800000000000000
+      internalID: -7693145619017064247
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_38
+      rect:
+        serializedVersion: 2
+        x: 207
+        y: 283
+        width: 34
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c526dd4f3cad724b0800000000000000
+      internalID: -5465159087629180324
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_39
+      rect:
+        serializedVersion: 2
+        x: 255
+        y: 267
+        width: 50
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1fb16ab2050fd1540800000000000000
+      internalID: 4980400990061992945
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_40
+      rect:
+        serializedVersion: 2
+        x: 15
+        y: 123
+        width: 50
+        height: 146
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: faf500ad495d76df0800000000000000
+      internalID: -186946024223252561
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_41
+      rect:
+        serializedVersion: 2
+        x: 143
+        y: 155
+        width: 50
+        height: 105
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a4ede5394b55dcab0800000000000000
+      internalID: -4986234978374328758
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_42
+      rect:
+        serializedVersion: 2
+        x: 207
+        y: 187
+        width: 34
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1ebebe8e33c2c1210800000000000000
+      internalID: 1304966593493330913
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_43
+      rect:
+        serializedVersion: 2
+        x: 255
+        y: 155
+        width: 50
+        height: 98
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 558a2da6759e78d10800000000000000
+      internalID: 2127925910619465813
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_44
+      rect:
+        serializedVersion: 2
+        x: 319
+        y: 155
+        width: 50
+        height: 114
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8743004d96c6ce6a0800000000000000
+      internalID: -6418636167125650312
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_45
+      rect:
+        serializedVersion: 2
+        x: 383
+        y: 155
+        width: 50
+        height: 82
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d08155905d7470a80800000000000000
+      internalID: -8500746791328344051
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_46
+      rect:
+        serializedVersion: 2
+        x: 463
+        y: 171
+        width: 210
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5b3aab6fa2deb5120800000000000000
+      internalID: 2403775594916127669
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_47
+      rect:
+        serializedVersion: 2
+        x: 799
+        y: 203
+        width: 114
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ef3a50ff1615ca2e0800000000000000
+      internalID: -2113224643811367938
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_48
+      rect:
+        serializedVersion: 2
+        x: 95
+        y: 108
+        width: 18
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ce26522f94e03a4d0800000000000000
+      internalID: -3124638005707054356
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_49
+      rect:
+        serializedVersion: 2
+        x: 207
+        y: 107
+        width: 18
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8bccfe646d43609d0800000000000000
+      internalID: -2808499222701159240
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_50
+      rect:
+        serializedVersion: 2
+        x: 261
+        y: 119
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 54b53290d6de297d0800000000000000
+      internalID: -2913004956394759355
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_51
+      rect:
+        serializedVersion: 2
+        x: 320
+        y: 108
+        width: 32
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4411cc89bfbea1ba0800000000000000
+      internalID: -6117317677996568252
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_52
+      rect:
+        serializedVersion: 2
+        x: 351
+        y: 108
+        width: 9
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3b76c740a6ce5e6a0800000000000000
+      internalID: -6420465753660823629
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_53
+      rect:
+        serializedVersion: 2
+        x: 352
+        y: 91
+        width: 32
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9d8e342536f2e6830800000000000000
+      internalID: 4066239617190586585
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_54
+      rect:
+        serializedVersion: 2
+        x: 384
+        y: 91
+        width: 17
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b2e50498a1ebe3f50800000000000000
+      internalID: 6863131903340338731
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_55
+      rect:
+        serializedVersion: 2
+        x: 417
+        y: 109
+        width: 46
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0505f2504f7a03210800000000000000
+      internalID: 1310732158065659984
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_56
+      rect:
+        serializedVersion: 2
+        x: 511
+        y: 91
+        width: 18
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8b26cd68d4c4bd350800000000000000
+      internalID: 6042507220906435256
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_57
+      rect:
+        serializedVersion: 2
+        x: 543
+        y: 91
+        width: 34
+        height: 46
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 731c373329316bff0800000000000000
+      internalID: -20807629627211465
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_58
+      rect:
+        serializedVersion: 2
+        x: 592
+        y: 108
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 63bb915061e390340800000000000000
+      internalID: 4830460339627342646
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_59
+      rect:
+        serializedVersion: 2
+        x: 799
+        y: 123
+        width: 50
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1adbf7b06fd5b6bd0800000000000000
+      internalID: -2635909845559034463
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_60
+      rect:
+        serializedVersion: 2
+        x: 863
+        y: 123
+        width: 50
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 82fb208c5741ec630800000000000000
+      internalID: 3949116419349856040
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_61
+      rect:
+        serializedVersion: 2
+        x: 15
+        y: 11
+        width: 50
+        height: 106
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 30222d11146804650800000000000000
+      internalID: 6215115099801264643
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_62
+      rect:
+        serializedVersion: 2
+        x: 143
+        y: 59
+        width: 34
+        height: 58
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e44ff88f7150794b0800000000000000
+      internalID: -5433868824886643634
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_63
+      rect:
+        serializedVersion: 2
+        x: 244
+        y: 107
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 92f5d448214f0f6c0800000000000000
+      internalID: -4111518099423011031
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_64
+      rect:
+        serializedVersion: 2
+        x: 271
+        y: 113
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6ae45a2bfb2cd2c80800000000000000
+      internalID: -8345800405855940954
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_65
+      rect:
+        serializedVersion: 2
+        x: 299
+        y: 113
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6d2d71b802f4ae730800000000000000
+      internalID: 4029119817827472086
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_66
+      rect:
+        serializedVersion: 2
+        x: 655
+        y: 91
+        width: 34
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d4b430940241bfd00800000000000000
+      internalID: 1007421070543899469
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_67
+      rect:
+        serializedVersion: 2
+        x: 79
+        y: 11
+        width: 50
+        height: 98
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3f4083ad10dfd7580800000000000000
+      internalID: -8827621510178405133
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_68
+      rect:
+        serializedVersion: 2
+        x: 320
+        y: 91
+        width: 16
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 39dbceebeee4e3900800000000000000
+      internalID: 666056582209781139
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_69
+      rect:
+        serializedVersion: 2
+        x: 335
+        y: 92
+        width: 18
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 52c2a3306871b68f0800000000000000
+      internalID: -546317065448182747
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_70
+      rect:
+        serializedVersion: 2
+        x: 416
+        y: 96
+        width: 14
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4aebe04bcaa7755e0800000000000000
+      internalID: -1920931833876398428
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_71
+      rect:
+        serializedVersion: 2
+        x: 434
+        y: 91
+        width: 12
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b60c945552cc9e210800000000000000
+      internalID: 1362844822973038699
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_72
+      rect:
+        serializedVersion: 2
+        x: 450
+        y: 85
+        width: 12
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f73774ac0af2d8eb0800000000000000
+      internalID: -4716060867152088193
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_73
+      rect:
+        serializedVersion: 2
+        x: 482
+        y: 91
+        width: 12
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d49fbd0cf6c8ab700800000000000000
+      internalID: 556911915538577741
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_74
+      rect:
+        serializedVersion: 2
+        x: 591
+        y: 91
+        width: 20
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c9122a5af8a105810800000000000000
+      internalID: 1751929459308634524
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_75
+      rect:
+        serializedVersion: 2
+        x: 623
+        y: 91
+        width: 20
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 889a8a4fe2faa9950800000000000000
+      internalID: 6456665631997077896
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_76
+      rect:
+        serializedVersion: 2
+        x: 735
+        y: 44
+        width: 50
+        height: 68
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c01df6e1d4193a870800000000000000
+      internalID: 8692951466164343052
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_77
+      rect:
+        serializedVersion: 2
+        x: 799
+        y: 44
+        width: 50
+        height: 68
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 97f5f76ff6b232580800000000000000
+      internalID: -8853184682603356295
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_78
+      rect:
+        serializedVersion: 2
+        x: 211
+        y: 75
+        width: 10
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4d3c58b45e56c3430800000000000000
+      internalID: 3763995424063865812
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_79
+      rect:
+        serializedVersion: 2
+        x: 226
+        y: 75
+        width: 12
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 99f85cc436fcfc720800000000000000
+      internalID: 2868739513055023001
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_80
+      rect:
+        serializedVersion: 2
+        x: 275
+        y: 75
+        width: 10
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8279d101f8023b320800000000000000
+      internalID: 2572435610981472040
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_81
+      rect:
+        serializedVersion: 2
+        x: 289
+        y: 11
+        width: 14
+        height: 82
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a75738669f2893fc0800000000000000
+      internalID: -3514634026507602566
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_82
+      rect:
+        serializedVersion: 2
+        x: 351
+        y: 28
+        width: 50
+        height: 49
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 20649865bfbbb9a70800000000000000
+      internalID: 8834861782180382210
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_83
+      rect:
+        serializedVersion: 2
+        x: 479
+        y: 27
+        width: 34
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e99aa55e64e37e260800000000000000
+      internalID: 7126733409553656222
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_84
+      rect:
+        serializedVersion: 2
+        x: 865
+        y: 43
+        width: 46
+        height: 49
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 285ecbf81db40b550800000000000000
+      internalID: 6174518452556719490
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_85
+      rect:
+        serializedVersion: 2
+        x: 207
+        y: 24
+        width: 34
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e31d74a9a0c23f7f0800000000000000
+      internalID: -580071502950969026
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_86
+      rect:
+        serializedVersion: 2
+        x: 257
+        y: 27
+        width: 16
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: daf1241d832e3ec30800000000000000
+      internalID: 4387599195645812653
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_87
+      rect:
+        serializedVersion: 2
+        x: 423
+        y: 32
+        width: 34
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9f1e2428d2b63c840800000000000000
+      internalID: 5243152234392510969
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_88
+      rect:
+        serializedVersion: 2
+        x: 532
+        y: 33
+        width: 40
+        height: 41
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7260d674609ffb8c0800000000000000
+      internalID: -3981189740208781785
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_89
+      rect:
+        serializedVersion: 2
+        x: 625
+        y: 61
+        width: 46
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4b63571180b066cf0800000000000000
+      internalID: -259507799246686540
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_90
+      rect:
+        serializedVersion: 2
+        x: 705
+        y: 46
+        width: 14
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d9b92d6307ca08870800000000000000
+      internalID: 8683129679526402973
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_91
+      rect:
+        serializedVersion: 2
+        x: 147
+        y: 43
+        width: 10
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9986ae94326fc3d30800000000000000
+      internalID: 4412672366340630681
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_92
+      rect:
+        serializedVersion: 2
+        x: 162
+        y: 27
+        width: 13
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 89bbbeafa6804c940800000000000000
+      internalID: 5315382715773336472
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_93
+      rect:
+        serializedVersion: 2
+        x: 177
+        y: 17
+        width: 16
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5af3f0a657974a1f0800000000000000
+      internalID: -1034568469190852699
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_94
+      rect:
+        serializedVersion: 2
+        x: 319
+        y: 27
+        width: 18
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0506ec200ed77fbc0800000000000000
+      internalID: -3749389763689422768
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_95
+      rect:
+        serializedVersion: 2
+        x: 594
+        y: 30
+        width: 12
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 41636ec13a6764430800000000000000
+      internalID: 3766828581278594580
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_96
+      rect:
+        serializedVersion: 2
+        x: 146
+        y: 27
+        width: 12
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fbbef006e36492f60800000000000000
+      internalID: 8010010645968710591
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_97
+      rect:
+        serializedVersion: 2
+        x: 162
+        y: 12
+        width: 12
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b534bf567253971a0800000000000000
+      internalID: -6811354518090202277
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_98
+      rect:
+        serializedVersion: 2
+        x: 703
+        y: 11
+        width: 34
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fbd7a5040b3216940800000000000000
+      internalID: 5287546677410561471
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_99
+      rect:
+        serializedVersion: 2
+        x: 745
+        y: 11
+        width: 8
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 49c1745bcde7170d0800000000000000
+      internalID: -3426818355052995436
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_100
+      rect:
+        serializedVersion: 2
+        x: 761
+        y: 11
+        width: 8
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0322e55a663116a90800000000000000
+      internalID: -7322550187545714128
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_101
+      rect:
+        serializedVersion: 2
+        x: 777
+        y: 11
+        width: 14
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 230327b97d9cde030800000000000000
+      internalID: 3525696011164069938
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_102
+      rect:
+        serializedVersion: 2
+        x: 799
+        y: 11
+        width: 8
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0d64e3f0446c48970800000000000000
+      internalID: 8756341571130902224
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LoBitCity_Clean_103
+      rect:
+        serializedVersion: 2
+        x: 815
+        y: 11
+        width: 8
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 425d6053ac1acade0800000000000000
+      internalID: -1320502700881291996
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      LoBitCity_Clean_0: 1846967801125570398
+      LoBitCity_Clean_1: -6089399983547531850
+      LoBitCity_Clean_10: -3423235519374423033
+      LoBitCity_Clean_100: -7322550187545714128
+      LoBitCity_Clean_101: 3525696011164069938
+      LoBitCity_Clean_102: 8756341571130902224
+      LoBitCity_Clean_103: -1320502700881291996
+      LoBitCity_Clean_11: -2430149954879171787
+      LoBitCity_Clean_12: 7521053032886434756
+      LoBitCity_Clean_13: -4737840983358229625
+      LoBitCity_Clean_14: -8298645320997197067
+      LoBitCity_Clean_15: 786339819329769751
+      LoBitCity_Clean_16: 4089489514241153861
+      LoBitCity_Clean_17: -8888624847350148594
+      LoBitCity_Clean_18: 4373982052991932427
+      LoBitCity_Clean_19: 6998629739413090659
+      LoBitCity_Clean_2: -6297924277288135930
+      LoBitCity_Clean_20: 3545911651063529316
+      LoBitCity_Clean_21: 3237487979528066598
+      LoBitCity_Clean_22: 5266021423691285525
+      LoBitCity_Clean_23: 4107861711980802970
+      LoBitCity_Clean_24: -5580126045882133709
+      LoBitCity_Clean_25: 2232924219974311195
+      LoBitCity_Clean_26: -7348507221710034138
+      LoBitCity_Clean_27: -5763390687444341487
+      LoBitCity_Clean_28: 2185241705147820836
+      LoBitCity_Clean_29: 6480060649740059959
+      LoBitCity_Clean_3: 8880990457342453169
+      LoBitCity_Clean_30: -7772148797194881771
+      LoBitCity_Clean_31: 5857353205380851703
+      LoBitCity_Clean_32: -3429405295381406217
+      LoBitCity_Clean_33: 794614540860872914
+      LoBitCity_Clean_34: 3338772030779851204
+      LoBitCity_Clean_35: 5162005094679912438
+      LoBitCity_Clean_36: 667640202309008462
+      LoBitCity_Clean_37: -7693145619017064247
+      LoBitCity_Clean_38: -5465159087629180324
+      LoBitCity_Clean_39: 4980400990061992945
+      LoBitCity_Clean_4: 1687311121527890477
+      LoBitCity_Clean_40: -186946024223252561
+      LoBitCity_Clean_41: -4986234978374328758
+      LoBitCity_Clean_42: 1304966593493330913
+      LoBitCity_Clean_43: 2127925910619465813
+      LoBitCity_Clean_44: -6418636167125650312
+      LoBitCity_Clean_45: -8500746791328344051
+      LoBitCity_Clean_46: 2403775594916127669
+      LoBitCity_Clean_47: -2113224643811367938
+      LoBitCity_Clean_48: -3124638005707054356
+      LoBitCity_Clean_49: -2808499222701159240
+      LoBitCity_Clean_5: -2434878830345301915
+      LoBitCity_Clean_50: -2913004956394759355
+      LoBitCity_Clean_51: -6117317677996568252
+      LoBitCity_Clean_52: -6420465753660823629
+      LoBitCity_Clean_53: 4066239617190586585
+      LoBitCity_Clean_54: 6863131903340338731
+      LoBitCity_Clean_55: 1310732158065659984
+      LoBitCity_Clean_56: 6042507220906435256
+      LoBitCity_Clean_57: -20807629627211465
+      LoBitCity_Clean_58: 4830460339627342646
+      LoBitCity_Clean_59: -2635909845559034463
+      LoBitCity_Clean_6: 3447354886477084681
+      LoBitCity_Clean_60: 3949116419349856040
+      LoBitCity_Clean_61: 6215115099801264643
+      LoBitCity_Clean_62: -5433868824886643634
+      LoBitCity_Clean_63: -4111518099423011031
+      LoBitCity_Clean_64: -8345800405855940954
+      LoBitCity_Clean_65: 4029119817827472086
+      LoBitCity_Clean_66: 1007421070543899469
+      LoBitCity_Clean_67: -8827621510178405133
+      LoBitCity_Clean_68: 666056582209781139
+      LoBitCity_Clean_69: -546317065448182747
+      LoBitCity_Clean_7: 5261040566625095335
+      LoBitCity_Clean_70: -1920931833876398428
+      LoBitCity_Clean_71: 1362844822973038699
+      LoBitCity_Clean_72: -4716060867152088193
+      LoBitCity_Clean_73: 556911915538577741
+      LoBitCity_Clean_74: 1751929459308634524
+      LoBitCity_Clean_75: 6456665631997077896
+      LoBitCity_Clean_76: 8692951466164343052
+      LoBitCity_Clean_77: -8853184682603356295
+      LoBitCity_Clean_78: 3763995424063865812
+      LoBitCity_Clean_79: 2868739513055023001
+      LoBitCity_Clean_8: -7998869028689142323
+      LoBitCity_Clean_80: 2572435610981472040
+      LoBitCity_Clean_81: -3514634026507602566
+      LoBitCity_Clean_82: 8834861782180382210
+      LoBitCity_Clean_83: 7126733409553656222
+      LoBitCity_Clean_84: 6174518452556719490
+      LoBitCity_Clean_85: -580071502950969026
+      LoBitCity_Clean_86: 4387599195645812653
+      LoBitCity_Clean_87: 5243152234392510969
+      LoBitCity_Clean_88: -3981189740208781785
+      LoBitCity_Clean_89: -259507799246686540
+      LoBitCity_Clean_9: 733696972725847949
+      LoBitCity_Clean_90: 8683129679526402973
+      LoBitCity_Clean_91: 4412672366340630681
+      LoBitCity_Clean_92: 5315382715773336472
+      LoBitCity_Clean_93: -1034568469190852699
+      LoBitCity_Clean_94: -3749389763689422768
+      LoBitCity_Clean_95: 3766828581278594580
+      LoBitCity_Clean_96: 8010010645968710591
+      LoBitCity_Clean_97: -6811354518090202277
+      LoBitCity_Clean_98: 5287546677410561471
+      LoBitCity_Clean_99: -3426818355052995436
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,0 +1,190 @@
+using System;
+using System.Collections.Generic;
+using NUnit.Framework;
+
+namespace Signal.Core.Tests
+{
+    public sealed class SaveMapperTests
+    {
+        private sealed class World
+        {
+            public PlayerStats Stats = new PlayerStats();
+            public GridInventory Inventory = new GridInventory();
+            public GameClock Clock = new GameClock();
+            public HeatMeter Heat = new HeatMeter();
+            public RentLedger Rent = new RentLedger(50, 7);
+        }
+
+        private static ItemType Item(int width, int height, int maxStack)
+        {
+            return new ItemType(Guid.NewGuid(), width, height, maxStack);
+        }
+
+        private static Func<Guid, ItemType?> Resolver(params ItemType[] known)
+        {
+            var map = new Dictionary<Guid, ItemType>();
+            foreach (var type in known)
+                map[type.Id] = type;
+
+            return id => map.TryGetValue(id, out ItemType type) ? type : (ItemType?)null;
+        }
+
+        private static SaveData CaptureOf(World world, float x = 0f, float y = 0f)
+        {
+            return SaveMapper.Capture(world.Stats, world.Inventory, world.Clock, world.Heat, world.Rent, x, y);
+        }
+
+        private static LoadReport ApplyTo(World world, SaveData data, params ItemType[] known)
+        {
+            return SaveMapper.Apply(data, world.Stats, world.Inventory, world.Clock, world.Heat, world.Rent, Resolver(known));
+        }
+
+        [Test]
+        public void CaptureWritesEveryField()
+        {
+            var world = new World();
+            var type = Item(2, 1, 5);
+            world.Stats.Restore(40, 70);
+            world.Clock.Restore(5, 600);
+            world.Heat.Restore(25);
+            world.Rent.Restore(2);
+            world.Inventory.Place(type, 3, 2, rotated: true, count: 4);
+
+            SaveData data = CaptureOf(world, 1.5f, -2.5f);
+
+            Assert.That(data.version, Is.EqualTo(SaveMigrator.CurrentVersion));
+            Assert.That(data.money, Is.EqualTo(40));
+            Assert.That(data.health, Is.EqualTo(70));
+            Assert.That(data.day, Is.EqualTo(5));
+            Assert.That(data.minuteOfDay, Is.EqualTo(600));
+            Assert.That(data.heat, Is.EqualTo(25));
+            Assert.That(data.missedRent, Is.EqualTo(2));
+            Assert.That(data.inventoryWidth, Is.EqualTo(6));
+            Assert.That(data.inventoryHeight, Is.EqualTo(4));
+            Assert.That(data.playerX, Is.EqualTo(1.5f));
+            Assert.That(data.playerY, Is.EqualTo(-2.5f));
+            Assert.That(data.items.Count, Is.EqualTo(1));
+            Assert.That(data.items[0].typeId, Is.EqualTo(type.Id.ToString()));
+            Assert.That(data.items[0].x, Is.EqualTo(3));
+            Assert.That(data.items[0].y, Is.EqualTo(2));
+            Assert.That(data.items[0].rotated, Is.True);
+            Assert.That(data.items[0].count, Is.EqualTo(4));
+        }
+
+        [Test]
+        public void ApplyRestoresEverythingCaptured()
+        {
+            var source = new World();
+            var type = Item(1, 3, 5);
+            source.Stats.Restore(123, 45);
+            source.Clock.Restore(8, 700);
+            source.Heat.Restore(33);
+            source.Rent.Restore(1);
+            source.Inventory.Place(type, 2, 0, rotated: true, count: 3);
+            SaveData data = CaptureOf(source);
+
+            var target = new World();
+            target.Inventory.Place(Item(1, 1, 1), 0, 0);
+
+            LoadReport report = ApplyTo(target, data, type);
+
+            Assert.That(report.Success, Is.True);
+            Assert.That(report.SkippedItems, Is.EqualTo(0));
+            Assert.That(target.Stats.Money, Is.EqualTo(123));
+            Assert.That(target.Stats.Health, Is.EqualTo(45));
+            Assert.That(target.Clock.Day, Is.EqualTo(8));
+            Assert.That(target.Clock.MinuteOfDay, Is.EqualTo(700));
+            Assert.That(target.Heat.Heat, Is.EqualTo(33));
+            Assert.That(target.Rent.MissedPayments, Is.EqualTo(1));
+            Assert.That(target.Inventory.Items.Count, Is.EqualTo(1));
+
+            PlacedItem placed = target.Inventory.Items[0];
+            Assert.That(placed.Type, Is.EqualTo(type));
+            Assert.That(placed.X, Is.EqualTo(2));
+            Assert.That(placed.Y, Is.EqualTo(0));
+            Assert.That(placed.Rotated, Is.True);
+            Assert.That(placed.Count, Is.EqualTo(3));
+        }
+
+        [Test]
+        public void ApplySkipsItemsOfUnknownTypes()
+        {
+            var source = new World();
+            var known = Item(1, 1, 5);
+            var unknown = Item(1, 1, 5);
+            source.Inventory.Place(known, 0, 0, count: 2);
+            source.Inventory.Place(unknown, 1, 0, count: 2);
+            SaveData data = CaptureOf(source);
+
+            var target = new World();
+            LoadReport report = ApplyTo(target, data, known);
+
+            Assert.That(report.Success, Is.True);
+            Assert.That(report.SkippedItems, Is.EqualTo(1));
+            Assert.That(target.Inventory.Items.Count, Is.EqualTo(1));
+            Assert.That(target.Inventory.CountOf(known), Is.EqualTo(2));
+        }
+
+        [Test]
+        public void ApplySkipsItemsThatNoLongerFit()
+        {
+            var source = new World();
+            var type = Item(1, 1, 5);
+            source.Inventory.Place(type, 5, 3);
+            SaveData data = CaptureOf(source);
+
+            var target = new World();
+            target.Inventory = new GridInventory(2, 2);
+            LoadReport report = ApplyTo(target, data, type);
+
+            Assert.That(report.Success, Is.True);
+            Assert.That(report.SkippedItems, Is.EqualTo(1));
+            Assert.That(target.Inventory.Items.Count, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void ApplySkipsAnItemWithAnInvalidTypeId()
+        {
+            var data = new SaveData();
+            data.items.Add(new SavedItem { typeId = "not-a-guid", x = 0, y = 0, count = 1 });
+
+            var target = new World();
+            LoadReport report = ApplyTo(target, data);
+
+            Assert.That(report.Success, Is.True);
+            Assert.That(report.SkippedItems, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void ANewerSaveIsRejectedAndChangesNothing()
+        {
+            var data = new SaveData { version = SaveMigrator.CurrentVersion + 1, money = 999 };
+            var target = new World();
+            target.Stats.Restore(5, 50);
+
+            LoadReport report = ApplyTo(target, data);
+
+            Assert.That(report.Success, Is.False);
+            Assert.That(report.Error, Is.Not.Empty);
+            Assert.That(target.Stats.Money, Is.EqualTo(5));
+        }
+
+        [Test]
+        public void MissingSaveDataIsRejected()
+        {
+            LoadReport report = ApplyTo(new World(), null);
+
+            Assert.That(report.Success, Is.False);
+        }
+
+        [TestCase(1, true)]
+        [TestCase(0, false)]
+        [TestCase(-3, false)]
+        public void MigrationAcceptsOnlyKnownVersions(int version, bool expected)
+        {
+            var data = new SaveData { version = version };
+
+            Assert.That(SaveMigrator.TryMigrate(data, out _), Is.EqualTo(expected));
+        }
+    }
+}
