@@ -1,80 +1,53 @@
-# Roadmap — foundations first
+# Roadmap — build the place before the systems that fill it
 
-Rule: milestones are done only when their player-facing exit check passes in Unity. The roadmap is a dependency map, not a command to build isolated systems in sequence. Work is organized around one active vertical-slice initiative at a time; an initiative may span multiple task cards and sessions. See `docs/DEVELOPMENT_WORKFLOW.md`.
-Task cards are implementation aids, not session boundaries. Combine cards when that produces a coherent playable outcome.
+Milestones are dependency notes, not a mandate to build isolated systems in order. Work is organised around one active, player-facing initiative at a time. Combine technical tasks whenever that produces a coherent playable result. See `docs/DEVELOPMENT_WORKFLOW.md`.
 
-## M0 — Project foundation
-Goal: a clean project the agent can work in safely.
-- Git repo, `.gitignore` (Library, Temp, Obj, Logs, UserSettings, SignalSave)
-- Folder layout from ARCHITECTURE.md
-- Assembly definitions: `Signal.Core` (pure logic, no UnityEngine), `Signal.Core.Tests`, `Signal.Game` (MonoBehaviours)
-- One passing EditMode test to prove the test runner works
-- Exit check: Console clean; Test Runner shows 1 green test; PROGRESS.md updated
+## Current initiative — the first hideout and city block
+**Player outcome:** the player can walk around a small starter house, interact with its furniture, use a tactile workbench workspace, leave the house, explore a compact city block, and enter/exit basic buildings.
 
-## M1 — Player data (no UI, no world)
-Goal: the player has data that can be read, changed, validated and saved.
-- `PlayerStats` as plain C#: Money, Health (0–100). Other stats are NOT added until listed in OPEN_QUESTIONS answered.
-- Validation rules (no negative money, health clamped)
-- Change events
-- Exit check: EditMode tests cover every change path; no scene needed
+### Slice A — make the hideout feel like a place
+- Audit and reuse the existing Main scene, shelter layout, player movement, interaction controller and city art where sound.
+- Establish a reliable walkable hideout interior with readable walls, floor, entrance and player collision.
+- Give the room a coherent starter-home layout: bed, table, chair, storage and workbench.
+- Add or refine interaction prompts and feedback for furniture.
+- Make the workbench a distinct visual interaction: approach it, enter a close-up workspace, manipulate represented objects, and return to the same room state.
+- Add modest visual atmosphere and decoration so the house feels inhabited.
+- Preserve existing save data and the working Core inventory/crafting foundations.
 
-## M2 — Items and grid inventory (logic)
-Goal: items with size take space in a grid, like Tarkov.
-- `ItemDefinition` ScriptableObject: id, display name, width, height, max stack
-- `GridInventory` plain C#: width×height grid, place, remove, move, rotate, stacking, overlap rejection
-- Tests for placement, overlap, rotation, stack limits, out-of-bounds
-- Exit check: all tests green; 3 placeholder ItemDefinitions exist (names from DESIGN or marked PLACEHOLDER)
+**Exit check:** in Unity Play Mode, the player can enter the hideout, move around without clipping through furniture/walls, interact with its key objects, open and close the workbench workspace, and leave the house. The workbench must feel like a place-based interaction, not merely a generic menu.
 
-## M3 — Inventory UI
-Goal: you can see and move items.
-- UGUI grid panel, items drawn as colored rectangles with names
-- Mouse drag and drop between grid cells; invalid drops snap back
-- Open/close with one key (Input System)
-- Exit check: play session, move items, closing and reopening keeps positions
+### Slice B — the surrounding city block
+- Build a compact outdoor street space using the existing city art where appropriate.
+- Connect the hideout entrance to the street and back without losing player state.
+- Add a small number of enterable building shells/interiors. The first pass can use simple placeholder rooms.
+- Keep navigation readable and distances short; the block is a playable context, not a large empty map.
 
-## M4 — Basic world (one room)
-Goal: the player walks inside a readable room.
-- One tilemap room: floor, walls, a door tile (placeholder art)
-- Player movement with collision, top-down
-- Camera follows player, bounded to room
-- Exit check: walk through room, collide with walls, cannot leave
+**Exit check:** the player can move between the hideout and street, enter and exit the initial buildings, and reliably return to the correct location.
 
-## M5 — Save and load
-Goal: money, health, inventory and position survive restart.
-- Save DTO separate from runtime classes
-- Versioned save file with a `version` field
-- Exit check: change state, quit, reopen, state matches
+### Slice C — make the hideout useful
+- Connect existing inventory and crafting capabilities to the physical storage/workbench interactions where appropriate.
+- Make important objects provide clear feedback and a satisfying interaction response.
+- Add decoration/furniture placement only after the basic room and interaction loop is stable; decide its exact rules with the user before implementation.
+- Ensure save/load preserves location and relevant hideout state before introducing persistent furnishing or world changes.
 
-## M6 — Time and schedule
-Goal: days pass through the schedule, not a keypress.
-- Clock with day/time-of-day
-- Sleep action advances the day
-- Exit check: sleep advances day; clock continues during play
+**Exit check:** the player can use the hideout as a practical home base, and changes that are intended to persist survive a save/load cycle.
 
-## M7 — The shop (uses M2 inventory, no hardcoded items)
-Goal: a customer order you can fulfil from inventory.
-- Order definition, stock check against GridInventory, payment to PlayerStats
-- Exit check: order fills, stock changes, money changes, all in tests
+## Later experience layers (not active yet)
+These are broad directions, not approved detailed mechanics:
+- Small city activities and interactions that provide money or resources.
+- Outings with meaningful time, inventory, risk and possible loss.
+- Looting, carrying and bringing things back to the hideout.
+- Characters, relationships, factions and narrative events.
+- A broader economy and hands-on production systems.
 
-## M8 — Chemistry (first recipe)
-Goal: the Drug Dealer-style mixing loop, minimal.
-- Recipe definition: inputs, output, steps
-- Mixing UI: drag ingredients into a flask slot, press mix
-- One recipe working end to end. Quality and contamination come in M9.
+Each layer should be introduced through a complete playable scenario, not as an isolated subsystem.
 
-## M9 — Consequences
-Goal: actions have a cost.
-- Heat meter, rent due each day, one racket
-- Exit check: skipping rent changes state; heat affects one shop outcome
+## Engineering safeguards
+- Preserve Unity asset GUIDs and existing scene references.
+- Do not replace Main or migrate prototype systems blindly; inspect dependencies and verify in the Editor.
+- Keep Core logic independent from UnityEngine where possible.
+- Protect save compatibility; fix and test the existing save replacement risk before relying on persistence for more world state.
+- Do not claim a scene, build or test is verified until it has actually been run in Unity.
 
-## M10 — Second area (outings)
-Goal: leave the room to a street. Only after M1–M9 pass.
-
-## Art track (parallel, optional)
-Placeholder art is replaced in a single pass after M4, using Aseprite files imported natively (see ART_AND_UI.md). Never mix art passes into logic tasks.
-
-
-## Integration rule — no isolated-system milestones
-M1–M9 describe foundations and capabilities, but they are not all valuable as standalone deliverables. As soon as the relevant foundations are stable, integrate them into the smallest complete playable loop. The target is a player-facing scenario with a real interaction, meaningful cost/reward, clear feedback, and a consequence. Expand the scenario only after it works in the Unity Editor.
-
-A milestone can be technically implemented but still be marked **not integrated** or **not verified**. Do not call the first vertical slice complete until a player can experience its full loop without debug-only shortcuts.
+## Definition of a complete slice
+A slice is complete only when the player-facing scenario works in Unity Play Mode, relevant tests pass, the Console has no new errors, save/load behavior is checked where relevant, and `docs/PROGRESS.md` records what was and was not verified.
