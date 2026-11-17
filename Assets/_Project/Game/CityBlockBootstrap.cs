@@ -91,13 +91,14 @@ namespace Signal.Game
 
         public string GetPrompt(Vector2 playerPosition)
         {
+            if (_neighbour != null && _neighbour.CanTalkFrom(playerPosition))
+                return "E  Talk to Milo";
+
             switch (_place)
             {
                 case Place.Hideout:
                     return Near(playerPosition, HomeDoor) ? "E  Leave hideout" : string.Empty;
                 case Place.Street:
-                    if (_neighbour != null && _neighbour.CanTalkFrom(playerPosition))
-                        return "E  Talk to Milo";
                     if (Near(playerPosition, HomeDoor))
                         return "E  Return to hideout";
                     if (Near(playerPosition, ShopDoor))
@@ -117,8 +118,7 @@ namespace Signal.Game
         public bool TryInteractNpc(Vector2 playerPosition, out string dialogue)
         {
             dialogue = null;
-            return _place == Place.Street && _neighbour != null &&
-                   _neighbour.TryTalk(playerPosition, out dialogue);
+            return _neighbour != null && _neighbour.TryTalk(playerPosition, out dialogue);
         }
 
         public bool TryInteract(Vector2 playerPosition)
@@ -227,7 +227,7 @@ namespace Signal.Game
             AddBlock(root, "StreetBenchLeg", new Vector2(4.1f, -17.85f), new Vector2(0.18f, 0.45f), new Color32(76, 61, 49, 255), false, 5);
 
             var npcObject = new GameObject("Milo - Neighbourhood Baker");
-            npcObject.transform.SetParent(root, false);
+            npcObject.transform.SetParent(transform, false);
             _neighbour = npcObject.AddComponent<NeighbourNpc>();
             _neighbour.Bind(_clock);
         }
@@ -262,6 +262,9 @@ namespace Signal.Game
                 AddBlock(root, "ShelfLeft", new Vector2(-4.8f, 0.5f), new Vector2(1.2f, 3f), new Color32(86, 76, 62, 255), true, 3);
                 AddBlock(root, "ShelfRight", new Vector2(4.8f, 0.5f), new Vector2(1.2f, 3f), new Color32(86, 76, 62, 255), true, 3);
                 AddBlock(root, "BackRoomDoor", new Vector2(0f, 4.15f), new Vector2(1.1f, 0.2f), new Color32(55, 48, 42, 255), false, 4);
+                AddBlock(root, "BreadTray", new Vector2(0f, 3.05f), new Vector2(2.3f, 0.28f), new Color32(112, 75, 48, 255), false, 5);
+                AddBlock(root, "BreadLoafLeft", new Vector2(-0.62f, 3.27f), new Vector2(0.62f, 0.28f), new Color32(190, 143, 82, 255), false, 6);
+                AddBlock(root, "BreadLoafRight", new Vector2(0.38f, 3.27f), new Vector2(0.62f, 0.28f), new Color32(190, 143, 82, 255), false, 6);
             }
 
             root.position = new Vector3(origin.x, origin.y, 0f);
