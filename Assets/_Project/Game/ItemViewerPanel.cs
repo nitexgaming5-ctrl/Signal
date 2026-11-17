@@ -26,6 +26,7 @@ namespace Signal.Game
         private GameObject _canvasObject;
         private RectTransform _frame;
         private Image _itemImage;
+        private Text _imageHint;
         private Text _title;
         private Text _category;
         private Text _description;
@@ -87,16 +88,18 @@ namespace Signal.Game
 
             int baseValue = definition == null ? 0 : definition.BaseValue;
             ItemValueBreakdown value = ItemValueCalculator.Calculate(baseValue, item.State);
-            _baseValue.text = "REFERENCE VALUE  /  " + baseValue;
+            _baseValue.text = "REFERENCE UNIT VALUE  /  " + baseValue;
             _valueBreakdown.text =
                 "Quality  ×" + value.QualityMultiplier.ToString("0.##") +
                 "     Condition  ×" + value.ConditionMultiplier.ToString("0.##") + "\n" +
                 "Authenticity  ×" + value.AuthenticityMultiplier.ToString("0.##") +
                 "     Ownership  ×" + value.OwnershipMultiplier.ToString("0.##") + "\n\n" +
-                "INDICATIVE ITEM VALUE  /  " + value.FinalValue;
+                "INDICATIVE UNIT VALUE  /  " + value.FinalValue + "\\n" +
+                "STACK REFERENCE VALUE  /  " + (value.FinalValue * item.Count);
 
             _itemImage.sprite = definition == null ? null : definition.Icon;
             _itemImage.enabled = _itemImage.sprite != null;
+            _imageHint.gameObject.SetActive(_itemImage.sprite == null);
             IsOpen = true;
             _canvasObject.SetActive(true);
         }
@@ -148,15 +151,20 @@ namespace Signal.Game
             close.onClick.AddListener(Close);
 
             RectTransform imageCard = Panel(_frame, "ItemImageCard", CardColor);
-            Anchor(imageCard, new Vector2(34f, -100f), new Vector2(330f, 330f), true);
-            _itemImage = imageCard.gameObject.AddComponent<Image>();
+            Anchor(imageCard, new Vector2(34f, -100f), new Vector2(330f, 270f), true);
+            GameObject artwork = new GameObject("ItemArtwork", typeof(RectTransform), typeof(Image));
+            artwork.transform.SetParent(imageCard, false);
+            _itemImage = artwork.GetComponent<Image>();
             _itemImage.color = Color.white;
             _itemImage.preserveAspect = true;
             _itemImage.raycastTarget = false;
             _itemImage.enabled = false;
+            Stretch(_itemImage.rectTransform);
+            _itemImage.rectTransform.offsetMin = new Vector2(12f, 12f);
+            _itemImage.rectTransform.offsetMax = new Vector2(-12f, -12f);
 
-            Text imageHint = Label(imageCard, "ITEM IMAGE", 14, MutedTextColor, TextAnchor.MiddleCenter);
-            Stretch(imageHint.rectTransform);
+            _imageHint = Label(imageCard, "ITEM IMAGE", 14, MutedTextColor, TextAnchor.MiddleCenter);
+            Stretch(_imageHint.rectTransform);
 
             float rightX = 400f;
             float rightWidth = 680f;
@@ -170,22 +178,22 @@ namespace Signal.Game
             Anchor(_description.rectTransform, new Vector2(rightX, -184f), new Vector2(rightWidth, 86f), true);
 
             RectTransform stateCard = Panel(_frame, "ItemState", CardColor);
-            Anchor(stateCard, new Vector2(34f, -458f), new Vector2(1012f, 170f), true);
+            Anchor(stateCard, new Vector2(34f, -400f), new Vector2(1012f, 160f), true);
             _quantity = Label(stateCard, string.Empty, 16, AccentColor, TextAnchor.MiddleLeft);
             Anchor(_quantity.rectTransform, new Vector2(18f, -12f), new Vector2(300f, 30f), true);
             _quality = Label(stateCard, string.Empty, 17, MainTextColor, TextAnchor.MiddleLeft);
-            Anchor(_quality.rectTransform, new Vector2(18f, -52f), new Vector2(460f, 30f), true);
+            Anchor(_quality.rectTransform, new Vector2(18f, -48f), new Vector2(460f, 30f), true);
             _condition = Label(stateCard, string.Empty, 17, MainTextColor, TextAnchor.MiddleLeft);
-            Anchor(_condition.rectTransform, new Vector2(500f, -52f), new Vector2(460f, 30f), true);
+            Anchor(_condition.rectTransform, new Vector2(500f, -48f), new Vector2(460f, 30f), true);
             _authenticity = Label(stateCard, string.Empty, 17, MainTextColor, TextAnchor.MiddleLeft);
-            Anchor(_authenticity.rectTransform, new Vector2(18f, -96f), new Vector2(460f, 30f), true);
+            Anchor(_authenticity.rectTransform, new Vector2(18f, -94f), new Vector2(460f, 30f), true);
             _ownership = Label(stateCard, string.Empty, 17, MainTextColor, TextAnchor.MiddleLeft);
-            Anchor(_ownership.rectTransform, new Vector2(500f, -96f), new Vector2(460f, 30f), true);
+            Anchor(_ownership.rectTransform, new Vector2(500f, -94f), new Vector2(460f, 30f), true);
 
             _baseValue = Label(_frame, string.Empty, 16, MutedTextColor, TextAnchor.MiddleLeft);
-            Anchor(_baseValue.rectTransform, new Vector2(34f, 210f), new Vector2(500f, 30f), false);
+            Anchor(_baseValue.rectTransform, new Vector2(34f, 170f), new Vector2(500f, 26f), false);
             _valueBreakdown = Label(_frame, string.Empty, 17, MainTextColor, TextAnchor.UpperLeft);
-            Anchor(_valueBreakdown.rectTransform, new Vector2(34f, 74f), new Vector2(1012f, 126f), false);
+            Anchor(_valueBreakdown.rectTransform, new Vector2(34f, 30f), new Vector2(1012f, 126f), false);
 
             _canvasObject.SetActive(false);
             _built = true;
