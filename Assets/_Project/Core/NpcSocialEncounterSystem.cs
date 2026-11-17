@@ -122,7 +122,7 @@ namespace Signal.Core
                 absoluteMinute - lastMinute < _npcCooldownMinutes;
         }
 
-        private void ResolveEncounter(NpcSocialWorld world, first,
+        private void ResolveEncounter(NpcSocialWorld world, NpcAgentState first,
             NpcAgentState second, int day, int minuteOfDay, int absoluteMinute)
         {
             IncreaseFamiliarity(world, first.Id, second.Id);
