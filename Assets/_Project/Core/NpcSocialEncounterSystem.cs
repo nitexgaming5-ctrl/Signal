@@ -142,17 +142,17 @@ namespace Signal.Core
             string firstId, string secondId, int day, int minuteOfDay)
         {
             NpcPerception firstView = world.BuildPerceptionFor(firstId, float.MaxValue);
+            NpcPerception secondView = world.BuildPerceptionFor(secondId, float.MaxValue);
             for (int i = 0; i < firstView.KnownEvents.Count; i++)
             {
                 string eventId = firstView.KnownEvents[i].EventId;
-                if (!world.BuildPerceptionFor(secondId, float.MaxValue).KnowsEvent(eventId))
+                if (!secondView.KnowsEvent(eventId))
                 {
                     world.ShareKnowledge(firstId, secondId, eventId, day, minuteOfDay);
                     return;
                 }
             }
 
-            NpcPerception secondView = world.BuildPerceptionFor(secondId, float.MaxValue);
             for (int i = 0; i < secondView.KnownEvents.Count; i++)
             {
                 string eventId = secondView.KnownEvents[i].EventId;
