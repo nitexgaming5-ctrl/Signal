@@ -6,7 +6,7 @@ The connected NPC framework's first controlled milestone is implemented. The use
 
 The pacing director remains a Core policy foundation, deliberately not wired into gameplay or scenario content. It needs an authored scenario owner, approved tuning, persistence/reconstruction design and a real context-valid candidate source before live integration. Everyday NPC routines and restrained scheduled encounters remain outside this gate.
 
-Next recommended direction: stop expanding abstract simulation for its own sake and design one small, player-facing NPC scenario that uses the shared-city/NPC foundation. First agree its player-facing rules and consequences; then implement the smallest complete vertical slice. Before that, a short Inspector validation of authored NpcCharacterDefinition assets is useful. Work remains on `chore/collaboration-workflow-and-audit`; `main` is untouched.
+Next player-facing direction: design one small NPC scenario and agree its rules before implementation. The next technical foundation is the Item Instance v1 proposal documented in docs/ITEM_QUEST_PLAYER_FRAMEWORK_RESEARCH.md; it is intended to prepare the existing inventory for future goods systems without adding gameplay rules. A short Inspector validation of authored NpcCharacterDefinition assets remains useful. Work remains on `chore/collaboration-workflow-and-audit`; `main` is untouched.
 
 ## Approved project direction
 Signal is an immersive top-down 2D urban RPG about making a living in one layered city: meeting people, doing activities for money and resources, trading goods, taking risks, sometimes losing things, discovering secrets and returning to a personal hideout.
