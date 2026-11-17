@@ -33,37 +33,23 @@ Prototype code lives in `_Prototype/`. New work does not build on it. Its string
 
 Rule: one `.asmdef` per folder, and each test folder has its own subfolder. (This caused the earlier compile errors.)
 
-## UI conventions (M3 onward)
-- UGUI only. M3 panels are built from code at runtime (no prefab wiring), so a scene needs just one GameObject.
+## UI conventions
+- UGUI panels are built from code at runtime; a scene needs only the composition-root GameObject.
 - World input is read through the Input System (`Keyboard.current`, `Mouse.current`). Add an EventSystem with InputSystemUIInputModule only when a UI needs pointer-driven buttons or dragging.
-- Every rule (can this item go there?) lives in Core. The UI asks `GridInventory`, then draws the answer.
+- Every rule (can this item go there?) lives in Core. UI asks Core objects and presents the result.
 - Text uses UGUI `Text` with Unity's built-in font until the pixel font pass (see ART_TODO.md).
 
 ## Communication between systems
-- Systems expose C# events (`event Action<int> MoneyChanged`). Other systems subscribe. Nothing reaches into another system's private fields.
-- UI reads state and subscribes to events. UI never changes state directly; it calls a method on a Core object.
+- Systems expose C# events for state changes. UI subscribes and refreshes; it does not duplicate domain state.
 - Save/load goes through DTOs, not runtime classes.
+- `GameSession` is the composition root that wires Core state to Game presentation and world objects.
 
 ## Coding conventions
 - Namespaces: `Signal.Core.*`, `Signal.Game.*` matching folders.
-- One main public type per file; the file is named after it. Tiny value types or enums that only exist for one class (PlacedItem, Ingredient, SavedItem, result enums) may share its file.
+- One main public type per file; tiny value types may share their owning file.
 - Serialized fields are private with `[SerializeField]`. No public fields.
-- Prefer `readonly` and immutable data for definitions; mutable only for runtime state.
-- Comments explain *why*, not *what*. Keep XML summaries to one line.
-- No `Update()` for logic that can be event-driven.
-
-## When in doubt
-Put logic in Core, tested. Put presentation in Game. Put numbers and names in Content assets. If it needs a scene, it is Game.
-
-## Placeholder world (M4)
-- `RoomBootstrap` builds the room, the player and the camera follow from code. Tiles are flat-colour 32×32 sprites made at runtime (`PixelSprites`).
-- Swap in real Tilemap assets and sprites in the art pass; the Core rules do not change.
-
-## Composition (slice)
-- `GameSession` is the only place that wires Core objects (stats, inventory, clock, rent, heat) to Game objects (room, panels, save file).
-- Core objects never know about Unity. Game objects only call Core methods and draw the result.
-
-
+- Prefer immutable definitions and explicit runtime state.
+- Comments explain why, not what.
 
 ## Active architecture decision (2026-11-17)
 
@@ -71,18 +57,18 @@ Put logic in Core, tested. Put presentation in Game. Put numbers and names in Co
 
 The old `Assets/_Project/Scenes/Main.unity` and `Assets/_Project/_Prototype/Scripts` are retained as legacy references because the scene contains useful city/shelter art and gameplay experiments. They are not the active build path, and no new gameplay should be added there. The active build scene is `Assets/_Project/Scenes/HideoutSlice.unity`, composed by `Signal.Game.GameSession`.
 
-Why Core/Game: clearer boundaries, reusable domain rules, and focused EditMode coverage. The prototype contains useful ideas (outing/loot risk, shelter switching, factions and NPC interactions), but duplicates state and uses global lookups and tightly coupled scene wiring. Migrate only the useful behavior required by a slice; rewrite it against Core/Game rather than bulk-copying it.
+Why Core/Game: clearer boundaries, reusable domain rules, and focused EditMode coverage. The prototype contains useful ideas (outing/loot risk, shelter switching, factions and NPC interactions), but duplicates state and uses global lookups and tightly coupled scene wiring. Migrate only useful behavior required by a slice; rewrite it against Core/Game rather than bulk-copying it.
 
-Do not run both architectures in the same active scene. Preserve Main and its asset GUIDs until valuable content has been migrated and verified. Remove the legacy scripts only in a separate cleanup after their scene references are gone.
+Do not run both architectures in the same active scene. Preserve Main and its asset GUIDs until valuable content has been migrated and verified. Remove legacy scripts only in a separate cleanup after their scene references are gone.
 
 ## First hideout implementation
 
-The active HideoutSlice is a code-built first-pass room. It contains placeholder bed, table, chair, storage and a physical workbench. The workbench opens a close-up UGUI tabletop with draggable and inspectable props. This is a visual interaction prototype only: it does not consume inventory or define production/economy rules.
+The active HideoutSlice is a code-built first-pass room. It contains placeholder bed, table, chair, storage and a physical workbench. The workbench opens a close-up UGUI tabletop with draggable and inspectable props. It remains a visual interaction prototype until recipe assets are authored and connected; no production/economy rules are implied by the tabletop props.
 
-The workbench UI uses an EventSystem with InputSystemUIInputModule because it has pointer-driven buttons and drag interactions; ordinary world movement continues to use Input System polling.
+## Connected city and home storage
 
-## Connected city slice
+`CityBlockBootstrap` composes the compact outdoor street and two simple interior spaces under the active `GameSession`. It reuses the same player Rigidbody2D and keeps inventory, clock and other session state alive while changing the active visual root and camera bounds.
 
-`CityBlockBootstrap` composes the compact outdoor street and two simple interior spaces under the active `GameSession`. It reuses the same player Rigidbody2D and keeps inventory, clock and other session state alive while changing the active visual root and camera bounds. The street and interiors are first-pass placeholder geometry; authored city art is a later visual pass.
+The home locker is a second `GridInventory` owned by `GameSession`. `StoragePanel` transfers item quantities between carried inventory and locker inventory through Core's capacity-aware `Add` and `TryRemove` operations. The panel does not invent item values or production rules.
 
-The current save DTO does not store a world-location identifier. Until location persistence is added and tested, save/load/sleep are restricted to the hideout rather than allowing a city position to be restored into the wrong active location.
+Save format version 2 stores carried inventory, locker inventory, the current place identifier and player coordinates. Version-1 saves migrate to an empty locker and the hideout. `CityBlockBootstrap.TryRestorePlace` restores the saved active world root and camera bounds. The save implementation and UI still require Unity Play Mode verification on the target platform.
