@@ -24,7 +24,7 @@ The first Milo implementation is a disposable test character. Its purpose is to 
 - NpcSocialWorld registers NPCs, tracks their current location/position, exposes nearby NPC queries, stores directed relationships and maintains a world-event journal.
 - NpcWorldEvent records an occurrence and only the observable description supplied by the publisher, plus its location, time and visibility radius.
 - NpcAgentState stores an individual's position, awareness radius, relationships and knowledge.
-- NpcKnowledge distinguishes direct observation from information told by another NPC. It retains event identity, original actor, last source, confidence and learning time.
+- NpcKnowledge distinguishes direct observation from information told by another NPC. It retains event identity, original actor, last source, confidence, event location/position/time and learning time.
 - NpcRelationship stores familiarity, trust and affinity independently.
 - NpcPerception creates a character-scoped decision snapshot: nearby NPC IDs plus only that character's own knowledge. It deliberately excludes the global event journal.
 - Explicit knowledge sharing uses the listener's trust in the speaker to adjust confidence. It does not make a rumour true and does not automatically broadcast information.
