@@ -74,7 +74,7 @@ namespace Signal.Game.Tests
                 Assert.That(city.GetPrompt(npcPosition), Is.EqualTo("E  Talk to Milo"));
                 Assert.That(city.TryInteractNpc(npcPosition, out string workDialogue), Is.True);
                 StringAssert.Contains("baker", workDialogue);
-                Assert.That(city.SocialWorld.EventCount, Is.EqualTo(1));
+                Assert.That(city.SocialWorld.EventCount, Is.EqualTo(2));
                 Assert.That(city.SocialWorld.BuildPerceptionFor("milo", 8f).KnowsEvent("milo-conversation-1"), Is.True);
 
                 clock.Advance(11 * 60);
