@@ -55,9 +55,18 @@ namespace Signal.Game.Tests
             {
                 city.Build(player.transform, body, camera, clock);
                 Assert.That(city.SocialWorld, Is.Not.Null);
-                Assert.That(city.SocialWorld.NpcCount, Is.EqualTo(1));
+                Assert.That(city.SocialWorld.NpcCount, Is.EqualTo(2));
+                Assert.That(city.ResidentCount, Is.EqualTo(2));
                 Assert.That(city.SocialWorld.TryGetNpc("milo", out NpcAgentState registeredMilo), Is.True);
                 Assert.That(registeredMilo.LocationId, Is.EqualTo("CornerShop"));
+                Assert.That(city.SocialWorld.TryGetNpc("rhea", out NpcAgentState registeredRhea), Is.True);
+                Assert.That(registeredRhea.LocationId, Is.EqualTo("Street"));
+                Assert.That(city.GetResidentActivity("rhea"), Is.EqualTo(NpcActivity.Socialize));
+                Vector2 rheaPosition = city.GetResidentPosition("rhea");
+                Assert.That(city.GetPrompt(rheaPosition), Is.EqualTo("E  Talk to Rhea"));
+                Assert.That(city.TryInteractNpc(rheaPosition, out string rheaDialogue), Is.True);
+                StringAssert.Contains("Rhea:", rheaDialogue);
+                Assert.That(city.SocialWorld.BuildPerceptionFor("rhea", 8f).KnowsEvent("rhea-conversation-1"), Is.True);
                 Assert.That(city.TryRestorePlace("CornerShop", new Vector2(1000f, 999f)), Is.True);
                 Assert.That(city.NeighbourActivity, Is.EqualTo(NpcActivity.Work));
 
