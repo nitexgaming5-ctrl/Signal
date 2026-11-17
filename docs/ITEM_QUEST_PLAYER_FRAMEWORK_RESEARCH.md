@@ -174,12 +174,23 @@ Stardew Valley is a useful reference for readable progression, relationships, cr
 
 ## 7. Recommended implementation sequence
 
-### Next technical milestone — Item Instance v1
-- Audit current inventory tests and all call sites.
-- Design stable item-instance identity and stack compatibility.
-- Refactor Core inventory so placement and item identity are separate.
-- Preserve identity across player ↔ locker transfers.
-- Add save v3 and v2 migration tests.
+### Item Instance v1 — first implementation committed; Unity verification pending
+
+The user approved this as the next technical milestone on 2026-11-18. The first pass is now implemented on the shared branch:
+- `PlacedItem` has a stable GUID stack identity separate from its inventory-local integer UI ID.
+- Moving/rotating and snapshot/restore preserve identity.
+- Container transfer moves whole stacks, preserves identity/orientation and does not merge distinct stacks. If a complete stack does not fit, it remains in the source. No split-stack operation exists yet.
+- Save v3 captures/restores identity; v1/v2 migration generates unique IDs across carried and storage inventories and repairs duplicate/empty IDs.
+- Core tests cover identity, transfers, orientation, snapshot restore, v1/v2 migration and save round-trip.
+- Existing UI is retained; the storage transfer hint now explains whole-stack behavior.
+- Unity compilation and the full EditMode suite remain pending user verification.
+
+`GridInventory.Add` still tops up a same-definition stack because no mutable per-instance state exists yet. When such state is introduced, stack compatibility must compare it before merging.
+
+### Future follow-up after Unity verification
+- Review any Unity test failures and correct them before proceeding.
+- Verify an actual v2 save and an actual v1 save migrate in the Unity runtime.
+- Verify locker transfers preserve stack identity through repeated take/store operations.
 - Keep existing UI and normal player flow working; no new item gameplay rules.
 
 ### After Item Instance v1
