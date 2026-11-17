@@ -60,7 +60,7 @@ These are repository observations, not claims that the scene currently compiles 
 
 ## Risks and constraints
 
-- Core/Game SaveFileStore still deletes the current save before moving the temporary file into place. Fix and test this before adding persistent furniture or world state.
+- Core/Game SaveFileStore now uses a temp file plus File.Replace, and a separate signal-core-save.json path. The previous save is no longer deleted before replacement; verify this behavior in Unity before adding persistent furniture or world state.
 - Main.unity and its old prototype scripts remain because they contain useful scene content and references. They are not in the active build list and should not receive new gameplay features.
 - The assistant cannot run the user's local Unity Editor through the GitHub repository connection.
 
@@ -70,7 +70,7 @@ These are repository observations, not claims that the scene currently compiles 
 2. Play the scene: walk to the bench, press E, drag/click objects, close with ESC and the button, and confirm movement resumes.
 3. Fix any compile, UI layout, pointer input or collision issues found.
 4. After the hideout is verified, build the compact city block and enterable buildings using Core/Game.
-5. Fix save replacement safety before introducing persistent room customization.
+5. Verify the save replacement path in Unity before introducing persistent room customization.
 
 ## Work log
 - 2026-11-17: Confirmed GitHub access and created the working branch; documented the focus-friendly workflow and original hybrid RPG direction.
@@ -79,3 +79,4 @@ These are repository observations, not claims that the scene currently compiles 
 - 2026-11-17: Repository inspection found an existing Main scene with a walkable shelter/city layout, a sprite-backed workbench, bed, storage, entrance/exit, and prototype interaction scripts. The old prototype and newer Core/Game systems are parallel architectures. No code or scene files changed during this audit.
 
 - 2026-11-17: Consolidated active runtime on Core/Game; kept Main and Prototype scripts as legacy references. Added HideoutSlice, starter furniture and the first draggable/inspectable workbench close-up. Unity verification pending.
+- 2026-11-17: Hardened Core/Game save replacement with File.Replace and isolated its filename from the legacy prototype save to prevent cross-architecture overwrite.
