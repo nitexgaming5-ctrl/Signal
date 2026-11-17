@@ -12,12 +12,17 @@ Ids: each ScriptableObject gets a `Guid` field generated once and never changed,
 
 ## Runtime state (Signal.Core)
 - `PlayerStats`: `Money` (int, ≥ 0), `Health` (int, 0–100). Nothing else until listed in OPEN_QUESTIONS.
-- `GridInventory`: width, height, list of `PlacedItem { ItemDefinition def, int x, int y, bool rotated, int count }`
+- `GridInventory`: width, height, list of `PlacedItem { int InstanceId, Guid ItemInstanceId, ItemType Type, int x, int y, bool rotated, int count }`.
+- `ItemType` is an immutable Core value resolved from the authored `ItemDefinition` (definition Guid, footprint and max stack).
+- `ItemInstanceId` identifies a particular stack and persists across movement, snapshots, container transfers and save/load. `InstanceId` is only a local integer used by the current inventory UI/placement operations.
+- V1 transfers move complete stacks without merging separate stack identities. A stack that does not fit remains in the source. No split-stack operation exists yet; a future split must explicitly assign a new identity to the resulting stack.
+- `GridInventory.Add` can top up an existing same-definition stack while there is no mutable per-instance state. Once such state exists, stack compatibility must compare it before merging.
 - `Clock` (M6): `Day`, `TimeOfDay`
 
 ## Save format
 - Save DTOs are separate classes with `[Serializable]`, plain fields, and a `version` int.
-- Items are stored by definition Guid, resolved through a registry on load.
+- Save version 3 stores both the item definition Guid and stable stack instance Guid, plus quantity, grid position and rotation. Carried and home-storage inventories are saved separately.
+- v1 migration preserves the old Hideout/default-empty-storage behavior; v1/v2 migration assigns unique stack identities across both containers. Empty or duplicate saved identities are repaired.
 - Unknown Guid on load: skip the item, log a warning, do not crash.
 - File location: `SignalSave/` in project root (already gitignored).
 
