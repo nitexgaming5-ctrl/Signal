@@ -68,6 +68,13 @@ namespace Signal.Game.Tests
                 Vector2 eveningNpcPosition = city.NeighbourPosition;
                 Assert.That(city.TryInteractNpc(eveningNpcPosition, out string eveningDialogue), Is.True);
                 StringAssert.Contains("After closing", eveningDialogue);
+
+                clock.Advance(3 * 60);
+                Assert.That(city.NeighbourActivity, Is.EqualTo(NpcActivity.Home));
+                Assert.That(city.TryRestorePlace("Apartment", city.NeighbourPosition), Is.True);
+                Vector2 homeNpcPosition = city.NeighbourPosition;
+                Assert.That(city.TryInteractNpc(homeNpcPosition, out string homeDialogue), Is.True);
+                StringAssert.Contains("Shop's closed", homeDialogue);
             }
             finally
             {
