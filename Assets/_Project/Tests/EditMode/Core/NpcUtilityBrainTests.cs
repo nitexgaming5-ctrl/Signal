@@ -34,6 +34,10 @@ namespace Signal.Core.Tests
                 "known-delivery", "Delivery", "A parcel arrived.", null,
                 "Street", 0f, 0f, 0f, 1, 590));
 
+            NpcActivity outsideSocialWindow = new NpcUtilityBrain().AdvanceTo(
+                1, 600, socialWorld.BuildPerceptionFor("observer", 8f));
+            Assert.That(outsideSocialWindow, Is.Not.EqualTo(NpcActivity.Socialize));
+
             var restrainedSocialProfile = new NpcUtilityProfile
             {
                 SocialNeedWeight = 20f,
