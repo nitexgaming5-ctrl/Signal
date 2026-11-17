@@ -1,13 +1,14 @@
 # Progress
 
-## Current initiative: design the first connected shared-city activity slice
-Status: The hideout, connected starter city block and home-storage loop are implemented. The user has verified Slice A compilation/tests, manual city travel, and the normal locker/transfer/save/load sequence in Unity Play Mode. Remaining verification includes locker capacity edge cases, actual version-1 migration, automated city transition tests and target-platform save replacement. The next player-facing initiative is to design a reusable activity foundation and deliver one connected scenario in the shared city; no new activity mechanics have been implemented yet. Work remains on `chore/collaboration-workflow-and-audit`; `main` is untouched.
+## Current initiative: first living NPC and connected shared-city activity slice
+Status: Partial. The hideout, connected starter city block and home-storage loop remain implemented and user-verified in their normal flows. Added a first living NPC prototype: Milo, a neighbourhood baker whose deterministic Core utility brain chooses Work, Rest, Socialize and Home from in-game time plus energy/social needs; his Unity presentation walks between street locations and his conversation changes with his activity. Core and Game integration tests have been authored but have NOT been run. Unity compilation and Play Mode verification are pending. Remaining broader slice work includes persistent relationships/discovery, a concrete connected side activity and its outcome. Storage edge cases, actual version-1 migration, automated city transition tests and target-platform save replacement remain follow-up verification. Work remains on `chore/collaboration-workflow-and-audit`; `main` is untouched.
 
 ## Approved project direction
 Signal is an immersive top-down 2D urban RPG about making a living in one layered city: meeting people, doing activities for money and resources, trading goods, taking risks, sometimes losing things, discovering secrets and returning to a personal hideout.
 - The hideout is the central hub and emotional anchor: storage, preparation, recovery, workspaces, production spaces and personalisation.
 - The city is shared by legitimate businesses, ordinary residents, criminal opportunities and hidden dealings. There is no default separate "legal world" and "underground world"; dedicated criminal hideouts may exist later, but are optional content.
 - NPCs can have public occupations and concealed private activities. The player should not automatically know every person's secrets; discovery can happen through conversation, observation, requests, rumours and consequences. Example: a baker may also secretly sell illicit goods.
+- NPCs should feel like people with lives beyond the player. The approved technical direction is a low-cost, deterministic utility brain paired with authored routines; no per-NPC language model is required.
 - Legal and illegal activities are parallel and can be freely combined.
 - Crime is a core pillar, including fictional drug-related activity and a broad range of other illegal activities.
 - Criminal failure should be harsh and potentially lasting; exact penalties, thresholds and recovery rules need design approval.
@@ -67,11 +68,18 @@ The repository contains more of the intended hideout/city direction than the pre
 - Not yet confirmed: full/blocked destination edge cases, loading an actual version-1 save, automated test-suite results, and platform-specific file replacement behavior.
 - The workbench remains a visual inspect/rearrange workspace. No recipes or production rules have been invented.
 
+## First living NPC prototype (verification pending)
+- Added `NpcUtilityBrain` in Core. It advances from the world clock, evaluates four activities every 15 in-game minutes, and models only energy and social needs. It is deterministic and has no Unity dependency or external AI runtime.
+- Added `NeighbourNpc` in Game. Milo moves between the bakery frontage, a rest point, an evening social point and his home frontage; interaction dialogue reflects his current activity.
+- Integrated Milo into the existing street root and E interaction flow. The NPC is not a separate map, menu or activity provider.
+- Added Core tests for daily activity choices, determinism and clock rewind; added a Game integration test for conversation and evening activity. These tests have not been executed.
+- No save-format change: the first brain state is derived from the in-game day/time and is rebuilt on clock rewind/load. Relationships, memories and discovery flags are not yet implemented.
+
 ## Verification status
 - User confirmed Slice A compilation and EditMode tests passed.
 - User confirmed the connected city travel loop works in Play Mode.
 - User confirmed the Slice C locker and save/load sequence works in Play Mode with no Console errors.
-- Assistant cannot run the user's local Unity Editor through the GitHub repository connection.
+- Assistant cannot run the user's local Unity Editor through the GitHub repository connection. No Unity compile or test run was performed for the NPC prototype.
 - Remaining verification: locker capacity edge cases, an actual version-1 save migration, automated city transition tests and platform-specific file replacement.
 
 ## Next actions
@@ -94,4 +102,5 @@ The repository contains more of the intended hideout/city direction than the pre
 - 2026-11-17: Added physical home storage transfers, version-2 saves for carried and stored items plus world location, version-1 migration, and tests for storage/location persistence.
 - 2026-11-17: User confirmed the locker transfer and save/load sequence works in Play Mode with no Console errors; documentation updated to distinguish verified normal flow from remaining edge cases.
 - 2026-11-17: User approved parallel legal/criminal lifestyles, harsh criminal failure and one global crime progression track.
-- 2026-11-17: User clarified that all activities share one city and that NPCs may have concealed illegal lives; wheat/bread was only an example, with water, food and second-hand/stolen goods among possible trade loops. Updated vision, roadmap, progress and backlog; no gameplay mechanics implemented.\n- 2026-11-17: User reaffirmed that NPCs must feel like living people and raised the possibility of very lightweight AI with low hardware cost. Recorded this as a design direction and added an open question; no NPC simulation code or detailed behaviour rules implemented.
+- 2026-11-17: User clarified that all activities share one city and that NPCs may have concealed illegal lives; wheat/bread was only an example, with water, food and second-hand/stolen goods among possible trade loops. Updated vision, roadmap, progress and backlog; no gameplay mechanics implemented.
+- 2026-11-17: User gave a white card for the next initiative. Approved and implemented the first low-cost NPC life prototype (Milo the baker), with Core utility decisions, activity-aware dialogue and street movement. Added tests and design/task documentation; Unity verification remains pending.\n- 2026-11-17: User reaffirmed that NPCs must feel like living people and raised the possibility of very lightweight AI with low hardware cost. The user then gave broad authorization to proceed. Approved a deterministic, needs-driven utility approach and implemented the first Milo routine/conversation prototype; tests are authored but not yet run.
