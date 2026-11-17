@@ -7,6 +7,7 @@ namespace Signal.Core
     public sealed class SavedItem
     {
         public string typeId;
+        public string instanceId;
         public int x;
         public int y;
         public bool rotated;
@@ -42,7 +43,7 @@ namespace Signal.Core
 
     public static class SaveMigrator
     {
-        public const int CurrentVersion = 2;
+        public const int CurrentVersion = 3;
 
         /// <summary>Accepts the first public save format and the current hideout-storage format.</summary>
         public static bool TryMigrate(SaveData data, out string error)
@@ -73,7 +74,34 @@ namespace Signal.Core
                 data.storageItems = new List<SavedItem>();
             }
 
+            // Versions 1 and 2 had no stable identity for an inventory stack.
+            // Assign identities once during migration, across both containers.
+            var usedIds = new HashSet<Guid>();
+            EnsureInstanceIds(data.items, usedIds);
+            EnsureInstanceIds(data.storageItems, usedIds);
+            data.version = CurrentVersion;
+
             return true;
+        }
+
+        private static void EnsureInstanceIds(List<SavedItem> items, HashSet<Guid> usedIds)
+        {
+            if (items == null)
+                return;
+
+            foreach (SavedItem item in items)
+            {
+                if (item == null)
+                    continue;
+
+                if (!Guid.TryParse(item.instanceId, out Guid id) || id == Guid.Empty || !usedIds.Add(id))
+                {
+                    do { id = Guid.NewGuid(); }
+                    while (!usedIds.Add(id));
+
+                    item.instanceId = id.ToString();
+                }
+            }
         }
     }
 
@@ -166,6 +194,7 @@ namespace Signal.Core
                 destination.Add(new SavedItem
                 {
                     typeId = item.Type.Id.ToString(),
+                    instanceId = item.ItemInstanceId.ToString(),
                     x = item.X,
                     y = item.Y,
                     rotated = item.Rotated,
@@ -189,7 +218,8 @@ namespace Signal.Core
                 }
 
                 ItemType? type = resolve(id);
-                if (!type.HasValue || !destination.Place(type.Value, saved.x, saved.y, saved.rotated, saved.count).HasValue)
+                if (!type.HasValue || !destination.Place(type.Value, saved.x, saved.y, saved.rotated, saved.count,
+                    Guid.TryParse(saved.instanceId, out Guid instanceId) ? instanceId : Guid.Empty).HasValue)
                     skipped++;
             }
 
