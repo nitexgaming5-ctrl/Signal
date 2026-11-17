@@ -30,10 +30,11 @@ Milestones are dependency notes, not a mandate to build isolated systems in orde
 
 ### Slice C — make the hideout useful (active)
 - [x] Expose the physical storage locker as an E interaction.
-- [x] Add a home-storage screen that transfers available quantities between carried inventory and a separate locker inventory, respecting destination capacity.
+- [x] Add a home-storage screen that transfers available quantities between carried inventory and a separate locker inventory, respecting destination capacity through a tested Core transfer service.
 - [x] Extend save format to version 2 with separate locker contents and the current world location/player coordinates.
 - [x] Add version-1 save migration so existing saves load with an empty locker and the player at the hideout.
 - [x] Allow save/load while in the city and restore the saved street/interior location.
+- [x] Wire the existing ITEM_A/B/C sample definitions into HideoutSlice so the storage interaction can be exercised; these remain temporary test content, not final item design.
 - [ ] Verify storage transfers, capacity behavior, save/load, and version-1 migration in Unity.
 - [ ] Connect authored RecipeDefinition assets to the physical workbench. No recipe assets currently exist, so do not invent recipes or production rules.
 - [ ] Give bed and other furniture meaningful interactions only after their player-facing rules are agreed.
