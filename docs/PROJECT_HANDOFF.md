@@ -181,7 +181,10 @@ See `docs/NPC_FRAMEWORK.md` for the technical contract. Two fallback profiles (M
 
 ## 8. Immediate goals and recommended sequencing
 
-### Next recommended initiative: one small NPC-driven playable scenario
+### Immediate technical action: verify Item Instance v1 in Unity
+The first implementation is committed but not yet verified in the Editor. The user should pull the shared branch, allow Unity to compile, run the full EditMode suite, then verify repeated carried-inventory ↔ locker transfers and v1/v2 save migration in Play Mode. See section 13 and `docs/PROGRESS.md`. Fix reported failures before moving on.
+
+### Next recommended player-facing initiative: one small NPC-driven playable scenario
 The framework is now broad enough to support a first scenario. Do not expand abstract simulation indefinitely. Design a small complete experience in which:
 1. The player encounters a resident in their public everyday role.
 2. The player can notice or learn something through authored observation, conversation, a request, a clue or a rumour.
@@ -269,7 +272,7 @@ Already approved broad directions are not permission to invent their detailed ru
 
 ## 12. One-sentence instruction to the next agent
 
-**Build the next small, meaningful player experience in the one shared city using the connected NPC foundation; keep the simulation restrained, make consequential change gradual, and never turn an illustrative idea into a mechanic or story without the user's approval.**
+**First verify Item Instance v1 in Unity; then build the next small, meaningful player experience in the one shared city using the connected NPC foundation. Keep simulation restrained, consequential change gradual, and never turn an illustrative idea into a mechanic or story without the user's approval.**
 
 
 ## 13. Inventory identity milestone — current handoff state (2026-11-18)
