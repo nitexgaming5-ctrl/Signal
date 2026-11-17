@@ -58,10 +58,18 @@ These are source-presence observations, not claims that the full gameplay loop i
 - The user has explicitly asked for a focus-friendly process: keep one current objective and one recommended next action visible, and handle technical sequencing without repeatedly asking them to manage it.
 - `docs/DEVELOPMENT_WORKFLOW.md` defines the lifecycle and definition of done.
 
+## Focused source-audit findings (2026-11-17)
+- `SaveFileStore.Save` writes a temporary file but deletes the current save before moving the temporary file into place. If the final move fails, the previous save may be lost. Treat this as a high-priority save-integrity defect; fix with a recoverable replacement strategy and regression tests before expanding save-dependent gameplay.
+- `GameSession` currently exposes selling and crafting through debug function keys (F7/F8), not through an in-world customer/shop interaction. This is a major integration gap between implemented systems and a compelling player-facing loop.
+- `GameSession` is not covered by a `GameSessionTests` file in the current test tree. Existing Game tests cover inventory UI, definitions, room bootstrap, and save-file storage.
+- The current build settings point to `Main.unity`, whose scene contains legacy shelter/door objects. `InventoryDemo.unity` contains the standalone inventory bootstrap. The documented `Slice.unity` scene is absent. Do not overwrite or repurpose these scenes until their local Unity state and references are reconciled.
+- The shop and crafting Core rules have focused tests, but those systems are not yet integrated into a normal player interaction.
+
 ## Next
-1. Finish the source, scene, test, package, and documentation audit, prioritizing risks to the existing playable baseline.
-2. Reconcile the remote repository state with the user's local Unity project before scene migration or destructive changes.
-3. Identify the smallest complete player-facing scenario that can be built from existing approved systems; propose any new gameplay rules before implementing them unless the user explicitly authorizes those exact rules.
+1. Finish the risk-focused audit, especially save/load mapping, scene wiring, and existing test coverage.
+2. Fix the save replacement risk with tests before changing the save format or expanding dependent systems.
+3. Reconcile the remote repository state with the user's local Unity project before scene migration or destructive changes.
+4. Build one complete, player-facing shop interaction using approved rules; keep any new customer behavior or economic rules as a design proposal until agreed.
 
 ## Work log
 - 2026-11-17: Confirmed GitHub repository access; inspected repository tree, core documentation, task cards, project settings, and a first pass of Core/Game code.
