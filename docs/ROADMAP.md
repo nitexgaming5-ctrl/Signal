@@ -81,8 +81,8 @@ The initiative is defined in detail in [NPC_FRAMEWORK.md](NPC_FRAMEWORK.md). Its
 - [x] Run the Core/Game EditMode suites in Unity and resolve any failures (user confirmed 214/214 pass on 2026-11-17).
 - [x] Feed each NPC's own perception snapshot into utility decisions; nearby relationship impressions and personally known information influence socialising without exposing the global event journal.
 - [x] Move routine windows, need drift and utility weights into a reusable Core NpcUtilityProfile; verify alternate work hours through a Core test.
-- [ ] Replace Milo-specific runtime assumptions with data-driven character definitions and a generic presenter.
-- [ ] Add a second temporary test profile to prove that multiple NPCs can be authored without another character-specific MonoBehaviour.
+- [x] Replace Milo-specific runtime assumptions with ScriptableObject character definitions and a generic presenter. GameSession exposes an assignable NPC definitions array; the presenter owns generic movement, visuals, social registration and conversation publishing.
+- [x] Add a second temporary test profile (Rhea) with a different work schedule, appearance and dialogue; both profiles use the same generic component. Extended Game integration tests; rerun in Unity after the latest changes is pending.
 - [ ] Design persistence for stable NPC IDs, relationships, selected memories and discovered information, with save migration tests.
 - [ ] Verify performance boundaries and event-driven updates before scaling the population.
 
