@@ -11,14 +11,16 @@ namespace Signal.Core
         public string ObserverNpcId { get; }
         public string LocationId { get; }
         public IList<string> NearbyNpcIds { get; }
+        public IList<NpcPerceivedPerson> NearbyPeople { get; }
         public IList<NpcKnowledge> KnownEvents { get; }
 
         internal NpcPerception(string observerNpcId, string locationId,
-            IList<string> nearbyNpcIds, IList<NpcKnowledge> knownEvents)
+            IList<string> nearbyNpcIds, IList<NpcPerceivedPerson> nearbyPeople, IList<NpcKnowledge> knownEvents)
         {
             ObserverNpcId = observerNpcId;
             LocationId = locationId;
             NearbyNpcIds = nearbyNpcIds;
+            NearbyPeople = nearbyPeople;
             KnownEvents = knownEvents;
         }
 
