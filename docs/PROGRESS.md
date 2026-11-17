@@ -1,20 +1,20 @@
 # Progress
 
-## Current initiative: plan the first connected activity slice
-Status: The hideout, connected starter city block and home-storage loop are implemented. The user has verified Slice A compilation/tests, manual city travel, and the normal locker/transfer/save/load sequence in Unity Play Mode. Remaining verification includes locker capacity edge cases, actual version-1 migration, automated city transition tests and target-platform save replacement. The next player-facing initiative is to design a reusable activity foundation and deliver one connected scenario; no new activity mechanics have been implemented yet. Work remains on `chore/collaboration-workflow-and-audit`; `main` is untouched.
+## Current initiative: design the first connected shared-city activity slice
+Status: The hideout, connected starter city block and home-storage loop are implemented. The user has verified Slice A compilation/tests, manual city travel, and the normal locker/transfer/save/load sequence in Unity Play Mode. Remaining verification includes locker capacity edge cases, actual version-1 migration, automated city transition tests and target-platform save replacement. The next player-facing initiative is to design a reusable activity foundation and deliver one connected scenario in the shared city; no new activity mechanics have been implemented yet. Work remains on `chore/collaboration-workflow-and-audit`; `main` is untouched.
 
 ## Approved project direction
-Signal is an immersive top-down 2D urban RPG about travelling through a city, performing activities for money and resources, taking risks, sometimes losing things, and returning to a personal hideout. It combines a living city, opportunities and danger.
-- The first player-facing focus is a small, walkable starter house/hideout.
+Signal is an immersive top-down 2D urban RPG about making a living in one layered city: meeting people, doing activities for money and resources, trading goods, taking risks, sometimes losing things, discovering secrets and returning to a personal hideout.
 - The hideout is the central hub and emotional anchor: storage, preparation, recovery, workspaces, production spaces and personalisation.
-- A compact city block provides context; buildings should be enterable, with simple interiors initially.
-- The hideout and city should form one loop: go out, bring things back, use the home base, and resume from a saved state.
-- **Parallel lifestyles:** legitimate and criminal activities can be freely combined; neither excludes the other.
-- **Harsh criminal failure:** crime should involve serious, potentially lasting consequences. Exact penalties, thresholds and recovery rules require design approval.
-- **Global crime progression:** criminal activities contribute to one overall criminal level/progression track, rather than separate skill trees for each crime.
-- **Crime is a core pillar:** fictional drug-related activity and a broad catalogue of other illegal activities are central to the game. Specific activity rules must be designed individually.
-- **Legitimate life is a satisfying alternative:** farming, gathering, processing, crafting, services and trading should offer lower-risk progression and economic loops. Example direction: grow wheat, process it and bake bread; passive/delayed production should still require meaningful setup and collection.
-- NPCs, clients, contacts, factions and world events should connect both lifestyles and make the city feel alive.
+- The city is shared by legitimate businesses, ordinary residents, criminal opportunities and hidden dealings. There is no default separate "legal world" and "underground world"; dedicated criminal hideouts may exist later, but are optional content.
+- NPCs can have public occupations and concealed private activities. The player should not automatically know every person's secrets; discovery can happen through conversation, observation, requests, rumours and consequences. Example: a baker may also secretly sell illicit goods.
+- Legal and illegal activities are parallel and can be freely combined.
+- Crime is a core pillar, including fictional drug-related activity and a broad range of other illegal activities.
+- Criminal failure should be harsh and potentially lasting; exact penalties, thresholds and recovery rules need design approval.
+- Criminal progression is global: criminal activities contribute to one overall criminal level/progression track, rather than separate skill trees for each crime.
+- Legitimate life is a satisfying alternative and can take many forms: trading, selling different grades of water, food, repair, services, gathering, processing, making goods, small businesses and potentially farming. Farming/wheat/bread was an example, not a fixed design requirement.
+- Goods can have meaningful properties such as quality, condition, authenticity, origin/provenance and ownership status. These should be implemented when they create useful player decisions, not as complexity for its own sake.
+- NPCs, clients, contacts, factions, rumours and world events should connect both lawful and illegal activities in the same neighbourhoods and economy.
 - New detailed gameplay rules beyond these approved directions still require explanation and approval before implementation.
 
 ## Repository and branch
@@ -62,7 +62,7 @@ The repository contains more of the intended hideout/city direction than the pre
 - HideoutSlice references ITEM_A/B/C sample definitions as temporary fixtures, not final item design.
 - Extended `SaveData` to version 2 with locker contents and current place. Version-1 saves migrate to an empty locker and Hideout location.
 - Save/load is available in the city; `CityBlockBootstrap.TryRestorePlace` restores the saved street/interior and player coordinates.
-- Added Core tests for capacity-aware transfers, locker/location capture and restore, and version-1 migration; Game tests cover city-location restoration and JSON round-tripping.
+- Added Core tests for capacity-aware transfers, locker/location capture and restore, and Game tests for city-location restoration and JSON round-tripping.
 - User confirmed on 2026-11-17 that the project has no new Console errors and the instructed locker/transfer/save/load sequence works in Play Mode.
 - Not yet confirmed: full/blocked destination edge cases, loading an actual version-1 save, automated test-suite results, and platform-specific file replacement behavior.
 - The workbench remains a visual inspect/rearrange workspace. No recipes or production rules have been invented.
@@ -75,10 +75,10 @@ The repository contains more of the intended hideout/city direction than the pre
 - Remaining verification: locker capacity edge cases, an actual version-1 save migration, automated city transition tests and platform-specific file replacement.
 
 ## Next actions
-1. Keep the agreed lifestyle, failure and progression decisions as design constraints; do not implement a crime, economy or production system from assumptions.
-2. Design the reusable activity model: activity definitions/objectives, world interactions, character/request hooks, event hooks, outcomes and persistence boundaries.
-3. Select one compact vertical-slice scenario that demonstrates the activity model and connects city activity to the hideout. Agree its concrete reward, repeatability and failure rules before implementation.
-4. Later, build out crime and legal activity catalogues as connected content using the agreed parallel-lifestyle model.
+1. Preserve the approved shared-city model: lawful and illegal activity coexist in the same streets, shops, homes and social network; do not create a separate underground map/system by assumption.
+2. Design the reusable activity model: object/location interactions, character requests and discovery, optional goods properties (quality, condition, authenticity, provenance/ownership), outcomes and persistence.
+3. Select one compact vertical-slice scenario that demonstrates ordinary public life overlapping with a concealed opportunity or activity, and connects a meaningful outcome to the hideout. Agree its concrete reward, repeatability and failure rules before implementation.
+4. Later, build crime, trade and legitimate livelihood catalogues as interconnected content in the same city.
 5. At a convenient verification pass, run EditMode tests and check storage edge cases, version-1 migration and target-platform save replacement.
 
 ## Work log
@@ -93,5 +93,5 @@ The repository contains more of the intended hideout/city direction than the pre
 - 2026-11-17: User confirmed connected hideout/street/building travel works in Play Mode.
 - 2026-11-17: Added physical home storage transfers, version-2 saves for carried and stored items plus world location, version-1 migration, and tests for storage/location persistence.
 - 2026-11-17: User confirmed the locker transfer and save/load sequence works in Play Mode with no Console errors; documentation updated to distinguish verified normal flow from remaining edge cases.
-- 2026-11-17: User approved the broader Signal direction: balanced living city, opportunities and danger; hideout remains the central hub and emotional anchor.
-- 2026-11-17: User approved parallel legal/criminal lifestyles, harsh criminal failure and one global crime progression track. Updated roadmap and idea backlog before implementation; no new gameplay mechanics implemented.
+- 2026-11-17: User approved parallel legal/criminal lifestyles, harsh criminal failure and one global crime progression track.
+- 2026-11-17: User clarified that all activities share one city and that NPCs may have concealed illegal lives; wheat/bread was only an example, with water, food and second-hand/stolen goods among possible trade loops. Updated vision, roadmap, progress and backlog; no gameplay mechanics implemented.
