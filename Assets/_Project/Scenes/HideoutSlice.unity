@@ -241,8 +241,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Signal.Game::Signal.Game.GameSession
   items: []
-  startingMoney: 120
-  rentAmount: 50
+  startingMoney: 0
+  rentAmount: 0
   rentEveryDays: 7
   gameMinutesPerRealSecond: 1
 --- !u!4 &1960689889
