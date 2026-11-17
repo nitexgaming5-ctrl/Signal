@@ -141,6 +141,19 @@ namespace Signal.Core
             return true;
         }
 
+        public bool TryGetItemInstance(Guid itemInstanceId, out PlacedItem item)
+        {
+            int index = _items.FindIndex(candidate => candidate.ItemInstanceId == itemInstanceId);
+            if (index < 0)
+            {
+                item = default;
+                return false;
+            }
+
+            item = _items[index];
+            return true;
+        }
+
         public bool TryGet(int instanceId, out PlacedItem item)
         {
             int index = IndexOf(instanceId);
