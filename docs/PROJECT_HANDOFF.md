@@ -181,8 +181,8 @@ See `docs/NPC_FRAMEWORK.md` for the technical contract. Two fallback profiles (M
 
 ## 8. Immediate goals and recommended sequencing
 
-### Immediate technical action: verify Item Instance v1 in Unity
-The first implementation is committed but not yet verified in the Editor. The user should pull the shared branch, allow Unity to compile, run the full EditMode suite, then verify repeated carried-inventory ↔ locker transfers and v1/v2 save migration in Play Mode. See section 13 and `docs/PROGRESS.md`. Fix reported failures before moving on.
+### Immediate technical action: verify item state and inspection v1 in Unity
+The stable identity foundation is verified (235/235 EditMode tests, user-reported). The newer per-stack state, valuation, viewer and individual-stack storage interactions are committed but not yet verified in the Editor. The user should pull the shared branch, allow Unity to compile, run the full EditMode suite, then test carried/locker inspection, targeted STORE/TAKE, v3 default-state migration and v4 state round-trip. See section 13 and `docs/PROGRESS.md`. Fix reported failures before moving on.
 
 ### Next recommended player-facing initiative: one small NPC-driven playable scenario
 The framework is now broad enough to support a first scenario. Do not expand abstract simulation indefinitely. Design a small complete experience in which:
