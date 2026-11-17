@@ -57,7 +57,7 @@ The first Milo implementation is a disposable test character. Its purpose is to 
 
 ## Planned development sequence
 
-1. **Shared awareness foundation — implemented and covered by the previously verified 214/214 EditMode run.** The latest generic-presenter changes still need a fresh run. Registry, location-aware presence, local event perception, individual knowledge, directed relationships and explicit information sharing.
+1. **Shared awareness foundation — implemented.** The user confirmed the full 219/219 EditMode suite passed after the generic presenter and scheduled social encounter work on 2026-11-17. Registry, location-aware presence, local event perception, individual knowledge, directed relationships and explicit information sharing.
 2. **Decision context — first pass implemented.** The utility brain receives a character-scoped perception snapshot and lets nearby relationships and personally known information influence socialising. Event-specific goals and reactions remain future work.
 3. **Routine configuration — first pass implemented in Core and exposed in Game assets.** Each NpcCharacterDefinition serializes its own NpcUtilityProfile; the fallback Rhea profile demonstrates a later work start than Milo.
 4. **Data-driven character definitions — first pass implemented.** ScriptableObject definitions, generic NpcPresenter, GameSession asset assignment and two fallback profiles now share one runtime path. Authored final cast/content remains deferred.
@@ -69,7 +69,7 @@ The first Milo implementation is a disposable test character. Its purpose is to 
 
 ## Completion target for this initiative
 
-Two temporary character definitions now use the same NpcPresenter and register in the same shared world; the Game integration test exercises Rhea's separate routine and conversation alongside Milo. The extended test still needs to be rerun in Unity. Two characters in the same place can perceive a shared event, exchange information with different confidence based on their relationship, and retain distinct knowledge. A character in another location or outside the perception radius does not receive that knowledge automatically. The utility decision layer consumes the character-scoped context for its first social decision pass; event-specific goals remain future work.
+Two temporary character definitions now use the same NpcPresenter and register in the same shared world; the Game integration test exercises Rhea's separate routine and conversation alongside Milo. The extended NPC integration tests were included in the user's confirmed 219/219 EditMode run on 2026-11-17. Two characters in the same place can perceive a shared event, exchange information with different confidence based on their relationship, and retain distinct knowledge. A character in another location or outside the perception radius does not receive that knowledge automatically. The utility decision layer consumes the character-scoped context for its first social decision pass; event-specific goals remain future work.
 
 This is a framework milestone, not a narrative milestone. No new story arc, final NPC cast, crime activity, economy rule or relationship progression system is included.
 
@@ -84,3 +84,5 @@ This is a framework milestone, not a narrative milestone. No new story arc, fina
 - The director is deliberately not connected to ambient NPC meetings, familiarity, routine decisions or ordinary perception. Those remain everyday simulation.
 - The director has no default tuning values and is not yet wired to scenario content. A future scenario owner must supply approved pacing values and call it only after validating a real candidate. No dramatic event catalogue or automatic catch-up scheduler is introduced.
 - Clock rewinds are rejected for authorization rather than treated as fresh time; persistence/reconstruction of the director's phase and last authorization will be designed alongside scenario/save state before this becomes live gameplay.
+
+- The newly added WorldPacingDirector tests are a separate, later change and still require a fresh Unity run; the 219/219 result predates this pacing addition.
