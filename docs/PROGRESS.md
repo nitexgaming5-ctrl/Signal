@@ -1,7 +1,7 @@
 # Progress
 
-## Current initiative: first living NPC and connected shared-city activity slice
-Status: Partial. The hideout, connected starter city block and home-storage loop remain implemented and user-verified in their normal flows. Added a first living NPC prototype: Milo, a neighbourhood baker whose deterministic Core utility brain chooses Work, Rest, Socialize and Home from in-game time plus energy/social needs; his Unity presentation moves between the bakery interior, a street rest point, an evening neighbourhood spot and his apartment; his conversation changes with his activity. Core and Game integration tests have been authored but have NOT been run. Unity compilation and Play Mode verification are pending. Remaining broader slice work includes persistent relationships/discovery, a concrete connected side activity and its outcome. Storage edge cases, actual version-1 migration, automated city transition tests and target-platform save replacement remain follow-up verification. Work remains on `chore/collaboration-workflow-and-audit`; `main` is untouched.
+## Current initiative: connected NPC framework
+Status: In progress. Milo is a temporary test character, not the beginning of the final cast. Added a reusable Core social-world model for NPC registration/presence, local awareness, shared world events, individual knowledge, directed relationships and explicit information sharing. Connected the current Milo prototype to the shared world and added a city event-publishing entry point. Added Core tests for proximity, perception boundaries, rumours/trust and duplicate IDs, plus Game assertions for Milo registration and conversation events. These tests have NOT been run. The user confirmed Milo can be spoken to in Play Mode after the timed-message fix; timing/schedule behaviour remains prototype-level. Next work is to feed personal awareness into decision-making, replace hard-coded character assumptions with data-driven definitions and prove a second temporary profile can be added without another character-specific script. Storage edge cases, actual version-1 migration, automated city transition tests and target-platform save replacement remain follow-up verification. Work remains on `chore/collaboration-workflow-and-audit`; `main` is untouched.
 
 ## Approved project direction
 Signal is an immersive top-down 2D urban RPG about making a living in one layered city: meeting people, doing activities for money and resources, trading goods, taking risks, sometimes losing things, discovering secrets and returning to a personal hideout.
@@ -68,12 +68,21 @@ The repository contains more of the intended hideout/city direction than the pre
 - Not yet confirmed: full/blocked destination edge cases, loading an actual version-1 save, automated test-suite results, and platform-specific file replacement behavior.
 - The workbench remains a visual inspect/rearrange workspace. No recipes or production rules have been invented.
 
-## First living NPC prototype (verification pending)
-- Added `NpcUtilityBrain` in Core. It advances from the world clock, evaluates four activities every 15 in-game minutes, and models only energy and social needs. It is deterministic and has no Unity dependency or external AI runtime.
-- Added `NeighbourNpc` in Game. Milo moves between the bakery frontage, a rest point, an evening social point and his home frontage; interaction dialogue reflects his current activity.
-- Integrated Milo into the existing street root and E interaction flow. The NPC is not a separate map, menu or activity provider.
-- Added Core tests for daily activity choices, determinism and clock rewind; added a Game integration test for conversation and evening activity. These tests have not been executed.
-- No save-format change: the first brain state is derived from the in-game day/time and is rebuilt on clock rewind/load. Relationships, memories and discovery flags are not yet implemented.
+## Connected NPC framework (in progress)
+
+- The original Milo baker is explicitly a temporary fixture. His name, appearance, dialogue, role and hard-coded schedule are not final narrative content.
+- Added Core social-world types:
+  - `NpcSocialWorld`: shared registry, location-aware presence, nearby-NPC queries, event journal, directed relationships and explicit knowledge sharing.
+  - `NpcWorldEvent`: a time/location/radius-scoped occurrence with an observable description.
+  - `NpcAgentState`: each NPC's current location, position, awareness radius, knowledge and relationships.
+  - `NpcKnowledge`: per-character memory distinguishing direct observation from information told by another NPC, including source and confidence.
+  - `NpcRelationship`: directed familiarity, trust and affinity values.
+- NPCs perceive events only in the same location and within both their awareness radius and the event's visibility radius. Knowledge is not broadcast to every character.
+- Explicit knowledge sharing preserves the original event identity and changes confidence according to the listener's trust in the speaker. A rumour remains a belief, not objective truth.
+- Connected the active CityBlockBootstrap to one shared NpcSocialWorld. Milo registers into it, updates his simulated location/position, and conversation publishes an event. Added PublishWorldEvent as the common integration point for future environmental and gameplay events.
+- Added Core EditMode tests for local presence, event perception, knowledge sharing, trust-based confidence, movement and duplicate IDs. Extended the city integration test to check registration and conversation event publication. Tests have NOT been run.
+- The social world is currently runtime-only. Save persistence, generic character definitions/presentation and event-driven reactions in the utility brain are planned follow-up work, not yet implemented.
+- Detailed design and sequencing: docs/NPC_FRAMEWORK.md.
 
 ## Verification status
 - User confirmed Slice A compilation and EditMode tests passed.
@@ -83,11 +92,14 @@ The repository contains more of the intended hideout/city direction than the pre
 - Remaining verification: locker capacity edge cases, an actual version-1 save migration, automated city transition tests and platform-specific file replacement.
 
 ## Next actions
-1. Preserve the approved shared-city model: lawful and illegal activity coexist in the same streets, shops, homes and social network; do not create a separate underground map/system by assumption.
-2. Extend Milo into the first connected shared-city activity: add discovery and a meaningful request/outcome, then persist only the character/player state that scenario genuinely needs.
-3. Select one compact vertical-slice scenario that demonstrates ordinary public life overlapping with a concealed opportunity or activity, and connects a meaningful outcome to the hideout. Agree its concrete reward, repeatability and failure rules before implementation.
-4. Later, build crime, trade and legitimate livelihood catalogues as interconnected content in the same city.
-5. At a convenient verification pass, run EditMode tests and check storage edge cases, version-1 migration and target-platform save replacement.
+
+1. Complete the shared NPC awareness foundation and run the Core/Game EditMode suites in Unity.
+2. Feed each NPC's own nearby people, perceived events and personal knowledge into the decision layer; never give character decisions omniscient access to the world journal.
+3. Replace Milo-specific identity, dialogue, schedule and presentation assumptions with data-driven definitions and generic runtime components.
+4. Add a second temporary test profile to prove multiple characters can share the framework without another character-specific MonoBehaviour.
+5. Design stable-ID persistence for meaningful relationships, discoveries and memories with save migration tests.
+6. Keep the shared-city model: lawful and illegal activity, public life and concealed dealings coexist in the same locations and social network.
+7. At a convenient verification pass, run the existing storage edge-case, version-1 migration, city transition and target-platform save replacement checks.
 
 ## Work log
 - 2026-11-17: Confirmed GitHub access and created the working branch; documented the focus-friendly workflow and original hybrid RPG direction.
@@ -104,3 +116,5 @@ The repository contains more of the intended hideout/city direction than the pre
 - 2026-11-17: User approved parallel legal/criminal lifestyles, harsh criminal failure and one global crime progression track.
 - 2026-11-17: User clarified that all activities share one city and that NPCs may have concealed illegal lives; wheat/bread was only an example, with water, food and second-hand/stolen goods among possible trade loops. Updated vision, roadmap, progress and backlog; no gameplay mechanics implemented.
 - 2026-11-17: User gave a white card for the next initiative. Approved and implemented the first low-cost NPC life prototype (Milo the baker), with Core utility decisions, activity-aware dialogue and street movement. Added tests and design/task documentation; Unity verification remains pending.
+
+- 2026-11-17: User clarified that the next priority is a reusable, connected NPC framework rather than Milo-specific narrative content. Added the first shared social-world Core model (NPC presence, local event perception, individual knowledge, directed relationships and explicit information sharing), integrated Milo as a temporary fixture, added Core/Game tests, and documented the framework contract and revised roadmap. Unity tests remain unrun.
