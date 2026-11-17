@@ -66,7 +66,7 @@ namespace Signal.Game.Tests
                 Assert.That(city.TryInteractNpc(npcPosition, out string workDialogue), Is.True);
                 StringAssert.Contains("baker", workDialogue);
                 Assert.That(city.SocialWorld.EventCount, Is.EqualTo(1));
-                Assert.That(registeredMilo.KnowsEvent("milo-conversation-1"), Is.True);
+                Assert.That(city.SocialWorld.BuildPerceptionFor("milo", 8f).KnowsEvent("milo-conversation-1"), Is.True);
 
                 clock.Advance(11 * 60);
                 Assert.That(city.NeighbourActivity, Is.EqualTo(NpcActivity.Socialize));
@@ -110,8 +110,9 @@ namespace Signal.Game.Tests
                 city.PublishWorldEventAt("CornerShop", "delivery-outside",
                     "A delivery van stopped outside the bakery.", new Vector2(1000f, 1000.4f), 3f);
 
-                Assert.That(milo.KnowsEvent("delivery-outside"), Is.True);
-                Assert.That(milo.FindKnowledge("delivery-outside").Origin,
+                NpcPerception miloView = city.SocialWorld.BuildPerceptionFor("milo", 8f);
+                Assert.That(miloView.KnowsEvent("delivery-outside"), Is.True);
+                Assert.That(miloView.FindEvent("delivery-outside").Origin,
                     Is.EqualTo(NpcKnowledgeOrigin.DirectObservation));
             }
             finally
