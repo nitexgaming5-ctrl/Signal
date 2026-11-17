@@ -167,6 +167,22 @@ namespace Signal.Core
             return true;
         }
 
+        public bool TryUpdateItemState(Guid itemInstanceId, ItemInstanceState state)
+        {
+            int index = _items.FindIndex(candidate => candidate.ItemInstanceId == itemInstanceId);
+            if (index < 0)
+                return false;
+
+            PlacedItem current = _items[index];
+            if (current.State == state)
+                return true;
+
+            _items[index] = new PlacedItem(current.InstanceId, current.ItemInstanceId, current.Type,
+                current.X, current.Y, current.Rotated, current.Count, state);
+            Changed?.Invoke(this);
+            return true;
+        }
+
         public bool TryMove(int instanceId, int x, int y, bool rotated)
         {
             int index = IndexOf(instanceId);
