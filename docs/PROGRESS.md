@@ -1,76 +1,55 @@
 # Progress
 
-## Current initiative: repository baseline audit and focus-friendly development workflow
-
-Status: in progress. GitHub access is confirmed. Work is tracked on `chore/collaboration-workflow-and-audit`; `main` remains untouched.
+## Current initiative: first hideout and surrounding city block
+Status: direction approved; focused scene and prototype audit in progress. Work is tracked on `chore/collaboration-workflow-and-audit`; `main` remains untouched.
 
 ## Approved project direction
-- Signal is a hybrid management/simulation RPG and narrative-driven RPG.
-- Simulation systems should create meaningful pressure and emergent situations; characters, relationships, choices, and consequences give those situations narrative weight.
-- New gameplay mechanics may be proposed freely, but their player-facing rules must be explained and explicitly approved by the user before implementation.
+Signal is an immersive top-down 2D urban RPG about travelling through a city, performing small interactions for money and resources, taking risks, looting, sometimes losing things, and returning to a personal hideout. It is not primarily a shop-management game.
+- The first player-facing focus is a small, walkable starter house/hideout.
+- The hideout should contain real visual furniture and interactable objects.
+- The workbench should open a dedicated close-up visual workspace, then return the player to the same room.
+- A compact city block provides context; buildings should be enterable, with simple interiors initially.
+- Visual direction takes top-down readability and lived-in interiors from Stardew Valley, adapted to a gritty contemporary urban setting.
+- New detailed gameplay rules beyond this approved direction still require explanation and approval.
 
-## Repository baseline (GitHub `main`, inspected 2026-11-17)
-- Default branch: `main`.
-- The repository currently has one commit: `Initial commit - Signal Unity project`.
-- Unity version: 6000.6.9f1.
-- Project uses 2D URP, Input System 1.20.1, UGUI, Tilemap, Test Framework 1.8.0.
-- The repository contains the Core/Game split, EditMode test assemblies, current Core systems, Unity-facing slice components, an archived `_Prototype` code area, and a sizeable vendored Unity MCP package.
-- Current scene assets include `Assets/_Project/Scenes/Main.unity` and `InventoryDemo.unity`. The build settings currently point to `Main.unity`; there is no `Slice.unity` file in the inspected tree.
-- No root `README.md`, `docs/DESIGN.md`, or `docs/roadmap.md` exists. The roadmap file is `docs/ROADMAP.md`.
+## Repository and branch
+- Repository: `nitexgaming5-ctrl/Signal`
+- Default branch: `main`
+- Working branch: `chore/collaboration-workflow-and-audit`
+- Unity version recorded in project: 6000.6.9f1.
+- No gameplay code or Unity scene files have been modified on this branch during the direction change.
+- No Unity compilation, EditMode test run, or Play Mode verification has been performed by the assistant.
 
-## Previously reported verification (not independently rerun in this audit)
-- The previous progress record reports M0–M3 verified and 109/109 tests passed.
-- M4–M9 code was reported as written but awaiting the user's Unity test run.
-- The audit has not run Unity compilation, EditMode tests, or manual play-mode verification. Those statuses remain unverified by this session.
+## Existing foundations found
+### Current Game layer
+- `GameSession`, `PlayerMotor2D`, `RoomBootstrap`, `CameraFollow2D`, `InventoryPanel`, `HudPanel`, `SaveFileStore`.
+- Core systems include player stats, grid inventory, clock, rent, heat, crafting, save DTOs and mapping.
 
-## Implemented systems found in the current source tree
-### Core
-- PlayerStats (money and health)
-- ItemType and GridInventory (placement, stacking, rotation, removal, snapshots)
-- InventoryDragMath
-- GameClock
-- RentLedger
-- HeatMeter
-- Shop order fulfilment
-- Crafting recipes and rollback
-- Save DTOs, migration gate, and SaveMapper
+### Existing Main scene and prototype content
+The repository contains more of the intended hideout/city direction than the previous roadmap implied:
+- `Assets/_Project/Scenes/Main.unity` includes objects named `ShelterEntrance`, `ShelterFloor`, `Workbench`, `StorageLocker`, `Bed`, `ExitDoor`, `--- CITY ---`, `--- SHELTER ---`, and street/building props.
+- The scene references prototype components including `InteractionController`, `ShelterSpaceController`, `ShelterManager`, `ShelterVisualController`, `WorkbenchInteractable`, `StorageLockerInteractable`, and `BedInteractable`.
+- `Assets/_Project/_Prototype/Scripts` contains a world interaction framework, shelter/city switching, bed/storage/workbench interactions, and related UI.
+- The existing `WorkbenchInteractable` currently performs a simple inventory recipe and displays text feedback. It is not yet the requested close-up, visual, object-manipulation workspace.
+- Existing city art includes `Assets/_Project/Art/City` and `ArtSource/RoguelikeModernCity`; the latter includes its own source pack and license file. Check asset provenance and intended use before importing more art.
 
-### Unity/Game layer
-- ItemDefinition and RecipeDefinition assets
-- PlayerMotor2D, CameraFollow2D, RoomBootstrap
-- InventoryPanel and HudPanel
-- GameSession composition root
-- SaveFileStore
+These are repository observations, not claims that the scene currently compiles or runs. The prototype code is in an archived area and must be inspected for dependencies before promotion or reuse.
 
-These are source-presence observations, not claims that the full gameplay loop is complete or verified.
+## Important risks and constraints
+- `SaveFileStore.Save` writes a temporary file, deletes the current save, then moves the temporary file into place. If the final move fails, the previous save may be lost. Fix with a recoverable replacement strategy and regression tests before expanding persistent world state.
+- `Main.unity` mixes legacy/prototype-style scene wiring and script references. Do not overwrite it or migrate scripts blindly; inspect its dependencies and reconcile with the user's local Unity project first.
+- Existing prototype scripts refer to additional legacy types such as `PlayerController`, `PlayerState`, `InventorySystem`, and `DayCycle`, so the prototype is not automatically compatible with the newer `Signal.Core` / `Signal.Game` architecture.
+- The assistant cannot run Unity in the user's local editor through the GitHub repository connection. All Unity verification must be clearly delegated or run through an available Unity integration.
 
-## Initial audit findings
-- `AGENTS.md` still required one task card per session and prohibited new mechanics. That conflicts with the user's updated direction; revised collaboration rules are being introduced on this branch.
-- `docs/PROGRESS.md` describes a user-side zip application and a future Slice scene, while the current repository already contains the M4–M9 source files and the build settings still reference Main.unity. This needs reconciliation with the user's local Unity project state.
-- `.gitignore` does not currently list the `SignalSave/` directory, although the roadmap/data model say save data should be ignored.
-- The current `Main.unity` scene contains legacy/prototype-style scene objects. Scene composition and script references need a dedicated inspection before changing or replacing it.
-- The current code and tests have not been executed in Unity during this audit.
-
-## Focus and delivery workflow
-- One active gameplay initiative at a time; new ideas go to `docs/IDEA_BACKLOG.md` rather than interrupting active work.
-- Build connected vertical slices with player-facing acceptance criteria, not isolated systems for their own sake.
-- Protect the known-good Core, save compatibility, Unity asset GUIDs, and `main` branch. Use reversible initiative branches.
-- The user has explicitly asked for a focus-friendly process: keep one current objective and one recommended next action visible, and handle technical sequencing without repeatedly asking them to manage it.
-- `docs/DEVELOPMENT_WORKFLOW.md` defines the lifecycle and definition of done.
-
-## Focused source-audit findings (2026-11-17)
-- `SaveFileStore.Save` writes a temporary file but deletes the current save before moving the temporary file into place. If the final move fails, the previous save may be lost. Treat this as a high-priority save-integrity defect; fix with a recoverable replacement strategy and regression tests before expanding save-dependent gameplay.
-- `GameSession` currently exposes selling and crafting through debug function keys (F7/F8), not through an in-world customer/shop interaction. This is a major integration gap between implemented systems and a compelling player-facing loop.
-- `GameSession` is not covered by a `GameSessionTests` file in the current test tree. Existing Game tests cover inventory UI, definitions, room bootstrap, and save-file storage.
-- The current build settings point to `Main.unity`, whose scene contains legacy shelter/door objects. `InventoryDemo.unity` contains the standalone inventory bootstrap. The documented `Slice.unity` scene is absent. Do not overwrite or repurpose these scenes until their local Unity state and references are reconciled.
-- The shop and crafting Core rules have focused tests, but those systems are not yet integrated into a normal player interaction.
-
-## Next
-1. Finish the risk-focused audit, especially save/load mapping, scene wiring, and existing test coverage.
-2. Fix the save replacement risk with tests before changing the save format or expanding dependent systems.
-3. Reconcile the remote repository state with the user's local Unity project before scene migration or destructive changes.
-4. Build one complete, player-facing shop interaction using approved rules; keep any new customer behavior or economic rules as a design proposal until agreed.
+## Next actions
+1. Complete a dependency audit of the Main scene and prototype scripts, identifying what can be reused safely and what is obsolete.
+2. Inspect the actual furniture/workbench art assets and current scene layout; preserve GUIDs and scene references.
+3. Design the smallest robust workbench close-up interaction and its return path, reusing the current interaction framework only if safe.
+4. Implement the hideout slice additively, then verify in Unity before expanding the city block.
+5. Address save replacement safety before adding persistent furniture placement or other new world-state data.
 
 ## Work log
-- 2026-11-17: Confirmed GitHub repository access; inspected repository tree, core documentation, task cards, project settings, and a first pass of Core/Game code.
-- 2026-11-17: Created branch `chore/collaboration-workflow-and-audit`; aligned agent instructions with the user's expanded collaboration model and documented the approved hybrid RPG direction.
+- 2026-11-17: Confirmed GitHub access and created the working branch; documented the focus-friendly workflow and original hybrid RPG direction.
+- 2026-11-17: User clarified the core fantasy: immersive urban hustling, travel, small interactions, money/resources, loot, risk and loss; shop management is not the central game.
+- 2026-11-17: User approved a first-slice direction centered on a small playable hideout, visual furniture, a close-up interactive workbench, and a compact city with enterable buildings.
+- 2026-11-17: Repository inspection found an existing Main scene with shelter/city objects and prototype interaction scripts. No code or scene files changed during this audit.
