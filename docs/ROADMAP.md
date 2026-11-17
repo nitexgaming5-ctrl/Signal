@@ -1,20 +1,21 @@
 # Roadmap — build the place before the systems that fill it
 
-Milestones are dependency notes, not a mandate to build isolated systems in order. Work is organised around one active, player-facing initiative at a time. Combine technical tasks whenever that produces a coherent playable result. See `docs/DEVELOPMENT_WORKFLOW.md`.
+Milestones are dependency notes, not a mandate to build isolated systems in order. Work is organised around one active, player-facing initiative at a time. Combine technical tasks whenever that produces a coherent playable result. See `docs/DEVELOPMENT_WORKFLOW.md` and `docs/ARCHITECTURE.md`.
 
 ## Current initiative — the first hideout and city block
 **Player outcome:** the player can walk around a small starter house, interact with its furniture, use a tactile workbench workspace, leave the house, explore a compact city block, and enter/exit basic buildings.
 
 ### Slice A — make the hideout feel like a place
-- Audit and reuse the existing Main scene, shelter layout, player movement, interaction controller and city art where sound.
-- Establish a reliable walkable hideout interior with readable walls, floor, entrance and player collision.
-- Give the room a coherent starter-home layout: bed, table, chair, storage and workbench.
-- Add or refine interaction prompts and feedback for furniture.
-- Make the workbench a distinct visual interaction: approach it, enter a close-up workspace, manipulate represented objects, and return to the same room state.
-- Add modest visual atmosphere and decoration so the house feels inhabited.
-- Preserve existing save data and the working Core inventory/crafting foundations.
+- [x] Consolidate the active runtime on Signal.Core + Signal.Game; preserve the old Main/prototype path as legacy reference.
+- [x] Add HideoutSlice as the active build scene.
+- [x] Establish a walkable room with floor, walls and player collision.
+- [x] Add placeholder bed, table, chair, storage and a physical workbench.
+- [x] Add E prompt and a close-up workspace with draggable/inspectable tabletop objects.
+- [ ] Verify compilation, controls, UI layout and EditMode tests in Unity.
+- [ ] Replace placeholder geometry with authored, cohesive hideout art and atmosphere.
+- [ ] Add meaningful interactions to bed, storage and other furniture after agreeing their player-facing rules.
 
-**Exit check:** in Unity Play Mode, the player can enter the hideout, move around without clipping through furniture/walls, interact with its key objects, open and close the workbench workspace, and leave the house. The workbench must feel like a place-based interaction, not merely a generic menu.
+**Exit check:** in Unity Play Mode, the player can move around without clipping through furniture/walls, open the workbench from the physical bench, inspect/rearrange tabletop objects, close the workspace and resume movement. The room should feel like a modest lived-in home rather than a debug room.
 
 ### Slice B — the surrounding city block
 - Build a compact outdoor street space using the existing city art where appropriate.
@@ -44,7 +45,7 @@ Each layer should be introduced through a complete playable scenario, not as an 
 
 ## Engineering safeguards
 - Preserve Unity asset GUIDs and existing scene references.
-- Do not replace Main or migrate prototype systems blindly; inspect dependencies and verify in the Editor.
+- Keep Main and its prototype scripts as legacy reference until valuable content is migrated and verified; do not add new features there.
 - Keep Core logic independent from UnityEngine where possible.
 - Protect save compatibility; fix and test the existing save replacement risk before relying on persistence for more world state.
 - Do not claim a scene, build or test is verified until it has actually been run in Unity.
