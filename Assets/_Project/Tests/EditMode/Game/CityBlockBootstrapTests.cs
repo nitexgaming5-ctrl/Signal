@@ -108,7 +108,7 @@ namespace Signal.Game.Tests
                 Assert.That(city.SocialWorld.TryGetNpc("milo", out NpcAgentState milo), Is.True);
                 Assert.That(milo.LocationId, Is.EqualTo("CornerShop"));
 
-                city.PublishWorldEventAt("CornerShop", "delivery-outside",
+                city.PublishWorldEventAt("CornerShop", "delivery-outside", "delivery",
                     "A delivery van stopped outside the bakery.", new Vector2(1000f, 1000.4f), 3f);
 
                 NpcPerception miloView = city.SocialWorld.BuildPerceptionFor("milo", 8f);
