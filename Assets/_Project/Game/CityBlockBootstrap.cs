@@ -18,7 +18,6 @@ namespace Signal.Game
         private Transform _player;
         private Rigidbody2D _body;
         private CameraFollow2D _cameraFollow;
-        private Rect _homeBounds;
         private readonly Rect _worldBounds = new Rect(-9f, -26f, 38f, 40f);
         private GameObject _streetRoot;
         private GameObject _shopRoot;
@@ -33,15 +32,15 @@ namespace Signal.Game
         public bool IsAtHome => _place == Place.Hideout;
         public string CurrentPlace => _place.ToString();
 
-        public void Build(Transform player, Rigidbody2D body, Camera camera, Rect homeBounds)
+        public void Build(Transform player, Rigidbody2D body, Camera camera)
         {
             _player = player;
             _body = body;
-            _homeBounds = homeBounds;
             _cameraFollow = camera != null ? camera.GetComponent<CameraFollow2D>() : null;
 
             _streetRoot = CreateRoot("CityBlock");
             BuildStreet(_streetRoot.transform);
+            _streetRoot.SetActive(false);
 
             _shopRoot = CreateRoot("CornerShopInterior");
             BuildInterior(_shopRoot.transform, new Vector2(1000f, 1000f), false);
