@@ -107,6 +107,46 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void CaptureAndApplyPreserveHomeStorageAndWorldLocation()
+        {
+            var source = new World();
+            var carried = Item(1, 1, 10);
+            var stored = Item(2, 1, 10);
+            var sourceStorage = new GridInventory(8, 6);
+            source.Inventory.Place(carried, 0, 0, count: 3);
+            sourceStorage.Place(stored, 2, 1, rotated: true, count: 4);
+
+            SaveData data = SaveMapper.Capture(source.Stats, source.Inventory, sourceStorage,
+                                               source.Clock, source.Heat, source.Rent,
+                                               "CornerShop", 1001.5f, 997.25f);
+
+            Assert.That(data.worldPlace, Is.EqualTo("CornerShop"));
+            Assert.That(data.storageItems.Count, Is.EqualTo(1));
+            Assert.That(data.storageItems[0].typeId, Is.EqualTo(stored.Id.ToString()));
+            Assert.That(data.storageItems[0].count, Is.EqualTo(4));
+
+            var target = new World();
+            var targetStorage = new GridInventory(8, 6);
+            LoadReport report = SaveMapper.Apply(data, target.Stats, target.Inventory, targetStorage,
+                                                 target.Clock, target.Heat, target.Rent, Resolver(carried, stored));
+
+            Assert.That(report.Success, Is.True);
+            Assert.That(report.SkippedStorageItems, Is.EqualTo(0));
+            Assert.That(target.Inventory.CountOf(carried), Is.EqualTo(3));
+            Assert.That(targetStorage.CountOf(stored), Is.EqualTo(4));
+        }
+
+        [Test]
+        public void VersionOneSaveMigratesWithEmptyHomeStorageAndHideoutLocation()
+        {
+            var data = new SaveData { version = 1, storageItems = null, worldPlace = null };
+
+            Assert.That(SaveMigrator.TryMigrate(data, out _), Is.True);
+            Assert.That(data.worldPlace, Is.EqualTo("Hideout"));
+            Assert.That(data.storageItems, Is.Empty);
+        }
+
+        [Test]
         public void ApplySkipsItemsOfUnknownTypes()
         {
             var source = new World();
