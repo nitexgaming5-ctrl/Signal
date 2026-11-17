@@ -11,19 +11,21 @@ Milestones are dependency notes, not a mandate to build isolated systems in orde
 - [x] Establish a walkable room with floor, walls and player collision.
 - [x] Add placeholder bed, table, chair, storage and a physical workbench.
 - [x] Add E prompt and a close-up workspace with draggable/inspectable tabletop objects.
-- [ ] Verify compilation, controls, UI layout and EditMode tests in Unity.
+- [x] User verified compilation and reported the first-slice tests passed in Unity.
 - [ ] Replace placeholder geometry with authored, cohesive hideout art and atmosphere.
 - [ ] Add meaningful interactions to bed, storage and other furniture after agreeing their player-facing rules.
 
-**Exit check:** in Unity Play Mode, the player can move around without clipping through furniture/walls, open the workbench from the physical bench, inspect/rearrange tabletop objects, close the workspace and resume movement. The room should feel like a modest lived-in home rather than a debug room.
+**Exit check:** the player can move around without clipping through furniture/walls, open the workbench from the physical bench, inspect/rearrange tabletop objects, close the workspace and resume movement. The first playable hideout/workbench loop has been verified by the user; the visual/art pass remains open.
 
 ### Slice B — the surrounding city block
-- Build a compact outdoor street space using the existing city art where appropriate.
-- Connect the hideout entrance to the street and back without losing player state.
-- Add a small number of enterable building shells/interiors. The first pass can use simple placeholder rooms.
-- Keep navigation readable and distances short; the block is a playable context, not a large empty map.
+- [x] Build a compact outdoor street space using the existing Core/Game runtime and placeholder geometry.
+- [x] Connect the hideout entrance to the street and back without recreating the player or session.
+- [x] Add two enterable building shells with simple placeholder interiors (corner shop and apartment).
+- [x] Keep the first block compact, with short routes and a readable street layout.
+- [ ] Verify doorway reachability, collision, camera tracking and return paths in Unity Play Mode.
+- [ ] Replace placeholder street/building geometry with cohesive authored city art.
 
-**Exit check:** the player can move between the hideout and street, enter and exit the initial buildings, and reliably return to the correct location.
+**Exit check:** the player can move between the hideout and street, enter and exit the initial buildings, and reliably return to the correct location. Source implementation is in place; Unity verification is pending.
 
 ### Slice C — make the hideout useful
 - Connect existing inventory and crafting capabilities to the physical storage/workbench interactions where appropriate.
@@ -48,6 +50,7 @@ Each layer should be introduced through a complete playable scenario, not as an 
 - Keep Main and its prototype scripts as legacy reference until valuable content is migrated and verified; do not add new features there.
 - Keep Core logic independent from UnityEngine where possible.
 - Protect save compatibility; Core/Game now uses safe replacement and a separate filename from the legacy prototype. Verify on the target Unity platform before relying on persistence for more world state.
+- Saving, loading and sleeping are currently restricted to the hideout because location persistence is not part of this slice yet.
 - Do not claim a scene, build or test is verified until it has actually been run in Unity.
 
 ## Definition of a complete slice
