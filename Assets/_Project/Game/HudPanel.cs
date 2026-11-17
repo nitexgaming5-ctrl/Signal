@@ -90,7 +90,7 @@ namespace Signal.Game
                                new Vector2(0f, 1f), new Vector2(12f, -42f), new Vector2(1400f, 30f));
             Text hint = NewText(canvasObject.transform, "Hint", 14, TextAnchor.LowerLeft, HintColor,
                                 new Vector2(0f, 0f), new Vector2(12f, 10f), new Vector2(1600f, 24f));
-            hint.text = "WASD move   E interact   Tab inventory   Esc close workspace   F6 sleep at home   F5 save at home   F9 load at home";
+            hint.text = "WASD move   E interact   Tab inventory   Esc close panels   F6 sleep at home   F5 save   F9 load";
             _prompt = NewText(canvasObject.transform, "InteractionPrompt", 20, TextAnchor.LowerCenter,
                               MessageColor, new Vector2(0.5f, 0f), new Vector2(0f, 52f), new Vector2(720f, 34f));
 
