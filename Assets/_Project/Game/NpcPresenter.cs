@@ -19,6 +19,7 @@ namespace Signal.Game
         private Vector2 _destination;
         private NpcActivity _activity;
         private SpriteRenderer _bodyRenderer;
+        private string _activePlace = "Hideout";
 
         public string NpcId => _definition != null ? _definition.NpcId : string.Empty;
         public string DisplayName => _definition != null ? _definition.DisplayName : string.Empty;
@@ -56,10 +57,12 @@ namespace Signal.Game
             _initialized = true;
         }
 
-        public void SnapToAuthoredDestination()
+        public void SetActivePlace(string place)
         {
+            _activePlace = place ?? string.Empty;
             transform.position = new Vector3(_destination.x, _destination.y, 0f);
             SyncSocialPosition();
+            UpdateLocationVisibility();
         }
 
         public bool CanTalkFrom(Vector2 position)
@@ -146,6 +149,14 @@ namespace Signal.Game
             if (snapToDestination || !wasInCurrentPlace || !willBeInCurrentPlace)
                 transform.position = new Vector3(_destination.x, _destination.y, 0f);
             SyncSocialPosition();
+            UpdateLocationVisibility();
+        }
+
+        private void UpdateLocationVisibility()
+        {
+            bool shouldBeActive = ActivityPlace(_activity) == _activePlace;
+            if (gameObject.activeSelf != shouldBeActive)
+                gameObject.SetActive(shouldBeActive);
         }
 
         private void SyncSocialPosition()
