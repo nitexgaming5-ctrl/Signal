@@ -80,3 +80,9 @@ Do not run both architectures in the same active scene. Preserve Main and its as
 The active HideoutSlice is a code-built first-pass room. It contains placeholder bed, table, chair, storage and a physical workbench. The workbench opens a close-up UGUI tabletop with draggable and inspectable props. This is a visual interaction prototype only: it does not consume inventory or define production/economy rules.
 
 The workbench UI uses an EventSystem with InputSystemUIInputModule because it has pointer-driven buttons and drag interactions; ordinary world movement continues to use Input System polling.
+
+## Connected city slice
+
+`CityBlockBootstrap` composes the compact outdoor street and two simple interior spaces under the active `GameSession`. It reuses the same player Rigidbody2D and keeps inventory, clock and other session state alive while changing the active visual root and camera bounds. The street and interiors are first-pass placeholder geometry; authored city art is a later visual pass.
+
+The current save DTO does not store a world-location identifier. Until location persistence is added and tested, save/load/sleep are restricted to the hideout rather than allowing a city position to be restored into the wrong active location.
