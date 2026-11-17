@@ -6,8 +6,14 @@ namespace Signal.Core
     public readonly struct PlacedItem
     {
         public PlacedItem(int instanceId, ItemType type, int x, int y, bool rotated, int count)
+            : this(instanceId, Guid.NewGuid(), type, x, y, rotated, count)
+        {
+        }
+
+        internal PlacedItem(int instanceId, Guid itemInstanceId, ItemType type, int x, int y, bool rotated, int count)
         {
             InstanceId = instanceId;
+            ItemInstanceId = itemInstanceId;
             Type = type;
             X = x;
             Y = y;
@@ -16,6 +22,7 @@ namespace Signal.Core
         }
 
         public int InstanceId { get; }
+        public Guid ItemInstanceId { get; }
         public ItemType Type { get; }
         public int X { get; }
         public int Y { get; }
@@ -86,7 +93,8 @@ namespace Signal.Core
                 return null;
 
             int id = _nextInstanceId++;
-            _items.Add(new PlacedItem(id, type, x, y, rotated, count));
+            Guid itemInstanceId = Guid.NewGuid();
+            _items.Add(new PlacedItem(id, itemInstanceId, type, x, y, rotated, count));
             Changed?.Invoke(this);
             return id;
         }
@@ -98,6 +106,32 @@ namespace Signal.Core
                 return false;
 
             _items.RemoveAt(index);
+            Changed?.Invoke(this);
+            return true;
+        }
+
+        internal bool TryRemoveItemInstance(Guid itemInstanceId)
+        {
+            int index = _items.FindIndex(item => item.ItemInstanceId == itemInstanceId);
+            if (index < 0)
+                return false;
+
+            _items.RemoveAt(index);
+            Changed?.Invoke(this);
+            return true;
+        }
+
+        internal bool TryPlaceTransferred(PlacedItem item)
+        {
+            if (item.ItemInstanceId == Guid.Empty || item.Count < 1 || item.Count > item.Type.MaxStack)
+                return false;
+            if (_items.Exists(existing => existing.ItemInstanceId == item.ItemInstanceId))
+                return false;
+            if (!TryFindFreeSpot(item.Type, out int x, out int y))
+                return false;
+
+            int localId = _nextInstanceId++;
+            _items.Add(new PlacedItem(localId, item.ItemInstanceId, item.Type, x, y, false, item.Count));
             Changed?.Invoke(this);
             return true;
         }
@@ -127,7 +161,7 @@ namespace Signal.Core
             if (!Fits(current.Type, x, y, rotated, instanceId))
                 return false;
 
-            _items[index] = new PlacedItem(instanceId, current.Type, x, y, rotated, current.Count);
+            _items[index] = new PlacedItem(instanceId, current.ItemInstanceId, current.Type, x, y, rotated, current.Count);
             Changed?.Invoke(this);
             return true;
         }
@@ -167,7 +201,7 @@ namespace Signal.Core
                 if (taken == item.Count)
                     _items.RemoveAt(i);
                 else
-                    _items[i] = new PlacedItem(item.InstanceId, item.Type, item.X, item.Y, item.Rotated, item.Count - taken);
+                    _items[i] = new PlacedItem(item.InstanceId, item.ItemInstanceId, item.Type, item.X, item.Y, item.Rotated, item.Count - taken);
             }
 
             Changed?.Invoke(this);
@@ -259,7 +293,7 @@ namespace Signal.Core
                     continue;
 
                 int moved = Math.Min(room, remaining);
-                _items[i] = new PlacedItem(existing.InstanceId, existing.Type, existing.X, existing.Y,
+                _items[i] = new PlacedItem(existing.InstanceId, existing.ItemInstanceId, existing.Type, existing.X, existing.Y,
                                            existing.Rotated, existing.Count + moved);
                 remaining -= moved;
                 changed = true;
@@ -271,7 +305,7 @@ namespace Signal.Core
                     break;
 
                 int stack = Math.Min(remaining, type.MaxStack);
-                _items.Add(new PlacedItem(_nextInstanceId++, type, x, y, false, stack));
+                _items.Add(new PlacedItem(_nextInstanceId++, Guid.NewGuid(), type, x, y, false, stack));
                 remaining -= stack;
                 changed = true;
             }
