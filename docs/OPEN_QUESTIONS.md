@@ -71,7 +71,7 @@ ANSWER: `SignalSave/signal-save.json` beside the project in the editor (git igno
 - The mixing/chemistry interaction (drag, heat, contamination, quality)
 
 
-## Q17 — NPC life simulation approach
+## Q20 — NPC life simulation approach
 ANSWER: B — Lightweight utility simulation, paired with authored routines.
 
 Approved approach:
