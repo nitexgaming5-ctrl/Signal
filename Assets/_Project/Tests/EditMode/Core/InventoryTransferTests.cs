@@ -112,6 +112,54 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void MoveStackTransfersOnlyTheSelectedPhysicalStack()
+        {
+            ItemType type = Item();
+            ItemInstanceState selectedState = new ItemInstanceState(
+                ItemQuality.Fine, ItemCondition.Worn, ItemAuthenticity.Genuine, ItemOwnershipStatus.Stolen);
+            ItemInstanceState otherState = new ItemInstanceState(
+                ItemQuality.Poor, ItemCondition.Damaged, ItemAuthenticity.Counterfeit, ItemOwnershipStatus.Legitimate);
+            var carried = new GridInventory(3, 1);
+            var storage = new GridInventory(3, 1);
+            carried.Add(type, 2, selectedState);
+            carried.Add(type, 3, otherState);
+            Guid selectedId = carried.Items[0].ItemInstanceId;
+            Guid otherId = carried.Items[1].ItemInstanceId;
+
+            InventoryTransferResult result = InventoryTransfer.MoveStack(carried, storage, selectedId);
+
+            Assert.That(result.Success, Is.True);
+            Assert.That(result.Moved, Is.EqualTo(2));
+            Assert.That(result.Remaining, Is.Zero);
+            Assert.That(carried.Items.Count, Is.EqualTo(1));
+            Assert.That(carried.Items[0].ItemInstanceId, Is.EqualTo(otherId));
+            Assert.That(carried.Items[0].State, Is.EqualTo(otherState));
+            Assert.That(storage.Items.Count, Is.EqualTo(1));
+            Assert.That(storage.Items[0].ItemInstanceId, Is.EqualTo(selectedId));
+            Assert.That(storage.Items[0].State, Is.EqualTo(selectedState));
+        }
+
+        [Test]
+        public void MoveStackLeavesTheSourceUntouchedWhenDestinationHasNoRoom()
+        {
+            ItemType type = Item();
+            ItemType blocker = Item();
+            var carried = new GridInventory(2, 1);
+            var storage = new GridInventory(1, 1);
+            carried.Add(type, 2);
+            storage.Place(blocker, 0, 0);
+            Guid identity = carried.Items[0].ItemInstanceId;
+
+            InventoryTransferResult result = InventoryTransfer.MoveStack(carried, storage, identity);
+
+            Assert.That(result.Success, Is.True);
+            Assert.That(result.Moved, Is.Zero);
+            Assert.That(result.Remaining, Is.EqualTo(2));
+            Assert.That(carried.Items[0].ItemInstanceId, Is.EqualTo(identity));
+            Assert.That(carried.CountOf(type), Is.EqualTo(2));
+        }
+
+        [Test]
         public void SourceAndDestinationMustBeDifferentInventories()
         {
             var inventory = new GridInventory();
