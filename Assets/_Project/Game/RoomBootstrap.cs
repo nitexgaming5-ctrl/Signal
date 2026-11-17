@@ -16,6 +16,7 @@ namespace Signal.Game
         public Transform Player { get; private set; }
         public Rigidbody2D PlayerBody { get; private set; }
         public Transform Workbench { get; private set; }
+        public Transform Storage { get; private set; }
         public Rect Bounds { get; private set; }
 
         public void Build(Camera followCamera)
@@ -79,6 +80,7 @@ namespace Signal.Game
             AddBenchDetail(chair.transform, "ChairSeat", new Vector2(0f, -0.02f), new Vector2(0.7f, 0.62f), new Color32(0x8B, 0x6A, 0x50, 0xFF), 4);
 
             GameObject storage = CreateFurnitureProp("Storage", new Vector2(3f, 3f), new Vector2(1.5f, 1.75f), new Color32(0x5D, 0x62, 0x5D, 0xFF));
+            Storage = storage.transform;
             AddBenchDetail(storage.transform, "StorageDrawer", new Vector2(0f, 0.35f), new Vector2(1.15f, 0.42f), new Color32(0x77, 0x7B, 0x70, 0xFF), 4);
             AddBenchDetail(storage.transform, "StorageHandle", new Vector2(0f, 0.35f), new Vector2(0.2f, 0.07f), new Color32(0xC0, 0xA5, 0x72, 0xFF), 5);
 
