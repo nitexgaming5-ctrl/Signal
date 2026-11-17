@@ -105,6 +105,25 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void VersionOneSaveStillMigratesToVersionThreeWithStableIds()
+        {
+            var save = new SaveData
+            {
+                version = 1,
+                worldPlace = null,
+                items = { new SavedItem { typeId = Guid.NewGuid().ToString(), count = 2 } }
+            };
+
+            Assert.That(SaveMigrator.TryMigrate(save, out string error), Is.True, error);
+            Assert.That(save.version, Is.EqualTo(3));
+            Assert.That(save.worldPlace, Is.EqualTo("Hideout"));
+            Assert.That(save.storageItems, Is.Not.Null);
+            Assert.That(save.storageItems, Is.Empty);
+            Assert.That(Guid.TryParse(save.items[0].instanceId, out Guid identity), Is.True);
+            Assert.That(identity, Is.Not.EqualTo(Guid.Empty));
+        }
+
+        [Test]
         public void MigrationRepairsMissingOrDuplicateInstanceIds()
         {
             string duplicate = Guid.NewGuid().ToString();
