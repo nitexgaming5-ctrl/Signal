@@ -157,13 +157,18 @@ A repository audit on 2026-11-18 found that the active inventory is already a sp
 
 **Next recommended implementation: Item Instance v1 (technical foundation only).**
 
-- [ ] Audit existing inventory call sites/tests and document invariants before refactoring.
-- [ ] Separate stable item-instance identity from grid placement/slot bookkeeping.
-- [ ] Preserve item-instance identity when transferring between carried inventory and home storage.
-- [ ] Define safe stack compatibility so distinct per-instance state can never be silently merged.
-- [ ] Add save version 3 and migrate v2 stacks while preserving type, quantity, position and rotation.
-- [ ] Add Core tests for identity, transfer, save/load migration, stacking compatibility and no-loss failure behavior.
-- [ ] Keep existing grid UI and current normal inventory/storage loop working.
+- [x] Audit existing inventory call sites/tests and document invariants before refactoring.
+- [x] Separate stable stack identity (`Guid ItemInstanceId`) from grid placement/local integer IDs.
+- [x] Preserve stable identity and orientation when transferring whole stacks between carried inventory and home storage.
+- [x] Prevent transfers from merging distinct stack identities. Current `Add` still tops up same-definition stacks because no mutable per-instance state exists yet; expand compatibility checks when such state is introduced.
+- [x] Add save version 3 and migrate v1/v2 stacks while preserving definition, quantity, position and rotation; assign unique identities across both containers.
+- [x] Add Core tests for identity, transfer, save/load migration, duplicate-ID repair and rollback.
+- [x] Keep the existing grid UI and normal inventory/storage loop; clarify the whole-stack transfer behavior in the storage hint.
+- [ ] Run Unity compilation and the full EditMode suite; user verification is pending.
+
+
+
+**Transfer contract for v1:** a stack is moved as a whole and retains its identity. Distinct stacks are not merged during container transfer. If the destination has no free footprint for a complete stack, that stack remains in the source. There is no split-stack operation in v1. The persistent GUID identifies a stack, while the old integer ID remains local to an inventory for UI operations.
 
 This milestone does **not** add quality grades, condition/durability, counterfeit rules, stolen status, provenance, prices, equipment, weight, crafting or item-use rules. Those are future consumers of the item model and need separate design approval.
 
