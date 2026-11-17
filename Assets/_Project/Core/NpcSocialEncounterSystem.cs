@@ -146,6 +146,9 @@ namespace Signal.Core
             NpcPerception secondView = world.BuildPerceptionFor(secondId, float.MaxValue);
             for (int i = 0; i < firstView.KnownEvents.Count; i++)
             {
+                if (firstView.KnownEvents[i].Kind == "SocialEncounter")
+                    continue;
+
                 string eventId = firstView.KnownEvents[i].EventId;
                 if (!secondView.KnowsEvent(eventId))
                 {
@@ -156,6 +159,9 @@ namespace Signal.Core
 
             for (int i = 0; i < secondView.KnownEvents.Count; i++)
             {
+                if (secondView.KnownEvents[i].Kind == "SocialEncounter")
+                    continue;
+
                 string eventId = secondView.KnownEvents[i].EventId;
                 if (!firstView.KnowsEvent(eventId))
                 {
