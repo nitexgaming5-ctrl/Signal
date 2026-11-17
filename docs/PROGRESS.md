@@ -1,12 +1,12 @@
 # Progress
 
-## Current status: connected NPC framework foundation and world-pacing foundation
+## Current status: item instance state and inspection foundation in progress
 
-The connected NPC framework's first controlled milestone is implemented. The user confirmed **219/219 EditMode tests passed** after the generic presenter and scheduled social-encounter work. The separate WorldPacingDirector foundation was then added; the first Unity run reported 225/226 because one test expected a frozen ramp even though the same phase had advanced by 30 minutes. The test expectation was corrected (64 minutes is the correct ramp value), with no production-code change. The user has now confirmed the follow-up is good; record the current full EditMode baseline as **226/226 passing** (2026-11-17).
+The connected NPC framework and WorldPacingDirector foundation are implemented. The user confirmed **226/226 EditMode tests passed** after the pacing test correction (2026-11-17). Item Instance v1 was then implemented and the user confirmed **235/235 EditMode tests passed** (2026-11-18).
 
-The pacing director remains a Core policy foundation, deliberately not wired into gameplay or scenario content. It needs an authored scenario owner, approved tuning, persistence/reconstruction design and a real context-valid candidate source before live integration. Everyday NPC routines and restrained scheduled encounters remain outside this gate.
+The next approved layer is now implemented on the shared branch but awaits Unity verification: per-stack quality, condition, authenticity and ownership state; provisional reference valuation; save format v4; a shared item viewer; right-click inspection in the carried grid; and individual-stack inspection/transfer in home storage. Do not treat the new code/tests as verified until the user runs Unity compilation and the full EditMode suite.
 
-Next player-facing direction: design one small NPC scenario and agree its rules before implementation. The next technical foundation is the Item Instance v1 proposal documented in docs/ITEM_QUEST_PLAYER_FRAMEWORK_RESEARCH.md; it is intended to prepare the existing inventory for future goods systems without adding gameplay rules. A short Inspector validation of authored NpcCharacterDefinition assets remains useful. Work remains on `chore/collaboration-workflow-and-audit`; `main` is untouched.
+The pacing director remains a Core policy foundation, deliberately not wired to gameplay or scenario content. It needs an authored scenario owner, approved tuning, persistence/reconstruction design and a real context-valid candidate source before live integration. Work remains on `chore/collaboration-workflow-and-audit`; `main` is untouched.
 
 ## Approved project direction
 Signal is an immersive top-down 2D urban RPG about making a living in one layered city: meeting people, doing activities for money and resources, trading goods, taking risks, sometimes losing things, discovering secrets and returning to a personal hideout.
@@ -195,28 +195,41 @@ Reviewed the active Core/Game implementation and the reference-game list before 
 - Player creation/customization and additional stats are deferred until their player-facing use cases are established.
 
 
-## Item Instance v1 — implemented, Unity verification pending (2026-11-18)
+## Item Instance v1 — implemented and user-verified (2026-11-18)
 
-The user approved Item Instance v1 as the next technical milestone. The first implementation pass is now on the shared branch.
+The user approved Item Instance v1 and confirmed **235/235 EditMode tests passed** after pulling the implementation.
+
+- Each stack has a stable `Guid ItemInstanceId`, separate from the inventory-local integer `InstanceId`.
+- Identity survives movement, rotation, snapshots, whole-stack transfers and save/load.
+- Container transfers preserve orientation and identity, never merge distinct stacks, and leave stacks in the source when a complete footprint cannot fit.
+- Save format v3 stores stable stack identity. v1/v2 migration assigns unique identities across carried and storage containers and preserves the prior v1 Hideout/empty-locker behavior.
+- There is no split-stack operation. Identity is stack-level, not per individual unit.
+
+## Item state and inspection v1 — implementation committed, Unity verification pending (2026-11-18)
 
 ### Implemented
-- Added a stable `Guid ItemInstanceId` to each `PlacedItem` stack. The existing integer `InstanceId` remains as inventory-local UI/placement bookkeeping; it is not the persistent identity.
-- New placed stacks receive unique GUID identities. Explicit IDs can be supplied when restoring saves; duplicate IDs inside one inventory and empty IDs are rejected.
-- Moving/rotating a stack and taking/restoring an `InventorySnapshot` preserve its stable identity.
-- `InventoryTransfer.MoveAll` now transfers whole stacks while preserving their GUID identity and orientation. It does not merge two distinct stacks. If a complete stack cannot fit in the destination, it stays in the source; `Moved` and `Remaining` continue to report quantities.
-- Transfer still snapshots both inventories and rolls back if the source stack disappears during the destination change callback.
-- Save format is now version 3. `SavedItem` stores `instanceId`; capture/load round-trips identity for carried and home-storage stacks.
-- Save migration from v1 and v2 assigns missing identities across both containers and repairs empty/duplicate IDs. Existing definition, count, coordinates, rotation and v1 Hideout/default-storage behavior are preserved.
-- Updated the storage panel's transfer hint to explain that complete stacks move and separate stacks keep their identities.
-- Added `ItemInstanceIdentityTests` for unique IDs, duplicate rejection, move/rotation, snapshot restore, v1/v2 migration, duplicate-ID repair and save/load round-trip. Updated transfer tests to assert identity preservation and no stack merging, including orientation.
+- Added Core `ItemInstanceState` per stack:
+  - Quality: Poor, Standard, Fine, Exceptional.
+  - Condition: Damaged, Worn, Good, Pristine.
+  - Authenticity: Genuine, Counterfeit.
+  - Ownership: Legitimate, Stolen.
+- Added a central `ItemValueCalculator` that combines the item's authored base reference value with provisional multipliers for those four state dimensions. The result is an indicative reference value only; it is not a buy/sell price or an economy.
+- Extended `ItemDefinition` with description, category, optional icon, base reference value and default instance-state fields. Runtime stacks may use different states from the definition's defaults.
+- `GridInventory.Add` now tops up only stacks with the same definition **and** matching state. Different states remain separate stacks and keep separate stable identities.
+- Moving, rotating, snapshotting and transferring preserve the full item state.
+- Added `InventoryTransfer.MoveStack` for targeted whole-stack transfers by stable identity.
+- Reworked home storage to list individual stacks, display their quality/condition, inspect a selected stack, and STORE/TAKE only that stack. This avoids hiding different copies of the same definition behind one aggregate count.
+- Added a shared read-only `ItemViewerPanel`. Right-click an item in the carried inventory or choose INSPECT in home storage. The viewer presents authored description/category/icon, stack quantity, all four state fields, reference-value multipliers, unit value and stack reference value.
+- Save format is now v4. All four state fields are persisted. v1/v2/v3 saves migrate to neutral defaults (Standard, Good, Genuine, Legitimate); existing IDs and inventory layouts remain preserved.
+- Added tests for state-aware stack compatibility, state-preserving movement/transfer, targeted stack transfers, provisional valuation, v3 migration defaults and save/load state round-trip.
 
 ### Deliberate boundaries
-- This is a stack-identity foundation, not a per-unit identity system. Units within one stack still share the stack identity.
-- No split-stack operation exists yet. Transfers move complete stacks only; if a future interaction needs to split a stack, it must explicitly allocate a new identity for the resulting stack.
-- `GridInventory.Add` may top up a same-definition stack because no per-instance mutable state exists yet. When state fields are introduced, the stack-compatibility rule must be expanded to compare those fields before merging.
-- No quality, condition, authenticity, ownership/provenance, pricing, equipment, crafting, weight or item-use mechanics were added.
+- State is currently authoritative and fully visible in the viewer. There is not yet a separate player-knowledge/discovery layer, uncertainty, inspection skill, appraisal minigame or hidden-fact reveal. Keep those separate so a future inspection system can reveal only what the player has learned.
+- The value factors are provisional tuning constants. They are not transaction prices, customer offers, market demand, bargaining or a full economy.
+- Quality/condition/authenticity/ownership are per stack, not per individual unit. No split-stack operation exists.
+- No provenance chain, evidence system, durability decay, item use, equipment, crafting, weight, trade or quest-item behavior was added.
+- Existing ITEM_A/B/C assets remain temporary fixtures; their descriptions/icons/base values/default states still need authoring in the Inspector.
 
 ### Verification
-- Code and tests have been committed, but the assistant cannot run Unity locally through the GitHub connection.
-- **Awaiting user Unity compilation and full EditMode test run.** Do not mark this milestone verified until the user confirms the result.
-- Existing last confirmed full EditMode baseline before this work: 226/226.
+- Last confirmed full suite before this milestone: **235/235 passed** (user-reported after Item Instance v1).
+- The new item-state and viewer code/tests have not yet been run in Unity. Compilation, full EditMode suite, Play Mode viewer/locker interaction and save/load verification are pending user run.
