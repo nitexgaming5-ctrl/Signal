@@ -69,6 +69,6 @@ The active HideoutSlice is a code-built first-pass room. It contains placeholder
 
 `CityBlockBootstrap` composes the compact outdoor street and two simple interior spaces under the active `GameSession`. It reuses the same player Rigidbody2D and keeps inventory, clock and other session state alive while changing the active visual root and camera bounds.
 
-The home locker is a second `GridInventory` owned by `GameSession`. `StoragePanel` transfers item quantities between carried inventory and locker inventory through Core's capacity-aware `Add` and `TryRemove` operations. The panel does not invent item values or production rules.
+The home locker is a second `GridInventory` owned by `GameSession`. `StoragePanel` presents carried and stored quantities; the Core `InventoryTransfer` service owns capacity-aware movement and snapshot rollback. The panel does not invent item values or production rules. HideoutSlice currently references ITEM_A/B/C as temporary test fixtures from the existing inventory demo; these are not final content.
 
 Save format version 2 stores carried inventory, locker inventory, the current place identifier and player coordinates. Version-1 saves migrate to an empty locker and the hideout. `CityBlockBootstrap.TryRestorePlace` restores the saved active world root and camera bounds. The save implementation and UI still require Unity Play Mode verification on the target platform.
