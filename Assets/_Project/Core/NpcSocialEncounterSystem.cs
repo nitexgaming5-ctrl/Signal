@@ -95,6 +95,7 @@ namespace Signal.Core
                     occupiedThisPass.Add(firstId);
                     occupiedThisPass.Add(secondId);
                     created++;
+                    break;
                 }
             }
 
