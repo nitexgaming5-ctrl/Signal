@@ -26,6 +26,7 @@ namespace Signal.Game
         private Place _place;
         private NeighbourNpc _neighbour;
         private GameClock _clock;
+        private NpcSocialWorld _socialWorld;
 
         private static readonly Vector2 HomeDoor = new Vector2(10f, -1.5f);
         private static readonly Vector2 ShopDoor = new Vector2(0.5f, -10.8f);
@@ -36,11 +37,13 @@ namespace Signal.Game
         public string CurrentPlace => _place.ToString();
         public Vector2 NeighbourPosition => _neighbour != null ? _neighbour.Position : Vector2.zero;
         public NpcActivity NeighbourActivity => _neighbour != null ? _neighbour.Activity : NpcActivity.Home;
+        public NpcSocialWorld SocialWorld => _socialWorld;
 
         public void Build(Transform player, Rigidbody2D body, Camera camera, GameClock clock = null)
         {
             _player = player;
             _clock = clock ?? new GameClock();
+            _socialWorld = new NpcSocialWorld();
             _body = body;
             _cameraFollow = camera != null ? camera.GetComponent<CameraFollow2D>() : null;
 
@@ -87,6 +90,15 @@ namespace Signal.Game
 
             SetPlace(restored, position, bounds);
             return true;
+        }
+
+        public void PublishWorldEvent(string eventId, string kind, string description, Vector2 position, float visibilityRadius, string actorNpcId = null)
+        {
+            if (_socialWorld == null || _clock == null)
+                return;
+
+            _socialWorld.PublishEvent(new NpcWorldEvent(eventId, kind, description, actorNpcId,
+                _place.ToString(), position.x, position.y, visibilityRadius, _clock.Day, _clock.MinuteOfDay));
         }
 
         public string GetPrompt(Vector2 playerPosition)
@@ -232,7 +244,7 @@ namespace Signal.Game
             var npcObject = new GameObject("Milo - Neighbourhood Baker");
             npcObject.transform.SetParent(transform, false);
             _neighbour = npcObject.AddComponent<NeighbourNpc>();
-            _neighbour.Bind(_clock);
+            _neighbour.Bind(_clock, _socialWorld);
         }
 
         private static void BuildStreetBuilding(Transform root, string name, Vector2 centre, Color facade, Color trim)
