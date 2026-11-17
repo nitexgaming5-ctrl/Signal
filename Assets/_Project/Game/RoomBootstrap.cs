@@ -65,10 +65,31 @@ namespace Signal.Game
 
         private void CreateFurniture()
         {
-            CreateFurnitureProp("Bed", new Vector2(15f, 9f), new Vector2(3.2f, 1.65f), new Color32(0x65, 0x50, 0x4B, 0xFF));
-            CreateFurnitureProp("Table", new Vector2(15f, 3f), new Vector2(2.6f, 1.25f), new Color32(0x77, 0x54, 0x3E, 0xFF));
-            CreateFurnitureProp("Chair", new Vector2(12.8f, 3f), new Vector2(0.95f, 0.95f), new Color32(0x5B, 0x43, 0x35, 0xFF));
-            CreateFurnitureProp("Storage", new Vector2(3f, 3f), new Vector2(1.5f, 1.75f), new Color32(0x5D, 0x62, 0x5D, 0xFF));
+            GameObject bed = CreateFurnitureProp("Bed", new Vector2(15f, 9f), new Vector2(3.2f, 1.65f), new Color32(0x65, 0x50, 0x4B, 0xFF));
+            AddBenchDetail(bed.transform, "BedBlanket", new Vector2(0.35f, -0.08f), new Vector2(1.7f, 1.15f), new Color32(0x4F, 0x65, 0x66, 0xFF), 4);
+            AddBenchDetail(bed.transform, "BedPillow", new Vector2(-1.05f, 0.28f), new Vector2(0.75f, 0.48f), new Color32(0xC0, 0xB8, 0xA4, 0xFF), 5);
+
+            GameObject table = CreateFurnitureProp("Table", new Vector2(15f, 3f), new Vector2(2.6f, 1.25f), new Color32(0x77, 0x54, 0x3E, 0xFF));
+            AddBenchDetail(table.transform, "TableTop", new Vector2(0f, 0.08f), new Vector2(2.42f, 0.92f), new Color32(0x9A, 0x75, 0x55, 0xFF), 4);
+            AddBenchDetail(table.transform, "Paper", new Vector2(-0.45f, 0.18f), new Vector2(0.55f, 0.38f), new Color32(0xC0, 0xB8, 0xA4, 0xFF), 5);
+            AddBenchDetail(table.transform, "Mug", new Vector2(0.72f, 0.16f), new Vector2(0.24f, 0.28f), new Color32(0x4F, 0x6D, 0x78, 0xFF), 5);
+
+            GameObject chair = CreateFurnitureProp("Chair", new Vector2(12.8f, 3f), new Vector2(0.95f, 0.95f), new Color32(0x5B, 0x43, 0x35, 0xFF));
+            AddBenchDetail(chair.transform, "ChairSeat", new Vector2(0f, -0.02f), new Vector2(0.7f, 0.62f), new Color32(0x8B, 0x6A, 0x50, 0xFF), 4);
+
+            GameObject storage = CreateFurnitureProp("Storage", new Vector2(3f, 3f), new Vector2(1.5f, 1.75f), new Color32(0x5D, 0x62, 0x5D, 0xFF));
+            AddBenchDetail(storage.transform, "StorageDrawer", new Vector2(0f, 0.35f), new Vector2(1.15f, 0.42f), new Color32(0x77, 0x7B, 0x70, 0xFF), 4);
+            AddBenchDetail(storage.transform, "StorageHandle", new Vector2(0f, 0.35f), new Vector2(0.2f, 0.07f), new Color32(0xC0, 0xA5, 0x72, 0xFF), 5);
+
+            GameObject rug = CreateDecorationProp("WornRug", new Vector2(10f, 2f), new Vector2(4.4f, 1.8f), new Color32(0x5A, 0x43, 0x3F, 0xFF), 2);
+            AddBenchDetail(rug.transform, "RugPattern", Vector2.zero, new Vector2(3.9f, 1.35f), new Color32(0x78, 0x5B, 0x50, 0xFF), 3);
+
+            GameObject window = CreateDecorationProp("Window", new Vector2(10f, 11.35f), new Vector2(2.4f, 0.85f), new Color32(0x35, 0x52, 0x59, 0xFF), 2);
+            AddBenchDetail(window.transform, "WindowMullion", Vector2.zero, new Vector2(0.09f, 0.85f), new Color32(0x8A, 0x8D, 0x85, 0xFF), 3);
+            AddBenchDetail(window.transform, "WindowRail", Vector2.zero, new Vector2(2.4f, 0.08f), new Color32(0x8A, 0x8D, 0x85, 0xFF), 3);
+
+            GameObject plant = CreateDecorationProp("Plant", new Vector2(18f, 6.5f), new Vector2(0.8f, 0.8f), new Color32(0x4D, 0x75, 0x59, 0xFF), 3);
+            AddBenchDetail(plant.transform, "PlantPot", new Vector2(0f, -0.25f), new Vector2(0.48f, 0.32f), new Color32(0x8A, 0x5C, 0x43, 0xFF), 4);
 
             GameObject bench = CreateFurnitureProp("Workbench", new Vector2(5f, 9f), new Vector2(3.4f, 1.45f), new Color32(0x7B, 0x58, 0x3F, 0xFF));
             Workbench = bench.transform;
@@ -76,6 +97,19 @@ namespace Signal.Game
             AddBenchDetail(bench.transform, "JarA", new Vector2(-0.85f, 0.35f), new Vector2(0.32f, 0.45f), new Color32(0x8E, 0xB4, 0x9D, 0xFF), 5);
             AddBenchDetail(bench.transform, "Notebook", new Vector2(0.45f, 0.38f), new Vector2(0.72f, 0.48f), new Color32(0xC0, 0xA5, 0x72, 0xFF), 5);
             AddBenchDetail(bench.transform, "Tool", new Vector2(1.05f, -0.02f), new Vector2(0.62f, 0.12f), new Color32(0xB7, 0xB9, 0xB2, 0xFF), 5);
+        }
+
+        private GameObject CreateDecorationProp(string objectName, Vector2 position, Vector2 size, Color color, int sortingOrder)
+        {
+            var prop = new GameObject(objectName);
+            prop.transform.SetParent(transform, false);
+            prop.transform.position = new Vector3(position.x, position.y, 0f);
+            prop.transform.localScale = new Vector3(size.x, size.y, 1f);
+
+            SpriteRenderer renderer = prop.AddComponent<SpriteRenderer>();
+            renderer.sprite = PixelSprites.Solid(color);
+            renderer.sortingOrder = sortingOrder;
+            return prop;
         }
 
         private GameObject CreateFurnitureProp(string objectName, Vector2 position, Vector2 size, Color color)
