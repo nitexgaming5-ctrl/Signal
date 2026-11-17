@@ -94,7 +94,7 @@ namespace Signal.Game
                 "     Condition  ×" + value.ConditionMultiplier.ToString("0.##") + "\n" +
                 "Authenticity  ×" + value.AuthenticityMultiplier.ToString("0.##") +
                 "     Ownership  ×" + value.OwnershipMultiplier.ToString("0.##") + "\n\n" +
-                "INDICATIVE UNIT VALUE  /  " + value.FinalValue + "\\n" +
+                "INDICATIVE UNIT VALUE  /  " + value.FinalValue + "\n" +
                 "STACK REFERENCE VALUE  /  " + ((long)value.FinalValue * item.Count);
 
             _itemImage.sprite = definition == null ? null : definition.Icon;
