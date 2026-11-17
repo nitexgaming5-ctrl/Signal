@@ -16,14 +16,12 @@ namespace Signal.Game
     {
         [Header("Content")]
         [SerializeField] private ItemDefinition[] items;
-        [SerializeField] private RecipeDefinition debugRecipe;
 
         [Header("Placeholder tuning (not final design)")]
         [SerializeField] private int startingMoney;
         [SerializeField] private int rentAmount = 50;
         [SerializeField] private int rentEveryDays = 7;
         [SerializeField] private float gameMinutesPerRealSecond = 1f;
-        [SerializeField] private int debugSalePrice = 10;
 
         private readonly Dictionary<Guid, ItemType> _catalog = new Dictionary<Guid, ItemType>();
 
@@ -37,6 +35,7 @@ namespace Signal.Game
         private PlayerMotor2D _motor;
         private InventoryPanel _panel;
         private HudPanel _hud;
+        private WorkbenchWorkspace _workspace;
 
         private float _minuteBuffer;
 
@@ -67,7 +66,9 @@ namespace Signal.Game
 
             _hud = gameObject.AddComponent<HudPanel>();
             _hud.Bind(_stats, _clock, _heat, _rent);
-            _hud.ShowMessage("Walk with WASD. Tab opens the inventory.", 5f);
+            _workspace = gameObject.AddComponent<WorkbenchWorkspace>();
+            _workspace.Bind(_motor);
+            _hud.ShowMessage("A small place to start. The workbench is ready.", 5f);
         }
 
         private void OnDestroy()
@@ -81,20 +82,34 @@ namespace Signal.Game
             if (_stats == null)
                 return;
 
-            // The player stands still while the inventory is open.
-            _motor.enabled = !_panel.IsOpen;
+            bool workspaceOpen = _workspace != null && _workspace.IsOpen;
+            bool inventoryOpen = _panel != null && _panel.IsOpen;
+
+            // Menus and close-up workspaces own the player's focus.
+            _motor.enabled = !inventoryOpen && !workspaceOpen;
+
+            Keyboard keyboard = Keyboard.current;
+            bool nearWorkbench = _room.Workbench != null &&
+                Vector2.Distance(_room.Player.position, _room.Workbench.position) <= 2.15f;
+
+            if (workspaceOpen)
+                _hud.SetPrompt("ESC  Back to room");
+            else if (inventoryOpen)
+                _hud.SetPrompt(string.Empty);
+            else
+                _hud.SetPrompt(nearWorkbench ? "E  Use workbench" : string.Empty);
 
             TickClock();
 
-            Keyboard keyboard = Keyboard.current;
             if (keyboard == null)
                 return;
+
+            if (!workspaceOpen && !inventoryOpen && nearWorkbench && keyboard.eKey.wasPressedThisFrame)
+                _workspace.Open();
 
             if (keyboard.f6Key.wasPressedThisFrame) Sleep();
             if (keyboard.f5Key.wasPressedThisFrame) SaveGame();
             if (keyboard.f9Key.wasPressedThisFrame) LoadGame();
-            if (keyboard.f7Key.wasPressedThisFrame) DebugSell();
-            if (keyboard.f8Key.wasPressedThisFrame) DebugCraft();
         }
 
         private void TickClock()
@@ -179,60 +194,6 @@ namespace Signal.Game
             Say(report.SkippedItems > 0
                 ? "Loaded. " + report.SkippedItems + " item(s) could not be restored."
                 : "Loaded.");
-        }
-
-        private void DebugSell()
-        {
-            if (items == null || items.Length == 0 || items[0] == null)
-            {
-                Say("Assign at least one item to sell.");
-                return;
-            }
-
-            ItemType type = items[0].ToItemType();
-            FulfilResult result = Shop.TryFulfil(new ShopOrder(type, 1, debugSalePrice), _inventory, _stats);
-
-            switch (result)
-            {
-                case FulfilResult.Done:
-                    Say("Sold 1 " + items[0].DisplayName + " for " + debugSalePrice + ".");
-                    break;
-                case FulfilResult.NotEnoughStock:
-                    Say("You have none of " + items[0].DisplayName + " to sell.");
-                    break;
-                default:
-                    Say("That sale is not valid.");
-                    break;
-            }
-        }
-
-        private void DebugCraft()
-        {
-            if (debugRecipe == null)
-            {
-                Say("No debug recipe assigned.");
-                return;
-            }
-
-            try
-            {
-                switch (Crafting.TryCraft(debugRecipe.ToRecipe(), _inventory))
-                {
-                    case CraftResult.Done:
-                        Say("Crafted using '" + debugRecipe.name + "'.");
-                        break;
-                    case CraftResult.MissingInputs:
-                        Say("Missing ingredients.");
-                        break;
-                    default:
-                        Say("No room in the inventory for the result.");
-                        break;
-                }
-            }
-            catch (Exception exception)
-            {
-                Say(exception.Message);
-            }
         }
 
         private void BuildCatalog()
