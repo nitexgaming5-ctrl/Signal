@@ -5,7 +5,7 @@ namespace Signal.Game
 {
     /// <summary>
     /// Builds the first walkable hideout room, its starter furniture and a player.
-    /// The room is intentionally data-light while the visual layout is being established.
+    /// The street-facing doorway is left physically open for the connected city slice.
     /// </summary>
     public sealed class RoomBootstrap : MonoBehaviour
     {
@@ -33,7 +33,6 @@ namespace Signal.Game
             Tile floorA = NewTile(new Color32(0x55, 0x52, 0x4B, 0xFF), Tile.ColliderType.None);
             Tile floorB = NewTile(new Color32(0x4D, 0x4A, 0x44, 0xFF), Tile.ColliderType.None);
             Tile wall = NewTile(new Color32(0x6A, 0x6C, 0x68, 0xFF), Tile.ColliderType.Grid);
-            Tile door = NewTile(new Color32(0xA9, 0x83, 0x55, 0xFF), Tile.ColliderType.Grid);
 
             for (int y = 0; y < roomHeight; y++)
             {
@@ -44,7 +43,9 @@ namespace Signal.Game
             int doorX = roomWidth / 2;
             for (int x = -1; x <= roomWidth; x++)
             {
-                walls.SetTile(new Vector3Int(x, -1, 0), x == doorX ? door : wall);
+                // Leave the centre of the south wall open so the player can walk outside.
+                if (x != doorX)
+                    walls.SetTile(new Vector3Int(x, -1, 0), wall);
                 walls.SetTile(new Vector3Int(x, roomHeight, 0), wall);
             }
 
