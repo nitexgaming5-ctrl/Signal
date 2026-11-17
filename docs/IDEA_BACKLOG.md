@@ -25,6 +25,7 @@ Do not implement a parked idea until it is selected as the next initiative and i
 - **Shared people and events:** NPCs, clients, suppliers, contacts, factions, rumours and world events create opportunities and consequences for both lawful and illegal activity in the same neighbourhoods.
 
 ## Candidate systems — needs design before implementation
+- **Low-cost living NPC simulation:** make NPCs feel like people with routines, motives, relationships and private lives using an efficient hybrid of authored schedules and lightweight rule-based decisions. Candidate approach: simulate nearby/important NPCs in detail and advance distant NPCs coarsely or through events; avoid requiring an LLM per character. Hardware budget, update cadence, persistence and exact behaviour need design.
 - **Goods and item identity:** decide which goods need quality/condition/authenticity/provenance/ownership data, how players discover those properties, and how much information is hidden or uncertain.
 - **Trade and customer system:** buyers and sellers with needs, budgets, preferences, trust and different reactions to goods or suspicious transactions.
 - **NPC public/private lives:** occupations, routines, relationships, secrets, contact networks and discoverability clues.
