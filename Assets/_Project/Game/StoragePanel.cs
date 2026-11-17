@@ -133,7 +133,7 @@ namespace Signal.Game
             Anchor(columns.rectTransform, new Vector2(30f, -120f), new Vector2(1050f, 28f), true);
 
             RectTransform viewport = Panel(frame, "Viewport", new Color32(20, 24, 27, 255));
-            Anchor(viewport, new Vector2(24f, 74f), new Vector2(-24f, -158f), false);
+            Stretch(viewport, new Vector2(24f, 74f), new Vector2(-24f, -158f));
             viewport.gameObject.AddComponent<RectMask2D>();
 
             RectTransform content = new GameObject("Rows", typeof(RectTransform), typeof(VerticalLayoutGroup),
@@ -333,10 +333,15 @@ namespace Signal.Game
 
         private static void Stretch(RectTransform rect)
         {
+            Stretch(rect, Vector2.zero, Vector2.zero);
+        }
+
+        private static void Stretch(RectTransform rect, Vector2 minOffset, Vector2 maxOffset)
+        {
             rect.anchorMin = Vector2.zero;
             rect.anchorMax = Vector2.one;
-            rect.offsetMin = Vector2.zero;
-            rect.offsetMax = Vector2.zero;
+            rect.offsetMin = minOffset;
+            rect.offsetMax = maxOffset;
         }
 
         private static void Anchor(RectTransform rect, Vector2 position, Vector2 size, bool fromTop)
