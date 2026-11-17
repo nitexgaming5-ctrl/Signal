@@ -6,6 +6,39 @@ namespace Signal.Game.Tests
     public sealed class CityBlockBootstrapTests
     {
         [Test]
+        public void SavedLocationCanRestorePlayerAndActiveInterior()
+        {
+            var host = new GameObject("CityHost");
+            var player = new GameObject("Player");
+            var cameraObject = new GameObject("MainCamera");
+            Rigidbody2D body = player.AddComponent<Rigidbody2D>();
+            Camera camera = cameraObject.AddComponent<Camera>();
+            CityBlockBootstrap city = host.AddComponent<CityBlockBootstrap>();
+
+            try
+            {
+                city.Build(player.transform, body, camera);
+
+                Assert.That(city.TryRestorePlace("CornerShop", new Vector2(1001f, 998f)), Is.True);
+                Assert.That(city.CurrentPlace, Is.EqualTo("CornerShop"));
+                Assert.That(body.position, Is.EqualTo(new Vector2(1001f, 998f)));
+
+                Assert.That(city.TryRestorePlace("Apartment", new Vector2(1021f, 997f)), Is.True);
+                Assert.That(city.CurrentPlace, Is.EqualTo("Apartment"));
+                Assert.That(body.position, Is.EqualTo(new Vector2(1021f, 997f)));
+
+                Assert.That(city.TryRestorePlace("NotAPlace", Vector2.zero), Is.False);
+                Assert.That(city.CurrentPlace, Is.EqualTo("Apartment"));
+            }
+            finally
+            {
+                Object.DestroyImmediate(host);
+                Object.DestroyImmediate(player);
+                Object.DestroyImmediate(cameraObject);
+            }
+        }
+
+        [Test]
         public void PlayerCanTravelBetweenHideoutStreetAndBothInteriors()
         {
             var host = new GameObject("CityHost");
