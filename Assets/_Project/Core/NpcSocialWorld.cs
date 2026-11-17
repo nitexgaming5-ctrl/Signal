@@ -135,8 +135,16 @@ namespace Signal.Core
             if (!_npcs.TryGetValue(observerNpcId, out NpcAgentState observer))
                 throw new KeyNotFoundException("NPC is not registered: " + observerNpcId);
 
+            IList<string> nearbyIds = GetNearbyNpcIds(observerNpcId, radius);
+            var nearbyPeople = new List<NpcPerceivedPerson>(nearbyIds.Count);
+            for (int i = 0; i < nearbyIds.Count; i++)
+            {
+                string nearbyId = nearbyIds[i];
+                nearbyPeople.Add(new NpcPerceivedPerson(nearbyId, observer.GetRelationship(nearbyId)));
+            }
+
             return new NpcPerception(observerNpcId, observer.LocationId,
-                GetNearbyNpcIds(observerNpcId, radius), observer.GetKnowledge());
+                nearbyIds, nearbyPeople, observer.GetKnowledge());
         }
 
         public IList<NpcWorldEvent> GetEventJournal()
