@@ -15,7 +15,7 @@ Signal is an immersive top-down 2D urban RPG about making a living in one layere
 - Legitimate life is a satisfying alternative and can take many forms: trading, selling different grades of water, food, repair, services, gathering, processing, making goods, small businesses and potentially farming. Farming/wheat/bread was an example, not a fixed design requirement.
 - Goods can have meaningful properties such as quality, condition, authenticity, origin/provenance and ownership status. These should be implemented when they create useful player decisions, not as complexity for its own sake.
 - NPCs, clients, contacts, factions, rumours and world events should connect both lawful and illegal activities in the same neighbourhoods and economy.
-- New detailed gameplay rules beyond these approved directions still require explanation and approval before implementation.
+- NPCs should feel like people with lives beyond the player. The user is interested in exploring a very small, hardware-friendly AI; the simulation approach and concrete behaviours remain design work, not implementation approval.\n- New detailed gameplay rules beyond these approved directions still require explanation and approval before implementation.
 
 ## Repository and branch
 - Repository: `nitexgaming5-ctrl/Signal`
@@ -76,7 +76,7 @@ The repository contains more of the intended hideout/city direction than the pre
 
 ## Next actions
 1. Preserve the approved shared-city model: lawful and illegal activity coexist in the same streets, shops, homes and social network; do not create a separate underground map/system by assumption.
-2. Design the reusable activity model: object/location interactions, character requests and discovery, optional goods properties (quality, condition, authenticity, provenance/ownership), outcomes and persistence.
+2. Design the reusable activity model: object/location interactions, character requests and discovery, optional goods properties (quality, condition, authenticity, provenance/ownership), outcomes and persistence. Include one NPC who behaves like a person beyond the player's immediate interaction, using a low-cost simulation approach.
 3. Select one compact vertical-slice scenario that demonstrates ordinary public life overlapping with a concealed opportunity or activity, and connects a meaningful outcome to the hideout. Agree its concrete reward, repeatability and failure rules before implementation.
 4. Later, build crime, trade and legitimate livelihood catalogues as interconnected content in the same city.
 5. At a convenient verification pass, run EditMode tests and check storage edge cases, version-1 migration and target-platform save replacement.
@@ -94,4 +94,4 @@ The repository contains more of the intended hideout/city direction than the pre
 - 2026-11-17: Added physical home storage transfers, version-2 saves for carried and stored items plus world location, version-1 migration, and tests for storage/location persistence.
 - 2026-11-17: User confirmed the locker transfer and save/load sequence works in Play Mode with no Console errors; documentation updated to distinguish verified normal flow from remaining edge cases.
 - 2026-11-17: User approved parallel legal/criminal lifestyles, harsh criminal failure and one global crime progression track.
-- 2026-11-17: User clarified that all activities share one city and that NPCs may have concealed illegal lives; wheat/bread was only an example, with water, food and second-hand/stolen goods among possible trade loops. Updated vision, roadmap, progress and backlog; no gameplay mechanics implemented.
+- 2026-11-17: User clarified that all activities share one city and that NPCs may have concealed illegal lives; wheat/bread was only an example, with water, food and second-hand/stolen goods among possible trade loops. Updated vision, roadmap, progress and backlog; no gameplay mechanics implemented.\n- 2026-11-17: User reaffirmed that NPCs must feel like living people and raised the possibility of very lightweight AI with low hardware cost. Recorded this as a design direction and added an open question; no NPC simulation code or detailed behaviour rules implemented.
