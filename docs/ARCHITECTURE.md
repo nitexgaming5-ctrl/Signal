@@ -78,9 +78,9 @@ Save format version 2 stores carried inventory, locker inventory, the current pl
 
 NPC runtime belongs to the shared city simulation, not to isolated character-specific scripts.
 
-- Core owns the deterministic social-world model: NPC registration and presence, local perception, world-event records, individual knowledge, directed relationships and explicit knowledge exchange.
+- Core owns the deterministic social-world model: NPC registration and presence, local perception, world-event records, individual knowledge, directed relationships and explicit knowledge exchange. NpcPerception builds a character-scoped snapshot for decision systems.
 - Game owns Unity presentation, spatial movement, scene/location integration and publishes player-facing/world events into the shared Core context.
-- An NPC's knowledge is not the same as the world event journal. Decision-making must consume the individual agent's observations and information received from others, never the global journal as an omniscient shortcut.
+- An NPC's knowledge is not the same as the world event journal. Decision-making must consume the individual agent's NpcPerception snapshot (nearby people plus its own knowledge), never the global journal as an omniscient shortcut.
 - World events must contain only information that could be perceived by their witnesses. Hidden motives, identities and causes must not leak through event descriptions.
 - The current Milo component is a temporary integration fixture. It is not the production character-authoring pattern. Move identity, appearance, routine preferences and dialogue into data-driven definitions before bulk NPC creation.
 - Social knowledge and relationships are not yet saved. Add stable-ID persistence and explicit save migration only when the framework's long-lived state is ready.
