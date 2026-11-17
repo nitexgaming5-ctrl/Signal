@@ -82,7 +82,7 @@ The repository contains more of the intended hideout/city direction than the pre
 - NpcPerception provides a safe decision snapshot containing nearby NPC IDs and their directed relationship impressions, plus the observing character's own knowledge (including event location/time); it excludes the global event journal.
 - CityBlockBootstrap.PublishWorldEventAt can publish events in locations other than the player's current location, supporting off-screen events in the shared city.
 - Connected the active CityBlockBootstrap to one shared NpcSocialWorld. Milo registers into it, updates his simulated location/position, and conversation publishes an event. Added PublishWorldEvent as the common integration point for future environmental and gameplay events.
-- Added Core EditMode tests for local presence, event perception, knowledge sharing, trust-based confidence, movement and duplicate IDs. Extended the city integration test to check registration and conversation event publication. Tests have NOT been run.
+- Added Core EditMode tests for local presence, event perception, knowledge sharing, trust-based confidence, movement and duplicate IDs. Extended the city integration test to check registration and conversation event publication. The user's EditMode report confirms the full Core test assembly passes and the CityBlockBootstrap fixture passes; two unrelated legacy RoomBootstrap assertions required correction.
 - The social world is currently runtime-only. Save persistence, generic character definitions/presentation and event-specific decision goals are planned follow-up work. The utility brain now consumes its own perception snapshot and supports configurable NpcUtilityProfile values; the active fixture still uses the default profile.
 - Detailed design and sequencing: docs/NPC_FRAMEWORK.md.
 
@@ -90,7 +90,7 @@ The repository contains more of the intended hideout/city direction than the pre
 - User confirmed Slice A compilation and EditMode tests passed.
 - User confirmed the connected city travel loop works in Play Mode.
 - User confirmed the Slice C locker and save/load sequence works in Play Mode with no Console errors.
-- Assistant cannot run the user's local Unity Editor through the GitHub repository connection. No Unity compile or test run was performed for the NPC prototype.
+- Assistant cannot run the user's local Unity Editor through the GitHub repository connection. The user's 2026-11-17 XML report confirms 181/181 Core tests and 23/25 Game tests pass; both failures were stale RoomBootstrap expectations. The corrected tests still need a rerun in Unity.
 - Remaining verification: locker capacity edge cases, an actual version-1 save migration, automated city transition tests and platform-specific file replacement.
 
 ## Next actions
@@ -123,3 +123,5 @@ The repository contains more of the intended hideout/city direction than the pre
 - 2026-11-17: User confirmed the connected NPC framework compiles without errors. Integrated character-scoped perception into the utility brain so nearby relationship impressions and personally known information can influence social decisions; added a deterministic Core test. Unity EditMode execution remains pending.
 
 - 2026-11-17: Extracted NPC routine windows, utility weights, social-context weights and need drift into the reusable Core NpcUtilityProfile. Added coverage for a different work schedule; the active Game fixture still uses the default profile. Unity compilation and EditMode execution for these latest changes are pending user verification.
+
+- 2026-11-17: Reviewed the user's EditMode XML report: 212/214 tests passed; all 181 Core tests passed, while the Game assembly had two failures in legacy RoomBootstrapTests. Corrected the floor assertions to check occupied cells and distinct floor tiles (GetUsedTilesCount counts distinct tile assets), and aligned the doorway assertion with RoomBootstrap's intentional open south entrance. Awaiting the user's rerun; no Unity test execution was available through the repository connection.
