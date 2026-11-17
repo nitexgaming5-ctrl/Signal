@@ -48,6 +48,7 @@ namespace Signal.Game
         private readonly Dictionary<Guid, ItemVisual> _visuals = new Dictionary<Guid, ItemVisual>();
 
         private GridInventory _inventory;
+        private Action<PlacedItem> _inspectItem;
         private Font _font;
         private bool _built;
         private bool _open;
@@ -70,7 +71,7 @@ namespace Signal.Game
 
         public bool IsOpen => _open;
 
-        public void Bind(GridInventory inventory, IReadOnlyList<ItemDefinition> definitions)
+        public void Bind(GridInventory inventory, IReadOnlyList<ItemDefinition> definitions, Action<PlacedItem> inspectItem = null)
         {
             if (inventory == null)
                 throw new ArgumentNullException(nameof(inventory));
@@ -81,6 +82,7 @@ namespace Signal.Game
                 _inventory.Changed -= OnInventoryChanged;
 
             _inventory = inventory;
+            _inspectItem = inspectItem;
             _inventory.Changed += OnInventoryChanged;
 
             _visuals.Clear();
@@ -163,6 +165,13 @@ namespace Signal.Game
 
             if (!_dragging)
             {
+                if (mouse.rightButton.wasPressedThisFrame && inGrid &&
+                    _inventory.TryGetItemAt(hoverX, hoverY, out PlacedItem inspected))
+                {
+                    _inspectItem?.Invoke(inspected);
+                    return;
+                }
+
                 if (!mouse.leftButton.wasPressedThisFrame || !inGrid)
                     return;
                 if (!_inventory.TryGetItemAt(hoverX, hoverY, out PlacedItem hit))
@@ -352,7 +361,7 @@ namespace Signal.Game
             _root.pivot = new Vector2(0.5f, 0.5f);
             _root.anchoredPosition = Vector2.zero;
 
-            _title = NewText("Title", _root, "INVENTORY   [Tab] close   [LMB] drag   [R] rotate", 16,
+            _title = NewText("Title", _root, "INVENTORY   [Tab] close   [LMB] move   [RMB] inspect   [R] rotate", 16,
                              TextAnchor.MiddleLeft, TitleColor);
 
             _gridRect = NewRect("Grid", _root);
