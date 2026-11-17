@@ -74,11 +74,15 @@ The home locker is a second `GridInventory` owned by `GameSession`. `StoragePane
 Save format version 2 stores carried inventory, locker inventory, the current place identifier and player coordinates. Version-1 saves migrate to an empty locker and the hideout. `CityBlockBootstrap.TryRestorePlace` restores the saved active world root and camera bounds. The save implementation and UI still require Unity Play Mode verification on the target platform.
 
 
-## Lightweight NPC simulation
+## Connected NPC simulation
 
-The first NPC prototype follows the existing Core/Game boundary:
-- `Signal.Core.NpcUtilityBrain` is deterministic plain C#. It advances from the world clock, evaluates a small activity set at fixed in-game intervals and tracks only a couple of simple needs.
-- `Signal.Game.NeighbourNpc` owns the visible character, movement, proximity interaction and authored dialogue.
-- The brain does not use Unity APIs, random inference, background threads, network services or a language model. It performs work only when the world clock advances.
-- The first character's state is reconstructed from the saved day/time; no save-version change is needed. Relationships, memories and discovered secrets will require explicit persistent data when a later scenario needs them.
-- Keep ambient simulation inexpensive. Add richer behaviour only to characters and situations that create player-facing value.
+NPC runtime belongs to the shared city simulation, not to isolated character-specific scripts.
+
+- Core owns the deterministic social-world model: NPC registration and presence, local perception, world-event records, individual knowledge, directed relationships and explicit knowledge exchange.
+- Game owns Unity presentation, spatial movement, scene/location integration and publishes player-facing/world events into the shared Core context.
+- An NPC's knowledge is not the same as the world event journal. Decision-making must consume the individual agent's observations and information received from others, never the global journal as an omniscient shortcut.
+- World events must contain only information that could be perceived by their witnesses. Hidden motives, identities and causes must not leak through event descriptions.
+- The current Milo component is a temporary integration fixture. It is not the production character-authoring pattern. Move identity, appearance, routine preferences and dialogue into data-driven definitions before bulk NPC creation.
+- Social knowledge and relationships are not yet saved. Add stable-ID persistence and explicit save migration only when the framework's long-lived state is ready.
+
+The implementation contract and phased delivery plan are documented in [NPC_FRAMEWORK.md](NPC_FRAMEWORK.md). Keep the simulation deterministic and event-driven; do not add per-frame full-population reasoning, external AI services or separate legal/criminal social worlds.
