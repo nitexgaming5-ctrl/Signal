@@ -30,7 +30,13 @@ Ids: each ScriptableObject gets a `Guid` field generated once and never changed,
 When a save shape changes, bump `version` and write a migration function in Core with a test.
 
 
-## Item state and inspection (first foundation)\n- `ItemInstanceState` currently stores quality (Poor/Standard/Fine/Exceptional), condition (Damaged/Worn/Good/Pristine), authenticity (Genuine/Counterfeit) and ownership (Legitimate/Stolen) per stack. These are authoritative facts for now; player knowledge/discovery is not modelled yet.\n- `ItemValueCalculator` applies provisional multipliers to an authored base reference value. This is an indicative item reference value only, not a buy/sell price or a functioning economy.\n- Inventory and locker viewers show one stack at a time. Right-click in the carried grid or INSPECT in home storage opens the same read-only item viewer.\n- Home storage lists physical stacks separately and transfers one identified stack at a time, preserving identity and state.\n\n## NPC simulation (first prototype)
+## Item state and inspection (first foundation)
+- `ItemInstanceState` currently stores quality (Poor/Standard/Fine/Exceptional), condition (Damaged/Worn/Good/Pristine), authenticity (Genuine/Counterfeit) and ownership (Legitimate/Stolen) per stack. These are authoritative facts for now; player knowledge/discovery is not modelled yet.
+- `ItemValueCalculator` applies provisional multipliers to an authored base reference value. This is an indicative item reference value only, not a buy/sell price or a functioning economy.
+- Inventory and locker viewers show one stack at a time. Right-click in the carried grid or INSPECT in home storage opens the same read-only item viewer.
+- Home storage lists physical stacks separately and transfers one identified stack at a time, preserving identity and state.
+
+## NPC simulation (first prototype)
 - `NpcUtilityBrain` is transient Core runtime state: current activity, energy and social need. It advances from `GameClock` and deterministically reconstructs from the current day/time after a rewind or load.
 - The first activity set is `Home`, `Work`, `Rest` and `Socialize`. Decisions are evaluated every 15 in-game minutes; need drift is applied once per elapsed in-game minute.
 - Character identity, visual presentation, movement targets, interaction range and authored activity-specific dialogue live in the Game layer for this first prototype.
