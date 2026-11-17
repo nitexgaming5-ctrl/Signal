@@ -72,3 +72,13 @@ The active HideoutSlice is a code-built first-pass room. It contains placeholder
 The home locker is a second `GridInventory` owned by `GameSession`. `StoragePanel` presents carried and stored quantities; the Core `InventoryTransfer` service owns capacity-aware movement and snapshot rollback. The panel does not invent item values or production rules. HideoutSlice currently references ITEM_A/B/C as temporary test fixtures from the existing inventory demo; these are not final content.
 
 Save format version 2 stores carried inventory, locker inventory, the current place identifier and player coordinates. Version-1 saves migrate to an empty locker and the hideout. `CityBlockBootstrap.TryRestorePlace` restores the saved active world root and camera bounds. The save implementation and UI still require Unity Play Mode verification on the target platform.
+
+
+## Lightweight NPC simulation
+
+The first NPC prototype follows the existing Core/Game boundary:
+- `Signal.Core.NpcUtilityBrain` is deterministic plain C#. It advances from the world clock, evaluates a small activity set at fixed in-game intervals and tracks only a couple of simple needs.
+- `Signal.Game.NeighbourNpc` owns the visible character, movement, proximity interaction and authored dialogue.
+- The brain does not use Unity APIs, random inference, background threads, network services or a language model. It performs work only when the world clock advances.
+- The first character's state is reconstructed from the saved day/time; no save-version change is needed. Relationships, memories and discovered secrets will require explicit persistent data when a later scenario needs them.
+- Keep ambient simulation inexpensive. Add richer behaviour only to characters and situations that create player-facing value.
