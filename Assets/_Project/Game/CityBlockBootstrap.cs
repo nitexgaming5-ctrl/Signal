@@ -55,6 +55,34 @@ namespace Signal.Game
                 _cameraFollow.Configure(_player, _worldBounds);
         }
 
+        public bool TryRestorePlace(string place, Vector2 position)
+        {
+            if (!System.Enum.TryParse(place, true, out Place restored) || !System.Enum.IsDefined(typeof(Place), restored))
+                return false;
+
+            Rect bounds;
+            switch (restored)
+            {
+                case Place.Hideout:
+                    bounds = _worldBounds;
+                    break;
+                case Place.Street:
+                    bounds = new Rect(-9f, -26f, 38f, 27f);
+                    break;
+                case Place.CornerShop:
+                    bounds = InteriorBounds(new Vector2(1000f, 1000f));
+                    break;
+                case Place.Apartment:
+                    bounds = InteriorBounds(new Vector2(1020f, 1000f));
+                    break;
+                default:
+                    return false;
+            }
+
+            SetPlace(restored, position, bounds);
+            return true;
+        }
+
         public string GetPrompt(Vector2 playerPosition)
         {
             switch (_place)
