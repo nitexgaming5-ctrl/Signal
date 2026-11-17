@@ -34,6 +34,7 @@ namespace Signal.Game
         private RoomBootstrap _room;
         private PlayerMotor2D _motor;
         private InventoryPanel _panel;
+        private ItemViewerPanel _itemViewer;
         private StoragePanel _storagePanel;
         private HudPanel _hud;
         private WorkbenchWorkspace _workspace;
@@ -67,8 +68,10 @@ namespace Signal.Game
             _city = gameObject.AddComponent<CityBlockBootstrap>();
             _city.Build(_room.Player, _room.PlayerBody, camera, _clock, npcDefinitions);
 
+            _itemViewer = gameObject.AddComponent<ItemViewerPanel>();
+            _itemViewer.Bind(items);
             _panel = gameObject.AddComponent<InventoryPanel>();
-            _panel.Bind(_inventory, items);
+            _panel.Bind(_inventory, items, _itemViewer.Open);
             _storagePanel = gameObject.AddComponent<StoragePanel>();
             _storagePanel.Bind(_inventory, _storage, items);
 
@@ -93,10 +96,11 @@ namespace Signal.Game
             bool workspaceOpen = _workspace != null && _workspace.IsOpen;
             bool inventoryOpen = _panel != null && _panel.IsOpen;
             bool storageOpen = _storagePanel != null && _storagePanel.IsOpen;
+            bool itemViewerOpen = _itemViewer != null && _itemViewer.IsOpen;
             if (_panel != null)
-                _panel.enabled = !workspaceOpen && !storageOpen;
+                _panel.enabled = !workspaceOpen && !storageOpen && !itemViewerOpen;
 
-            _motor.enabled = !inventoryOpen && !workspaceOpen && !storageOpen;
+            _motor.enabled = !inventoryOpen && !workspaceOpen && !storageOpen && !itemViewerOpen;
 
             Keyboard keyboard = Keyboard.current;
             Vector2 playerPosition = _room.Player.position;
@@ -108,6 +112,8 @@ namespace Signal.Game
 
             if (workspaceOpen)
                 _hud.SetPrompt("ESC  Back to room");
+            else if (itemViewerOpen)
+                _hud.SetPrompt("ESC  Close item inspection");
             else if (storageOpen)
                 _hud.SetPrompt("ESC  Close storage");
             else if (inventoryOpen)
@@ -124,11 +130,11 @@ namespace Signal.Game
             if (keyboard == null)
                 return;
 
-            if (!workspaceOpen && !inventoryOpen && !storageOpen && nearWorkbench && keyboard.eKey.wasPressedThisFrame)
+            if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && nearWorkbench && keyboard.eKey.wasPressedThisFrame)
                 _workspace.Open();
-            else if (!workspaceOpen && !inventoryOpen && !storageOpen && nearStorage && keyboard.eKey.wasPressedThisFrame)
+            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && nearStorage && keyboard.eKey.wasPressedThisFrame)
                 _storagePanel.SetOpen(true);
-            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !nearWorkbench && !nearStorage &&
+            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !nearWorkbench && !nearStorage &&
                      cityPrompt.Length > 0 && keyboard.eKey.wasPressedThisFrame)
             {
                 if (_city.TryInteractNpc(playerPosition, out string npcDialogue))
@@ -270,7 +276,7 @@ namespace Signal.Game
                     continue;
 
                 ItemType type = definition.ToItemType();
-                _inventory.Add(type, type.MaxStack);
+                _inventory.Add(type, type.MaxStack, definition.DefaultInstanceState);
             }
         }
 
