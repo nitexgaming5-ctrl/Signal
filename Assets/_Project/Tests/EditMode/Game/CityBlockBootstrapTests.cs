@@ -41,7 +41,7 @@ namespace Signal.Game.Tests
 
 
         [Test]
-        public void NeighbourBakerHasARoutineAndCanBeTalkedTo()
+        public void FallbackResidentsUseSharedPresenterAndCanBeTalkedTo()
         {
             var host = new GameObject("CityHost");
             var player = new GameObject("Player");
@@ -68,9 +68,9 @@ namespace Signal.Game.Tests
                 StringAssert.Contains("Rhea:", rheaDialogue);
                 Assert.That(city.SocialWorld.BuildPerceptionFor("rhea", 8f).KnowsEvent("rhea-conversation-1"), Is.True);
                 Assert.That(city.TryRestorePlace("CornerShop", new Vector2(1000f, 999f)), Is.True);
-                Assert.That(city.NeighbourActivity, Is.EqualTo(NpcActivity.Work));
+                Assert.That(city.GetResidentActivity("milo"), Is.EqualTo(NpcActivity.Work));
 
-                Vector2 npcPosition = city.NeighbourPosition;
+                Vector2 npcPosition = city.GetResidentPosition("milo");
                 Assert.That(city.GetPrompt(npcPosition), Is.EqualTo("E  Talk to Milo"));
                 Assert.That(city.TryInteractNpc(npcPosition, out string workDialogue), Is.True);
                 StringAssert.Contains("baker", workDialogue);
