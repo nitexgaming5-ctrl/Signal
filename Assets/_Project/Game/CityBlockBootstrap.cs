@@ -1,3 +1,4 @@
+using Signal.Core;
 using UnityEngine;
 
 namespace Signal.Game
