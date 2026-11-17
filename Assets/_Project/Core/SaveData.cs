@@ -25,8 +25,6 @@ namespace Signal.Core
         public int missedRent;
         public int inventoryWidth;
         public int inventoryHeight;
-        public int storageWidth;
-        public int storageHeight;
         public string worldPlace = "Hideout";
         public float playerX;
         public float playerY;
@@ -107,8 +105,6 @@ namespace Signal.Core
                 missedRent = rent.MissedPayments,
                 inventoryWidth = inventory.Width,
                 inventoryHeight = inventory.Height,
-                storageWidth = storage != null ? storage.Width : 0,
-                storageHeight = storage != null ? storage.Height : 0,
                 worldPlace = string.IsNullOrWhiteSpace(worldPlace) ? "Hideout" : worldPlace,
                 playerX = playerX,
                 playerY = playerY
