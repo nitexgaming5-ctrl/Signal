@@ -216,8 +216,10 @@ namespace Signal.Game
             layout.childForceExpandHeight = true;
 
             string name = _names.TryGetValue(item.Type.Id, out string display) ? display : "Unknown item";
-            string detail = name + "  ·  " + item.State.Quality.ToString().ToUpperInvariant() +
-                "  ·  " + item.State.Condition.ToString().ToUpperInvariant() + "  ·  x" + item.Count;
+            string detail = name + "  ·  Q:" + item.State.Quality.ToString().ToUpperInvariant() +
+                "  C:" + item.State.Condition.ToString().ToUpperInvariant() +
+                "  A:" + item.State.Authenticity.ToString().ToUpperInvariant() +
+                "  O:" + item.State.Ownership.ToString().ToUpperInvariant() + "  x" + item.Count;
             Text itemLabel = Label(row, detail, 16, InkColor, TextAnchor.MiddleLeft);
             itemLabel.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1f;
 
