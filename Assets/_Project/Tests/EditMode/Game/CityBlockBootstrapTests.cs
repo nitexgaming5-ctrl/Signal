@@ -100,6 +100,53 @@ namespace Signal.Game.Tests
         }
 
         [Test]
+        public void BuildUsesSuppliedCharacterDefinitionsWithTheSamePresenter()
+        {
+            var host = new GameObject("CityHost");
+            var player = new GameObject("Player");
+            var cameraObject = new GameObject("MainCamera");
+            Rigidbody2D body = player.AddComponent<Rigidbody2D>();
+            Camera camera = cameraObject.AddComponent<Camera>();
+            var clock = new GameClock(1, 8 * 60);
+            NpcCharacterDefinition shopkeeper = ScriptableObject.CreateInstance<NpcCharacterDefinition>();
+            NpcCharacterDefinition resident = ScriptableObject.CreateInstance<NpcCharacterDefinition>();
+            shopkeeper.NpcId = "test-shopkeeper";
+            shopkeeper.DisplayName = "Shopkeeper";
+            shopkeeper.PublicRole = "Vendor";
+            shopkeeper.UtilityProfile = NpcUtilityProfile.CreateDefault();
+            resident.NpcId = "test-resident";
+            resident.DisplayName = "Resident";
+            resident.PublicRole = "Neighbour";
+            resident.UtilityProfile = NpcUtilityProfile.CreateDefault();
+            resident.UtilityProfile.WorkStartMinute = 540;
+            resident.SocialPosition = new Vector2(4.8f, -17.5f);
+            CityBlockBootstrap city = host.AddComponent<CityBlockBootstrap>();
+
+            try
+            {
+                city.Build(player.transform, body, camera, clock, new[] { shopkeeper, resident });
+
+                Assert.That(city.ResidentCount, Is.EqualTo(2));
+                Assert.That(city.SocialWorld.NpcCount, Is.EqualTo(2));
+                Assert.That(city.SocialWorld.TryGetNpc("test-shopkeeper", out _), Is.True);
+                Assert.That(city.SocialWorld.TryGetNpc("test-resident", out _), Is.True);
+                Assert.That(city.GetResidentActivity("test-resident"), Is.EqualTo(NpcActivity.Socialize));
+                Vector2 residentPosition = city.GetResidentPosition("test-resident");
+                Assert.That(city.GetPrompt(residentPosition), Is.EqualTo("E  Talk to Resident"));
+                Assert.That(city.TryInteractNpc(residentPosition, out string dialogue), Is.True);
+                StringAssert.Contains("Resident:", dialogue);
+            }
+            finally
+            {
+                Object.DestroyImmediate(host);
+                Object.DestroyImmediate(player);
+                Object.DestroyImmediate(cameraObject);
+                Object.DestroyImmediate(shopkeeper);
+                Object.DestroyImmediate(resident);
+            }
+        }
+
+        [Test]
         public void OffscreenWorldEventsReachNpcsInTheirOwnLocation()
         {
             var host = new GameObject("CityHost");
