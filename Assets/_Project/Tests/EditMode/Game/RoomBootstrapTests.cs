@@ -35,7 +35,7 @@ namespace Signal.Game.Tests
             Assert.That(floor.GetTile(new Vector3Int(1, 0, 0)), Is.Not.Null);
             Assert.That(floor.GetTile(new Vector3Int(0, 0, 0)), Is.Not.SameAs(floor.GetTile(new Vector3Int(1, 0, 0))));
             Assert.That(walls.GetTile(new Vector3Int(-1, -1, 0)), Is.Not.Null);
-            Assert.That(walls.GetTile(new Vector3Int(0, roomHeight: 12, 0)), Is.Not.Null);
+            Assert.That(walls.GetTile(new Vector3Int(0, 12, 0)), Is.Not.Null);
             Assert.That(_room.Player, Is.Not.Null);
             Assert.That(_room.Player.position.x, Is.EqualTo(10f).Within(0.01f));
             Assert.That(_room.Player.position.y, Is.EqualTo(6f).Within(0.01f));
