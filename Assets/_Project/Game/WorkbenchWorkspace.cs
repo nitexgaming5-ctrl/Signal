@@ -14,7 +14,6 @@ namespace Signal.Game
     {
         private static readonly Color BackdropColor = new Color32(8, 11, 15, 232);
         private static readonly Color FrameColor = new Color32(32, 38, 43, 255);
-        private static readonly Color WoodColor = new Color32(91, 65, 48, 255);
         private static readonly Color SurfaceColor = new Color32(119, 85, 61, 255);
         private static readonly Color InkColor = new Color32(235, 226, 207, 255);
         private static readonly Color MutedColor = new Color32(185, 181, 168, 255);
