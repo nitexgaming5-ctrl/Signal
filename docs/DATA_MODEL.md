@@ -23,3 +23,10 @@ Ids: each ScriptableObject gets a `Guid` field generated once and never changed,
 
 ## Migration
 When a save shape changes, bump `version` and write a migration function in Core with a test.
+
+
+## NPC simulation (first prototype)
+- `NpcUtilityBrain` is transient Core runtime state: current activity, energy and social need. It advances from `GameClock` and deterministically reconstructs from the current day/time after a rewind or load.
+- The first activity set is `Home`, `Work`, `Rest` and `Socialize`. Decisions are evaluated every 15 in-game minutes; need drift is applied once per elapsed in-game minute.
+- Character identity, visual presentation, movement targets, interaction range and authored activity-specific dialogue live in the Game layer for this first prototype.
+- No persistent relationship, memory, secret-discovery or NPC inventory data exists yet. Add save DTOs and a versioned migration only when a connected scenario requires such state.
