@@ -120,7 +120,7 @@ namespace Signal.Core
                 return false;
 
             float trust = listener.GetRelationship(speakerNpcId).Trust;
-            float confidence = known.Confidence * (0.35f + trust * 0.65f);
+            float confidence = known.Confidence * (0.35f + trust * 0.5f);
             var retold = known.Retell(speakerNpcId, confidence, Math.Max(1, day),
                 Math.Max(0, Math.Min(1439, minuteOfDay)));
             return listener.Remember(retold);
