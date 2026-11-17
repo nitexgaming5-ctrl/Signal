@@ -26,7 +26,8 @@ The first Milo implementation is a disposable test character. Its purpose is to 
 - NpcAgentState stores an individual's position, awareness radius, relationships and knowledge.
 - NpcKnowledge distinguishes direct observation from information told by another NPC. It retains event identity, original actor, last source, confidence, event location/position/time and learning time.
 - NpcRelationship stores familiarity, trust and affinity independently.
-- NpcPerception creates a character-scoped decision snapshot: nearby NPC IDs plus only that character's own knowledge. It deliberately excludes the global event journal.
+- NpcPerception creates a character-scoped decision snapshot: nearby NPC IDs and their directed relationship impressions, plus only that character's own knowledge. It deliberately excludes the global event journal.
+- NpcUtilityBrain accepts that snapshot when evaluating its 15-minute decisions. Familiarity/affinity with nearby people and personally known information can increase the value of socialising. It does not query global events or reveal information to other NPCs.
 - Explicit knowledge sharing uses the listener's trust in the speaker to adjust confidence. It does not make a rumour true and does not automatically broadcast information.
 
 ### Game (Signal.Game)
@@ -42,16 +43,16 @@ The current scene still has one visible NPC. The shared Core model is intentiona
 
 - The event journal is a world-system record, not an NPC's personal memory. NPC decision-making should use that character's own knowledge and perceptions, not query the entire journal for hidden information.
 - A publisher must describe what could be perceived, not reveal hidden causes, criminal roles or private motives to every witness.
-- The current framework records awareness and social knowledge and provides character-scoped NpcPerception snapshots. The utility brain does not yet choose reactions to events or consume those snapshots; that is the next integration step.
+- The current utility brain consumes the NPC's own NpcPerception snapshot for social decision scoring. Event-specific reactions and goals are not yet implemented; known information currently acts only as a modest reason to seek social contact.
 - Relationship values are data only. No friendship, loyalty, intimidation, romance, reputation or betrayal rules are being invented here.
 - NPC knowledge and relationships are not yet part of the save format. Persistence must be designed with stable IDs and explicit migration before it is required by a playable scenario.
-- The current utility brain remains a first prototype with hard-coded Milo-oriented scoring. It must become profile/configuration-driven before production NPC authoring.
+- The current utility brain still has one shared prototype routine/scoring profile. It must become profile/configuration-driven before production NPC authoring.
 - The current Unity presenter remains Milo-specific. It must be separated from identity, appearance, dialogue and activity definitions before bulk character creation.
 
 ## Planned development sequence
 
-1. **Shared awareness foundation — in progress.** Registry, location-aware presence, local event perception, individual knowledge, directed relationships and explicit information sharing. Cover with Core EditMode tests.
-2. **Decision context.** Let an NPC's utility brain consider relevant nearby people, recent perceived events, known information and current goals, without giving it omniscient world access.
+1. **Shared awareness foundation — first implementation complete, tests pending.** Registry, location-aware presence, local event perception, individual knowledge, directed relationships and explicit information sharing.
+2. **Decision context — first pass implemented.** The utility brain receives a character-scoped perception snapshot and lets nearby relationships and personally known information influence socialising. Event-specific goals and reactions remain future work.
 3. **Data-driven character definitions.** Separate stable identity, public role, appearance, routine preferences, needs and authored dialogue from generic runtime components. Adding a character should mostly be content authoring, not a new MonoBehaviour.
 4. **Interactions and social behaviour.** Conversations, requests, helping, avoiding, exchanging information and reactions should use shared event/relationship/knowledge services.
 5. **Persistence.** Save only meaningful long-lived state: stable NPC IDs, relationships, discoveries, selected memories and world changes. Rebuild transient proximity/perception from the restored world.
@@ -59,6 +60,6 @@ The current scene still has one visible NPC. The shared Core model is intentiona
 
 ## Completion target for this initiative
 
-A second temporary test character can be registered without adding another character-specific runtime class. Two characters in the same place can perceive a shared event, exchange information with different confidence based on their relationship, and retain distinct knowledge. A character in another location or outside the perception radius does not receive that knowledge automatically. The utility decision layer can then consume this context.
+A second temporary test character can be registered without adding another character-specific runtime class. Two characters in the same place can perceive a shared event, exchange information with different confidence based on their relationship, and retain distinct knowledge. A character in another location or outside the perception radius does not receive that knowledge automatically. The utility decision layer consumes the character-scoped context for its first social decision pass; event-specific goals remain future work.
 
 This is a framework milestone, not a narrative milestone. No new story arc, final NPC cast, crime activity, economy rule or relationship progression system is included.
