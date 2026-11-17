@@ -6,7 +6,7 @@ The starter street contains one identifiable resident who follows a daily routin
 ## Scope
 - Add a deterministic, hardware-friendly Core utility brain.
 - Give the first NPC four activities: Work, Rest, Socialize and Home.
-- Let the Game layer move and present the NPC at locations in the existing shared street.
+- Let the Game layer move and present the NPC at locations across the existing shared city.
 - Connect the NPC to the existing E interaction prompt and HUD message.
 - Add tests for decision behaviour and the Game integration.
 
