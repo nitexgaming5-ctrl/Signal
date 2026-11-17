@@ -165,7 +165,7 @@ namespace Signal.Game
             _rows = content;
 
             _status = Label(frame, "The locker is empty.", 16, InkColor, TextAnchor.MiddleLeft);
-            Anchor(_status.rectTransform, new Vector2(30f, 22f), new Vector2(1000f, 32f), true);
+            Anchor(_status.rectTransform, new Vector2(30f, 22f), new Vector2(1000f, 32f), false);
 
             _canvasObject.SetActive(false);
             _built = true;
