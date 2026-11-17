@@ -288,7 +288,8 @@ namespace Signal.Game
                 return;
             }
 
-            new GameObject("StorageEventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
+            var eventObject = new GameObject("StorageEventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
+            eventObject.transform.SetParent(transform, false);
         }
 
         private static RectTransform Panel(Transform parent, string name, Color color)
