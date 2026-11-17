@@ -24,6 +24,7 @@ namespace Signal.Core.Tests
             world.RegisterNpc("customer", "Street", 4f, 0f, 8f);
             world.RegisterNpc("neighbour", "Apartment", 0f, 0f, 8f);
             world.RegisterNpc("distant", "Street", 20f, 0f, 8f);
+            world.RegisterNpc("shortSighted", "Street", 4f, 1f, 2f);
 
             world.PublishEvent(new NpcWorldEvent(
                 "delivery-1", "Delivery", "A sealed parcel changed hands.",
@@ -33,12 +34,14 @@ namespace Signal.Core.Tests
             Assert.That(world.TryGetNpc("customer", out NpcAgentState witness), Is.True);
             Assert.That(world.TryGetNpc("neighbour", out NpcAgentState elsewhere), Is.True);
             Assert.That(world.TryGetNpc("distant", out NpcAgentState tooFar), Is.True);
+            Assert.That(world.TryGetNpc("shortSighted", out NpcAgentState shortSighted), Is.True);
 
             Assert.That(actor.KnowsEvent("delivery-1"), Is.True);
             Assert.That(witness.KnowsEvent("delivery-1"), Is.True);
             Assert.That(witness.FindKnowledge("delivery-1").Origin, Is.EqualTo(NpcKnowledgeOrigin.DirectObservation));
             Assert.That(elsewhere.KnowsEvent("delivery-1"), Is.False);
             Assert.That(tooFar.KnowsEvent("delivery-1"), Is.False);
+            Assert.That(shortSighted.KnowsEvent("delivery-1"), Is.False);
             Assert.That(world.EventCount, Is.EqualTo(1));
         }
 
