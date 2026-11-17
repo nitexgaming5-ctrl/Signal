@@ -23,12 +23,12 @@ namespace Signal.Core
             AwarenessRadius = awarenessRadius;
         }
 
-        public IList<NpcKnowledge> GetKnowledge()
+        internal IList<NpcKnowledge> GetKnowledge()
         {
             return _knowledge.ToArray();
         }
 
-        public bool KnowsEvent(string eventId)
+        internal bool KnowsEvent(string eventId)
         {
             for (int i = 0; i < _knowledge.Count; i++)
                 if (_knowledge[i].EventId == eventId)
@@ -36,7 +36,7 @@ namespace Signal.Core
             return false;
         }
 
-        public NpcKnowledge FindKnowledge(string eventId)
+        internal NpcKnowledge FindKnowledge(string eventId)
         {
             for (int i = 0; i < _knowledge.Count; i++)
                 if (_knowledge[i].EventId == eventId)
@@ -44,7 +44,7 @@ namespace Signal.Core
             return null;
         }
 
-        public NpcRelationship GetRelationship(string otherNpcId)
+        internal NpcRelationship GetRelationship(string otherNpcId)
         {
             return _relationships.TryGetValue(otherNpcId, out NpcRelationship relationship)
                 ? relationship
