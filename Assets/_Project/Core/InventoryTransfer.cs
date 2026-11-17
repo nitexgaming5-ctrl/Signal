@@ -32,18 +32,31 @@ namespace Signal.Core
 
             InventorySnapshot sourceBefore = source.CreateSnapshot();
             InventorySnapshot destinationBefore = destination.CreateSnapshot();
+            PlacedItem[] candidates = new PlacedItem[source.Items.Count];
+            source.Items.CopyTo(candidates, 0);
 
-            int remaining = destination.Add(type, available);
-            int moved = available - remaining;
-            if (moved == 0)
-                return new InventoryTransferResult(0, available, true);
+            int moved = 0;
+            foreach (PlacedItem item in candidates)
+            {
+                if (item.Type != type)
+                    continue;
 
-            if (source.TryRemove(type, moved))
-                return new InventoryTransferResult(moved, remaining, true);
+                // Keep stack identity intact: a transferred stack gets its own destination
+                // placement. Distinct stacks are never silently merged.
+                if (!destination.TryPlaceTransferred(item))
+                    continue;
 
-            source.Restore(sourceBefore);
-            destination.Restore(destinationBefore);
-            return new InventoryTransferResult(0, available, false);
+                if (!source.TryRemoveItemInstance(item.ItemInstanceId))
+                {
+                    source.Restore(sourceBefore);
+                    destination.Restore(destinationBefore);
+                    return new InventoryTransferResult(0, available, false);
+                }
+
+                moved += item.Count;
+            }
+
+            return new InventoryTransferResult(moved, available - moved, true);
         }
     }
 }
