@@ -12,8 +12,8 @@ namespace Signal.Core.Tests
             Assert.That(director.TryAuthorizeDevelopment(true, 1, 60), Is.False);
             Assert.That(director.SetScenarioPhase("opening", 1, 60), Is.True);
             Assert.That(director.TryAuthorizeDevelopment(false, 1, 120), Is.False);
-            Assert.That(director.TryAuthorizeDevelopment(true, 1, 119), Is.False);
-            Assert.That(director.TryAuthorizeDevelopment(true, 1, 120), Is.True);
+            Assert.That(director.TryAuthorizeDevelopment(true, 1, 128), Is.False);
+            Assert.That(director.TryAuthorizeDevelopment(true, 1, 129), Is.True);
         }
 
         [Test]
@@ -36,10 +36,11 @@ namespace Signal.Core.Tests
             director.SetScenarioPhase("long-phase", 1, 0);
 
             Assert.That(director.CurrentIntervalMinutes, Is.EqualTo(60));
-            Assert.That(director.TryAuthorizeDevelopment(true, 1, 60), Is.True);
-            Assert.That(director.TryAuthorizeDevelopment(true, 1, 180), Is.False);
-            Assert.That(director.CurrentIntervalMinutes, Is.EqualTo(83));
-            Assert.That(director.TryAuthorizeDevelopment(true, 2, 0), Is.False);
+            Assert.That(director.TryAuthorizeDevelopment(true, 1, 70), Is.True);
+            Assert.That(director.TryAuthorizeDevelopment(true, 1, 140), Is.False);
+            Assert.That(director.CurrentIntervalMinutes, Is.EqualTo(78));
+            Assert.That(director.TryAuthorizeDevelopment(true, 1, 153), Is.True);
+            Assert.That(director.TryAuthorizeDevelopment(true, 2, 0), Is.True);
             Assert.That(director.CurrentIntervalMinutes, Is.EqualTo(240));
             Assert.That(director.TryAuthorizeDevelopment(true, 2, 59), Is.False);
             Assert.That(director.TryAuthorizeDevelopment(true, 2, 60), Is.True);
@@ -56,7 +57,8 @@ namespace Signal.Core.Tests
             Assert.That(director.SetScenarioPhase("phase-two", 5, 30), Is.False);
             Assert.That(director.CurrentIntervalMinutes, Is.EqualTo(60));
             Assert.That(director.TryAuthorizeDevelopment(true, 5, 59), Is.False);
-            Assert.That(director.TryAuthorizeDevelopment(true, 5, 60), Is.True);
+            Assert.That(director.TryAuthorizeDevelopment(true, 5, 68), Is.False);
+            Assert.That(director.TryAuthorizeDevelopment(true, 5, 69), Is.True);
         }
 
         [Test]
@@ -77,10 +79,10 @@ namespace Signal.Core.Tests
             var director = new WorldPacingDirector(60, 60, 600);
             director.SetScenarioPhase("opening", 2, 0);
 
-            Assert.That(director.TryAuthorizeDevelopment(true, 2, 60), Is.True);
+            Assert.That(director.TryAuthorizeDevelopment(true, 2, 69), Is.True);
             Assert.That(director.TryAuthorizeDevelopment(true, 1, 1439), Is.False);
-            Assert.That(director.TryAuthorizeDevelopment(true, 2, 119), Is.False);
-            Assert.That(director.TryAuthorizeDevelopment(true, 2, 120), Is.True);
+            Assert.That(director.TryAuthorizeDevelopment(true, 2, 138), Is.False);
+            Assert.That(director.TryAuthorizeDevelopment(true, 2, 147), Is.True);
         }
 
         [Test]
