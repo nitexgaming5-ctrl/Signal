@@ -35,7 +35,7 @@ Rule: one `.asmdef` per folder, and each test folder has its own subfolder. (Thi
 
 ## UI conventions (M3 onward)
 - UGUI only. M3 panels are built from code at runtime (no prefab wiring), so a scene needs just one GameObject.
-- Input is read by polling the Input System (`Keyboard.current`, `Mouse.current`). No EventSystem is needed until the UI has buttons.
+- World input is read through the Input System (`Keyboard.current`, `Mouse.current`). Add an EventSystem with InputSystemUIInputModule only when a UI needs pointer-driven buttons or dragging.
 - Every rule (can this item go there?) lives in Core. The UI asks `GridInventory`, then draws the answer.
 - Text uses UGUI `Text` with Unity's built-in font until the pixel font pass (see ART_TODO.md).
 
