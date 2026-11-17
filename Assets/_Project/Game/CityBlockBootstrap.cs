@@ -41,6 +41,18 @@ namespace Signal.Game
         public Vector2 NeighbourPosition => FindResident("milo") != null ? FindResident("milo").Position : Vector2.zero;
         public NpcActivity NeighbourActivity => FindResident("milo") != null ? FindResident("milo").Activity : NpcActivity.Home;
         public int ResidentCount => _residents.Count;
+
+        public Vector2 GetResidentPosition(string npcId)
+        {
+            NpcPresenter resident = FindResident(npcId);
+            return resident != null ? resident.Position : Vector2.zero;
+        }
+
+        public NpcActivity GetResidentActivity(string npcId)
+        {
+            NpcPresenter resident = FindResident(npcId);
+            return resident != null ? resident.Activity : NpcActivity.Home;
+        }
         public NpcSocialWorld SocialWorld => _socialWorld;
 
         public void Build(Transform player, Rigidbody2D body, Camera camera, GameClock clock = null)
