@@ -1,39 +1,62 @@
 # Progress
 
-## Current milestone: vertical slice 0.1 assembled (M4 to M9 foundations written)
+## Current initiative: repository baseline audit and collaboration workflow
 
-## Done and verified in Unity
-- [x] M0 Foundation, M1 PlayerStats, M2 grid inventory and ItemDefinition, M3 inventory UI
-- Last verified run: 109 of 109 passed
+Status: in progress. The GitHub connection is confirmed and the current `main` branch has been inspected read-only. Work is being tracked on `chore/collaboration-workflow-and-audit`.
 
-## Written, awaiting the user's test run
-- [ ] M4 One room: RoomBootstrap (tilemap room, solid walls, door tile), PlayerMotor2D, CameraFollow2D
-- [ ] M5 Save and load: SaveData, SaveMapper, SaveMigrator (Core), SaveFileStore (JSON file)
-- [ ] M6 Clock: GameClock (Day, minute of day, Sleep), ticking in GameSession
-- [ ] M7 Shop (logic only): ShopOrder and Shop.TryFulfil, plus GridInventory.CountOf and TryRemove
-- [ ] M8 Recipes (logic only): Recipe, Crafting.TryCraft with rollback, RecipeDefinition asset
-- [ ] M9 Consequences: RentLedger and HeatMeter (state only, nothing reads heat yet)
-- [ ] Glue: GameSession (composition root), HudPanel
-- Expected total after applying: 189 tests (163 Core, 18 Game, 8 prototype Shop)
+## Approved project direction
+- Signal is a hybrid management/simulation RPG and narrative-driven RPG.
+- Simulation systems should create meaningful pressure and emergent situations; characters, relationships, choices, and consequences give those situations narrative weight.
+- New gameplay mechanics may be proposed freely, but their player-facing rules must be explained and explicitly approved by the user before implementation.
 
-## User steps
-- [ ] Apply the zip, Assets > Refresh, run the EditMode tests
-- [ ] Create the slice scene: File > New Scene (2D template), save as Assets/_Project/Scenes/Slice.unity
-- [ ] Add an empty GameObject, add the Game Session component, set Items to 3 and drag in ITEM_A, ITEM_B, ITEM_C
-- [ ] Optional: Create > Signal > Recipe Definition (for example 2 of ITEM_A in, 1 of ITEM_B out) and assign it as Debug Recipe
-- [ ] Press Play and check: walk around, walls block you, Tab opens the inventory, F6 sleeps, F5 saves, F9 loads
+## Repository baseline (GitHub `main`, inspected 2026-11-17)
+- Default branch: `main`.
+- The repository currently has one commit: `Initial commit - Signal Unity project`.
+- Unity version: 6000.6.9f1.
+- Project uses 2D URP, Input System 1.20.1, UGUI, Tilemap, Test Framework 1.8.0.
+- The repository contains the Core/Game split, EditMode test assemblies, current Core systems, Unity-facing slice components, an archived `_Prototype` code area, and a sizeable vendored Unity MCP package.
+- Current scene assets include `Assets/_Project/Scenes/Main.unity` and `InventoryDemo.unity`. The build settings currently point to `Main.unity`; there is no `Slice.unity` file in the inspected tree.
+- No root `README.md`, `docs/DESIGN.md`, or `docs/roadmap.md` exists. The roadmap file is `docs/ROADMAP.md`.
 
-## Not built yet (honest gaps)
-- Shop counter and customers in the world (only the rules and an F7 debug sale exist)
-- Mixing interaction for chemistry (drag components, heat, contamination, quality)
-- Factions, reputation, relationships, quests, story
-- Any real art, sound, or animation
-- Outings and a second area (M10)
+## Previously reported verification (not independently rerun in this audit)
+- The previous progress record reports M0–M3 verified and 109/109 tests passed.
+- M4–M9 code was reported as written but awaiting the user's Unity test run.
+- The audit has not run Unity compilation, EditMode tests, or manual play-mode verification. Those statuses remain unverified by this session.
+
+## Implemented systems found in the current source tree
+### Core
+- PlayerStats (money and health)
+- ItemType and GridInventory (placement, stacking, rotation, removal, snapshots)
+- InventoryDragMath
+- GameClock
+- RentLedger
+- HeatMeter
+- Shop order fulfilment
+- Crafting recipes and rollback
+- Save DTOs, migration gate, and SaveMapper
+
+### Unity/Game layer
+- ItemDefinition and RecipeDefinition assets
+- PlayerMotor2D, CameraFollow2D, RoomBootstrap
+- InventoryPanel and HudPanel
+- GameSession composition root
+- SaveFileStore
+
+These are source-presence observations, not claims that the full gameplay loop is complete or verified.
+
+## Initial audit findings
+- `AGENTS.md` still required one task card per session and prohibited new mechanics. That conflicts with the user's updated direction; revised collaboration rules are being introduced on this branch.
+- `docs/PROGRESS.md` describes a user-side zip application and a future Slice scene, while the current repository already contains the M4–M9 source files and the build settings still reference Main.unity. This needs reconciliation with the user's local Unity project state.
+- `.gitignore` does not currently list the `SignalSave/` directory, although the roadmap/data model say save data should be ignored.
+- The current `Main.unity` scene contains legacy/prototype-style scene objects. Scene composition and script references need a dedicated inspection before changing or replacing it.
+- The current code and tests have not been executed in Unity during this audit.
 
 ## Next
-- Tell me what the first real recipe, customer, and price should be, then I build the shop counter and mixing interaction around them
-- Decide what heat and missed rent cause
+1. Finish the source, scene, test, package, and documentation audit.
+2. Reconcile the remote repository state with the user's local Unity project before any scene migration or destructive changes.
+3. Produce the technical assessment and proposed development sequence.
+4. Propose the first batch of new gameplay mechanics with full rules and wait for user approval before implementing them.
 
-## Notes
-- The old prototype lives in Assets/_Project/_Prototype/ (read only).
-- All decisions from the chat are in docs/OPEN_QUESTIONS.md (Q1 to Q19).
+## Work log
+- 2026-11-17: Confirmed GitHub repository access; inspected repository tree, core documentation, task cards, project settings, and a first pass of Core/Game code.
+- 2026-11-17: Created branch `chore/collaboration-workflow-and-audit`; aligned agent instructions with the user's expanded collaboration model and documented the approved hybrid RPG direction.
