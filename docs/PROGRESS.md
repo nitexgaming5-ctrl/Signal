@@ -131,3 +131,10 @@ The repository contains more of the intended hideout/city direction than the pre
 - 2026-11-17: Reviewed the user's initial EditMode XML report: 212/214 tests passed; all 181 Core tests passed, while the Game assembly had two failures in legacy RoomBootstrapTests. Corrected the floor assertions to check occupied cells and distinct floor tiles (GetUsedTilesCount counts distinct tile assets), and aligned the doorway assertion with RoomBootstrap's intentional open south entrance. The user reran the full EditMode suite and confirmed 214/214 tests pass; no Unity test execution was available through the repository connection.
 
 - 2026-11-17: Added a controlled scheduled NPC social layer. Clock changes trigger one deterministic encounter pass after NPC routine updates; only mutually nearby residents currently in Socialize can meet. Pair cooldowns and a one-encounter-per-NPC pass limit keep the simulation restrained. Encounters build familiarity slowly, preserve trust/affinity, exchange at most one known event and publish a generic observable event. Added Core coverage and a CityBlockBootstrap integration test; Unity verification is pending.
+
+
+### World pacing test-run follow-up
+
+- The first Unity EditMode run after adding WorldPacingDirector reported **225/226 passed**. The only failure was `WorldPacingDirectorTests.ChangingPhaseStartsFreshRampWithoutReleasingBacklog`: the test expected the interval to remain 60 minutes after observing the same phase 30 minutes later, while the implementation correctly reported 64 as the phase ramp progressed.
+- Corrected the test expectation to 64. No production code change was needed.
+- Awaiting the user's rerun of the EditMode suite; do not treat the pacing addition as verified until that run passes.
