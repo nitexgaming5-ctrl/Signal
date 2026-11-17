@@ -80,6 +80,7 @@ The initiative is defined in detail in [NPC_FRAMEWORK.md](NPC_FRAMEWORK.md). Its
 - [x] Author Core and Game EditMode coverage for local presence, event visibility, knowledge exchange, trust confidence, character-scoped perception and off-screen events (execution still pending).
 - [ ] Run the Core/Game EditMode suites in Unity and resolve any failures.
 - [x] Feed each NPC's own perception snapshot into utility decisions; nearby relationship impressions and personally known information influence socialising without exposing the global event journal.
+- [x] Move routine windows, need drift and utility weights into a reusable Core NpcUtilityProfile; verify alternate work hours through a Core test.
 - [ ] Replace Milo-specific runtime assumptions with data-driven character definitions and a generic presenter.
 - [ ] Add a second temporary test profile to prove that multiple NPCs can be authored without another character-specific MonoBehaviour.
 - [ ] Design persistence for stable NPC IDs, relationships, selected memories and discovered information, with save migration tests.
