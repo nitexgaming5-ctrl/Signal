@@ -126,6 +126,19 @@ namespace Signal.Core
             return listener.Remember(retold);
         }
 
+        /// <summary>
+        /// Builds a safe decision input for one NPC: nearby people plus that NPC's own
+        /// observations and hearsay. The global event journal is deliberately excluded.
+        /// </summary>
+        public NpcPerception BuildPerceptionFor(string observerNpcId, float radius)
+        {
+            if (!_npcs.TryGetValue(observerNpcId, out NpcAgentState observer))
+                throw new KeyNotFoundException("NPC is not registered: " + observerNpcId);
+
+            return new NpcPerception(observerNpcId, observer.LocationId,
+                GetNearbyNpcIds(observerNpcId, radius), observer.GetKnowledge());
+        }
+
         public IList<NpcWorldEvent> GetEventJournal()
         {
             return _eventJournal.ToArray();
