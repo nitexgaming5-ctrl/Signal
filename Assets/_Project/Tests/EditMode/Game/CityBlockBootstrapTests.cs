@@ -18,7 +18,7 @@ namespace Signal.Game.Tests
 
             try
             {
-                city.Build(player.transform, body, camera, new Rect(-1f, -1f, 22f, 14f));
+                city.Build(player.transform, body, camera);
                 Assert.That(city.CurrentPlace, Is.EqualTo("Hideout"));
 
                 Assert.That(city.TryInteract(new Vector2(10f, -1.5f)), Is.True);
