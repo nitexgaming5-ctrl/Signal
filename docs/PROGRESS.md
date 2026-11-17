@@ -169,9 +169,9 @@ The repository contains more of the intended hideout/city direction than the pre
 
 ## Inventory, quest and player-system audit (2026-11-18)
 
-Reviewed the active Core/Game implementation and the reference-game list. The full audit and proposed sequence are in `docs/ITEM_QUEST_PLAYER_FRAMEWORK_RESEARCH.md`.
+Reviewed the active Core/Game implementation and the reference-game list before starting Item Instance v1. The full audit and proposed sequence are in `docs/ITEM_QUEST_PLAYER_FRAMEWORK_RESEARCH.md`. The following inventory findings describe the pre-v1 state; the implementation status is recorded in the later Item Instance v1 section.
 
-### Inventory findings
+### Pre-v1 inventory findings
 - The project already has a spatial grid inventory: `GridInventory`, 6×4 default carried grid, 8×6 home locker, rectangular item footprints, rotation, stacking, add/remove/move/place, change notifications and snapshots.
 - `InventoryTransfer.MoveAll` is capacity-aware and rollback-protected.
 - `ItemDefinition` currently provides a stable GUID, display name, grid dimensions and max stack. Core `ItemType` contains only ID, footprint and stack limit.
