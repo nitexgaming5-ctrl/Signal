@@ -23,6 +23,8 @@ namespace Signal.Game
         private GameObject _shopRoot;
         private GameObject _apartmentRoot;
         private Place _place;
+        private NeighbourNpc _neighbour;
+        private GameClock _clock;
 
         private static readonly Vector2 HomeDoor = new Vector2(10f, -1.5f);
         private static readonly Vector2 ShopDoor = new Vector2(0.5f, -10.8f);
@@ -31,10 +33,13 @@ namespace Signal.Game
 
         public bool IsAtHome => _place == Place.Hideout;
         public string CurrentPlace => _place.ToString();
+        public Vector2 NeighbourPosition => _neighbour != null ? _neighbour.Position : Vector2.zero;
+        public NpcActivity NeighbourActivity => _neighbour != null ? _neighbour.Activity : NpcActivity.Home;
 
-        public void Build(Transform player, Rigidbody2D body, Camera camera)
+        public void Build(Transform player, Rigidbody2D body, Camera camera, GameClock clock = null)
         {
             _player = player;
+            _clock = clock ?? new GameClock();
             _body = body;
             _cameraFollow = camera != null ? camera.GetComponent<CameraFollow2D>() : null;
 
@@ -90,6 +95,8 @@ namespace Signal.Game
                 case Place.Hideout:
                     return Near(playerPosition, HomeDoor) ? "E  Leave hideout" : string.Empty;
                 case Place.Street:
+                    if (_neighbour != null && _neighbour.CanTalkFrom(playerPosition))
+                        return "E  Talk to Milo";
                     if (Near(playerPosition, HomeDoor))
                         return "E  Return to hideout";
                     if (Near(playerPosition, ShopDoor))
@@ -104,6 +111,13 @@ namespace Signal.Game
                 default:
                     return string.Empty;
             }
+        }
+
+        public bool TryInteractNpc(Vector2 playerPosition, out string dialogue)
+        {
+            dialogue = null;
+            return _place == Place.Street && _neighbour != null &&
+                   _neighbour.TryTalk(playerPosition, out dialogue);
         }
 
         public bool TryInteract(Vector2 playerPosition)
@@ -183,7 +197,7 @@ namespace Signal.Game
             return root;
         }
 
-        private static void BuildStreet(Transform root)
+        private void BuildStreet(Transform root)
         {
             AddBlock(root, "StreetGround", new Vector2(10f, -13f), new Vector2(38f, 27f), Ground, false, 0);
             AddBlock(root, "Road", new Vector2(10f, -13f), new Vector2(12f, 27f), Asphalt, false, 1);
@@ -207,6 +221,11 @@ namespace Signal.Game
             AddBlock(root, "CornerShopDoor", ShopDoor, new Vector2(0.8f, 1.25f), new Color32(62, 49, 39, 255), false, 6);
             AddBlock(root, "ApartmentDoor", ApartmentDoor, new Vector2(0.8f, 1.25f), new Color32(49, 60, 66, 255), false, 6);
             AddBlock(root, "HideoutEntryMarker", HomeDoor, new Vector2(2.2f, 0.18f), new Color32(173, 139, 89, 255), false, 4);
+
+            var npcObject = new GameObject("Milo - Neighbourhood Baker");
+            npcObject.transform.SetParent(root, false);
+            _neighbour = npcObject.AddComponent<NeighbourNpc>();
+            _neighbour.Bind(_clock);
         }
 
         private static void BuildStreetBuilding(Transform root, string name, Vector2 centre, Color facade, Color trim)
