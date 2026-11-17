@@ -2,9 +2,9 @@
 
 Milestones are dependency notes, not a mandate to build isolated systems in order. Work is organised around one active, player-facing initiative at a time. Combine technical tasks whenever that produces a coherent playable result. See `docs/DEVELOPMENT_WORKFLOW.md` and `docs/ARCHITECTURE.md`.
 
-## Current initiative — make the hideout the centre of the city loop
+## Current foundation — hideout and connected starter block
 
-**Player outcome:** the player can leave home, explore the connected block, bring items back, store and retrieve them at the physical locker, and save/load the same carried items, home storage and location.
+**Player outcome:** the player can leave home, explore the connected block, bring items back, store and retrieve them at the physical locker, and save/load carried items, home storage and location.
 
 ### Slice A — establish the hideout
 - [x] Consolidate the active runtime on Signal.Core + Signal.Game; preserve the old Main/prototype path as legacy reference.
@@ -26,8 +26,6 @@ Milestones are dependency notes, not a mandate to build isolated systems in orde
 - [ ] Run the new EditMode transition test in Unity (manual travel was confirmed in Play Mode).
 - [ ] Replace placeholder street/building geometry with cohesive authored city art.
 
-**Exit check:** the player can move between the hideout and street, enter and exit the initial buildings, and reliably return to the correct location. The user has confirmed the route works; automated test execution remains pending.
-
 ### Slice C — make the hideout useful
 - [x] Expose the physical storage locker as an E interaction.
 - [x] Add a home-storage screen that transfers available quantities between carried inventory and a separate locker inventory, respecting destination capacity through a tested Core transfer service.
@@ -43,37 +41,42 @@ Milestones are dependency notes, not a mandate to build isolated systems in orde
 
 **Exit check:** the player can take items into the city, return, store/retrieve them, and save/load carried inventory, locker contents and current location without losing the connected-world context.
 
-## Approved game direction — parallel lives in a living, dangerous city
+## Approved game direction — one shared city, overlapping lives
 
-Signal is a balanced urban-life RPG where the city supports legitimate work, underground crime, relationships, opportunities and unpredictable events. The hideout remains the player's central hub and emotional anchor.
+Signal is a balanced urban RPG where legitimate work, trade, crime, relationships, opportunities and unpredictable events coexist in the same city. There is no default split between a legitimate world and a physically separate underground world. The hideout remains the player's central hub and emotional anchor.
 
-These are approved design constraints:
-- **Parallel lifestyles:** legal and criminal activities are both available. Players may combine them freely; neither path locks the other.
-- **Harsh criminal failure:** crime should carry serious, potentially lasting consequences. Depending on the eventual activity and severity, failure may cause major losses or restrictions. Exact penalties and recovery rules still need design.
-- **Global crime progression:** criminal activities contribute to one overall criminal level/progression track, not separate skill trees for every crime. Individual activity mastery may be considered later, but is not approved as a required system.
-- **Legitimate progression is a real alternative:** farming, gathering, processing, crafting, services and selling goods (for example, growing wheat and making bread) should form satisfying lower-risk economic loops, not a consolation path.
-- **Crime is a core pillar:** fictional drug-related activity and other illegal activity are central game content, alongside theft, fraud, cybercrime, vandalism and other suitable fictional crime categories. Specific activities and rules need individual design.
-- **The city is shared by both lifestyles:** NPCs, clients, contacts, factions, locations and world events should create opportunities and consequences across legal and illegal play.
-- **The hideout supports both:** storage, preparation, recovery, workspaces, production spaces and personalisation should grow into a meaningful home base.
+Approved design constraints:
+- **Parallel lifestyles:** players can freely combine lawful and illegal activities; neither path locks the other.
+- **One shared city and economy:** ordinary shops, homes, streets, customers, suppliers and criminal dealings inhabit the same locations and social network. Dedicated criminal hideouts or special spaces may exist later, but are not the default framing or a prerequisite.
+- **Hidden dual lives:** an NPC may have a public occupation and a concealed illegal role. For example, an apparently ordinary baker may secretly sell illicit goods. The player does not automatically know every NPC's hidden activities; discovery can come through conversation, observation, requests, rumours and consequences.
+- **Goods beyond item names:** products may have meaningful quality, condition, authenticity, origin/provenance and ownership status. Water is one example: different grades can be tested, processed, packaged and sold. Food, electronics, clothing, household goods, stolen items and fictional drugs can support different trade and activity loops.
+- **Crime is a core pillar:** fictional drug-related activities and a broad range of other illegal activities are central content, alongside legitimate daily life. Specific activities and rules need individual design.
+- **Harsh criminal failure:** crime should carry serious, potentially lasting consequences. Exact penalties, thresholds and recovery rules still need design.
+- **Global crime progression:** criminal activities contribute to one overall criminal level/progression track, not separate skill trees for every crime.
+- **Legitimate livelihoods are varied and satisfying:** gathering, processing, making, inspecting, repairing, trading, services and small businesses are possible directions. Farming is only one example, not a required path or defining legal loop.
+- **Shared people and events:** NPCs, clients, contacts, factions, rumours and world events affect both lawful and illegal activities in the same neighbourhoods.
+- **Hideout supports the whole life:** storage, preparation, recovery, workspaces, production spaces and personalisation can support any mix of activities.
 
 ## Next initiative — design and build the first connected activity slice
 
-Do not implement a standalone searchable container as the whole activity system. First design a small reusable activity framework that can support character requests, world interactions and event-driven opportunities. Then deliver one complete playable scenario that connects:
-1. A character, contact or discoverable opportunity.
-2. A clear activity objective and world interaction.
-3. A meaningful item/resource/reward outcome.
-4. A return-to-hideout or follow-up step.
-5. Persistence so completion and important state do not reset on reload.
+Do not implement a standalone searchable container as the whole activity system. First design a small reusable activity foundation that supports:
+1. World interactions with objects and locations.
+2. Character conversations, requests, contacts and discovery hooks.
+3. Goods and item state where player-facing value exists (e.g. quality, condition, provenance or ownership).
+4. Activity outcomes, rewards, failure consequences and persistence.
+5. Shared-city events that can change opportunities without requiring a separate criminal map.
 
-The first scenario can be modest, but should demonstrate the foundations rather than become a one-off hardcoded feature. The exact scenario, item, reward, repeatability and failure rules still need agreement before implementation.
+Then deliver one complete playable scenario demonstrating these foundations. The scenario should show the shared city and overlapping public/hidden lives, connect an activity to a meaningful item or trade outcome, and create a reason to return to or follow up from the hideout.
+
+The exact scenario, item, reward, repeatability, hidden-information clues and failure rules still need agreement before implementation.
 
 ## Later experience layers (not active yet)
-
-- **Crime catalogue and progression:** a broad range of fictional illegal activities, with one global criminal progression level, escalating opportunities and serious consequences.
-- **Legal livelihood catalogue:** farming, gathering, processing, crafting, services, trade and small businesses, including delayed/passive production that still requires meaningful setup and collection.
-- **People and relationships:** NPC identities, routines, needs, client expectations, contacts, reputation and factions.
+- **Crime catalogue and global progression:** varied fictional illegal activities, one global criminal progression track, escalating opportunities and serious consequences.
+- **Goods and trade simulation:** quality/condition/authenticity/provenance, inspection, appraisal, packaging, customer needs and price trade-offs where they create interesting play.
+- **Legitimate livelihood catalogue:** varied production, services, repair, gathering, trade and small businesses; farming is optional among many possibilities.
+- **NPCs with public and private lives:** occupations, routines, needs, relationships, hidden roles, customers, suppliers and contacts.
 - **World events:** incidents and changing conditions that affect opportunities, locations, NPCs and player plans.
-- **Economy and production:** coherent resource chains, item definitions, pricing and workbench/production interactions.
+- **Shared economy:** one interconnected flow of goods, money, supply, demand and risk across lawful and illegal activity.
 
 These are broad approved directions, not detailed mechanics. Each should be introduced through a complete playable scenario, not as an isolated subsystem. New detailed rules for economy, production, police, risk, progression and specific crimes require explanation and user approval before implementation.
 
