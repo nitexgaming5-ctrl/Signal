@@ -124,6 +124,7 @@ namespace Signal.Game
 
             _status = CreateText(frame, "Drag objects to rearrange the table. Click one to inspect it.", 17, InkColor, TextAnchor.MiddleLeft);
             Anchor(_status.rectTransform, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(34f, 18f), new Vector2(1050f, 34f));
+            closeRect.SetAsLastSibling();
 
             _canvasObject.SetActive(false);
             _built = true;
