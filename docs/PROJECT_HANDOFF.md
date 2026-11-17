@@ -270,3 +270,18 @@ Already approved broad directions are not permission to invent their detailed ru
 ## 12. One-sentence instruction to the next agent
 
 **Build the next small, meaningful player experience in the one shared city using the connected NPC foundation; keep the simulation restrained, make consequential change gradual, and never turn an illustrative idea into a mechanic or story without the user's approval.**
+
+
+## 13. Inventory identity milestone — current handoff state (2026-11-18)
+
+The user approved Item Instance v1 and the first implementation pass is committed; Unity verification is pending.
+
+- Active Core inventory remains `GridInventory`; it now gives each placed stack a stable `Guid ItemInstanceId`. The existing integer `PlacedItem.InstanceId` is still inventory-local UI/placement bookkeeping.
+- Stack identity survives movement, rotation, snapshots and save/load. It also survives moving a complete stack between carried inventory and the home locker.
+- Container transfers move whole stacks and never merge two distinct stack identities. If a whole stack cannot fit, it remains in the source. There is no split-stack action yet. If a future feature needs splitting, allocate a new identity for the new resulting stack by explicit design.
+- `GridInventory.Add` can still top up an existing same-definition stack because no mutable per-instance state exists yet. Once state fields are added, stack compatibility must compare those fields before merging.
+- Save format is v3. v1/v2 migration assigns stable identities across both carried and storage inventories; duplicate/empty IDs are repaired. Existing item definitions, counts, grid coordinates, rotation and v1 Hideout/storage defaults are preserved.
+- Tests added in `Assets/_Project/Tests/EditMode/Core/ItemInstanceIdentityTests.cs`; transfer tests were updated. Storage UI remains the same except for a clearer whole-stack transfer hint.
+- No item quality, condition, authenticity, ownership/provenance, price, equipment, crafting, weight or use mechanics were added.
+- **Next action:** user pulls the shared branch, lets Unity compile, and runs the full EditMode suite. Fix any reported failures before further feature work. Then verify actual v1/v2 save migration and repeated locker take/store behavior in Play Mode.
+- Full design/audit: `docs/ITEM_QUEST_PLAYER_FRAMEWORK_RESEARCH.md`. Current implementation/verification log: `docs/PROGRESS.md`.
