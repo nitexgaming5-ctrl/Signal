@@ -93,7 +93,7 @@ Milestones are dependency notes, not a mandate to build isolated systems in orde
 4. **Keep the current block playable and readable.** Replace the most visible placeholders with cohesive art only when it improves the slice; preserve the compact scale and hideout as the anchor.
 5. **Close known reliability checks** when convenient: storage capacity/rollback, actual v1 migration, city transition tests and target-platform save replacement.
 
-The next recommended player-facing initiative remains item 1, preceded by a design conversation. The next technical foundation is Item Instance v1 (see the section below). Do not start a new economy, crime catalogue or broad NPC feature set in parallel.
+The immediate technical action is to verify Item state and inspection v1 in Unity. After that, return to one compact NPC-driven playable scenario, with its exact clues, interactions and consequences discussed before implementation. Do not start a broad economy, crime catalogue or quest framework in parallel.
 
 ## Medium-term goals — deepen the shared-city loop
 
@@ -151,28 +151,34 @@ Explain the player-facing rules, interactions, progression/balance implications 
 A slice is complete only when the player-facing scenario works in Unity Play Mode, relevant tests pass, the Console has no new errors, save/load is checked where relevant, known limitations are recorded and `docs/PROGRESS.md` reflects actual verification.
 
 
-## New technical priority — item identity and instance foundation
+## Item identity, per-stack state and inspection
 
-A repository audit on 2026-11-18 found that the active inventory is already a spatial grid system, not a blank slate. It supports item footprints, rotation, stacking, placement, capacity-aware transfer, a separate home locker and save/load. Its current limitation is that a placed stack is only a definition ID, local inventory instance number, position, rotation and count. The local instance number is not stable across containers or saves, and the model cannot yet represent distinct copies of the same goods with different histories or mutable states.
+The item identity foundation is implemented and the user confirmed **235/235 EditMode tests passed** (2026-11-18). The next layer—per-stack state, provisional valuation and the shared inspection viewer—is now implemented on the shared branch and awaits Unity verification.
 
-**Next recommended implementation: Item Instance v1 (technical foundation only).**
+### Verified Item Instance v1
+- [x] Stable stack identity (`Guid ItemInstanceId`) is separate from grid placement/local integer IDs.
+- [x] Identity survives movement, rotation, snapshots, whole-stack transfers and save/load.
+- [x] Whole-stack transfers preserve identity/orientation, never merge distinct stacks and leave non-fitting stacks in the source.
+- [x] Save version 3 and v1/v2 migration preserve inventory layouts and assign unique stack IDs.
+- [x] User confirmed 235/235 EditMode tests passed.
 
-- [x] Audit existing inventory call sites/tests and document invariants before refactoring.
-- [x] Separate stable stack identity (`Guid ItemInstanceId`) from grid placement/local integer IDs.
-- [x] Preserve stable identity and orientation when transferring whole stacks between carried inventory and home storage.
-- [x] Prevent transfers from merging distinct stack identities. Current `Add` still tops up same-definition stacks because no mutable per-instance state exists yet; expand compatibility checks when such state is introduced.
-- [x] Add save version 3 and migrate v1/v2 stacks while preserving definition, quantity, position and rotation; assign unique identities across both containers.
-- [x] Add Core tests for identity, transfer, save/load migration, duplicate-ID repair and rollback.
-- [x] Keep the existing grid UI and normal inventory/storage loop; clarify the whole-stack transfer behavior in the storage hint.
-- [ ] Run Unity compilation and the full EditMode suite; user verification is pending.
+### Item state and inspection v1 — implemented, verification pending
+- [x] Add per-stack quality, condition, authenticity and ownership state.
+- [x] Preserve state through inventory operations and transfers.
+- [x] Merge only stacks with the same definition and matching state.
+- [x] Add provisional Core reference valuation based on authored base value and state multipliers; this is not a trade/economy system.
+- [x] Extend ItemDefinition with description, category, optional icon, base reference value and default state.
+- [x] Add one read-only item viewer shared by carried inventory and home storage.
+- [x] Add right-click inspection in carried inventory and per-stack INSPECT/STORE/TAKE actions in home storage.
+- [x] Add targeted whole-stack transfer by stable identity.
+- [x] Upgrade save format to v4; migrate v1/v2/v3 items to neutral default state.
+- [x] Add Core tests for state-aware stacking, state-preserving transfer, valuation, targeted transfers and save migration/round-trip.
+- [ ] Run Unity compilation and the full EditMode suite.
+- [ ] In Play Mode, inspect two copies of one definition with different states in both carried inventory and locker.
+- [ ] Verify single-stack STORE/TAKE preserves state and identity through repeated transfers.
+- [ ] Verify a v3 save loads with neutral state and a v4 save preserves all state fields.
 
-
-
-**Transfer contract for v1:** a stack is moved as a whole and retains its identity. Distinct stacks are not merged during container transfer. If the destination has no free footprint for a complete stack, that stack remains in the source. There is no split-stack operation in v1. The persistent GUID identifies a stack, while the old integer ID remains local to an inventory for UI operations.
-
-This milestone does **not** add quality grades, condition/durability, counterfeit rules, stolen status, provenance, prices, equipment, weight, crafting or item-use rules. Those are future consumers of the item model and need separate design approval.
-
-See `docs/ITEM_QUEST_PLAYER_FRAMEWORK_RESEARCH.md` for the full audit, reference-game feature map and quest/player-system sequencing.
+**Current boundaries:** states are authoritative and visible; there is no player-knowledge/discovery layer or appraisal skill yet. Valuation factors are provisional reference values only, not transaction prices. State is per stack, not per unit; there is no split-stack operation. No provenance chain, item use, equipment, crafting, weight, trade or quest-item rules are added.
 
 ## Quest and player progression foundations — later, scenario-led
 
