@@ -57,21 +57,35 @@ Approved design constraints:
 - **Shared people and events:** NPCs, clients, contacts, factions, rumours and world events affect both lawful and illegal activities in the same neighbourhoods.
 - **Hideout supports the whole life:** storage, preparation, recovery, workspaces, production spaces and personalisation can support any mix of activities.
 
-## Next initiative — complete the first connected activity slice
+## Next initiative — build the connected NPC framework
 
-The first living-person foundation is now prototyped: Milo, a neighbourhood baker, follows a needs-driven daily routine and responds differently depending on what he is doing. This is an initial character-life slice, not yet the complete activity scenario: persistent relationships, discovery state, a concrete side activity and its outcomes remain to be connected.
+The first Milo implementation proved that an NPC can have a routine and activity-aware conversation, but it is a temporary prototype character. Do not spend the next initiative writing Milo's personal story or treating his hard-coded component as production content. His data and presentation may be replaced when the narrative cast is authored.
 
-Do not implement a standalone searchable container as the whole activity system. Continue the reusable activity foundation so it supports:
-1. World interactions with objects and locations.
-2. Character conversations, requests, contacts and discovery hooks.
-3. Goods and item state where player-facing value exists (e.g. quality, condition, provenance or ownership).
-4. Activity outcomes, rewards, failure consequences and persistence.
-5. Shared-city events that can change opportunities without requiring a separate criminal map.
-6. A person with an independent routine, needs and activity-aware conversation; the first Milo prototype now supplies this starting point.
+Build the reusable NPC foundation first. NPCs must not be isolated agents: they share one world context and can become aware of other people, nearby activity, environmental events and information circulating through their social network.
 
-Then deliver one complete playable scenario demonstrating these foundations. The scenario should show the shared city and overlapping public/hidden lives, connect an activity to a meaningful item or trade outcome, and create a reason to return to or follow up from the hideout.
+The initiative is defined in detail in [NPC_FRAMEWORK.md](NPC_FRAMEWORK.md). Its core requirements are:
 
-The exact scenario, item, reward, repeatability, hidden-information clues and failure rules still need design. The user's white-card authorization permits the agent to make coherent choices within the approved vision, while preserving the existing pillars and documenting consequential decisions.
+1. **Shared world context:** stable NPC identity, current location/position, world time and a common event stream.
+2. **Local perception:** NPCs notice people and events only within relevant locations and awareness/visibility ranges.
+3. **Individual knowledge:** direct observations, hearsay and confidence/source information are stored per character; no automatic omniscience.
+4. **Social connections:** directed relationships distinguish familiarity, trust and affinity. Characters can explicitly exchange information, and what they believe can differ.
+5. **Context-aware decisions:** needs, routines and personal goals are evaluated alongside relevant people, known information and world events.
+6. **Data-driven authoring:** generic runtime systems should accept character definitions; creating the eventual cast should primarily be content authoring, not writing bespoke scripts.
+7. **Persistence and scale:** preserve meaningful social knowledge and relationships when needed, while rebuilding transient perception and keeping distant NPC simulation inexpensive.
+
+### Delivery order
+
+- [ ] Complete shared awareness, event perception, individual knowledge, relationships and explicit knowledge exchange in Core.
+- [ ] Integrate the shared world context with the active city runtime and provide a common event-publishing entry point.
+- [ ] Feed each NPC's own perceptions and social context into its decision layer; do not expose the omniscient world journal as character knowledge.
+- [ ] Replace Milo-specific runtime assumptions with data-driven character definitions and a generic presenter.
+- [ ] Add a second temporary test profile to prove that multiple NPCs can be authored without another character-specific MonoBehaviour.
+- [ ] Design persistence for stable NPC IDs, relationships, selected memories and discovered information, with save migration tests.
+- [ ] Verify performance boundaries and event-driven updates before scaling the population.
+
+**Exit check:** two or more temporary NPC profiles can inhabit the same shared city, perceive local events, encounter one another, exchange information according to their relationships, and make decisions from their own incomplete knowledge. The same event can produce different beliefs in different characters. Adding a new character does not require a new character-specific runtime class.
+
+This is a framework milestone, not a narrative milestone. Do not create the final cast in bulk, write a Milo quest, invent a relationship progression system, or add a new crime/economy activity as part of this initiative.
 
 ## Later experience layers (not active yet)
 - **Crime catalogue and global progression:** varied fictional illegal activities, one global criminal progression track, escalating opportunities and serious consequences.
