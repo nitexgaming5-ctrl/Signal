@@ -67,7 +67,8 @@ namespace Signal.Game
 
         public bool CanTalkFrom(Vector2 position)
         {
-            return _initialized && Vector2.Distance(position, Position) <= 1.85f;
+            return _initialized && gameObject.activeInHierarchy &&
+                Vector2.Distance(position, Position) <= 1.85f;
         }
 
         public bool TryTalk(Vector2 playerPosition, out string dialogue)
