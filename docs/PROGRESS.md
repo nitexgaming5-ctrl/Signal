@@ -37,7 +37,7 @@ The repository contains more of the intended hideout/city direction than the pre
 These are repository observations, not claims that the scene currently compiles or runs. The prototype code is legacy reference only. Do not add new gameplay there; migrate only specific valuable behavior into Core/Game when required.
 
 ## Important risks and constraints
-- `SaveFileStore.Save` writes a temporary file, deletes the current save, then moves the temporary file into place. If the final move fails, the previous save may be lost. Fix with a recoverable replacement strategy and regression tests before expanding persistent world state.
+- The legacy prototype save format remains separate. Core/Game now writes signal-core-save.json through a temporary file and File.Replace, so it does not overwrite the legacy signal-save.json. Verify the replacement behavior in Unity before expanding persistent world state.
 - `Main.unity` mixes legacy/prototype-style scene wiring and script references. Do not overwrite it or migrate scripts blindly; inspect its dependencies and reconcile with the user's local Unity project first.
 - The prototype scene is wired to a separate set of global-namespace components: `PlayerController`, `PlayerState`, `InventorySystem`, `DayCycle`, `GameSaveSystem`, and related systems. Core/Game is now the chosen active architecture. The legacy Main scene and its prototype components are preserved but are no longer the active build path. See docs/ARCHITECTURE.md.
 - The assistant cannot run Unity in the user's local editor through the GitHub repository connection. All Unity verification must be clearly delegated or run through an available Unity integration.
