@@ -61,7 +61,7 @@ namespace Signal.Game.Tests
                 Assert.That(registeredMilo.LocationId, Is.EqualTo("CornerShop"));
                 Assert.That(city.SocialWorld.TryGetNpc("rhea", out NpcAgentState registeredRhea), Is.True);
                 Assert.That(registeredRhea.LocationId, Is.EqualTo("Street"));
-                Assert.That(city.GetResidentActivity("rhea"), Is.EqualTo(NpcActivity.Socialize));
+                Assert.That(city.GetResidentActivity("rhea"), Is.EqualTo(NpcActivity.Rest));
                 Vector2 rheaPosition = city.GetResidentPosition("rhea");
                 Assert.That(city.GetPrompt(rheaPosition), Is.Empty);
                 Assert.That(city.TryRestorePlace("Street", rheaPosition), Is.True);
@@ -172,7 +172,7 @@ namespace Signal.Game.Tests
                 Assert.That(city.SocialWorld.NpcCount, Is.EqualTo(2));
                 Assert.That(city.SocialWorld.TryGetNpc("test-shopkeeper", out _), Is.True);
                 Assert.That(city.SocialWorld.TryGetNpc("test-resident", out _), Is.True);
-                Assert.That(city.GetResidentActivity("test-resident"), Is.EqualTo(NpcActivity.Socialize));
+                Assert.That(city.GetResidentActivity("test-resident"), Is.EqualTo(NpcActivity.Rest));
                 Vector2 residentPosition = city.GetResidentPosition("test-resident");
                 Assert.That(city.TryRestorePlace("Street", residentPosition), Is.True);
                 Assert.That(city.GetPrompt(residentPosition), Is.EqualTo("E  Talk to Resident"));
