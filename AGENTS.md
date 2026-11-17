@@ -3,6 +3,7 @@
 These rules govern technical work in the Signal repository. The user is the game director and final authority on game design.
 
 ## Project baseline
+- Follow `docs/DEVELOPMENT_WORKFLOW.md`: one active gameplay initiative, vertical-slice outcomes, and a parked idea backlog in `docs/IDEA_BACKLOG.md`.
 - Unity 6000.6.9f1, 2D URP, Input System 1.20.1, UGUI, Test Framework 1.8.0, Tilemap.
 - Project root on the user's machine: `X:\GameDev\Signal\UnityProject\Signal`.
 - Read `docs/PROGRESS.md`, `docs/VISION.md`, `docs/OPEN_QUESTIONS.md`, `docs/ARCHITECTURE.md`, and `docs/DATA_MODEL.md` before substantial work. Read relevant task cards and folder-level AGENTS.md files when present.
