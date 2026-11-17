@@ -272,19 +272,44 @@ Already approved broad directions are not permission to invent their detailed ru
 
 ## 12. One-sentence instruction to the next agent
 
-**First verify Item Instance v1 in Unity; then build the next small, meaningful player experience in the one shared city using the connected NPC foundation. Keep simulation restrained, consequential change gradual, and never turn an illustrative idea into a mechanic or story without the user's approval.**
+**First verify the item state and inspection foundation in Unity; then return to one small, meaningful player experience in the shared city using the connected NPC foundation. Keep simulation restrained, consequential change gradual, and never turn an illustrative idea into a mechanic or story without the user's approval.**
 
 
-## 13. Inventory identity milestone — current handoff state (2026-11-18)
+## 13. Inventory identity, item state and inspection — current handoff state (2026-11-18)
 
-The user approved Item Instance v1 and the first implementation pass is committed; Unity verification is pending.
+### Verified Item Instance v1
+The user confirmed **235/235 EditMode tests passed** after pulling the stable stack identity implementation.
 
-- Active Core inventory remains `GridInventory`; it now gives each placed stack a stable `Guid ItemInstanceId`. The existing integer `PlacedItem.InstanceId` is still inventory-local UI/placement bookkeeping.
-- Stack identity survives movement, rotation, snapshots and save/load. It also survives moving a complete stack between carried inventory and the home locker.
-- Container transfers move whole stacks and never merge two distinct stack identities. If a whole stack cannot fit, it remains in the source. There is no split-stack action yet. If a future feature needs splitting, allocate a new identity for the new resulting stack by explicit design.
-- `GridInventory.Add` can still top up an existing same-definition stack because no mutable per-instance state exists yet. Once state fields are added, stack compatibility must compare those fields before merging.
-- Save format is v3. v1/v2 migration assigns stable identities across both carried and storage inventories; duplicate/empty IDs are repaired. Existing item definitions, counts, grid coordinates, rotation and v1 Hideout/storage defaults are preserved.
-- Tests added in `Assets/_Project/Tests/EditMode/Core/ItemInstanceIdentityTests.cs`; transfer tests were updated. Storage UI remains the same except for a clearer whole-stack transfer hint.
-- No item quality, condition, authenticity, ownership/provenance, price, equipment, crafting, weight or use mechanics were added.
-- **Next action:** user pulls the shared branch, lets Unity compile, and runs the full EditMode suite. Fix any reported failures before further feature work. Then verify actual v1/v2 save migration and repeated locker take/store behavior in Play Mode.
-- Full design/audit: `docs/ITEM_QUEST_PLAYER_FRAMEWORK_RESEARCH.md`. Current implementation/verification log: `docs/PROGRESS.md`.
+- Every stack has a persistent `Guid ItemInstanceId`, separate from the inventory-local integer `InstanceId`.
+- Identity survives movement, rotation, snapshots, whole-stack transfers and save/load.
+- Transfers preserve orientation and identity, never merge distinct stack identities, and leave a stack in its source if the complete footprint does not fit.
+- Save v3 stores stable identity; v1/v2 migrations assign unique IDs across carried and home storage while preserving old inventory layout and v1 Hideout/empty-storage defaults.
+- No split-stack action exists. Identity is per stack, not per unit.
+
+### Item state and inspection v1 — implementation committed, Unity verification pending
+The user explicitly approved proper inspection/interaction, an item viewer and different state values for different copies of the same definition. The current implementation adds:
+
+- `ItemInstanceState` per stack: quality (Poor/Standard/Fine/Exceptional), condition (Damaged/Worn/Good/Pristine), authenticity (Genuine/Counterfeit), and ownership (Legitimate/Stolen).
+- `ItemDefinition` authoring fields for description, category, optional icon, base reference value and default instance state.
+- A Core `ItemValueCalculator` with provisional multipliers. Its output is an indicative reference value, not a buy/sell price or economy.
+- State-aware stack merging: only same-definition stacks with matching state can top up one another.
+- State preservation through movement, rotation, snapshots, targeted transfers and save/load.
+- A shared read-only item viewer. Right-click an item in the carried inventory or use INSPECT in the home locker.
+- Home storage now lists individual stacks and supports inspecting or transferring a selected complete stack; it no longer hides distinct states behind one aggregate count.
+- Save v4 persists state. v1/v2/v3 saves receive neutral defaults (Standard, Good, Genuine, Legitimate), and existing v3 stack identities are preserved.
+- New tests cover state-aware stacking, valuation, targeted stack transfer and v3 migration defaults.
+
+### Verification still required
+The **235/235** result predates this new item-state/viewer implementation. The user should pull the latest shared branch, let Unity compile, run the full EditMode suite, then test:
+1. Right-click inspection of a carried item.
+2. INSPECT from the home storage panel.
+3. Two stacks of the same definition with different states remain separate and display different reference values.
+4. STORE/TAKE moves only the selected stack and preserves its identity/state.
+5. A v3 save loads with neutral state defaults; a v4 save preserves all four state fields.
+
+### Important boundaries
+- Item states are currently authoritative and fully visible. There is no separate player-knowledge/discovery layer, inspection skill, appraisal minigame or hidden-fact reveal yet.
+- Value multipliers are provisional tuning only; no transaction prices, customer offers, supply/demand, bargaining or market economy.
+- No provenance chain, durability decay, item use, equipment, crafting, weight, quest-item rules or split-stack behavior.
+- Existing ITEM_A/B/C assets remain temporary fixtures; descriptions/icons/base values/default states can be authored in the Inspector later.
+- Do not add a broad quest framework or item catalogue before a real player-facing scenario proves what is needed.
