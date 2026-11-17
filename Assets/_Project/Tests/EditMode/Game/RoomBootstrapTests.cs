@@ -50,6 +50,21 @@ namespace Signal.Game.Tests
             Assert.That(walls.GetTile(new Vector3Int(10, -1, 0)), Is.Not.SameAs(walls.GetTile(new Vector3Int(0, -1, 0))));
         }
 
+
+        [Test]
+        public void BuildCreatesTheStarterFurnitureAndAWorkbenchAnchor()
+        {
+            _room.Build(null);
+
+            Assert.That(_room.Workbench, Is.Not.Null);
+            Assert.That(_room.Workbench.name, Is.EqualTo("Workbench"));
+            Assert.That(_room.Workbench.GetComponent<BoxCollider2D>(), Is.Not.Null);
+            Assert.That(_host.transform.Find("Bed"), Is.Not.Null);
+            Assert.That(_host.transform.Find("Table"), Is.Not.Null);
+            Assert.That(_host.transform.Find("Chair"), Is.Not.Null);
+            Assert.That(_host.transform.Find("Storage"), Is.Not.Null);
+        }
+
         [Test]
         public void BuildingTwiceDoesNothingTheSecondTime()
         {
