@@ -200,6 +200,19 @@ namespace Signal.Core
             return true;
         }
 
+        /// <summary>Total quantity of an item across stacks with the specified state.</summary>
+        public int CountOf(ItemType type, ItemInstanceState state)
+        {
+            int total = 0;
+            foreach (var item in _items)
+            {
+                if (item.Type == type && item.State == state)
+                    total += item.Count;
+            }
+
+            return total;
+        }
+
         /// <summary>Total quantity of an item across all its stacks.</summary>
         public int CountOf(ItemType type)
         {
@@ -219,14 +232,24 @@ namespace Signal.Core
         /// </summary>
         public bool TryRemove(ItemType type, int count)
         {
-            if (count < 1 || CountOf(type) < count)
+            return TryRemoveMatching(type, count, null);
+        }
+
+        public bool TryRemove(ItemType type, int count, ItemInstanceState state)
+        {
+            return TryRemoveMatching(type, count, state);
+        }
+
+        private bool TryRemoveMatching(ItemType type, int count, ItemInstanceState? state)
+        {
+            if (count < 1 || CountMatching(type, state) < count)
                 return false;
 
             int remaining = count;
             for (int i = _items.Count - 1; i >= 0 && remaining > 0; i--)
             {
                 PlacedItem item = _items[i];
-                if (item.Type != type)
+                if (item.Type != type || (state.HasValue && item.State != state.Value))
                     continue;
 
                 int taken = Math.Min(item.Count, remaining);
@@ -240,6 +263,13 @@ namespace Signal.Core
 
             Changed?.Invoke(this);
             return true;
+        }
+
+        private int CountMatching(ItemType type, ItemInstanceState? state)
+        {
+            if (!state.HasValue)
+                return CountOf(type);
+            return CountOf(type, state.Value);
         }
 
         public void Clear()
