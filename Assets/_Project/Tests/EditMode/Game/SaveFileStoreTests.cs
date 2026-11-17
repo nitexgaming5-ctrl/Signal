@@ -33,8 +33,9 @@ namespace Signal.Game.Tests
         public void SaveThenLoadRoundTripsTheData()
         {
             string path = Path.Combine(_folder, "nested", "save.json");
-            var data = new SaveData { money = 12, health = 80, day = 4, minuteOfDay = 500, heat = 20, missedRent = 1, playerX = 3.5f, playerY = -1f };
+            var data = new SaveData { money = 12, health = 80, day = 4, minuteOfDay = 500, heat = 20, missedRent = 1, worldPlace = "Apartment", playerX = 3.5f, playerY = -1f };
             data.items.Add(new SavedItem { typeId = Guid.NewGuid().ToString(), x = 2, y = 1, rotated = true, count = 3 });
+            data.storageItems.Add(new SavedItem { typeId = Guid.NewGuid().ToString(), x = 1, y = 2, rotated = false, count = 2 });
 
             SaveFileStore.Save(data, path);
             bool loaded = SaveFileStore.TryLoad(path, out SaveData result, out string error);
@@ -46,11 +47,15 @@ namespace Signal.Game.Tests
             Assert.That(result.minuteOfDay, Is.EqualTo(500));
             Assert.That(result.heat, Is.EqualTo(20));
             Assert.That(result.missedRent, Is.EqualTo(1));
+            Assert.That(result.worldPlace, Is.EqualTo("Apartment"));
             Assert.That(result.playerX, Is.EqualTo(3.5f));
             Assert.That(result.items.Count, Is.EqualTo(1));
             Assert.That(result.items[0].typeId, Is.EqualTo(data.items[0].typeId));
             Assert.That(result.items[0].rotated, Is.True);
             Assert.That(result.items[0].count, Is.EqualTo(3));
+            Assert.That(result.storageItems.Count, Is.EqualTo(1));
+            Assert.That(result.storageItems[0].typeId, Is.EqualTo(data.storageItems[0].typeId));
+            Assert.That(result.storageItems[0].count, Is.EqualTo(2));
         }
 
         [Test]
