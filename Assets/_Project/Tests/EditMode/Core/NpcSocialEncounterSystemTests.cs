@@ -53,8 +53,8 @@ namespace Signal.Core.Tests
 
             Assert.That(encounters.AdvanceTo(world, new[] { "a", "b", "c" }, 1, 700), Is.EqualTo(1));
             Assert.That(encounters.AdvanceTo(world, new[] { "a", "b", "c" }, 1, 701), Is.EqualTo(0));
-            Assert.That(encounters.AdvanceTo(world, new[] { "a", "b", "c" }, 2, 219), Is.EqualTo(0));
-            Assert.That(encounters.AdvanceTo(world, new[] { "a", "b", "c" }, 2, 220), Is.EqualTo(1));
+            Assert.That(encounters.AdvanceTo(world, new[] { "a", "b", "c" }, 1, 1419), Is.EqualTo(0));
+            Assert.That(encounters.AdvanceTo(world, new[] { "a", "b", "c" }, 2, 0), Is.EqualTo(1));
             Assert.That(encounters.EncounterCount, Is.EqualTo(2));
         }
 
