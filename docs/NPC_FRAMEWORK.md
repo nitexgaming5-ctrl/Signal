@@ -26,6 +26,7 @@ The first Milo implementation is a disposable test character. Its purpose is to 
 - NpcAgentState stores an individual's position, awareness radius, relationships and knowledge.
 - NpcKnowledge distinguishes direct observation from information told by another NPC. It retains event identity, original actor, last source, confidence and learning time.
 - NpcRelationship stores familiarity, trust and affinity independently.
+- NpcPerception creates a character-scoped decision snapshot: nearby NPC IDs plus only that character's own knowledge. It deliberately excludes the global event journal.
 - Explicit knowledge sharing uses the listener's trust in the speaker to adjust confidence. It does not make a rumour true and does not automatically broadcast information.
 
 ### Game (Signal.Game)
@@ -33,7 +34,7 @@ The first Milo implementation is a disposable test character. Its purpose is to 
 - The city creates one NpcSocialWorld for its active shared-city session.
 - Milo registers as an NPC and his simulated activity/location/movement updates his shared-world presence.
 - Talking to Milo publishes a small conversation event into the same world context.
-- CityBlockBootstrap.PublishWorldEvent is the integration point for later world interactions and environmental events.
+- CityBlockBootstrap.PublishWorldEvent publishes at the player's current location; PublishWorldEventAt can publish an event at another city location, allowing off-screen events to affect NPCs there.
 
 The current scene still has one visible NPC. The shared Core model is intentionally ready for additional registrations, but bulk character content is deferred until narrative design is ready.
 
@@ -41,7 +42,7 @@ The current scene still has one visible NPC. The shared Core model is intentiona
 
 - The event journal is a world-system record, not an NPC's personal memory. NPC decision-making should use that character's own knowledge and perceptions, not query the entire journal for hidden information.
 - A publisher must describe what could be perceived, not reveal hidden causes, criminal roles or private motives to every witness.
-- The current framework records awareness and social knowledge; it does not yet make the utility brain choose reactions to events. That is the next integration step.
+- The current framework records awareness and social knowledge and provides character-scoped NpcPerception snapshots. The utility brain does not yet choose reactions to events or consume those snapshots; that is the next integration step.
 - Relationship values are data only. No friendship, loyalty, intimidation, romance, reputation or betrayal rules are being invented here.
 - NPC knowledge and relationships are not yet part of the save format. Persistence must be designed with stable IDs and explicit migration before it is required by a playable scenario.
 - The current utility brain remains a first prototype with hard-coded Milo-oriented scoring. It must become profile/configuration-driven before production NPC authoring.
