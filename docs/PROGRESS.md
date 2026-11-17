@@ -92,12 +92,12 @@ The repository contains more of the intended hideout/city direction than the pre
 - User confirmed Slice A compilation and EditMode tests passed.
 - User confirmed the connected city travel loop works in Play Mode.
 - User confirmed the Slice C locker and save/load sequence works in Play Mode with no Console errors.
-- Assistant cannot run the user's local Unity Editor through the GitHub repository connection. The user's 2026-11-17 XML report confirms 181/181 Core tests and 23/25 Game tests pass; both failures were stale RoomBootstrap expectations. The user reran the full EditMode suite and confirmed 214/214 tests pass on 2026-11-17.
+- Assistant cannot run the user's local Unity Editor through the GitHub repository connection. The user's 2026-11-17 XML report initially showed 181/181 Core tests and 23/25 Game tests; both Game failures were stale RoomBootstrap expectations. After correction and the later generic-presenter/social-encounter work, the user confirmed 219/219 EditMode tests pass on 2026-11-17. This result predates the new WorldPacingDirector tests.
 - Remaining verification: locker capacity edge cases, an actual version-1 save migration, automated city transition tests and platform-specific file replacement.
 
 ## Next actions
 
-1. Pull the latest shared branch, compile in Unity and rerun the full Core/Game EditMode suite. The previous 214/214 result predates the generic presenter and scheduled-social-encounter changes.
+1. Pull the latest shared branch, compile in Unity and rerun the full Core/Game EditMode suite. The confirmed 219/219 result predates the WorldPacingDirector addition.
 2. Create and assign one or more NpcCharacterDefinition assets through the GameSession Inspector to verify the content-authoring workflow in the active scene.
 3. Design stable-ID persistence for meaningful relationships, discoveries and selected memories with save migration tests.
 4. Verify population scale and event-driven simulation boundaries before adding many residents.
