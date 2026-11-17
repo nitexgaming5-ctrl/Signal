@@ -54,7 +54,7 @@ namespace Signal.Game.Tests
             try
             {
                 city.Build(player.transform, body, camera, clock);
-                Assert.That(city.TryRestorePlace("Street", new Vector2(10f, -4f)), Is.True);
+                Assert.That(city.TryRestorePlace("CornerShop", new Vector2(1000f, 999f)), Is.True);
                 Assert.That(city.NeighbourActivity, Is.EqualTo(NpcActivity.Work));
 
                 Vector2 npcPosition = city.NeighbourPosition;
