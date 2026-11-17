@@ -47,7 +47,7 @@ Each layer should be introduced through a complete playable scenario, not as an 
 - Preserve Unity asset GUIDs and existing scene references.
 - Keep Main and its prototype scripts as legacy reference until valuable content is migrated and verified; do not add new features there.
 - Keep Core logic independent from UnityEngine where possible.
-- Protect save compatibility; fix and test the existing save replacement risk before relying on persistence for more world state.
+- Protect save compatibility; Core/Game now uses safe replacement and a separate filename from the legacy prototype. Verify on the target Unity platform before relying on persistence for more world state.
 - Do not claim a scene, build or test is verified until it has actually been run in Unity.
 
 ## Definition of a complete slice
