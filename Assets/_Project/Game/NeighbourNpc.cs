@@ -17,7 +17,7 @@ namespace Signal.Game
 
         [SerializeField] private float walkingSpeed = 1.6f;
 
-        private readonly NpcUtilityBrain _brain = new NpcUtilityBrain();
+        private NpcUtilityBrain _brain;
         private GameClock _clock;
         private NpcSocialWorld _socialWorld;
         private int _conversationSequence;
@@ -32,7 +32,7 @@ namespace Signal.Game
         public NpcActivity Activity => _activity;
         public Vector2 Position => transform.position;
 
-        public void Bind(GameClock clock, NpcSocialWorld socialWorld)
+        public void Bind(GameClock clock, NpcSocialWorld socialWorld, NpcUtilityProfile utilityProfile = null)
         {
             if (clock == null)
                 return;
@@ -42,6 +42,7 @@ namespace Signal.Game
 
             _clock = clock;
             _socialWorld = socialWorld;
+            _brain = new NpcUtilityBrain(utilityProfile);
             _clock.Changed += OnClockChanged;
             BuildVisual();
             if (_socialWorld != null)
