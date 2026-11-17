@@ -160,6 +160,31 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void MoveStackRollsBackBothInventoriesIfSourceChangesDuringTransfer()
+        {
+            ItemType type = Item();
+            var carried = new GridInventory();
+            var storage = new GridInventory(2, 2);
+            carried.Add(type, 2);
+            Guid identity = carried.Items[0].ItemInstanceId;
+            bool changed = false;
+            storage.Changed += _ =>
+            {
+                if (changed) return;
+                changed = true;
+                carried.Clear();
+            };
+
+            InventoryTransferResult result = InventoryTransfer.MoveStack(carried, storage, identity);
+
+            Assert.That(result.Success, Is.False);
+            Assert.That(result.Moved, Is.Zero);
+            Assert.That(carried.Items.Count, Is.EqualTo(1));
+            Assert.That(carried.Items[0].ItemInstanceId, Is.EqualTo(identity));
+            Assert.That(storage.Items, Is.Empty);
+        }
+
+        [Test]
         public void SourceAndDestinationMustBeDifferentInventories()
         {
             var inventory = new GridInventory();
