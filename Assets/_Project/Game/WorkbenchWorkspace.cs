@@ -152,8 +152,13 @@ namespace Signal.Game
 
         private void EnsureEventSystem()
         {
-            if (EventSystem.current != null)
+            EventSystem eventSystem = EventSystem.current;
+            if (eventSystem != null)
+            {
+                if (eventSystem.GetComponent<InputSystemUIInputModule>() == null)
+                    eventSystem.gameObject.AddComponent<InputSystemUIInputModule>();
                 return;
+            }
 
             GameObject eventObject = new GameObject("WorkbenchEventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
             eventObject.transform.SetParent(transform, false);
