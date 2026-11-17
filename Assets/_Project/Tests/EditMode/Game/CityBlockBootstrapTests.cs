@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using Signal.Core;
 using UnityEngine;
 
 namespace Signal.Game.Tests
@@ -29,6 +30,42 @@ namespace Signal.Game.Tests
 
                 Assert.That(city.TryRestorePlace("NotAPlace", Vector2.zero), Is.False);
                 Assert.That(city.CurrentPlace, Is.EqualTo("Apartment"));
+            }
+            finally
+            {
+                Object.DestroyImmediate(host);
+                Object.DestroyImmediate(player);
+                Object.DestroyImmediate(cameraObject);
+            }
+        }
+
+
+        [Test]
+        public void NeighbourBakerHasARoutineAndCanBeTalkedTo()
+        {
+            var host = new GameObject("CityHost");
+            var player = new GameObject("Player");
+            var cameraObject = new GameObject("MainCamera");
+            Rigidbody2D body = player.AddComponent<Rigidbody2D>();
+            Camera camera = cameraObject.AddComponent<Camera>();
+            var clock = new GameClock(1, 8 * 60);
+            CityBlockBootstrap city = host.AddComponent<CityBlockBootstrap>();
+
+            try
+            {
+                city.Build(player.transform, body, camera, clock);
+                Assert.That(city.TryRestorePlace("Street", new Vector2(10f, -4f)), Is.True);
+                Assert.That(city.NeighbourActivity, Is.EqualTo(NpcActivity.Work));
+
+                Vector2 npcPosition = city.NeighbourPosition;
+                Assert.That(city.GetPrompt(npcPosition), Is.EqualTo("E  Talk to Milo"));
+                Assert.That(city.TryInteractNpc(npcPosition, out string workDialogue), Is.True);
+                StringAssert.Contains("baker", workDialogue);
+
+                clock.Advance(11 * 60);
+                Assert.That(city.NeighbourActivity, Is.EqualTo(NpcActivity.Socialize));
+                Assert.That(city.TryInteractNpc(npcPosition, out string eveningDialogue), Is.True);
+                StringAssert.Contains("After closing", eveningDialogue);
             }
             finally
             {
