@@ -78,7 +78,7 @@ The initiative is defined in detail in [NPC_FRAMEWORK.md](NPC_FRAMEWORK.md). Its
 - [x] Add the Core shared-world registry, local event perception, individual knowledge, directed relationships, explicit knowledge exchange and character-scoped perception snapshots.
 - [x] Integrate one shared world context with the active city runtime; register Milo as a temporary fixture and provide event publishing for the current or another city location.
 - [x] Author Core and Game EditMode coverage for local presence, event visibility, knowledge exchange, trust confidence, character-scoped perception and off-screen events (execution still pending).
-- [x] Run the Core/Game EditMode suites in Unity and resolve any failures (user confirmed 214/214 pass on 2026-11-17).
+- [x] Run the original Core/Game EditMode suites in Unity and resolve the reported failures (user confirmed 214/214 pass on 2026-11-17); rerun after the generic-presenter changes is pending.
 - [x] Feed each NPC's own perception snapshot into utility decisions; nearby relationship impressions and personally known information influence socialising without exposing the global event journal.
 - [x] Move routine windows, need drift and utility weights into a reusable Core NpcUtilityProfile; verify alternate work hours through a Core test.
 - [x] Replace Milo-specific runtime assumptions with ScriptableObject character definitions and a generic presenter. GameSession exposes an assignable NPC definitions array; the presenter owns generic movement, visuals, social registration and conversation publishing.
