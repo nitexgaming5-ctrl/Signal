@@ -22,6 +22,13 @@ namespace Signal.Game.Tests
                 Directory.Delete(_folder, true);
         }
 
+
+        [Test]
+        public void CoreGameUsesASeparateSaveFileFromTheLegacyPrototype()
+        {
+            Assert.That(Path.GetFileName(SaveFileStore.DefaultPath), Is.EqualTo("signal-core-save.json"));
+        }
+
         [Test]
         public void SaveThenLoadRoundTripsTheData()
         {
