@@ -112,3 +112,16 @@ These are broad approved directions, not detailed mechanics. Each should be intr
 
 ## Definition of a complete slice
 A slice is complete only when the player-facing scenario works in Unity Play Mode, relevant tests pass, the Console has no new errors, save/load behavior is checked where relevant, and `docs/PROGRESS.md` records what was and was not verified.
+
+
+## World pacing — approved direction C
+
+**Design principle:** the city continues to live, while meaningful developments become more restrained the longer the player remains in one scenario phase. Advancing the scenario gradually opens new possibilities without releasing accumulated backlog.
+
+- Everyday simulation (routines, meetings, familiarity and limited personal knowledge exchange) continues independently.
+- Consequential developments share one global pacing authority rather than separate cooldowns or event queues per system.
+- A candidate must already be contextually valid and scenario-eligible before it can request permission.
+- Time spent waiting never banks multiple developments. After a long idle period, the director can authorize at most one candidate; the next must wait for the shared interval again.
+- The shared interval ramps from a configured minimum to maximum as a scenario phase continues. A phase change starts a fresh quiet interval and ramp; it does not release queued content.
+- Major narrative changes remain explicitly authored and gated by scenario logic.
+- The first Core implementation is a policy gate only. It is not yet connected to scenario content and must not be used to invent or trigger specific events. Tuning values and persistence are intentionally deferred until the scenario/save owner is designed.
