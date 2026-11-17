@@ -68,6 +68,16 @@ namespace Signal.Core
             return nearby;
         }
 
+        public NpcRelationship GetRelationship(string observerNpcId, string otherNpcId)
+        {
+            if (!_npcs.TryGetValue(observerNpcId, out NpcAgentState observer))
+                throw new KeyNotFoundException("NPC is not registered: " + observerNpcId);
+            if (!_npcs.ContainsKey(otherNpcId))
+                throw new KeyNotFoundException("NPC is not registered: " + otherNpcId);
+
+            return observer.GetRelationship(otherNpcId);
+        }
+
         public void SetRelationship(string observerNpcId, string otherNpcId, NpcRelationship relationship)
         {
             if (observerNpcId == otherNpcId)
