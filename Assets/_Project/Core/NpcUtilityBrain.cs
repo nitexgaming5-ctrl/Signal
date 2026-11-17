@@ -80,13 +80,17 @@ namespace Signal.Core
                 : _profile.WorkOffHoursScore;
             float rest = (1f - _energy) * _profile.RestEnergyNeedWeight +
                 (IsBetween(minute, _profile.RestStartMinute, _profile.RestEndMinute) ? _profile.RestWindowBonus : 0f);
-            float socialize = (1f - _social) * _profile.SocialNeedWeight +
-                (IsBetween(minute, _profile.SocializeStartMinute, _profile.SocializeEndMinute) ? _profile.SocialWindowBonus : 0f);
+            bool isSocialWindow = IsBetween(minute,
+                _profile.SocializeStartMinute, _profile.SocializeEndMinute);
+            float socialize = isSocialWindow
+                ? (1f - _social) * _profile.SocialNeedWeight + _profile.SocialWindowBonus
+                : float.NegativeInfinity;
             float home = IsBetween(minute, _profile.HomeStartMinute, _profile.HomeEndMinute)
                 ? _profile.HomePriority
                 : _profile.HomeOffHoursScore;
 
-            socialize += GetSocialContextScore(perception, _profile);
+            if (isSocialWindow)
+                socialize += GetSocialContextScore(perception, _profile);
 
             switch (CurrentActivity)
             {
