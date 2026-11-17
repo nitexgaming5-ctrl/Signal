@@ -20,6 +20,7 @@ namespace Signal.Game
         private Font _font;
         private Text _status;
         private Text _message;
+        private Text _prompt;
         private float _messageUntil;
         private bool _built;
 
@@ -32,6 +33,12 @@ namespace Signal.Game
 
             Build();
             Refresh();
+        }
+
+        public void SetPrompt(string text)
+        {
+            if (_prompt != null)
+                _prompt.text = text ?? string.Empty;
         }
 
         public void ShowMessage(string text, float seconds = 3f)
@@ -89,7 +96,9 @@ namespace Signal.Game
                                new Vector2(0f, 1f), new Vector2(12f, -42f), new Vector2(1400f, 30f));
             Text hint = NewText(canvasObject.transform, "Hint", 14, TextAnchor.LowerLeft, HintColor,
                                 new Vector2(0f, 0f), new Vector2(12f, 10f), new Vector2(1600f, 24f));
-            hint.text = "WASD move   Tab inventory   F6 sleep   F5 save   F9 load   F7 debug sell   F8 debug craft";
+            hint.text = "WASD move   E use workbench   Tab inventory   Esc close workspace   F6 sleep   F5 save   F9 load";
+            _prompt = NewText(canvasObject.transform, "InteractionPrompt", 20, MessageColor,
+                              TextAnchor.LowerCenter, new Vector2(0.5f, 0f), new Vector2(0f, 52f), new Vector2(720f, 34f));
 
             _built = true;
         }
