@@ -34,7 +34,7 @@ Milo's dialogue changes with his current activity. His evening line hints that t
 
 Included:
 - Deterministic activity selection from world time and two simple needs.
-- Activity-specific destination points in the shared street.
+- Activity-specific destination points across the shared city: bakery interior, street bench, evening street corner and apartment interior.
 - Movement while the street is active; when the player returns after time has passed elsewhere, Milo resumes at the location appropriate to the current activity.
 - Proximity prompt and activity-aware conversation.
 - Core tests for routine choices, determinism and clock rewind; a Game integration test for talking and observing an activity change.
