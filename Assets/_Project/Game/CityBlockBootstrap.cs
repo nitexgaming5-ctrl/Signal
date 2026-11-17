@@ -302,6 +302,7 @@ namespace Signal.Game
                 rhea.WorkPosition = new Vector2(1001.2f, 1000.4f);
                 rhea.RestPosition = new Vector2(4.8f, -17.5f);
                 rhea.SocialPosition = new Vector2(17.2f, -11.6f);
+                rhea.HomePosition = new Vector2(1018f, 1000f);
                 characterDefinitions.Add(rhea);
             }
 
