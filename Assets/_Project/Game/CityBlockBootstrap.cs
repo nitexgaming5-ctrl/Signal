@@ -94,11 +94,17 @@ namespace Signal.Game
 
         public void PublishWorldEvent(string eventId, string kind, string description, Vector2 position, float visibilityRadius, string actorNpcId = null)
         {
+            PublishWorldEventAt(_place.ToString(), eventId, kind, description, position, visibilityRadius, actorNpcId);
+        }
+
+        public void PublishWorldEventAt(string locationId, string eventId, string kind, string description,
+            Vector2 position, float visibilityRadius, string actorNpcId = null)
+        {
             if (_socialWorld == null || _clock == null)
                 return;
 
             _socialWorld.PublishEvent(new NpcWorldEvent(eventId, kind, description, actorNpcId,
-                _place.ToString(), position.x, position.y, visibilityRadius, _clock.Day, _clock.MinuteOfDay));
+                locationId, position.x, position.y, visibilityRadius, _clock.Day, _clock.MinuteOfDay));
         }
 
         public string GetPrompt(Vector2 playerPosition)
