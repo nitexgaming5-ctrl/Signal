@@ -34,11 +34,12 @@ The first Milo implementation is a disposable test character. Its purpose is to 
 ### Game (Signal.Game)
 
 - The city creates one NpcSocialWorld for its active shared-city session.
-- Milo registers as an NPC and his simulated activity/location/movement updates his shared-world presence.
-- Talking to Milo publishes a small conversation event into the same world context.
+- NpcCharacterDefinition is a ScriptableObject content asset. It carries a stable ID, display name, public role, awareness radius, movement speed, NpcUtilityProfile, activity destinations, appearance colours and authored dialogue for each activity.
+- Assets are created through **Assets → Create → Signal → NPC Character Definition** and assigned to the NPC Definitions array on GameSession. GameSession passes those definitions into CityBlockBootstrap at runtime.
+- NpcPresenter is the one generic MonoBehaviour for residents. It reads the definition, runs a Core NpcUtilityBrain, moves between authored destinations, builds a simple placeholder appearance, registers/moves in NpcSocialWorld and publishes conversation events.
+- CityBlockBootstrap supports any number of definitions and routes prompts/interactions to the matching presenter. It does not contain per-character behaviour branches.
+- When no definitions are assigned, the bootstrap creates two temporary fallback definitions (Milo and Rhea) to exercise different routines and the shared interaction path. They are test fixtures, not final narrative characters.
 - CityBlockBootstrap.PublishWorldEvent publishes at the player's current location; PublishWorldEventAt can publish an event at another city location, allowing off-screen events to affect NPCs there.
-
-The current scene still has one visible NPC. The shared Core model is intentionally ready for additional registrations, but bulk character content is deferred until narrative design is ready.
 
 ## Important boundaries
 
@@ -47,21 +48,21 @@ The current scene still has one visible NPC. The shared Core model is intentiona
 - The current utility brain consumes the NPC's own NpcPerception snapshot for social decision scoring. Event-specific reactions and goals are not yet implemented; known information currently acts only as a modest reason to seek social contact.
 - Relationship values are data only. No friendship, loyalty, intimidation, romance, reputation or betrayal rules are being invented here.
 - NPC knowledge and relationships are not yet part of the save format. Persistence must be designed with stable IDs and explicit migration before it is required by a playable scenario.
-- The utility brain is now profile-driven at the Core level. The current Milo fixture still uses the default day-worker profile; authoring and assigning per-character definitions/profiles through the Game layer remains future work.
-- The current Unity presenter remains Milo-specific. It must be separated from identity, appearance, dialogue and activity definitions before bulk character creation.
+- The utility brain is profile-driven at the Core level. Game character assets now serialize their own NpcUtilityProfile; the fallback Rhea profile intentionally starts work later than Milo to prove that schedules are data, not class-specific code.
+- The former NeighbourNpc component has been removed. All residents use NpcPresenter; Milo is identified only by his temporary data definition and stable ID.
 
 ## Planned development sequence
 
 1. **Shared awareness foundation — first implementation complete, tests pending.** Registry, location-aware presence, local event perception, individual knowledge, directed relationships and explicit information sharing.
 2. **Decision context — first pass implemented.** The utility brain receives a character-scoped perception snapshot and lets nearby relationships and personally known information influence socialising. Event-specific goals and reactions remain future work.
 3. **Routine configuration — Core first pass implemented.** NpcUtilityProfile configures routine windows, need drift and utility weights; the active Game fixture still uses the default profile.
-4. **Data-driven character definitions.** Separate stable identity, public role, appearance, routine preferences, needs and authored dialogue from generic runtime components. Adding a character should mostly be content authoring, not a new MonoBehaviour.
-4. **Interactions and social behaviour.** Conversations, requests, helping, avoiding, exchanging information and reactions should use shared event/relationship/knowledge services.
-5. **Persistence.** Save only meaningful long-lived state: stable NPC IDs, relationships, discoveries, selected memories and world changes. Rebuild transient proximity/perception from the restored world.
-6. **Scale and performance.** Use location/area partitions and event-driven updates. Do not run expensive full-city reasoning for every citizen every frame. Important NPCs may receive richer simulation than distant background residents.
+4. **Data-driven character definitions — first pass implemented.** ScriptableObject definitions, generic NpcPresenter, GameSession asset assignment and two fallback profiles now share one runtime path. Authored final cast/content remains deferred.
+5. **Interactions and social behaviour.** Conversations, requests, helping, avoiding, exchanging information and reactions should use shared event/relationship/knowledge services.
+6. **Persistence.** Save only meaningful long-lived state: stable NPC IDs, relationships, discoveries, selected memories and world changes. Rebuild transient proximity/perception from the restored world.
+7. **Scale and performance.** Use location/area partitions and event-driven updates. Do not run expensive full-city reasoning for every citizen every frame. Important NPCs may receive richer simulation than distant background residents.
 
 ## Completion target for this initiative
 
-A second temporary test character can be registered without adding another character-specific runtime class. Two characters in the same place can perceive a shared event, exchange information with different confidence based on their relationship, and retain distinct knowledge. A character in another location or outside the perception radius does not receive that knowledge automatically. The utility decision layer consumes the character-scoped context for its first social decision pass; event-specific goals remain future work.
+Two temporary character definitions now use the same NpcPresenter and register in the same shared world; the Game integration test exercises Rhea's separate routine and conversation alongside Milo. The extended test still needs to be rerun in Unity. Two characters in the same place can perceive a shared event, exchange information with different confidence based on their relationship, and retain distinct knowledge. A character in another location or outside the perception radius does not receive that knowledge automatically. The utility decision layer consumes the character-scoped context for its first social decision pass; event-specific goals remain future work.
 
 This is a framework milestone, not a narrative milestone. No new story arc, final NPC cast, crime activity, economy rule or relationship progression system is included.
