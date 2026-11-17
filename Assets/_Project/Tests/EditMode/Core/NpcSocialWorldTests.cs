@@ -36,15 +36,17 @@ namespace Signal.Core.Tests
             Assert.That(world.TryGetNpc("distant", out NpcAgentState tooFar), Is.True);
             Assert.That(world.TryGetNpc("shortSighted", out NpcAgentState shortSighted), Is.True);
 
-            Assert.That(actor.KnowsEvent("delivery-1"), Is.True);
-            Assert.That(witness.KnowsEvent("delivery-1"), Is.True);
-            Assert.That(witness.FindKnowledge("delivery-1").Origin, Is.EqualTo(NpcKnowledgeOrigin.DirectObservation));
-            Assert.That(witness.FindKnowledge("delivery-1").LastSourceNpcId, Is.Empty);
-            Assert.That(witness.FindKnowledge("delivery-1").EventLocationId, Is.EqualTo("Street"));
-            Assert.That(witness.FindKnowledge("delivery-1").OccurredMinuteOfDay, Is.EqualTo(600));
-            Assert.That(elsewhere.KnowsEvent("delivery-1"), Is.False);
-            Assert.That(tooFar.KnowsEvent("delivery-1"), Is.False);
-            Assert.That(shortSighted.KnowsEvent("delivery-1"), Is.False);
+            NpcPerception actorView = world.BuildPerceptionFor("milo", 8f);
+            NpcPerception witnessView = world.BuildPerceptionFor("customer", 8f);
+            Assert.That(actorView.KnowsEvent("delivery-1"), Is.True);
+            Assert.That(witnessView.KnowsEvent("delivery-1"), Is.True);
+            Assert.That(witnessView.FindEvent("delivery-1").Origin, Is.EqualTo(NpcKnowledgeOrigin.DirectObservation));
+            Assert.That(witnessView.FindEvent("delivery-1").LastSourceNpcId, Is.Empty);
+            Assert.That(witnessView.FindEvent("delivery-1").EventLocationId, Is.EqualTo("Street"));
+            Assert.That(witnessView.FindEvent("delivery-1").OccurredMinuteOfDay, Is.EqualTo(600));
+            Assert.That(world.BuildPerceptionFor("neighbour", 8f).KnowsEvent("delivery-1"), Is.False);
+            Assert.That(world.BuildPerceptionFor("distant", 8f).KnowsEvent("delivery-1"), Is.False);
+            Assert.That(world.BuildPerceptionFor("shortSighted", 8f).KnowsEvent("delivery-1"), Is.False);
             Assert.That(world.EventCount, Is.EqualTo(1));
         }
 
@@ -66,10 +68,8 @@ namespace Signal.Core.Tests
             Assert.That(world.ShareKnowledge("milo", "trusted", "argument-1", 1, 910), Is.True);
             Assert.That(world.ShareKnowledge("milo", "sceptic", "argument-1", 1, 910), Is.True);
 
-            world.TryGetNpc("trusted", out NpcAgentState trusted);
-            world.TryGetNpc("sceptic", out NpcAgentState sceptic);
-            NpcKnowledge trustedBelief = trusted.FindKnowledge("argument-1");
-            NpcKnowledge scepticBelief = sceptic.FindKnowledge("argument-1");
+            NpcKnowledge trustedBelief = world.BuildPerceptionFor("trusted", 8f).FindEvent("argument-1");
+            NpcKnowledge scepticBelief = world.BuildPerceptionFor("sceptic", 8f).FindEvent("argument-1");
 
             Assert.That(trustedBelief.Origin, Is.EqualTo(NpcKnowledgeOrigin.ToldByAnotherNpc));
             Assert.That(trustedBelief.LastSourceNpcId, Is.EqualTo("milo"));
