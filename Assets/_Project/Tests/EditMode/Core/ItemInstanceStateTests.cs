@@ -68,6 +68,22 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void ItemStateCanChangeWithoutReplacingThePhysicalStack()
+        {
+            ItemType type = new ItemType(Guid.NewGuid(), 1, 1, 5);
+            var inventory = new GridInventory();
+            int localId = inventory.Place(type, 0, 0).Value;
+            Guid identity = inventory.Items[0].ItemInstanceId;
+            ItemInstanceState changed = new ItemInstanceState(
+                ItemQuality.Fine, ItemCondition.Worn, ItemAuthenticity.Genuine, ItemOwnershipStatus.Legitimate);
+
+            Assert.That(inventory.TryUpdateItemState(identity, changed), Is.True);
+            Assert.That(inventory.TryGet(localId, out PlacedItem item), Is.True);
+            Assert.That(item.ItemInstanceId, Is.EqualTo(identity));
+            Assert.That(item.State, Is.EqualTo(changed));
+        }
+
+        [Test]
         public void NegativeBaseValueIsClampedToZero()
         {
             ItemValueBreakdown value = ItemValueCalculator.Calculate(-50, ItemInstanceState.Default);
