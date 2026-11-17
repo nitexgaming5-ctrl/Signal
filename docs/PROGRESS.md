@@ -153,8 +153,11 @@ The repository contains more of the intended hideout/city direction than the pre
 
 - The first Unity EditMode run after adding WorldPacingDirector reported **225/226 passed**. The only failure was `WorldPacingDirectorTests.ChangingPhaseStartsFreshRampWithoutReleasingBacklog`: the test expected the interval to remain 60 minutes after observing the same phase 30 minutes later, while the implementation correctly reported 64 as the phase ramp progressed.
 - Corrected the test expectation to 64. No production code change was needed.
-- Awaiting the user's rerun of the EditMode suite; do not treat the pacing addition as verified until that run passes.
+- The user subsequently confirmed the follow-up full EditMode suite passed **226/226**. The pacing tests are now verified by the user's Unity run.
 
+
+- 2026-11-17: Added the Core-only WorldPacingDirector and seven focused tests. The first Unity run was 225/226 due to an incorrect expected ramp value in one test; corrected the expectation (60 → 64, reflecting 30 minutes of same-phase ramp progress), with no production-code change. User confirmed the follow-up full EditMode suite passed 226/226.
+- 2026-11-17: Refreshed the roadmap with verified milestones, short/medium/long-term goals and design boundaries. Added docs/PROJECT_HANDOFF.md as the detailed next-agent brief covering the game identity, confirmed design, technical architecture, NPC framework, world pacing, verification and collaboration rules.
 
 ## Handoff notes for the next agent
 
