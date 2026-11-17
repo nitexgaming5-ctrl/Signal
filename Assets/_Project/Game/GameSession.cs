@@ -7,9 +7,8 @@ using UnityEngine.InputSystem;
 namespace Signal.Game
 {
     /// <summary>
-    /// Composition root for the vertical slice. One GameObject with this component gives you:
-    /// a walled room with a walking player, the grid inventory (Tab), a clock, rent and heat,
-    /// and save/load. Keys: E workbench, Tab inventory, F6 sleep, F5 save, F9 load.
+    /// Composition root for the first connected urban slice. The same player and session
+    /// travel between the hideout, street and basic interiors.
     /// </summary>
     public sealed class GameSession : MonoBehaviour
     {
@@ -35,6 +34,7 @@ namespace Signal.Game
         private InventoryPanel _panel;
         private HudPanel _hud;
         private WorkbenchWorkspace _workspace;
+        private CityBlockBootstrap _city;
 
         private float _minuteBuffer;
 
@@ -60,6 +60,9 @@ namespace Signal.Game
             _room.Build(camera);
             _motor = _room.Player.GetComponent<PlayerMotor2D>();
 
+            _city = gameObject.AddComponent<CityBlockBootstrap>();
+            _city.Build(_room.Player, _room.PlayerBody, camera, _room.Bounds);
+
             _panel = gameObject.AddComponent<InventoryPanel>();
             _panel.Bind(_inventory, items);
 
@@ -67,7 +70,7 @@ namespace Signal.Game
             _hud.Bind(_stats, _clock);
             _workspace = gameObject.AddComponent<WorkbenchWorkspace>();
             _workspace.Bind(_motor);
-            _hud.ShowMessage("A small place to start. The workbench is ready.", 5f);
+            _hud.ShowMessage("Your hideout is ready. The street is just outside.", 5f);
         }
 
         private void OnDestroy()
@@ -86,19 +89,22 @@ namespace Signal.Game
             if (_panel != null)
                 _panel.enabled = !workspaceOpen;
 
-            // Menus and close-up workspaces own the player's focus.
             _motor.enabled = !inventoryOpen && !workspaceOpen;
 
             Keyboard keyboard = Keyboard.current;
+            Vector2 playerPosition = _room.Player.position;
             bool nearWorkbench = _room.Workbench != null &&
-                Vector2.Distance(_room.Player.position, _room.Workbench.position) <= 2.15f;
+                Vector2.Distance(playerPosition, _room.Workbench.position) <= 2.15f;
+            string cityPrompt = _city.GetPrompt(playerPosition);
 
             if (workspaceOpen)
                 _hud.SetPrompt("ESC  Back to room");
             else if (inventoryOpen)
                 _hud.SetPrompt(string.Empty);
+            else if (nearWorkbench)
+                _hud.SetPrompt("E  Use workbench");
             else
-                _hud.SetPrompt(nearWorkbench ? "E  Use workbench" : string.Empty);
+                _hud.SetPrompt(cityPrompt);
 
             TickClock();
 
@@ -107,6 +113,12 @@ namespace Signal.Game
 
             if (!workspaceOpen && !inventoryOpen && nearWorkbench && keyboard.eKey.wasPressedThisFrame)
                 _workspace.Open();
+            else if (!workspaceOpen && !inventoryOpen && !nearWorkbench &&
+                     cityPrompt.Length > 0 && keyboard.eKey.wasPressedThisFrame)
+            {
+                if (_city.TryInteract(playerPosition))
+                    Say("Location: " + _city.CurrentPlace);
+            }
 
             if (keyboard.f6Key.wasPressedThisFrame) Sleep();
             if (keyboard.f5Key.wasPressedThisFrame) SaveGame();
@@ -155,6 +167,12 @@ namespace Signal.Game
 
         private void Sleep()
         {
+            if (_city != null && !_city.IsAtHome)
+            {
+                Say("Return to your hideout to sleep.");
+                return;
+            }
+
             int dayBefore = _clock.Day;
             _clock.Sleep();
 
@@ -164,6 +182,12 @@ namespace Signal.Game
 
         private void SaveGame()
         {
+            if (_city != null && !_city.IsAtHome)
+            {
+                Say("Return to your hideout to save.");
+                return;
+            }
+
             Vector2 position = _room.PlayerBody.position;
             SaveData data = SaveMapper.Capture(_stats, _inventory, _clock, _heat, _rent, position.x, position.y);
 
@@ -181,6 +205,12 @@ namespace Signal.Game
 
         private void LoadGame()
         {
+            if (_city != null && !_city.IsAtHome)
+            {
+                Say("Return to your hideout to load.");
+                return;
+            }
+
             if (!SaveFileStore.TryLoad(SaveFileStore.DefaultPath, out SaveData data, out string error))
             {
                 Say(error);
