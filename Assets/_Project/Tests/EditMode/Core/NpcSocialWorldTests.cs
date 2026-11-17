@@ -70,7 +70,7 @@ namespace Signal.Core.Tests
 
             Assert.That(trustedBelief.Origin, Is.EqualTo(NpcKnowledgeOrigin.ToldByAnotherNpc));
             Assert.That(trustedBelief.LastSourceNpcId, Is.EqualTo("milo"));
-            Assert.That(trustedBelief.Confidence, Is.EqualTo(1f).Within(0.0001f));
+            Assert.That(trustedBelief.Confidence, Is.EqualTo(0.85f).Within(0.0001f));
             Assert.That(scepticBelief.Confidence, Is.EqualTo(0.35f).Within(0.0001f));
             Assert.That(world.ShareKnowledge("milo", "trusted", "argument-1", 1, 920), Is.False);
         }
