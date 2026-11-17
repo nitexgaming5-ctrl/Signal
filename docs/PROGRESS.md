@@ -53,10 +53,11 @@ The repository contains more of the intended hideout/city direction than the pre
 ## Slice C — functional home storage and persistent location (implementation committed; verification pending)
 - Added a separate 8×6 `GridInventory` for the hideout locker.
 - Exposed the physical locker from `RoomBootstrap`; E near it opens `StoragePanel`.
-- The storage screen lists item types present in either inventory and offers STORE/TAKE transfers. Transfers move as much as the destination can fit and use inventory snapshots to roll back an unexpected source-removal failure.
+- The storage screen lists item types present in either inventory and offers STORE/TAKE transfers. The Core `InventoryTransfer` service moves as much as the destination can fit and uses snapshots to roll back an unexpected source-removal failure.
+- HideoutSlice now references the existing ITEM_A/B/C sample definitions so the inventory and locker can be exercised immediately. They are temporary fixtures, not final item design.
 - Extended `SaveData` to version 2 with locker contents and the current place. Version-1 saves migrate to an empty locker and Hideout location.
 - Save/load is no longer restricted to the hideout. `CityBlockBootstrap.TryRestorePlace` restores the street or either interior and the saved player coordinates.
-- Added Core tests for locker/location capture and restore, version-1 migration, and a Game test for restoring city locations.
+- Added Core tests for capacity-aware transfers (including partial transfer and rollback), locker/location capture and restore, and version-1 migration; added a Game test for restoring city locations.
 - These changes have NOT yet been compiled or run in Unity. Storage UI layout/input, transfers, file replacement and location restoration require Play Mode verification.
 - The workbench remains a visual inspect/rearrange workspace. RecipeDefinition exists, but no recipe assets are currently authored; no new recipes or production rules have been invented.
 
