@@ -64,7 +64,9 @@ namespace Signal.Game.Tests
 
                 clock.Advance(11 * 60);
                 Assert.That(city.NeighbourActivity, Is.EqualTo(NpcActivity.Socialize));
-                Assert.That(city.TryInteractNpc(npcPosition, out string eveningDialogue), Is.True);
+                Assert.That(city.TryRestorePlace("Street", city.NeighbourPosition), Is.True);
+                Vector2 eveningNpcPosition = city.NeighbourPosition;
+                Assert.That(city.TryInteractNpc(eveningNpcPosition, out string eveningDialogue), Is.True);
                 StringAssert.Contains("After closing", eveningDialogue);
             }
             finally
