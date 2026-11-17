@@ -37,6 +37,11 @@ namespace Signal.Game
             if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 _surface, eventData.position, _canvas == null ? null : _canvas.worldCamera, out Vector2 localPoint))
             {
+                Rect bounds = _surface.rect;
+                float halfWidth = _rect.rect.width * 0.5f;
+                float halfHeight = _rect.rect.height * 0.5f;
+                localPoint.x = Mathf.Clamp(localPoint.x, bounds.xMin + halfWidth, bounds.xMax - halfWidth);
+                localPoint.y = Mathf.Clamp(localPoint.y, bounds.yMin + halfHeight, bounds.yMax - halfHeight);
                 _rect.anchoredPosition = localPoint;
             }
         }
