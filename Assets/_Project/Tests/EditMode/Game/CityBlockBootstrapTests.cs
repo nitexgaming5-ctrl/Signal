@@ -63,6 +63,8 @@ namespace Signal.Game.Tests
                 Assert.That(registeredRhea.LocationId, Is.EqualTo("Street"));
                 Assert.That(city.GetResidentActivity("rhea"), Is.EqualTo(NpcActivity.Socialize));
                 Vector2 rheaPosition = city.GetResidentPosition("rhea");
+                Assert.That(city.GetPrompt(rheaPosition), Is.Empty);
+                Assert.That(city.TryRestorePlace("Street", rheaPosition), Is.True);
                 Assert.That(city.GetPrompt(rheaPosition), Is.EqualTo("E  Talk to Rhea"));
                 Assert.That(city.TryInteractNpc(rheaPosition, out string rheaDialogue), Is.True);
                 StringAssert.Contains("Rhea:", rheaDialogue);
@@ -132,6 +134,7 @@ namespace Signal.Game.Tests
                 Assert.That(city.SocialWorld.TryGetNpc("test-resident", out _), Is.True);
                 Assert.That(city.GetResidentActivity("test-resident"), Is.EqualTo(NpcActivity.Socialize));
                 Vector2 residentPosition = city.GetResidentPosition("test-resident");
+                Assert.That(city.TryRestorePlace("Street", residentPosition), Is.True);
                 Assert.That(city.GetPrompt(residentPosition), Is.EqualTo("E  Talk to Resident"));
                 Assert.That(city.TryInteractNpc(residentPosition, out string dialogue), Is.True);
                 StringAssert.Contains("Resident:", dialogue);
