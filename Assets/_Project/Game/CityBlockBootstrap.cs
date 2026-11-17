@@ -19,6 +19,7 @@ namespace Signal.Game
         private Rigidbody2D _body;
         private CameraFollow2D _cameraFollow;
         private Rect _homeBounds;
+        private readonly Rect _worldBounds = new Rect(-9f, -26f, 38f, 40f);
         private GameObject _streetRoot;
         private GameObject _shopRoot;
         private GameObject _apartmentRoot;
@@ -51,6 +52,8 @@ namespace Signal.Game
             _apartmentRoot.SetActive(false);
 
             _place = Place.Hideout;
+            if (_cameraFollow != null)
+                _cameraFollow.Configure(_player, _worldBounds);
         }
 
         public string GetPrompt(Vector2 playerPosition)
@@ -88,7 +91,7 @@ namespace Signal.Game
                 case Place.Street:
                     if (Near(playerPosition, HomeDoor))
                     {
-                        SetPlace(Place.Hideout, new Vector2(10f, -0.15f), _homeBounds);
+                        SetPlace(Place.Hideout, new Vector2(10f, -0.15f), _worldBounds);
                         return true;
                     }
                     if (Near(playerPosition, ShopDoor))
