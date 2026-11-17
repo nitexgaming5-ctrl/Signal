@@ -213,12 +213,12 @@ The user approved Item Instance v1 and confirmed **235/235 EditMode tests passed
   - Condition: Damaged, Worn, Good, Pristine.
   - Authenticity: Genuine, Counterfeit.
   - Ownership: Legitimate, Stolen.
-- Added a central `ItemValueCalculator` that combines the item's authored base reference value with provisional multipliers for those four state dimensions. The result is an indicative reference value only; it is not a buy/sell price or an economy.
+- Added a central `ItemValueCalculator` that combines the item's authored base reference value with provisional multipliers for those four state dimensions. The result is an indicative reference value only; it is not a buy/sell price or an economy. Core exposes `TryUpdateItemState` to change an item's state while retaining its stable identity.
 - Extended `ItemDefinition` with description, category, optional icon, base reference value and default instance-state fields. Runtime stacks may use different states from the definition's defaults.
 - `GridInventory.Add` now tops up only stacks with the same definition **and** matching state. Different states remain separate stacks and keep separate stable identities.
 - Moving, rotating, snapshotting and transferring preserve the full item state.
 - Added `InventoryTransfer.MoveStack` for targeted whole-stack transfers by stable identity.
-- Reworked home storage to list individual stacks, display their quality/condition, inspect a selected stack, and STORE/TAKE only that stack. This avoids hiding different copies of the same definition behind one aggregate count.
+- Reworked home storage to list individual stacks, display all four state dimensions, inspect a selected stack, and STORE/TAKE only that stack. This avoids hiding different copies of the same definition behind one aggregate count.
 - Added a shared read-only `ItemViewerPanel`. Right-click an item in the carried inventory or choose INSPECT in home storage. The viewer presents authored description/category/icon, stack quantity, all four state fields, reference-value multipliers, unit value and stack reference value.
 - Save format is now v4. All four state fields are persisted. v1/v2/v3 saves migrate to neutral defaults (Standard, Good, Genuine, Legitimate); existing IDs and inventory layouts remain preserved.
 - Added tests for state-aware stack compatibility, state-preserving movement/transfer, targeted stack transfers, provisional valuation, v3 migration defaults and save/load state round-trip.
