@@ -6,11 +6,11 @@ namespace Signal.Core
     public readonly struct PlacedItem
     {
         public PlacedItem(int instanceId, ItemType type, int x, int y, bool rotated, int count)
-            : this(instanceId, Guid.NewGuid(), type, x, y, rotated, count)
+            : this(instanceId, Guid.NewGuid(), type, x, y, rotated, count, ItemInstanceState.Default)
         {
         }
 
-        internal PlacedItem(int instanceId, Guid itemInstanceId, ItemType type, int x, int y, bool rotated, int count)
+        internal PlacedItem(int instanceId, Guid itemInstanceId, ItemType type, int x, int y, bool rotated, int count, ItemInstanceState state)
         {
             InstanceId = instanceId;
             ItemInstanceId = itemInstanceId;
@@ -19,6 +19,7 @@ namespace Signal.Core
             Y = y;
             Rotated = rotated;
             Count = count;
+            State = state;
         }
 
         public int InstanceId { get; }
@@ -28,6 +29,7 @@ namespace Signal.Core
         public int Y { get; }
         public bool Rotated { get; }
         public int Count { get; }
+        public ItemInstanceState State { get; }
 
         public int FootprintWidth => Rotated ? Type.Height : Type.Width;
 
@@ -85,7 +87,7 @@ namespace Signal.Core
             return Fits(type, x, y, rotated, NoInstance);
         }
 
-        public int? Place(ItemType type, int x, int y, bool rotated = false, int count = 1, Guid? itemInstanceId = null)
+        public int? Place(ItemType type, int x, int y, bool rotated = false, int count = 1, Guid? itemInstanceId = null, ItemInstanceState? state = null)
         {
             if (count < 1 || count > type.MaxStack)
                 return null;
@@ -97,7 +99,7 @@ namespace Signal.Core
                 return null;
 
             int id = _nextInstanceId++;
-            _items.Add(new PlacedItem(id, stableId, type, x, y, rotated, count));
+            _items.Add(new PlacedItem(id, stableId, type, x, y, rotated, count, state ?? ItemInstanceState.Default));
             Changed?.Invoke(this);
             return id;
         }
@@ -134,7 +136,7 @@ namespace Signal.Core
                 return false;
 
             int localId = _nextInstanceId++;
-            _items.Add(new PlacedItem(localId, item.ItemInstanceId, item.Type, x, y, item.Rotated, item.Count));
+            _items.Add(new PlacedItem(localId, item.ItemInstanceId, item.Type, x, y, item.Rotated, item.Count, item.State));
             Changed?.Invoke(this);
             return true;
         }
@@ -164,7 +166,7 @@ namespace Signal.Core
             if (!Fits(current.Type, x, y, rotated, instanceId))
                 return false;
 
-            _items[index] = new PlacedItem(instanceId, current.ItemInstanceId, current.Type, x, y, rotated, current.Count);
+            _items[index] = new PlacedItem(instanceId, current.ItemInstanceId, current.Type, x, y, rotated, current.Count, current.State);
             Changed?.Invoke(this);
             return true;
         }
@@ -204,7 +206,7 @@ namespace Signal.Core
                 if (taken == item.Count)
                     _items.RemoveAt(i);
                 else
-                    _items[i] = new PlacedItem(item.InstanceId, item.ItemInstanceId, item.Type, item.X, item.Y, item.Rotated, item.Count - taken);
+                    _items[i] = new PlacedItem(item.InstanceId, item.ItemInstanceId, item.Type, item.X, item.Y, item.Rotated, item.Count - taken, item.State);
             }
 
             Changed?.Invoke(this);
@@ -277,6 +279,11 @@ namespace Signal.Core
         /// </summary>
         public int Add(ItemType type, int count)
         {
+            return Add(type, count, ItemInstanceState.Default);
+        }
+
+        public int Add(ItemType type, int count, ItemInstanceState state)
+        {
             if (count < 1)
                 return 0;
             if (type.MaxStack < 1)
@@ -288,7 +295,7 @@ namespace Signal.Core
             for (int i = 0; i < _items.Count && remaining > 0; i++)
             {
                 PlacedItem existing = _items[i];
-                if (existing.Type != type)
+                if (existing.Type != type || existing.State != state)
                     continue;
 
                 int room = existing.Type.MaxStack - existing.Count;
@@ -297,7 +304,7 @@ namespace Signal.Core
 
                 int moved = Math.Min(room, remaining);
                 _items[i] = new PlacedItem(existing.InstanceId, existing.ItemInstanceId, existing.Type, existing.X, existing.Y,
-                                           existing.Rotated, existing.Count + moved);
+                                           existing.Rotated, existing.Count + moved, existing.State);
                 remaining -= moved;
                 changed = true;
             }
@@ -308,7 +315,7 @@ namespace Signal.Core
                     break;
 
                 int stack = Math.Min(remaining, type.MaxStack);
-                _items.Add(new PlacedItem(_nextInstanceId++, Guid.NewGuid(), type, x, y, false, stack));
+                _items.Add(new PlacedItem(_nextInstanceId++, Guid.NewGuid(), type, x, y, false, stack, state));
                 remaining -= stack;
                 changed = true;
             }
