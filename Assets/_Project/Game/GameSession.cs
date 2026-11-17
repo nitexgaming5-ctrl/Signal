@@ -14,6 +14,7 @@ namespace Signal.Game
     {
         [Header("Content")]
         [SerializeField] private ItemDefinition[] items;
+        [SerializeField] private NpcCharacterDefinition[] npcDefinitions;
 
         [Header("Placeholder tuning (not final design)")]
         [SerializeField] private int startingMoney;
@@ -64,7 +65,7 @@ namespace Signal.Game
             _motor = _room.Player.GetComponent<PlayerMotor2D>();
 
             _city = gameObject.AddComponent<CityBlockBootstrap>();
-            _city.Build(_room.Player, _room.PlayerBody, camera, _clock);
+            _city.Build(_room.Player, _room.PlayerBody, camera, _clock, npcDefinitions);
 
             _panel = gameObject.AddComponent<InventoryPanel>();
             _panel.Bind(_inventory, items);
