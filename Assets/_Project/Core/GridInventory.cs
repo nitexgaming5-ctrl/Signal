@@ -130,11 +130,11 @@ namespace Signal.Core
                 return false;
             if (_items.Exists(existing => existing.ItemInstanceId == item.ItemInstanceId))
                 return false;
-            if (!TryFindFreeSpot(item.Type, out int x, out int y))
+            if (!TryFindFreeSpot(item.Type, item.Rotated, out int x, out int y))
                 return false;
 
             int localId = _nextInstanceId++;
-            _items.Add(new PlacedItem(localId, item.ItemInstanceId, item.Type, x, y, false, item.Count));
+            _items.Add(new PlacedItem(localId, item.ItemInstanceId, item.Type, x, y, item.Rotated, item.Count));
             Changed?.Invoke(this);
             return true;
         }
@@ -304,7 +304,7 @@ namespace Signal.Core
 
             while (remaining > 0)
             {
-                if (!TryFindFreeSpot(type, out int x, out int y))
+                if (!TryFindFreeSpot(type, false, out int x, out int y))
                     break;
 
                 int stack = Math.Min(remaining, type.MaxStack);
@@ -319,13 +319,13 @@ namespace Signal.Core
             return remaining;
         }
 
-        private bool TryFindFreeSpot(ItemType type, out int x, out int y)
+        private bool TryFindFreeSpot(ItemType type, bool rotated, out int x, out int y)
         {
             for (int cy = 0; cy < Height; cy++)
             {
                 for (int cx = 0; cx < Width; cx++)
                 {
-                    if (Fits(type, cx, cy, false, NoInstance))
+                    if (Fits(type, cx, cy, rotated, NoInstance))
                     {
                         x = cx;
                         y = cy;
