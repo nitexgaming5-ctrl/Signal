@@ -293,9 +293,9 @@ The user explicitly approved proper inspection/interaction, an item viewer and d
 - `ItemDefinition` authoring fields for description, category, optional icon, base reference value and default instance state.
 - A Core `ItemValueCalculator` with provisional multipliers. Its output is an indicative reference value, not a buy/sell price or economy.
 - State-aware stack merging: only same-definition stacks with matching state can top up one another.
-- State preservation through movement, rotation, snapshots, targeted transfers and save/load.
+- State preservation through movement, rotation, snapshots, targeted transfers and save/load. Core also exposes `TryUpdateItemState` to change the state while retaining the physical stack identity.
 - A shared read-only item viewer. Right-click an item in the carried inventory or use INSPECT in the home locker.
-- Home storage now lists individual stacks and supports inspecting or transferring a selected complete stack; it no longer hides distinct states behind one aggregate count.
+- Home storage now lists individual stacks with all four state dimensions and supports inspecting or transferring a selected complete stack; it no longer hides distinct states behind one aggregate count.
 - Save v4 persists state. v1/v2/v3 saves receive neutral defaults (Standard, Good, Genuine, Legitimate), and existing v3 stack identities are preserved.
 - New tests cover state-aware stacking, valuation, targeted stack transfer and v3 migration defaults.
 
