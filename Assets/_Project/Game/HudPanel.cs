@@ -14,8 +14,6 @@ namespace Signal.Game
 
         private PlayerStats _stats;
         private GameClock _clock;
-        private HeatMeter _heat;
-        private RentLedger _rent;
 
         private Font _font;
         private Text _status;
@@ -24,12 +22,10 @@ namespace Signal.Game
         private float _messageUntil;
         private bool _built;
 
-        public void Bind(PlayerStats stats, GameClock clock, HeatMeter heat, RentLedger rent)
+        public void Bind(PlayerStats stats, GameClock clock)
         {
             _stats = stats ?? throw new ArgumentNullException(nameof(stats));
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
-            _heat = heat ?? throw new ArgumentNullException(nameof(heat));
-            _rent = rent ?? throw new ArgumentNullException(nameof(rent));
 
             Build();
             Refresh();
