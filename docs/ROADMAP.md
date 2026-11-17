@@ -57,18 +57,21 @@ Approved design constraints:
 - **Shared people and events:** NPCs, clients, contacts, factions, rumours and world events affect both lawful and illegal activities in the same neighbourhoods.
 - **Hideout supports the whole life:** storage, preparation, recovery, workspaces, production spaces and personalisation can support any mix of activities.
 
-## Next initiative — design and build the first connected activity slice
+## Next initiative — complete the first connected activity slice
 
-Do not implement a standalone searchable container as the whole activity system. First design a small reusable activity foundation that supports:
+The first living-person foundation is now prototyped: Milo, a neighbourhood baker, follows a needs-driven daily routine and responds differently depending on what he is doing. This is an initial character-life slice, not yet the complete activity scenario: persistent relationships, discovery state, a concrete side activity and its outcomes remain to be connected.
+
+Do not implement a standalone searchable container as the whole activity system. Continue the reusable activity foundation so it supports:
 1. World interactions with objects and locations.
 2. Character conversations, requests, contacts and discovery hooks.
 3. Goods and item state where player-facing value exists (e.g. quality, condition, provenance or ownership).
 4. Activity outcomes, rewards, failure consequences and persistence.
 5. Shared-city events that can change opportunities without requiring a separate criminal map.
+6. A person with an independent routine, needs and activity-aware conversation; the first Milo prototype now supplies this starting point.
 
 Then deliver one complete playable scenario demonstrating these foundations. The scenario should show the shared city and overlapping public/hidden lives, connect an activity to a meaningful item or trade outcome, and create a reason to return to or follow up from the hideout.
 
-The exact scenario, item, reward, repeatability, hidden-information clues and failure rules still need agreement before implementation.
+The exact scenario, item, reward, repeatability, hidden-information clues and failure rules still need design. The user's white-card authorization permits the agent to make coherent choices within the approved vision, while preserving the existing pillars and documenting consequential decisions.
 
 ## Later experience layers (not active yet)
 - **Crime catalogue and global progression:** varied fictional illegal activities, one global criminal progression track, escalating opportunities and serious consequences.
