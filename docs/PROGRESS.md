@@ -79,7 +79,7 @@ The repository contains more of the intended hideout/city direction than the pre
   - `NpcRelationship`: directed familiarity, trust and affinity values.
 - NPCs perceive events only in the same location and within both their awareness radius and the event's visibility radius. Knowledge is not broadcast to every character.
 - Explicit knowledge sharing preserves the original event identity and changes confidence according to the listener's trust in the speaker. A rumour remains a belief, not objective truth.
-- NpcPerception provides a safe decision snapshot containing nearby NPC IDs and only the observing character's own knowledge; it excludes the global event journal.
+- NpcPerception provides a safe decision snapshot containing nearby NPC IDs and their directed relationship impressions, plus the observing character's own knowledge (including event location/time); it excludes the global event journal.
 - CityBlockBootstrap.PublishWorldEventAt can publish events in locations other than the player's current location, supporting off-screen events in the shared city.
 - Connected the active CityBlockBootstrap to one shared NpcSocialWorld. Milo registers into it, updates his simulated location/position, and conversation publishes an event. Added PublishWorldEvent as the common integration point for future environmental and gameplay events.
 - Added Core EditMode tests for local presence, event perception, knowledge sharing, trust-based confidence, movement and duplicate IDs. Extended the city integration test to check registration and conversation event publication. Tests have NOT been run.
