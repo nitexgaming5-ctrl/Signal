@@ -188,7 +188,7 @@ namespace Signal.Game
                 return;
             }
 
-            _status.text = "Transfers move as much as the destination has room for.";
+            _status.text = "Transfers move complete stacks; separate stacks keep their identities.";
             foreach (ItemType type in types)
                 AddItemRow(type);
         }
