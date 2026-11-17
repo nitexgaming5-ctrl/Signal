@@ -116,23 +116,23 @@ namespace Signal.Core
     {
         public static ItemValueBreakdown Calculate(int baseValue, ItemInstanceState state)
         {
-            float quality = state.Quality switch
+            float quality;
+            switch (state.Quality)
             {
-                ItemQuality.Poor => 0.65f,
-                ItemQuality.Standard => 1f,
-                ItemQuality.Fine => 1.35f,
-                ItemQuality.Exceptional => 1.75f,
-                _ => 1f
-            };
+                case ItemQuality.Poor: quality = 0.65f; break;
+                case ItemQuality.Fine: quality = 1.35f; break;
+                case ItemQuality.Exceptional: quality = 1.75f; break;
+                default: quality = 1f; break;
+            }
 
-            float condition = state.Condition switch
+            float condition;
+            switch (state.Condition)
             {
-                ItemCondition.Damaged => 0.45f,
-                ItemCondition.Worn => 0.7f,
-                ItemCondition.Good => 1f,
-                ItemCondition.Pristine => 1.1f,
-                _ => 1f
-            };
+                case ItemCondition.Damaged: condition = 0.45f; break;
+                case ItemCondition.Worn: condition = 0.7f; break;
+                case ItemCondition.Pristine: condition = 1.1f; break;
+                default: condition = 1f; break;
+            }
 
             float authenticity = state.Authenticity == ItemAuthenticity.Counterfeit ? 0.1f : 1f;
             float ownership = state.Ownership == ItemOwnershipStatus.Stolen ? 0.6f : 1f;
