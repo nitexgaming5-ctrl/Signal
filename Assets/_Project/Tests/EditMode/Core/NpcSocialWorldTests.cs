@@ -39,6 +39,9 @@ namespace Signal.Core.Tests
             Assert.That(actor.KnowsEvent("delivery-1"), Is.True);
             Assert.That(witness.KnowsEvent("delivery-1"), Is.True);
             Assert.That(witness.FindKnowledge("delivery-1").Origin, Is.EqualTo(NpcKnowledgeOrigin.DirectObservation));
+            Assert.That(witness.FindKnowledge("delivery-1").LastSourceNpcId, Is.Empty);
+            Assert.That(witness.FindKnowledge("delivery-1").EventLocationId, Is.EqualTo("Street"));
+            Assert.That(witness.FindKnowledge("delivery-1").OccurredMinuteOfDay, Is.EqualTo(600));
             Assert.That(elsewhere.KnowsEvent("delivery-1"), Is.False);
             Assert.That(tooFar.KnowsEvent("delivery-1"), Is.False);
             Assert.That(shortSighted.KnowsEvent("delivery-1"), Is.False);
@@ -95,6 +98,8 @@ namespace Signal.Core.Tests
             world.RegisterNpc("witness", "Street", 1f, 0f, 8f);
             world.RegisterNpc("stranger", "Street", 2f, 0f, 8f);
 
+            world.SetRelationship("observer", "witness", new NpcRelationship(0.7f, 0.9f, 0.2f));
+
             world.PublishEvent(new NpcWorldEvent(
                 "private-observation", "Exchange", "A quiet exchange happened.",
                 "witness", "Street", 1f, 0f, 0f, 1, 700));
@@ -104,8 +109,17 @@ namespace Signal.Core.Tests
 
             CollectionAssert.Contains(observerView.NearbyNpcIds, "witness");
             CollectionAssert.Contains(observerView.NearbyNpcIds, "stranger");
+            Assert.That(observerView.NearbyPeople.Count, Is.EqualTo(2));
+            NpcPerceivedPerson perceivedWitness = null;
+            for (int i = 0; i < observerView.NearbyPeople.Count; i++)
+                if (observerView.NearbyPeople[i].NpcId == "witness")
+                    perceivedWitness = observerView.NearbyPeople[i];
+            Assert.That(perceivedWitness, Is.Not.Null);
+            Assert.That(perceivedWitness.Relationship.Trust, Is.EqualTo(0.9f).Within(0.0001f));
             Assert.That(observerView.KnowsEvent("private-observation"), Is.False);
             Assert.That(witnessView.KnowsEvent("private-observation"), Is.True);
+            Assert.That(witnessView.KnownEvents[0].EventLocationId, Is.EqualTo("Street"));
+            Assert.That(witnessView.KnownEvents[0].OccurredMinuteOfDay, Is.EqualTo(700));
             Assert.That(observerView.KnownEvents, Is.Empty);
         }
 
