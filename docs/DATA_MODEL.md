@@ -14,8 +14,8 @@ Ids: each ScriptableObject gets a `Guid` field generated once and never changed,
 - `PlayerStats`: `Money` (int, ≥ 0), `Health` (int, 0–100). Nothing else until listed in OPEN_QUESTIONS.
 - `GridInventory`: width, height, list of `PlacedItem { int InstanceId, Guid ItemInstanceId, ItemType Type, int x, int y, bool rotated, int count, ItemInstanceState State }`.
 - `ItemType` is an immutable Core value resolved from the authored `ItemDefinition` (definition Guid, footprint and max stack).
-- `ItemInstanceId` identifies a particular stack and persists across movement, snapshots, container transfers and save/load. `InstanceId` is only a local integer used by the current inventory UI/placement operations.
-- V1 transfers move complete stacks without merging separate stack identities. A stack that does not fit remains in the source. No split-stack operation exists yet; a future split must explicitly assign a new identity to the resulting stack.
+- `ItemInstanceId` identifies a particular stack and persists across movement, snapshots, container transfers and save/load. `InstanceId` is only a local integer used by the current inventory UI/placement operations. `TryUpdateItemState` changes the authoritative state without replacing the physical stack identity.
+- Transfers move complete stacks without merging separate stack identities. `MoveStack` targets one identity; `MoveAll` is the bulk Core operation. A stack that does not fit remains in the source. No split-stack operation exists yet; a future split must explicitly assign a new identity to the resulting stack.
 - `GridInventory.Add(type, count, state)` tops up only stacks with the same definition and equal `ItemInstanceState`; distinct quality/condition/authenticity/ownership states remain separate stacks. The legacy overload uses the neutral default state.
 - `Clock` (M6): `Day`, `TimeOfDay`
 
