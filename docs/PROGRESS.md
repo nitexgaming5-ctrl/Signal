@@ -1,16 +1,21 @@
 # Progress
 
-## Current initiative: make the hideout the centre of the city loop
-Status: Slice A was verified by the user (compilation and tests passed). The user has confirmed that hideout/street/building travel works in Play Mode, and has now confirmed that the locker interaction, transfers, save/load and location-restoration sequence works without Console errors. The normal player-facing loop is verified; edge-case capacity checks, version-1 migration and automated transition-test execution remain to be checked. Work remains on `chore/collaboration-workflow-and-audit`; `main` is untouched.
+## Current initiative: plan the first connected activity slice
+Status: The hideout, connected starter city block and home-storage loop are implemented. The user has verified Slice A compilation/tests, manual city travel, and the normal locker/transfer/save/load sequence in Unity Play Mode. Remaining verification includes locker capacity edge cases, actual version-1 migration, automated city transition tests and target-platform save replacement. The next player-facing initiative is to design a reusable activity foundation and deliver one connected scenario; no new activity mechanics have been implemented yet. Work remains on `chore/collaboration-workflow-and-audit`; `main` is untouched.
 
 ## Approved project direction
-Signal is an immersive top-down 2D urban RPG about travelling through a city, performing small interactions for money and resources, taking risks, looting, sometimes losing things, and returning to a personal hideout. It is not primarily a shop-management game.
+Signal is an immersive top-down 2D urban RPG about travelling through a city, performing activities for money and resources, taking risks, sometimes losing things, and returning to a personal hideout. It combines a living city, opportunities and danger.
 - The first player-facing focus is a small, walkable starter house/hideout.
-- The hideout should contain real visual furniture and interactable objects.
-- The workbench should open a dedicated close-up visual workspace, then return the player to the same room.
+- The hideout is the central hub and emotional anchor: storage, preparation, recovery, workspaces, production spaces and personalisation.
 - A compact city block provides context; buildings should be enterable, with simple interiors initially.
 - The hideout and city should form one loop: go out, bring things back, use the home base, and resume from a saved state.
-- New detailed gameplay rules beyond this approved direction still require explanation and approval.
+- **Parallel lifestyles:** legitimate and criminal activities can be freely combined; neither excludes the other.
+- **Harsh criminal failure:** crime should involve serious, potentially lasting consequences. Exact penalties, thresholds and recovery rules require design approval.
+- **Global crime progression:** criminal activities contribute to one overall criminal level/progression track, rather than separate skill trees for each crime.
+- **Crime is a core pillar:** fictional drug-related activity and a broad catalogue of other illegal activities are central to the game. Specific activity rules must be designed individually.
+- **Legitimate life is a satisfying alternative:** farming, gathering, processing, crafting, services and trading should offer lower-risk progression and economic loops. Example direction: grow wheat, process it and bake bread; passive/delayed production should still require meaningful setup and collection.
+- NPCs, clients, contacts, factions and world events should connect both lifestyles and make the city feel alive.
+- New detailed gameplay rules beyond these approved directions still require explanation and approval before implementation.
 
 ## Repository and branch
 - Repository: `nitexgaming5-ctrl/Signal`
@@ -50,38 +55,31 @@ The repository contains more of the intended hideout/city direction than the pre
 - Added `CityBlockBootstrapTests.cs`; the test has not yet been run by the user or assistant.
 - City/building visuals are placeholders. Existing art assets and legacy scene references were inspected, but no unverified bulk migration was performed.
 
-## Slice C — functional home storage and persistent location (implementation committed; verification pending)
+## Slice C — functional home storage and persistent location
 - Added a separate 8×6 `GridInventory` for the hideout locker.
 - Exposed the physical locker from `RoomBootstrap`; E near it opens `StoragePanel`.
 - The storage screen lists item types present in either inventory and offers STORE/TAKE transfers. The Core `InventoryTransfer` service moves as much as the destination can fit and uses snapshots to roll back an unexpected source-removal failure.
-- HideoutSlice now references the existing ITEM_A/B/C sample definitions so the inventory and locker can be exercised immediately. They are temporary fixtures, not final item design.
-- Extended `SaveData` to version 2 with locker contents and the current place. Version-1 saves migrate to an empty locker and Hideout location.
-- Save/load is no longer restricted to the hideout. `CityBlockBootstrap.TryRestorePlace` restores the street or either interior and the saved player coordinates.
-- Added Core tests for capacity-aware transfers (including partial transfer and rollback), locker/location capture and restore, and version-1 migration; added Game tests for restoring city locations and JSON round-tripping of locker contents/location.
+- HideoutSlice references ITEM_A/B/C sample definitions as temporary fixtures, not final item design.
+- Extended `SaveData` to version 2 with locker contents and current place. Version-1 saves migrate to an empty locker and Hideout location.
+- Save/load is available in the city; `CityBlockBootstrap.TryRestorePlace` restores the saved street/interior and player coordinates.
+- Added Core tests for capacity-aware transfers, locker/location capture and restore, and version-1 migration; Game tests cover city-location restoration and JSON round-tripping.
 - User confirmed on 2026-11-17 that the project has no new Console errors and the instructed locker/transfer/save/load sequence works in Play Mode.
 - Not yet confirmed: full/blocked destination edge cases, loading an actual version-1 save, automated test-suite results, and platform-specific file replacement behavior.
-- The workbench remains a visual inspect/rearrange workspace. RecipeDefinition exists, but no recipe assets are currently authored; no new recipes or production rules have been invented.
+- The workbench remains a visual inspect/rearrange workspace. No recipes or production rules have been invented.
 
 ## Verification status
 - User confirmed Slice A compilation and EditMode tests passed.
 - User confirmed the connected city travel loop works in Play Mode.
 - User confirmed the Slice C locker and save/load sequence works in Play Mode with no Console errors.
 - Assistant cannot run the user's local Unity Editor through the GitHub repository connection.
-- Next check: pull the working branch, allow Unity to compile, run EditMode tests, then verify locker transfers and save/load from multiple locations.
-
-## Risks and constraints
-- Core/Game SaveFileStore uses a temp file plus File.Replace and a separate `signal-core-save.json` path. The user has not yet reported platform-specific save replacement verification.
-- Save format is now version 2; version-1 migration has unit coverage but still needs execution in Unity.
-- The locker has a fixed 8×6 grid for this first pass.
-- Main.unity and its old prototype scripts remain because they contain useful scene content and references. They are not in the active build list and should not receive new gameplay features.
-- The assistant cannot run the user's local Unity Editor through the GitHub repository connection.
+- Remaining verification: locker capacity edge cases, an actual version-1 save migration, automated city transition tests and platform-specific file replacement.
 
 ## Next actions
-1. User pulls the latest working branch and checks for compile errors.
-2. Run EditMode tests, especially `SaveMapperTests`, `CityBlockBootstrapTests`, and `SaveFileStoreTests`.
-3. Optionally test full/blocked destination behavior and load a real version-1 save to confirm migration.
-4. Choose the first small city activity that gives the player a reason to collect something and bring it home. The activity's exact item, reward and repeatability rules need agreement before implementation.
-5. Defer workbench recipes until the first item/activity loop is established; actual recipes and production rules remain a design decision.
+1. Keep the agreed lifestyle, failure and progression decisions as design constraints; do not implement a crime, economy or production system from assumptions.
+2. Design the reusable activity model: activity definitions/objectives, world interactions, character/request hooks, event hooks, outcomes and persistence boundaries.
+3. Select one compact vertical-slice scenario that demonstrates the activity model and connects city activity to the hideout. Agree its concrete reward, repeatability and failure rules before implementation.
+4. Later, build out crime and legal activity catalogues as connected content using the agreed parallel-lifestyle model.
+5. At a convenient verification pass, run EditMode tests and check storage edge cases, version-1 migration and target-platform save replacement.
 
 ## Work log
 - 2026-11-17: Confirmed GitHub access and created the working branch; documented the focus-friendly workflow and original hybrid RPG direction.
@@ -93,6 +91,7 @@ The repository contains more of the intended hideout/city direction than the pre
 - 2026-11-17: User confirmed compilation and first-slice tests passed in Unity.
 - 2026-11-17: Added the connected city street, hideout doorway transitions, corner shop and apartment placeholder interiors, camera-bound updates, and an EditMode transition test.
 - 2026-11-17: User confirmed connected hideout/street/building travel works in Play Mode.
-- 2026-11-17: Added physical home storage transfers, version-2 saves for carried and stored items plus world location, version-1 migration, and tests for storage/location persistence. Unity verification pending.
-
+- 2026-11-17: Added physical home storage transfers, version-2 saves for carried and stored items plus world location, version-1 migration, and tests for storage/location persistence.
 - 2026-11-17: User confirmed the locker transfer and save/load sequence works in Play Mode with no Console errors; documentation updated to distinguish verified normal flow from remaining edge cases.
+- 2026-11-17: User approved the broader Signal direction: balanced living city, opportunities and danger; hideout remains the central hub and emotional anchor.
+- 2026-11-17: User approved parallel legal/criminal lifestyles, harsh criminal failure and one global crime progression track. Updated roadmap and idea backlog before implementation; no new gameplay mechanics implemented.
