@@ -85,6 +85,28 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void PerceptionSnapshotContainsOnlyThatCharactersOwnKnowledge()
+        {
+            var world = new NpcSocialWorld();
+            world.RegisterNpc("observer", "Street", 0f, 0f, 8f);
+            world.RegisterNpc("witness", "Street", 1f, 0f, 8f);
+            world.RegisterNpc("stranger", "Street", 2f, 0f, 8f);
+
+            world.PublishEvent(new NpcWorldEvent(
+                "private-observation", "Exchange", "A quiet exchange happened.",
+                "witness", "Street", 1f, 0f, 0f, 1, 700));
+
+            NpcPerception observerView = world.BuildPerceptionFor("observer", 5f);
+            NpcPerception witnessView = world.BuildPerceptionFor("witness", 5f);
+
+            CollectionAssert.Contains(observerView.NearbyNpcIds, "witness");
+            CollectionAssert.Contains(observerView.NearbyNpcIds, "stranger");
+            Assert.That(observerView.KnowsEvent("private-observation"), Is.False);
+            Assert.That(witnessView.KnowsEvent("private-observation"), Is.True);
+            Assert.That(observerView.KnownEvents, Is.Empty);
+        }
+
+        [Test]
         public void DuplicateNpcAndEventIdsAreRejected()
         {
             var world = new NpcSocialWorld();
