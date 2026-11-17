@@ -16,6 +16,34 @@ namespace Signal.Core.Tests
             Assert.That(brain.AdvanceTo(1, 22 * 60), Is.EqualTo(NpcActivity.Home));
         }
 
+
+        [Test]
+        public void FamiliarNearbyPeopleAndPersonallyKnownEventsCanInfluenceSocialising()
+        {
+            var aloneWorld = new NpcSocialWorld();
+            aloneWorld.RegisterNpc("observer", "Street", 0f, 0f, 8f);
+
+            var socialWorld = new NpcSocialWorld();
+            socialWorld.RegisterNpc("observer", "Street", 0f, 0f, 8f);
+            socialWorld.RegisterNpc("friend-a", "Street", 1f, 0f, 8f);
+            socialWorld.RegisterNpc("friend-b", "Street", 2f, 0f, 8f);
+            socialWorld.RegisterNpc("friend-c", "Street", 3f, 0f, 8f);
+            socialWorld.SetRelationship("observer", "friend-a", new NpcRelationship(1f, 0.8f, 1f));
+            socialWorld.SetRelationship("observer", "friend-b", new NpcRelationship(1f, 0.8f, 1f));
+            socialWorld.SetRelationship("observer", "friend-c", new NpcRelationship(1f, 0.8f, 1f));
+            socialWorld.PublishEvent(new NpcWorldEvent(
+                "known-delivery", "Delivery", "A parcel arrived.", null,
+                "Street", 0f, 0f, 0f, 1, 590));
+
+            NpcActivity alone = new NpcUtilityBrain().AdvanceTo(
+                1, 10 * 60, aloneWorld.BuildPerceptionFor("observer", 8f));
+            NpcActivity withFriendsAndKnowledge = new NpcUtilityBrain().AdvanceTo(
+                1, 10 * 60, socialWorld.BuildPerceptionFor("observer", 8f));
+
+            Assert.That(alone, Is.EqualTo(NpcActivity.Work));
+            Assert.That(withFriendsAndKnowledge, Is.EqualTo(NpcActivity.Socialize));
+        }
+
         [Test]
         public void SameWorldTimeProducesSameActivity()
         {
