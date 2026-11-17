@@ -28,21 +28,26 @@ namespace Signal.Core.Tests
         }
 
         [Test]
-        public void MoveAllTransfersOnlyWhatFitsAndLeavesTheRestWithTheSource()
+        public void MoveAllKeepsDistinctStacksAndTheirIdentitiesInsteadOfMergingThem()
         {
             ItemType type = Item();
             var carried = new GridInventory();
-            var storage = new GridInventory(1, 1);
+            var storage = new GridInventory(2, 1);
             carried.Add(type, 3);
             storage.Place(type, 0, 0, count: 4);
+            Guid sourceIdentity = carried.Items[0].ItemInstanceId;
+            Guid existingIdentity = storage.Items[0].ItemInstanceId;
 
             InventoryTransferResult result = InventoryTransfer.MoveAll(carried, storage, type);
 
             Assert.That(result.Success, Is.True);
-            Assert.That(result.Moved, Is.EqualTo(1));
-            Assert.That(result.Remaining, Is.EqualTo(2));
-            Assert.That(carried.CountOf(type), Is.EqualTo(2));
-            Assert.That(storage.CountOf(type), Is.EqualTo(5));
+            Assert.That(result.Moved, Is.EqualTo(3));
+            Assert.That(result.Remaining, Is.Zero);
+            Assert.That(carried.CountOf(type), Is.Zero);
+            Assert.That(storage.CountOf(type), Is.EqualTo(7));
+            Assert.That(storage.Items.Count, Is.EqualTo(2));
+            Assert.That(storage.Items[0].ItemInstanceId, Is.EqualTo(existingIdentity));
+            Assert.That(storage.Items[1].ItemInstanceId, Is.EqualTo(sourceIdentity));
         }
 
         [Test]
