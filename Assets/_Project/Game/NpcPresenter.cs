@@ -56,7 +56,7 @@ namespace Signal.Game
             _initialized = true;
         }
 
-        public void SetCurrentPlace(string place)
+        public void SnapToAuthoredDestination()
         {
             transform.position = new Vector3(_destination.x, _destination.y, 0f);
             SyncSocialPosition();
