@@ -165,3 +165,31 @@ The repository contains more of the intended hideout/city direction than the pre
 - The 226/226 EditMode result is user-reported Unity verification, not an assistant-run test. No claim is made that a build or full Play Mode scenario was tested after the pacing addition.
 - The first NPC framework is deliberately generic and restrained. Do not turn it into a complex autonomous-life simulator before a player-facing scenario proves which deeper rules are useful.
 - The WorldPacingDirector is not a content scheduler. It is a shared authorization gate only; no event catalogue, backlog, auto-release or per-category cooldown system has been approved.
+
+
+## Inventory, quest and player-system audit (2026-11-18)
+
+Reviewed the active Core/Game implementation and the reference-game list. The full audit and proposed sequence are in `docs/ITEM_QUEST_PLAYER_FRAMEWORK_RESEARCH.md`.
+
+### Inventory findings
+- The project already has a spatial grid inventory: `GridInventory`, 6×4 default carried grid, 8×6 home locker, rectangular item footprints, rotation, stacking, add/remove/move/place, change notifications and snapshots.
+- `InventoryTransfer.MoveAll` is capacity-aware and rollback-protected.
+- `ItemDefinition` currently provides a stable GUID, display name, grid dimensions and max stack. Core `ItemType` contains only ID, footprint and stack limit.
+- Placed stacks have inventory-local integer IDs. These are not stable physical-item identities and are not preserved across container transfer or save/load.
+- Save format v2 stores definition ID, position, rotation and count for carried and stored stacks. It does not preserve per-copy state or a stable item-instance ID.
+- Inventory UI is generated in code and currently uses placeholder item labels/colours rather than a complete authored icon/description presentation.
+- Starting-item grant currently adds the maximum stack of every assigned item definition; this is bootstrap fixture behavior, not a final starting loadout.
+
+### Quest and player-system findings
+- No active quest definition/runtime/journal/objective framework was found in the reviewed Core/Game slice.
+- NPC events, individual NPC knowledge, relationships and WorldPacingDirector are useful foundations, but are not a quest system.
+- PlayerStats currently contains money and health; HeatMeter and RentLedger are separate. No complete player creation, customization, equipment or skill framework exists in the active slice.
+- Do not build a broad quest framework before meaningful player actions exist. Future objectives should consume semantic events from authoritative systems so inventory rearrangement/transfer cannot falsely satisfy “acquire” or “deliver” objectives.
+- Do not add a large generic stat/skill catalogue. The user approved one global criminal progression track, not a separate skill tree for every crime.
+
+### Next step created — Item Instance v1 proposal
+- Added `docs/ITEM_QUEST_PLAYER_FRAMEWORK_RESEARCH.md` with the inventory audit, quest architecture recommendation, player progression/customization sequencing and a feature map for Schedule I, Drug Dealer Simulator, Probably Stolen, Torn Crimes 2.0, Stardew Valley and S.T.A.L.K.E.R./Escape from Tarkov.
+- Updated `docs/ROADMAP.md` to make the next technical milestone a narrow item-instance identity/persistence foundation: separate item identity from grid placement, preserve identity across container transfers, define safe stack compatibility, and migrate v2 saves to v3 with tests.
+- This is a technical foundation proposal, not approval for quality/durability/counterfeit/stolen/provenance/price/equipment/crafting rules. Those remain separate design decisions.
+- The quest framework is sequenced after item identity and meaningful player interactions, and should be proven through one short authored opportunity rather than built as an abstract feature catalogue.
+- Player creation/customization and additional stats are deferred until their player-facing use cases are established.
