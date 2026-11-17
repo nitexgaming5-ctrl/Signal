@@ -149,3 +149,31 @@ Explain the player-facing rules, interactions, progression/balance implications 
 ## Definition of a complete slice
 
 A slice is complete only when the player-facing scenario works in Unity Play Mode, relevant tests pass, the Console has no new errors, save/load is checked where relevant, known limitations are recorded and `docs/PROGRESS.md` reflects actual verification.
+
+
+## New technical priority — item identity and instance foundation
+
+A repository audit on 2026-11-18 found that the active inventory is already a spatial grid system, not a blank slate. It supports item footprints, rotation, stacking, placement, capacity-aware transfer, a separate home locker and save/load. Its current limitation is that a placed stack is only a definition ID, local inventory instance number, position, rotation and count. The local instance number is not stable across containers or saves, and the model cannot yet represent distinct copies of the same goods with different histories or mutable states.
+
+**Next recommended implementation: Item Instance v1 (technical foundation only).**
+
+- [ ] Audit existing inventory call sites/tests and document invariants before refactoring.
+- [ ] Separate stable item-instance identity from grid placement/slot bookkeeping.
+- [ ] Preserve item-instance identity when transferring between carried inventory and home storage.
+- [ ] Define safe stack compatibility so distinct per-instance state can never be silently merged.
+- [ ] Add save version 3 and migrate v2 stacks while preserving type, quantity, position and rotation.
+- [ ] Add Core tests for identity, transfer, save/load migration, stacking compatibility and no-loss failure behavior.
+- [ ] Keep existing grid UI and current normal inventory/storage loop working.
+
+This milestone does **not** add quality grades, condition/durability, counterfeit rules, stolen status, provenance, prices, equipment, weight, crafting or item-use rules. Those are future consumers of the item model and need separate design approval.
+
+See `docs/ITEM_QUEST_PLAYER_FRAMEWORK_RESEARCH.md` for the full audit, reference-game feature map and quest/player-system sequencing.
+
+## Quest and player progression foundations — later, scenario-led
+
+- [ ] Build a small event-driven quest/opportunity contract alongside a real short scenario, after item identity and meaningful player interactions exist.
+- [ ] Keep discovery separate from acceptance and completion where content needs it; do not make every opportunity a generic checklist or quest marker.
+- [ ] Have objectives react to semantic actions from authoritative systems, not UI text, per-frame polling or arbitrary inventory snapshots.
+- [ ] Keep NPC knowledge character-scoped; quest UI must not reveal facts the player has not discovered.
+- [ ] Design player stats/skills only when actual activities prove the need. Preserve the approved single global criminal progression track; do not copy per-crime skill trees.
+- [ ] Add cosmetic character customization independently when the player art/animation pipeline is ready; avoid legal/criminal classes that lock parallel lifestyles.
