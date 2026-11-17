@@ -84,7 +84,7 @@ namespace Signal.Game
             {
                 case Place.Hideout:
                     if (!Near(playerPosition, HomeDoor)) return false;
-                    SetPlace(Place.Street, new Vector2(10f, -3.2f), new Rect(-9f, -26f, 38f, 27f));
+                    SetPlace(Place.Street, new Vector2(10f, -4f), new Rect(-9f, -26f, 38f, 27f));
                     return true;
 
                 case Place.Street:
@@ -109,8 +109,8 @@ namespace Signal.Game
                 case Place.Apartment:
                     if (!Near(playerPosition, InteriorExit)) return false;
                     Vector2 returnPosition = _place == Place.CornerShop
-                        ? new Vector2(0.5f, -12f)
-                        : new Vector2(19.5f, -12f);
+                        ? new Vector2(0.5f, -13.2f)
+                        : new Vector2(19.5f, -13.2f);
                     SetPlace(Place.Street, returnPosition, new Rect(-9f, -26f, 38f, 27f));
                     return true;
 
