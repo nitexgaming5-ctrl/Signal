@@ -224,7 +224,7 @@ namespace Signal.Game
                 _cameraFollow.Configure(_player, cameraBounds);
 
             for (int i = 0; i < _residents.Count; i++)
-                _residents[i].SetCurrentPlace(next.ToString());
+                _residents[i].SnapToAuthoredDestination();
         }
 
         private static bool Near(Vector2 position, Vector2 target)
