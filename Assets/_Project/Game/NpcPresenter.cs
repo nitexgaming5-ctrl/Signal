@@ -19,7 +19,6 @@ namespace Signal.Game
         private Vector2 _destination;
         private NpcActivity _activity;
         private SpriteRenderer _bodyRenderer;
-        private string _currentPlace = "Hideout";
 
         public string NpcId => _definition != null ? _definition.NpcId : string.Empty;
         public string DisplayName => _definition != null ? _definition.DisplayName : string.Empty;
@@ -59,7 +58,6 @@ namespace Signal.Game
 
         public void SetCurrentPlace(string place)
         {
-            _currentPlace = place ?? string.Empty;
             transform.position = new Vector3(_destination.x, _destination.y, 0f);
             SyncSocialPosition();
         }
@@ -84,7 +82,7 @@ namespace Signal.Game
                     "Conversation",
                     DisplayName + " spoke with someone nearby.",
                     NpcId,
-                    _currentPlace,
+                    ActivityPlace(_activity),
                     playerPosition.x,
                     playerPosition.y,
                     4.5f,
