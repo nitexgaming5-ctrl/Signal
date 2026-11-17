@@ -5,7 +5,7 @@ namespace Signal.Game
 {
     /// <summary>
     /// First ambient citizen. The Core brain decides what Milo wants to do; this component
-    /// only moves and presents him in the active street scene.
+    /// only moves and presents him in whichever shared city location is active.
     /// </summary>
     public sealed class NeighbourNpc : MonoBehaviour
     {
