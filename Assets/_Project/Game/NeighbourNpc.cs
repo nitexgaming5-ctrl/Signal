@@ -13,11 +13,14 @@ namespace Signal.Game
         private static readonly Vector2 RestPosition = new Vector2(3.5f, -17.5f);
         private static readonly Vector2 SocialPosition = new Vector2(18.2f, -11.6f);
         private static readonly Vector2 HomePosition = new Vector2(1016.5f, 1000f);
+        private const string NpcId = "milo";
 
         [SerializeField] private float walkingSpeed = 1.6f;
 
         private readonly NpcUtilityBrain _brain = new NpcUtilityBrain();
         private GameClock _clock;
+        private NpcSocialWorld _socialWorld;
+        private int _conversationSequence;
         private Vector2 _destination;
         private NpcActivity _activity;
         private SpriteRenderer _bodyRenderer;
@@ -28,7 +31,7 @@ namespace Signal.Game
         public NpcActivity Activity => _activity;
         public Vector2 Position => transform.position;
 
-        public void Bind(GameClock clock)
+        public void Bind(GameClock clock, NpcSocialWorld socialWorld)
         {
             if (clock == null)
                 return;
@@ -37,16 +40,22 @@ namespace Signal.Game
                 _clock.Changed -= OnClockChanged;
 
             _clock = clock;
+            _socialWorld = socialWorld;
             _clock.Changed += OnClockChanged;
             BuildVisual();
             RefreshFromClock(true);
             _initialized = true;
+            if (_socialWorld != null)
+            {
+                _socialWorld.RegisterNpc(NpcId, ActivityPlace(_activity), transform.position.x, transform.position.y, 8f);
+            }
         }
 
         public void SetCurrentPlace(string place)
         {
             _currentPlace = place ?? string.Empty;
             transform.position = new Vector3(_destination.x, _destination.y, 0f);
+            SyncSocialPosition();
         }
 
         public bool CanTalkFrom(Vector2 position)
@@ -76,6 +85,22 @@ namespace Signal.Game
                     break;
             }
 
+            if (_socialWorld != null)
+            {
+                _conversationSequence++;
+                _socialWorld.PublishEvent(new NpcWorldEvent(
+                    NpcId + "-conversation-" + _conversationSequence,
+                    "Conversation",
+                    "Milo spoke with someone nearby.",
+                    NpcId,
+                    _currentPlace,
+                    playerPosition.x,
+                    playerPosition.y,
+                    4.5f,
+                    _clock.Day,
+                    _clock.MinuteOfDay));
+            }
+
             return true;
         }
 
@@ -102,6 +127,8 @@ namespace Signal.Game
                 _bodyRenderer.flipX = destination.x < current.x;
 
             transform.position = Vector3.MoveTowards(current, destination, walkingSpeed * Time.deltaTime);
+            if ((transform.position - current).sqrMagnitude > 0.0001f)
+                SyncSocialPosition();
         }
 
         private void OnClockChanged(GameClock clock)
@@ -126,7 +153,16 @@ namespace Signal.Game
                 // travel is resolved off-screen so distant interiors are never traversed on foot.
                 if (snapToDestination || !wasInCurrentPlace || !willBeInCurrentPlace)
                     transform.position = new Vector3(_destination.x, _destination.y, 0f);
+                SyncSocialPosition();
             }
+        }
+
+        private void SyncSocialPosition()
+        {
+            if (_socialWorld == null || !_socialWorld.TryGetNpc(NpcId, out NpcAgentState state))
+                return;
+
+            _socialWorld.MoveNpc(NpcId, ActivityPlace(_activity), transform.position.x, transform.position.y);
         }
 
         private static string ActivityPlace(NpcActivity activity)
