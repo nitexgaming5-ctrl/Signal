@@ -78,16 +78,16 @@ namespace Signal.Game.Tests
                 Assert.That(city.SocialWorld.BuildPerceptionFor("milo", 8f).KnowsEvent("milo-conversation-1"), Is.True);
 
                 clock.Advance(11 * 60);
-                Assert.That(city.NeighbourActivity, Is.EqualTo(NpcActivity.Socialize));
-                Assert.That(city.TryRestorePlace("Street", city.NeighbourPosition), Is.True);
-                Vector2 eveningNpcPosition = city.NeighbourPosition;
+                Assert.That(city.GetResidentActivity("milo"), Is.EqualTo(NpcActivity.Socialize));
+                Assert.That(city.TryRestorePlace("Street", city.GetResidentPosition("milo")), Is.True);
+                Vector2 eveningNpcPosition = city.GetResidentPosition("milo");
                 Assert.That(city.TryInteractNpc(eveningNpcPosition, out string eveningDialogue), Is.True);
                 StringAssert.Contains("After closing", eveningDialogue);
 
                 clock.Advance(3 * 60);
-                Assert.That(city.NeighbourActivity, Is.EqualTo(NpcActivity.Home));
-                Assert.That(city.TryRestorePlace("Apartment", city.NeighbourPosition), Is.True);
-                Vector2 homeNpcPosition = city.NeighbourPosition;
+                Assert.That(city.GetResidentActivity("milo"), Is.EqualTo(NpcActivity.Home));
+                Assert.That(city.TryRestorePlace("Apartment", city.GetResidentPosition("milo")), Is.True);
+                Vector2 homeNpcPosition = city.GetResidentPosition("milo");
                 Assert.That(city.TryInteractNpc(homeNpcPosition, out string homeDialogue), Is.True);
                 StringAssert.Contains("Shop's closed", homeDialogue);
             }
