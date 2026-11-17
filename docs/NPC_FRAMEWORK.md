@@ -30,6 +30,8 @@ The first Milo implementation is a disposable test character. Its purpose is to 
 - NpcUtilityBrain accepts that snapshot when evaluating its decisions. Familiarity/affinity with nearby people and personally known information can increase the value of socialising. It does not query global events or reveal information to other NPCs.
 - NpcUtilityProfile contains configurable routine windows, utility weights, need drift and social-context weights. The brain uses a default day-worker profile when none is supplied, but the same algorithm can run different schedules without character-specific code.
 - Explicit knowledge sharing uses the listener's trust in the speaker to adjust confidence. It does not make a rumour true and does not automatically broadcast information.
+- NpcSocialEncounterSystem processes only residents whose authored activity is currently Socialize. It runs on clock changes, requires mutual local awareness and proximity, limits each resident to one encounter per pass, and applies a 12-hour pair cooldown.
+- A scheduled encounter adds a small familiarity increment in both directions, leaves trust and affinity unchanged, and shares at most one previously unknown event. It publishes one generic observable social-encounter event; it does not author dialogue or invent a narrative consequence.
 
 ### Game (Signal.Game)
 
@@ -37,6 +39,7 @@ The first Milo implementation is a disposable test character. Its purpose is to 
 - NpcCharacterDefinition is a ScriptableObject content asset. It carries a stable ID, display name, public role, awareness radius, movement speed, NpcUtilityProfile, activity destinations, appearance colours and authored dialogue for each activity.
 - Assets are created through **Assets → Create → Signal → NPC Character Definition** and assigned to the NPC Definitions array on GameSession. GameSession passes those definitions into CityBlockBootstrap at runtime.
 - NpcPresenter is the one generic MonoBehaviour for residents. It reads the definition, runs a Core NpcUtilityBrain, moves between authored destinations, builds a simple placeholder appearance, registers/moves in NpcSocialWorld and publishes conversation events.
+- CityBlockBootstrap runs NpcSocialEncounterSystem after residents have processed a clock change, so encounter eligibility reflects their updated authored activities. The system does not run per frame and does not make NPCs seek one another outside their schedules.
 - CityBlockBootstrap supports any number of definitions and routes prompts/interactions to the matching presenter. It does not contain per-character behaviour branches.
 - When no definitions are assigned, the bootstrap creates two temporary fallback definitions (Milo and Rhea) to exercise different routines and the shared interaction path. They are test fixtures, not final narrative characters.
 - CityBlockBootstrap.PublishWorldEvent publishes at the player's current location; PublishWorldEventAt can publish an event at another city location, allowing off-screen events to affect NPCs there.
@@ -46,7 +49,8 @@ The first Milo implementation is a disposable test character. Its purpose is to 
 - The event journal is a world-system record, not an NPC's personal memory. NPC decision-making should use that character's own knowledge and perceptions, not query the entire journal for hidden information.
 - A publisher must describe what could be perceived, not reveal hidden causes, criminal roles or private motives to every witness.
 - The current utility brain consumes the NPC's own NpcPerception snapshot for social decision scoring. Event-specific reactions and goals are not yet implemented; known information currently acts only as a modest reason to seek social contact.
-- Relationship values are data only. No friendship, loyalty, intimidation, romance, reputation or betrayal rules are being invented here.
+- Ambient scheduled encounters currently increase familiarity only. Trust and affinity do not drift from proximity or routine conversation; those values are reserved for explicit player actions and authored scenario events. No friendship, loyalty, intimidation, romance, reputation or betrayal rules are being invented here.
+- Ambient information exchange is deliberately capped at one known event per pair encounter, with the existing trust-based confidence calculation. This is not a free-running rumour cascade.
 - NPC knowledge and relationships are not yet part of the save format. Persistence must be designed with stable IDs and explicit migration before it is required by a playable scenario.
 - The utility brain is profile-driven at the Core level. Game character assets now serialize their own NpcUtilityProfile; the fallback Rhea profile intentionally starts work later than Milo to prove that schedules are data, not class-specific code.
 - The former NeighbourNpc component has been removed. All residents use NpcPresenter; Milo is identified only by his temporary data definition and stable ID.
@@ -57,9 +61,11 @@ The first Milo implementation is a disposable test character. Its purpose is to 
 2. **Decision context — first pass implemented.** The utility brain receives a character-scoped perception snapshot and lets nearby relationships and personally known information influence socialising. Event-specific goals and reactions remain future work.
 3. **Routine configuration — first pass implemented in Core and exposed in Game assets.** Each NpcCharacterDefinition serializes its own NpcUtilityProfile; the fallback Rhea profile demonstrates a later work start than Milo.
 4. **Data-driven character definitions — first pass implemented.** ScriptableObject definitions, generic NpcPresenter, GameSession asset assignment and two fallback profiles now share one runtime path. Authored final cast/content remains deferred.
-5. **Interactions and social behaviour.** Conversations, requests, helping, avoiding, exchanging information and reactions should use shared event/relationship/knowledge services.
-6. **Persistence.** Save only meaningful long-lived state: stable NPC IDs, relationships, discoveries, selected memories and world changes. Rebuild transient proximity/perception from the restored world.
-7. **Scale and performance.** Use location/area partitions and event-driven updates. Do not run expensive full-city reasoning for every citizen every frame. Important NPCs may receive richer simulation than distant background residents.
+5. **Scheduled social encounters — first controlled pass implemented.** Residents whose authored routines overlap can meet when they are mutually nearby. Encounters slowly increase familiarity and may exchange one known event. Trust/affinity changes and player-driven relationship development remain future work.
+6. **Player-driven relationships and authored scenario changes.** Meaningful trust, affinity, secrets, suspicion and major life changes should be driven by player actions and controlled scenario advancement, not background drift.
+7. **Interactions and richer social behaviour.** Conversations, requests, helping, avoiding and event-specific reactions should use shared event/relationship/knowledge services.
+8. **Persistence.** Save only meaningful long-lived state: stable NPC IDs, relationships, discoveries, selected memories and world changes. Rebuild transient proximity/perception from the restored world.
+9. **Scale and performance.** Use location/area partitions and event-driven updates. Do not run expensive full-city reasoning for every citizen every frame. Important NPCs may receive richer simulation than distant background residents.
 
 ## Completion target for this initiative
 
