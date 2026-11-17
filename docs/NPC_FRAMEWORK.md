@@ -53,9 +53,9 @@ The first Milo implementation is a disposable test character. Its purpose is to 
 
 ## Planned development sequence
 
-1. **Shared awareness foundation — first implementation complete, tests pending.** Registry, location-aware presence, local event perception, individual knowledge, directed relationships and explicit information sharing.
+1. **Shared awareness foundation — implemented and covered by the previously verified 214/214 EditMode run.** The latest generic-presenter changes still need a fresh run. Registry, location-aware presence, local event perception, individual knowledge, directed relationships and explicit information sharing.
 2. **Decision context — first pass implemented.** The utility brain receives a character-scoped perception snapshot and lets nearby relationships and personally known information influence socialising. Event-specific goals and reactions remain future work.
-3. **Routine configuration — Core first pass implemented.** NpcUtilityProfile configures routine windows, need drift and utility weights; the active Game fixture still uses the default profile.
+3. **Routine configuration — first pass implemented in Core and exposed in Game assets.** Each NpcCharacterDefinition serializes its own NpcUtilityProfile; the fallback Rhea profile demonstrates a later work start than Milo.
 4. **Data-driven character definitions — first pass implemented.** ScriptableObject definitions, generic NpcPresenter, GameSession asset assignment and two fallback profiles now share one runtime path. Authored final cast/content remains deferred.
 5. **Interactions and social behaviour.** Conversations, requests, helping, avoiding, exchanging information and reactions should use shared event/relationship/knowledge services.
 6. **Persistence.** Save only meaningful long-lived state: stable NPC IDs, relationships, discoveries, selected memories and world changes. Rebuild transient proximity/perception from the restored world.
