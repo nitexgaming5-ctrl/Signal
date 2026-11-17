@@ -97,13 +97,12 @@ The repository contains more of the intended hideout/city direction than the pre
 
 ## Next actions
 
-1. Pull the latest shared branch, compile in Unity and rerun the full Core/Game EditMode suite; the 214/214 result predates the generic presenter refactor and new integration test.
+1. Pull the latest shared branch, compile in Unity and rerun the full Core/Game EditMode suite. The previous 214/214 result predates the generic presenter and scheduled-social-encounter changes.
 2. Create and assign one or more NpcCharacterDefinition assets through the GameSession Inspector to verify the content-authoring workflow in the active scene.
-3. Run the full Core/Game EditMode suite after the scheduled-social-encounter implementation; the previous 214/214 pass predates the generic presenter and this social layer.
-4. Design stable-ID persistence for meaningful relationships, discoveries and selected memories with save migration tests.
-5. Verify population scale and event-driven simulation boundaries before adding many residents.
-6. Keep the shared-city model: lawful and illegal activity, public life and concealed dealings coexist in the same locations and social network.
-7. At a convenient verification pass, run the existing storage edge-case, version-1 migration, city transition and target-platform save replacement checks.
+3. Design stable-ID persistence for meaningful relationships, discoveries and selected memories with save migration tests.
+4. Verify population scale and event-driven simulation boundaries before adding many residents.
+5. Keep the shared-city model: lawful and illegal activity, public life and concealed dealings coexist in the same locations and social network.
+6. At a convenient verification pass, run the existing storage edge-case, version-1 migration, city transition and target-platform save replacement checks.
 
 ## Work log
 - 2026-11-17: Confirmed GitHub access and created the working branch; documented the focus-friendly workflow and original hybrid RPG direction.
