@@ -9,7 +9,7 @@ using UnityEngine.UI;
 
 namespace Signal.Game
 {
-    /// <summary>Moves whole item quantities between the player's grid and their persistent home store.</summary>
+    /// <summary>Shows and moves individual item stacks between carried inventory and home storage.</summary>
     public sealed class StoragePanel : MonoBehaviour
     {
         private static readonly Color BackdropColor = new Color32(8, 11, 15, 232);
@@ -17,11 +17,12 @@ namespace Signal.Game
         private static readonly Color RowColor = new Color32(48, 54, 57, 255);
         private static readonly Color InkColor = new Color32(235, 226, 207, 255);
         private static readonly Color MutedColor = new Color32(185, 181, 168, 255);
+        private static readonly Color AccentColor = new Color32(202, 163, 91, 255);
 
         private GridInventory _carried;
         private GridInventory _stored;
+        private Action<PlacedItem> _inspectItem;
         private readonly Dictionary<Guid, string> _names = new Dictionary<Guid, string>();
-        private Canvas _canvas;
         private GameObject _canvasObject;
         private RectTransform _rows;
         private Text _status;
@@ -29,7 +30,8 @@ namespace Signal.Game
 
         public bool IsOpen { get; private set; }
 
-        public void Bind(GridInventory carried, GridInventory stored, IReadOnlyList<ItemDefinition> definitions)
+        public void Bind(GridInventory carried, GridInventory stored, IReadOnlyList<ItemDefinition> definitions,
+                         Action<PlacedItem> inspectItem = null)
         {
             if (carried == null) throw new ArgumentNullException(nameof(carried));
             if (stored == null) throw new ArgumentNullException(nameof(stored));
@@ -39,6 +41,7 @@ namespace Signal.Game
 
             _carried = carried;
             _stored = stored;
+            _inspectItem = inspectItem;
             _carried.Changed += OnInventoryChanged;
             _stored.Changed += OnInventoryChanged;
 
@@ -97,12 +100,13 @@ namespace Signal.Game
             if (_built) return;
             EnsureEventSystem();
 
-            _canvasObject = new GameObject("StorageCanvas", typeof(RectTransform), typeof(Canvas),
-                                           typeof(CanvasScaler), typeof(GraphicRaycaster));
+            var canvasObject = new GameObject("StorageCanvas", typeof(RectTransform), typeof(Canvas),
+                                              typeof(CanvasScaler), typeof(GraphicRaycaster));
+            _canvasObject = canvasObject;
             _canvasObject.transform.SetParent(transform, false);
-            _canvas = _canvasObject.GetComponent<Canvas>();
-            _canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            _canvas.sortingOrder = 180;
+            Canvas canvas = _canvasObject.GetComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.sortingOrder = 180;
 
             CanvasScaler scaler = _canvasObject.GetComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
@@ -118,18 +122,17 @@ namespace Signal.Game
             Text title = Label(frame, "HOME STORAGE", 28, InkColor, TextAnchor.MiddleLeft);
             Anchor(title.rectTransform, new Vector2(30f, -24f), new Vector2(650f, 46f), true);
 
-            Text subtitle = Label(frame, "Move supplies between your pockets and the hideout locker.", 17, MutedColor, TextAnchor.MiddleLeft);
-            Anchor(subtitle.rectTransform, new Vector2(30f, -70f), new Vector2(800f, 32f), true);
+            Text subtitle = Label(frame, "Inspect individual objects or move a complete stack between your pockets and locker.", 17, MutedColor, TextAnchor.MiddleLeft);
+            Anchor(subtitle.rectTransform, new Vector2(30f, -70f), new Vector2(900f, 32f), true);
 
-            Button close = Button(frame, "CLOSE  [ESC]", new Vector2(190f, 48f));
+            Button close = MakeButton(frame, "CLOSE  [ESC]", new Vector2(190f, 48f));
             RectTransform closeRect = close.transform as RectTransform;
-            closeRect.anchorMin = new Vector2(1f, 1f);
-            closeRect.anchorMax = new Vector2(1f, 1f);
+            closeRect.anchorMin = closeRect.anchorMax = new Vector2(1f, 1f);
             closeRect.pivot = new Vector2(1f, 1f);
             closeRect.anchoredPosition = new Vector2(-28f, -24f);
             close.onClick.AddListener(() => SetOpen(false));
 
-            Text columns = Label(frame, "ITEM                                      CARRIED                  STORED                         TRANSFER", 15, MutedColor, TextAnchor.MiddleLeft);
+            Text columns = Label(frame, "ITEM / INSTANCE STATE                                               LOCATION                                  ACTIONS", 15, MutedColor, TextAnchor.MiddleLeft);
             Anchor(columns.rectTransform, new Vector2(30f, -120f), new Vector2(1050f, 28f), true);
 
             RectTransform viewport = Panel(frame, "Viewport", new Color32(20, 24, 27, 255));
@@ -176,81 +179,73 @@ namespace Signal.Game
             if (_rows == null || _carried == null || _stored == null) return;
             ClearRows();
 
-            var types = new List<ItemType>();
-            var seen = new HashSet<Guid>();
-            AddTypes(_carried, types, seen);
-            AddTypes(_stored, types, seen);
-
-            if (types.Count == 0)
+            int count = _carried.Items.Count + _stored.Items.Count;
+            if (count == 0)
             {
                 AddEmptyRow();
                 _status.text = "Nothing here yet. Bring something back from the city.";
                 return;
             }
 
-            _status.text = "Transfers move complete stacks; separate stacks keep their identities.";
-            foreach (ItemType type in types)
-                AddItemRow(type);
+            _status.text = "Each row is one distinct stack. Different states stay separate; transfers preserve identity.";
+            AddInventoryRows(_carried, true);
+            AddInventoryRows(_stored, false);
         }
 
-        private static void AddTypes(GridInventory source, List<ItemType> result, HashSet<Guid> seen)
+        private void AddInventoryRows(GridInventory inventory, bool carried)
         {
-            foreach (PlacedItem item in source.Items)
-            {
-                if (seen.Add(item.Type.Id))
-                    result.Add(item.Type);
-            }
+            // Refresh is triggered by inventory change events, so this read-only pass is stable.
+            foreach (PlacedItem item in inventory.Items)
+                AddItemRow(item, carried);
         }
 
-        private void AddItemRow(ItemType type)
+        private void AddItemRow(PlacedItem item, bool carried)
         {
-            RectTransform row = Panel(_rows, "ItemRow", RowColor);
+            RectTransform row = Panel(_rows, "ItemStack_" + item.ItemInstanceId.ToString("N"), RowColor);
             LayoutElement rowLayout = row.gameObject.AddComponent<LayoutElement>();
-            rowLayout.minHeight = 68f;
-            rowLayout.preferredHeight = 68f;
+            rowLayout.minHeight = 76f;
+            rowLayout.preferredHeight = 76f;
 
             HorizontalLayoutGroup layout = row.gameObject.AddComponent<HorizontalLayoutGroup>();
             layout.padding = new RectOffset(14, 14, 8, 8);
-            layout.spacing = 12f;
+            layout.spacing = 10f;
             layout.childAlignment = TextAnchor.MiddleLeft;
             layout.childControlWidth = true;
             layout.childControlHeight = true;
             layout.childForceExpandWidth = false;
             layout.childForceExpandHeight = true;
 
-            string name = _names.TryGetValue(type.Id, out string display) ? display : "Unknown item";
-            Text itemName = Label(row, name, 18, InkColor, TextAnchor.MiddleLeft);
-            itemName.gameObject.AddComponent<LayoutElement>().flexibleWidth = 3f;
+            string name = _names.TryGetValue(item.Type.Id, out string display) ? display : "Unknown item";
+            string detail = name + "  ·  " + item.State.Quality.ToString().ToUpperInvariant() +
+                "  ·  " + item.State.Condition.ToString().ToUpperInvariant() + "  ·  x" + item.Count;
+            Text itemLabel = Label(row, detail, 16, InkColor, TextAnchor.MiddleLeft);
+            itemLabel.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1f;
 
-            Text carriedCount = Label(row, _carried.CountOf(type).ToString(), 18, InkColor, TextAnchor.MiddleCenter);
-            carriedCount.gameObject.AddComponent<LayoutElement>().preferredWidth = 90f;
+            Text location = Label(row, carried ? "CARRIED" : "LOCKER", 13, AccentColor, TextAnchor.MiddleCenter);
+            location.gameObject.AddComponent<LayoutElement>().preferredWidth = 110f;
 
-            Text storedCount = Label(row, _stored.CountOf(type).ToString(), 18, InkColor, TextAnchor.MiddleCenter);
-            storedCount.gameObject.AddComponent<LayoutElement>().preferredWidth = 90f;
+            Button inspect = MakeButton(row, "INSPECT", new Vector2(100f, 42f));
+            inspect.gameObject.AddComponent<LayoutElement>().preferredWidth = 100f;
+            inspect.onClick.AddListener(() => _inspectItem?.Invoke(item));
 
-            Button store = Button(row, "STORE", new Vector2(112f, 42f));
-            store.gameObject.AddComponent<LayoutElement>().preferredWidth = 112f;
-            store.interactable = _carried.CountOf(type) > 0;
-            store.onClick.AddListener(() => Transfer(type, _carried, _stored, "Stored"));
-
-            Button take = Button(row, "TAKE", new Vector2(112f, 42f));
-            take.gameObject.AddComponent<LayoutElement>().preferredWidth = 112f;
-            take.interactable = _stored.CountOf(type) > 0;
-            take.onClick.AddListener(() => Transfer(type, _stored, _carried, "Moved to inventory"));
+            string action = carried ? "STORE" : "TAKE";
+            Button transfer = MakeButton(row, action, new Vector2(100f, 42f));
+            transfer.gameObject.AddComponent<LayoutElement>().preferredWidth = 100f;
+            transfer.onClick.AddListener(() => Transfer(item, carried ? _carried : _stored,
+                carried ? _stored : _carried, carried ? "Stored" : "Taken"));
         }
 
-        private void Transfer(ItemType type, GridInventory source, GridInventory destination, string verb)
+        private void Transfer(PlacedItem item, GridInventory source, GridInventory destination, string verb)
         {
-            InventoryTransferResult result = InventoryTransfer.MoveAll(source, destination, type);
-            string name = _names.TryGetValue(type.Id, out string displayName) ? displayName : "item";
+            InventoryTransferResult result = InventoryTransfer.MoveStack(source, destination, item.ItemInstanceId);
+            string name = _names.TryGetValue(item.Type.Id, out string displayName) ? displayName : "item";
 
             if (!result.Success)
                 _status.text = "Transfer failed; nothing was moved.";
             else if (result.Moved == 0)
-                _status.text = "No room in the destination.";
+                _status.text = "No room in the destination for this complete stack.";
             else
-                _status.text = verb + " " + result.Moved + " x " + name +
-                               (result.Remaining > 0 ? ". " + result.Remaining + " remain." : ".");
+                _status.text = verb + " " + result.Moved + " x " + name + ".";
         }
 
         private void AddEmptyRow()
@@ -304,10 +299,12 @@ namespace Signal.Game
             text.alignment = alignment;
             text.text = value;
             text.raycastTarget = false;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Truncate;
             return text;
         }
 
-        private static Button Button(Transform parent, string value, Vector2 size)
+        private static Button MakeButton(Transform parent, string value, Vector2 size)
         {
             RectTransform rect = Panel(parent, value + "Button", new Color32(75, 91, 88, 255));
             rect.sizeDelta = size;
