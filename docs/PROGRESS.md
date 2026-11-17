@@ -16,7 +16,7 @@ Signal is an immersive top-down 2D urban RPG about making a living in one layere
 - Legitimate life is a satisfying alternative and can take many forms: trading, selling different grades of water, food, repair, services, gathering, processing, making goods, small businesses and potentially farming. Farming/wheat/bread was an example, not a fixed design requirement.
 - Goods can have meaningful properties such as quality, condition, authenticity, origin/provenance and ownership status. These should be implemented when they create useful player decisions, not as complexity for its own sake.
 - NPCs, clients, contacts, factions, rumours and world events should connect both lawful and illegal activities in the same neighbourhoods and economy.
-- NPCs should feel like people with lives beyond the player. The user is interested in exploring a very small, hardware-friendly AI; the simulation approach and concrete behaviours remain design work, not implementation approval.\n- New detailed gameplay rules beyond these approved directions still require explanation and approval before implementation.
+- NPCs should feel like people with lives beyond the player. The approved approach is a very small, hardware-friendly, deterministic utility brain paired with authored routines; no per-NPC language model is required.\n- New detailed gameplay rules beyond these approved directions still require explanation and approval before implementation.
 
 ## Repository and branch
 - Repository: `nitexgaming5-ctrl/Signal`
