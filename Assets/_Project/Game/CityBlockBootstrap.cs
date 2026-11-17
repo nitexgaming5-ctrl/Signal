@@ -179,6 +179,9 @@ namespace Signal.Game
 
             if (_cameraFollow != null)
                 _cameraFollow.Configure(_player, cameraBounds);
+
+            if (_neighbour != null)
+                _neighbour.SetCurrentPlace(next.ToString());
         }
 
         private static bool Near(Vector2 position, Vector2 target)
