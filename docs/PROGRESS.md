@@ -84,7 +84,7 @@ The repository contains more of the intended hideout/city direction than the pre
 
 ## Next actions
 1. Preserve the approved shared-city model: lawful and illegal activity coexist in the same streets, shops, homes and social network; do not create a separate underground map/system by assumption.
-2. Design the reusable activity model: object/location interactions, character requests and discovery, optional goods properties (quality, condition, authenticity, provenance/ownership), outcomes and persistence. Include one NPC who behaves like a person beyond the player's immediate interaction, using a low-cost simulation approach.
+2. Extend Milo into the first connected shared-city activity: add discovery and a meaningful request/outcome, then persist only the character/player state that scenario genuinely needs.
 3. Select one compact vertical-slice scenario that demonstrates ordinary public life overlapping with a concealed opportunity or activity, and connects a meaningful outcome to the hideout. Agree its concrete reward, repeatability and failure rules before implementation.
 4. Later, build crime, trade and legitimate livelihood catalogues as interconnected content in the same city.
 5. At a convenient verification pass, run EditMode tests and check storage edge cases, version-1 migration and target-platform save replacement.
