@@ -276,7 +276,7 @@ namespace Signal.Game
             if (characterDefinitions.Count == 0)
             {
                 characterDefinitions.Add(CreateTemporaryDefinition("milo", "Milo", "Baker",
-                    "The ovens are on before most of the street wakes up.",
+                    "I'm the baker at the corner shop. The ovens are on before most of the street wakes up.",
                     "Those ovens run hot, and my knees complain louder every year.",
                     "The bakery is the part everyone sees. After closing, I help a few people with things they can't ask for at the counter.",
                     "Shop's closed for today. I start before sunrise. Catch me when the shutters are up.",
