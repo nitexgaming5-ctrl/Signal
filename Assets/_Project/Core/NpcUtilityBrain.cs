@@ -11,15 +11,15 @@ namespace Signal.Core
     }
 
     /// <summary>
-    /// Deterministic utility brain for ambient NPCs. It evaluates needs and routine
+    /// Deterministic utility brain for ambient NPCs. It evaluates authored routine/need
     /// preferences on a fixed interval, with social opportunities drawn only from the
     /// character's own perception snapshot.
     /// </summary>
     public sealed class NpcUtilityBrain
     {
         private const int MinutesPerDay = 1440;
-        private const int DecisionInterval = 15;
 
+        private readonly NpcUtilityProfile _profile;
         private float _energy = 1f;
         private float _social = 0.65f;
         private int _lastAbsoluteMinute = -1;
@@ -28,6 +28,13 @@ namespace Signal.Core
         public float Energy => _energy;
         public float Social => _social;
 
+        public NpcUtilityBrain(NpcUtilityProfile profile = null)
+        {
+            _profile = profile ?? NpcUtilityProfile.CreateDefault();
+            if (_profile.DecisionIntervalMinutes <= 0)
+                throw new ArgumentOutOfRangeException(nameof(profile), "Decision interval must be positive.");
+        }
+
         public NpcActivity AdvanceTo(int day, int minuteOfDay)
         {
             return AdvanceTo(day, minuteOfDay, null);
@@ -35,8 +42,8 @@ namespace Signal.Core
 
         /// <summary>
         /// Advances the brain using a character-scoped perception snapshot. Nearby
-        /// relationships influence the value of socialising; known information provides
-        /// a small conversation-topic incentive. No global event journal is consulted.
+        /// relationships influence the value of socialising; personally known information
+        /// provides a small conversation-topic incentive. No global event journal is consulted.
         /// </summary>
         public NpcActivity AdvanceTo(int day, int minuteOfDay, NpcPerception perception)
         {
@@ -57,7 +64,7 @@ namespace Signal.Core
                 _lastAbsoluteMinute++;
                 int minute = _lastAbsoluteMinute % MinutesPerDay;
 
-                if (minute % DecisionInterval == 0)
+                if (minute % _profile.DecisionIntervalMinutes == 0)
                     CurrentActivity = ChooseActivity(minute, perception);
 
                 ApplyNeedDrift();
@@ -68,20 +75,25 @@ namespace Signal.Core
 
         private NpcActivity ChooseActivity(int minute, NpcPerception perception)
         {
-            float work = IsBetween(minute, 390, 1080) ? 20f + _energy * 40f : -10f;
-            float rest = (1f - _energy) * 70f + (IsBetween(minute, 690, 810) ? 25f : 0f);
-            float socialize = (1f - _social) * 55f + (IsBetween(minute, 1080, 1260) ? 40f : 0f);
-            float home = minute >= 1260 || minute < 390 ? 100f : -10f;
+            float work = IsBetween(minute, _profile.WorkStartMinute, _profile.WorkEndMinute)
+                ? _profile.WorkBaseScore + _energy * _profile.WorkEnergyWeight
+                : _profile.WorkOffHoursScore;
+            float rest = (1f - _energy) * _profile.RestEnergyNeedWeight +
+                (IsBetween(minute, _profile.RestStartMinute, _profile.RestEndMinute) ? _profile.RestWindowBonus : 0f);
+            float socialize = (1f - _social) * _profile.SocialNeedWeight +
+                (IsBetween(minute, _profile.SocializeStartMinute, _profile.SocializeEndMinute) ? _profile.SocialWindowBonus : 0f);
+            float home = IsBetween(minute, _profile.HomeStartMinute, _profile.HomeEndMinute)
+                ? _profile.HomePriority
+                : _profile.HomeOffHoursScore;
 
-            socialize += GetSocialContextScore(perception);
+            socialize += GetSocialContextScore(perception, _profile);
 
-            // A small inertia bonus prevents rapid switching when two needs have similar scores.
             switch (CurrentActivity)
             {
-                case NpcActivity.Work: work += 5f; break;
-                case NpcActivity.Rest: rest += 5f; break;
-                case NpcActivity.Socialize: socialize += 5f; break;
-                case NpcActivity.Home: home += 5f; break;
+                case NpcActivity.Work: work += _profile.ActivityInertiaBonus; break;
+                case NpcActivity.Rest: rest += _profile.ActivityInertiaBonus; break;
+                case NpcActivity.Socialize: socialize += _profile.ActivityInertiaBonus; break;
+                case NpcActivity.Home: home += _profile.ActivityInertiaBonus; break;
             }
 
             if (work >= rest && work >= socialize && work >= home) return NpcActivity.Work;
@@ -90,7 +102,7 @@ namespace Signal.Core
             return NpcActivity.Home;
         }
 
-        private static float GetSocialContextScore(NpcPerception perception)
+        private static float GetSocialContextScore(NpcPerception perception, NpcUtilityProfile profile)
         {
             if (perception == null || perception.NearbyPeople.Count == 0)
                 return 0f;
@@ -99,14 +111,13 @@ namespace Signal.Core
             for (int i = 0; i < perception.NearbyPeople.Count; i++)
             {
                 NpcRelationship relationship = perception.NearbyPeople[i].Relationship;
-                score += relationship.Familiarity * 8f;
-                score += relationship.Affinity * 12f;
+                score += relationship.Familiarity * profile.FamiliaritySocialWeight;
+                score += relationship.Affinity * profile.AffinitySocialWeight;
             }
 
-            // Information a character personally knows can make a social encounter more useful.
-            int topicCount = Math.Min(3, perception.KnownEvents.Count);
+            int topicCount = Math.Min(profile.MaximumKnownTopicsForSocialising, perception.KnownEvents.Count);
             for (int i = 0; i < topicCount; i++)
-                score += perception.KnownEvents[i].Confidence * 2.5f;
+                score += perception.KnownEvents[i].Confidence * profile.KnownInformationSocialWeight;
 
             return score;
         }
@@ -116,20 +127,20 @@ namespace Signal.Core
             switch (CurrentActivity)
             {
                 case NpcActivity.Work:
-                    _energy -= 0.0012f;
-                    _social -= 0.00045f;
+                    _energy -= _profile.EnergyWorkDrain;
+                    _social -= _profile.SocialWorkDrain;
                     break;
                 case NpcActivity.Rest:
-                    _energy += 0.003f;
-                    _social += 0.0001f;
+                    _energy += _profile.EnergyRestRecovery;
+                    _social += _profile.SocialRestRecovery;
                     break;
                 case NpcActivity.Socialize:
-                    _energy -= 0.0004f;
-                    _social += 0.002f;
+                    _energy -= _profile.EnergySocialDrain;
+                    _social += _profile.SocialSocialRecovery;
                     break;
                 default:
-                    _energy += 0.0015f;
-                    _social += 0.0007f;
+                    _energy += _profile.EnergyHomeRecovery;
+                    _social += _profile.SocialHomeRecovery;
                     break;
             }
 
@@ -139,7 +150,9 @@ namespace Signal.Core
 
         private static bool IsBetween(int value, int startInclusive, int endExclusive)
         {
-            return value >= startInclusive && value < endExclusive;
+            return startInclusive <= endExclusive
+                ? value >= startInclusive && value < endExclusive
+                : value >= startInclusive || value < endExclusive;
         }
 
         private static float Clamp01(float value)
