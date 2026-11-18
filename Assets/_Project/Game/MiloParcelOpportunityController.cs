@@ -279,7 +279,8 @@ namespace Signal.Game
 
         private string TalkToMilo()
         {
-            if (_city.GetResidentActivity(MiloId) != NpcActivity.Socialize)
+            if (_city.GetResidentActivity(MiloId) != NpcActivity.Socialize ||
+                _city.GetResidentCurrentPlace(MiloId) != "Street" || _city.IsResidentTravelling(MiloId))
             {
                 _relationships.Adjust(MiloId, familiarityDelta: 0.1f);
                 RecordConversation("milo-everyday",
@@ -311,7 +312,8 @@ namespace Signal.Game
         private string TalkToRhea()
         {
             if (_city.GetResidentActivity(RheaId) == NpcActivity.Socialize &&
-                _lastRumourDay != _clock.Day)
+                _city.GetResidentCurrentPlace(RheaId) == "Street" &&
+                !_city.IsResidentTravelling(RheaId) && _lastRumourDay != _clock.Day)
             {
                 _lastRumourDay = _clock.Day;
                 RecordSignal("milo-rumour-rhea-" + _clock.Day, DiscoverySignalType.Rumour,
@@ -483,7 +485,8 @@ namespace Signal.Game
             {
                 bool show = _state.Phase != OpportunityPhase.Accepted &&
                     _state.Phase != OpportunityPhase.Resolved && _city.CurrentPlace == "Street" &&
-                    _city.HasResident(MiloId) && _city.GetResidentActivity(MiloId) == NpcActivity.Socialize;
+                    _city.HasResident(MiloId) && _city.GetResidentActivity(MiloId) == NpcActivity.Socialize &&
+                    _city.GetResidentCurrentPlace(MiloId) == "Street" && !_city.IsResidentTravelling(MiloId);
                 _carriedParcelMarker.SetActive(show);
                 if (show)
                 {
