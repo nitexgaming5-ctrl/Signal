@@ -311,3 +311,15 @@ The shared branch now contains the discovery ledger, flexible contextual conditi
 - Added deterministic EditMode movement advancement and a regression test covering Milo's shop → street → apartment route. Existing integration tests now advance NPC movement before asserting arrival or social encounters.
 - Movement follows authored doorway waypoints and direct path segments; it is not yet dynamic obstacle avoidance/pathfinding.
 - Unity compilation, full EditMode tests and Play Mode observation are pending user verification.
+
+
+## 2026-11-18 — City navigation geometry and debug overlay (implementation added; Unity verification pending)
+
+- Inspected the generated street/interior geometry and current movement contracts before adding navigation data.
+- Added `CityNavigationMap` with four location regions (Hideout, Street, CornerShop, Apartment), solid-collider obstacle records, named bidirectional doorway connections, point-level walkability checks and location-graph connectivity queries.
+- The street remains one walkable region spanning the road and both sidewalks. Building interiors remain separate coordinate spaces joined to the street through explicit door connections.
+- Navigation obstacles are collected from the actual generated colliders, so the geometry description follows the current scene bootstrap rather than duplicating a second hand-maintained obstacle list.
+- Added an F1 developer-menu toggle for a runtime overlay. It displays the active region, solid collider geometry, doorway endpoints, player marker, visible resident positions and current authored NPC travel waypoints.
+- Added Core-facing Game assembly EditMode tests for region bounds, obstacle exclusion, doorway graph traversal and duplicate registration.
+- No pathfinding was added and no movement behavior was changed. Player movement still relies on Rigidbody2D collision; NPCs still follow authored waypoint segments. Character clearance, obstacle avoidance, dynamic route planning and a shared player/NPC pathfinder remain future work.
+- Unity compilation, EditMode tests and Play Mode inspection of the overlay/map accuracy are pending user verification.
