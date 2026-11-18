@@ -23,7 +23,7 @@ namespace Signal.Game
         private static readonly Color MutedTextColor = new Color32(166, 171, 170, 255);
 
         private readonly Dictionary<Guid, ItemDefinition> _definitions = new Dictionary<Guid, ItemDefinition>();
-        private ItemKnowledgeBook _knowledge;
+        private ItemKnowledgeBook _knowledge = new ItemKnowledgeBook();
         private GameObject _canvasObject;
         private RectTransform _frame;
         private Image _itemImage;
