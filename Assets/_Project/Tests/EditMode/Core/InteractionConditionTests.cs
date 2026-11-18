@@ -52,5 +52,20 @@ namespace Signal.Core.Tests
             Assert.That(conditions.IsSatisfiedBy(new InteractionContext(NpcActivity.Rest,
                 NpcRelationship.Neutral, ledger), "milo"), Is.False);
         }
+
+        [Test]
+        public void FlexibleMinimumDistinctSignalTypesAcceptsDifferentDiscoveryCombinations()
+        {
+            var ledger = new PlayerDiscoveryLedger();
+            ledger.Record(new PlayerDiscoverySignal("milo-observation", "milo",
+                DiscoverySignalType.RoutineObservation, "street", "Milo left after closing.", 1f, 1, 1100));
+            ledger.Record(new PlayerDiscoverySignal("milo-rumour", "milo",
+                DiscoverySignalType.Rumour, "rhea", "A neighbour mentioned a late delivery.", 0.4f, 1, 1110));
+            var conditions = new InteractionConditionSet(minimumDistinctSignalTypes: 2);
+            var context = new InteractionContext(NpcActivity.Socialize, NpcRelationship.Neutral, ledger);
+
+            Assert.That(conditions.IsSatisfiedBy(context, "milo"), Is.True);
+            Assert.That(conditions.IsSatisfiedBy(context, "rhea"), Is.False);
+        }
     }
 }
