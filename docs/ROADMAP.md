@@ -87,13 +87,13 @@ Milestones are dependency notes, not a mandate to build isolated systems in orde
 
 ## Short-term goals — next playable outcome
 
-1. **Design one compact NPC-driven vertical slice.** The likely shape is a resident with a public everyday role and a private opportunity or problem that the player can discover through observation, conversation, a request or a rumour. The exact character, secret, activity, clues, rewards, risks and failure rules are not pre-approved; discuss them with the user before implementation. The baker is an example, not a commitment.
+1. **Verify Opportunity 001: Milo's Parcel.** The user approved the full specification and the implementation is now on the shared branch. Run compilation, EditMode tests and Play Mode paths before designing another scenario.
 2. **Validate authored NPC content in Unity.** Create and assign one or two real `NpcCharacterDefinition` assets through the Inspector; confirm that schedules, destinations, appearance and activity dialogue work without character-specific scripts.
 3. **Implement only the scenario's required persistence.** Use stable IDs and versioned migration. Avoid persisting transient perception/proximity if it can be rebuilt.
 4. **Keep the current block playable and readable.** Replace the most visible placeholders with cohesive art only when it improves the slice; preserve the compact scale and hideout as the anchor.
 5. **Close known reliability checks** when convenient: storage capacity/rollback, actual v1 migration, city transition tests and target-platform save replacement.
 
-The immediate technical action is to verify player item knowledge v1 in Unity: unknown facts must remain hidden, known facts must show their source/confidence, and save v4 must migrate to v5 with an empty knowledge book. After that, return to one compact NPC-driven playable scenario, with its exact clues, interactions and consequences discussed before implementation. Do not start a broad economy, crime catalogue or quest framework in parallel.
+The immediate technical action is to verify the Milo parcel scenario and save v7 in Unity. Item-knowledge v1 was user-verified with 255/255 EditMode tests. After Milo is verified, review what the scenario actually proves before deciding whether any broader opportunity/quest abstraction is needed. Do not start a broad economy, crime catalogue or generic quest framework in parallel.
 
 ## Medium-term goals — deepen the shared-city loop
 
@@ -178,7 +178,7 @@ The item identity, per-stack state and inspection foundation is implemented; the
 - [ ] Verify single-stack STORE/TAKE preserves state and identity through repeated transfers.
 - [ ] Verify a v3 save loads with neutral state and a v4 save preserves all state fields.
 
-**Current boundaries:** states are authoritative and visible; there is no player-knowledge/discovery layer or appraisal skill yet. Valuation factors are provisional reference values only, not transaction prices. State is per stack, not per unit; there is no split-stack operation. No provenance chain, item use, equipment, crafting, weight, trade or quest-item rules are added.
+**Current boundaries:** item states remain authoritative; player item knowledge is separate and can be partial/uncertain. Milo's discovery ledger records scenario signals, not global truth. Valuation factors are provisional reference values only, not transaction prices. State is per stack, not per unit; there is no split-stack operation. No provenance chain, item use, equipment, crafting, weight, trade or generic quest-item rules are added.
 
 ## Quest and player progression foundations — later, scenario-led
 
