@@ -126,3 +126,14 @@ The implementation contract and phased delivery plan are documented in [NPC_FRAM
 
 
 - StoragePanel displays only facts present in ItemKnowledgeBook. It must not expose PlacedItem.State directly; ItemViewerPanel remains the place to inspect known source/confidence and partial knowledge.
+## Economic domain (approved direction; Phase 1 Core foundation added 2026-11-19)
+
+Economic rules belong in Signal.Core as plain C#; Unity presentation, authoring and runtime composition belong in Signal.Game.
+
+- Actor identity and asset ownership are explicit. A physical inventory is a location/container, not proof of ownership.
+- AssetTransferService composes the existing stable stack identity and InventoryTransfer behavior with ownership validation and an append-only transaction ledger.
+- Moving an item between containers of the same owner remains an inventory operation. A change of owner is an economic asset transfer.
+- Monetary accounts will be distinct from physical inventories. Dirty money is a physical inventory asset and must never be accepted by legitimate bank/card operations.
+- Avoid a monolithic EconomyManager. Future account, business and market services should compose the shared actor, asset and transaction primitives.
+- Phase 1 ownership/transaction state is currently runtime-only. Before any persistent gameplay integration, add versioned save support and restore ownership consistently with carried, stored and world-held assets.
+- No universal supply/demand simulation is planned for the initial economy; stock simulation is selective and gameplay-driven.

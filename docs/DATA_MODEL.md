@@ -70,3 +70,23 @@ When a save shape changes, bump `version` and write a migration function in Core
 - Missing entries resolve to the neutral relationship (0 familiarity, 0.5 trust, 0 affinity).
 - This book is distinct from NpcSocialWorld relationships, which describe NPC-to-NPC impressions and are not yet persisted.
 - Save v7 stores stable NPC ID and all three values; v1-v6 migrations initialize the collection empty.
+## Economic foundation — Phase 1 (implementation started 2026-11-19)
+
+- EconomicActorId is a stable Core identity for a person, business or institution that can own assets. The reserved player identity is player.
+- AssetOwnershipBook records the authoritative owner of each physical stack by its stable ItemInstanceId. Ownership is independent of the inventory containing the stack.
+- AssetTransferService transfers a whole physical stack between inventories, validates the registered current owner, changes ownership and records the completed transaction. Same-owner container moves remain InventoryTransfer operations and do not create economic transactions.
+- EconomicTransaction records stable transaction ID, item instance and definition IDs, quantity, source/destination actors, reason and in-game timestamp. EconomicTransactionLedger rejects duplicate transaction IDs.
+- Initial transfer reasons are metadata only: Gift, Purchase, Theft, ServicePayment, SupplierDelivery and Other. They do not independently implement those gameplay activities.
+- Phase 1 is a runtime Core foundation. Save persistence and GameSession actor registration are deliberately deferred to the money/account integration phase, before the system is used for persistent player-facing transactions.
+
+### Approved money direction (not yet implemented)
+- Clean money is a bank/card balance used for legitimate purchases; no ordinary clean physical cash is required initially.
+- Dirty money is a physical inventory asset for explicitly illicit payments (shady markets, bribes, etc.). It cannot be used for legitimate card/bank purchases or deposited directly.
+- A future cleaning operation consumes dirty-money assets and credits the clean bank/card balance directly.
+- Monetary amounts use integer minor units.
+- Dirty-money provenance remains attached to the physical asset until a designed operation changes or consumes it.
+
+### Economy simulation boundary
+- No universal supply/demand, price simulation or continuous consumption simulation initially.
+- Ordinary goods use authored/simple availability. Stock is tracked selectively for gameplay-sensitive categories such as drugs and illegal materials.
+- Stock market, lottery, betting, business ownership, laundering and large-scale economic events are future consumers of the shared foundations.

@@ -364,3 +364,19 @@ The shared branch now contains the discovery ledger, flexible contextual conditi
 - Recommend shifting focus from additional scenario examples to the shared city's repeatable everyday loop: acquiring/handling goods, meaningful item information, and player-to-NPC commercial or service interactions. The exact activity and rules must be designed with the user before implementation.
 - Keep the current NPC, item identity/state/knowledge, relationship and opportunity systems as supporting foundations. Extend them only when the chosen loop exposes a concrete missing capability.
 - Validate authored NpcCharacterDefinition assets in the Inspector as a small content-authoring check, not as a reason to delay the next player-facing loop.
+## 2026-11-19 — Economic system approved; Phase 1 Core foundation added
+
+The user approved the shared city economy design, with two refinements:
+- Dirty money is a physical inventory asset for illicit payments (shady markets, bribes, etc.). It is not accepted by legitimate bank/card purchases and cannot be deposited directly. A future cleaning operation consumes dirty-money items and credits the clean bank/card balance directly. Ordinary clean physical cash is omitted initially.
+- Universal supply/demand, price fluctuations and continuous consumption are deferred. Ordinary goods use simple authored availability; stock is tracked selectively only where gameplay requires it (e.g. drugs and illegal materials).
+
+### Phase 1 implementation added to the repository
+- Added EconomicActorId, AssetOwnershipBook, EconomicTransaction / EconomicTransactionLedger, and AssetTransferService in Signal.Core.
+- Whole-stack transfers validate that the source actor is the registered owner, preserve the stack GUID and item state, update the owner, and record a completed transaction with reason and in-game timestamp.
+- Full destinations, missing/unregistered assets, invalid requests and ownership mismatches leave the source asset, owner and ledger unchanged.
+- Same-owner inventory/storage movement continues to use the existing InventoryTransfer and does not create an economic transaction.
+- Added AssetTransferServiceTests covering successful transfer, identity/state preservation, ownership mismatch, unregistered/missing assets, full destination, invalid actor/timestamp, ownership book rules and same-owner container movement.
+- Phase 1 state is runtime-only. It is not yet wired into GameSession or save data; Phase 2 must add versioned persistence before these services are used for persistent gameplay.
+- No Unity Editor or test runner was available to the assistant. C# compilation, EditMode tests and Unity verification are pending user validation.
+
+Next: pull the branch and run Unity compilation plus the full EditMode suite. Then address any reported failures before adding account/money mechanics.

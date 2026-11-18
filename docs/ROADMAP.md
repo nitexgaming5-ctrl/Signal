@@ -287,3 +287,40 @@ Opportunity 001: Milo's Parcel satisfies the NPC initiative's requirement for a 
 **Recommended next initiative:** move toward the shared city's everyday gameplay loop, with a deliberately small goods/trade or service interaction that uses NPCs and item state/knowledge. First design the player-facing rules, value exchange, information asymmetry and consequences; do not implement an economy or commercial rules before the user approves the design. Extend Core only where this concrete loop demonstrates a need.
 
 The authored `NpcCharacterDefinition` Inspector workflow remains a useful short validation task, but should not become a large standalone framework initiative.
+## Economic system initiative — approved 2026-11-19
+
+The next core initiative is the shared city economy, not a second NPC opportunity.
+
+### Phase 1 — physical asset transfer foundation (active)
+- Stable economic actor identity.
+- Asset ownership independent of physical inventory location.
+- Whole-stack transfer with owner validation and rollback on failure.
+- Transaction records with participants, asset identity, quantity, reason and game timestamp.
+- Reuse existing GridInventory, stable item GUIDs and InventoryTransfer.
+- Core EditMode tests for success, ownership mismatch, unregistered assets, missing assets, full destinations and unchanged same-owner storage moves.
+- This first pass is a runtime Core foundation; it must not be used for persistent gameplay until ownership and transaction state have versioned save integration.
+
+### Phase 2 — money and account foundation
+- Clean money as an integer bank/card balance used for legitimate purchases.
+- Dirty money as physical inventory assets, excluded from legitimate card/bank payments and direct deposits.
+- Future cleaning operation consumes dirty-money assets and credits the clean balance directly.
+- Versioned persistence for accounts, dirty-money assets/provenance, ownership and relevant transaction history.
+
+### Phase 3 — economic actors and business assets
+- Resident/business/supplier financial profiles where needed.
+- Physical business stock and supplier relationships.
+- Actor and container registration in the active Game session.
+
+### Phase 4 — first repeatable local economic interaction
+- A small player-facing exchange using real assets and the shared transaction contract.
+- No second quest/opportunity framework and no broad shop simulator.
+
+### Phase 5 — bounded local economic activity
+- Simple authored availability for ordinary goods.
+- Selective stock for gameplay-sensitive goods (e.g. drugs and illegal materials).
+- No universal supply/demand, price fluctuation or continuous consumption simulation initially.
+
+### Phase 6 — future economic consumers
+- World/economic events, stocks, lottery, betting, business ownership and laundering, each designed separately and built on the shared foundations.
+
+Stock markets, lottery, gambling, laundering, universal price simulation and business ownership are not part of Phase 1.

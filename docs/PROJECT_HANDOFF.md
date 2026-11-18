@@ -384,3 +384,26 @@ The existing NPC movement system is already active: residents walk continuously 
 - Opportunity 001 (Milo's Parcel) satisfies the roadmap's first player-facing NPC scenario requirement. A second opportunity is not required to prove the framework and is deferred until it adds a genuinely different player experience.
 - Recommended next direction: design a small shared-city everyday gameplay loop (goods/trade or a service interaction) that uses NPCs, item identity/state/knowledge and relationships. Design the rules and player experience first; obtain approval before implementing new gameplay mechanics. Extend Core only where this loop demonstrates a concrete need.
 - The authored NPC ScriptableObject Inspector workflow remains a small validation item, not a blocker.
+## Economic system — approved direction and current implementation (2026-11-19)
+
+The user approved a full shared-city economic system. Retain the full approved direction: asset ownership, transfers, atomic transactions and records, clean accounts, dirty money, economic actors, businesses, suppliers, selective stock, world events and future financial activities (stocks, lottery, betting, business ownership). The following refinements are binding:
+
+- Clean money is a bank/card balance used for legitimate purchases. Ordinary clean physical cash is omitted initially.
+- Dirty money is a physical inventory asset. It cannot be used for legitimate card/bank purchases or deposited directly. It is reserved for explicitly illicit cash-based uses such as shady markets and bribes.
+- A future cleaning operation consumes dirty-money assets and credits the clean bank/card balance directly.
+- No universal supply/demand, price fluctuations or continuous consumption simulation initially. Ordinary goods use simple authored availability; stock tracking is selective for gameplay-sensitive goods such as drugs and illegal materials.
+- Legal and illegal activities remain in the same shared city economy.
+
+### Phase 1 status
+
+Added runtime Core primitives:
+- EconomicActorId
+- AssetOwnershipBook
+- EconomicTransaction and EconomicTransactionLedger
+- AssetTransferService
+
+The service transfers complete item stacks between inventories, validates the current owner, updates ownership, preserves stable item identity/state, and records successful transfers with a reason and in-game timestamp. Same-owner storage moves remain ordinary InventoryTransfer operations. Core EditMode tests were added for success and failure paths.
+
+This is not yet a persistent player-facing feature. Ownership and transaction state are runtime-only and are not connected to GameSession or save v7. Phase 2 must add versioned persistence before using these primitives in saved gameplay. Unity compilation, EditMode tests and Play Mode verification remain pending the user's Editor run.
+
+Branch: chore/collaboration-workflow-and-audit.
