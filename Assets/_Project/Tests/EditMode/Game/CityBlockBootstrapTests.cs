@@ -263,6 +263,47 @@ namespace Signal.Game.Tests
         }
 
         [Test]
+        public void ScheduleChangesDuringPauseReplanFromThePhysicalPosition()
+        {
+            var host = new GameObject("CityHost");
+            var player = new GameObject("Player");
+            var cameraObject = new GameObject("MainCamera");
+            Rigidbody2D body = player.AddComponent<Rigidbody2D>();
+            Camera camera = cameraObject.AddComponent<Camera>();
+            var clock = new GameClock(1, 8 * 60);
+            CityBlockBootstrap city = host.AddComponent<CityBlockBootstrap>();
+
+            try
+            {
+                city.Build(player.transform, body, camera, clock);
+                clock.Advance(11 * 60);
+                Assert.That(city.GetResidentActivity("milo"), Is.EqualTo(NpcActivity.Socialize));
+                Assert.That(city.IsResidentTravelling("milo"), Is.True);
+
+                city.DebugSetNpcSimulationPaused(true);
+                Vector2 interruptedPosition = city.GetResidentPosition("milo");
+                clock.Advance(3 * 60);
+                city.DebugSetNpcSimulationPaused(false);
+
+                Assert.That(city.GetResidentActivity("milo"), Is.EqualTo(NpcActivity.Home));
+                Assert.That(city.GetResidentPosition("milo"), Is.EqualTo(interruptedPosition),
+                    "A changed schedule must replan from the interruption point, not snap to Home.");
+                Assert.That(city.GetResidentCurrentPlace("milo"), Is.EqualTo("CornerShop"));
+                Assert.That(city.IsResidentTravelling("milo"), Is.True);
+
+                city.DebugAdvanceNpcMovement(30f);
+                Assert.That(city.GetResidentCurrentPlace("milo"), Is.EqualTo("Apartment"));
+                Assert.That(city.IsResidentTravelling("milo"), Is.False);
+            }
+            finally
+            {
+                Object.DestroyImmediate(host);
+                Object.DestroyImmediate(player);
+                Object.DestroyImmediate(cameraObject);
+            }
+        }
+
+        [Test]
         public void ResidentsDevelopFamiliarityWhenTheirSchedulesBringThemTogether()
         {
             var host = new GameObject("CityHost");
