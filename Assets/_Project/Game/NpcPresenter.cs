@@ -89,7 +89,7 @@ namespace Signal.Game
 
         public bool CanTalkFrom(Vector2 position)
         {
-            return _initialized && gameObject.activeInHierarchy &&
+            return _initialized && _currentPlace == _activePlace &&
                 Vector2.Distance(position, Position) <= 1.85f;
         }
 
@@ -108,7 +108,7 @@ namespace Signal.Game
                     "Conversation",
                     DisplayName + " spoke with someone nearby.",
                     NpcId,
-                    ActivityPlace(_activity),
+                    _currentPlace,
                     playerPosition.x,
                     playerPosition.y,
                     4.5f,
