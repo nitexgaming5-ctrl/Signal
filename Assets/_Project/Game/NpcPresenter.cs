@@ -174,6 +174,18 @@ namespace Signal.Game
             while (remainingDistance > 0f && _nextTravelWaypoint < _travelRoute.Count)
             {
                 NpcTravelWaypoint waypoint = _travelRoute[_nextTravelWaypoint];
+                if (!string.IsNullOrWhiteSpace(waypoint.LocationId) &&
+                    waypoint.LocationId != _currentPlace)
+                {
+                    // Crossing a doorway changes the active location coordinate space.
+                    _currentPlace = waypoint.LocationId;
+                    transform.position = new Vector3(waypoint.Position.x, waypoint.Position.y, transform.position.z);
+                    SyncSocialPosition();
+                    UpdateLocationVisibility();
+                    _nextTravelWaypoint++;
+                    continue;
+                }
+
                 Vector2 current = transform.position;
                 Vector2 offset = waypoint.Position - current;
                 float distance = offset.magnitude;
@@ -248,7 +260,6 @@ namespace Signal.Game
             {
                 _currentPlace = targetPlace;
                 transform.position = new Vector3(_destination.x, _destination.y, 0f);
-                _travelRoute.Add(new NpcTravelWaypoint(targetPlace, _destination));
             }
             else if (_currentPlace == targetPlace)
             {
