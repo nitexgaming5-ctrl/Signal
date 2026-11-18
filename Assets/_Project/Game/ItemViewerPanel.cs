@@ -23,6 +23,7 @@ namespace Signal.Game
         private static readonly Color MutedTextColor = new Color32(166, 171, 170, 255);
 
         private readonly Dictionary<Guid, ItemDefinition> _definitions = new Dictionary<Guid, ItemDefinition>();
+        private ItemKnowledgeBook _knowledge;
         private GameObject _canvasObject;
         private RectTransform _frame;
         private Image _itemImage;
@@ -43,6 +44,12 @@ namespace Signal.Game
 
         public void Bind(IReadOnlyList<ItemDefinition> definitions)
         {
+            Bind(definitions, new ItemKnowledgeBook());
+        }
+
+        public void Bind(IReadOnlyList<ItemDefinition> definitions, ItemKnowledgeBook knowledge)
+        {
+            _knowledge = knowledge ?? new ItemKnowledgeBook();
             _definitions.Clear();
             if (definitions != null)
             {
@@ -81,21 +88,31 @@ namespace Signal.Game
                 ? "No description has been authored for this item."
                 : definition.Description;
             _quantity.text = "STACK QUANTITY  /  " + item.Count;
-            _quality.text = "QUALITY  /  " + Format(item.State.Quality);
-            _condition.text = "CONDITION  /  " + Format(item.State.Condition);
-            _authenticity.text = "AUTHENTICITY  /  " + Format(item.State.Authenticity);
-            _ownership.text = "OWNERSHIP  /  " + Format(item.State.Ownership);
+            _quality.text = FormatKnowledge(item.ItemInstanceId, ItemKnowledgeAspect.Quality);
+            _condition.text = FormatKnowledge(item.ItemInstanceId, ItemKnowledgeAspect.Condition);
+            _authenticity.text = FormatKnowledge(item.ItemInstanceId, ItemKnowledgeAspect.Authenticity);
+            _ownership.text = FormatKnowledge(item.ItemInstanceId, ItemKnowledgeAspect.Ownership);
 
             int baseValue = definition == null ? 0 : definition.BaseValue;
-            ItemValueBreakdown value = ItemValueCalculator.Calculate(baseValue, item.State);
             _baseValue.text = "REFERENCE UNIT VALUE  /  " + baseValue;
-            _valueBreakdown.text =
-                "Quality  ×" + value.QualityMultiplier.ToString("0.##") +
-                "     Condition  ×" + value.ConditionMultiplier.ToString("0.##") + "\n" +
-                "Authenticity  ×" + value.AuthenticityMultiplier.ToString("0.##") +
-                "     Ownership  ×" + value.OwnershipMultiplier.ToString("0.##") + "\n\n" +
-                "INDICATIVE UNIT VALUE  /  " + value.FinalValue + "\n" +
-                "STACK REFERENCE VALUE  /  " + ((long)value.FinalValue * item.Count);
+            if (_knowledge.TryGetKnownState(item.ItemInstanceId, out ItemInstanceState knownState))
+            {
+                ItemValueBreakdown value = ItemValueCalculator.Calculate(baseValue, knownState);
+                _valueBreakdown.text =
+                    "Known quality  ×" + value.QualityMultiplier.ToString("0.##") +
+                    "     condition  ×" + value.ConditionMultiplier.ToString("0.##") + "\n" +
+                    "Known authenticity  ×" + value.AuthenticityMultiplier.ToString("0.##") +
+                    "     ownership  ×" + value.OwnershipMultiplier.ToString("0.##") + "\n\n" +
+                    "INDICATIVE UNIT VALUE  /  " + value.FinalValue + "\n" +
+                    "STACK REFERENCE VALUE  /  " + ((long)value.FinalValue * item.Count);
+            }
+            else
+            {
+                _valueBreakdown.text =
+                    "ASSESSMENT INCOMPLETE\n" +
+                    "Some properties of this item are still unknown to you.\n" +
+                    "The actual item state is not shown here.";
+            }
 
             _itemImage.sprite = definition == null ? null : definition.Icon;
             _itemImage.enabled = _itemImage.sprite != null;
@@ -213,9 +230,27 @@ namespace Signal.Game
             eventObject.transform.SetParent(transform, false);
         }
 
-        private static string Format(Enum value)
+        private string FormatKnowledge(Guid itemInstanceId, ItemKnowledgeAspect aspect)
         {
-            return value.ToString().ToUpperInvariant();
+            if (!_knowledge.TryGetFact(itemInstanceId, aspect, out ItemKnowledgeFact fact))
+                return aspect.ToString().ToUpperInvariant() + "  /  UNKNOWN";
+
+            string value = Enum.GetName(ValueType(aspect), fact.Value).ToUpperInvariant();
+            string source = fact.Source.ToString().ToUpperInvariant();
+            return aspect.ToString().ToUpperInvariant() + "  /  " + value +
+                "  [" + source + " · " + fact.Confidence.ToString("P0") + "]";
+        }
+
+        private static Type ValueType(ItemKnowledgeAspect aspect)
+        {
+            switch (aspect)
+            {
+                case ItemKnowledgeAspect.Quality: return typeof(ItemQuality);
+                case ItemKnowledgeAspect.Condition: return typeof(ItemCondition);
+                case ItemKnowledgeAspect.Authenticity: return typeof(ItemAuthenticity);
+                case ItemKnowledgeAspect.Ownership: return typeof(ItemOwnershipStatus);
+                default: throw new ArgumentOutOfRangeException(nameof(aspect));
+            }
         }
 
         private static RectTransform Panel(Transform parent, string objectName, Color color)
