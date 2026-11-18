@@ -1,8 +1,21 @@
+using System.Collections.Generic;
 using Signal.Core;
 using UnityEngine;
 
 namespace Signal.Game
 {
+    public struct NpcTravelWaypoint
+    {
+        public string LocationId { get; }
+        public Vector2 Position { get; }
+
+        public NpcTravelWaypoint(string locationId, Vector2 position)
+        {
+            LocationId = locationId;
+            Position = position;
+        }
+    }
+
     /// <summary>
     /// Generic Unity-facing resident. Identity, routine, destinations, appearance and
     /// dialogue come from a character definition; social knowledge and decisions stay in Core.
@@ -22,15 +35,21 @@ namespace Signal.Game
         private string _activePlace = "Hideout";
         private bool _debugSimulationPaused;
         private bool _debugActivityOverride;
+        private CityBlockBootstrap _city;
+        private string _currentPlace = "Apartment";
+        private readonly List<NpcTravelWaypoint> _travelRoute = new List<NpcTravelWaypoint>();
+        private int _nextTravelWaypoint;
+        private SpriteRenderer[] _visualRenderers = new SpriteRenderer[0];
 
         public string NpcId => _definition != null ? _definition.NpcId : string.Empty;
         public string DisplayName => _definition != null ? _definition.DisplayName : string.Empty;
         public string PublicRole => _definition != null ? _definition.PublicRole : string.Empty;
         public NpcActivity Activity => _activity;
         public Vector2 Position => transform.position;
-        public string CurrentPlace => ActivityPlace(_activity);
+        public string CurrentPlace => _currentPlace;
+        public bool IsTravelling => _nextTravelWaypoint < _travelRoute.Count;
 
-        public void Bind(NpcCharacterDefinition definition, GameClock clock, NpcSocialWorld socialWorld)
+        public void Bind(NpcCharacterDefinition definition, GameClock clock, NpcSocialWorld socialWorld, CityBlockBootstrap city)
         {
             if (definition == null || clock == null)
                 return;
@@ -43,15 +62,17 @@ namespace Signal.Game
             _definition = definition;
             _clock = clock;
             _socialWorld = socialWorld;
+            _city = city;
             _brain = new NpcUtilityBrain(definition.UtilityProfile);
             _clock.Changed += OnClockChanged;
             BuildVisual();
 
             _destination = _definition.PositionFor(_activity);
+            _currentPlace = ActivityPlace(_activity);
             transform.position = new Vector3(_destination.x, _destination.y, 0f);
             if (_socialWorld != null)
             {
-                _socialWorld.RegisterNpc(NpcId, ActivityPlace(_activity), transform.position.x,
+                _socialWorld.RegisterNpc(NpcId, _currentPlace, transform.position.x,
                     transform.position.y, _definition.AwarenessRadius);
                 _registered = true;
             }
@@ -63,8 +84,6 @@ namespace Signal.Game
         public void SetActivePlace(string place)
         {
             _activePlace = place ?? string.Empty;
-            transform.position = new Vector3(_destination.x, _destination.y, 0f);
-            SyncSocialPosition();
             UpdateLocationVisibility();
         }
 
@@ -136,18 +155,65 @@ namespace Signal.Game
 
         private void Update()
         {
-            if (!_initialized || _debugSimulationPaused)
+            if (_initialized && !_debugSimulationPaused)
+                AdvanceMovement(Time.deltaTime);
+        }
+
+        public void DebugAdvanceMovement(float deltaTime)
+        {
+            AdvanceMovement(deltaTime);
+        }
+
+        private void AdvanceMovement(float deltaTime)
+        {
+            if (!_initialized || _debugSimulationPaused || deltaTime <= 0f ||
+                _definition == null || _definition.WalkingSpeed <= 0f)
                 return;
 
-            Vector3 destination = new Vector3(_destination.x, _destination.y, transform.position.z);
-            Vector3 current = transform.position;
-            if (Mathf.Abs(destination.x - current.x) > 0.02f)
-                _bodyRenderer.flipX = destination.x < current.x;
+            float remainingDistance = _definition.WalkingSpeed * deltaTime;
+            while (remainingDistance > 0f && _nextTravelWaypoint < _travelRoute.Count)
+            {
+                NpcTravelWaypoint waypoint = _travelRoute[_nextTravelWaypoint];
+                Vector2 current = transform.position;
+                Vector2 offset = waypoint.Position - current;
+                float distance = offset.magnitude;
+                if (distance <= 0.001f)
+                {
+                    ArriveAtWaypoint(waypoint);
+                    continue;
+                }
 
-            transform.position = Vector3.MoveTowards(current, destination,
-                _definition.WalkingSpeed * Time.deltaTime);
-            if ((transform.position - current).sqrMagnitude > 0.0001f)
+                float step = Mathf.Min(remainingDistance, distance);
+                Vector2 next = current + offset / distance * step;
+                if (Mathf.Abs(next.x - current.x) > 0.001f)
+                    _bodyRenderer.flipX = next.x < current.x;
+                transform.position = new Vector3(next.x, next.y, transform.position.z);
+                remainingDistance -= step;
                 SyncSocialPosition();
+
+                if (step >= distance - 0.001f)
+                    ArriveAtWaypoint(waypoint);
+            }
+        }
+
+        private void ArriveAtWaypoint(NpcTravelWaypoint waypoint)
+        {
+            transform.position = new Vector3(waypoint.Position.x, waypoint.Position.y, transform.position.z);
+            if (!string.IsNullOrWhiteSpace(waypoint.LocationId) &&
+                _currentPlace != waypoint.LocationId)
+            {
+                _currentPlace = waypoint.LocationId;
+                SyncSocialPosition();
+                UpdateLocationVisibility();
+            }
+
+            _nextTravelWaypoint++;
+            if (_nextTravelWaypoint >= _travelRoute.Count)
+            {
+                _travelRoute.Clear();
+                _nextTravelWaypoint = 0;
+                SyncSocialPosition();
+            }
         }
 
         private void OnClockChanged(GameClock clock)
@@ -172,30 +238,51 @@ namespace Signal.Game
 
         private void ApplyActivity(NpcActivity next, bool snapToDestination)
         {
-            bool wasInCurrentPlace = ActivityPlace(_activity) == _activePlace;
-            bool willBeInCurrentPlace = ActivityPlace(next) == _activePlace;
             _activity = next;
             _destination = _definition.PositionFor(next);
+            string targetPlace = ActivityPlace(next);
+            _travelRoute.Clear();
+            _nextTravelWaypoint = 0;
 
-            // Cross-location travel is resolved off-screen; only same-place movement animates.
-            if (snapToDestination || !wasInCurrentPlace || !willBeInCurrentPlace)
+            if (snapToDestination)
+            {
+                _currentPlace = targetPlace;
                 transform.position = new Vector3(_destination.x, _destination.y, 0f);
+                _travelRoute.Add(new NpcTravelWaypoint(targetPlace, _destination));
+            }
+            else if (_currentPlace == targetPlace)
+            {
+                _travelRoute.Add(new NpcTravelWaypoint(targetPlace, _destination));
+            }
+            else if (_city != null)
+            {
+                _travelRoute.AddRange(_city.BuildNpcTravelRoute(
+                    _currentPlace, transform.position, targetPlace, _destination));
+            }
+            else
+            {
+                _currentPlace = targetPlace;
+                transform.position = new Vector3(_destination.x, _destination.y, 0f);
+                _travelRoute.Add(new NpcTravelWaypoint(targetPlace, _destination));
+            }
+
             SyncSocialPosition();
             UpdateLocationVisibility();
         }
 
         private void UpdateLocationVisibility()
         {
-            bool shouldBeActive = ActivityPlace(_activity) == _activePlace;
-            if (gameObject.activeSelf != shouldBeActive)
-                gameObject.SetActive(shouldBeActive);
+            bool shouldBeVisible = _currentPlace == _activePlace;
+            for (int i = 0; i < _visualRenderers.Length; i++)
+                if (_visualRenderers[i] != null)
+                    _visualRenderers[i].enabled = shouldBeVisible;
         }
 
         private void SyncSocialPosition()
         {
             if (_socialWorld == null || !_registered)
                 return;
-            _socialWorld.MoveNpc(NpcId, ActivityPlace(_activity), transform.position.x, transform.position.y);
+            _socialWorld.MoveNpc(NpcId, _currentPlace, transform.position.x, transform.position.y);
         }
 
         private static string ActivityPlace(NpcActivity activity)
@@ -223,6 +310,8 @@ namespace Signal.Game
                 _definition.HairColor, 11);
             CreatePart("Detail", new Vector2(0f, 0.73f), new Vector2(0.48f, 0.16f),
                 _definition.DetailColor, 12);
+            _visualRenderers = GetComponentsInChildren<SpriteRenderer>(true);
+            UpdateLocationVisibility();
         }
 
         private SpriteRenderer CreatePart(string partName, Vector2 localPosition, Vector2 size,
