@@ -123,3 +123,6 @@ The implementation contract and phased delivery plan are documented in [NPC_FRAM
 - MiloParcelOpportunityController is intentionally specific to Opportunity 001. Do not promote its authored dialogue, coordinates or story conditions into generic Core abstractions.
 - Delivery assessment records same-day timing, damaged/intact condition and nearby third-party exposure. Complications alter Milo's relationship and dialogue softly; they do not invoke law enforcement or global criminal progression.
 - Save format v7 migrates v1-v6. User verification of compilation, tests and Play Mode remains pending.
+
+
+- StoragePanel displays only facts present in ItemKnowledgeBook. It must not expose PlacedItem.State directly; ItemViewerPanel remains the place to inspect known source/confidence and partial knowledge.
