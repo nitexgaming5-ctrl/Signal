@@ -153,9 +153,22 @@ namespace Signal.Core
             // Version 5 introduced player item knowledge. Version 6 adds discovery signals and one authored opportunity.
             if (data.playerDiscoveries == null)
                 data.playerDiscoveries = new List<SavedDiscoverySignal>();
-            // Version 7 adds player-to-NPC relationship impressions.
+            // Version 7 adds player-to-NPC relationship impressions and delivery outcome fields.
             if (data.playerRelationships == null)
                 data.playerRelationships = new List<SavedPlayerRelationship>();
+
+            // A development save created during v6 could already contain a resolved parcel
+            // opportunity, before delivery assessment fields were introduced. Preserve it
+            // with neutral legacy outcome values rather than discarding the opportunity.
+            if (data.version == 6 && data.opportunity != null &&
+                data.opportunity.phase == (int)OpportunityPhase.Resolved &&
+                !data.opportunity.hasDeliveryAssessment)
+            {
+                data.opportunity.hasDeliveryAssessment = true;
+                data.opportunity.deliveredOnTime = true;
+                data.opportunity.deliveredIntact = true;
+                data.opportunity.deliveryWitnessed = false;
+            }
 
             data.version = CurrentVersion;
 
