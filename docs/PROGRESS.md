@@ -1,10 +1,10 @@
 # Progress
 
-## Current status: item instance state and inspection foundation in progress
+## Current status: player item knowledge v1 implemented; Unity verification pending
 
-The connected NPC framework and WorldPacingDirector foundation are implemented. The user confirmed **226/226 EditMode tests passed** after the pacing test correction (2026-11-17). Item Instance v1 was then implemented and the user confirmed **235/235 EditMode tests passed** (2026-11-18).
+The connected NPC framework and WorldPacingDirector foundation are implemented. The user confirmed **226/226 EditMode tests passed** after the pacing test correction (2026-11-17). The user subsequently confirmed **245/245 EditMode tests passed** after Item Instance v1, per-stack state, reference valuation, inspection and storage changes (2026-11-18).
 
-The next approved layer is now implemented on the shared branch but awaits Unity verification: per-stack quality, condition, authenticity and ownership state; provisional reference valuation; save format v4; a shared item viewer; right-click inspection in the carried grid; and individual-stack inspection/transfer in home storage. Do not treat the new code/tests as verified until the user runs Unity compilation and the full EditMode suite.
+The next approved technical layer is now implemented on the shared branch but awaits Unity verification: player-scoped item knowledge, partial facts with source/confidence/timestamps, knowledge-aware inspection that hides unknown authoritative state, and save format v5 persistence/migration. The Core API intentionally allows uncertain or incorrect beliefs (for example, a rumour); it does not invent an inspection action, skill or scenario. Do not treat this new layer as verified until the user runs Unity compilation and the full EditMode suite.
 
 The pacing director remains a Core policy foundation, deliberately not wired to gameplay or scenario content. It needs an authored scenario owner, approved tuning, persistence/reconstruction design and a real context-valid candidate source before live integration. Work remains on `chore/collaboration-workflow-and-audit`; `main` is untouched.
 
@@ -223,13 +223,24 @@ The user approved Item Instance v1 and confirmed **235/235 EditMode tests passed
 - Save format is now v4. All four state fields are persisted. v1/v2/v3 saves migrate to neutral defaults (Standard, Good, Genuine, Legitimate); existing IDs and inventory layouts remain preserved.
 - Added tests for state-aware stack compatibility, state-preserving movement/transfer, targeted stack transfers, provisional valuation, v3 migration defaults and save/load state round-trip.
 
+### Player item knowledge v1 — implemented, verification pending
+- Added Core `ItemKnowledgeFact` and `ItemKnowledgeBook`, keyed by stable stack identity and property aspect.
+- Each fact records a believed enum value, evidence source (direct inspection, conversation, rumour or document), confidence and learned in-game day/time.
+- Knowledge is deliberately separate from authoritative `ItemInstanceState`; a rumour may be wrong. New evidence replaces the current belief for that aspect, while other known aspects remain.
+- The player may know some properties and not others. The book can reconstruct a fully known state only when all four facts exist.
+- The item viewer now displays only player-known facts and their source/confidence. Unknown facts remain unknown; reference valuation is withheld until all four properties are known and uses the player's known values, never hidden truth.
+- `GameSession.PlayerItemKnowledge` exposes the shared book for future authored scenario/interactions.
+- Save format v5 persists item knowledge independently of inventory contents, so discoveries can remain after an item leaves a container. v1-v4 saves migrate with an empty knowledge book; malformed knowledge facts are skipped without rejecting the save.
+- Added Core tests for partial/full knowledge, incorrect rumours, evidence replacement, validation and v4→v5/save-load behavior.
+
 ### Deliberate boundaries
-- State is currently authoritative and fully visible in the viewer. There is not yet a separate player-knowledge/discovery layer, uncertainty, inspection skill, appraisal minigame or hidden-fact reveal. Keep those separate so a future inspection system can reveal only what the player has learned.
-- The value factors are provisional tuning constants. They are not transaction prices, customer offers, market demand, bargaining or a full economy.
-- Quality/condition/authenticity/ownership are per stack, not per individual unit. No split-stack operation exists.
-- No provenance chain, evidence system, durability decay, item use, equipment, crafting, weight, trade or quest-item behavior was added.
+- No player-facing inspection action or appraisal rule is added yet. The knowledge book is a reusable recording/persistence contract for future authored interactions; do not silently make every right-click reveal facts.
+- Evidence-source labels are data provenance, not a detailed dialogue/rumour simulation. No contradiction-resolution, evidence decay, confidence updates or automatic NPC-to-player sharing is implemented.
+- The viewer now shows UNKNOWN for unrecorded properties. Until a scenario records discoveries, the new layer intentionally avoids revealing authoritative state.
+- The value factors remain provisional reference tuning, not transaction prices, offers, demand, bargaining or a functioning economy.
+- State/knowledge is per stack, not per unit. No split-stack operation, provenance chain, evidence system, durability decay, item use, equipment, crafting, weight, trade or quest-item behavior was added.
 - Existing ITEM_A/B/C assets remain temporary fixtures; their descriptions/icons/base values/default states still need authoring in the Inspector.
 
 ### Verification
-- Last confirmed full suite before this milestone: **235/235 passed** (user-reported after Item Instance v1).
-- The new item-state and viewer code/tests have not yet been run in Unity. Compilation, full EditMode suite, Play Mode viewer/locker interaction and save/load verification are pending user run.
+- User confirmed **245/245 EditMode tests passed** after the previous item state/inspection work (2026-11-18).
+- The new player-knowledge and v5 save integration code/tests have not yet been run in Unity. Compilation, full EditMode suite, Play Mode viewer behavior and v4→v5 save/load verification are pending.
