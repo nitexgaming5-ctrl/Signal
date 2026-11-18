@@ -133,6 +133,23 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void PauseStateCanBeToggledWithoutChangingClockTime()
+        {
+            var clock = new GameClock();
+            int changed = 0;
+            clock.Changed += _ => changed++;
+
+            clock.SetPaused(true);
+            Assert.That(clock.IsPaused, Is.True);
+            Assert.That(clock.MinuteOfDay, Is.EqualTo(480));
+
+            clock.SetPaused(false);
+            Assert.That(clock.IsPaused, Is.False);
+            Assert.That(clock.MinuteOfDay, Is.EqualTo(480));
+            Assert.That(changed, Is.EqualTo(0));
+        }
+
+        [Test]
         public void LabelShowsDayAndTime()
         {
             var clock = new GameClock(3, 7 * 60 + 5);
