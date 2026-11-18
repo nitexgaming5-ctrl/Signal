@@ -34,6 +34,10 @@ namespace Signal.Core
         public int LastDeclinedMinuteOfDay { get; private set; }
         public int ResolvedDay { get; private set; }
         public int ResolvedMinuteOfDay { get; private set; }
+        public bool HasDeliveryAssessment { get; private set; }
+        public bool DeliveredOnTime { get; private set; }
+        public bool DeliveredIntact { get; private set; }
+        public bool DeliveryWitnessed { get; private set; }
 
         public OpportunityState(string opportunityId)
         {
@@ -101,6 +105,12 @@ namespace Signal.Core
 
         public bool TryResolveDelivered(int day, int minuteOfDay)
         {
+            return TryResolveDelivered(day, minuteOfDay, true, true, false);
+        }
+
+        public bool TryResolveDelivered(int day, int minuteOfDay,
+            bool deliveredOnTime, bool deliveredIntact, bool deliveryWitnessed)
+        {
             ValidateTime(day, minuteOfDay);
             if (Phase != OpportunityPhase.Accepted)
                 return false;
@@ -109,6 +119,10 @@ namespace Signal.Core
             Resolution = OpportunityResolution.Delivered;
             ResolvedDay = day;
             ResolvedMinuteOfDay = minuteOfDay;
+            HasDeliveryAssessment = true;
+            DeliveredOnTime = deliveredOnTime;
+            DeliveredIntact = deliveredIntact;
+            DeliveryWitnessed = deliveryWitnessed;
             return true;
         }
 
@@ -124,6 +138,7 @@ namespace Signal.Core
             OpportunityResolution resolution, Guid parcelInstanceId, int acceptanceCount, int declineCount,
             int lastAcceptedDay, int lastAcceptedMinuteOfDay, int lastDeclinedDay,
             int lastDeclinedMinuteOfDay, int resolvedDay, int resolvedMinuteOfDay,
+            bool hasDeliveryAssessment, bool deliveredOnTime, bool deliveredIntact, bool deliveryWitnessed,
             out OpportunityState restored)
         {
             restored = null;
@@ -158,7 +173,11 @@ namespace Signal.Core
                 LastDeclinedDay = lastDeclinedDay,
                 LastDeclinedMinuteOfDay = lastDeclinedMinuteOfDay,
                 ResolvedDay = resolvedDay,
-                ResolvedMinuteOfDay = resolvedMinuteOfDay
+                ResolvedMinuteOfDay = resolvedMinuteOfDay,
+                HasDeliveryAssessment = hasDeliveryAssessment,
+                DeliveredOnTime = deliveredOnTime,
+                DeliveredIntact = deliveredIntact,
+                DeliveryWitnessed = deliveryWitnessed
             };
             return true;
         }
