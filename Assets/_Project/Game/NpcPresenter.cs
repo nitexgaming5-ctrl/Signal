@@ -114,8 +114,11 @@ namespace Signal.Game
         public void SetDebugSimulationPaused(bool paused)
         {
             _debugSimulationPaused = paused;
-            if (!paused && !_debugActivityOverride)
+            if (!paused)
+            {
+                _debugActivityOverride = false;
                 RefreshFromClock(true);
+            }
         }
 
         public void DebugForceActivity(NpcActivity activity)
