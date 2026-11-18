@@ -336,3 +336,12 @@ The user confirmed **255/255 EditMode tests passed** after player item-knowledge
 - The F1 debug menu's NPC summaries now report a travelling status where applicable. Deterministic movement stepping is available to EditMode tests.
 - Movement currently follows authored doorway waypoints and direct segments. There is no general obstacle avoidance or dynamic pathfinding.
 - This change has been committed to the shared branch, but Unity compilation, the full EditMode suite and Play Mode verification are still pending. Do not report it as tested until the user confirms.
+
+
+## 16. City navigation geometry and diagnostics — implementation added (2026-11-18)
+
+- `CityNavigationMap` describes the four current coordinate spaces (Hideout, Street, CornerShop, Apartment), their bounds, actual solid colliders and named doorway links.
+- The street is one region for road plus both sidewalks; shop and apartment interiors are separate regions. Hideout connects to the street, which connects to each interior.
+- Press **F1** and use **Toggle navigation geometry / NPC route overlay**. Close the menu to inspect the overlay in the game view. It marks the active region, solid obstacles, doorway endpoints, player, visible residents and their current authored travel waypoints.
+- The map provides point-level geometry and a connected-location graph; it is not a pathfinder. No player/NPC movement behavior was changed. NPC routes remain authored waypoints until the geometry is inspected and validated.
+- Unity compile, EditMode tests and Play Mode overlay validation are pending user verification.
