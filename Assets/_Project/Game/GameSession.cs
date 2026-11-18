@@ -27,6 +27,7 @@ namespace Signal.Game
         private PlayerStats _stats;
         private GridInventory _inventory;
         private GridInventory _storage;
+        private ItemKnowledgeBook _itemKnowledge;
         private GameClock _clock;
         private HeatMeter _heat;
         private RentLedger _rent;
@@ -47,6 +48,7 @@ namespace Signal.Game
             _stats = new PlayerStats(startingMoney);
             _inventory = new GridInventory();
             _storage = new GridInventory(8, 6);
+            _itemKnowledge = new ItemKnowledgeBook();
             _clock = new GameClock();
             _heat = new HeatMeter();
             _rent = new RentLedger(rentAmount, rentEveryDays);
@@ -69,7 +71,7 @@ namespace Signal.Game
             _city.Build(_room.Player, _room.PlayerBody, camera, _clock, npcDefinitions);
 
             _itemViewer = gameObject.AddComponent<ItemViewerPanel>();
-            _itemViewer.Bind(items);
+            _itemViewer.Bind(items, _itemKnowledge);
             _panel = gameObject.AddComponent<InventoryPanel>();
             _panel.Bind(_inventory, items, _itemViewer.Open);
             _storagePanel = gameObject.AddComponent<StoragePanel>();
@@ -209,7 +211,7 @@ namespace Signal.Game
         {
             Vector2 position = _room.PlayerBody.position;
             SaveData data = SaveMapper.Capture(_stats, _inventory, _storage, _clock, _heat, _rent,
-                                               _city.CurrentPlace, position.x, position.y);
+                                               _city.CurrentPlace, position.x, position.y, _itemKnowledge);
 
             try
             {
@@ -231,7 +233,7 @@ namespace Signal.Game
                 return;
             }
 
-            LoadReport report = SaveMapper.Apply(data, _stats, _inventory, _storage, _clock, _heat, _rent, ResolveType);
+            LoadReport report = SaveMapper.Apply(data, _stats, _inventory, _storage, _clock, _heat, _rent, ResolveType, _itemKnowledge);
             if (!report.Success)
             {
                 Say("Load failed: " + report.Error);
