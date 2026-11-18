@@ -59,7 +59,7 @@ namespace Signal.Game
             return FindResident(npcId) != null;
         }
 
-        public bool IsAnyResidentWithin(Vector2 position, float radius)
+        public bool IsAnyResidentWithin(Vector2 position, float radius, string excludeNpcId = null)
         {
             if (radius < 0f)
                 return false;
@@ -67,7 +67,8 @@ namespace Signal.Game
             for (int i = 0; i < _residents.Count; i++)
             {
                 NpcPresenter resident = _residents[i];
-                if (resident == null || !resident.gameObject.activeInHierarchy)
+                if (resident == null || !resident.gameObject.activeInHierarchy ||
+                    (!string.IsNullOrWhiteSpace(excludeNpcId) && resident.NpcId == excludeNpcId))
                     continue;
                 if ((resident.Position - position).sqrMagnitude <= squaredRadius)
                     return true;
@@ -335,7 +336,7 @@ namespace Signal.Game
                 characterDefinitions.Add(CreateTemporaryDefinition("milo", "Milo", "Baker",
                     "I'm the baker at the corner shop. The ovens are on before most of the street wakes up.",
                     "Those ovens run hot, and my knees complain louder every year.",
-                    "The bakery is the part everyone sees. After closing, I help a few people with things they can't ask for at the counter.",
+                    "Evenings are quieter. Funny how the street changes once the shutters come down.",
                     "Shop's closed for today. I start before sunrise. Catch me when the shutters are up.",
                     new Color32(65, 78, 83, 255), 390));
                 NpcCharacterDefinition rhea = CreateTemporaryDefinition("rhea", "Rhea", "Neighbour",
