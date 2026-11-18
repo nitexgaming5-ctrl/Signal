@@ -474,5 +474,39 @@ namespace Signal.Game.Tests
                 Object.DestroyImmediate(cameraObject);
             }
         }
+        [Test]
+        public void PausingGameClockStopsResidentMovementWithoutPausingTheirSchedule()
+        {
+            var host = new GameObject("CityHost");
+            var player = new GameObject("Player");
+            var cameraObject = new GameObject("MainCamera");
+            Rigidbody2D body = player.AddComponent<Rigidbody2D>();
+            Camera camera = cameraObject.AddComponent<Camera>();
+            CityBlockBootstrap city = host.AddComponent<CityBlockBootstrap>();
+            var clock = new GameClock();
+            try
+            {
+                city.Build(player.transform, body, camera, clock);
+                Assert.That(city.DebugForceResidentActivity("milo", NpcActivity.Socialize), Is.True);
+                city.DebugAdvanceNpcMovement(0.25f);
+                Vector2 beforePause = city.GetResidentPosition("milo");
+
+                clock.SetPaused(true);
+                city.DebugAdvanceNpcMovement(5f);
+                Assert.That(city.GetResidentPosition("milo"), Is.EqualTo(beforePause));
+                Assert.That(city.GetResidentActivity("milo"), Is.EqualTo(NpcActivity.Socialize));
+
+                clock.SetPaused(false);
+                city.DebugAdvanceNpcMovement(0.25f);
+                Assert.That(city.GetResidentPosition("milo"), Is.Not.EqualTo(beforePause));
+            }
+            finally
+            {
+                Object.DestroyImmediate(host);
+                Object.DestroyImmediate(player);
+                Object.DestroyImmediate(cameraObject);
+            }
+        }
+
     }
 }
