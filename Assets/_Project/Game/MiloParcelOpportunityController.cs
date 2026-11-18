@@ -21,7 +21,6 @@ namespace Signal.Game
         private const string RheaId = "rhea";
         private const string OpportunityId = "milo-parcel";
 
-        private Transform _player;
         private GridInventory _inventory;
         private ItemType _parcelType;
         private PlayerDiscoveryLedger _discoveries;
@@ -63,7 +62,6 @@ namespace Signal.Game
                 itemKnowledge == null || clock == null || city == null || state == null || say == null)
                 throw new ArgumentNullException("Milo parcel scenario dependencies must all be provided.");
 
-            _player = player;
             _inventory = inventory;
             _parcelType = parcelType;
             _discoveries = discoveries;
