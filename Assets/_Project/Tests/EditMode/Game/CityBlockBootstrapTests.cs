@@ -487,7 +487,9 @@ namespace Signal.Game.Tests
             try
             {
                 city.Build(player.transform, body, camera, clock);
-                Assert.That(city.DebugForceResidentActivity("milo", NpcActivity.Socialize), Is.True);
+                clock.Advance(600); // 08:00 -> 18:00; the authored schedule sends Milo out.
+                Assert.That(city.GetResidentActivity("milo"), Is.EqualTo(NpcActivity.Socialize));
+                Assert.That(city.IsResidentTravelling("milo"), Is.True);
                 city.DebugAdvanceNpcMovement(0.25f);
                 Vector2 beforePause = city.GetResidentPosition("milo");
 
