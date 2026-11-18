@@ -250,7 +250,7 @@ namespace Signal.Core.Tests
 
             Assert.That(report.Success, Is.True);
             Assert.That(report.SkippedKnowledgeFacts, Is.Zero);
-            Assert.That(data.version, Is.EqualTo(6));
+            Assert.That(data.version, Is.EqualTo(7));
             Assert.That(target.Inventory.Items[0].ItemInstanceId, Is.EqualTo(itemId));
             Assert.That(targetKnowledge.FactCount, Is.EqualTo(2));
             Assert.That(targetKnowledge.TryGetFact(itemId, ItemKnowledgeAspect.Authenticity, out ItemKnowledgeFact rumour), Is.True);
@@ -270,7 +270,7 @@ namespace Signal.Core.Tests
             var data = new SaveData { version = 4, itemKnowledge = null };
 
             Assert.That(SaveMigrator.TryMigrate(data, out _), Is.True);
-            Assert.That(data.version, Is.EqualTo(6));
+            Assert.That(data.version, Is.EqualTo(7));
             Assert.That(data.itemKnowledge, Is.Empty);
         }
 
@@ -342,7 +342,7 @@ namespace Signal.Core.Tests
             SaveData data = SaveMapper.Capture(source.Stats, source.Inventory, null, source.Clock,
                 source.Heat, source.Rent, "Street", 4f, -12f, null, discoveries, opportunity);
 
-            Assert.That(data.version, Is.EqualTo(6));
+            Assert.That(data.version, Is.EqualTo(7));
             Assert.That(data.playerDiscoveries.Count, Is.EqualTo(2));
             Assert.That(data.opportunity.parcelInstanceId, Is.EqualTo(parcelId.ToString()));
 
@@ -367,12 +367,13 @@ namespace Signal.Core.Tests
         [Test]
         public void VersionFiveSaveMigratesWithEmptyPlayerDiscoveriesAndNoOpportunity()
         {
-            var data = new SaveData { version = 5, playerDiscoveries = null, opportunity = null };
+            var data = new SaveData { version = 6, playerDiscoveries = null, opportunity = null, playerRelationships = null };
 
             Assert.That(SaveMigrator.TryMigrate(data, out _), Is.True);
-            Assert.That(data.version, Is.EqualTo(6));
+            Assert.That(data.version, Is.EqualTo(7));
             Assert.That(data.playerDiscoveries, Is.Empty);
             Assert.That(data.opportunity, Is.Null);
+            Assert.That(data.playerRelationships, Is.Empty);
         }
 
         [Test]
@@ -393,6 +394,29 @@ namespace Signal.Core.Tests
             Assert.That(report.Success, Is.True);
             Assert.That(report.SkippedDiscoverySignals, Is.EqualTo(1));
             Assert.That(discoveries.Count, Is.Zero);
+        }
+
+        [Test]
+        public void VersionSevenRoundTripPreservesPlayerRelationshipImpressions()
+        {
+            var source = new World();
+            var relationships = new PlayerRelationshipBook();
+            relationships.Set("milo", 0.35f, 0.7f, 0.2f);
+            relationships.Set("rhea", 0.1f, 0.45f, -0.1f);
+
+            SaveData data = SaveMapper.Capture(source.Stats, source.Inventory, null, source.Clock,
+                source.Heat, source.Rent, "Hideout", 1f, 2f, null, null, null, relationships);
+
+            var restored = new PlayerRelationshipBook();
+            LoadReport report = SaveMapper.Apply(data, new World().Stats, new GridInventory(), null,
+                new GameClock(), new HeatMeter(), new RentLedger(50, 7), Resolver(), null, null, restored);
+
+            Assert.That(report.Success, Is.True);
+            Assert.That(report.SkippedPlayerRelationships, Is.Zero);
+            Assert.That(restored.Count, Is.EqualTo(2));
+            Assert.That(restored.Get("milo").Familiarity, Is.EqualTo(0.35f));
+            Assert.That(restored.Get("milo").Trust, Is.EqualTo(0.7f));
+            Assert.That(restored.Get("rhea").Affinity, Is.EqualTo(-0.1f));
         }
     }
 }
