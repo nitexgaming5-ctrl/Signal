@@ -226,5 +226,77 @@ namespace Signal.Core.Tests
 
             Assert.That(SaveMigrator.TryMigrate(data, out _), Is.EqualTo(expected));
         }
+
+        [Test]
+        public void ItemKnowledgeRoundTripsWithStableItemIdentityAndEvidenceMetadata()
+        {
+            var source = new World();
+            var type = Item(1, 1, 5);
+            source.Inventory.Place(type, 0, 0);
+            Guid itemId = source.Inventory.Items[0].ItemInstanceId;
+            var sourceKnowledge = new ItemKnowledgeBook();
+            sourceKnowledge.RecordFact(itemId, ItemKnowledgeAspect.Authenticity,
+                (int)ItemAuthenticity.Genuine, ItemKnowledgeSource.Rumour, 0.45f, 4, 615);
+            sourceKnowledge.RecordFact(itemId, ItemKnowledgeAspect.Condition,
+                (int)ItemCondition.Worn, ItemKnowledgeSource.DirectInspection, 1f, 4, 620);
+
+            SaveData data = SaveMapper.Capture(source.Stats, source.Inventory, null,
+                source.Clock, source.Heat, source.Rent, "Hideout", 0f, 0f, sourceKnowledge);
+
+            var target = new World();
+            var targetKnowledge = new ItemKnowledgeBook();
+            LoadReport report = SaveMapper.Apply(data, target.Stats, target.Inventory, null,
+                target.Clock, target.Heat, target.Rent, Resolver(type), targetKnowledge);
+
+            Assert.That(report.Success, Is.True);
+            Assert.That(report.SkippedKnowledgeFacts, Is.Zero);
+            Assert.That(data.version, Is.EqualTo(5));
+            Assert.That(target.Inventory.Items[0].ItemInstanceId, Is.EqualTo(itemId));
+            Assert.That(targetKnowledge.FactCount, Is.EqualTo(2));
+            Assert.That(targetKnowledge.TryGetFact(itemId, ItemKnowledgeAspect.Authenticity, out ItemKnowledgeFact rumour), Is.True);
+            Assert.That(rumour.Value, Is.EqualTo((int)ItemAuthenticity.Genuine));
+            Assert.That(rumour.Source, Is.EqualTo(ItemKnowledgeSource.Rumour));
+            Assert.That(rumour.Confidence, Is.EqualTo(0.45f));
+            Assert.That(rumour.LearnedDay, Is.EqualTo(4));
+            Assert.That(rumour.LearnedMinuteOfDay, Is.EqualTo(615));
+            Assert.That(targetKnowledge.TryGetFact(itemId, ItemKnowledgeAspect.Condition, out ItemKnowledgeFact inspection), Is.True);
+            Assert.That(inspection.Value, Is.EqualTo((int)ItemCondition.Worn));
+            Assert.That(inspection.Source, Is.EqualTo(ItemKnowledgeSource.DirectInspection));
+        }
+
+        [Test]
+        public void VersionFourSaveMigratesWithNoPlayerItemKnowledge()
+        {
+            var data = new SaveData { version = 4, itemKnowledge = null };
+
+            Assert.That(SaveMigrator.TryMigrate(data, out _), Is.True);
+            Assert.That(data.version, Is.EqualTo(5));
+            Assert.That(data.itemKnowledge, Is.Empty);
+        }
+
+        [Test]
+        public void InvalidSavedKnowledgeFactsAreSkippedWithoutRejectingTheSave()
+        {
+            var data = new SaveData();
+            data.itemKnowledge.Add(new SavedItemKnowledge
+            {
+                instanceId = Guid.NewGuid().ToString(),
+                aspect = (int)ItemKnowledgeAspect.Quality,
+                value = 999,
+                source = (int)ItemKnowledgeSource.DirectInspection,
+                confidence = 1f,
+                learnedDay = 1,
+                learnedMinuteOfDay = 0
+            });
+            var knowledge = new ItemKnowledgeBook();
+            var world = new World();
+
+            LoadReport report = SaveMapper.Apply(data, world.Stats, world.Inventory, null,
+                world.Clock, world.Heat, world.Rent, Resolver(), knowledge);
+
+            Assert.That(report.Success, Is.True);
+            Assert.That(report.SkippedKnowledgeFacts, Is.EqualTo(1));
+            Assert.That(knowledge.FactCount, Is.Zero);
+        }
     }
 }
