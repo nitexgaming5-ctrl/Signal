@@ -31,6 +31,36 @@ namespace Signal.Core
     }
 
     [Serializable]
+    public sealed class SavedDiscoverySignal
+    {
+        public string signalId;
+        public string subjectId;
+        public int type;
+        public string sourceId;
+        public string description;
+        public float confidence;
+        public int learnedDay;
+        public int learnedMinuteOfDay;
+    }
+
+    [Serializable]
+    public sealed class SavedOpportunityState
+    {
+        public string opportunityId;
+        public int phase;
+        public int resolution;
+        public string parcelInstanceId;
+        public int acceptanceCount;
+        public int declineCount;
+        public int lastAcceptedDay;
+        public int lastAcceptedMinuteOfDay;
+        public int lastDeclinedDay;
+        public int lastDeclinedMinuteOfDay;
+        public int resolvedDay;
+        public int resolvedMinuteOfDay;
+    }
+
+    [Serializable]
     public sealed class SaveData
     {
         public int version = SaveMigrator.CurrentVersion;
@@ -48,6 +78,8 @@ namespace Signal.Core
         public List<SavedItem> items = new List<SavedItem>();
         public List<SavedItem> storageItems = new List<SavedItem>();
         public List<SavedItemKnowledge> itemKnowledge = new List<SavedItemKnowledge>();
+        public List<SavedDiscoverySignal> playerDiscoveries = new List<SavedDiscoverySignal>();
+        public SavedOpportunityState opportunity;
     }
 
     public sealed class LoadReport
@@ -57,13 +89,15 @@ namespace Signal.Core
         public int SkippedItems { get; set; }
         public int SkippedStorageItems { get; set; }
         public int SkippedKnowledgeFacts { get; set; }
+        public int SkippedDiscoverySignals { get; set; }
+        public OpportunityState RestoredOpportunity { get; set; }
     }
 
     public static class SaveMigrator
     {
-        public const int CurrentVersion = 5;
+        public const int CurrentVersion = 6;
 
-        /// <summary>Accepts save formats v1 through v5 and migrates them to the current inventory and player-knowledge format.</summary>
+        /// <summary>Accepts save formats v1 through v6 and migrates them to the current inventory and player-knowledge format.</summary>
         public static bool TryMigrate(SaveData data, out string error)
         {
             error = null;
@@ -101,6 +135,9 @@ namespace Signal.Core
             // Version 4 introduced per-stack state but no player-specific item knowledge.
             if (data.itemKnowledge == null)
                 data.itemKnowledge = new List<SavedItemKnowledge>();
+            // Version 5 introduced player item knowledge. Version 6 adds discovery signals and one authored opportunity.
+            if (data.playerDiscoveries == null)
+                data.playerDiscoveries = new List<SavedDiscoverySignal>();
 
             data.version = CurrentVersion;
 
@@ -138,7 +175,8 @@ namespace Signal.Core
 
         public static SaveData Capture(PlayerStats stats, GridInventory inventory, GridInventory storage,
                                        GameClock clock, HeatMeter heat, RentLedger rent, string worldPlace,
-                                       float playerX, float playerY, ItemKnowledgeBook itemKnowledge = null)
+                                       float playerX, float playerY, ItemKnowledgeBook itemKnowledge = null,
+                                       PlayerDiscoveryLedger discoveries = null, OpportunityState opportunity = null)
         {
             if (stats == null) throw new ArgumentNullException(nameof(stats));
             if (inventory == null) throw new ArgumentNullException(nameof(inventory));
@@ -165,6 +203,8 @@ namespace Signal.Core
             if (storage != null)
                 CaptureItems(storage, data.storageItems);
             CaptureKnowledge(itemKnowledge, data.itemKnowledge);
+            CaptureDiscoveries(discoveries, data.playerDiscoveries);
+            data.opportunity = CaptureOpportunity(opportunity);
 
             return data;
         }
@@ -177,7 +217,8 @@ namespace Signal.Core
 
         public static LoadReport Apply(SaveData data, PlayerStats stats, GridInventory inventory, GridInventory storage,
                                        GameClock clock, HeatMeter heat, RentLedger rent, Func<Guid, ItemType?> resolve,
-                                       ItemKnowledgeBook itemKnowledge = null)
+                                       ItemKnowledgeBook itemKnowledge = null,
+                                       PlayerDiscoveryLedger discoveries = null)
         {
             if (stats == null) throw new ArgumentNullException(nameof(stats));
             if (inventory == null) throw new ArgumentNullException(nameof(inventory));
@@ -205,13 +246,17 @@ namespace Signal.Core
             }
 
             int skippedKnowledge = RestoreKnowledge(data.itemKnowledge, itemKnowledge);
+            int skippedDiscoveries = RestoreDiscoveries(data.playerDiscoveries, discoveries);
+            OpportunityState restoredOpportunity = RestoreOpportunity(data.opportunity);
 
             return new LoadReport
             {
                 Success = true,
                 SkippedItems = skipped,
                 SkippedStorageItems = skippedStorage,
-                SkippedKnowledgeFacts = skippedKnowledge
+                SkippedKnowledgeFacts = skippedKnowledge,
+                SkippedDiscoverySignals = skippedDiscoveries,
+                RestoredOpportunity = restoredOpportunity
             };
         }
 
@@ -254,6 +299,99 @@ namespace Signal.Core
                     learnedMinuteOfDay = fact.LearnedMinuteOfDay
                 });
             }
+        }
+
+        private static void CaptureDiscoveries(PlayerDiscoveryLedger discoveries,
+            List<SavedDiscoverySignal> destination)
+        {
+            if (discoveries == null)
+                return;
+
+            foreach (PlayerDiscoverySignal signal in discoveries.Signals)
+            {
+                destination.Add(new SavedDiscoverySignal
+                {
+                    signalId = signal.SignalId,
+                    subjectId = signal.SubjectId,
+                    type = (int)signal.Type,
+                    sourceId = signal.SourceId,
+                    description = signal.Description,
+                    confidence = signal.Confidence,
+                    learnedDay = signal.LearnedDay,
+                    learnedMinuteOfDay = signal.LearnedMinuteOfDay
+                });
+            }
+        }
+
+        private static int RestoreDiscoveries(List<SavedDiscoverySignal> savedSignals,
+            PlayerDiscoveryLedger destination)
+        {
+            if (destination == null)
+                return 0;
+
+            destination.Clear();
+            int skipped = 0;
+            if (savedSignals == null)
+                return skipped;
+
+            foreach (SavedDiscoverySignal saved in savedSignals)
+            {
+                if (saved == null)
+                {
+                    skipped++;
+                    continue;
+                }
+
+                try
+                {
+                    destination.Record(new PlayerDiscoverySignal(saved.signalId, saved.subjectId,
+                        (DiscoverySignalType)saved.type, saved.sourceId, saved.description,
+                        saved.confidence, saved.learnedDay, saved.learnedMinuteOfDay));
+                }
+                catch (ArgumentException)
+                {
+                    skipped++;
+                }
+            }
+
+            return skipped;
+        }
+
+        private static SavedOpportunityState CaptureOpportunity(OpportunityState opportunity)
+        {
+            if (opportunity == null)
+                return null;
+
+            return new SavedOpportunityState
+            {
+                opportunityId = opportunity.OpportunityId,
+                phase = (int)opportunity.Phase,
+                resolution = (int)opportunity.Resolution,
+                parcelInstanceId = opportunity.ParcelInstanceId.ToString(),
+                acceptanceCount = opportunity.AcceptanceCount,
+                declineCount = opportunity.DeclineCount,
+                lastAcceptedDay = opportunity.LastAcceptedDay,
+                lastAcceptedMinuteOfDay = opportunity.LastAcceptedMinuteOfDay,
+                lastDeclinedDay = opportunity.LastDeclinedDay,
+                lastDeclinedMinuteOfDay = opportunity.LastDeclinedMinuteOfDay,
+                resolvedDay = opportunity.ResolvedDay,
+                resolvedMinuteOfDay = opportunity.ResolvedMinuteOfDay
+            };
+        }
+
+        private static OpportunityState RestoreOpportunity(SavedOpportunityState saved)
+        {
+            if (saved == null)
+                return null;
+
+            Guid.TryParse(saved.parcelInstanceId, out Guid parcelId);
+            return OpportunityState.TryRestore(saved.opportunityId,
+                (OpportunityPhase)saved.phase, (OpportunityResolution)saved.resolution, parcelId,
+                saved.acceptanceCount, saved.declineCount, saved.lastAcceptedDay,
+                saved.lastAcceptedMinuteOfDay, saved.lastDeclinedDay, saved.lastDeclinedMinuteOfDay,
+                saved.resolvedDay, saved.resolvedMinuteOfDay, out OpportunityState restored)
+                ? restored
+                : null;
         }
 
         private static int RestoreKnowledge(List<SavedItemKnowledge> savedFacts, ItemKnowledgeBook destination)
