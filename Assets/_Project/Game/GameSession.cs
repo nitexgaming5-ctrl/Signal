@@ -30,6 +30,7 @@ namespace Signal.Game
         private ItemKnowledgeBook _itemKnowledge;
         private PlayerDiscoveryLedger _playerDiscoveries;
         private OpportunityState _miloOpportunity;
+        private PlayerRelationshipBook _playerRelationships;
         private GameClock _clock;
         private HeatMeter _heat;
         private RentLedger _rent;
@@ -49,6 +50,7 @@ namespace Signal.Game
         public ItemKnowledgeBook PlayerItemKnowledge => _itemKnowledge;
         public PlayerDiscoveryLedger PlayerDiscoveries => _playerDiscoveries;
         public OpportunityState MiloOpportunity => _miloOpportunity;
+        public PlayerRelationshipBook PlayerRelationships => _playerRelationships;
 
         private void Start()
         {
@@ -58,6 +60,7 @@ namespace Signal.Game
             _itemKnowledge = new ItemKnowledgeBook();
             _playerDiscoveries = new PlayerDiscoveryLedger();
             _miloOpportunity = new OpportunityState("milo-parcel");
+            _playerRelationships = new PlayerRelationshipBook();
             _clock = new GameClock();
             _heat = new HeatMeter();
             _rent = new RentLedger(rentAmount, rentEveryDays);
@@ -221,7 +224,7 @@ namespace Signal.Game
             Vector2 position = _room.PlayerBody.position;
             SaveData data = SaveMapper.Capture(_stats, _inventory, _storage, _clock, _heat, _rent,
                                                _city.CurrentPlace, position.x, position.y, _itemKnowledge,
-                                               _playerDiscoveries, _miloOpportunity);
+                                               _playerDiscoveries, _miloOpportunity, _playerRelationships);
 
             try
             {
@@ -243,7 +246,7 @@ namespace Signal.Game
                 return;
             }
 
-            LoadReport report = SaveMapper.Apply(data, _stats, _inventory, _storage, _clock, _heat, _rent, ResolveType, _itemKnowledge, _playerDiscoveries);
+            LoadReport report = SaveMapper.Apply(data, _stats, _inventory, _storage, _clock, _heat, _rent, ResolveType, _itemKnowledge, _playerDiscoveries, _playerRelationships);
             if (!report.Success)
             {
                 Say("Load failed: " + report.Error);
@@ -261,7 +264,7 @@ namespace Signal.Game
             }
 
             Say(report.SkippedItems + report.SkippedStorageItems + report.SkippedKnowledgeFacts +
-                report.SkippedDiscoverySignals > 0
+                report.SkippedDiscoverySignals + report.SkippedPlayerRelationships > 0
                 ? "Loaded at " + data.worldPlace + ". Some saved item or discovery details could not be restored."
                 : "Loaded at " + data.worldPlace + ".");
         }
