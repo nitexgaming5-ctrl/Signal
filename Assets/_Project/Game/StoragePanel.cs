@@ -22,6 +22,7 @@ namespace Signal.Game
         private GridInventory _carried;
         private GridInventory _stored;
         private Action<PlacedItem> _inspectItem;
+        private ItemKnowledgeBook _itemKnowledge;
         private readonly Dictionary<Guid, string> _names = new Dictionary<Guid, string>();
         private GameObject _canvasObject;
         private RectTransform _rows;
@@ -31,7 +32,7 @@ namespace Signal.Game
         public bool IsOpen { get; private set; }
 
         public void Bind(GridInventory carried, GridInventory stored, IReadOnlyList<ItemDefinition> definitions,
-                         Action<PlacedItem> inspectItem = null)
+                         Action<PlacedItem> inspectItem = null, ItemKnowledgeBook itemKnowledge = null)
         {
             if (carried == null) throw new ArgumentNullException(nameof(carried));
             if (stored == null) throw new ArgumentNullException(nameof(stored));
@@ -42,6 +43,11 @@ namespace Signal.Game
             _carried = carried;
             _stored = stored;
             _inspectItem = inspectItem;
+            if (_itemKnowledge != null)
+                _itemKnowledge.Changed -= OnKnowledgeChanged;
+            _itemKnowledge = itemKnowledge;
+            if (_itemKnowledge != null)
+                _itemKnowledge.Changed += OnKnowledgeChanged;
             _carried.Changed += OnInventoryChanged;
             _stored.Changed += OnInventoryChanged;
 
@@ -88,9 +94,15 @@ namespace Signal.Game
         {
             if (_carried != null) _carried.Changed -= OnInventoryChanged;
             if (_stored != null) _stored.Changed -= OnInventoryChanged;
+            if (_itemKnowledge != null) _itemKnowledge.Changed -= OnKnowledgeChanged;
         }
 
         private void OnInventoryChanged(GridInventory inventory)
+        {
+            if (IsOpen) Refresh();
+        }
+
+        private void OnKnowledgeChanged(ItemKnowledgeBook knowledge)
         {
             if (IsOpen) Refresh();
         }
@@ -132,7 +144,7 @@ namespace Signal.Game
             closeRect.anchoredPosition = new Vector2(-28f, -24f);
             close.onClick.AddListener(() => SetOpen(false));
 
-            Text columns = Label(frame, "ITEM / INSTANCE STATE                                               LOCATION                                  ACTIONS", 15, MutedColor, TextAnchor.MiddleLeft);
+            Text columns = Label(frame, "ITEM / KNOWN DETAILS                                               LOCATION                                  ACTIONS", 15, MutedColor, TextAnchor.MiddleLeft);
             Anchor(columns.rectTransform, new Vector2(30f, -120f), new Vector2(1050f, 28f), true);
 
             RectTransform viewport = Panel(frame, "Viewport", new Color32(20, 24, 27, 255));
@@ -216,10 +228,7 @@ namespace Signal.Game
             layout.childForceExpandHeight = true;
 
             string name = _names.TryGetValue(item.Type.Id, out string display) ? display : "Unknown item";
-            string detail = name + "  ·  Q:" + item.State.Quality.ToString().ToUpperInvariant() +
-                "  C:" + item.State.Condition.ToString().ToUpperInvariant() +
-                "  A:" + item.State.Authenticity.ToString().ToUpperInvariant() +
-                "  O:" + item.State.Ownership.ToString().ToUpperInvariant() + "  x" + item.Count;
+            string detail = name + "  ·  " + FormatKnownState(item.ItemInstanceId) + "  x" + item.Count;
             Text itemLabel = Label(row, detail, 16, InkColor, TextAnchor.MiddleLeft);
             itemLabel.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1f;
 
@@ -235,6 +244,23 @@ namespace Signal.Game
             transfer.gameObject.AddComponent<LayoutElement>().preferredWidth = 100f;
             transfer.onClick.AddListener(() => Transfer(item, carried ? _carried : _stored,
                 carried ? _stored : _carried, carried ? "Stored" : "Taken"));
+        }
+
+        private string FormatKnownState(Guid itemInstanceId)
+        {
+            if (_itemKnowledge == null)
+                return "Q:?  C:?  A:?  O:?";
+
+            string quality = _itemKnowledge.TryGetFact(itemInstanceId, ItemKnowledgeAspect.Quality, out ItemKnowledgeFact q)
+                ? ((ItemQuality)q.Value).ToString().ToUpperInvariant() : "?";
+            string condition = _itemKnowledge.TryGetFact(itemInstanceId, ItemKnowledgeAspect.Condition, out ItemKnowledgeFact c)
+                ? ((ItemCondition)c.Value).ToString().ToUpperInvariant() : "?";
+            string authenticity = _itemKnowledge.TryGetFact(itemInstanceId, ItemKnowledgeAspect.Authenticity, out ItemKnowledgeFact a)
+                ? ((ItemAuthenticity)a.Value).ToString().ToUpperInvariant() : "?";
+            string ownership = _itemKnowledge.TryGetFact(itemInstanceId, ItemKnowledgeAspect.Ownership, out ItemKnowledgeFact o)
+                ? ((ItemOwnershipStatus)o.Value).ToString().ToUpperInvariant() : "?";
+
+            return "Q:" + quality + "  C:" + condition + "  A:" + authenticity + "  O:" + ownership;
         }
 
         private void Transfer(PlacedItem item, GridInventory source, GridInventory destination, string verb)
