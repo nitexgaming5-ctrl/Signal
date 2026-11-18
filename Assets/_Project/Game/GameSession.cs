@@ -249,6 +249,11 @@ namespace Signal.Game
             GUILayout.Label("Navigation overlay: " + (_city.DebugNavigationOverlayVisible ? "ON" : "OFF"));
             if (GUILayout.Button("Toggle navigation geometry / NPC route overlay"))
                 _city.DebugToggleNavigationOverlay();
+            if (GUILayout.Button("Retry failed NPC routes (once)"))
+            {
+                int recovered = _city.DebugRetryFailedNpcRoutes();
+                Say("Navigation retry: " + recovered + " NPC route(s) recovered.", 4f);
+            }
 
             GUILayout.Space(8f);
             GUILayout.Label("MILO — POSITION / ACTIVITY");
