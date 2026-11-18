@@ -49,8 +49,7 @@ namespace Signal.Game
 
         private float _minuteBuffer;
         private bool _debugMenuOpen;
-        private bool _debugClockPaused;
-
+        
         /// <summary>Player-scoped discovered item facts, shared by inventory and scenario interactions.</summary>
         public ItemKnowledgeBook PlayerItemKnowledge => _itemKnowledge;
         public PlayerDiscoveryLedger PlayerDiscoveries => _playerDiscoveries;
@@ -210,7 +209,7 @@ namespace Signal.Game
 
         private void TickClock()
         {
-            if (_debugClockPaused)
+            if (_clock == null || _clock.IsPaused)
                 return;
 
             _minuteBuffer += Time.deltaTime * gameMinutesPerRealSecond;
@@ -232,7 +231,7 @@ namespace Signal.Game
             const float width = 390f;
             GUILayout.BeginArea(new Rect(12f, 12f, width, Screen.height - 24f), GUI.skin.box);
             GUILayout.Label("SIGNAL — DEVELOPER DEBUG  [F1]");
-            GUILayout.Label("Clock: " + _clock.Label + (_debugClockPaused ? "  [PAUSED]" : ""));
+            GUILayout.Label("Clock: " + _clock.Label + (_clock.IsPaused ? "  [PAUSED]" : ""));
             GUILayout.Label("Location: " + _city.CurrentPlace);
             GUILayout.Label("NPC simulation: " + (_city.DebugSimulationPaused ? "PAUSED" : "RUNNING"));
             GUILayout.Label(_city.DebugResidentSummary("milo"));
@@ -244,8 +243,8 @@ namespace Signal.Game
 
             if (GUILayout.Button(_city.DebugSimulationPaused ? "Resume all NPC schedules" : "Pause all NPC schedules"))
                 _city.DebugSetNpcSimulationPaused(!_city.DebugSimulationPaused);
-            if (GUILayout.Button(_debugClockPaused ? "Resume game clock" : "Pause game clock"))
-                _debugClockPaused = !_debugClockPaused;
+            if (GUILayout.Button(_clock.IsPaused ? "Resume game clock" : "Pause game clock"))
+                _clock.SetPaused(!_clock.IsPaused);
             GUILayout.Label("Navigation overlay: " + (_city.DebugNavigationOverlayVisible ? "ON" : "OFF"));
             if (GUILayout.Button("Toggle navigation geometry / NPC route overlay"))
                 _city.DebugToggleNavigationOverlay();
