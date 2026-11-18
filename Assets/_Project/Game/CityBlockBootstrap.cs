@@ -246,7 +246,11 @@ namespace Signal.Game
         {
             var map = new CityNavigationMap();
             RoomBootstrap room = player != null ? player.GetComponentInParent<RoomBootstrap>() : null;
-            map.AddRegion("Hideout", room != null ? room.Bounds : new Rect(-1f, -1f, 22f, 14f));
+            Rect hideoutBounds = room != null ? room.Bounds : new Rect(-1f, -1f, 22f, 14f);
+            // Include the doorway threshold, which sits half a tile beyond the room's tile-coordinate bounds.
+            hideoutBounds = new Rect(hideoutBounds.xMin - 0.5f, hideoutBounds.yMin - 0.5f,
+                hideoutBounds.width + 1f, hideoutBounds.height + 1f);
+            map.AddRegion("Hideout", hideoutBounds);
             map.AddRegion("Street", new Rect(-9f, -26f, 38f, 27f));
             map.AddRegion("CornerShop", InteriorBounds(new Vector2(1000f, 1000f)));
             map.AddRegion("Apartment", InteriorBounds(new Vector2(1020f, 1000f)));
