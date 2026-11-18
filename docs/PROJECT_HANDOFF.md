@@ -376,3 +376,11 @@ The existing NPC movement system is already active: residents walk continuously 
 - Added `GameClock.IsPaused` / `SetPaused(bool)`. GameSession uses this shared state for the debug clock control and clock ticking; NpcPresenter gates real-time movement on the same state. The independent NPC-simulation pause remains separate.
 - Added two tests (one Core pause-state test and one city movement integration test). Expected suite count is **293**. This latest correction has been pushed but is awaiting user Unity compile, EditMode and Play Mode verification.
 - Branch: `chore/collaboration-workflow-and-audit`. Pull latest with `git pull`.
+
+
+## Roadmap decision — second NPC opportunity deferred (2026-11-18)
+
+- User confirmed the game-clock pause correction works and the full EditMode suite passes **293/293**. NPC interruption/recovery and clock pause are verified.
+- Opportunity 001 (Milo's Parcel) satisfies the roadmap's first player-facing NPC scenario requirement. A second opportunity is not required to prove the framework and is deferred until it adds a genuinely different player experience.
+- Recommended next direction: design a small shared-city everyday gameplay loop (goods/trade or a service interaction) that uses NPCs, item identity/state/knowledge and relationships. Design the rules and player experience first; obtain approval before implementing new gameplay mechanics. Extend Core only where this loop demonstrates a concrete need.
+- The authored NPC ScriptableObject Inspector workflow remains a small validation item, not a blocker.
