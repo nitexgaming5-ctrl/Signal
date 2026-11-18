@@ -57,19 +57,8 @@ namespace Signal.Game
             if (_state.Phase == OpportunityPhase.Dormant)
                 _state.MakeAvailable();
 
-            NpcRelationship relationship = _relationships.Get(MiloId);
-            float familiarityNeeded = Mathf.Max(0f, 0.2f - relationship.Familiarity);
-            if (familiarityNeeded > 0f)
-                _relationships.Adjust(MiloId, familiarityDelta: familiarityNeeded);
-
-            string suffix = _clock.Day + "-" + _clock.MinuteOfDay + "-" + _discoveries.Count;
-            RecordSignal("debug-milo-routine-" + suffix, DiscoverySignalType.RoutineObservation,
-                "debug-menu", "Debug-only routine observation for Milo's parcel opportunity.", 1f);
-            RecordSignal("debug-milo-evidence-" + suffix, DiscoverySignalType.PhysicalEvidence,
-                "debug-menu", "Debug-only physical evidence for Milo's parcel opportunity.", 1f);
-
             _pendingChoice = PendingChoice.Offer;
-            message = "DEBUG: Milo's offer opened directly. Discovery and familiarity requirements were bypassed.\n\n" +
+            message = "DEBUG: Milo's offer opened directly. Discovery and familiarity requirements were bypassed; no discovery or relationship facts were added.\n\n" +
                 "Milo: Listen, could you do me a small favour? There's a parcel I need moved. " +
                 "Just take it to the drop-off point. I'd rather not leave the shop.\n\n" +
                 "[1] Accept   [2] Ask why   [3] Inspect first   [4] Decline";
