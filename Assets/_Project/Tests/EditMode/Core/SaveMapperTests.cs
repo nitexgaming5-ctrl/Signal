@@ -444,5 +444,33 @@ namespace Signal.Core.Tests
             Assert.That(report.RestoredOpportunity.DeliveredIntact, Is.False);
             Assert.That(report.RestoredOpportunity.DeliveryWitnessed, Is.True);
         }
+
+        [Test]
+        public void VersionSixResolvedOpportunityMigratesWithNeutralDeliveryAssessment()
+        {
+            var data = new SaveData
+            {
+                version = 6,
+                opportunity = new SavedOpportunityState
+                {
+                    opportunityId = "milo-parcel",
+                    phase = (int)OpportunityPhase.Resolved,
+                    resolution = (int)OpportunityResolution.Delivered,
+                    parcelInstanceId = Guid.NewGuid().ToString(),
+                    acceptanceCount = 1,
+                    lastAcceptedDay = 1,
+                    lastAcceptedMinuteOfDay = 600,
+                    resolvedDay = 1,
+                    resolvedMinuteOfDay = 700
+                }
+            };
+
+            Assert.That(SaveMigrator.TryMigrate(data, out _), Is.True);
+            Assert.That(data.version, Is.EqualTo(7));
+            Assert.That(data.opportunity.hasDeliveryAssessment, Is.True);
+            Assert.That(data.opportunity.deliveredOnTime, Is.True);
+            Assert.That(data.opportunity.deliveredIntact, Is.True);
+            Assert.That(data.opportunity.deliveryWitnessed, Is.False);
+        }
     }
 }
