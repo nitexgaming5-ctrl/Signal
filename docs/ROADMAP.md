@@ -197,19 +197,20 @@ Player outcome: discover that Milo is helping someone move stolen goods, decide 
 - [x] User approved the complete implementation specification (2026-11-18).
 - [x] Add Core player discovery records/ledger, preserving signal type, source, confidence, subject and learned time.
 - [x] Add reusable contextual interaction conditions for NPC activity, relationship and discovery requirements.
-- [ ] Design and implement stable-ID opportunity definition/runtime state and permitted transitions.
-- [ ] Integrate authored discovery signals and contextual dialogue for Milo.
-- [ ] Add the physical stolen parcel and drop-off interaction.
-- [ ] Implement reversible accept/decline/withdraw paths and timing/condition/exposure outcomes.
-- [ ] Persist discovery/opportunity state with a safe migration from save v5.
-- [ ] Verify all paths in Unity Play Mode and full EditMode suite.
+- [x] Design and implement stable-ID opportunity definition/runtime state and permitted transitions.
+- [x] Integrate authored discovery signals and contextual dialogue for Milo.
+- [x] Add the physical stolen parcel and drop-off interaction.
+- [x] Implement reversible accept/decline/withdraw paths and timing/condition/exposure outcomes.
+- [x] Persist discovery/opportunity/player relationship state with save v7 and migrate v1-v6.
+- [ ] Verify compilation, full EditMode suite and all paths in Unity Play Mode.
 
 Do not expand into a generic quest journal, second named recipient, police/criminal progression, general rumour engine or unrelated mechanics. See docs/tasks/OPPORTUNITY-001-MILO-PARCEL.md.
 
 
-### Opportunity lifecycle foundation — first pass
+### Opportunity lifecycle and playable Milo slice — implementation added
 - [x] Add stable-ID OpportunityDefinition with NPC association and contextual offer conditions.
-- [x] Add a minimal state lifecycle: Dormant → Available → Accepted → Resolved, with return-to-Available for reversible withdrawal and non-terminal decline.
-- [x] Ensure delivery resolves once and expiry does not bank or queue a later opportunity.
-- [ ] Add save DTOs/migration and GameSession ownership.
-- [ ] Connect the authored Milo content and world interactions.
+- [x] Add Dormant → Available → Accepted → Resolved lifecycle, with return-to-Available withdrawal and non-terminal decline.
+- [x] Ensure delivery resolves once, records timing/condition/exposure and expiry does not bank a backlog.
+- [x] Add save v7 DTOs/migration for discoveries, player relationships and opportunity state; connect ownership through GameSession.
+- [x] Connect authored Milo/Rhea interactions, physical parcel/evidence/drop-off and soft delivery consequences.
+- [ ] Run Unity compilation, full EditMode tests and Play Mode verification.
