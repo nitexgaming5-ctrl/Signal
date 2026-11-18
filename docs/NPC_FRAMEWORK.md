@@ -42,7 +42,7 @@ The first Milo implementation is a disposable test character. Its purpose is to 
 - Schedule changes create waypoint routes through the connected street and the authored doorway of each interior. Residents walk to the exit in their current location, cross the doorway into the next location, and continue to their destination. Their logical location and shared-world position update as they move.
 - Resident GameObjects remain active so off-screen residents continue their movement. Only their renderers are hidden when their physical location is not the player's active location. Changing the player's location never snaps a resident to a destination.
 - Residents can be talked to only in their current physical location. Social encounters and Milo's contextual observations/rumours require residents to have physically arrived; travelling residents do not count as socializing participants or witnesses.
-- Movement uses authored doorway waypoints and direct segments between destinations. It is real-time but is not yet a general obstacle-avoiding pathfinder; future map complexity may require authored path nodes or navigation.
+- Movement is real-time and uses the shared city navigation map: local A* routes account for static collider obstacles and character clearance, while a doorway graph connects coordinate-space locations. NpcPresenter executes the planned waypoints at authored walking speed. Dynamic obstacle updates and moving-agent avoidance are not implemented.
 - CityBlockBootstrap runs NpcSocialEncounterSystem after residents have processed a clock change, so encounter eligibility reflects their updated authored activities. The system does not run per frame and does not make NPCs seek one another outside their schedules.
 - CityBlockBootstrap supports any number of definitions and routes prompts/interactions to the matching presenter. It does not contain per-character behaviour branches.
 - When no definitions are assigned, the bootstrap creates two temporary fallback definitions (Milo and Rhea) to exercise different routines and the shared interaction path. They are test fixtures, not final narrative characters.
@@ -100,3 +100,13 @@ This is a framework milestone, not a narrative milestone. No new story arc, fina
 - Added a runtime navigation debug overlay, toggled from F1. It shows the active region, solid geometry, doorway endpoints, player position, visible residents and their currently authored travel waypoints.
 - This is a geometry/connectivity foundation only. It does not change player movement, NPC movement, collision, or route selection. NPCs still use their existing authored waypoint routes; obstacle-aware pathfinding is deliberately next, after the map is inspected and validated in Play Mode.
 - The map currently models the existing four places and their existing doorways only. New buildings should add their region, collider obstacles and explicit doorway connections through the same representation.
+
+
+## NPC interruption and recovery v1 — implementation added (2026-11-18)
+
+- Initial binding is the only normal lifecycle operation allowed to snap a resident to an authored starting position. Re-enabling a presenter and resuming schedules use the current physical position.
+- Debug-forced activities remain temporary overrides. Returning to the authored schedule clears the override and plans a route from the NPC's current location/position to the activity selected by the current game clock.
+- Pausing simulation freezes movement and preserves the current route. On resume, an unchanged schedule keeps that route; a changed schedule replaces it with a newly planned route from the interruption point.
+- Failed navigation remains explicit. A caller may request one retry through DebugRetryNavigation; the F1 menu exposes a one-shot retry across failed residents. There is no per-frame retry loop.
+- The map is currently a static build-time snapshot, so retry is a controlled diagnostic hook for cases where the navigation representation has become usable again; dynamic obstacle/map rebuilding is future infrastructure, not part of this milestone.
+- Focused EditMode tests cover forced-activity return, pause/resume route preservation and schedule changes while paused. Unity compilation, the full suite and Play Mode validation remain pending user verification.
