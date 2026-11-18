@@ -1,6 +1,6 @@
 # Progress
 
-## Current status: obstacle-aware NPC navigation v1 implemented; Unity verification pending
+## Current status: NPC interruption/recovery v1 verified; game-clock pause movement fix implemented, Unity verification pending
 
 The connected NPC framework and WorldPacingDirector foundation are implemented. The user confirmed **226/226 EditMode tests passed** after the pacing test correction (2026-11-17), **245/245** after Item Instance v1 (2026-11-18), and **284/284** after the Milo opportunity and city-navigation geometry work (2026-11-18).
 
@@ -347,3 +347,12 @@ The shared branch now contains the discovery ledger, flexible contextual conditi
 - [ ] Run Unity compilation and the full EditMode suite.
 - [ ] Verify the new F1 retry control and recovery behaviour in Play Mode.
 - [ ] Confirm a failed route remains stopped until a deliberate retry or schedule change; no silent teleport or endless retry loop.
+
+
+## 2026-11-18 — NPC interruption/recovery v1 verified; game-clock pause correction added
+
+- User confirmed the interruption/recovery implementation compiles and all **291/291 EditMode tests pass**. The user also confirmed the recovery and movement behaviour works in Play Mode.
+- Follow-up Play Mode inspection found that the F1 **Pause game clock** control stopped in-game time but residents continued walking in real time. This happened because NPC movement used Unity's `Time.deltaTime` independently of the game clock.
+- Added a shared transient pause state to `GameClock`. The developer menu now toggles that state; the normal clock tick and NPC movement both respect it. The separate **Pause all NPC schedules** control remains independent and still pauses NPC movement/behaviour regardless of clock state.
+- Added Core coverage for pause-state toggling and a city integration test for scheduled NPC movement stopping/resuming with the game clock. Expected EditMode total is now **293**; this follow-up fix is pending user Unity verification.
+- Explicit clock advances (e.g. sleep or save restoration) remain explicit operations; the pause flag gates real-time ticking and resident movement rather than disabling intentional clock changes.
