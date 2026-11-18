@@ -98,7 +98,9 @@ namespace Signal.Game
                     return "E  Inspect wrapped parcel";
                 if (_city.HasResident(MiloId) &&
                     Vector2.Distance(playerPosition, _city.GetResidentPosition(MiloId)) <= InteractionRadius)
-                    return "E  Talk to Milo";
+                    return _state.Phase == OpportunityPhase.Accepted
+                        ? "E  Return parcel to Milo"
+                        : "E  Talk to Milo";
             }
 
             if (place == "Street")
@@ -169,7 +171,7 @@ namespace Signal.Game
                 if (_city.HasResident(MiloId) &&
                     Vector2.Distance(playerPosition, _city.GetResidentPosition(MiloId)) <= InteractionRadius)
                 {
-                    message = TalkToMilo();
+                    message = _state.Phase == OpportunityPhase.Accepted ? ReturnParcel() : TalkToMilo();
                     return true;
                 }
             }
