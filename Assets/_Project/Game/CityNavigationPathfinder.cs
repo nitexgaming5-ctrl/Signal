@@ -123,7 +123,7 @@ namespace Signal.Game
             if (!TryFindNearestWalkable(grid, start, out int startIndex) ||
                 !TryFindNearestWalkable(grid, goal, out int goalIndex))
                 return false;
-            if (!TryFindGridPath(grid, startIndex, goalIndex, out List<int> rawPath))
+            if (!TryFindGridPath(placeId, grid, startIndex, goalIndex, out List<int> rawPath))
                 return false;
 
             List<int> smoothPath = SmoothPath(placeId, grid, rawPath);
@@ -171,7 +171,7 @@ namespace Signal.Game
             return nearestIndex >= 0;
         }
 
-        private bool TryFindGridPath(Grid grid, int startIndex, int goalIndex, out List<int> path)
+        private bool TryFindGridPath(string placeId, Grid grid, int startIndex, int goalIndex, out List<int> path)
         {
             path = new List<int>();
             if (startIndex == goalIndex) { path.Add(startIndex); return true; }
