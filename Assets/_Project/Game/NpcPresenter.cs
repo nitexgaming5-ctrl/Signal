@@ -140,7 +140,7 @@ namespace Signal.Game
             if (!paused)
             {
                 _debugActivityOverride = false;
-                RefreshFromClock(true);
+                RefreshFromClock(false);
             }
         }
 
@@ -154,7 +154,7 @@ namespace Signal.Game
         {
             _debugActivityOverride = false;
             if (!_debugSimulationPaused)
-                RefreshFromClock(true);
+                RefreshFromClock(false);
         }
 
         private void Update()
@@ -263,32 +263,54 @@ namespace Signal.Game
 
             if (snapToDestination)
             {
+                // Used only for first-time placement. Resume and schedule changes must walk.
                 _currentPlace = targetPlace;
                 transform.position = new Vector3(_destination.x, _destination.y, 0f);
-            }
-            else if (_city != null)
-            {
-                // All in-city movement, including destinations in the same location,
-                // goes through the shared navigation map.
-                _travelRoute.AddRange(_city.BuildNpcTravelRoute(
-                    _currentPlace, transform.position, targetPlace, _destination));
             }
             else
             {
-                _currentPlace = targetPlace;
-                transform.position = new Vector3(_destination.x, _destination.y, 0f);
-                _travelRoute.Add(new NpcTravelWaypoint(targetPlace, _destination));
-            }
-
-            if (!snapToDestination && _travelRoute.Count == 0 &&
-                Vector2.Distance(transform.position, _destination) > 0.1f)
-            {
-                NavigationFailed = true;
-                Debug.LogWarning("NPC navigation could not find a route for " + NpcId +
-                    " from " + _currentPlace + " to " + targetPlace + ".");
+                TryPlanRouteToDestination();
             }
             SyncSocialPosition();
             UpdateLocationVisibility();
+        }
+
+        /// <summary>
+        /// Makes one explicit retry after a previous route failure. This is intentionally
+        /// not called every frame; callers decide when the navigation world may have changed.
+        /// </summary>
+        public bool DebugRetryNavigation()
+        {
+            if (!_initialized || !NavigationFailed || _debugSimulationPaused || _debugActivityOverride)
+                return false;
+            return TryPlanRouteToDestination();
+        }
+
+        private bool TryPlanRouteToDestination()
+        {
+            _travelRoute.Clear();
+            _nextTravelWaypoint = 0;
+
+            if (_city != null)
+            {
+                _travelRoute.AddRange(_city.BuildNpcTravelRoute(
+                    _currentPlace, transform.position, ActivityPlace(_activity), _destination));
+            }
+            else if (_currentPlace == ActivityPlace(_activity))
+            {
+                _travelRoute.Add(new NpcTravelWaypoint(_currentPlace, _destination));
+            }
+
+            NavigationFailed = _travelRoute.Count == 0 &&
+                Vector2.Distance(transform.position, _destination) > 0.1f;
+            if (NavigationFailed)
+            {
+                Debug.LogWarning("NPC navigation could not find a route for " + NpcId +
+                    " from " + _currentPlace + " to " + ActivityPlace(_activity) + ".");
+            }
+            SyncSocialPosition();
+            UpdateLocationVisibility();
+            return !NavigationFailed;
         }
 
         private void UpdateLocationVisibility()
