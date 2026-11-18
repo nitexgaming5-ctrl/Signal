@@ -265,7 +265,16 @@ Do not expand into a generic quest journal, second named recipient, police/crimi
 - [x] If the schedule changes while paused, re-evaluate it and plan from the interruption point.
 - [x] Add an explicit one-shot retry for failed routes, exposed in the F1 developer menu; do not retry every frame.
 - [x] Add focused EditMode tests for forced activity recovery and pause/resume behavior.
-- [ ] Run Unity compilation and the full EditMode suite; user verification pending.
-- [ ] Verify recovery and the one-shot retry control in Play Mode.
+- [x] User confirmed Unity compilation and 291/291 EditMode tests passed (2026-11-18).
+- [x] User confirmed NPC movement/recovery works in Play Mode.
+- [ ] Verify the follow-up game-clock pause movement correction; expected suite total is now 293.
 
 **Scope boundary:** no new gameplay mechanic, autonomous obstacle avoidance, moving-agent avoidance, or dynamic navigation-map rebuilding. A failed route remains visibly failed until a deliberate retry or a later schedule change successfully replans it.
+
+
+## Follow-up correction — game-clock pause and NPC movement
+
+- [x] Add a shared transient pause state to GameClock and use it in the F1 developer clock toggle.
+- [x] Stop real-time NPC movement while the game clock is paused, without coupling it to the separate NPC-simulation pause control.
+- [x] Add tests for clock pause state and scheduled resident movement pause/resume.
+- [ ] User verification in Unity; expected full EditMode suite: 293 tests.
