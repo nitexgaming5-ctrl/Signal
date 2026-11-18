@@ -80,7 +80,8 @@ namespace Signal.Game
             for (int i = 0; i < _residents.Count; i++)
             {
                 NpcPresenter resident = _residents[i];
-                if (resident == null || !resident.gameObject.activeInHierarchy ||
+                if (resident == null || resident.CurrentPlace != _place.ToString() ||
+                    resident.IsTravelling ||
                     (!string.IsNullOrWhiteSpace(excludeNpcId) && resident.NpcId == excludeNpcId))
                     continue;
                 if ((resident.Position - position).sqrMagnitude <= squaredRadius)
