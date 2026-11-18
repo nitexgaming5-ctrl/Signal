@@ -323,7 +323,7 @@ namespace Signal.Core.Tests
         }
 
         [Test]
-        public void VersionSixRoundTripPreservesPlayerDiscoveriesAndOpportunityLifecycle()
+        public void VersionSevenRoundTripPreservesPlayerDiscoveriesAndOpportunityLifecycle()
         {
             var source = new World();
             var discoveries = new PlayerDiscoveryLedger();
