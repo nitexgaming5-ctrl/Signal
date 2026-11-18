@@ -31,6 +31,7 @@ namespace Signal.Game
         private GameClock _clock;
         private NpcSocialWorld _socialWorld;
         private NpcSocialEncounterSystem _socialEncounterSystem;
+        private bool _debugSimulationPaused;
 
         private static readonly Vector2 HomeDoor = new Vector2(10f, -1.5f);
         private static readonly Vector2 ShopDoor = new Vector2(0.5f, -10.8f);
@@ -76,6 +77,55 @@ namespace Signal.Game
             return false;
         }
         public NpcSocialWorld SocialWorld => _socialWorld;
+
+        public bool DebugSimulationPaused => _debugSimulationPaused;
+
+        public bool DebugSetNpcSimulationPaused(bool paused)
+        {
+            _debugSimulationPaused = paused;
+            for (int i = 0; i < _residents.Count; i++)
+                if (_residents[i] != null)
+                    _residents[i].SetDebugSimulationPaused(paused);
+            return _debugSimulationPaused;
+        }
+
+        public bool DebugForceResidentActivity(string npcId, NpcActivity activity)
+        {
+            NpcPresenter resident = FindResident(npcId);
+            if (resident == null)
+                return false;
+            resident.DebugForceActivity(activity);
+            return true;
+        }
+
+        public bool DebugResumeResidentSchedule(string npcId)
+        {
+            NpcPresenter resident = FindResident(npcId);
+            if (resident == null)
+                return false;
+            resident.DebugResumeSchedule();
+            return true;
+        }
+
+        public bool DebugFocusResident(string npcId)
+        {
+            NpcPresenter resident = FindResident(npcId);
+            if (resident == null)
+                return false;
+
+            string place = resident.CurrentPlace;
+            Vector2 position = resident.Position + new Vector2(-1.1f, 0f);
+            return TryRestorePlace(place, position);
+        }
+
+        public string DebugResidentSummary(string npcId)
+        {
+            NpcPresenter resident = FindResident(npcId);
+            return resident == null ? npcId + ": unavailable" :
+                resident.DisplayName + " — " + resident.Activity + " @ " + resident.CurrentPlace +
+                " (" + resident.Position.x.ToString("0.0") + ", " +
+                resident.Position.y.ToString("0.0") + ")";
+        }
 
         public void Build(Transform player, Rigidbody2D body, Camera camera, GameClock clock = null,
             NpcCharacterDefinition[] definitions = null)
@@ -265,7 +315,7 @@ namespace Signal.Game
 
         private void OnClockChanged(GameClock clock)
         {
-            if (_socialEncounterSystem == null || _socialWorld == null)
+            if (_debugSimulationPaused || _socialEncounterSystem == null || _socialWorld == null)
                 return;
 
             var socializingNpcIds = new List<string>();
