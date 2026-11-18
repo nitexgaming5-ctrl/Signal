@@ -90,3 +90,13 @@ This is a framework milestone, not a narrative milestone. No new story arc, fina
 - Clock rewinds are rejected for authorization rather than treated as fresh time; persistence/reconstruction of the director's phase and last authorization will be designed alongside scenario/save state before this becomes live gameplay.
 
 - The newly added WorldPacingDirector tests are a separate, later change and still require a fresh Unity run; the 219/219 result predates this pacing addition.
+
+
+## City navigation geometry — first shared representation (2026-11-18)
+
+- Added `CityNavigationMap` in the Game layer. It describes each coordinate-space location as a walkable rectangular region, records solid colliders as obstacles, and joins locations through named doorway connections.
+- The current map registers Hideout, Street, CornerShop and Apartment. The street is one connected area containing the road and both sidewalks; shop/apartment interiors use their own coordinate spaces. Doorway links describe how those spaces connect.
+- Solid geometry is sourced from the actual generated colliders, not re-authored separately. Point-level walkability queries combine region bounds and collider overlap. Character clearance/radius is not yet part of the query.
+- Added a runtime navigation debug overlay, toggled from F1. It shows the active region, solid geometry, doorway endpoints, player position, visible residents and their currently authored travel waypoints.
+- This is a geometry/connectivity foundation only. It does not change player movement, NPC movement, collision, or route selection. NPCs still use their existing authored waypoint routes; obstacle-aware pathfinding is deliberately next, after the map is inspected and validated in Play Mode.
+- The map currently models the existing four places and their existing doorways only. New buildings should add their region, collider obstacles and explicit doorway connections through the same representation.
