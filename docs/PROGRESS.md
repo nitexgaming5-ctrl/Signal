@@ -335,3 +335,15 @@ The shared branch now contains the discovery ledger, flexible contextual conditi
 - Added pathfinder tests for obstacle avoidance, clearance, blocked destinations, unreachable regions and diagonal corner cases, plus a city integration test that checks a route around the street bench.
 - Player movement remains on its existing Rigidbody2D collision path. Dynamic obstacles, moving-agent avoidance, crowd separation, player click-to-move and navigation persistence are not part of this pass.
 - The user reported 284/284 EditMode tests and a working Milo parcel scenario before this implementation. This new code has not yet been compiled or tested in Unity; verify the full suite and Play Mode movement before treating navigation v1 as complete.
+
+
+## NPC interruption and recovery v1 — implementation added (2026-11-18)
+
+- Separated initial placement from ordinary schedule refresh. Only first-time binding may snap a resident to an authored starting destination; re-enabling a presenter, resuming the simulation or returning from a debug activity now preserves physical position.
+- Returning Milo from a forced debug activity to his authored schedule replans a route from his current physical location instead of teleporting him to the scheduled destination.
+- Pausing NPC simulation preserves the current route. If the game clock changes while paused, resuming evaluates the current schedule and replans from the interruption point.
+- Added an explicit one-shot retry for failed navigation routes, exposed through F1. There is no per-frame retry loop.
+- Added EditMode coverage for forced-activity recovery, route preservation across pause/resume and schedule changes during pause.
+- [ ] Run Unity compilation and the full EditMode suite.
+- [ ] Verify the new F1 retry control and recovery behaviour in Play Mode.
+- [ ] Confirm a failed route remains stopped until a deliberate retry or schedule change; no silent teleport or endless retry loop.
