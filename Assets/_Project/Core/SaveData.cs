@@ -61,6 +61,15 @@ namespace Signal.Core
     }
 
     [Serializable]
+    public sealed class SavedPlayerRelationship
+    {
+        public string npcId;
+        public float familiarity;
+        public float trust;
+        public float affinity;
+    }
+
+    [Serializable]
     public sealed class SaveData
     {
         public int version = SaveMigrator.CurrentVersion;
@@ -80,6 +89,7 @@ namespace Signal.Core
         public List<SavedItemKnowledge> itemKnowledge = new List<SavedItemKnowledge>();
         public List<SavedDiscoverySignal> playerDiscoveries = new List<SavedDiscoverySignal>();
         public SavedOpportunityState opportunity;
+        public List<SavedPlayerRelationship> playerRelationships = new List<SavedPlayerRelationship>();
     }
 
     public sealed class LoadReport
@@ -90,14 +100,15 @@ namespace Signal.Core
         public int SkippedStorageItems { get; set; }
         public int SkippedKnowledgeFacts { get; set; }
         public int SkippedDiscoverySignals { get; set; }
+        public int SkippedPlayerRelationships { get; set; }
         public OpportunityState RestoredOpportunity { get; set; }
     }
 
     public static class SaveMigrator
     {
-        public const int CurrentVersion = 6;
+        public const int CurrentVersion = 7;
 
-        /// <summary>Accepts save formats v1 through v6 and migrates them to the current inventory and player-knowledge format.</summary>
+        /// <summary>Accepts save formats v1 through v7 and migrates them to the current inventory and player-knowledge format.</summary>
         public static bool TryMigrate(SaveData data, out string error)
         {
             error = null;
@@ -138,6 +149,9 @@ namespace Signal.Core
             // Version 5 introduced player item knowledge. Version 6 adds discovery signals and one authored opportunity.
             if (data.playerDiscoveries == null)
                 data.playerDiscoveries = new List<SavedDiscoverySignal>();
+            // Version 7 adds player-to-NPC relationship impressions.
+            if (data.playerRelationships == null)
+                data.playerRelationships = new List<SavedPlayerRelationship>();
 
             data.version = CurrentVersion;
 
@@ -176,7 +190,8 @@ namespace Signal.Core
         public static SaveData Capture(PlayerStats stats, GridInventory inventory, GridInventory storage,
                                        GameClock clock, HeatMeter heat, RentLedger rent, string worldPlace,
                                        float playerX, float playerY, ItemKnowledgeBook itemKnowledge = null,
-                                       PlayerDiscoveryLedger discoveries = null, OpportunityState opportunity = null)
+                                       PlayerDiscoveryLedger discoveries = null, OpportunityState opportunity = null,
+                                       PlayerRelationshipBook relationships = null)
         {
             if (stats == null) throw new ArgumentNullException(nameof(stats));
             if (inventory == null) throw new ArgumentNullException(nameof(inventory));
@@ -205,6 +220,7 @@ namespace Signal.Core
             CaptureKnowledge(itemKnowledge, data.itemKnowledge);
             CaptureDiscoveries(discoveries, data.playerDiscoveries);
             data.opportunity = CaptureOpportunity(opportunity);
+            CapturePlayerRelationships(relationships, data.playerRelationships);
 
             return data;
         }
@@ -218,7 +234,8 @@ namespace Signal.Core
         public static LoadReport Apply(SaveData data, PlayerStats stats, GridInventory inventory, GridInventory storage,
                                        GameClock clock, HeatMeter heat, RentLedger rent, Func<Guid, ItemType?> resolve,
                                        ItemKnowledgeBook itemKnowledge = null,
-                                       PlayerDiscoveryLedger discoveries = null)
+                                       PlayerDiscoveryLedger discoveries = null,
+                                       PlayerRelationshipBook relationships = null)
         {
             if (stats == null) throw new ArgumentNullException(nameof(stats));
             if (inventory == null) throw new ArgumentNullException(nameof(inventory));
@@ -247,6 +264,7 @@ namespace Signal.Core
 
             int skippedKnowledge = RestoreKnowledge(data.itemKnowledge, itemKnowledge);
             int skippedDiscoveries = RestoreDiscoveries(data.playerDiscoveries, discoveries);
+            int skippedRelationships = RestorePlayerRelationships(data.playerRelationships, relationships);
             OpportunityState restoredOpportunity = RestoreOpportunity(data.opportunity);
 
             return new LoadReport
@@ -256,6 +274,7 @@ namespace Signal.Core
                 SkippedStorageItems = skippedStorage,
                 SkippedKnowledgeFacts = skippedKnowledge,
                 SkippedDiscoverySignals = skippedDiscoveries,
+                SkippedPlayerRelationships = skippedRelationships,
                 RestoredOpportunity = restoredOpportunity
             };
         }
@@ -352,6 +371,55 @@ namespace Signal.Core
                 {
                     skipped++;
                 }
+            }
+
+            return skipped;
+        }
+
+        private static void CapturePlayerRelationships(PlayerRelationshipBook relationships,
+            List<SavedPlayerRelationship> destination)
+        {
+            if (relationships == null)
+                return;
+
+            foreach (PlayerNpcRelationshipEntry entry in relationships.Entries)
+            {
+                destination.Add(new SavedPlayerRelationship
+                {
+                    npcId = entry.NpcId,
+                    familiarity = entry.Relationship.Familiarity,
+                    trust = entry.Relationship.Trust,
+                    affinity = entry.Relationship.Affinity
+                });
+            }
+        }
+
+        private static int RestorePlayerRelationships(List<SavedPlayerRelationship> savedRelationships,
+            PlayerRelationshipBook destination)
+        {
+            if (destination == null)
+                return 0;
+
+            destination.Clear();
+            int skipped = 0;
+            if (savedRelationships == null)
+                return skipped;
+
+            foreach (SavedPlayerRelationship saved in savedRelationships)
+            {
+                if (saved == null || string.IsNullOrWhiteSpace(saved.npcId) ||
+                    float.IsNaN(saved.familiarity) || float.IsInfinity(saved.familiarity) ||
+                    float.IsNaN(saved.trust) || float.IsInfinity(saved.trust) ||
+                    float.IsNaN(saved.affinity) || float.IsInfinity(saved.affinity) ||
+                    saved.familiarity < 0f || saved.familiarity > 1f ||
+                    saved.trust < 0f || saved.trust > 1f ||
+                    saved.affinity < -1f || saved.affinity > 1f)
+                {
+                    skipped++;
+                    continue;
+                }
+
+                destination.Set(saved.npcId, saved.familiarity, saved.trust, saved.affinity);
             }
 
             return skipped;
