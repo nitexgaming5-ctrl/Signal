@@ -260,3 +260,10 @@ Milestone 1 has been added on the shared branch: PlayerDiscoverySignal, PlayerDi
 - Added docs/tasks/OPPORTUNITY-001-MILO-PARCEL.md as the approved initiative specification.
 - Not yet integrated into GameSession, NPC interactions, item inventory, world drop-off or save format. Those are later milestones. No Unity compilation/tests or Play Mode verification performed by the assistant.
 - No legacy scripts or old iterations were deleted; none were demonstrated to be safely removable by this milestone.
+
+
+### Milestone 2 — minimal opportunity lifecycle added (Unity verification pending)
+- Added immutable OpportunityDefinition with stable ID, associated NPC and offer conditions.
+- Added OpportunityState phases Dormant, Available, Accepted and Resolved. Decline records the choice without failing the opportunity; returning the parcel releases commitment and makes it available again; delivery resolves exactly once; an available opportunity can expire without a backlog.
+- Added tests for offer conditions, decline, accept/return, one-time delivery resolution, expiry and invalid transitions.
+- These Core models are not yet wired into GameSession or save/load. Unity compilation and the full EditMode suite remain user verification tasks.
