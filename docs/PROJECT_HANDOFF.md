@@ -324,3 +324,15 @@ The user confirmed **255/255 EditMode tests passed** after player item-knowledge
 - **Trigger Milo Offer Now** pauses NPC simulation, forces Milo to Socialize, focuses the player on him, opens the normal offer-choice UI without fabricating discovery or relationship facts. This bypasses discovery requirements for testing, not the parcel inventory/accept/return/delivery logic.
 - The user confirmed Unity compilation and that the parcel appears in Play Mode. A 279/280 EditMode run had one stale evening-dialogue assertion; it was corrected on the shared branch. Rerun the full suite after pulling the latest changes.
 - These are developer-only test controls, not player-facing mechanics. Do not treat debug-created discovery facts as authored story content.
+
+
+## 15. Real-time NPC movement — implementation added (2026-11-18)
+
+- Schedule changes no longer teleport residents between Work, Rest, Socialize and Home locations.
+- NpcPresenter now follows a waypoint route: current interior exit → street-side doorway → destination street doorway → destination interior entry → authored activity position. Same-location movement walks directly to the destination.
+- NPCs continue moving when their location is not currently displayed. Their GameObjects stay active; only child SpriteRenderers are hidden based on the player's active location. Social-world location/position follows the resident throughout travel.
+- Player location transitions no longer snap NPC transforms.
+- Social encounter eligibility and Milo/Rhea scenario observations require physical arrival, not just a scheduled activity label.
+- The F1 debug menu's NPC summaries now report a travelling status where applicable. Deterministic movement stepping is available to EditMode tests.
+- Movement currently follows authored doorway waypoints and direct segments. There is no general obstacle avoidance or dynamic pathfinding.
+- This change has been committed to the shared branch, but Unity compilation, the full EditMode suite and Play Mode verification are still pending. Do not report it as tested until the user confirms.
