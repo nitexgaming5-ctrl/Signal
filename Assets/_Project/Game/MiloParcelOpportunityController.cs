@@ -96,6 +96,9 @@ namespace Signal.Game
                     return "E  Inspect delivery slip";
                 if (IsParcelOnCounter() && Vector2.Distance(playerPosition, ParcelCounterPosition) <= InteractionRadius)
                     return "E  Inspect wrapped parcel";
+                if (_city.HasResident(MiloId) &&
+                    Vector2.Distance(playerPosition, _city.GetResidentPosition(MiloId)) <= InteractionRadius)
+                    return "E  Talk to Milo";
             }
 
             if (place == "Street")
@@ -160,6 +163,13 @@ namespace Signal.Game
                 {
                     InspectParcel();
                     message = "The wrapping is intact. The label has been removed; the marks underneath suggest the parcel may not belong to Milo.";
+                    return true;
+                }
+
+                if (_city.HasResident(MiloId) &&
+                    Vector2.Distance(playerPosition, _city.GetResidentPosition(MiloId)) <= InteractionRadius)
+                {
+                    message = TalkToMilo();
                     return true;
                 }
             }
