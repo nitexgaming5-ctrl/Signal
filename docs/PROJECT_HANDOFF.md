@@ -399,10 +399,11 @@ The user approved a full shared-city economic system. Retain the full approved d
 Added runtime Core primitives:
 - EconomicActorId
 - AssetOwnershipBook
+- EconomicContainerRegistry (runtime container custodian mapping, distinct from asset ownership)
 - EconomicTransaction and EconomicTransactionLedger
 - AssetTransferService
 
-The service transfers complete item stacks between inventories, validates the current owner, updates ownership, preserves stable item identity/state, and records successful transfers with a reason and in-game timestamp. Same-owner storage moves remain ordinary InventoryTransfer operations. Core EditMode tests were added for success and failure paths.
+The service requires registered source and destination containers, validates the current asset owner, checks that the destination container is maintained by the receiving actor, updates ownership, preserves stable item identity/state, and records successful transfers with a reason and in-game timestamp. Source-container custody is intentionally independent from asset ownership. Same-owner storage moves remain ordinary InventoryTransfer operations. Core EditMode tests were added for success and failure paths.
 
 This is not yet a persistent player-facing feature. Ownership and transaction state are runtime-only and are not connected to GameSession or save v7. Phase 2 must add versioned persistence before using these primitives in saved gameplay. Unity compilation, EditMode tests and Play Mode verification remain pending the user's Editor run.
 
