@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Tilemaps;
 
 namespace Signal.Game
 {
@@ -28,20 +27,16 @@ namespace Signal.Game
             public string PlaceId { get; }
             public string Label { get; }
             public Rect Bounds { get; }
-            public Collider2D Collider { get; }
 
-            internal Obstacle(string placeId, string label, Rect bounds, Collider2D collider)
+            internal Obstacle(string placeId, string label, Rect bounds)
             {
                 PlaceId = placeId;
                 Label = label;
                 Bounds = bounds;
-                Collider = collider;
             }
 
             public bool Contains(Vector2 point)
             {
-                if (Collider != null && Collider.enabled)
-                    return Collider.OverlapPoint(point);
                 return Bounds.Contains(point);
             }
         }
@@ -102,14 +97,14 @@ namespace Signal.Game
             _regions.Add(new Region(placeId, bounds));
         }
 
-        public void AddObstacle(string placeId, string label, Rect bounds, Collider2D collider = null)
+        public void AddObstacle(string placeId, string label, Rect bounds)
         {
             if (FindRegion(placeId) == null)
                 throw new InvalidOperationException("Add the navigation region before its obstacles.");
             if (bounds.width <= 0f || bounds.height <= 0f)
                 return;
 
-            _obstacles.Add(new Obstacle(placeId, label ?? "Obstacle", bounds, collider));
+            _obstacles.Add(new Obstacle(placeId, label ?? "Obstacle", bounds));
         }
 
         public void AddConnection(string id, string fromPlace, Vector2 fromPoint, string toPlace, Vector2 toPoint)
@@ -243,7 +238,7 @@ namespace Signal.Game
             for (int i = 0; i < _map.Obstacles.Count; i++)
             {
                 CityNavigationMap.Obstacle obstacle = _map.Obstacles[i];
-                if (obstacle.PlaceId != place || obstacle.Collider is TilemapCollider2D)
+                if (obstacle.PlaceId != place)
                     continue;
                 DrawRect(ToScreenRect(obstacle.Bounds), new Color(1f, 0.15f, 0.12f, 0.32f));
                 GUI.color = Color.white;
