@@ -32,11 +32,13 @@ namespace Signal.Core
         public float MinimumFamiliarity { get; }
         public float MinimumTrust { get; }
         public float MinimumAffinity { get; }
+        public int MinimumDistinctSignalTypes { get; }
 
         public InteractionConditionSet(NpcActivity? requiredActivity = null,
             float minimumFamiliarity = 0f, float minimumTrust = 0f, float minimumAffinity = -1f,
             IEnumerable<string> requiredSignalIds = null,
-            IEnumerable<DiscoverySignalType> requiredSignalTypes = null)
+            IEnumerable<DiscoverySignalType> requiredSignalTypes = null,
+            int minimumDistinctSignalTypes = 0)
         {
             ValidateRange(minimumFamiliarity, 0f, 1f, nameof(minimumFamiliarity));
             ValidateRange(minimumTrust, 0f, 1f, nameof(minimumTrust));
@@ -44,10 +46,15 @@ namespace Signal.Core
             if (requiredActivity.HasValue && !Enum.IsDefined(typeof(NpcActivity), requiredActivity.Value))
                 throw new ArgumentOutOfRangeException(nameof(requiredActivity));
 
+            if (minimumDistinctSignalTypes < 0 ||
+                minimumDistinctSignalTypes > Enum.GetValues(typeof(DiscoverySignalType)).Length)
+                throw new ArgumentOutOfRangeException(nameof(minimumDistinctSignalTypes));
+
             RequiredActivity = requiredActivity;
             MinimumFamiliarity = minimumFamiliarity;
             MinimumTrust = minimumTrust;
             MinimumAffinity = minimumAffinity;
+            MinimumDistinctSignalTypes = minimumDistinctSignalTypes;
             _requiredSignalIds = CopyIds(requiredSignalIds);
             _requiredSignalTypes = CopyTypes(requiredSignalTypes);
         }
@@ -63,6 +70,9 @@ namespace Signal.Core
             if (context.Relationship.Familiarity < MinimumFamiliarity ||
                 context.Relationship.Trust < MinimumTrust ||
                 context.Relationship.Affinity < MinimumAffinity)
+                return false;
+
+            if (context.Discoveries.CountDistinctSignalTypes(subjectId) < MinimumDistinctSignalTypes)
                 return false;
 
             for (int i = 0; i < _requiredSignalIds.Length; i++)
