@@ -53,9 +53,13 @@ namespace Signal.Core.Tests
             var state = AvailableState();
             state.TryAccept(Guid.NewGuid(), 1, 500);
 
-            Assert.That(state.TryResolveDelivered(1, 560), Is.True);
+            Assert.That(state.TryResolveDelivered(1, 560, true, false, true), Is.True);
             Assert.That(state.Phase, Is.EqualTo(OpportunityPhase.Resolved));
             Assert.That(state.Resolution, Is.EqualTo(OpportunityResolution.Delivered));
+            Assert.That(state.HasDeliveryAssessment, Is.True);
+            Assert.That(state.DeliveredOnTime, Is.True);
+            Assert.That(state.DeliveredIntact, Is.False);
+            Assert.That(state.DeliveryWitnessed, Is.True);
             Assert.That(state.TryResolveDelivered(1, 570), Is.False);
             Assert.That(state.TryAccept(Guid.NewGuid(), 1, 580), Is.False);
         }
@@ -97,16 +101,16 @@ namespace Signal.Core.Tests
 
             Assert.That(OpportunityState.TryRestore("milo-parcel", OpportunityPhase.Accepted,
                 OpportunityResolution.None, parcelId, 1, 0, 2, 610, 0, 0, 0, 0,
-                out OpportunityState accepted), Is.True);
+                false, false, false, false, out OpportunityState accepted), Is.True);
             Assert.That(accepted.ParcelInstanceId, Is.EqualTo(parcelId));
             Assert.That(accepted.Phase, Is.EqualTo(OpportunityPhase.Accepted));
 
             Assert.That(OpportunityState.TryRestore("milo-parcel", OpportunityPhase.Resolved,
                 OpportunityResolution.None, parcelId, 1, 0, 2, 610, 0, 0, 2, 620,
-                out _), Is.False);
+                false, false, false, false, out _), Is.False);
             Assert.That(OpportunityState.TryRestore("milo-parcel", OpportunityPhase.Accepted,
                 OpportunityResolution.Delivered, parcelId, 1, 0, 2, 610, 0, 0, 0, 0,
-                out _), Is.False);
+                false, false, false, false, out _), Is.False);
         }
     }
 }
