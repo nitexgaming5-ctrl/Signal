@@ -48,6 +48,8 @@ namespace Signal.Game
         private MiloParcelOpportunityController _miloScenario;
 
         private float _minuteBuffer;
+        private bool _debugMenuOpen;
+        private bool _debugClockPaused;
 
         /// <summary>Player-scoped discovered item facts, shared by inventory and scenario interactions.</summary>
         public ItemKnowledgeBook PlayerItemKnowledge => _itemKnowledge;
@@ -119,6 +121,10 @@ namespace Signal.Game
             if (_stats == null)
                 return;
 
+            Keyboard keyboard = Keyboard.current;
+            if (keyboard != null && keyboard.f1Key.wasPressedThisFrame)
+                _debugMenuOpen = !_debugMenuOpen;
+
             bool workspaceOpen = _workspace != null && _workspace.IsOpen;
             bool inventoryOpen = _panel != null && _panel.IsOpen;
             bool storageOpen = _storagePanel != null && _storagePanel.IsOpen;
@@ -130,9 +136,8 @@ namespace Signal.Game
 
             bool scenarioChoiceOpen = _miloScenario != null && _miloScenario.HasPendingChoice;
             _motor.enabled = !inventoryOpen && !workspaceOpen && !storageOpen && !itemViewerOpen &&
-                !scenarioChoiceOpen;
+                !scenarioChoiceOpen && !_debugMenuOpen;
 
-            Keyboard keyboard = Keyboard.current;
             Vector2 playerPosition = _room.Player.position;
             bool nearWorkbench = _room.Workbench != null &&
                 Vector2.Distance(playerPosition, _room.Workbench.position) <= 2.15f;
@@ -165,7 +170,7 @@ namespace Signal.Game
 
             TickClock();
 
-            if (keyboard == null)
+            if (_debugMenuOpen || keyboard == null)
                 return;
 
             if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen &&
@@ -205,6 +210,9 @@ namespace Signal.Game
 
         private void TickClock()
         {
+            if (_debugClockPaused)
+                return;
+
             _minuteBuffer += Time.deltaTime * gameMinutesPerRealSecond;
 
             int whole = (int)_minuteBuffer;
@@ -212,6 +220,107 @@ namespace Signal.Game
             {
                 _minuteBuffer -= whole;
                 _clock.Advance(whole);
+            }
+        }
+
+
+        private void OnGUI()
+        {
+            if (!_debugMenuOpen || _city == null)
+                return;
+
+            const float width = 390f;
+            GUILayout.BeginArea(new Rect(12f, 12f, width, Screen.height - 24f), GUI.skin.box);
+            GUILayout.Label("SIGNAL — DEVELOPER DEBUG  [F1]");
+            GUILayout.Label("Clock: " + _clock.Label + (_debugClockPaused ? "  [PAUSED]" : ""));
+            GUILayout.Label("Location: " + _city.CurrentPlace);
+            GUILayout.Label("NPC simulation: " + (_city.DebugSimulationPaused ? "PAUSED" : "RUNNING"));
+            GUILayout.Label(_city.DebugResidentSummary("milo"));
+            GUILayout.Label(_city.DebugResidentSummary("rhea"));
+            GUILayout.Label("Milo opportunity: " + (_miloOpportunity != null ? _miloOpportunity.Phase.ToString() : "Unavailable"));
+            GUILayout.Label("Discovery signals: " + (_playerDiscoveries != null ? _playerDiscoveries.Count.ToString() : "0") +
+                "   Familiarity: " + (_playerRelationships != null ? _playerRelationships.Get("milo").Familiarity.ToString("0.00") : "0.00"));
+            GUILayout.Space(8f);
+
+            if (GUILayout.Button(_city.DebugSimulationPaused ? "Resume all NPC schedules" : "Pause all NPC schedules"))
+                _city.DebugSetNpcSimulationPaused(!_city.DebugSimulationPaused);
+            if (GUILayout.Button(_debugClockPaused ? "Resume game clock" : "Pause game clock"))
+                _debugClockPaused = !_debugClockPaused;
+
+            GUILayout.Space(8f);
+            GUILayout.Label("MILO — POSITION / ACTIVITY");
+            if (GUILayout.Button("Focus Milo (current activity)"))
+                DebugFocusMilo();
+            if (GUILayout.Button("Force Milo: Socialize (street) + focus"))
+                DebugForceMilo(NpcActivity.Socialize);
+            if (GUILayout.Button("Force Milo: Work (shop) + focus"))
+                DebugForceMilo(NpcActivity.Work);
+            if (GUILayout.Button("Force Milo: Rest (street) + focus"))
+                DebugForceMilo(NpcActivity.Rest);
+            if (GUILayout.Button("Force Milo: Home (apartment) + focus"))
+                DebugForceMilo(NpcActivity.Home);
+            if (GUILayout.Button("Return Milo to authored schedule"))
+            {
+                _city.DebugResumeResidentSchedule("milo");
+                Say("Milo returned to his authored schedule.", 4f);
+            }
+
+            GUILayout.Space(8f);
+            GUILayout.Label("OPPORTUNITY 001 — TEST CONTROLS");
+            if (GUILayout.Button("TRIGGER MILO OFFER NOW (bypass discovery gates)"))
+                DebugTriggerMiloOffer();
+
+            GUILayout.Space(8f);
+            GUILayout.Label("F1 closes this menu. Debug controls do not represent player abilities.");
+            GUILayout.EndArea();
+        }
+
+        private void DebugFocusMilo()
+        {
+            if (_city.DebugFocusResident("milo"))
+            {
+                _debugMenuOpen = false;
+                Say("Focused Milo. NPC schedule state is unchanged.", 4f);
+            }
+            else
+            {
+                Say("Milo is unavailable.", 4f);
+            }
+        }
+
+        private void DebugForceMilo(NpcActivity activity)
+        {
+            if (!_city.DebugForceResidentActivity("milo", activity) || !_city.DebugFocusResident("milo"))
+            {
+                Say("Could not move Milo to that debug activity.", 4f);
+                return;
+            }
+
+            _debugMenuOpen = false;
+            Say("DEBUG: Milo forced to " + activity + ". Press F1 to reopen the menu.", 5f);
+        }
+
+        private void DebugTriggerMiloOffer()
+        {
+            if (_miloScenario == null)
+            {
+                Say("Milo scenario is unavailable. Check the parcel ItemDefinition on GameSession.", 6f);
+                return;
+            }
+
+            if (!_city.DebugSimulationPaused)
+                _city.DebugSetNpcSimulationPaused(true);
+            _city.DebugForceResidentActivity("milo", NpcActivity.Socialize);
+            _city.DebugFocusResident("milo");
+
+            if (_miloScenario.DebugTriggerOffer(out string message))
+            {
+                _debugMenuOpen = false;
+                Say(message, 12f);
+            }
+            else
+            {
+                Say(message, 6f);
             }
         }
 
