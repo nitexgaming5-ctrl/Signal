@@ -388,7 +388,7 @@ namespace Signal.Core.Tests
             });
 
             var discoveries = new PlayerDiscoveryLedger();
-            LoadReport report = SaveMapper.Apply(data, new World().Stats, new GridInventory(),
+            LoadReport report = SaveMapper.Apply(data, new World().Stats, new GridInventory(), null,
                 new GameClock(), new HeatMeter(), new RentLedger(50, 7), Resolver(), null, discoveries);
 
             Assert.That(report.Success, Is.True);
