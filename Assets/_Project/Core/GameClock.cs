@@ -15,6 +15,8 @@ namespace Signal.Core
             MinuteOfDay = ClampMinute(minuteOfDay);
         }
 
+        public bool IsPaused { get; private set; }
+
         public int Day { get; private set; }
 
         public int MinuteOfDay { get; private set; }
@@ -29,6 +31,11 @@ namespace Signal.Core
         public event Action<GameClock> DayStarted;
 
         public event Action<GameClock> Changed;
+
+        public void SetPaused(bool paused)
+        {
+            IsPaused = paused;
+        }
 
         public void Advance(int minutes)
         {
