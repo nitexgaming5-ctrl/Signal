@@ -93,7 +93,7 @@ Milestones are dependency notes, not a mandate to build isolated systems in orde
 4. **Keep the current block playable and readable.** Replace the most visible placeholders with cohesive art only when it improves the slice; preserve the compact scale and hideout as the anchor.
 5. **Close known reliability checks** when convenient: storage capacity/rollback, actual v1 migration, city transition tests and target-platform save replacement.
 
-Milo's parcel scenario and save v7 are user-verified; the user confirmed 284/284 EditMode tests and a successful Play Mode run. The immediate technical action is now to compile and verify obstacle-aware NPC navigation v1. After that, review what the scenario and navigation work actually prove before deciding on the next player-facing slice. Do not start a broad economy, crime catalogue or generic quest framework in parallel.
+Milo's parcel scenario and save v7 are user-verified (284/284 EditMode tests). Obstacle-aware NPC navigation v1 is also user-verified: the user completed the Play Mode inspection and confirmed 289/289 EditMode tests on 2026-11-18. NPC interruption/recovery v1 is the current implementation milestone; its Unity verification is pending. Do not start a broad economy, crime catalogue or generic quest framework in parallel.
 
 ## Medium-term goals — deepen the shared-city loop
 
@@ -248,9 +248,9 @@ Do not expand into a generic quest journal, second named recipient, police/crimi
 - [x] Feed planned local route points into the existing NPC movement executor; keep schedules, walking speed, social-world position updates and doorway transitions intact.
 - [x] Surface route failures in the F1 navigation overlay rather than silently accepting a straight-line route.
 - [x] Add focused pathfinder and city integration tests.
-- [ ] Run Unity compilation and the full EditMode suite; inspect any new warnings/failures.
-- [ ] In Play Mode, use F1 to inspect the four regions and route overlays, then observe Milo shop → street and street → apartment travel.
-- [ ] Confirm NPCs route around the street bench, building colliders and interior furniture; verify the parcel discovery/drop-off flow remains unaffected.
+- [x] User confirmed Unity compilation and 289/289 EditMode tests (2026-11-18).
+- [x] User completed Play Mode inspection of the navigation overlay and NPC routes (2026-11-18).
+- [x] User confirmed the existing Milo parcel scenario remains successful after navigation work.
 
 **Scope boundary:** this is NPC route planning only. Player Rigidbody movement is unchanged. There is no moving-agent avoidance, crowd simulation, dynamic obstacle updates, click-to-move, navmesh, or new gameplay mechanic. The map is currently a build-time snapshot of static city geometry.
 
