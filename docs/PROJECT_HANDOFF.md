@@ -367,3 +367,12 @@ The existing NPC movement system is already active: residents walk continuously 
 - Failed navigation has an explicit one-shot retry exposed in F1. There is no per-frame retry loop. The city map remains a static build-time snapshot; dynamic obstacle updates and moving-agent avoidance are not included.
 - Added two focused EditMode tests to CityBlockBootstrapTests: forced-activity + pause/resume recovery, and schedule changes during a pause. The expected full-suite count is now 291 (previously 289); Unity compilation and tests for this latest change are pending user verification.
 - Branch remains chore/collaboration-workflow-and-audit. Latest commit will be supplied in the implementation handoff.
+
+
+## Latest update — game-clock pause correction (2026-11-18)
+
+- User verified NPC interruption/recovery v1: **291/291 EditMode tests passed**, and the behaviour works in Play Mode.
+- Follow-up testing found the F1 **Pause game clock** control stopped game-time accumulation but did not stop NPCs walking, because their movement advanced from Unity real time.
+- Added `GameClock.IsPaused` / `SetPaused(bool)`. GameSession uses this shared state for the debug clock control and clock ticking; NpcPresenter gates real-time movement on the same state. The independent NPC-simulation pause remains separate.
+- Added two tests (one Core pause-state test and one city movement integration test). Expected suite count is **293**. This latest correction has been pushed but is awaiting user Unity compile, EditMode and Play Mode verification.
+- Branch: `chore/collaboration-workflow-and-audit`. Pull latest with `git pull`.
