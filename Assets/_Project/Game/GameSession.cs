@@ -90,7 +90,7 @@ namespace Signal.Game
             _panel = gameObject.AddComponent<InventoryPanel>();
             _panel.Bind(_inventory, _allItemDefinitions, _itemViewer.Open);
             _storagePanel = gameObject.AddComponent<StoragePanel>();
-            _storagePanel.Bind(_inventory, _storage, _allItemDefinitions, _itemViewer.Open);
+            _storagePanel.Bind(_inventory, _storage, _allItemDefinitions, _itemViewer.Open, _itemKnowledge);
 
             _hud = gameObject.AddComponent<HudPanel>();
             _hud.Bind(_stats, _clock);
