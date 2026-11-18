@@ -45,6 +45,7 @@ namespace Signal.Game
         private HudPanel _hud;
         private WorkbenchWorkspace _workspace;
         private CityBlockBootstrap _city;
+        private MiloParcelOpportunityController _miloScenario;
 
         private float _minuteBuffer;
 
@@ -93,6 +94,15 @@ namespace Signal.Game
 
             _hud = gameObject.AddComponent<HudPanel>();
             _hud.Bind(_stats, _clock);
+
+            if (parcelItem != null)
+            {
+                _miloScenario = gameObject.AddComponent<MiloParcelOpportunityController>();
+                _miloScenario.Bind(_room.Player, _inventory, parcelItem.ToItemType(),
+                    _playerDiscoveries, _playerRelationships, _itemKnowledge, _clock, _city,
+                    _miloOpportunity, message => Say(message, 8f));
+            }
+
             _workspace = gameObject.AddComponent<WorkbenchWorkspace>();
             _workspace.Bind(_motor);
             _hud.ShowMessage("Your hideout is ready. The street is just outside.", 5f);
@@ -127,6 +137,13 @@ namespace Signal.Game
             bool nearStorage = _city.IsAtHome && _room.Storage != null &&
                 Vector2.Distance(playerPosition, _room.Storage.position) <= 2.15f;
             string cityPrompt = _city.GetPrompt(playerPosition);
+            if (_miloScenario != null)
+            {
+                _miloScenario.Tick(playerPosition, _city.CurrentPlace);
+                string scenarioPrompt = _miloScenario.GetPrompt(playerPosition, _city.CurrentPlace);
+                if (!string.IsNullOrEmpty(scenarioPrompt))
+                    cityPrompt = scenarioPrompt;
+            }
 
             if (workspaceOpen)
                 _hud.SetPrompt("ESC  Back to room");
@@ -148,6 +165,20 @@ namespace Signal.Game
             if (keyboard == null)
                 return;
 
+            if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen &&
+                _miloScenario != null && _miloScenario.HasPendingChoice)
+            {
+                int choice = keyboard.digit1Key.wasPressedThisFrame ? 1 :
+                    keyboard.digit2Key.wasPressedThisFrame ? 2 :
+                    keyboard.digit3Key.wasPressedThisFrame ? 3 :
+                    keyboard.digit4Key.wasPressedThisFrame ? 4 : 0;
+                if (choice > 0 && _miloScenario.HandleChoice(choice, out string choiceMessage))
+                {
+                    Say(choiceMessage, 8f);
+                    return;
+                }
+            }
+
             if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && nearWorkbench && keyboard.eKey.wasPressedThisFrame)
                 _workspace.Open();
             else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && nearStorage && keyboard.eKey.wasPressedThisFrame)
@@ -155,7 +186,10 @@ namespace Signal.Game
             else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !nearWorkbench && !nearStorage &&
                      cityPrompt.Length > 0 && keyboard.eKey.wasPressedThisFrame)
             {
-                if (_city.TryInteractNpc(playerPosition, out string npcDialogue))
+                if (_miloScenario != null &&
+                    _miloScenario.TryInteract(playerPosition, _city.CurrentPlace, out string scenarioMessage))
+                    Say(scenarioMessage, 8f);
+                else if (_city.TryInteractNpc(playerPosition, out string npcDialogue))
                     Say(npcDialogue, 5f);
                 else if (_city.TryInteract(playerPosition))
                     Say("Location: " + _city.CurrentPlace);
