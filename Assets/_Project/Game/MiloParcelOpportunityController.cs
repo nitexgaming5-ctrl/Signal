@@ -54,12 +54,12 @@ namespace Signal.Game
             RefreshWorldProps();
         }
 
-        public void Bind(Transform player, GridInventory inventory, ItemType parcelType,
+        public void Bind(GridInventory inventory, ItemType parcelType,
             PlayerDiscoveryLedger discoveries, PlayerRelationshipBook relationships,
             ItemKnowledgeBook itemKnowledge, GameClock clock, CityBlockBootstrap city,
             OpportunityState state, Action<string> say)
         {
-            if (player == null || inventory == null || discoveries == null || relationships == null ||
+            if (inventory == null || discoveries == null || relationships == null ||
                 itemKnowledge == null || clock == null || city == null || state == null || say == null)
                 throw new ArgumentNullException("Milo parcel scenario dependencies must all be provided.");
 
