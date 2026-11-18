@@ -122,6 +122,10 @@ namespace Signal.Game.Tests
                 city.Build(player.transform, body, camera, clock);
                 Assert.That(city.SocialWorld.TryGetNpc("milo", out NpcAgentState initial), Is.True);
                 Assert.That(initial.LocationId, Is.EqualTo("CornerShop"));
+                Vector2 initialPosition = city.GetResidentPosition("milo");
+                Assert.That(city.TryRestorePlace("Street", new Vector2(10f, -4f)), Is.True);
+                Assert.That(city.GetResidentPosition("milo"), Is.EqualTo(initialPosition),
+                    "Changing the player's active location must not teleport an off-screen resident.");
 
                 clock.Advance(11 * 60);
                 Assert.That(city.GetResidentActivity("milo"), Is.EqualTo(NpcActivity.Socialize));
