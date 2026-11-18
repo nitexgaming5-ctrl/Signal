@@ -1,6 +1,6 @@
 # Progress
 
-## Current status: player item knowledge v1 implemented; Unity verification pending
+## Current status: Milo parcel implementation committed; Unity verification pending
 
 The connected NPC framework and WorldPacingDirector foundation are implemented. The user confirmed **226/226 EditMode tests passed** after the pacing test correction (2026-11-17). The user subsequently confirmed **245/245 EditMode tests passed** after Item Instance v1, per-stack state, reference valuation, inspection and storage changes (2026-11-18).
 
@@ -205,7 +205,7 @@ The user approved Item Instance v1 and confirmed **235/235 EditMode tests passed
 - Save format v3 stores stable stack identity. v1/v2 migration assigns unique identities across carried and storage containers and preserves the prior v1 Hideout/empty-locker behavior.
 - There is no split-stack operation. Identity is stack-level, not per individual unit.
 
-## Item state and inspection v1 — implementation committed, Unity verification pending (2026-11-18)
+## Item state and inspection v1 — user-verified (245/245 EditMode tests, 2026-11-18)
 
 ### Implemented
 - Added Core `ItemInstanceState` per stack:
@@ -223,7 +223,7 @@ The user approved Item Instance v1 and confirmed **235/235 EditMode tests passed
 - Save format is now v4. All four state fields are persisted. v1/v2/v3 saves migrate to neutral defaults (Standard, Good, Genuine, Legitimate); existing IDs and inventory layouts remain preserved.
 - Added tests for state-aware stack compatibility, state-preserving movement/transfer, targeted stack transfers, provisional valuation, v3 migration defaults and save/load state round-trip.
 
-### Player item knowledge v1 — implemented, verification pending
+### Player item knowledge v1 — user-verified (255/255 EditMode tests, 2026-11-18)
 - Added Core `ItemKnowledgeFact` and `ItemKnowledgeBook`, keyed by stable stack identity and property aspect.
 - Each fact records a believed enum value, evidence source (direct inspection, conversation, rumour or document), confidence and learned in-game day/time.
 - Knowledge is deliberately separate from authoritative `ItemInstanceState`; a rumour may be wrong. New evidence replaces the current belief for that aspect, while other known aspects remain.
@@ -243,7 +243,7 @@ The user approved Item Instance v1 and confirmed **235/235 EditMode tests passed
 
 ### Verification
 - User confirmed **245/245 EditMode tests passed** after the previous item state/inspection work (2026-11-18).
-- The player item-knowledge v1 and save v5 work were user-verified at 245/245 EditMode tests. The current Milo opportunity changes introduce save v7; Unity compilation, full EditMode suite and Play Mode scenario verification are pending.
+- The player item-knowledge v1 and save v5 work were user-verified at 255/255 EditMode tests. The current Milo opportunity changes introduce save v7; Unity compilation, full EditMode suite and Play Mode scenario verification are pending.
 
 
 ## Current initiative: Milo Parcel — playable scenario implementation added; Unity verification pending
@@ -262,11 +262,11 @@ The shared branch now contains the discovery ledger, flexible contextual conditi
 - No legacy scripts or old iterations were deleted; none were demonstrated to be safely removable by this milestone.
 
 
-### Milestone 2 — minimal opportunity lifecycle added (Unity verification pending)
+### Milestone 2 — minimal opportunity lifecycle (implemented)
 - Added immutable OpportunityDefinition with stable ID, associated NPC and offer conditions.
 - Added OpportunityState phases Dormant, Available, Accepted and Resolved. Decline records the choice without failing the opportunity; returning the parcel releases commitment and makes it available again; delivery resolves exactly once; an available opportunity can expire without a backlog.
 - Added tests for offer conditions, decline, accept/return, one-time delivery resolution, expiry and invalid transitions.
-- These Core models are not yet wired into GameSession or save/load. Unity compilation and the full EditMode suite remain user verification tasks.
+- Later milestones connected these models to GameSession, save v7 and the playable Milo parcel controller. Unity compilation and the full EditMode suite for the new scenario remain pending.
 
 
 ## 2026-11-18 — Opportunity 001: Milo's Parcel (implementation added; Unity verification pending)
