@@ -93,8 +93,10 @@ namespace Signal.Core.Tests
         [Test]
         public void MissingAssetDoesNotChangeOwnershipOrLedger()
         {
-            var ownership = new AssetOwnershipBook(); var ledger = new EconomicTransactionLedger(); var containers = Containers(source, destination);
-            AssetTransferResult result = Service(ownership, containers, ledger).TransferStack(new GridInventory(), new GridInventory(),
+            var source = new GridInventory(); var destination = new GridInventory();
+            var ownership = new AssetOwnershipBook(); var ledger = new EconomicTransactionLedger();
+            var containers = Containers(source, destination);
+            AssetTransferResult result = Service(ownership, containers, ledger).TransferStack(source, destination,
                 Guid.NewGuid(), Player, Milo, AssetTransferReason.Gift, 1, 0);
             Assert.That(result.Status, Is.EqualTo(AssetTransferStatus.AssetNotFound));
             Assert.That(ownership.Count, Is.Zero); Assert.That(ledger.Count, Is.Zero);
@@ -174,6 +176,25 @@ namespace Signal.Core.Tests
             AssetTransferResult result = Service(ownership, containers, ledger).TransferStack(source, destination, itemId,
                 Player, Milo, AssetTransferReason.Gift, 1, 0);
             Assert.That(result.Status, Is.EqualTo(AssetTransferStatus.SourceContainerNotRegistered));
+            Assert.That(source.Items.Count, Is.EqualTo(1));
+            Assert.That(destination.Items, Is.Empty);
+            Assert.That(ledger.Count, Is.Zero);
+        }
+
+        [Test]
+        public void UnregisteredDestinationContainerIsRejected()
+        {
+            ItemType type = Item();
+            var source = new GridInventory(); var destination = new GridInventory();
+            source.Place(type, 0, 0);
+            Guid itemId = source.Items[0].ItemInstanceId;
+            var ownership = new AssetOwnershipBook(); ownership.TryRegister(itemId, Player);
+            var containers = new EconomicContainerRegistry();
+            containers.TryRegister(source, Milo);
+            var ledger = new EconomicTransactionLedger();
+            AssetTransferResult result = Service(ownership, containers, ledger).TransferStack(source, destination, itemId,
+                Player, Milo, AssetTransferReason.Gift, 1, 0);
+            Assert.That(result.Status, Is.EqualTo(AssetTransferStatus.DestinationContainerNotRegistered));
             Assert.That(source.Items.Count, Is.EqualTo(1));
             Assert.That(destination.Items, Is.Empty);
             Assert.That(ledger.Count, Is.Zero);
