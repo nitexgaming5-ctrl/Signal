@@ -125,6 +125,7 @@ namespace Signal.Game.Tests
 
                 clock.Advance(11 * 60);
                 Assert.That(city.GetResidentActivity("milo"), Is.EqualTo(NpcActivity.Socialize));
+                Assert.That(city.IsResidentTravelling("milo"), Is.True);
                 Assert.That(city.SocialWorld.TryGetNpc("milo", out NpcAgentState leavingShop), Is.True);
                 Assert.That(leavingShop.LocationId, Is.EqualTo("CornerShop"),
                     "A schedule change sets a destination; it does not teleport the NPC.");
@@ -132,11 +133,13 @@ namespace Signal.Game.Tests
                 city.DebugAdvanceNpcMovement(30f);
                 Assert.That(city.SocialWorld.TryGetNpc("milo", out NpcAgentState arrivedStreet), Is.True);
                 Assert.That(arrivedStreet.LocationId, Is.EqualTo("Street"));
+                Assert.That(city.IsResidentTravelling("milo"), Is.False);
                 Assert.That(city.GetResidentPosition("milo").x, Is.EqualTo(18.2f).Within(0.05f));
                 Assert.That(city.GetResidentPosition("milo").y, Is.EqualTo(-11.6f).Within(0.05f));
 
                 clock.Advance(3 * 60);
                 Assert.That(city.GetResidentActivity("milo"), Is.EqualTo(NpcActivity.Home));
+                Assert.That(city.IsResidentTravelling("milo"), Is.True);
                 Assert.That(city.SocialWorld.TryGetNpc("milo", out NpcAgentState leavingStreet), Is.True);
                 Assert.That(leavingStreet.LocationId, Is.EqualTo("Street"));
 
