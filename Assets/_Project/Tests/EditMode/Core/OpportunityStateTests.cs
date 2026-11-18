@@ -89,5 +89,24 @@ namespace Signal.Core.Tests
             state.MakeAvailable();
             return state;
         }
+
+        [Test]
+        public void RestoresOnlyConsistentOpportunitySnapshots()
+        {
+            Guid parcelId = Guid.NewGuid();
+
+            Assert.That(OpportunityState.TryRestore("milo-parcel", OpportunityPhase.Accepted,
+                OpportunityResolution.None, parcelId, 1, 0, 2, 610, 0, 0, 0, 0,
+                out OpportunityState accepted), Is.True);
+            Assert.That(accepted.ParcelInstanceId, Is.EqualTo(parcelId));
+            Assert.That(accepted.Phase, Is.EqualTo(OpportunityPhase.Accepted));
+
+            Assert.That(OpportunityState.TryRestore("milo-parcel", OpportunityPhase.Resolved,
+                OpportunityResolution.None, parcelId, 1, 0, 2, 610, 0, 0, 2, 620,
+                out _), Is.False);
+            Assert.That(OpportunityState.TryRestore("milo-parcel", OpportunityPhase.Accepted,
+                OpportunityResolution.Delivered, parcelId, 1, 0, 2, 610, 0, 0, 0, 0,
+                out _), Is.False);
+        }
     }
 }
