@@ -128,7 +128,9 @@ namespace Signal.Game
             if (_storagePanel != null)
                 _storagePanel.enabled = !itemViewerOpen;
 
-            _motor.enabled = !inventoryOpen && !workspaceOpen && !storageOpen && !itemViewerOpen;
+            bool scenarioChoiceOpen = _miloScenario != null && _miloScenario.HasPendingChoice;
+            _motor.enabled = !inventoryOpen && !workspaceOpen && !storageOpen && !itemViewerOpen &&
+                !scenarioChoiceOpen;
 
             Keyboard keyboard = Keyboard.current;
             Vector2 playerPosition = _room.Player.position;
@@ -139,7 +141,8 @@ namespace Signal.Game
             string cityPrompt = _city.GetPrompt(playerPosition);
             if (_miloScenario != null)
             {
-                _miloScenario.Tick(playerPosition, _city.CurrentPlace);
+                if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen)
+                    _miloScenario.Tick(playerPosition, _city.CurrentPlace);
                 string scenarioPrompt = _miloScenario.GetPrompt(playerPosition, _city.CurrentPlace);
                 if (!string.IsNullOrEmpty(scenarioPrompt))
                     cityPrompt = scenarioPrompt;
