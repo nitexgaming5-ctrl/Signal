@@ -296,9 +296,9 @@ namespace Signal.Game
                 _travelRoute.AddRange(_city.BuildNpcTravelRoute(
                     _currentPlace, transform.position, ActivityPlace(_activity), _destination));
             }
-            else if (_currentPlace == ActivityPlace(_activity))
+            else
             {
-                _travelRoute.Add(new NpcTravelWaypoint(_currentPlace, _destination));
+                _travelRoute.Add(new NpcTravelWaypoint(ActivityPlace(_activity), _destination));
             }
 
             NavigationFailed = _travelRoute.Count == 0 &&
