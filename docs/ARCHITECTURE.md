@@ -91,7 +91,7 @@ NPC runtime belongs to the shared city simulation, not to isolated character-spe
 - An NPC's knowledge is not the same as the world event journal. Decision-making must consume the individual agent's NpcPerception snapshot (nearby people plus its own knowledge), never the global journal as an omniscient shortcut.
 - World events must contain only information that could be perceived by their witnesses. Hidden motives, identities and causes must not leak through event descriptions.
 - The current Milo component is a temporary integration fixture. It is not the production character-authoring pattern. Move identity, appearance, routine preferences and dialogue into data-driven definitions before bulk NPC creation.
-- Social knowledge and relationships are not yet saved. Add stable-ID persistence and explicit save migration only when the framework's long-lived state is ready.
+- NPC-to-NPC social knowledge/relationships and transient perception are not yet saved. Player-to-NPC relationship impressions used by the Milo scenario are persisted in save v7. Add NPC social-world persistence only when a scenario requires it.
 
 The implementation contract and phased delivery plan are documented in [NPC_FRAMEWORK.md](NPC_FRAMEWORK.md). Keep the simulation deterministic and event-driven; do not add per-frame full-population reasoning, external AI services or separate legal/criminal social worlds.
 
