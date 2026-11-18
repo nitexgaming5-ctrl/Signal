@@ -188,3 +188,20 @@ The item identity, per-stack state and inspection foundation is implemented; the
 - [ ] Keep NPC knowledge character-scoped; quest UI must not reveal facts the player has not discovered.
 - [ ] Design player stats/skills only when actual activities prove the need. Preserve the approved single global criminal progression track; do not copy per-crime skill trees.
 - [ ] Add cosmetic character customization independently when the player art/animation pipeline is ready; avoid legal/criminal classes that lock parallel lifestyles.
+
+
+## Approved vertical slice — Opportunity 001: Milo's Parcel
+
+Player outcome: discover that Milo is helping someone move stolen goods, decide whether to assist, and experience a reversible delivery situation with consequences shaped by timing, parcel condition and exposure. Milo's motive is helping someone he knows; the parcel goes to a discreet physical drop-off. Discovery is flexible across observation, contextual conversation, physical evidence and uncertain rumour.
+
+- [x] User approved the complete implementation specification (2026-11-18).
+- [x] Add Core player discovery records/ledger, preserving signal type, source, confidence, subject and learned time.
+- [x] Add reusable contextual interaction conditions for NPC activity, relationship and discovery requirements.
+- [ ] Design and implement stable-ID opportunity definition/runtime state and permitted transitions.
+- [ ] Integrate authored discovery signals and contextual dialogue for Milo.
+- [ ] Add the physical stolen parcel and drop-off interaction.
+- [ ] Implement reversible accept/decline/withdraw paths and timing/condition/exposure outcomes.
+- [ ] Persist discovery/opportunity state with a safe migration from save v5.
+- [ ] Verify all paths in Unity Play Mode and full EditMode suite.
+
+Do not expand into a generic quest journal, second named recipient, police/criminal progression, general rumour engine or unrelated mechanics. See docs/tasks/OPPORTUNITY-001-MILO-PARCEL.md.
