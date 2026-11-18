@@ -365,7 +365,7 @@ namespace Signal.Core.Tests
         }
 
         [Test]
-        public void VersionFiveSaveMigratesWithEmptyPlayerDiscoveriesAndNoOpportunity()
+        public void VersionSixSaveMigratesWithEmptyPlayerDiscoveriesRelationshipsAndNoOpportunity()
         {
             var data = new SaveData { version = 6, playerDiscoveries = null, opportunity = null, playerRelationships = null };
 
@@ -417,6 +417,32 @@ namespace Signal.Core.Tests
             Assert.That(restored.Get("milo").Familiarity, Is.EqualTo(0.35f));
             Assert.That(restored.Get("milo").Trust, Is.EqualTo(0.7f));
             Assert.That(restored.Get("rhea").Affinity, Is.EqualTo(-0.1f));
+        }
+
+        [Test]
+        public void SaveRoundTripPreservesResolvedDeliveryAssessment()
+        {
+            var source = new World();
+            var opportunity = new OpportunityState("milo-parcel");
+            opportunity.MakeAvailable();
+            Guid parcelId = Guid.NewGuid();
+            opportunity.SetParcelInstanceId(parcelId);
+            opportunity.TryAccept(parcelId, 3, 1200);
+            opportunity.TryResolveDelivered(3, 1320, false, false, true);
+
+            SaveData data = SaveMapper.Capture(source.Stats, source.Inventory, null, source.Clock,
+                source.Heat, source.Rent, "Street", 22.5f, -18.5f, null, null, opportunity);
+
+            LoadReport report = SaveMapper.Apply(data, new World().Stats, new GridInventory(), null,
+                new GameClock(), new HeatMeter(), new RentLedger(50, 7), Resolver());
+
+            Assert.That(report.Success, Is.True);
+            Assert.That(report.RestoredOpportunity, Is.Not.Null);
+            Assert.That(report.RestoredOpportunity.Phase, Is.EqualTo(OpportunityPhase.Resolved));
+            Assert.That(report.RestoredOpportunity.HasDeliveryAssessment, Is.True);
+            Assert.That(report.RestoredOpportunity.DeliveredOnTime, Is.False);
+            Assert.That(report.RestoredOpportunity.DeliveredIntact, Is.False);
+            Assert.That(report.RestoredOpportunity.DeliveryWitnessed, Is.True);
         }
     }
 }
