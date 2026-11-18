@@ -84,7 +84,7 @@ namespace Signal.Game.Tests
                 Assert.That(city.TryRestorePlace("Street", city.GetResidentPosition("milo")), Is.True);
                 Vector2 eveningNpcPosition = city.GetResidentPosition("milo");
                 Assert.That(city.TryInteractNpc(eveningNpcPosition, out string eveningDialogue), Is.True);
-                StringAssert.Contains("After closing", eveningDialogue);
+                StringAssert.Contains("Evenings are quieter", eveningDialogue);
 
                 clock.Advance(3 * 60);
                 Assert.That(city.GetResidentActivity("milo"), Is.EqualTo(NpcActivity.Home));
