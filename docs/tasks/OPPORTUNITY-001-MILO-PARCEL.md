@@ -80,7 +80,7 @@ No generic quest journal/tracker, full dialogue editor, second named recipient, 
 - Accepting associates the physical parcel's stable stack identity. Returning the parcel releases the commitment and makes the opportunity Available again.
 - Delivery resolves the opportunity exactly once. An available opportunity can expire back to Dormant without queueing a future release.
 - Added Core EditMode tests for offer gating, reversible acceptance/return, decline, one-time resolution, expiry and invalid transitions.
-- Save persistence and Unity integration are deliberately deferred to later milestones; these runtime classes are not yet connected to GameSession.
+- Save persistence and GameSession integration were added in the subsequent implementation milestone; see the implementation record below.
 
 
 ## Implementation added — 2026-11-18 (Unity verification pending)
