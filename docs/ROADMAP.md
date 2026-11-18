@@ -205,3 +205,11 @@ Player outcome: discover that Milo is helping someone move stolen goods, decide 
 - [ ] Verify all paths in Unity Play Mode and full EditMode suite.
 
 Do not expand into a generic quest journal, second named recipient, police/criminal progression, general rumour engine or unrelated mechanics. See docs/tasks/OPPORTUNITY-001-MILO-PARCEL.md.
+
+
+### Opportunity lifecycle foundation — first pass
+- [x] Add stable-ID OpportunityDefinition with NPC association and contextual offer conditions.
+- [x] Add a minimal state lifecycle: Dormant → Available → Accepted → Resolved, with return-to-Available for reversible withdrawal and non-terminal decline.
+- [x] Ensure delivery resolves once and expiry does not bank or queue a later opportunity.
+- [ ] Add save DTOs/migration and GameSession ownership.
+- [ ] Connect the authored Milo content and world interactions.
