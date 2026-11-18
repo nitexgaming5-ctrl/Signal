@@ -153,7 +153,8 @@ namespace Signal.Game
 
             RefreshWorldProps();
             if (place != "Street" || !_city.HasResident(MiloId) ||
-                _city.GetResidentActivity(MiloId) != NpcActivity.Socialize)
+                _city.GetResidentActivity(MiloId) != NpcActivity.Socialize ||
+                _city.GetResidentCurrentPlace(MiloId) != "Street" || _city.IsResidentTravelling(MiloId))
                 return;
 
             Vector2 miloPosition = _city.GetResidentPosition(MiloId);
