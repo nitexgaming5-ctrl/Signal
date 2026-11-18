@@ -43,6 +43,9 @@ namespace Signal.Game
 
         private float _minuteBuffer;
 
+        /// <summary>Player-scoped discovered item facts, shared by inventory and scenario interactions.</summary>
+        public ItemKnowledgeBook PlayerItemKnowledge => _itemKnowledge;
+
         private void Start()
         {
             _stats = new PlayerStats(startingMoney);
