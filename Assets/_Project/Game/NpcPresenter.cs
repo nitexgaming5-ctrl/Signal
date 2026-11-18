@@ -20,12 +20,15 @@ namespace Signal.Game
         private NpcActivity _activity;
         private SpriteRenderer _bodyRenderer;
         private string _activePlace = "Hideout";
+        private bool _debugSimulationPaused;
+        private bool _debugActivityOverride;
 
         public string NpcId => _definition != null ? _definition.NpcId : string.Empty;
         public string DisplayName => _definition != null ? _definition.DisplayName : string.Empty;
         public string PublicRole => _definition != null ? _definition.PublicRole : string.Empty;
         public NpcActivity Activity => _activity;
         public Vector2 Position => transform.position;
+        public string CurrentPlace => ActivityPlace(_activity);
 
         public void Bind(NpcCharacterDefinition definition, GameClock clock, NpcSocialWorld socialWorld)
         {
@@ -108,9 +111,29 @@ namespace Signal.Game
                 _clock.Changed -= OnClockChanged;
         }
 
+        public void SetDebugSimulationPaused(bool paused)
+        {
+            _debugSimulationPaused = paused;
+            if (!paused && !_debugActivityOverride)
+                RefreshFromClock(true);
+        }
+
+        public void DebugForceActivity(NpcActivity activity)
+        {
+            _debugActivityOverride = true;
+            ApplyActivity(activity, true);
+        }
+
+        public void DebugResumeSchedule()
+        {
+            _debugActivityOverride = false;
+            _debugSimulationPaused = false;
+            RefreshFromClock(true);
+        }
+
         private void Update()
         {
-            if (!_initialized)
+            if (!_initialized || _debugSimulationPaused)
                 return;
 
             Vector3 destination = new Vector3(_destination.x, _destination.y, transform.position.z);
@@ -131,7 +154,7 @@ namespace Signal.Game
 
         private void RefreshFromClock(bool snapToDestination)
         {
-            if (_clock == null || _brain == null)
+            if (_clock == null || _brain == null || _debugSimulationPaused || _debugActivityOverride)
                 return;
 
             NpcPerception perception = _socialWorld != null && _registered
@@ -141,6 +164,11 @@ namespace Signal.Game
             if (next == _activity && !snapToDestination)
                 return;
 
+            ApplyActivity(next, snapToDestination);
+        }
+
+        private void ApplyActivity(NpcActivity next, bool snapToDestination)
+        {
             bool wasInCurrentPlace = ActivityPlace(_activity) == _activePlace;
             bool willBeInCurrentPlace = ActivityPlace(next) == _activePlace;
             _activity = next;
