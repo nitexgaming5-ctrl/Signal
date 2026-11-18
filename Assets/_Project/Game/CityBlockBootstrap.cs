@@ -107,6 +107,52 @@ namespace Signal.Game
             return true;
         }
 
+        public void DebugAdvanceNpcMovement(float seconds)
+        {
+            if (seconds <= 0f)
+                return;
+            for (int i = 0; i < _residents.Count; i++)
+                if (_residents[i] != null)
+                    _residents[i].DebugAdvanceMovement(seconds);
+        }
+
+        public List<NpcTravelWaypoint> BuildNpcTravelRoute(string fromPlace, Vector2 fromPosition,
+            string targetPlace, Vector2 targetPosition)
+        {
+            var route = new List<NpcTravelWaypoint>();
+            if (string.IsNullOrWhiteSpace(fromPlace))
+                fromPlace = "Street";
+            if (string.IsNullOrWhiteSpace(targetPlace))
+                targetPlace = "Street";
+
+            if (fromPlace == targetPlace)
+            {
+                route.Add(new NpcTravelWaypoint(targetPlace, targetPosition));
+                return route;
+            }
+
+            string routePlace = fromPlace;
+            if (routePlace != "Street")
+            {
+                route.Add(new NpcTravelWaypoint(routePlace, InteriorExitFor(routePlace)));
+                route.Add(new NpcTravelWaypoint("Street", StreetDoorFor(routePlace)));
+                routePlace = "Street";
+            }
+
+            if (targetPlace != "Street")
+            {
+                Vector2 targetStreetDoor = StreetDoorFor(targetPlace);
+                if (route.Count == 0 ||
+                    (route[route.Count - 1].Position - targetStreetDoor).sqrMagnitude > 0.01f)
+                    route.Add(new NpcTravelWaypoint("Street", targetStreetDoor));
+
+                route.Add(new NpcTravelWaypoint(targetPlace, InteriorEntryFor(targetPlace)));
+            }
+
+            route.Add(new NpcTravelWaypoint(targetPlace, targetPosition));
+            return route;
+        }
+
         public bool DebugFocusResident(string npcId)
         {
             NpcPresenter resident = FindResident(npcId);
@@ -315,6 +361,11 @@ namespace Signal.Game
 
         private void OnClockChanged(GameClock clock)
         {
+            ProcessSocialEncounters(clock);
+        }
+
+        private void ProcessSocialEncounters(GameClock clock)
+        {
             if (_debugSimulationPaused || _socialEncounterSystem == null || _socialWorld == null)
                 return;
 
@@ -322,12 +373,45 @@ namespace Signal.Game
             for (int i = 0; i < _residents.Count; i++)
             {
                 NpcPresenter resident = _residents[i];
-                if (resident != null && resident.Activity == NpcActivity.Socialize)
+                if (resident != null && resident.Activity == NpcActivity.Socialize &&
+                    !resident.IsTravelling && resident.CurrentPlace == "Street")
                     socializingNpcIds.Add(resident.NpcId);
             }
 
             _socialEncounterSystem.AdvanceTo(_socialWorld, socializingNpcIds,
                 clock.Day, clock.MinuteOfDay);
+        }
+
+        private static Vector2 InteriorExitFor(string place)
+        {
+            switch (place)
+            {
+                case "CornerShop": return new Vector2(1000f, 995.8f);
+                case "Apartment": return new Vector2(1020f, 995.8f);
+                case "Hideout": return HomeDoor;
+                default: return Vector2.zero;
+            }
+        }
+
+        private static Vector2 StreetDoorFor(string place)
+        {
+            switch (place)
+            {
+                case "CornerShop": return new Vector2(0.5f, -12f);
+                case "Apartment": return new Vector2(19.5f, -12f);
+                case "Hideout": return new Vector2(10f, -4f);
+                default: return Vector2.zero;
+            }
+        }
+
+        private static Vector2 InteriorEntryFor(string place)
+        {
+            switch (place)
+            {
+                case "CornerShop": return new Vector2(1000f, 997.4f);
+                case "Apartment": return new Vector2(1020f, 997.4f);
+                default: return Vector2.zero;
+            }
         }
 
         private static bool Near(Vector2 position, Vector2 target)
@@ -411,7 +495,7 @@ namespace Signal.Game
                 var residentObject = new GameObject(definition.DisplayName + " - " + definition.PublicRole);
                 residentObject.transform.SetParent(transform, false);
                 NpcPresenter presenter = residentObject.AddComponent<NpcPresenter>();
-                presenter.Bind(definition, _clock, _socialWorld);
+                presenter.Bind(definition, _clock, _socialWorld, this);
                 _residents.Add(presenter);
             }
         }
