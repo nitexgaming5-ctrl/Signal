@@ -14,6 +14,7 @@ namespace Signal.Game
     {
         [Header("Content")]
         [SerializeField] private ItemDefinition[] items;
+        [SerializeField] private ItemDefinition parcelItem;
         [SerializeField] private NpcCharacterDefinition[] npcDefinitions;
 
         [Header("Placeholder tuning (not final design)")]
@@ -23,6 +24,7 @@ namespace Signal.Game
         [SerializeField] private float gameMinutesPerRealSecond = 1f;
 
         private readonly Dictionary<Guid, ItemType> _catalog = new Dictionary<Guid, ItemType>();
+        private readonly List<ItemDefinition> _allItemDefinitions = new List<ItemDefinition>();
 
         private PlayerStats _stats;
         private GridInventory _inventory;
@@ -83,11 +85,11 @@ namespace Signal.Game
             _city.Build(_room.Player, _room.PlayerBody, camera, _clock, npcDefinitions);
 
             _itemViewer = gameObject.AddComponent<ItemViewerPanel>();
-            _itemViewer.Bind(items, _itemKnowledge);
+            _itemViewer.Bind(_allItemDefinitions, _itemKnowledge);
             _panel = gameObject.AddComponent<InventoryPanel>();
-            _panel.Bind(_inventory, items, _itemViewer.Open);
+            _panel.Bind(_inventory, _allItemDefinitions, _itemViewer.Open);
             _storagePanel = gameObject.AddComponent<StoragePanel>();
-            _storagePanel.Bind(_inventory, _storage, items, _itemViewer.Open);
+            _storagePanel.Bind(_inventory, _storage, _allItemDefinitions, _itemViewer.Open);
 
             _hud = gameObject.AddComponent<HudPanel>();
             _hud.Bind(_stats, _clock);
@@ -272,16 +274,31 @@ namespace Signal.Game
         private void BuildCatalog()
         {
             _catalog.Clear();
-            if (items == null)
-                return;
+            _allItemDefinitions.Clear();
 
-            foreach (ItemDefinition definition in items)
+            if (items != null)
             {
-                if (definition == null)
-                    continue;
+                foreach (ItemDefinition definition in items)
+                {
+                    if (definition == null)
+                        continue;
 
-                ItemType type = definition.ToItemType();
-                _catalog[type.Id] = type;
+                    ItemType type = definition.ToItemType();
+                    _catalog[type.Id] = type;
+                    _allItemDefinitions.Add(definition);
+                }
+            }
+
+            if (parcelItem != null)
+            {
+                ItemType parcelType = parcelItem.ToItemType();
+                _catalog[parcelType.Id] = parcelType;
+                if (!_allItemDefinitions.Contains(parcelItem))
+                    _allItemDefinitions.Add(parcelItem);
+            }
+            else
+            {
+                Debug.LogError("GameSession: assign the Milo parcel ItemDefinition before playing Opportunity 001.");
             }
         }
 
