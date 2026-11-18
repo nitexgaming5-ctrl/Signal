@@ -20,6 +20,14 @@ namespace Signal.Game.Tests
             {
                 city.Build(player.transform, body, camera);
 
+                Assert.That(city.NavigationMap.Regions.Count, Is.EqualTo(4));
+                Assert.That(city.NavigationMap.Connections.Count, Is.EqualTo(3));
+                Assert.That(city.NavigationMap.AreLocationsConnected("Hideout", "Apartment"), Is.True);
+                Assert.That(city.NavigationMap.GetConnectionsFor("Street").Count, Is.EqualTo(3));
+                Assert.That(city.DebugNavigationOverlayVisible, Is.False);
+                Assert.That(city.DebugToggleNavigationOverlay(), Is.True);
+                Assert.That(city.DebugNavigationOverlayVisible, Is.True);
+
                 Assert.That(city.TryRestorePlace("CornerShop", new Vector2(1001f, 998f)), Is.True);
                 Assert.That(city.CurrentPlace, Is.EqualTo("CornerShop"));
                 Assert.That(body.position, Is.EqualTo(new Vector2(1001f, 998f)));
