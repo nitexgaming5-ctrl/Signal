@@ -43,6 +43,17 @@ namespace Signal.Game
 
         public bool HasPendingChoice => _pendingChoice != PendingChoice.None;
 
+        public void RestoreOpportunityState(OpportunityState state)
+        {
+            if (state == null || state.OpportunityId != OpportunityId)
+                throw new ArgumentException("A matching Milo parcel opportunity state is required.", nameof(state));
+            _state = state;
+            if (_state.ParcelInstanceId == Guid.Empty)
+                _state.SetParcelInstanceId(Guid.NewGuid());
+            _pendingChoice = PendingChoice.None;
+            RefreshWorldProps();
+        }
+
         public void Bind(Transform player, GridInventory inventory, ItemType parcelType,
             PlayerDiscoveryLedger discoveries, PlayerRelationshipBook relationships,
             ItemKnowledgeBook itemKnowledge, GameClock clock, CityBlockBootstrap city,
@@ -377,7 +388,8 @@ namespace Signal.Game
             if (!_inventory.Remove(parcel.InstanceId))
                 return "You couldn't leave the parcel here.";
 
-            if (!_state.TryResolveDelivered(_clock.Day, _clock.MinuteOfDay))
+            if (!_state.TryResolveDelivered(_clock.Day, _clock.MinuteOfDay,
+                onTime, intact, witnessed))
             {
                 RestoreParcelToInventory(parcel);
                 return "The drop-off could not be completed.";
@@ -429,7 +441,8 @@ namespace Signal.Game
             if (_evidenceSlip != null)
                 _evidenceSlip.SetActive(_state.Phase != OpportunityPhase.Resolved);
             if (_dropMarker != null)
-                _dropMarker.SetActive(_state.Phase == OpportunityPhase.Resolved);
+                _dropMarker.SetActive(_state.Phase == OpportunityPhase.Accepted ||
+                    _state.Phase == OpportunityPhase.Resolved);
             if (_carriedParcelMarker != null)
             {
                 bool show = _state.Phase != OpportunityPhase.Accepted &&
