@@ -24,6 +24,7 @@ namespace Signal.Game.Tests
                 Assert.That(city.NavigationMap.Connections.Count, Is.EqualTo(3));
                 Assert.That(city.NavigationMap.AreLocationsConnected("Hideout", "Apartment"), Is.True);
                 Assert.That(city.NavigationMap.GetConnectionsFor("Street").Count, Is.EqualTo(3));
+                Assert.That(city.NavigationMap.IsInsideRegion("Hideout", new Vector2(10f, -1.5f)), Is.True);
                 Assert.That(city.DebugNavigationOverlayVisible, Is.False);
                 Assert.That(city.DebugToggleNavigationOverlay(), Is.True);
                 Assert.That(city.DebugNavigationOverlayVisible, Is.True);
