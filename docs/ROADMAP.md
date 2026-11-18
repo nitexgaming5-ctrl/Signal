@@ -226,3 +226,13 @@ Do not expand into a generic quest journal, second named recipient, police/crimi
 - [x] Keep player interaction, ambient social encounters and Milo/Rhea scenario observations grounded in actual current location and arrival state.
 - [ ] Verify Unity compilation, movement regression tests and visible Play Mode travel.
 - [ ] Revisit obstacle-aware pathfinding when city geometry grows beyond the current authored waypoint layout.
+
+
+### City navigation geometry — first foundation added
+- [x] Describe Hideout, Street, CornerShop and Apartment as connected navigation regions.
+- [x] Register existing solid colliders as obstacle geometry and model current doorways as explicit bidirectional connections.
+- [x] Add point-level walkability and location-graph queries without coupling Core to Unity.
+- [x] Add an F1-toggleable runtime overlay for regions, obstacles, doorways, player/NPC positions and authored NPC route waypoints.
+- [ ] Verify map accuracy and overlay visibility in Unity Play Mode; correct any geometry/coordinate mismatches found.
+- [ ] Design character clearance and obstacle-aware pathfinding after inspecting the actual walkable geometry. Do not commit to a grid/navmesh algorithm before that review.
+- [ ] Decide whether the shared map should become the movement authority for both player and NPCs; the current milestone is descriptive only.
