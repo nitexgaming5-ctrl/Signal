@@ -106,3 +106,6 @@ No generic quest journal/tracker, full dialogue editor, second named recipient, 
 - Core tests have been added/updated for flexible discovery, relationships, opportunity transitions, save v7 migration/round-trip and delivery assessment.
 - Unity compilation, full EditMode suite and Play Mode verification are not yet confirmed.
 - The parcel has no independent contents simulation, the drop-off has no named recipient, and no generic quest journal/tracker, police system, criminal progression, rumour engine, provenance system or economy has been added.
+
+
+- StoragePanel now respects the player knowledge boundary: unknown parcel quality/authenticity/ownership aspects remain unknown in storage rows, and the item viewer shows only recorded facts with evidence source/confidence.
