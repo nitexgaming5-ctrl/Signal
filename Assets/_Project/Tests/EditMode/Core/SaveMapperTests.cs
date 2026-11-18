@@ -250,7 +250,7 @@ namespace Signal.Core.Tests
 
             Assert.That(report.Success, Is.True);
             Assert.That(report.SkippedKnowledgeFacts, Is.Zero);
-            Assert.That(data.version, Is.EqualTo(5));
+            Assert.That(data.version, Is.EqualTo(6));
             Assert.That(target.Inventory.Items[0].ItemInstanceId, Is.EqualTo(itemId));
             Assert.That(targetKnowledge.FactCount, Is.EqualTo(2));
             Assert.That(targetKnowledge.TryGetFact(itemId, ItemKnowledgeAspect.Authenticity, out ItemKnowledgeFact rumour), Is.True);
@@ -270,7 +270,7 @@ namespace Signal.Core.Tests
             var data = new SaveData { version = 4, itemKnowledge = null };
 
             Assert.That(SaveMigrator.TryMigrate(data, out _), Is.True);
-            Assert.That(data.version, Is.EqualTo(5));
+            Assert.That(data.version, Is.EqualTo(6));
             Assert.That(data.itemKnowledge, Is.Empty);
         }
 
