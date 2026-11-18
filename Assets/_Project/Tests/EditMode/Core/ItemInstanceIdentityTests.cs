@@ -101,7 +101,7 @@ namespace Signal.Core.Tests
         }
 
         [Test]
-        public void VersionTwoSaveMigrationAssignsUniqueIdsAcrossCarriedAndStoredItems()
+        public void VersionTwoSaveMigrationAssignsUniqueIdsAcrossCarriedAndStoredItemsAndAdvancesToVersionFive()
         {
             Guid typeId = Guid.NewGuid();
             var save = new SaveData
@@ -112,7 +112,7 @@ namespace Signal.Core.Tests
             };
 
             Assert.That(SaveMigrator.TryMigrate(save, out string error), Is.True, error);
-            Assert.That(save.version, Is.EqualTo(4));
+            Assert.That(save.version, Is.EqualTo(5));
             Assert.That(Guid.TryParse(save.items[0].instanceId, out Guid carriedId), Is.True);
             Assert.That(Guid.TryParse(save.storageItems[0].instanceId, out Guid storedId), Is.True);
             Assert.That(carriedId, Is.Not.EqualTo(Guid.Empty));
@@ -121,7 +121,7 @@ namespace Signal.Core.Tests
         }
 
         [Test]
-        public void VersionOneSaveStillMigratesToVersionFourWithStableIds()
+        public void VersionOneSaveStillMigratesToVersionFiveWithStableIds()
         {
             var save = new SaveData
             {
@@ -140,7 +140,7 @@ namespace Signal.Core.Tests
         }
 
         [Test]
-        public void VersionThreeSaveMigrationDefaultsNewInstanceStateWithoutChangingIdentity()
+        public void VersionThreeSaveMigrationDefaultsNewInstanceStateWithoutChangingIdentityAndAdvancesToVersionFive()
         {
             Guid identity = Guid.NewGuid();
             var save = new SaveData
