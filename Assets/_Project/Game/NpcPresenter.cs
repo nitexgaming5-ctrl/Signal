@@ -125,7 +125,7 @@ namespace Signal.Game
         private void OnEnable()
         {
             if (_initialized)
-                RefreshFromClock(true);
+                RefreshFromClock(false);
         }
 
         private void OnDestroy()
