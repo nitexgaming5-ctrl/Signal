@@ -287,3 +287,14 @@ The shared branch now contains the discovery ledger, flexible contextual conditi
 
 
 - The parcel starts Good. Delivery records the damaged/intact condition branch from authoritative item state, but this slice deliberately adds no new parcel-damage action or general damage mechanic.
+
+
+## 2026-11-18 — Developer debug menu for NPC and Milo scenario testing
+
+- Added an in-game developer panel toggled with **F1**. It is separate from normal player interactions and disables player movement while open.
+- The panel reports the game clock, current location, NPC simulation state, Milo/Rhea activity and location, Milo opportunity phase, discovery count and player-to-Milo familiarity.
+- Added pause/resume for all NPC schedules and movement, plus an independent game-clock pause.
+- Added Milo controls to focus the player near him, force Work/Rest/Socialize/Home, and return him to his authored schedule. Forced activity overrides the utility schedule until resumed; resuming all NPC simulation clears debug overrides and refreshes authored schedules.
+- Added a direct **Trigger Milo Offer Now** test action. It pauses NPC simulation, forces Milo to Socialize, focuses the player on him, records explicitly debug-labelled discovery signals, raises familiarity to the required threshold, and opens the ordinary offer-choice flow. It bypasses discovery gates only; parcel acceptance, inventory capacity, return and delivery still use the scenario's normal code paths.
+- Debug controls are development tools, not player abilities or new gameplay mechanics. They do not change the authored NPC schedules or the approved opportunity design.
+- The user confirmed Unity compiles and the parcel appears in Play Mode. The previous EditMode report was 279/280, with the sole failure being an outdated Milo dialogue assertion; that assertion has been updated. Full test rerun and debug-menu Play Mode verification are pending.
