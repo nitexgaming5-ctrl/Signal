@@ -176,7 +176,8 @@ namespace Signal.Core
         }
 
         public static LoadReport Apply(SaveData data, PlayerStats stats, GridInventory inventory, GridInventory storage,
-                                       GameClock clock, HeatMeter heat, RentLedger rent, Func<Guid, ItemType?> resolve)
+                                       GameClock clock, HeatMeter heat, RentLedger rent, Func<Guid, ItemType?> resolve,
+                                       ItemKnowledgeBook itemKnowledge = null)
         {
             if (stats == null) throw new ArgumentNullException(nameof(stats));
             if (inventory == null) throw new ArgumentNullException(nameof(inventory));
