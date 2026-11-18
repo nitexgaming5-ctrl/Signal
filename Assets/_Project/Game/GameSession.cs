@@ -290,6 +290,8 @@ namespace Signal.Game
             }
 
             _miloOpportunity = report.RestoredOpportunity ?? new OpportunityState("milo-parcel");
+            if (_miloScenario != null)
+                _miloScenario.RestoreOpportunityState(_miloOpportunity);
 
             var position = new Vector2(data.playerX, data.playerY);
             if (!_city.TryRestorePlace(data.worldPlace, position))
