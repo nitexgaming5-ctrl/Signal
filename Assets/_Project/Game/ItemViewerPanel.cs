@@ -10,8 +10,8 @@ using UnityEngine.UI;
 namespace Signal.Game
 {
     /// <summary>
-    /// Focused read-only viewer for one physical item stack. It presents the item's authored
-    /// definition alongside the state and provisional value of this particular instance.
+    /// Focused read-only viewer for one physical item stack. It presents authored definition data
+    /// alongside only the facts the player currently knows about this particular instance.
     /// </summary>
     public sealed class ItemViewerPanel : MonoBehaviour
     {
