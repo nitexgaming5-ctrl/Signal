@@ -246,6 +246,9 @@ namespace Signal.Game
                 _city.DebugSetNpcSimulationPaused(!_city.DebugSimulationPaused);
             if (GUILayout.Button(_debugClockPaused ? "Resume game clock" : "Pause game clock"))
                 _debugClockPaused = !_debugClockPaused;
+            GUILayout.Label("Navigation overlay: " + (_city.DebugNavigationOverlayVisible ? "ON" : "OFF"));
+            if (GUILayout.Button("Toggle navigation geometry / NPC route overlay"))
+                _city.DebugToggleNavigationOverlay();
 
             GUILayout.Space(8f);
             GUILayout.Label("MILO — POSITION / ACTIVITY");
