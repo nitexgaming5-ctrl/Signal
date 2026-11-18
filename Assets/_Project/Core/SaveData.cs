@@ -63,7 +63,7 @@ namespace Signal.Core
     {
         public const int CurrentVersion = 5;
 
-        /// <summary>Accepts save formats v1 through v4 and migrates them to the current item-state format.</summary>
+        /// <summary>Accepts save formats v1 through v5 and migrates them to the current inventory and player-knowledge format.</summary>
         public static bool TryMigrate(SaveData data, out string error)
         {
             error = null;
