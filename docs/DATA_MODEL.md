@@ -46,7 +46,7 @@ When a save shape changes, bump `version` and write a migration function in Core
 - `NpcUtilityBrain` is transient Core runtime state: current activity, energy and social need. It advances from `GameClock` and deterministically reconstructs from the current day/time after a rewind or load.
 - The first activity set is `Home`, `Work`, `Rest` and `Socialize`. Decisions are evaluated every 15 in-game minutes; need drift is applied once per elapsed in-game minute.
 - Character identity, visual presentation, movement targets, interaction range and authored activity-specific dialogue live in the Game layer for this first prototype.
-- No persistent relationship, memory, secret-discovery or NPC inventory data exists yet. Add save DTOs and a versioned migration only when a connected scenario requires such state.
+- Player-to-NPC relationship impressions are persisted in save v7 for the approved Milo scenario. NPC-to-NPC relationships, NPC memories and transient perception remain runtime-only; add those only when a connected scenario requires them.
 
 
 ## Player discovery signals (Opportunity 001 foundation)
@@ -54,11 +54,19 @@ When a save shape changes, bump `version` and write a migration function in Core
 - Signal types are RoutineObservation, Conversation, PhysicalEvidence and Rumour. Type and source are retained; rumours remain uncertain records and are not promoted to truth.
 - PlayerDiscoveryLedger stores signals independently of item facts and NPC knowledge. It supports subject-scoped queries, required-signal checks and counting distinct signal types. Re-recording an existing signal ID is idempotent.
 - InteractionConditionSet is an immutable conjunctive condition bundle for required NPC activity, minimum directed familiarity/trust/affinity and required signal IDs/types. InteractionContext supplies current activity, the player's relationship impression and discovery ledger.
-- These records are runtime-only in milestone 1. Save DTOs/migration will be added with opportunity state in a later milestone; until then do not claim discoveries persist across save/load.
+- Save v7 persists the ledger independently of item facts and inventory contents. v1-v6 migrations initialize the new collection empty.
 
 
 ## Opportunity 001 runtime state (first pass)
 - OpportunityDefinition contains stable opportunity ID, associated NPC ID and an InteractionConditionSet for its offer.
 - OpportunityState contains phase (Dormant, Available, Accepted, Resolved), resolution (None/Delivered), associated parcel stack Guid, acceptance/decline counts and relevant in-game timestamps.
 - Declining leaves the opportunity Available. Returning the parcel moves Accepted back to Available. Delivery resolves exactly once. Expiry can return Available to Dormant without scheduling a backlog.
-- The current lifecycle model is runtime-only. Save DTOs and migration will be added when GameSession integration is implemented; do not claim state persists yet.
+- Save v7 persists opportunity phase, resolution, parcel stack identity, accept/decline counters and timestamps, plus the delivery assessment (on-time, intact and witnessed). Invalid opportunity snapshots are ignored rather than failing the full save.
+
+
+## Player-to-NPC relationships (save v7)
+
+- PlayerRelationshipBook stores a directed relationship impression from the player toward each stable NPC ID. Each entry contains familiarity (0..1), trust (0..1) and affinity (-1..1).
+- Missing entries resolve to the neutral relationship (0 familiarity, 0.5 trust, 0 affinity).
+- This book is distinct from NpcSocialWorld relationships, which describe NPC-to-NPC impressions and are not yet persisted.
+- Save v7 stores stable NPC ID and all three values; v1-v6 migrations initialize the collection empty.
