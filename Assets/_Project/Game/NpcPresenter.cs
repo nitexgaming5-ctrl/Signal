@@ -159,7 +159,7 @@ namespace Signal.Game
 
         private void Update()
         {
-            if (_initialized && !_debugSimulationPaused)
+            if (_initialized && !_debugSimulationPaused && _clock != null && !_clock.IsPaused)
                 AdvanceMovement(Time.deltaTime);
         }
 
@@ -170,7 +170,7 @@ namespace Signal.Game
 
         private void AdvanceMovement(float deltaTime)
         {
-            if (!_initialized || _debugSimulationPaused || deltaTime <= 0f ||
+            if (!_initialized || _debugSimulationPaused || (_clock != null && _clock.IsPaused) || deltaTime <= 0f ||
                 _definition == null || _definition.WalkingSpeed <= 0f)
                 return;
 
