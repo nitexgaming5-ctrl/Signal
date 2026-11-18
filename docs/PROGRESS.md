@@ -298,3 +298,16 @@ The shared branch now contains the discovery ledger, flexible contextual conditi
 - Added a direct **Trigger Milo Offer Now** test action. It pauses NPC simulation, forces Milo to Socialize, focuses the player on him, opens the ordinary offer-choice flow and moves a dormant opportunity to Available. It bypasses discovery/familiarity gates without fabricating discovery or relationship facts; parcel acceptance, inventory capacity, return and delivery still use the scenario's normal code paths.
 - Debug controls are development tools, not player abilities or new gameplay mechanics. They do not change the authored NPC schedules or the approved opportunity design.
 - The user confirmed Unity compiles and the parcel appears in Play Mode. The previous EditMode report was 279/280, with the sole failure being an outdated Milo dialogue assertion; that assertion has been updated. Full test rerun and debug-menu Play Mode verification are pending.
+
+
+## 2026-11-18 — Real-time NPC travel between city locations
+
+- Replaced schedule-change teleporting with waypoint-based walking between the NPC's current physical location and the next authored activity destination.
+- Residents walk to the exit in their current interior, cross to the corresponding street doorway, walk along the street to the destination building, cross into that interior, then walk to the final activity position. Street-to-street and same-interior movement also remains continuous.
+- NPCs remain active while off-screen; only their sprite renderers are hidden outside the player's current location. Their movement and NpcSocialWorld position/location continue updating even when the player is elsewhere.
+- Changing the player's active location no longer resets NPC positions.
+- Player conversations now require the NPC to be physically in the same active location. World events use the NPC's actual current location.
+- Scheduled social encounters only consider residents who have reached their Socialize destination. Milo's routine observation, private offer and carried-parcel visual, plus Rhea's rumour, likewise wait until the relevant resident is physically on the street and no longer travelling.
+- Added deterministic EditMode movement advancement and a regression test covering Milo's shop → street → apartment route. Existing integration tests now advance NPC movement before asserting arrival or social encounters.
+- Movement follows authored doorway waypoints and direct path segments; it is not yet dynamic obstacle avoidance/pathfinding.
+- Unity compilation, full EditMode tests and Play Mode observation are pending user verification.
