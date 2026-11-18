@@ -130,8 +130,8 @@ namespace Signal.Game
         public void DebugResumeSchedule()
         {
             _debugActivityOverride = false;
-            _debugSimulationPaused = false;
-            RefreshFromClock(true);
+            if (!_debugSimulationPaused)
+                RefreshFromClock(true);
         }
 
         private void Update()
