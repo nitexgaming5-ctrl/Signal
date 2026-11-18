@@ -107,6 +107,57 @@ namespace Signal.Core
             return true;
         }
 
+        public static bool TryRestore(string opportunityId, OpportunityPhase phase,
+            OpportunityResolution resolution, Guid parcelInstanceId, int acceptanceCount, int declineCount,
+            int lastAcceptedDay, int lastAcceptedMinuteOfDay, int lastDeclinedDay,
+            int lastDeclinedMinuteOfDay, int resolvedDay, int resolvedMinuteOfDay,
+            out OpportunityState restored)
+        {
+            restored = null;
+            if (string.IsNullOrWhiteSpace(opportunityId) ||
+                !Enum.IsDefined(typeof(OpportunityPhase), phase) ||
+                !Enum.IsDefined(typeof(OpportunityResolution), resolution) ||
+                acceptanceCount < 0 || declineCount < 0)
+                return false;
+
+            if (!ValidOptionalTime(lastAcceptedDay, lastAcceptedMinuteOfDay) ||
+                !ValidOptionalTime(lastDeclinedDay, lastDeclinedMinuteOfDay) ||
+                !ValidOptionalTime(resolvedDay, resolvedMinuteOfDay))
+                return false;
+
+            if ((phase == OpportunityPhase.Accepted || phase == OpportunityPhase.Resolved) &&
+                (parcelInstanceId == Guid.Empty || acceptanceCount < 1))
+                return false;
+            if (phase == OpportunityPhase.Resolved &&
+                (resolution != OpportunityResolution.Delivered || resolvedDay < 1))
+                return false;
+            if (phase != OpportunityPhase.Resolved && resolution != OpportunityResolution.None)
+                return false;
+            if (phase == OpportunityPhase.Dormant && parcelInstanceId != Guid.Empty && acceptanceCount == 0)
+                return false;
+
+            restored = new OpportunityState(opportunityId)
+            {
+                Phase = phase,
+                Resolution = resolution,
+                ParcelInstanceId = parcelInstanceId,
+                AcceptanceCount = acceptanceCount,
+                DeclineCount = declineCount,
+                LastAcceptedDay = lastAcceptedDay,
+                LastAcceptedMinuteOfDay = lastAcceptedMinuteOfDay,
+                LastDeclinedDay = lastDeclinedDay,
+                LastDeclinedMinuteOfDay = lastDeclinedMinuteOfDay,
+                ResolvedDay = resolvedDay,
+                ResolvedMinuteOfDay = resolvedMinuteOfDay
+            };
+            return true;
+        }
+
+        private static bool ValidOptionalTime(int day, int minuteOfDay)
+        {
+            return day == 0 ? minuteOfDay == 0 : day > 0 && minuteOfDay >= 0 && minuteOfDay < 1440;
+        }
+
         private static void ValidateTime(int day, int minuteOfDay)
         {
             if (day < 1) throw new ArgumentOutOfRangeException(nameof(day));
