@@ -55,6 +55,18 @@ namespace Signal.Game
             return resident != null ? resident.Activity : NpcActivity.Home;
         }
 
+        public string GetResidentCurrentPlace(string npcId)
+        {
+            NpcPresenter resident = FindResident(npcId);
+            return resident != null ? resident.CurrentPlace : string.Empty;
+        }
+
+        public bool IsResidentTravelling(string npcId)
+        {
+            NpcPresenter resident = FindResident(npcId);
+            return resident != null && resident.IsTravelling;
+        }
+
         public bool HasResident(string npcId)
         {
             return FindResident(npcId) != null;
@@ -168,7 +180,8 @@ namespace Signal.Game
         {
             NpcPresenter resident = FindResident(npcId);
             return resident == null ? npcId + ": unavailable" :
-                resident.DisplayName + " — " + resident.Activity + " @ " + resident.CurrentPlace +
+                resident.DisplayName + " — " + resident.Activity +
+                (resident.IsTravelling ? " [travelling]" : string.Empty) + " @ " + resident.CurrentPlace +
                 " (" + resident.Position.x.ToString("0.0") + ", " +
                 resident.Position.y.ToString("0.0") + ")";
         }
