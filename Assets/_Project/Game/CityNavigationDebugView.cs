@@ -85,6 +85,9 @@ namespace Signal.Game
 
                 DrawMarker(resident.Position, resident.DisplayName + " / " + resident.Activity,
                     new Color(1f, 0.85f, 0.3f, 1f));
+                if (resident.NavigationFailed)
+                    DrawMarker(resident.Position + new Vector2(0f, 0.65f),
+                        "NAVIGATION FAILED", new Color(1f, 0.15f, 0.12f, 1f));
 
                 Vector2 previous = resident.Position;
                 IReadOnlyList<NpcTravelWaypoint> route = resident.DebugTravelRoute;

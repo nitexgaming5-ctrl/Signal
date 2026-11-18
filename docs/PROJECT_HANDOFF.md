@@ -345,3 +345,15 @@ The user confirmed **255/255 EditMode tests passed** after player item-knowledge
 - Press **F1** and use **Toggle navigation geometry / NPC route overlay**. Close the menu to inspect the overlay in the game view. It marks the active region, solid obstacles, doorway endpoints, player, visible residents and their current authored travel waypoints.
 - The map provides point-level geometry and a connected-location graph; it is not a pathfinder. No player/NPC movement behavior was changed. NPC routes remain authored waypoints until the geometry is inspected and validated.
 - Unity compile, EditMode tests and Play Mode overlay validation are pending user verification.
+
+
+## Current navigation milestone — 2026-11-18
+
+The existing NPC movement system is already active: residents walk continuously between authored destinations, cross doorways between separate coordinate spaces, and continue moving off-screen. Obstacle-aware navigation v1 now layers route planning onto that movement system.
+
+- CityNavigationMap records location regions, solid obstacle rectangles and doorway links; it now supports circular clearance queries.
+- CityNavigationPathfinder uses cached local grids and A* with diagonal corner protection and line-of-sight route smoothing.
+- CityBlockBootstrap.BuildNpcTravelRoute finds a route through the doorway graph and plans each local segment around obstacles.
+- NpcPresenter still executes the route at its authored walking speed and preserves physical location/social-world updates. Failed routes are surfaced to the F1 overlay.
+- The player controller is unchanged.
+- The user should run Unity compilation, the full EditMode suite and Play Mode route inspection. Do not claim these new changes are verified until the user reports results.

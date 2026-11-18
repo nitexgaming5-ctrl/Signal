@@ -236,3 +236,20 @@ Do not expand into a generic quest journal, second named recipient, police/crimi
 - [ ] Verify map accuracy and overlay visibility in Unity Play Mode; correct any geometry/coordinate mismatches found.
 - [ ] Design character clearance and obstacle-aware pathfinding after inspecting the actual walkable geometry. Do not commit to a grid/navmesh algorithm before that review.
 - [ ] Decide whether the shared map should become the movement authority for both player and NPCs; the current milestone is descriptive only.
+
+
+## Next implementation — obstacle-aware NPC navigation v1
+
+**Goal:** retain the existing walking NPCs and make their routes respect the generated city geometry.
+
+- [x] Add clearance-aware walkability to the existing location/doorway map.
+- [x] Add local A* pathfinding with diagonal corner protection, safe route smoothing and nearby safe endpoint selection.
+- [x] Plan multi-location journeys through the shortest available doorway graph route.
+- [x] Feed planned local route points into the existing NPC movement executor; keep schedules, walking speed, social-world position updates and doorway transitions intact.
+- [x] Surface route failures in the F1 navigation overlay rather than silently accepting a straight-line route.
+- [x] Add focused pathfinder and city integration tests.
+- [ ] Run Unity compilation and the full EditMode suite; inspect any new warnings/failures.
+- [ ] In Play Mode, use F1 to inspect the four regions and route overlays, then observe Milo shop → street and street → apartment travel.
+- [ ] Confirm NPCs route around the street bench, building colliders and interior furniture; verify the parcel discovery/drop-off flow remains unaffected.
+
+**Scope boundary:** this is NPC route planning only. Player Rigidbody movement is unchanged. There is no moving-agent avoidance, crowd simulation, dynamic obstacle updates, click-to-move, navmesh, or new gameplay mechanic. The map is currently a build-time snapshot of static city geometry.

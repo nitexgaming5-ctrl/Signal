@@ -34,6 +34,7 @@ namespace Signal.Game
         private NpcSocialEncounterSystem _socialEncounterSystem;
         private bool _debugSimulationPaused;
         private CityNavigationMap _navigationMap;
+        private CityNavigationPathfinder _navigationPathfinder;
         private CityNavigationDebugView _navigationDebugView;
 
         private static readonly Vector2 HomeDoor = new Vector2(10f, -1.5f);
@@ -143,38 +144,86 @@ namespace Signal.Game
             string targetPlace, Vector2 targetPosition)
         {
             var route = new List<NpcTravelWaypoint>();
-            if (string.IsNullOrWhiteSpace(fromPlace))
-                fromPlace = "Street";
-            if (string.IsNullOrWhiteSpace(targetPlace))
-                targetPlace = "Street";
-
-            if (fromPlace == targetPlace)
-            {
-                route.Add(new NpcTravelWaypoint(targetPlace, targetPosition));
+            if (string.IsNullOrWhiteSpace(fromPlace)) fromPlace = "Street";
+            if (string.IsNullOrWhiteSpace(targetPlace)) targetPlace = "Street";
+            if (_navigationPathfinder == null) return route;
+            if (!TryGetLocationConnectionRoute(fromPlace, targetPlace,
+                out List<CityNavigationMap.Connection> connections))
                 return route;
-            }
 
-            string routePlace = fromPlace;
-            if (routePlace != "Street")
+            string currentPlace = fromPlace;
+            Vector2 currentPosition = fromPosition;
+            for (int i = 0; i < connections.Count; i++)
             {
-                Vector2 currentExit = InteriorExitFor(routePlace);
-                if ((fromPosition - currentExit).sqrMagnitude > 0.01f)
-                    route.Add(new NpcTravelWaypoint(routePlace, currentExit));
-                route.Add(new NpcTravelWaypoint("Street", StreetDoorFor(routePlace)));
+                CityNavigationMap.Connection connection = connections[i];
+                Vector2 localDoor = connection.PointFor(currentPlace);
+                if (!AppendLocalNavigationPath(route, currentPlace, currentPosition, localDoor))
+                    return new List<NpcTravelWaypoint>();
+                string nextPlace = connection.OtherPlace(currentPlace);
+                Vector2 nextDoor = connection.PointFor(nextPlace);
+                route.Add(new NpcTravelWaypoint(nextPlace, nextDoor));
+                currentPlace = nextPlace;
+                currentPosition = nextDoor;
             }
 
-            if (targetPlace != "Street")
-            {
-                Vector2 targetStreetDoor = StreetDoorFor(targetPlace);
-                Vector2 routeEnd = route.Count > 0 ? route[route.Count - 1].Position : fromPosition;
-                if ((routeEnd - targetStreetDoor).sqrMagnitude > 0.01f)
-                    route.Add(new NpcTravelWaypoint("Street", targetStreetDoor));
-
-                route.Add(new NpcTravelWaypoint(targetPlace, InteriorEntryFor(targetPlace)));
-            }
-
-            route.Add(new NpcTravelWaypoint(targetPlace, targetPosition));
+            if (!AppendLocalNavigationPath(route, currentPlace, currentPosition, targetPosition))
+                return new List<NpcTravelWaypoint>();
             return route;
+        }
+
+        private bool AppendLocalNavigationPath(List<NpcTravelWaypoint> route, string place,
+            Vector2 start, Vector2 goal)
+        {
+            if (!_navigationPathfinder.TryFindPath(place, start, goal, out List<Vector2> points))
+                return false;
+            for (int i = 0; i < points.Count; i++)
+            {
+                Vector2 point = points[i];
+                if (route.Count > 0 && route[route.Count - 1].LocationId == place &&
+                    (route[route.Count - 1].Position - point).sqrMagnitude <= 0.0025f)
+                    continue;
+                route.Add(new NpcTravelWaypoint(place, point));
+            }
+            return true;
+        }
+
+        private bool TryGetLocationConnectionRoute(string fromPlace, string targetPlace,
+            out List<CityNavigationMap.Connection> route)
+        {
+            route = new List<CityNavigationMap.Connection>();
+            if (_navigationMap == null || _navigationMap.FindRegion(fromPlace) == null ||
+                _navigationMap.FindRegion(targetPlace) == null)
+                return false;
+            if (fromPlace == targetPlace) return true;
+
+            var pending = new Queue<string>();
+            var visited = new HashSet<string> { fromPlace };
+            var parentConnections = new Dictionary<string, CityNavigationMap.Connection>();
+            pending.Enqueue(fromPlace);
+            while (pending.Count > 0 && !visited.Contains(targetPlace))
+            {
+                string current = pending.Dequeue();
+                List<CityNavigationMap.Connection> available = _navigationMap.GetConnectionsFor(current);
+                for (int i = 0; i < available.Count; i++)
+                {
+                    CityNavigationMap.Connection connection = available[i];
+                    string next = connection.OtherPlace(current);
+                    if (string.IsNullOrEmpty(next) || !visited.Add(next)) continue;
+                    parentConnections[next] = connection;
+                    pending.Enqueue(next);
+                }
+            }
+            if (!visited.Contains(targetPlace)) return false;
+
+            string cursor = targetPlace;
+            while (cursor != fromPlace)
+            {
+                CityNavigationMap.Connection connection = parentConnections[cursor];
+                route.Add(connection);
+                cursor = connection.OtherPlace(cursor);
+            }
+            route.Reverse();
+            return true;
         }
 
         public bool DebugFocusResident(string npcId)
@@ -227,6 +276,7 @@ namespace Signal.Game
             BuildInterior(_apartmentRoot.transform, new Vector2(1020f, 1000f), true);
 
             _navigationMap = CreateNavigationMap(player);
+            _navigationPathfinder = new CityNavigationPathfinder(_navigationMap);
             _navigationDebugView = gameObject.AddComponent<CityNavigationDebugView>();
             _navigationDebugView.Bind(_navigationMap, this, _player, camera);
 
@@ -264,7 +314,8 @@ namespace Signal.Game
             AddNavigationObstacles(map, "CornerShop", _shopRoot.transform);
             AddNavigationObstacles(map, "Apartment", _apartmentRoot.transform);
 
-            map.AddConnection("hideout-street-door", "Hideout", HomeDoor,
+            // Keep the hideout-side point inside the room's usable footprint.
+            map.AddConnection("hideout-street-door", "Hideout", new Vector2(10f, -0.9f),
                 "Street", new Vector2(10f, -4f));
             map.AddConnection("street-shop-door", "Street", new Vector2(0.5f, -12f),
                 "CornerShop", new Vector2(1000f, 995.8f));

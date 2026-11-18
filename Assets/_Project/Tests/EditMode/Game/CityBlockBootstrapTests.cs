@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using NUnit.Framework;
 using Signal.Core;
 using UnityEngine;
@@ -48,6 +49,41 @@ namespace Signal.Game.Tests
             }
         }
 
+
+        [Test]
+        public void ResidentRouteAvoidsTheStreetBenchInsteadOfCrossingItsCollider()
+        {
+            var host = new GameObject("CityHost");
+            var player = new GameObject("Player");
+            var cameraObject = new GameObject("MainCamera");
+            Rigidbody2D body = player.AddComponent<Rigidbody2D>();
+            Camera camera = cameraObject.AddComponent<Camera>();
+            CityBlockBootstrap city = host.AddComponent<CityBlockBootstrap>();
+            try
+            {
+                city.Build(player.transform, body, camera);
+                List<NpcTravelWaypoint> route = city.BuildNpcTravelRoute(
+                    "Street", new Vector2(0f, -17.5f), "Street", new Vector2(7f, -17.5f));
+                Assert.That(route.Count, Is.GreaterThan(1));
+                Vector2 previous = new Vector2(0f, -17.5f);
+                for (int i = 0; i < route.Count; i++)
+                {
+                    Assert.That(route[i].LocationId, Is.EqualTo("Street"));
+                    Vector2 next = route[i].Position;
+                    int samples = Mathf.Max(1, Mathf.CeilToInt(Vector2.Distance(previous, next) / 0.05f));
+                    for (int sample = 0; sample <= samples; sample++)
+                        Assert.That(city.NavigationMap.IsWalkable("Street",
+                            Vector2.Lerp(previous, next, sample / (float)samples), 0.38f), Is.True);
+                    previous = next;
+                }
+            }
+            finally
+            {
+                Object.DestroyImmediate(host);
+                Object.DestroyImmediate(player);
+                Object.DestroyImmediate(cameraObject);
+            }
+        }
 
         [Test]
         public void FallbackResidentsUseSharedPresenterAndCanBeTalkedTo()

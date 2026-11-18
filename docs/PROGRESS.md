@@ -323,3 +323,15 @@ The shared branch now contains the discovery ledger, flexible contextual conditi
 - Added Core-facing Game assembly EditMode tests for region bounds, obstacle exclusion, doorway graph traversal and duplicate registration.
 - No pathfinding was added and no movement behavior was changed. Player movement still relies on Rigidbody2D collision; NPCs still follow authored waypoint segments. Character clearance, obstacle avoidance, dynamic route planning and a shared player/NPC pathfinder remain future work.
 - Unity compilation, EditMode tests and Play Mode inspection of the overlay/map accuracy are pending user verification.
+
+
+## 2026-11-18 — Obstacle-aware NPC navigation v1 (implementation added; Unity verification pending)
+
+- Preserved the existing continuous NpcPresenter movement executor, schedule-driven activity changes, off-screen simulation and physical doorway transitions. This milestone changes how its waypoint routes are planned; it does not replace NPC movement.
+- Extended CityNavigationMap with clearance-aware walkability. A circular character footprint is represented by expanding solid collider rectangles and insetting region boundaries.
+- Added cached per-location grid data and an A* pathfinder. It uses 8-direction movement, prevents diagonal corner cutting, snaps authored destinations that sit on furniture to a nearby safe point, and smooths routes only where sampled line-of-sight remains walkable.
+- Replaced the hard-coded shop/street/apartment route builder with a shortest doorway-connection route through the location graph. Each leg is planned locally around that location's obstacles.
+- NPCs now expose a navigation-failure state. A failed route leaves the resident in place rather than silently treating a direct line through an obstacle as a valid journey; the F1 overlay marks the failure.
+- Added pathfinder tests for obstacle avoidance, clearance, blocked destinations, unreachable regions and diagonal corner cases, plus a city integration test that checks a route around the street bench.
+- Player movement remains on its existing Rigidbody2D collision path. Dynamic obstacles, moving-agent avoidance, crowd separation, player click-to-move and navigation persistence are not part of this pass.
+- The user reported 284/284 EditMode tests and a working Milo parcel scenario before this implementation. This new code has not yet been compiled or tested in Unity; verify the full suite and Play Mode movement before treating navigation v1 as complete.

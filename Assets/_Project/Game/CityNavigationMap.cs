@@ -141,10 +141,39 @@ namespace Signal.Game
             return false;
         }
 
-        /// <summary>Point-level geometry query. Character radius and clearance are future additions.</summary>
+        /// <summary>Point-level geometry query for a point-sized observer.</summary>
         public bool IsWalkable(string placeId, Vector2 point)
         {
-            return IsInsideRegion(placeId, point) && !IsBlocked(placeId, point);
+            return IsWalkable(placeId, point, 0f);
+        }
+
+        /// <summary>
+        /// Tests whether a circular character footprint can occupy a point. Obstacles are
+        /// expanded by the clearance radius and region edges are inset by the same amount.
+        /// </summary>
+        public bool IsWalkable(string placeId, Vector2 point, float clearanceRadius)
+        {
+            if (clearanceRadius < 0f)
+                throw new ArgumentOutOfRangeException(nameof(clearanceRadius));
+            Region region = FindRegion(placeId);
+            if (region == null ||
+                point.x < region.Bounds.xMin + clearanceRadius ||
+                point.x > region.Bounds.xMax - clearanceRadius ||
+                point.y < region.Bounds.yMin + clearanceRadius ||
+                point.y > region.Bounds.yMax - clearanceRadius)
+                return false;
+
+            for (int i = 0; i < _obstacles.Count; i++)
+            {
+                Obstacle obstacle = _obstacles[i];
+                if (obstacle.PlaceId != placeId) continue;
+                Rect expanded = new Rect(obstacle.Bounds.xMin - clearanceRadius,
+                    obstacle.Bounds.yMin - clearanceRadius,
+                    obstacle.Bounds.width + clearanceRadius * 2f,
+                    obstacle.Bounds.height + clearanceRadius * 2f);
+                if (expanded.Contains(point)) return false;
+            }
+            return true;
         }
 
         public List<Connection> GetConnectionsFor(string placeId)

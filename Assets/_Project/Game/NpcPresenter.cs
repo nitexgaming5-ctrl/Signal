@@ -47,7 +47,8 @@ namespace Signal.Game
         public NpcActivity Activity => _activity;
         public Vector2 Position => transform.position;
         public string CurrentPlace => _currentPlace;
-        public bool IsTravelling => _nextTravelWaypoint < _travelRoute.Count;
+        public bool NavigationFailed { get; private set; }
+        public bool IsTravelling => NavigationFailed || _nextTravelWaypoint < _travelRoute.Count;
         public Vector2 Destination => _destination;
         public IReadOnlyList<NpcTravelWaypoint> DebugTravelRoute => _travelRoute;
         public int DebugNextWaypoint => _nextTravelWaypoint;
@@ -258,6 +259,7 @@ namespace Signal.Game
             string targetPlace = ActivityPlace(next);
             _travelRoute.Clear();
             _nextTravelWaypoint = 0;
+            NavigationFailed = false;
 
             if (snapToDestination)
             {
@@ -280,6 +282,13 @@ namespace Signal.Game
                 _travelRoute.Add(new NpcTravelWaypoint(targetPlace, _destination));
             }
 
+            if (!snapToDestination && _travelRoute.Count == 0 &&
+                Vector2.Distance(transform.position, _destination) > 0.1f)
+            {
+                NavigationFailed = true;
+                Debug.LogWarning("NPC navigation could not find a route for " + NpcId +
+                    " from " + _currentPlace + " to " + targetPlace + ".");
+            }
             SyncSocialPosition();
             UpdateLocationVisibility();
         }
