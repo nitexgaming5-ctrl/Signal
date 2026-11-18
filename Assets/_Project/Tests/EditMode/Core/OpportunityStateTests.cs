@@ -80,7 +80,7 @@ namespace Signal.Core.Tests
             Assert.That(state.TryReturnParcel(1, 0), Is.False);
             Assert.That(state.TryResolveDelivered(1, 0), Is.False);
             Assert.That(state.TryAccept(Guid.Empty, 1, 0), Is.False);
-            Assert.Throws<ArgumentOutOfRangeException>(() => state.MakeAvailable() && state.RecordDecline(0, 0));
+            Assert.Throws<ArgumentOutOfRangeException>(() => { state.MakeAvailable(); state.RecordDecline(0, 0); });
         }
 
         private static OpportunityState AvailableState()
