@@ -19,6 +19,18 @@ namespace Signal.Core
     }
 
     [Serializable]
+    public sealed class SavedItemKnowledge
+    {
+        public string instanceId;
+        public int aspect;
+        public int value;
+        public int source;
+        public float confidence;
+        public int learnedDay;
+        public int learnedMinuteOfDay;
+    }
+
+    [Serializable]
     public sealed class SaveData
     {
         public int version = SaveMigrator.CurrentVersion;
@@ -35,6 +47,7 @@ namespace Signal.Core
         public float playerY;
         public List<SavedItem> items = new List<SavedItem>();
         public List<SavedItem> storageItems = new List<SavedItem>();
+        public List<SavedItemKnowledge> itemKnowledge = new List<SavedItemKnowledge>();
     }
 
     public sealed class LoadReport
@@ -43,11 +56,12 @@ namespace Signal.Core
         public string Error { get; set; }
         public int SkippedItems { get; set; }
         public int SkippedStorageItems { get; set; }
+        public int SkippedKnowledgeFacts { get; set; }
     }
 
     public static class SaveMigrator
     {
-        public const int CurrentVersion = 4;
+        public const int CurrentVersion = 5;
 
         /// <summary>Accepts save formats v1 through v4 and migrates them to the current item-state format.</summary>
         public static bool TryMigrate(SaveData data, out string error)
@@ -83,8 +97,11 @@ namespace Signal.Core
             var usedIds = new HashSet<Guid>();
             EnsureInstanceIds(data.items, usedIds);
             EnsureInstanceIds(data.storageItems, usedIds);
-            // Version 3 introduced stable stack identity but had no per-stack state. The new
-            // enum fields default to their zero values, which are the neutral starting state.
+            // Versions 1-3 had no per-stack state. Enum fields default to neutral values.
+            // Version 4 introduced per-stack state but no player-specific item knowledge.
+            if (data.itemKnowledge == null)
+                data.itemKnowledge = new List<SavedItemKnowledge>();
+
             data.version = CurrentVersion;
 
             return true;
@@ -121,7 +138,7 @@ namespace Signal.Core
 
         public static SaveData Capture(PlayerStats stats, GridInventory inventory, GridInventory storage,
                                        GameClock clock, HeatMeter heat, RentLedger rent, string worldPlace,
-                                       float playerX, float playerY)
+                                       float playerX, float playerY, ItemKnowledgeBook itemKnowledge = null)
         {
             if (stats == null) throw new ArgumentNullException(nameof(stats));
             if (inventory == null) throw new ArgumentNullException(nameof(inventory));
@@ -147,6 +164,7 @@ namespace Signal.Core
             CaptureItems(inventory, data.items);
             if (storage != null)
                 CaptureItems(storage, data.storageItems);
+            CaptureKnowledge(itemKnowledge, data.itemKnowledge);
 
             return data;
         }
@@ -154,7 +172,7 @@ namespace Signal.Core
         public static LoadReport Apply(SaveData data, PlayerStats stats, GridInventory inventory, GameClock clock,
                                        HeatMeter heat, RentLedger rent, Func<Guid, ItemType?> resolve)
         {
-            return Apply(data, stats, inventory, null, clock, heat, rent, resolve);
+            return Apply(data, stats, inventory, null, clock, heat, rent, resolve, null);
         }
 
         public static LoadReport Apply(SaveData data, PlayerStats stats, GridInventory inventory, GridInventory storage,
@@ -185,11 +203,14 @@ namespace Signal.Core
                 skippedStorage = RestoreItems(data.storageItems, storage, resolve);
             }
 
+            int skippedKnowledge = RestoreKnowledge(data.itemKnowledge, itemKnowledge);
+
             return new LoadReport
             {
                 Success = true,
                 SkippedItems = skipped,
-                SkippedStorageItems = skippedStorage
+                SkippedStorageItems = skippedStorage,
+                SkippedKnowledgeFacts = skippedKnowledge
             };
         }
 
@@ -211,6 +232,59 @@ namespace Signal.Core
                     ownership = (int)item.State.Ownership
                 });
             }
+        }
+
+
+        private static void CaptureKnowledge(ItemKnowledgeBook knowledge, List<SavedItemKnowledge> destination)
+        {
+            if (knowledge == null)
+                return;
+
+            foreach (ItemKnowledgeFact fact in knowledge.Facts)
+            {
+                destination.Add(new SavedItemKnowledge
+                {
+                    instanceId = fact.ItemInstanceId.ToString(),
+                    aspect = (int)fact.Aspect,
+                    value = fact.Value,
+                    source = (int)fact.Source,
+                    confidence = fact.Confidence,
+                    learnedDay = fact.LearnedDay,
+                    learnedMinuteOfDay = fact.LearnedMinuteOfDay
+                });
+            }
+        }
+
+        private static int RestoreKnowledge(List<SavedItemKnowledge> savedFacts, ItemKnowledgeBook destination)
+        {
+            if (destination == null)
+                return 0;
+
+            destination.Clear();
+            int skipped = 0;
+            if (savedFacts == null)
+                return skipped;
+
+            foreach (SavedItemKnowledge saved in savedFacts)
+            {
+                if (saved == null || !Guid.TryParse(saved.instanceId, out Guid instanceId))
+                {
+                    skipped++;
+                    continue;
+                }
+
+                try
+                {
+                    destination.RecordFact(instanceId, (ItemKnowledgeAspect)saved.aspect, saved.value,
+                        (ItemKnowledgeSource)saved.source, saved.confidence, saved.learnedDay, saved.learnedMinuteOfDay);
+                }
+                catch (ArgumentException)
+                {
+                    skipped++;
+                }
+            }
+
+            return skipped;
         }
 
         private static int RestoreItems(List<SavedItem> savedItems, GridInventory destination, Func<Guid, ItemType?> resolve)
