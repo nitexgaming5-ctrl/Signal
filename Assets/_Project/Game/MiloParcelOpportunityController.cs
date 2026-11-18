@@ -140,10 +140,9 @@ namespace Signal.Game
                 return;
 
             _lastRoutineObservationDay = _clock.Day;
-            RecordSignal("milo-routine-" + _clock.Day, DiscoverySignalType.RoutineObservation,
-                "milo-after-hours", "Milo stepped outside after closing with a wrapped parcel.",
-                1f);
-            _say("You notice Milo carrying a wrapped parcel after the shop has closed.");
+            if (RecordSignal("milo-routine-" + _clock.Day, DiscoverySignalType.RoutineObservation,
+                "milo-after-hours", "Milo stepped outside after closing with a wrapped parcel.", 1f))
+                _say("You notice Milo carrying a wrapped parcel after the shop has closed.");
         }
 
         public bool TryInteract(Vector2 playerPosition, string place, out string message)
