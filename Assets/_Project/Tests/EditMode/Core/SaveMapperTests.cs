@@ -298,5 +298,28 @@ namespace Signal.Core.Tests
             Assert.That(report.SkippedKnowledgeFacts, Is.EqualTo(1));
             Assert.That(knowledge.FactCount, Is.Zero);
         }
+
+        [Test]
+        public void ItemKnowledgePersistsAfterThePhysicalItemLeavesInventory()
+        {
+            var source = new World();
+            var knowledge = new ItemKnowledgeBook();
+            Guid formerItemId = Guid.NewGuid();
+            knowledge.RecordFact(formerItemId, ItemKnowledgeAspect.Ownership,
+                (int)ItemOwnershipStatus.Stolen, ItemKnowledgeSource.Document, 0.95f, 6, 300);
+
+            SaveData data = SaveMapper.Capture(source.Stats, source.Inventory, null,
+                source.Clock, source.Heat, source.Rent, "Hideout", 0f, 0f, knowledge);
+
+            var restoredKnowledge = new ItemKnowledgeBook();
+            LoadReport report = SaveMapper.Apply(data, source.Stats, source.Inventory, null,
+                source.Clock, source.Heat, source.Rent, Resolver(), restoredKnowledge);
+
+            Assert.That(report.Success, Is.True);
+            Assert.That(source.Inventory.Items, Is.Empty);
+            Assert.That(restoredKnowledge.TryGetFact(formerItemId, ItemKnowledgeAspect.Ownership, out ItemKnowledgeFact fact), Is.True);
+            Assert.That(fact.Value, Is.EqualTo((int)ItemOwnershipStatus.Stolen));
+            Assert.That(fact.Source, Is.EqualTo(ItemKnowledgeSource.Document));
+        }
     }
 }
