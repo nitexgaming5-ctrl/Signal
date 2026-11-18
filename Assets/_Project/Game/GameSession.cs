@@ -130,9 +130,9 @@ namespace Signal.Game
             bool storageOpen = _storagePanel != null && _storagePanel.IsOpen;
             bool itemViewerOpen = _itemViewer != null && _itemViewer.IsOpen;
             if (_panel != null)
-                _panel.enabled = !workspaceOpen && !storageOpen && !itemViewerOpen;
+                _panel.enabled = !_debugMenuOpen && !workspaceOpen && !storageOpen && !itemViewerOpen;
             if (_storagePanel != null)
-                _storagePanel.enabled = !itemViewerOpen;
+                _storagePanel.enabled = !_debugMenuOpen && !itemViewerOpen;
 
             bool scenarioChoiceOpen = _miloScenario != null && _miloScenario.HasPendingChoice;
             _motor.enabled = !inventoryOpen && !workspaceOpen && !storageOpen && !itemViewerOpen &&
