@@ -48,6 +48,9 @@ namespace Signal.Game
         public Vector2 Position => transform.position;
         public string CurrentPlace => _currentPlace;
         public bool IsTravelling => _nextTravelWaypoint < _travelRoute.Count;
+        public Vector2 Destination => _destination;
+        public IReadOnlyList<NpcTravelWaypoint> DebugTravelRoute => _travelRoute;
+        public int DebugNextWaypoint => _nextTravelWaypoint;
 
         public void Bind(NpcCharacterDefinition definition, GameClock clock, NpcSocialWorld socialWorld, CityBlockBootstrap city)
         {
