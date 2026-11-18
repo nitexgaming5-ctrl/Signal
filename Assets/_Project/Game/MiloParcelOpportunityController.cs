@@ -15,7 +15,7 @@ namespace Signal.Game
 
         private static readonly Vector2 ParcelCounterPosition = new Vector2(997.35f, 1001.05f);
         private static readonly Vector2 EvidencePosition = new Vector2(1002.75f, 1001.05f);
-        private static readonly Vector2 DropOffPosition = new Vector2(22.5f, -18.5f);
+        private static readonly Vector2 DropOffPosition = new Vector2(20.5f, -16.5f);
         private const float InteractionRadius = 1.85f;
         private const string MiloId = "milo";
         private const string RheaId = "rhea";
@@ -294,9 +294,6 @@ namespace Signal.Game
             RecordSignal("milo-delivery-slip", DiscoverySignalType.PhysicalEvidence,
                 "shop-counter-slip", "A delivery slip bears Milo's flour-marked initials and a scratched-out recipient line.",
                 1f);
-            _itemKnowledge.RecordFact(_state.ParcelInstanceId, ItemKnowledgeAspect.Ownership,
-                (int)ItemOwnershipStatus.Stolen, ItemKnowledgeSource.Document, 0.75f,
-                _clock.Day, _clock.MinuteOfDay);
         }
 
         private void InspectParcel()
@@ -383,7 +380,7 @@ namespace Signal.Game
 
             bool onTime = _clock.Day == _state.LastAcceptedDay;
             bool intact = parcel.State.Condition != ItemCondition.Damaged;
-            bool witnessed = _city.IsAnyResidentWithin(DropOffPosition, 5f);
+            bool witnessed = _city.IsAnyResidentWithin(DropOffPosition, 6.5f, MiloId);
 
             if (!_inventory.Remove(parcel.InstanceId))
                 return "You couldn't leave the parcel here.";
