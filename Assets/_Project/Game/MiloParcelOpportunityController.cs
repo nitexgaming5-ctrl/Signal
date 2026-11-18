@@ -269,8 +269,6 @@ namespace Signal.Game
                 _relationships.Get(MiloId), _discoveries);
 
             if (_state.Phase == OpportunityPhase.Dormant &&
-                new InteractionConditionSet(minimumDistinctSignalTypes: 2)
-                    .IsSatisfiedBy(context, MiloId) &&
                 _definition.OfferConditions.IsSatisfiedBy(context, MiloId))
                 _state.MakeAvailable();
 
