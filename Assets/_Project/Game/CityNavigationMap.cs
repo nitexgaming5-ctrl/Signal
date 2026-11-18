@@ -266,6 +266,12 @@ namespace Signal.Game
 
                 Vector2 previous = resident.Position;
                 IReadOnlyList<NpcTravelWaypoint> route = resident.DebugTravelRoute;
+                if (route.Count == 0)
+                    DrawMarker(resident.Destination, "DESTINATION", new Color(0.9f, 0.4f, 1f, 1f));
+                else if (route[route.Count - 1].LocationId == place)
+                    DrawMarker(route[route.Count - 1].Position, "DESTINATION",
+                        new Color(0.9f, 0.4f, 1f, 1f));
+
                 for (int waypointIndex = resident.DebugNextWaypoint; waypointIndex < route.Count; waypointIndex++)
                 {
                     NpcTravelWaypoint waypoint = route[waypointIndex];
