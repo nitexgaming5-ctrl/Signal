@@ -181,8 +181,8 @@ See `docs/NPC_FRAMEWORK.md` for the technical contract. Two fallback profiles (M
 
 ## 8. Immediate goals and recommended sequencing
 
-### Immediate technical action: verify item state and inspection v1 in Unity
-The stable identity foundation is verified (235/235 EditMode tests, user-reported). The newer per-stack state, valuation, viewer and individual-stack storage interactions are committed but not yet verified in the Editor. The user should pull the shared branch, allow Unity to compile, run the full EditMode suite, then test carried/locker inspection, targeted STORE/TAKE, v3 default-state migration and v4 state round-trip. See section 13 and `docs/PROGRESS.md`. Fix reported failures before moving on.
+### Immediate technical action: verify player item knowledge v1 in Unity
+The user confirmed **245/245 EditMode tests passed** after the preceding item identity/state/inspection work. The new player-knowledge layer and save v5 integration are committed but not yet verified in the Editor. Pull the shared branch, allow Unity to compile, run the full EditMode suite, then verify that unknown facts remain hidden, known facts show source/confidence, a v4 save migrates with an empty knowledge book, and v5 preserves facts across save/load. See `docs/PROGRESS.md` and `docs/DATA_MODEL.md`. Fix reported failures before moving on.
 
 ### Next recommended player-facing initiative: one small NPC-driven playable scenario
 The framework is now broad enough to support a first scenario. Do not expand abstract simulation indefinitely. Design a small complete experience in which:
@@ -296,19 +296,19 @@ The user explicitly approved proper inspection/interaction, an item viewer and d
 - State preservation through movement, rotation, snapshots, targeted transfers and save/load. Core also exposes `TryUpdateItemState` to change the state while retaining the physical stack identity.
 - A shared read-only item viewer. Right-click an item in the carried inventory or use INSPECT in the home locker.
 - Home storage now lists individual stacks with all four state dimensions and supports inspecting or transferring a selected complete stack; it no longer hides distinct states behind one aggregate count.
-- Save v4 persists state. v1/v2/v3 saves receive neutral defaults (Standard, Good, Genuine, Legitimate), and existing v3 stack identities are preserved.
+- Save v5 persists player item knowledge independently of inventory contents. v1-v4 saves migrate with an empty knowledge book; v1/v2/v3 receive neutral item-state defaults (Standard, Good, Genuine, Legitimate), and existing stable stack identities are preserved.
 - New tests cover state-aware stacking, valuation, targeted stack transfer and v3 migration defaults.
 
 ### Verification still required
-The **235/235** result predates this new item-state/viewer implementation. The user should pull the latest shared branch, let Unity compile, run the full EditMode suite, then test:
+The user confirmed **245/245 EditMode tests passed** after the previous item identity/state/inspection implementation. The new player-knowledge code is not yet Unity-verified. Pull the latest shared branch, let Unity compile, run the full EditMode suite, then test:
 1. Right-click inspection of a carried item.
 2. INSPECT from the home storage panel.
 3. Two stacks of the same definition with different states remain separate and display different reference values.
 4. STORE/TAKE moves only the selected stack and preserves its identity/state.
-5. A v3 save loads with neutral state defaults; a v4 save preserves all four state fields.
+5. A v4 save migrates with no player knowledge; a v5 save preserves item facts, evidence source, confidence and learned time.
 
 ### Important boundaries
-- Item states are currently authoritative and fully visible. There is no separate player-knowledge/discovery layer, inspection skill, appraisal minigame or hidden-fact reveal yet.
+- Authoritative item state is separate from player knowledge. The v1 knowledge book records partial beliefs with source/confidence/time; the viewer shows only known facts and withholds state-based valuation until all four properties are known. No player-facing inspect action, appraisal minigame, contradiction resolution or automatic NPC-to-player knowledge transfer exists yet.
 - Value multipliers are provisional tuning only; no transaction prices, customer offers, supply/demand, bargaining or market economy.
 - No provenance chain, durability decay, item use, equipment, crafting, weight, quest-item rules or split-stack behavior.
 - Existing ITEM_A/B/C assets remain temporary fixtures; descriptions/icons/base values/default states can be authored in the Inspector later.
