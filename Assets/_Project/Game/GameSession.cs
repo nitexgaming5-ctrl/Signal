@@ -98,7 +98,7 @@ namespace Signal.Game
             if (parcelItem != null)
             {
                 _miloScenario = gameObject.AddComponent<MiloParcelOpportunityController>();
-                _miloScenario.Bind(_room.Player, _inventory, parcelItem.ToItemType(),
+                _miloScenario.Bind(_inventory, parcelItem.ToItemType(),
                     _playerDiscoveries, _playerRelationships, _itemKnowledge, _clock, _city,
                     _miloOpportunity, message => Say(message, 8f));
             }
