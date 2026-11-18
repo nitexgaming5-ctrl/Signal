@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Signal.Core;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 namespace Signal.Game
 {
@@ -218,19 +219,21 @@ namespace Signal.Game
 
             _streetRoot = CreateRoot("CityBlock");
             BuildStreet(_streetRoot.transform);
-            _streetRoot.SetActive(false);
 
             _shopRoot = CreateRoot("CornerShopInterior");
             BuildInterior(_shopRoot.transform, new Vector2(1000f, 1000f), false);
-            _shopRoot.SetActive(false);
 
             _apartmentRoot = CreateRoot("ApartmentInterior");
             BuildInterior(_apartmentRoot.transform, new Vector2(1020f, 1000f), true);
-            _apartmentRoot.SetActive(false);
 
             _navigationMap = CreateNavigationMap(player);
             _navigationDebugView = gameObject.AddComponent<CityNavigationDebugView>();
             _navigationDebugView.Bind(_navigationMap, this, _player, camera);
+
+            // Capture collider geometry while all generated locations are active.
+            _streetRoot.SetActive(false);
+            _shopRoot.SetActive(false);
+            _apartmentRoot.SetActive(false);
 
             _place = Place.Hideout;
             SetResidentsActivePlace(_place.ToString());
@@ -249,7 +252,10 @@ namespace Signal.Game
             map.AddRegion("Apartment", InteriorBounds(new Vector2(1020f, 1000f)));
 
             if (room != null)
+            {
                 AddNavigationObstacles(map, "Hideout", room.transform);
+                AddHideoutBoundaryObstacles(map, room.Bounds);
+            }
             AddNavigationObstacles(map, "Street", _streetRoot.transform);
             AddNavigationObstacles(map, "CornerShop", _shopRoot.transform);
             AddNavigationObstacles(map, "Apartment", _apartmentRoot.transform);
@@ -263,6 +269,23 @@ namespace Signal.Game
             return map;
         }
 
+        private static void AddHideoutBoundaryObstacles(CityNavigationMap map, Rect roomBounds)
+        {
+            // RoomBootstrap builds a tilemap perimeter with a single open doorway in its south wall.
+            // Describe those wall runs as separate rectangles so the doorway remains genuinely open.
+            float left = roomBounds.xMin;
+            float bottom = roomBounds.yMin;
+            float width = roomBounds.width;
+            float height = roomBounds.height;
+            float doorCentre = roomBounds.center.x;
+            map.AddObstacle("Hideout", "North wall", new Rect(left, bottom + height - 1f, width, 1f));
+            map.AddObstacle("Hideout", "West wall", new Rect(left, bottom + 1f, 1f, height - 2f));
+            map.AddObstacle("Hideout", "East wall", new Rect(left + width - 1f, bottom + 1f, 1f, height - 2f));
+            map.AddObstacle("Hideout", "South wall west", new Rect(left, bottom, doorCentre - left, 1f));
+            map.AddObstacle("Hideout", "South wall east",
+                new Rect(doorCentre + 1f, bottom, left + width - doorCentre - 1f, 1f));
+        }
+
         private static void AddNavigationObstacles(CityNavigationMap map, string place, Transform root)
         {
             if (root == null)
@@ -273,12 +296,13 @@ namespace Signal.Game
             {
                 Collider2D collider = colliders[i];
                 if (collider == null || !collider.enabled || collider.isTrigger ||
+                    collider is TilemapCollider2D ||
                     collider.GetComponentInParent<PlayerMotor2D>() != null)
                     continue;
 
                 Bounds bounds = collider.bounds;
                 map.AddObstacle(place, collider.gameObject.name,
-                    new Rect(bounds.min.x, bounds.min.y, bounds.size.x, bounds.size.y), collider);
+                    new Rect(bounds.min.x, bounds.min.y, bounds.size.x, bounds.size.y));
             }
         }
 
