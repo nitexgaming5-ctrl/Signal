@@ -321,5 +321,78 @@ namespace Signal.Core.Tests
             Assert.That(fact.Value, Is.EqualTo((int)ItemOwnershipStatus.Stolen));
             Assert.That(fact.Source, Is.EqualTo(ItemKnowledgeSource.Document));
         }
+
+        [Test]
+        public void VersionSixRoundTripPreservesPlayerDiscoveriesAndOpportunityLifecycle()
+        {
+            var source = new World();
+            var discoveries = new PlayerDiscoveryLedger();
+            discoveries.Record(new PlayerDiscoverySignal("milo-routine-day-2", "milo",
+                DiscoverySignalType.RoutineObservation, "player-observation", "Milo left the shop after closing.",
+                1f, 2, 1260));
+            discoveries.Record(new PlayerDiscoverySignal("milo-rumour-rhea-day-2", "milo",
+                DiscoverySignalType.Rumour, "rhea", "Rhea heard Milo was helping someone.", 0.45f, 2, 1270));
+            var opportunity = new OpportunityState("milo-parcel");
+            opportunity.MakeAvailable();
+            Guid parcelId = Guid.NewGuid();
+            opportunity.TryAccept(parcelId, 2, 1280);
+            opportunity.TryReturnParcel(2, 1290);
+            opportunity.RecordDecline(2, 1300);
+
+            SaveData data = SaveMapper.Capture(source.Stats, source.Inventory, null, source.Clock,
+                source.Heat, source.Rent, "Street", 4f, -12f, null, discoveries, opportunity);
+
+            Assert.That(data.version, Is.EqualTo(6));
+            Assert.That(data.playerDiscoveries.Count, Is.EqualTo(2));
+            Assert.That(data.opportunity.parcelInstanceId, Is.EqualTo(parcelId.ToString()));
+
+            var target = new World();
+            var restoredDiscoveries = new PlayerDiscoveryLedger();
+            LoadReport report = SaveMapper.Apply(data, target.Stats, target.Inventory, null,
+                target.Clock, target.Heat, target.Rent, Resolver(), null, restoredDiscoveries);
+
+            Assert.That(report.Success, Is.True);
+            Assert.That(report.SkippedDiscoverySignals, Is.Zero);
+            Assert.That(restoredDiscoveries.Count, Is.EqualTo(2));
+            Assert.That(restoredDiscoveries.TryGet("milo-rumour-rhea-day-2", out PlayerDiscoverySignal rumour), Is.True);
+            Assert.That(rumour.SourceId, Is.EqualTo("rhea"));
+            Assert.That(rumour.Confidence, Is.EqualTo(0.45f));
+            Assert.That(report.RestoredOpportunity, Is.Not.Null);
+            Assert.That(report.RestoredOpportunity.Phase, Is.EqualTo(OpportunityPhase.Available));
+            Assert.That(report.RestoredOpportunity.ParcelInstanceId, Is.EqualTo(parcelId));
+            Assert.That(report.RestoredOpportunity.AcceptanceCount, Is.EqualTo(1));
+            Assert.That(report.RestoredOpportunity.DeclineCount, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void VersionFiveSaveMigratesWithEmptyPlayerDiscoveriesAndNoOpportunity()
+        {
+            var data = new SaveData { version = 5, playerDiscoveries = null, opportunity = null };
+
+            Assert.That(SaveMigrator.TryMigrate(data, out _), Is.True);
+            Assert.That(data.version, Is.EqualTo(6));
+            Assert.That(data.playerDiscoveries, Is.Empty);
+            Assert.That(data.opportunity, Is.Null);
+        }
+
+        [Test]
+        public void InvalidDiscoverySignalsAreSkippedWithoutFailingSaveLoad()
+        {
+            var data = new SaveData();
+            data.playerDiscoveries.Add(new SavedDiscoverySignal
+            {
+                signalId = "bad-confidence", subjectId = "milo",
+                type = (int)DiscoverySignalType.Rumour, sourceId = "rhea",
+                description = "Rumour", confidence = 2f, learnedDay = 1, learnedMinuteOfDay = 10
+            });
+
+            var discoveries = new PlayerDiscoveryLedger();
+            LoadReport report = SaveMapper.Apply(data, new World().Stats, new GridInventory(),
+                new GameClock(), new HeatMeter(), new RentLedger(50, 7), Resolver(), null, discoveries);
+
+            Assert.That(report.Success, Is.True);
+            Assert.That(report.SkippedDiscoverySignals, Is.EqualTo(1));
+            Assert.That(discoveries.Count, Is.Zero);
+        }
     }
 }
