@@ -219,10 +219,10 @@ The active implementation now extends the original proposal:
 - Home storage lists individual stacks instead of aggregating all copies by definition. Each stack can be inspected or transferred individually.
 - The same read-only item viewer is opened by right-clicking a carried item or pressing INSPECT in home storage. It now displays only known facts and withholds state-based valuation until all four properties are known.
 - `GameSession.PlayerItemKnowledge` exposes the player-scoped knowledge book for future authored interactions.
-- Save format is v5. It persists item knowledge independently of inventory contents; v1-v4 saves migrate with an empty knowledge book. v1/v2/v3 saves receive neutral item-state defaults (Standard, Good, Genuine, Legitimate); stable IDs from v3/v4 are preserved.
+- At the time this research was written, save format was v5. The current shared branch advances it to v7, adding player discovery signals, player-to-NPC relationships, opportunity state and delivery assessment; v1-v6 migrate with empty new collections. v1/v2/v3 saves receive neutral item-state defaults (Standard, Good, Genuine, Legitimate); stable IDs from v3/v4 are preserved.
 
 ### Verification still required
-The user-confirmed 245/245 result covers the preceding item identity/state/inspection work, not the new player-knowledge implementation. Unity compilation, the full EditMode suite, knowledge-aware viewer behavior, and v4→v5 save/load round-trip remain pending.
+The user subsequently confirmed 255/255 EditMode tests after player item-knowledge v1 and save v5 work (2026-11-18). The Milo opportunity implementation advances save format to v7 and is awaiting Unity compilation, the full EditMode suite and Play Mode verification.
 
 ### Boundaries retained
 No split-stack behavior, per-unit identity, player-facing inspection action, appraisal skill, contradiction-resolution, automatic NPC-to-player knowledge transfer, provenance chain, durability decay, item use, equipment, crafting, weight, trading, bargaining or market economy is implemented. The next meaningful extension should be designed around a real player-facing scenario rather than a broad item-simulation catalogue.
