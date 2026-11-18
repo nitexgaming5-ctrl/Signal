@@ -161,6 +161,14 @@ namespace Signal.Core
                 return false;
             if (phase != OpportunityPhase.Resolved && resolution != OpportunityResolution.None)
                 return false;
+            if (phase == OpportunityPhase.Resolved && !hasDeliveryAssessment)
+                return false;
+            if (phase != OpportunityPhase.Resolved && hasDeliveryAssessment)
+                return false;
+            if ((phase == OpportunityPhase.Accepted || phase == OpportunityPhase.Resolved) &&
+                lastAcceptedDay < 1)
+                return false;
+
             restored = new OpportunityState(opportunityId)
             {
                 Phase = phase,
