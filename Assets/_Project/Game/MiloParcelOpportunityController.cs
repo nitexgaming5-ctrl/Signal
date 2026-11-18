@@ -89,6 +89,8 @@ namespace Signal.Game
         {
             if (!_bound)
                 return string.Empty;
+            if (_pendingChoice == PendingChoice.Offer)
+                return "1 Accept   2 Ask why   3 Inspect   4 Decline";
 
             if (place == "CornerShop")
             {
