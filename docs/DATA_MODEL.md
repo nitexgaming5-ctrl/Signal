@@ -21,8 +21,9 @@ Ids: each ScriptableObject gets a `Guid` field generated once and never changed,
 
 ## Save format
 - Save DTOs are separate classes with `[Serializable]`, plain fields, and a `version` int.
-- Save version 4 stores definition Guid, stable stack instance Guid, quantity, grid position, rotation and the four per-stack state enums. Carried and home-storage inventories are saved separately.
-- v1 migration preserves the old Hideout/default-empty-storage behavior; v1/v2 migration assigns unique stack identities across both containers. v1/v2/v3 saves receive neutral default item state; empty or duplicate saved identities are repaired.
+- Save version 5 stores definition Guid, stable stack instance Guid, quantity, grid position, rotation, four per-stack state enums and the player's item-knowledge facts.
+- Carried and home-storage inventories are saved separately. Player item knowledge is saved independently of current inventory contents, so a discovery can remain after the physical item is transferred or removed.
+- v1 migration preserves the old Hideout/default-empty-storage behavior; v1/v2 migration assigns unique stack identities across both containers. v1/v2/v3 saves receive neutral default item state; v1-v4 saves receive an empty player-knowledge book. Empty or duplicate saved identities are repaired.
 - Unknown Guid on load: skip the item, log a warning, do not crash.
 - File location: `SignalSave/` in project root (already gitignored).
 
@@ -30,11 +31,16 @@ Ids: each ScriptableObject gets a `Guid` field generated once and never changed,
 When a save shape changes, bump `version` and write a migration function in Core with a test.
 
 
-## Item state and inspection (first foundation)
-- `ItemInstanceState` currently stores quality (Poor/Standard/Fine/Exceptional), condition (Damaged/Worn/Good/Pristine), authenticity (Genuine/Counterfeit) and ownership (Legitimate/Stolen) per stack. These are authoritative facts for now; player knowledge/discovery is not modelled yet.
-- `ItemValueCalculator` applies provisional multipliers to an authored base reference value. This is an indicative item reference value only, not a buy/sell price or a functioning economy.
+## Item state, player knowledge and inspection
+- `ItemInstanceState` stores authoritative quality (Poor/Standard/Fine/Exceptional), condition (Damaged/Worn/Good/Pristine), authenticity (Genuine/Counterfeit) and ownership (Legitimate/Stolen) per stack.
+- `ItemKnowledgeFact` stores one player belief about one property of one stable item stack: item identity, aspect, believed enum value, source, confidence and learned in-game time. Sources are DirectInspection, Conversation, Rumour and Document.
+- `ItemKnowledgeBook` is player-scoped and separate from both authoritative item state and NPC personal knowledge. A belief may be uncertain or incorrect; it must never be silently reconciled against hidden truth. New evidence replaces the latest belief for that aspect only.
+- Knowledge is partial: unknown aspects remain unknown. A full known state can be reconstructed only when all four facts are present.
+- The item viewer shows only known facts, with source/confidence. It withholds state-based reference valuation until all four properties are known, and then calculates from the player's known values rather than authoritative hidden state.
+- No player-facing inspect action, appraisal rule, skill, contradiction-resolution or automatic NPC-to-player knowledge transfer is implemented yet. Authored interactions must explicitly record facts through the book.
+- `ItemValueCalculator` applies provisional multipliers to an authored base reference value. This remains an indicative item reference value only, not a buy/sell price or functioning economy.
 - Inventory and locker viewers show one stack at a time. Right-click in the carried grid or INSPECT in home storage opens the same read-only item viewer.
-- Home storage lists physical stacks separately and transfers one identified stack at a time, preserving identity and state.
+- Home storage lists physical stacks separately and transfers one identified stack at a time, preserving identity and state. Knowledge follows the stable identity, not the inventory/container.
 
 ## NPC simulation (first prototype)
 - `NpcUtilityBrain` is transient Core runtime state: current activity, energy and social need. It advances from `GameClock` and deterministically reconstructs from the current day/time after a rewind or load.
