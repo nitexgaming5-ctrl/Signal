@@ -214,3 +214,6 @@ Do not expand into a generic quest journal, second named recipient, police/crimi
 - [x] Add save v7 DTOs/migration for discoveries, player relationships and opportunity state; connect ownership through GameSession.
 - [x] Connect authored Milo/Rhea interactions, physical parcel/evidence/drop-off and soft delivery consequences.
 - [ ] Run Unity compilation, full EditMode tests and Play Mode verification.
+
+
+- [ ] If a later approved system introduces item damage, verify the Milo damaged-parcel outcome through that system; do not add a bespoke damage action solely to force this branch.
