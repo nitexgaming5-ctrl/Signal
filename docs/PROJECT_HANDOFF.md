@@ -1,6 +1,6 @@
 # Signal — project handoff for the next agent
 
-> Read this document together with `AGENTS.md`, `docs/PROGRESS.md`, `docs/ROADMAP.md`, `docs/VISION.md`, `docs/ARCHITECTURE.md`, `docs/NPC_FRAMEWORK.md`, `docs/DESIGN.md`, `docs/OPEN_QUESTIONS.md` and `docs/DEVELOPMENT_WORKFLOW.md` before substantial work. This is the consolidated design and implementation handoff from the discussions and user-confirmed decisions through 2026-11-17. The user is the game director.
+> Read this document together with `AGENTS.md`, `docs/PROGRESS.md`, `docs/ROADMAP.md`, `docs/VISION.md`, `docs/ARCHITECTURE.md`, `docs/NPC_FRAMEWORK.md`, `docs/DESIGN.md`, `docs/OPEN_QUESTIONS.md` and `docs/DEVELOPMENT_WORKFLOW.md` before substantial work. This is the consolidated design and implementation handoff from the discussions and user-confirmed decisions through 2026-11-18. The user is the game director.
 
 ## 1. What Signal is
 

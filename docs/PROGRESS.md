@@ -1,10 +1,10 @@
 # Progress
 
-## Current status: Milo parcel implementation committed; Unity verification pending
+## Current status: obstacle-aware NPC navigation v1 implemented; Unity verification pending
 
-The connected NPC framework and WorldPacingDirector foundation are implemented. The user confirmed **226/226 EditMode tests passed** after the pacing test correction (2026-11-17). The user subsequently confirmed **245/245 EditMode tests passed** after Item Instance v1, per-stack state, reference valuation, inspection and storage changes (2026-11-18).
+The connected NPC framework and WorldPacingDirector foundation are implemented. The user confirmed **226/226 EditMode tests passed** after the pacing test correction (2026-11-17), **245/245** after Item Instance v1 (2026-11-18), and **284/284** after the Milo opportunity and city-navigation geometry work (2026-11-18).
 
-Player item-knowledge v1, knowledge-aware inspection and save v5 persistence were verified by the user with 255/255 EditMode tests (2026-11-18). The subsequent Milo opportunity work advances the save format to v7 and remains pending Unity verification.
+Player item-knowledge v1, knowledge-aware inspection and save v5 persistence were verified with 255/255 EditMode tests. The user subsequently confirmed the save-v7 Milo parcel scenario works in Play Mode, including carrying the parcel, saving/loading, delivery and being spotted by nearby residents. The new obstacle-aware NPC navigation v1 code is now committed; its Unity compilation, tests and Play Mode routes remain to be verified.
 
 The pacing director remains a Core policy foundation, deliberately not wired to gameplay or scenario content. It needs an authored scenario owner, approved tuning, persistence/reconstruction design and a real context-valid candidate source before live integration. Work remains on `chore/collaboration-workflow-and-audit`; `main` is untouched.
 

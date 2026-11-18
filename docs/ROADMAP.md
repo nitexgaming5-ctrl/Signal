@@ -87,13 +87,13 @@ Milestones are dependency notes, not a mandate to build isolated systems in orde
 
 ## Short-term goals — next playable outcome
 
-1. **Verify Opportunity 001: Milo's Parcel.** The user approved the full specification and the implementation is now on the shared branch. Run compilation, EditMode tests and Play Mode paths before designing another scenario.
+1. **[x] Verify Opportunity 001: Milo's Parcel.** The user confirmed 284/284 EditMode tests and successfully completed the scenario in Play Mode, including the parcel inventory/save/load/drop-off loop and a nearby-resident witness.
 2. **Validate authored NPC content in Unity.** Create and assign one or two real `NpcCharacterDefinition` assets through the Inspector; confirm that schedules, destinations, appearance and activity dialogue work without character-specific scripts.
 3. **Implement only the scenario's required persistence.** Use stable IDs and versioned migration. Avoid persisting transient perception/proximity if it can be rebuilt.
 4. **Keep the current block playable and readable.** Replace the most visible placeholders with cohesive art only when it improves the slice; preserve the compact scale and hideout as the anchor.
 5. **Close known reliability checks** when convenient: storage capacity/rollback, actual v1 migration, city transition tests and target-platform save replacement.
 
-The immediate technical action is to verify the Milo parcel scenario and save v7 in Unity. Item-knowledge v1 was user-verified with 255/255 EditMode tests. After Milo is verified, review what the scenario actually proves before deciding whether any broader opportunity/quest abstraction is needed. Do not start a broad economy, crime catalogue or generic quest framework in parallel.
+Milo's parcel scenario and save v7 are user-verified; the user confirmed 284/284 EditMode tests and a successful Play Mode run. The immediate technical action is now to compile and verify obstacle-aware NPC navigation v1. After that, review what the scenario and navigation work actually prove before deciding on the next player-facing slice. Do not start a broad economy, crime catalogue or generic quest framework in parallel.
 
 ## Medium-term goals — deepen the shared-city loop
 
@@ -202,7 +202,7 @@ Player outcome: discover that Milo is helping someone move stolen goods, decide 
 - [x] Add the physical stolen parcel and drop-off interaction.
 - [x] Implement reversible accept/decline/withdraw paths and timing/condition/exposure outcomes.
 - [x] Persist discovery/opportunity/player relationship state with save v7 and migrate v1-v6.
-- [ ] Verify compilation, full EditMode suite and all paths in Unity Play Mode.
+- [x] User confirmed compilation, 284/284 EditMode tests and successful Milo parcel Play Mode completion (2026-11-18).
 
 Do not expand into a generic quest journal, second named recipient, police/criminal progression, general rumour engine or unrelated mechanics. See docs/tasks/OPPORTUNITY-001-MILO-PARCEL.md.
 
@@ -213,7 +213,7 @@ Do not expand into a generic quest journal, second named recipient, police/crimi
 - [x] Ensure delivery resolves once, records timing/condition/exposure and expiry does not bank a backlog.
 - [x] Add save v7 DTOs/migration for discoveries, player relationships and opportunity state; connect ownership through GameSession.
 - [x] Connect authored Milo/Rhea interactions, physical parcel/evidence/drop-off and soft delivery consequences.
-- [ ] Run Unity compilation, full EditMode tests and Play Mode verification.
+- [x] User confirmed 284/284 EditMode tests and successful Play Mode scenario completion (2026-11-18).
 
 
 - [ ] If a later approved system introduces item damage, verify the Milo damaged-parcel outcome through that system; do not add a bespoke damage action solely to force this branch.
@@ -224,7 +224,7 @@ Do not expand into a generic quest journal, second named recipient, police/crimi
 - [x] Route between shop/apartment interiors through their street doorways instead of teleporting on schedule changes.
 - [x] Keep off-screen residents moving and synchronize their physical location/position with the shared social world.
 - [x] Keep player interaction, ambient social encounters and Milo/Rhea scenario observations grounded in actual current location and arrival state.
-- [ ] Verify Unity compilation, movement regression tests and visible Play Mode travel.
+- [x] User confirmed 284/284 EditMode tests and observed Milo walking between locations in Play Mode (2026-11-18).
 - [ ] Revisit obstacle-aware pathfinding when city geometry grows beyond the current authored waypoint layout.
 
 
