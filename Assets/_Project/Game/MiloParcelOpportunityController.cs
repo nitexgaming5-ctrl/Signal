@@ -219,22 +219,25 @@ namespace Signal.Game
                 case 1:
                     if (!TryAcceptParcel())
                     {
-                        message = "There isn't enough room in your carried inventory for the parcel.";
+                        _pendingChoice = PendingChoice.Offer;
+                        message = "There isn't enough room in your carried inventory for the parcel. Free some space and choose again.";
                         return true;
                     }
                     message = "Milo hands you the parcel. Take it to the discreet drop-off point marked on the street.";
                     return true;
 
                 case 2:
-                    _relationships.Adjust(MiloId, trustDelta: 0.05f);
-                    RecordConversation("milo-explained-favour",
-                        "Milo says he is helping someone he knows who is in a difficult position.", 0.9f);
-                    message = "Milo: It's for someone I know. They're in a bind, and I promised I'd help. That's all I can tell you.";
+                    if (RecordSignal("milo-explained-favour", DiscoverySignalType.Conversation,
+                        MiloId, "Milo says he is helping someone he knows who is in a difficult position.", 0.9f))
+                        _relationships.Adjust(MiloId, trustDelta: 0.05f);
+                    _pendingChoice = PendingChoice.Offer;
+                    message = "Milo: It's for someone I know. They're in a bind, and I promised I'd help. That's all I can tell you.\\n\\n[1] Accept   [2] Ask why   [3] Inspect first   [4] Decline";
                     return true;
 
                 case 3:
                     InspectParcel();
-                    message = "You inspect the parcel: the wrapping is intact, but the removed label and delivery slip suggest it was taken from someone else.";
+                    _pendingChoice = PendingChoice.Offer;
+                    message = "You inspect the parcel: the wrapping is intact, but the removed label and delivery slip suggest it was taken from someone else.\\n\\n[1] Accept   [2] Ask why   [3] Inspect again   [4] Decline";
                     return true;
 
                 case 4:
@@ -325,10 +328,10 @@ namespace Signal.Game
             RecordSignal(id, DiscoverySignalType.Conversation, MiloId, description, confidence);
         }
 
-        private void RecordSignal(string id, DiscoverySignalType type, string source,
+        private bool RecordSignal(string id, DiscoverySignalType type, string source,
             string description, float confidence)
         {
-            _discoveries.Record(new PlayerDiscoverySignal(id, MiloId, type, source, description,
+            return _discoveries.Record(new PlayerDiscoverySignal(id, MiloId, type, source, description,
                 confidence, _clock.Day, _clock.MinuteOfDay));
         }
 
