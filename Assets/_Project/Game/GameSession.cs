@@ -292,7 +292,10 @@ namespace Signal.Game
                 return;
             }
 
-            _miloOpportunity = report.RestoredOpportunity ?? new OpportunityState("milo-parcel");
+            _miloOpportunity = report.RestoredOpportunity != null &&
+                report.RestoredOpportunity.OpportunityId == "milo-parcel"
+                ? report.RestoredOpportunity
+                : new OpportunityState("milo-parcel");
             if (_miloScenario != null)
                 _miloScenario.RestoreOpportunityState(_miloOpportunity);
 
