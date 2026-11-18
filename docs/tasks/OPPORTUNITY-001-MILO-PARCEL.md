@@ -67,7 +67,7 @@ No generic quest journal/tracker, full dialogue editor, second named recipient, 
 ## Verification requirements
 
 - Core EditMode tests for ledger identity, source/confidence/time, contextual conditions, state transitions and outcomes.
-- Save migration tests preserving v5 data while adding opportunity/discovery persistence.
+- Save migration tests preserving v5/v6 data while adding opportunity/discovery/relationship persistence (save v7).
 - Unity compilation and full EditMode suite.
 - Play Mode: discover through multiple combinations; verify source/confidence distinctions; accept/decline/withdraw; deliver on time/late, damaged and witnessed; save/load at relevant points.
 - Do not claim Unity verification until the user reports it.
@@ -81,3 +81,28 @@ No generic quest journal/tracker, full dialogue editor, second named recipient, 
 - Delivery resolves the opportunity exactly once. An available opportunity can expire back to Dormant without queueing a future release.
 - Added Core EditMode tests for offer gating, reversible acceptance/return, decline, one-time resolution, expiry and invalid transitions.
 - Save persistence and Unity integration are deliberately deferred to later milestones; these runtime classes are not yet connected to GameSession.
+
+
+## Implementation added — 2026-11-18 (Unity verification pending)
+
+### Reusable Core pieces
+- PlayerDiscoverySignal / PlayerDiscoveryLedger retain source, confidence, subject and time for the four independent signal types. Stable occurrence IDs are idempotent. Flexible interaction gates can require a minimum number of distinct types, without requiring a fixed set.
+- PlayerRelationshipBook holds player-to-NPC familiarity/trust/affinity, distinct from NPC-to-NPC social relationships.
+- OpportunityDefinition and OpportunityState provide stable identity, offer conditions, reversible acceptance/return, non-terminal decline and one-time resolution.
+- Save v7 persists discovery signals, player relationships, parcel identity, opportunity lifecycle and delivery assessment. Save v1-v6 migrate with empty new data.
+
+### Authored Milo implementation
+- The fallback Milo dialogue no longer states his private activity directly.
+- Routine observation: while Milo is Socialize/after closing, the player can see him with a wrapped parcel; approaching him records an observation.
+- Conversation: ordinary bakery conversations build familiarity. The private offer only appears during Milo's Socialize activity, with familiarity at least 0.2 and at least two distinct discovery signal types. This allows different clue combinations.
+- Physical evidence: a delivery slip at the bakery counter and the parcel's removed label.
+- Rumour: Rhea can share an uncertain, sourced rumour while socializing (confidence 0.4).
+- Offer wording: “Listen, could you do me a small favour? There's a parcel I need moved. Just take it to the drop-off point. I'd rather not leave the shop.”
+- Choices: accept, ask why, inspect first, decline. After acceptance, interacting with Milo returns the parcel; interacting with the street drop-off delivers it.
+- Parcel: dedicated ItemDefinition, Standard / Good / Genuine / Stolen. It is not a starter item. Its stack identity remains stable through acceptance, return, save/load and delivery assessment.
+- Delivery: same in-game day is on time; a damaged parcel is not intact; an active nearby resident other than Milo counts as a possible witness. The result is recorded. Complications remain soft and do not invoke police/criminal progression.
+
+### Verification status and boundaries
+- Core tests have been added/updated for flexible discovery, relationships, opportunity transitions, save v7 migration/round-trip and delivery assessment.
+- Unity compilation, full EditMode suite and Play Mode verification are not yet confirmed.
+- The parcel has no independent contents simulation, the drop-off has no named recipient, and no generic quest journal/tracker, police system, criminal progression, rumour engine, provenance system or economy has been added.
