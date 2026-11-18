@@ -286,7 +286,7 @@ The user confirmed **235/235 EditMode tests passed** after pulling the stable st
 - Save v3 stores stable identity; v1/v2 migrations assign unique IDs across carried and home storage while preserving old inventory layout and v1 Hideout/empty-storage defaults.
 - No split-stack action exists. Identity is per stack, not per unit.
 
-### Item state and inspection v1 — implementation committed, Unity verification pending
+### Item state and inspection v1 — user-verified (245/245 EditMode tests, 2026-11-18)
 The user explicitly approved proper inspection/interaction, an item viewer and different state values for different copies of the same definition. The current implementation adds:
 
 - `ItemInstanceState` per stack: quality (Poor/Standard/Fine/Exceptional), condition (Damaged/Worn/Good/Pristine), authenticity (Genuine/Counterfeit), and ownership (Legitimate/Stolen).
