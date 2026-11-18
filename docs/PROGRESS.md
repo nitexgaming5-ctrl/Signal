@@ -281,3 +281,6 @@ The shared branch now contains the discovery ledger, flexible contextual conditi
 - Updated temporary fallback Milo dialogue so it no longer directly reveals his private activity in a single line.
 - Added/updated Core tests for discovery, flexible signal combinations, player relationships, opportunity lifecycle, save v7 migration/round-trip and delivery assessment. Unity compilation, full EditMode suite and all Play Mode paths remain to be run by the user.
 - No old prototype scripts or legacy scenes were deleted. They remain protected as reference material.
+
+
+- Updated StoragePanel to show only player-known item facts (unknown aspects remain `?`) instead of leaking authoritative item state; it refreshes when the player knowledge book changes.
