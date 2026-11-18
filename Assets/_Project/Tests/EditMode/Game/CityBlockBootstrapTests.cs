@@ -184,7 +184,7 @@ namespace Signal.Game.Tests
                     "Milo is still travelling from the shop and must not socialize before arriving.");
 
                 city.DebugAdvanceNpcMovement(30f);
-                Assert.That(city.GetResidentPosition("rhea").x, Is.Not.EqualTo(rheaBeforeSocializing.x).Within(0.01f));
+                Assert.That(city.GetResidentPosition("rhea").x, Is.GreaterThan(rheaBeforeSocializing.x));
                 Assert.That(city.GetResidentPosition("rhea").x, Is.EqualTo(17.2f).Within(0.05f));
                 clock.Advance(1);
                 Assert.That(city.SocialEncounterCount, Is.EqualTo(1));
