@@ -172,15 +172,20 @@ namespace Signal.Game.Tests
             {
                 city.Build(player.transform, body, camera, clock);
                 Assert.That(city.SocialEncounterCount, Is.EqualTo(0));
+                Vector2 rheaBeforeSocializing = city.GetResidentPosition("rhea");
 
                 clock.Advance(10 * 60);
 
                 Assert.That(city.GetResidentActivity("milo"), Is.EqualTo(NpcActivity.Socialize));
                 Assert.That(city.GetResidentActivity("rhea"), Is.EqualTo(NpcActivity.Socialize));
+                Assert.That(city.IsResidentTravelling("milo"), Is.True);
+                Assert.That(city.IsResidentTravelling("rhea"), Is.True);
                 Assert.That(city.SocialEncounterCount, Is.EqualTo(0),
                     "Milo is still travelling from the shop and must not socialize before arriving.");
 
                 city.DebugAdvanceNpcMovement(30f);
+                Assert.That(city.GetResidentPosition("rhea").x, Is.Not.EqualTo(rheaBeforeSocializing.x).Within(0.01f));
+                Assert.That(city.GetResidentPosition("rhea").x, Is.EqualTo(17.2f).Within(0.05f));
                 clock.Advance(1);
                 Assert.That(city.SocialEncounterCount, Is.EqualTo(1));
 
