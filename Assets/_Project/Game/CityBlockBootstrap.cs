@@ -131,6 +131,15 @@ namespace Signal.Game
             return true;
         }
 
+        public int DebugRetryFailedNpcRoutes()
+        {
+            int recovered = 0;
+            for (int i = 0; i < _residents.Count; i++)
+                if (_residents[i] != null && _residents[i].DebugRetryNavigation())
+                    recovered++;
+            return recovered;
+        }
+
         public void DebugAdvanceNpcMovement(float seconds)
         {
             if (seconds <= 0f)
