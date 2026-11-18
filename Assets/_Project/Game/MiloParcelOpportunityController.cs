@@ -484,9 +484,9 @@ namespace Signal.Game
             if (_carriedParcelMarker != null)
             {
                 bool show = _state.Phase != OpportunityPhase.Accepted &&
-                    _state.Phase != OpportunityPhase.Resolved && _city.CurrentPlace == "Street" &&
-                    _city.HasResident(MiloId) && _city.GetResidentActivity(MiloId) == NpcActivity.Socialize &&
-                    _city.GetResidentCurrentPlace(MiloId) == "Street" && !_city.IsResidentTravelling(MiloId);
+                    _state.Phase != OpportunityPhase.Resolved && _city.HasResident(MiloId) &&
+                    _city.GetResidentActivity(MiloId) == NpcActivity.Socialize &&
+                    _city.GetResidentCurrentPlace(MiloId) == _city.CurrentPlace;
                 _carriedParcelMarker.SetActive(show);
                 if (show)
                 {
