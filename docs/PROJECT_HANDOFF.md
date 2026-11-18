@@ -182,7 +182,7 @@ See `docs/NPC_FRAMEWORK.md` for the technical contract. Two fallback profiles (M
 ## 8. Immediate goals and recommended sequencing
 
 ### Immediate technical action: verify player item knowledge v1 in Unity
-The user confirmed **245/245 EditMode tests passed** after the preceding item identity/state/inspection work. The new player-knowledge layer and save v5 integration are committed but not yet verified in the Editor. Pull the shared branch, allow Unity to compile, run the full EditMode suite, then verify that unknown facts remain hidden, known facts show source/confidence, a v4 save migrates with an empty knowledge book, and v5 preserves facts across save/load. See `docs/PROGRESS.md` and `docs/DATA_MODEL.md`. Fix reported failures before moving on.
+The user confirmed **255/255 EditMode tests passed** after player item-knowledge v1 and save v5 work (2026-11-18). The current shared branch adds Opportunity 001: Milo's Parcel and advances save format to v7. Pull the shared branch, allow Unity to compile, run the full EditMode suite, then verify the Milo discovery/offer/return/drop-off paths and save/load at Dormant, Available, Accepted and Resolved states. See `docs/PROGRESS.md`, `docs/ROADMAP.md` and `docs/tasks/OPPORTUNITY-001-MILO-PARCEL.md`. Fix reported failures before adding more systems.
 
 ### Next recommended player-facing initiative: one small NPC-driven playable scenario
 The framework is now broad enough to support a first scenario. Do not expand abstract simulation indefinitely. Design a small complete experience in which:
@@ -192,7 +192,7 @@ The framework is now broad enough to support a first scenario. Do not expand abs
 4. The choice produces a clear, contained outcome or consequence.
 5. The event uses the same city, NPC network and places as ordinary life.
 
-This is a proposed scenario shape, not pre-approved content. The exact NPC, secret, activity, clues, dialogue, reward, risk, failure and persistence rules must be discussed with and approved by the user before implementation. The baker selling illicit goods is an illustrative example only.
+This was a proposed scenario shape. The user has since approved Opportunity 001: Milo's Parcel with exact design decisions recorded in `docs/tasks/OPPORTUNITY-001-MILO-PARCEL.md`. Do not broaden it into a generic quest system or add excluded mechanics.
 
 ### Supporting short-term work
 - Validate one or two real `NpcCharacterDefinition` assets through Unity Inspector and active scene.
@@ -296,16 +296,16 @@ The user explicitly approved proper inspection/interaction, an item viewer and d
 - State preservation through movement, rotation, snapshots, targeted transfers and save/load. Core also exposes `TryUpdateItemState` to change the state while retaining the physical stack identity.
 - A shared read-only item viewer. Right-click an item in the carried inventory or use INSPECT in the home locker.
 - Home storage now lists individual stacks with all four state dimensions and supports inspecting or transferring a selected complete stack; it no longer hides distinct states behind one aggregate count.
-- Save v5 persists player item knowledge independently of inventory contents. v1-v4 saves migrate with an empty knowledge book; v1/v2/v3 receive neutral item-state defaults (Standard, Good, Genuine, Legitimate), and existing stable stack identities are preserved.
+- Save v7 persists item knowledge, player discovery signals, player-to-NPC relationships, opportunity lifecycle and delivery assessment. v1-v6 saves migrate with empty new discovery/relationship collections and no active opportunity; v1-v3 receive neutral item-state defaults (Standard, Good, Genuine, Legitimate), and existing stable stack identities are preserved.
 - New tests cover state-aware stacking, valuation, targeted stack transfer and v3 migration defaults.
 
 ### Verification still required
-The user confirmed **245/245 EditMode tests passed** after the previous item identity/state/inspection implementation. The new player-knowledge code is not yet Unity-verified. Pull the latest shared branch, let Unity compile, run the full EditMode suite, then test:
+The user confirmed **255/255 EditMode tests passed** after player item-knowledge v1/save v5. The current Milo scenario and save v7 changes are not yet Unity-verified. Pull the latest shared branch, let Unity compile, run the full EditMode suite, then test:
 1. Right-click inspection of a carried item.
 2. INSPECT from the home storage panel.
 3. Two stacks of the same definition with different states remain separate and display different reference values.
 4. STORE/TAKE moves only the selected stack and preserves its identity/state.
-5. A v4 save migrates with no player knowledge; a v5 save preserves item facts, evidence source, confidence and learned time.
+5. A v4 save migrates with no item knowledge; v7 preserves item facts, discovery sources/confidence/times, player relationships, parcel identity and delivery assessment.
 
 ### Important boundaries
 - Authoritative item state is separate from player knowledge. The v1 knowledge book records partial beliefs with source/confidence/time; the viewer shows only known facts and withholds state-based valuation until all four properties are known. No player-facing inspect action, appraisal minigame, contradiction resolution or automatic NPC-to-player knowledge transfer exists yet.
