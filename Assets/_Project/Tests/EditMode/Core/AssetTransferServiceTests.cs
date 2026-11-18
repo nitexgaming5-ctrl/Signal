@@ -1,0 +1,131 @@
+using System;
+using NUnit.Framework;
+namespace Signal.Core.Tests
+{
+    public sealed class AssetTransferServiceTests
+    {
+        private static readonly EconomicActorId Player = EconomicActorId.Player;
+        private static readonly EconomicActorId Milo = new EconomicActorId("resident:milo");
+        private static ItemType Item() => new ItemType(Guid.NewGuid(), 1, 1, 10);
+        private static AssetTransferService Service(AssetOwnershipBook ownership, EconomicTransactionLedger ledger)
+            => new AssetTransferService(ownership, ledger);
+
+        [Test]
+        public void TransferMovesWholeStackPreservesIdentityStateChangesOwnerAndRecordsTransaction()
+        {
+            ItemType type = Item(); var source = new GridInventory(2, 1); var destination = new GridInventory(2, 1);
+            var ownership = new AssetOwnershipBook(); var ledger = new EconomicTransactionLedger();
+            var state = new ItemInstanceState(ItemQuality.Fine, ItemCondition.Worn, ItemAuthenticity.Genuine, ItemOwnershipStatus.Stolen);
+            source.Place(type, 0, 0, count: 4, state: state);
+            Guid itemId = source.Items[0].ItemInstanceId;
+            Assert.That(ownership.TryRegister(itemId, Player), Is.True);
+            AssetTransferResult result = Service(ownership, ledger).TransferStack(source, destination, itemId,
+                Player, Milo, AssetTransferReason.Gift, 3, 725);
+            Assert.That(result.Success, Is.True);
+            Assert.That(source.Items, Is.Empty);
+            Assert.That(destination.Items.Count, Is.EqualTo(1));
+            Assert.That(destination.Items[0].ItemInstanceId, Is.EqualTo(itemId));
+            Assert.That(destination.Items[0].Count, Is.EqualTo(4));
+            Assert.That(destination.Items[0].State, Is.EqualTo(state));
+            Assert.That(ownership.TryGetOwner(itemId, out EconomicActorId owner), Is.True);
+            Assert.That(owner, Is.EqualTo(Milo));
+            Assert.That(ledger.Count, Is.EqualTo(1));
+            Assert.That(result.Transaction.ItemInstanceId, Is.EqualTo(itemId));
+            Assert.That(result.Transaction.ItemDefinitionId, Is.EqualTo(type.Id));
+            Assert.That(result.Transaction.Quantity, Is.EqualTo(4));
+            Assert.That(result.Transaction.FromActor, Is.EqualTo(Player));
+            Assert.That(result.Transaction.ToActor, Is.EqualTo(Milo));
+            Assert.That(result.Transaction.Reason, Is.EqualTo(AssetTransferReason.Gift));
+            Assert.That(result.Transaction.Day, Is.EqualTo(3));
+            Assert.That(result.Transaction.MinuteOfDay, Is.EqualTo(725));
+        }
+
+        [Test]
+        public void OwnershipMismatchChangesNothing()
+        {
+            ItemType type = Item(); var source = new GridInventory(); var destination = new GridInventory();
+            source.Place(type, 0, 0, count: 2); Guid itemId = source.Items[0].ItemInstanceId;
+            var ownership = new AssetOwnershipBook(); ownership.TryRegister(itemId, Milo);
+            var ledger = new EconomicTransactionLedger();
+            AssetTransferResult result = Service(ownership, ledger).TransferStack(source, destination, itemId,
+                Player, Milo, AssetTransferReason.Purchase, 1, 500);
+            Assert.That(result.Status, Is.EqualTo(AssetTransferStatus.OwnershipMismatch));
+            Assert.That(source.CountOf(type), Is.EqualTo(2)); Assert.That(destination.CountOf(type), Is.Zero);
+            Assert.That(ownership.TryGetOwner(itemId, out EconomicActorId owner), Is.True);
+            Assert.That(owner, Is.EqualTo(Milo)); Assert.That(ledger.Count, Is.Zero);
+        }
+
+        [Test]
+        public void UnregisteredAssetCannotBeTransferred()
+        {
+            ItemType type = Item(); var source = new GridInventory(); var destination = new GridInventory();
+            source.Place(type, 0, 0); var ownership = new AssetOwnershipBook(); var ledger = new EconomicTransactionLedger();
+            AssetTransferResult result = Service(ownership, ledger).TransferStack(source, destination, source.Items[0].ItemInstanceId,
+                Player, Milo, AssetTransferReason.Gift, 1, 0);
+            Assert.That(result.Status, Is.EqualTo(AssetTransferStatus.OwnershipNotRegistered));
+            Assert.That(source.Items.Count, Is.EqualTo(1)); Assert.That(destination.Items, Is.Empty); Assert.That(ledger.Count, Is.Zero);
+        }
+
+        [Test]
+        public void FullDestinationLeavesAssetAndOwnerUnchanged()
+        {
+            ItemType type = Item(); ItemType blocker = Item(); var source = new GridInventory(1, 1); var destination = new GridInventory(1, 1);
+            source.Place(type, 0, 0); destination.Place(blocker, 0, 0); Guid itemId = source.Items[0].ItemInstanceId;
+            var ownership = new AssetOwnershipBook(); ownership.TryRegister(itemId, Player); var ledger = new EconomicTransactionLedger();
+            AssetTransferResult result = Service(ownership, ledger).TransferStack(source, destination, itemId,
+                Player, Milo, AssetTransferReason.Gift, 1, 0);
+            Assert.That(result.Status, Is.EqualTo(AssetTransferStatus.DestinationFull));
+            Assert.That(source.Items.Count, Is.EqualTo(1)); Assert.That(source.Items[0].ItemInstanceId, Is.EqualTo(itemId));
+            Assert.That(destination.Items.Count, Is.EqualTo(1));
+            Assert.That(ownership.TryGetOwner(itemId, out EconomicActorId owner), Is.True);
+            Assert.That(owner, Is.EqualTo(Player)); Assert.That(ledger.Count, Is.Zero);
+        }
+
+        [Test]
+        public void MissingAssetDoesNotChangeOwnershipOrLedger()
+        {
+            var ownership = new AssetOwnershipBook(); var ledger = new EconomicTransactionLedger();
+            AssetTransferResult result = Service(ownership, ledger).TransferStack(new GridInventory(), new GridInventory(),
+                Guid.NewGuid(), Player, Milo, AssetTransferReason.Gift, 1, 0);
+            Assert.That(result.Status, Is.EqualTo(AssetTransferStatus.AssetNotFound));
+            Assert.That(ownership.Count, Is.Zero); Assert.That(ledger.Count, Is.Zero);
+        }
+
+        [Test]
+        public void InvalidActorPairAndTimestampAreRejected()
+        {
+            var service = Service(new AssetOwnershipBook(), new EconomicTransactionLedger());
+            Assert.That(service.TransferStack(new GridInventory(), new GridInventory(), Guid.NewGuid(), Player, Player,
+                AssetTransferReason.Gift, 1, 0).Status, Is.EqualTo(AssetTransferStatus.InvalidRequest));
+            Assert.That(service.TransferStack(new GridInventory(), new GridInventory(), Guid.NewGuid(), Player, Milo,
+                AssetTransferReason.Gift, 0, 0).Status, Is.EqualTo(AssetTransferStatus.InvalidRequest));
+            Assert.That(service.TransferStack(new GridInventory(), new GridInventory(), Guid.NewGuid(), Player, Milo,
+                AssetTransferReason.Gift, 1, 1440).Status, Is.EqualTo(AssetTransferStatus.InvalidRequest));
+        }
+
+        [Test]
+        public void OwnershipBookRejectsDuplicateRegistrationAndWrongOwnerRemoval()
+        {
+            var ownership = new AssetOwnershipBook(); Guid itemId = Guid.NewGuid();
+            Assert.That(ownership.TryRegister(itemId, Player), Is.True);
+            Assert.That(ownership.TryRegister(itemId, Milo), Is.False);
+            Assert.That(ownership.TryRemove(itemId, Milo), Is.False);
+            Assert.That(ownership.TryGetOwner(itemId, out EconomicActorId owner), Is.True);
+            Assert.That(owner, Is.EqualTo(Player)); Assert.That(ownership.TryRemove(itemId, Player), Is.True);
+            Assert.That(ownership.Count, Is.Zero);
+        }
+
+        [Test]
+        public void SameOwnerContainerMovementRemainsAnInventoryTransfer()
+        {
+            ItemType type = Item(); var source = new GridInventory(); var destination = new GridInventory();
+            source.Place(type, 0, 0, count: 3); Guid itemId = source.Items[0].ItemInstanceId;
+            var ownership = new AssetOwnershipBook(); ownership.TryRegister(itemId, Player);
+            var ledger = new EconomicTransactionLedger();
+            InventoryTransferResult result = InventoryTransfer.MoveStack(source, destination, itemId);
+            Assert.That(result.Success, Is.True); Assert.That(result.Moved, Is.EqualTo(3));
+            Assert.That(ownership.TryGetOwner(itemId, out EconomicActorId owner), Is.True);
+            Assert.That(owner, Is.EqualTo(Player)); Assert.That(ledger.Count, Is.Zero);
+        }
+    }
+}
