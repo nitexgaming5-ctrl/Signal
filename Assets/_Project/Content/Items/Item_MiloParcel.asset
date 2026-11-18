@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 55a33d3a10201cd458b6121391e513ff, type: 3}
   m_Name: Item_MiloParcel
-  m_EditorClassIdentifier: Signal.Game::Signal.Game.ItemDefinition
+  m_EditorClassIdentifier:
   displayName: Wrapped Parcel
   description: A tightly wrapped parcel. The paper is plain, with a small flour-smudged fold.
   category: Parcel
