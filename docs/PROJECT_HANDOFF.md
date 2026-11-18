@@ -357,3 +357,13 @@ The existing NPC movement system is already active: residents walk continuously 
 - NpcPresenter still executes the route at its authored walking speed and preserves physical location/social-world updates. Failed routes are surfaced to the F1 overlay.
 - The player controller is unchanged.
 - The user should run Unity compilation, the full EditMode suite and Play Mode route inspection. Do not claim these new changes are verified until the user reports results.
+
+
+## Current handoff — NPC interruption and recovery v1 (2026-11-18)
+
+- Latest completed and user-verified navigation milestone: obstacle-aware NPC navigation v1, commit 3099aa202a411c2a121d007af0308987f97b72be; user confirmed 289/289 EditMode tests and completed Play Mode inspection.
+- Latest implementation adds NPC interruption/recovery. Returning from a forced debug activity now replans from the resident's physical position; resuming a paused simulation preserves an unchanged route, while schedule changes during the pause replan from the interruption point.
+- Presenter re-enabling no longer uses the initial-placement snap. First-time Bind remains the only normal initialization snap.
+- Failed navigation has an explicit one-shot retry exposed in F1. There is no per-frame retry loop. The city map remains a static build-time snapshot; dynamic obstacle updates and moving-agent avoidance are not included.
+- Added two focused EditMode tests to CityBlockBootstrapTests: forced-activity + pause/resume recovery, and schedule changes during a pause. The expected full-suite count is now 291 (previously 289); Unity compilation and tests for this latest change are pending user verification.
+- Branch remains chore/collaboration-workflow-and-audit. Latest commit will be supplied in the implementation handoff.
