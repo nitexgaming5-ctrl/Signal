@@ -217,3 +217,12 @@ Do not expand into a generic quest journal, second named recipient, police/crimi
 
 
 - [ ] If a later approved system introduces item damage, verify the Milo damaged-parcel outcome through that system; do not add a bespoke damage action solely to force this branch.
+
+
+### Real-time NPC movement — implementation added
+- [x] Move NPCs continuously between same-location activity destinations.
+- [x] Route between shop/apartment interiors through their street doorways instead of teleporting on schedule changes.
+- [x] Keep off-screen residents moving and synchronize their physical location/position with the shared social world.
+- [x] Keep player interaction, ambient social encounters and Milo/Rhea scenario observations grounded in actual current location and arrival state.
+- [ ] Verify Unity compilation, movement regression tests and visible Play Mode travel.
+- [ ] Revisit obstacle-aware pathfinding when city geometry grows beyond the current authored waypoint layout.
