@@ -93,7 +93,7 @@ Milestones are dependency notes, not a mandate to build isolated systems in orde
 4. **Keep the current block playable and readable.** Replace the most visible placeholders with cohesive art only when it improves the slice; preserve the compact scale and hideout as the anchor.
 5. **Close known reliability checks** when convenient: storage capacity/rollback, actual v1 migration, city transition tests and target-platform save replacement.
 
-The immediate technical action is to verify Item state and inspection v1 in Unity. After that, return to one compact NPC-driven playable scenario, with its exact clues, interactions and consequences discussed before implementation. Do not start a broad economy, crime catalogue or quest framework in parallel.
+The immediate technical action is to verify player item knowledge v1 in Unity: unknown facts must remain hidden, known facts must show their source/confidence, and save v4 must migrate to v5 with an empty knowledge book. After that, return to one compact NPC-driven playable scenario, with its exact clues, interactions and consequences discussed before implementation. Do not start a broad economy, crime catalogue or quest framework in parallel.
 
 ## Medium-term goals — deepen the shared-city loop
 
@@ -153,7 +153,7 @@ A slice is complete only when the player-facing scenario works in Unity Play Mod
 
 ## Item identity, per-stack state and inspection
 
-The item identity foundation is implemented and the user confirmed **235/235 EditMode tests passed** (2026-11-18). The next layer—per-stack state, provisional valuation and the shared inspection viewer—is now implemented on the shared branch and awaits Unity verification.
+The item identity, per-stack state and inspection foundation is implemented; the user confirmed **245/245 EditMode tests passed** (2026-11-18). Player item knowledge v1 is now implemented on the shared branch and awaits Unity verification.
 
 ### Verified Item Instance v1
 - [x] Stable stack identity (`Guid ItemInstanceId`) is separate from grid placement/local integer IDs.
