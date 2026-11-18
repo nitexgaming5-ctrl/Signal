@@ -313,3 +313,14 @@ The user confirmed **255/255 EditMode tests passed** after player item-knowledge
 - No provenance chain, durability decay, item use, equipment, crafting, weight, quest-item rules or split-stack behavior.
 - Existing ITEM_A/B/C assets remain temporary fixtures; descriptions/icons/base values/default states can be authored in the Inspector later.
 - Do not add a broad quest framework or item catalogue before a real player-facing scenario proves what is needed.
+
+
+## 14. Developer debug menu — current testing support (2026-11-18)
+
+- Press **F1** in Play Mode to open/close the in-game developer panel.
+- Pause/resume all NPC schedules and movement independently of the game clock; pause/resume the clock separately.
+- Inspect current clock, location, Milo/Rhea activity and location, Milo opportunity phase, discovery count and player-to-Milo familiarity.
+- Focus the player beside Milo, force Milo to Work/Rest/Socialize/Home, or return him to his authored schedule.
+- **Trigger Milo Offer Now** pauses NPC simulation, forces Milo to Socialize, focuses the player on him, adds debug-labelled discovery signals and required familiarity, then opens the normal offer-choice UI. This bypasses discovery requirements for testing, not the parcel inventory/accept/return/delivery logic.
+- The user confirmed Unity compilation and that the parcel appears in Play Mode. A 279/280 EditMode run had one stale evening-dialogue assertion; it was corrected on the shared branch. Rerun the full suite after pulling the latest changes.
+- These are developer-only test controls, not player-facing mechanics. Do not treat debug-created discovery facts as authored story content.
