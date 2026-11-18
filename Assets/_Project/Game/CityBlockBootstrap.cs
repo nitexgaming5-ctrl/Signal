@@ -53,6 +53,27 @@ namespace Signal.Game
             NpcPresenter resident = FindResident(npcId);
             return resident != null ? resident.Activity : NpcActivity.Home;
         }
+
+        public bool HasResident(string npcId)
+        {
+            return FindResident(npcId) != null;
+        }
+
+        public bool IsAnyResidentWithin(Vector2 position, float radius)
+        {
+            if (radius < 0f)
+                return false;
+            float squaredRadius = radius * radius;
+            for (int i = 0; i < _residents.Count; i++)
+            {
+                NpcPresenter resident = _residents[i];
+                if (resident == null || !resident.gameObject.activeInHierarchy)
+                    continue;
+                if ((resident.Position - position).sqrMagnitude <= squaredRadius)
+                    return true;
+            }
+            return false;
+        }
         public NpcSocialWorld SocialWorld => _socialWorld;
 
         public void Build(Transform player, Rigidbody2D body, Camera camera, GameClock clock = null,
