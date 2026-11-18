@@ -244,3 +244,19 @@ The user approved Item Instance v1 and confirmed **235/235 EditMode tests passed
 ### Verification
 - User confirmed **245/245 EditMode tests passed** after the previous item state/inspection work (2026-11-18).
 - The new player-knowledge and v5 save integration code/tests have not yet been run in Unity. Compilation, full EditMode suite, Play Mode viewer behavior and v4→v5 save/load verification are pending.
+
+
+## Current initiative: Milo Parcel — discovery foundation implemented; Unity verification pending
+
+The user gave full approval on 2026-11-18 for Opportunity 001: Milo's Parcel. Locked decisions: Milo helps someone he knows; the parcel contains stolen goods; it goes to a discreet physical drop-off; discovery is flexible across routine observation, contextual conversation, physical evidence and uncertain rumour; player commitment is reversible. See docs/tasks/OPPORTUNITY-001-MILO-PARCEL.md.
+
+Milestone 1 has been added on the shared branch: PlayerDiscoverySignal, PlayerDiscoveryLedger, InteractionConditionSet and InteractionContext, with Core EditMode tests. These are source-preserving records and conjunctive context checks, not conclusions or a quest checklist. No Unity compilation or tests have been run by the assistant; the user must pull and verify. Later milestones (opportunity state/persistence, Milo content, parcel delivery/outcomes) remain in progress.
+
+## 2026-11-18 — Opportunity 001: Milo's Parcel (approved; milestone 1 implemented)
+- Full user approval received for the consolidated specification. Narrative choices are locked as helping motive, stolen parcel, physical drop-off, flexible multi-signal discovery and reversible commitment.
+- Added PlayerDiscoverySignal and PlayerDiscoveryLedger in Core. Signals retain stable occurrence ID, subject, type, source, description, confidence and learned in-game time. Re-recording the same authored occurrence is idempotent; distinct occurrences remain distinct. Routine observation, conversation, physical evidence and rumour remain separate signal types.
+- Added InteractionContext and InteractionConditionSet for conjunctive checks across current NPC activity, directed relationship thresholds and required discovery signal IDs/types.
+- Added focused EditMode tests for source/type retention, confidence, subject scoping, idempotency, multiple occurrences, and activity/relationship/discovery gating.
+- Added docs/tasks/OPPORTUNITY-001-MILO-PARCEL.md as the approved initiative specification.
+- Not yet integrated into GameSession, NPC interactions, item inventory, world drop-off or save format. Those are later milestones. No Unity compilation/tests or Play Mode verification performed by the assistant.
+- No legacy scripts or old iterations were deleted; none were demonstrated to be safely removable by this milestone.
