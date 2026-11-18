@@ -55,3 +55,10 @@ When a save shape changes, bump `version` and write a migration function in Core
 - PlayerDiscoveryLedger stores signals independently of item facts and NPC knowledge. It supports subject-scoped queries, required-signal checks and counting distinct signal types. Re-recording an existing signal ID is idempotent.
 - InteractionConditionSet is an immutable conjunctive condition bundle for required NPC activity, minimum directed familiarity/trust/affinity and required signal IDs/types. InteractionContext supplies current activity, the player's relationship impression and discovery ledger.
 - These records are runtime-only in milestone 1. Save DTOs/migration will be added with opportunity state in a later milestone; until then do not claim discoveries persist across save/load.
+
+
+## Opportunity 001 runtime state (first pass)
+- OpportunityDefinition contains stable opportunity ID, associated NPC ID and an InteractionConditionSet for its offer.
+- OpportunityState contains phase (Dormant, Available, Accepted, Resolved), resolution (None/Delivered), associated parcel stack Guid, acceptance/decline counts and relevant in-game timestamps.
+- Declining leaves the opportunity Available. Returning the parcel moves Accepted back to Available. Delivery resolves exactly once. Expiry can return Available to Dormant without scheduling a backlog.
+- The current lifecycle model is runtime-only. Save DTOs and migration will be added when GameSession integration is implemented; do not claim state persists yet.
