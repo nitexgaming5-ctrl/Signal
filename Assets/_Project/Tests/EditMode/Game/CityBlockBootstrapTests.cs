@@ -207,6 +207,62 @@ namespace Signal.Game.Tests
         }
 
         [Test]
+        public void ForcedActivityAndSimulationPauseResumeWithoutTeleportingResidents()
+        {
+            var host = new GameObject("CityHost");
+            var player = new GameObject("Player");
+            var cameraObject = new GameObject("MainCamera");
+            Rigidbody2D body = player.AddComponent<Rigidbody2D>();
+            Camera camera = cameraObject.AddComponent<Camera>();
+            var clock = new GameClock(1, 8 * 60);
+            CityBlockBootstrap city = host.AddComponent<CityBlockBootstrap>();
+
+            try
+            {
+                city.Build(player.transform, body, camera, clock);
+                Assert.That(city.GetResidentCurrentPlace("milo"), Is.EqualTo("CornerShop"));
+
+                Assert.That(city.DebugForceResidentActivity("milo", NpcActivity.Home), Is.True);
+                Vector2 forcedPosition = city.GetResidentPosition("milo");
+                Assert.That(city.GetResidentCurrentPlace("milo"), Is.EqualTo("Apartment"));
+
+                Assert.That(city.DebugResumeResidentSchedule("milo"), Is.True);
+                Assert.That(city.GetResidentCurrentPlace("milo"), Is.EqualTo("Apartment"),
+                    "Returning to the schedule must not teleport the resident to Work.");
+                Assert.That(city.GetResidentPosition("milo"), Is.EqualTo(forcedPosition));
+                Assert.That(city.IsResidentTravelling("milo"), Is.True);
+
+                city.DebugAdvanceNpcMovement(30f);
+                Assert.That(city.GetResidentCurrentPlace("milo"), Is.EqualTo("CornerShop"));
+                Assert.That(city.IsResidentTravelling("milo"), Is.False);
+
+                clock.Advance(11 * 60);
+                Assert.That(city.IsResidentTravelling("milo"), Is.True);
+                city.DebugSetNpcSimulationPaused(true);
+                Vector2 pausedPosition = city.GetResidentPosition("milo");
+                city.DebugAdvanceNpcMovement(10f);
+                Assert.That(city.GetResidentPosition("milo"), Is.EqualTo(pausedPosition),
+                    "A paused resident must not continue moving.");
+
+                city.DebugSetNpcSimulationPaused(false);
+                Assert.That(city.GetResidentPosition("milo"), Is.EqualTo(pausedPosition),
+                    "Resuming simulation must preserve the resident's physical position.");
+                Assert.That(city.IsResidentTravelling("milo"), Is.True,
+                    "Resuming without a schedule change must preserve the in-progress route.");
+
+                city.DebugAdvanceNpcMovement(30f);
+                Assert.That(city.GetResidentCurrentPlace("milo"), Is.EqualTo("Street"));
+                Assert.That(city.IsResidentTravelling("milo"), Is.False);
+            }
+            finally
+            {
+                Object.DestroyImmediate(host);
+                Object.DestroyImmediate(player);
+                Object.DestroyImmediate(cameraObject);
+            }
+        }
+
+        [Test]
         public void ResidentsDevelopFamiliarityWhenTheirSchedulesBringThemTogether()
         {
             var host = new GameObject("CityHost");
