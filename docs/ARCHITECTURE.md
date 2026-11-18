@@ -104,3 +104,10 @@ The implementation contract and phased delivery plan are documented in [NPC_FRAM
 - InteractionConditionSet evaluates current NPC activity, the player's directed relationship impression and required discovery signal IDs/types. Conditions are conjunctive and evaluated against an explicit InteractionContext; no global lookups or character-specific branches are introduced.
 - The first implementation does not infer what the player believes about Milo. Authored opportunity logic will evaluate combinations and define conclusions separately. Item facts continue to use ItemKnowledgeBook; NPC facts remain character-scoped in NpcKnowledge.
 - Opportunity state, save integration, world interactions and delivery outcome resolution are subsequent milestones. Keep Core plain C# and Game responsible for scene objects, input and presentation.
+
+
+## Authored opportunity lifecycle
+- OpportunityDefinition is an immutable Core definition keyed by stable opportunity ID and associated NPC ID; its offer gate reuses InteractionConditionSet.
+- OpportunityState is the small runtime lifecycle: Dormant, Available, Accepted and Resolved. Decline is recorded without failing the opportunity. Returning the parcel moves Accepted back to Available. Delivery resolves once. Expiry returns an available opportunity to Dormant and does not queue a future release.
+- The state model stores the parcel's stable item-stack identity rather than a separate quest-item copy. The Game layer must move the actual item through existing inventory/world interaction services.
+- This is not a generic quest system. It has no journal, objective tree, reward catalogue or autonomous backlog. Save integration and GameSession ownership are pending.
