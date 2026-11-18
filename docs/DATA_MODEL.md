@@ -47,3 +47,11 @@ When a save shape changes, bump `version` and write a migration function in Core
 - The first activity set is `Home`, `Work`, `Rest` and `Socialize`. Decisions are evaluated every 15 in-game minutes; need drift is applied once per elapsed in-game minute.
 - Character identity, visual presentation, movement targets, interaction range and authored activity-specific dialogue live in the Game layer for this first prototype.
 - No persistent relationship, memory, secret-discovery or NPC inventory data exists yet. Add save DTOs and a versioned migration only when a connected scenario requires such state.
+
+
+## Player discovery signals (Opportunity 001 foundation)
+- PlayerDiscoverySignal is one player-learned signal, keyed by a stable authored occurrence ID. It stores subject ID, signal type, source ID, observable/communicated description, confidence and learned day/minute.
+- Signal types are RoutineObservation, Conversation, PhysicalEvidence and Rumour. Type and source are retained; rumours remain uncertain records and are not promoted to truth.
+- PlayerDiscoveryLedger stores signals independently of item facts and NPC knowledge. It supports subject-scoped queries, required-signal checks and counting distinct signal types. Re-recording an existing signal ID is idempotent.
+- InteractionConditionSet is an immutable conjunctive condition bundle for required NPC activity, minimum directed familiarity/trust/affinity and required signal IDs/types. InteractionContext supplies current activity, the player's relationship impression and discovery ledger.
+- These records are runtime-only in milestone 1. Save DTOs/migration will be added with opportunity state in a later milestone; until then do not claim discoveries persist across save/load.
