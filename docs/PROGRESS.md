@@ -4,7 +4,7 @@
 
 The connected NPC framework and WorldPacingDirector foundation are implemented. The user confirmed **226/226 EditMode tests passed** after the pacing test correction (2026-11-17). The user subsequently confirmed **245/245 EditMode tests passed** after Item Instance v1, per-stack state, reference valuation, inspection and storage changes (2026-11-18).
 
-The next approved technical layer is now implemented on the shared branch but awaits Unity verification: player-scoped item knowledge, partial facts with source/confidence/timestamps, knowledge-aware inspection that hides unknown authoritative state, and save format v5 persistence/migration. The Core API intentionally allows uncertain or incorrect beliefs (for example, a rumour); it does not invent an inspection action, skill or scenario. Do not treat this new layer as verified until the user runs Unity compilation and the full EditMode suite.
+Player item-knowledge v1, knowledge-aware inspection and save v5 persistence were verified by the user with 255/255 EditMode tests (2026-11-18). The subsequent Milo opportunity work advances the save format to v7 and remains pending Unity verification.
 
 The pacing director remains a Core policy foundation, deliberately not wired to gameplay or scenario content. It needs an authored scenario owner, approved tuning, persistence/reconstruction design and a real context-valid candidate source before live integration. Work remains on `chore/collaboration-workflow-and-audit`; `main` is untouched.
 
@@ -258,7 +258,7 @@ The shared branch now contains the discovery ledger, flexible contextual conditi
 - Added InteractionContext and InteractionConditionSet for conjunctive checks across current NPC activity, directed relationship thresholds and required discovery signal IDs/types.
 - Added focused EditMode tests for source/type retention, confidence, subject scoping, idempotency, multiple occurrences, and activity/relationship/discovery gating.
 - Added docs/tasks/OPPORTUNITY-001-MILO-PARCEL.md as the approved initiative specification.
-- Not yet integrated into GameSession, NPC interactions, item inventory, world drop-off or save format. Those are later milestones. No Unity compilation/tests or Play Mode verification performed by the assistant.
+- The discovery ledger, player relationship book, opportunity state, save v7 integration and Milo/Rhea world interactions are now connected through GameSession and MiloParcelOpportunityController. Unity compilation, full EditMode suite and Play Mode scenario verification for these new changes remain pending.
 - No legacy scripts or old iterations were deleted; none were demonstrated to be safely removable by this milestone.
 
 
