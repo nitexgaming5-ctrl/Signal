@@ -153,7 +153,7 @@ A slice is complete only when the player-facing scenario works in Unity Play Mod
 
 ## Item identity, per-stack state and inspection
 
-The item identity, per-stack state and inspection foundation is implemented; the user confirmed **245/245 EditMode tests passed** (2026-11-18). Player item knowledge v1 is now implemented on the shared branch and awaits Unity verification.
+The item identity, per-stack state and inspection foundation is implemented; the user confirmed **245/245 EditMode tests passed**. Player item knowledge v1 and save v5 were subsequently user-verified at **255/255 EditMode tests** (2026-11-18). The current Milo parcel scenario/save v7 changes await Unity verification.
 
 ### Verified Item Instance v1
 - [x] Stable stack identity (`Guid ItemInstanceId`) is separate from grid placement/local integer IDs.
