@@ -209,6 +209,8 @@ namespace Signal.Game
                     if (!grid.Contains(nx, ny)) continue;
                     int next = grid.Index(nx, ny);
                     if (!grid.Walkable[next] || closed[next]) continue;
+                    if (!HasLineOfSight(placeId, grid.Positions[current], grid.Positions[next]))
+                        continue;
                     if (dx != 0 && dy != 0 &&
                         (!grid.Walkable[grid.Index(x + dx, y)] ||
                          !grid.Walkable[grid.Index(x, y + dy)]))

@@ -266,12 +266,10 @@ namespace Signal.Game
                 _currentPlace = targetPlace;
                 transform.position = new Vector3(_destination.x, _destination.y, 0f);
             }
-            else if (_currentPlace == targetPlace)
-            {
-                _travelRoute.Add(new NpcTravelWaypoint(targetPlace, _destination));
-            }
             else if (_city != null)
             {
+                // All in-city movement, including destinations in the same location,
+                // goes through the shared navigation map.
                 _travelRoute.AddRange(_city.BuildNpcTravelRoute(
                     _currentPlace, transform.position, targetPlace, _destination));
             }
