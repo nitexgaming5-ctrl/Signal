@@ -71,3 +71,13 @@ No generic quest journal/tracker, full dialogue editor, second named recipient, 
 - Unity compilation and full EditMode suite.
 - Play Mode: discover through multiple combinations; verify source/confidence distinctions; accept/decline/withdraw; deliver on time/late, damaged and witnessed; save/load at relevant points.
 - Do not claim Unity verification until the user reports it.
+
+## Milestone 2 — opportunity lifecycle foundation (implemented; verification pending)
+
+- Added immutable OpportunityDefinition with stable opportunity ID, associated NPC ID and offer conditions.
+- Added OpportunityState with Dormant, Available, Accepted and Resolved phases.
+- Declining records the choice but leaves the opportunity Available; investigation/questions do not require a lifecycle transition.
+- Accepting associates the physical parcel's stable stack identity. Returning the parcel releases the commitment and makes the opportunity Available again.
+- Delivery resolves the opportunity exactly once. An available opportunity can expire back to Dormant without queueing a future release.
+- Added Core EditMode tests for offer gating, reversible acceptance/return, decline, one-time resolution, expiry and invalid transitions.
+- Save persistence and Unity integration are deliberately deferred to later milestones; these runtime classes are not yet connected to GameSession.
