@@ -102,8 +102,10 @@ The implementation contract and phased delivery plan are documented in [NPC_FRAM
 - PlayerDiscoverySignal records one learned signal with stable occurrence ID, subject ID, signal type (routine observation, conversation, physical evidence or rumour), source ID, observable/communicated description, confidence and in-game learned time. The ledger is a provenance-preserving record, not a truth evaluator or conclusion generator.
 - Re-recording the same stable signal ID is idempotent. A new occurrence requires a new ID; repeating one observation cannot inflate the number of distinct signal types.
 - InteractionConditionSet evaluates current NPC activity, the player's directed relationship impression and required discovery signal IDs/types. Conditions are conjunctive and evaluated against an explicit InteractionContext; no global lookups or character-specific branches are introduced.
-- The first implementation does not infer what the player believes about Milo. Authored opportunity logic will evaluate combinations and define conclusions separately. Item facts continue to use ItemKnowledgeBook; NPC facts remain character-scoped in NpcKnowledge.
-- Opportunity state, save integration, world interactions and delivery outcome resolution are subsequent milestones. Keep Core plain C# and Game responsible for scene objects, input and presentation.
+- The ledger does not infer what the player believes about Milo. Authored opportunity logic evaluates combinations separately. Item facts continue to use ItemKnowledgeBook; NPC facts remain character-scoped in NpcKnowledge.
+- PlayerRelationshipBook stores the player's directed familiarity/trust/affinity toward residents. It is separate from NPC-to-NPC relationships in NpcSocialWorld.
+- MiloParcelOpportunityController is a Game-layer, scenario-specific composition of Core discovery/relationship/opportunity state and existing inventory/item-knowledge systems. It owns the physical parcel, evidence prop, interaction prompts, choices and drop-off presentation; it does not introduce a generic quest journal or dialogue framework.
+- Save v7 persists player discovery signals, player-to-NPC relationships, opportunity state and delivery assessment. NPC-to-NPC memories/relationships and transient perception remain runtime-only. Keep Core plain C# and Game responsible for scene objects, input and presentation.
 
 
 ## Authored opportunity lifecycle
@@ -111,3 +113,13 @@ The implementation contract and phased delivery plan are documented in [NPC_FRAM
 - OpportunityState is the small runtime lifecycle: Dormant, Available, Accepted and Resolved. Decline is recorded without failing the opportunity. Returning the parcel moves Accepted back to Available. Delivery resolves once. Expiry returns an available opportunity to Dormant and does not queue a future release.
 - The state model stores the parcel's stable item-stack identity rather than a separate quest-item copy. The Game layer must move the actual item through existing inventory/world interaction services.
 - This is not a generic quest system. It has no journal, objective tree, reward catalogue or autonomous backlog. Save integration and GameSession ownership are pending.
+
+
+## Milo parcel vertical slice integration
+
+- GameSession owns PlayerDiscoveryLedger, PlayerRelationshipBook and OpportunityState; it supplies them to the scenario controller and SaveMapper.
+- Item_MiloParcel is a dedicated ItemDefinition referenced by the active HideoutSlice scene and catalogued for save/load resolution, but is not granted as a starting item.
+- The parcel is represented by one stable PlacedItem.ItemInstanceId when accepted. Its authoritative state is Stolen; player knowledge remains separate and can be partial/uncertain.
+- MiloParcelOpportunityController is intentionally specific to Opportunity 001. Do not promote its authored dialogue, coordinates or story conditions into generic Core abstractions.
+- Delivery assessment records same-day timing, damaged/intact condition and nearby third-party exposure. Complications alter Milo's relationship and dialogue softly; they do not invoke law enforcement or global criminal progression.
+- Save format v7 migrates v1-v6. User verification of compilation, tests and Play Mode remains pending.
