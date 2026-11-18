@@ -249,7 +249,7 @@ namespace Signal.Game
             Rect hideoutBounds = room != null ? room.Bounds : new Rect(-1f, -1f, 22f, 14f);
             // Include the doorway threshold, which sits half a tile beyond the room's tile-coordinate bounds.
             hideoutBounds = new Rect(hideoutBounds.xMin - 0.5f, hideoutBounds.yMin - 0.5f,
-                hideoutBounds.width + 1f, hideoutBounds.height + 1f);
+                hideoutBounds.width, hideoutBounds.height);
             map.AddRegion("Hideout", hideoutBounds);
             map.AddRegion("Street", new Rect(-9f, -26f, 38f, 27f));
             map.AddRegion("CornerShop", InteriorBounds(new Vector2(1000f, 1000f)));
@@ -277,17 +277,18 @@ namespace Signal.Game
         {
             // RoomBootstrap builds a tilemap perimeter with a single open doorway in its south wall.
             // Describe those wall runs as separate rectangles so the doorway remains genuinely open.
-            float left = roomBounds.xMin;
-            float bottom = roomBounds.yMin;
+            float left = roomBounds.xMin - 0.5f;
+            float bottom = roomBounds.yMin - 0.5f;
             float width = roomBounds.width;
             float height = roomBounds.height;
             float doorCentre = roomBounds.center.x;
             map.AddObstacle("Hideout", "North wall", new Rect(left, bottom + height - 1f, width, 1f));
             map.AddObstacle("Hideout", "West wall", new Rect(left, bottom + 1f, 1f, height - 2f));
             map.AddObstacle("Hideout", "East wall", new Rect(left + width - 1f, bottom + 1f, 1f, height - 2f));
-            map.AddObstacle("Hideout", "South wall west", new Rect(left, bottom, doorCentre - left, 1f));
+            map.AddObstacle("Hideout", "South wall west",
+                new Rect(left, bottom, doorCentre - 0.5f - left, 1f));
             map.AddObstacle("Hideout", "South wall east",
-                new Rect(doorCentre + 1f, bottom, left + width - doorCentre - 1f, 1f));
+                new Rect(doorCentre + 0.5f, bottom, left + width - doorCentre - 0.5f, 1f));
         }
 
         private static void AddNavigationObstacles(CityNavigationMap map, string place, Transform root)
