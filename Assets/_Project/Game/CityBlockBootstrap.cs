@@ -81,7 +81,6 @@ namespace Signal.Game
             {
                 NpcPresenter resident = _residents[i];
                 if (resident == null || resident.CurrentPlace != _place.ToString() ||
-                    resident.IsTravelling ||
                     (!string.IsNullOrWhiteSpace(excludeNpcId) && resident.NpcId == excludeNpcId))
                     continue;
                 if ((resident.Position - position).sqrMagnitude <= squaredRadius)
@@ -149,7 +148,6 @@ namespace Signal.Game
             {
                 route.Add(new NpcTravelWaypoint(routePlace, InteriorExitFor(routePlace)));
                 route.Add(new NpcTravelWaypoint("Street", StreetDoorFor(routePlace)));
-                routePlace = "Street";
             }
 
             if (targetPlace != "Street")
