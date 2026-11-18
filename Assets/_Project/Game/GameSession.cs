@@ -28,6 +28,8 @@ namespace Signal.Game
         private GridInventory _inventory;
         private GridInventory _storage;
         private ItemKnowledgeBook _itemKnowledge;
+        private PlayerDiscoveryLedger _playerDiscoveries;
+        private OpportunityState _miloOpportunity;
         private GameClock _clock;
         private HeatMeter _heat;
         private RentLedger _rent;
@@ -45,6 +47,8 @@ namespace Signal.Game
 
         /// <summary>Player-scoped discovered item facts, shared by inventory and scenario interactions.</summary>
         public ItemKnowledgeBook PlayerItemKnowledge => _itemKnowledge;
+        public PlayerDiscoveryLedger PlayerDiscoveries => _playerDiscoveries;
+        public OpportunityState MiloOpportunity => _miloOpportunity;
 
         private void Start()
         {
@@ -52,6 +56,8 @@ namespace Signal.Game
             _inventory = new GridInventory();
             _storage = new GridInventory(8, 6);
             _itemKnowledge = new ItemKnowledgeBook();
+            _playerDiscoveries = new PlayerDiscoveryLedger();
+            _miloOpportunity = new OpportunityState("milo-parcel");
             _clock = new GameClock();
             _heat = new HeatMeter();
             _rent = new RentLedger(rentAmount, rentEveryDays);
@@ -214,7 +220,8 @@ namespace Signal.Game
         {
             Vector2 position = _room.PlayerBody.position;
             SaveData data = SaveMapper.Capture(_stats, _inventory, _storage, _clock, _heat, _rent,
-                                               _city.CurrentPlace, position.x, position.y, _itemKnowledge);
+                                               _city.CurrentPlace, position.x, position.y, _itemKnowledge,
+                                               _playerDiscoveries, _miloOpportunity);
 
             try
             {
@@ -236,12 +243,14 @@ namespace Signal.Game
                 return;
             }
 
-            LoadReport report = SaveMapper.Apply(data, _stats, _inventory, _storage, _clock, _heat, _rent, ResolveType, _itemKnowledge);
+            LoadReport report = SaveMapper.Apply(data, _stats, _inventory, _storage, _clock, _heat, _rent, ResolveType, _itemKnowledge, _playerDiscoveries);
             if (!report.Success)
             {
                 Say("Load failed: " + report.Error);
                 return;
             }
+
+            _miloOpportunity = report.RestoredOpportunity ?? new OpportunityState("milo-parcel");
 
             var position = new Vector2(data.playerX, data.playerY);
             if (!_city.TryRestorePlace(data.worldPlace, position))
@@ -251,8 +260,9 @@ namespace Signal.Game
                 return;
             }
 
-            Say(report.SkippedItems + report.SkippedStorageItems > 0
-                ? "Loaded. " + report.SkippedItems + " carried and " + report.SkippedStorageItems + " stored item(s) could not be restored."
+            Say(report.SkippedItems + report.SkippedStorageItems + report.SkippedKnowledgeFacts +
+                report.SkippedDiscoverySignals > 0
+                ? "Loaded at " + data.worldPlace + ". Some saved item or discovery details could not be restored."
                 : "Loaded at " + data.worldPlace + ".");
         }
 
