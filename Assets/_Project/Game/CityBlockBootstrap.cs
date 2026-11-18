@@ -146,15 +146,17 @@ namespace Signal.Game
             string routePlace = fromPlace;
             if (routePlace != "Street")
             {
-                route.Add(new NpcTravelWaypoint(routePlace, InteriorExitFor(routePlace)));
+                Vector2 currentExit = InteriorExitFor(routePlace);
+                if ((fromPosition - currentExit).sqrMagnitude > 0.01f)
+                    route.Add(new NpcTravelWaypoint(routePlace, currentExit));
                 route.Add(new NpcTravelWaypoint("Street", StreetDoorFor(routePlace)));
             }
 
             if (targetPlace != "Street")
             {
                 Vector2 targetStreetDoor = StreetDoorFor(targetPlace);
-                if (route.Count == 0 ||
-                    (route[route.Count - 1].Position - targetStreetDoor).sqrMagnitude > 0.01f)
+                Vector2 routeEnd = route.Count > 0 ? route[route.Count - 1].Position : fromPosition;
+                if ((routeEnd - targetStreetDoor).sqrMagnitude > 0.01f)
                     route.Add(new NpcTravelWaypoint("Street", targetStreetDoor));
 
                 route.Add(new NpcTravelWaypoint(targetPlace, InteriorEntryFor(targetPlace)));
