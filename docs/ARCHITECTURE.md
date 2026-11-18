@@ -94,3 +94,13 @@ NPC runtime belongs to the shared city simulation, not to isolated character-spe
 - Social knowledge and relationships are not yet saved. Add stable-ID persistence and explicit save migration only when the framework's long-lived state is ready.
 
 The implementation contract and phased delivery plan are documented in [NPC_FRAMEWORK.md](NPC_FRAMEWORK.md). Keep the simulation deterministic and event-driven; do not add per-frame full-population reasoning, external AI services or separate legal/criminal social worlds.
+
+
+## Player discovery and contextual interactions
+
+- PlayerDiscoveryLedger is player-scoped and separate from ItemKnowledgeBook, NPC NpcKnowledge and authoritative world state.
+- PlayerDiscoverySignal records one learned signal with stable occurrence ID, subject ID, signal type (routine observation, conversation, physical evidence or rumour), source ID, observable/communicated description, confidence and in-game learned time. The ledger is a provenance-preserving record, not a truth evaluator or conclusion generator.
+- Re-recording the same stable signal ID is idempotent. A new occurrence requires a new ID; repeating one observation cannot inflate the number of distinct signal types.
+- InteractionConditionSet evaluates current NPC activity, the player's directed relationship impression and required discovery signal IDs/types. Conditions are conjunctive and evaluated against an explicit InteractionContext; no global lookups or character-specific branches are introduced.
+- The first implementation does not infer what the player believes about Milo. Authored opportunity logic will evaluate combinations and define conclusions separately. Item facts continue to use ItemKnowledgeBook; NPC facts remain character-scoped in NpcKnowledge.
+- Opportunity state, save integration, world interactions and delivery outcome resolution are subsequent milestones. Keep Core plain C# and Game responsible for scene objects, input and presentation.
