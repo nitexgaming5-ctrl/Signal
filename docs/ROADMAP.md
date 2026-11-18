@@ -253,3 +253,19 @@ Do not expand into a generic quest journal, second named recipient, police/crimi
 - [ ] Confirm NPCs route around the street bench, building colliders and interior furniture; verify the parcel discovery/drop-off flow remains unaffected.
 
 **Scope boundary:** this is NPC route planning only. Player Rigidbody movement is unchanged. There is no moving-agent avoidance, crowd simulation, dynamic obstacle updates, click-to-move, navmesh, or new gameplay mechanic. The map is currently a build-time snapshot of static city geometry.
+
+
+## Next implementation — NPC interruption and recovery v1
+
+**Goal:** NPCs resume their authored lives reliably after developer intervention, simulation pauses or navigation failures.
+
+- [x] Separate initial placement from normal schedule refresh; only initial binding may snap to a starting destination.
+- [x] Resume a forced NPC activity by replanning from the resident's current physical location.
+- [x] Preserve an in-progress route when simulation pauses and resumes without a schedule change.
+- [x] If the schedule changes while paused, re-evaluate it and plan from the interruption point.
+- [x] Add an explicit one-shot retry for failed routes, exposed in the F1 developer menu; do not retry every frame.
+- [x] Add focused EditMode tests for forced activity recovery and pause/resume behavior.
+- [ ] Run Unity compilation and the full EditMode suite; user verification pending.
+- [ ] Verify recovery and the one-shot retry control in Play Mode.
+
+**Scope boundary:** no new gameplay mechanic, autonomous obstacle avoidance, moving-agent avoidance, or dynamic navigation-map rebuilding. A failed route remains visibly failed until a deliberate retry or a later schedule change successfully replans it.
