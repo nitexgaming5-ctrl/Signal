@@ -101,7 +101,7 @@ namespace Signal.Core.Tests
         }
 
         [Test]
-        public void VersionTwoSaveMigrationAssignsUniqueIdsAcrossCarriedAndStoredItemsAndAdvancesToVersionFive()
+        public void VersionTwoSaveMigrationAssignsUniqueIdsAcrossCarriedAndStoredItemsAndAdvancesToCurrentVersion()
         {
             Guid typeId = Guid.NewGuid();
             var save = new SaveData
@@ -112,7 +112,7 @@ namespace Signal.Core.Tests
             };
 
             Assert.That(SaveMigrator.TryMigrate(save, out string error), Is.True, error);
-            Assert.That(save.version, Is.EqualTo(5));
+            Assert.That(save.version, Is.EqualTo(7));
             Assert.That(Guid.TryParse(save.items[0].instanceId, out Guid carriedId), Is.True);
             Assert.That(Guid.TryParse(save.storageItems[0].instanceId, out Guid storedId), Is.True);
             Assert.That(carriedId, Is.Not.EqualTo(Guid.Empty));
@@ -121,7 +121,7 @@ namespace Signal.Core.Tests
         }
 
         [Test]
-        public void VersionOneSaveStillMigratesToVersionFiveWithStableIds()
+        public void VersionOneSaveStillMigratesToCurrentVersionWithStableIds()
         {
             var save = new SaveData
             {
@@ -131,7 +131,7 @@ namespace Signal.Core.Tests
             };
 
             Assert.That(SaveMigrator.TryMigrate(save, out string error), Is.True, error);
-            Assert.That(save.version, Is.EqualTo(5));
+            Assert.That(save.version, Is.EqualTo(7));
             Assert.That(save.worldPlace, Is.EqualTo("Hideout"));
             Assert.That(save.storageItems, Is.Not.Null);
             Assert.That(save.storageItems, Is.Empty);
@@ -140,7 +140,7 @@ namespace Signal.Core.Tests
         }
 
         [Test]
-        public void VersionThreeSaveMigrationDefaultsNewInstanceStateWithoutChangingIdentityAndAdvancesToVersionFive()
+        public void VersionThreeSaveMigrationDefaultsNewInstanceStateWithoutChangingIdentityAndAdvancesToCurrentVersion()
         {
             Guid identity = Guid.NewGuid();
             var save = new SaveData
@@ -153,7 +153,7 @@ namespace Signal.Core.Tests
             };
 
             Assert.That(SaveMigrator.TryMigrate(save, out string error), Is.True, error);
-            Assert.That(save.version, Is.EqualTo(5));
+            Assert.That(save.version, Is.EqualTo(7));
             Assert.That(save.items[0].instanceId, Is.EqualTo(identity.ToString()));
             Assert.That(save.items[0].quality, Is.EqualTo((int)ItemQuality.Standard));
             Assert.That(save.items[0].condition, Is.EqualTo((int)ItemCondition.Good));
