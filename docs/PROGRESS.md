@@ -1,6 +1,6 @@
 # Progress
 
-## Current status: NPC interruption/recovery v1 verified; game-clock pause movement fix implemented, Unity verification pending
+## Current status: NPC interruption/recovery and game-clock pause verified; next focus is the shared-city gameplay loop
 
 The connected NPC framework and WorldPacingDirector foundation are implemented. The user confirmed **226/226 EditMode tests passed** after the pacing test correction (2026-11-17), **245/245** after Item Instance v1 (2026-11-18), and **284/284** after the Milo opportunity and city-navigation geometry work (2026-11-18).
 
@@ -354,5 +354,13 @@ The shared branch now contains the discovery ledger, flexible contextual conditi
 - User confirmed the interruption/recovery implementation compiles and all **291/291 EditMode tests pass**. The user also confirmed the recovery and movement behaviour works in Play Mode.
 - Follow-up Play Mode inspection found that the F1 **Pause game clock** control stopped in-game time but residents continued walking in real time. This happened because NPC movement used Unity's `Time.deltaTime` independently of the game clock.
 - Added a shared transient pause state to `GameClock`. The developer menu now toggles that state; the normal clock tick and NPC movement both respect it. The separate **Pause all NPC schedules** control remains independent and still pauses NPC movement/behaviour regardless of clock state.
-- Added Core coverage for pause-state toggling and a city integration test for scheduled NPC movement stopping/resuming with the game clock. Expected EditMode total is now **293**; this follow-up fix is pending user Unity verification.
+- Added Core coverage for pause-state toggling and a city integration test for scheduled NPC movement stopping/resuming with the game clock. The user subsequently confirmed the correction works in Play Mode and the full suite passes **293/293** (2026-11-18).
 - Explicit clock advances (e.g. sleep or save restoration) remain explicit operations; the pause flag gates real-time ticking and resident movement rather than disabling intentional clock changes.
+
+
+## Next direction — shared-city everyday gameplay loop
+
+- Opportunity 001 (Milo's Parcel) fulfilled the roadmap requirement to build and verify a first player-facing NPC scenario. A second opportunity is optional content and is not a prerequisite for the NPC framework.
+- Recommend shifting focus from additional scenario examples to the shared city's repeatable everyday loop: acquiring/handling goods, meaningful item information, and player-to-NPC commercial or service interactions. The exact activity and rules must be designed with the user before implementation.
+- Keep the current NPC, item identity/state/knowledge, relationship and opportunity systems as supporting foundations. Extend them only when the chosen loop exposes a concrete missing capability.
+- Validate authored NpcCharacterDefinition assets in the Inspector as a small content-authoring check, not as a reason to delay the next player-facing loop.
