@@ -112,3 +112,13 @@ No generic quest journal/tracker, full dialogue editor, second named recipient, 
 
 
 - Condition assessment reads the parcel's authoritative ItemCondition. The parcel begins Good; this slice does not add a new action or general damage mechanic to make it Damaged. The damaged branch is ready for existing/future systems that legitimately change item condition.
+
+
+### Natural discovery test notes (fallback definitions)
+
+- The temporary fallback Milo uses the default utility profile: Work 06:30–18:00, Rest 11:30–13:30, Socialize 18:00–21:00, Home 21:00–06:30. If authored NPC definition assets are assigned in the Inspector, their UtilityProfile overrides these fallback times.
+- At 18:00, Milo changes to Socialize and begins walking from the shop to his street destination (approximately world position 18.2, -11.6). At the default 1.6 world units/real second, the current authored route takes roughly 14 real seconds from his shop work position; allow for the actual starting position and frame timing.
+- Routine observation is recorded only when the player is in the Street location, within 5.5 world units of Milo, and Milo has physically arrived at his Socialize destination. It is recorded at most once per in-game day.
+- The offer requires two different discovery signal types, not merely two clues of the same type, plus player-to-Milo familiarity of at least 0.20. Inspecting the parcel and delivery slip both count as PhysicalEvidence; pair either with the RoutineObservation or Rhea's Rumour.
+- Ordinary conversations with Milo increase familiarity by 0.10 each when the offer conditions are not yet met. Once the conditions are satisfied, talk to him again while he is Socializing on the Street to open the offer. Discovery does not auto-open the dialogue.
+- The F1 developer controls can force Milo to Socialize or open the offer directly when testing the delivery/inventory path.
