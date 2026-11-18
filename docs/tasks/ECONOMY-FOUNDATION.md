@@ -25,9 +25,10 @@ Simulation:
 ### Added
 - EconomicActorId: stable Core actor identity.
 - AssetOwnershipBook: explicit owner per stable item stack GUID, independent of the containing inventory.
+- EconomicContainerRegistry: records which actor is responsible for each runtime inventory container; custody is distinct from asset ownership.
 - EconomicTransaction: immutable completed-transfer record.
 - EconomicTransactionLedger: append-only runtime ledger with duplicate-ID protection.
-- AssetTransferService: whole-stack transfer that validates current ownership, uses existing InventoryTransfer, changes owner and records the result.
+- AssetTransferService: whole-stack transfer that validates current ownership, requires registered source/destination containers and a destination custodian matching the recipient, uses existing InventoryTransfer, changes owner and records the result.
 - AssetTransferServiceTests: success, preservation, ownership and failure coverage.
 
 ### Boundaries

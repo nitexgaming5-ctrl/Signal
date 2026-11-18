@@ -371,11 +371,11 @@ The user approved the shared city economy design, with two refinements:
 - Universal supply/demand, price fluctuations and continuous consumption are deferred. Ordinary goods use simple authored availability; stock is tracked selectively only where gameplay requires it (e.g. drugs and illegal materials).
 
 ### Phase 1 implementation added to the repository
-- Added EconomicActorId, AssetOwnershipBook, EconomicTransaction / EconomicTransactionLedger, and AssetTransferService in Signal.Core.
-- Whole-stack transfers validate that the source actor is the registered owner, preserve the stack GUID and item state, update the owner, and record a completed transaction with reason and in-game timestamp.
+- Added EconomicActorId, EconomicContainerRegistry, AssetOwnershipBook, EconomicTransaction / EconomicTransactionLedger, and AssetTransferService in Signal.Core.
+- Whole-stack transfers validate the registered asset owner, require registered source/destination containers and ensure the destination container is maintained by the receiving actor. Source custody may differ from asset ownership. Successful transfers preserve the stack GUID and item state, update the owner, and record a completed transaction with reason and in-game timestamp.
 - Full destinations, missing/unregistered assets, invalid requests and ownership mismatches leave the source asset, owner and ledger unchanged.
 - Same-owner inventory/storage movement continues to use the existing InventoryTransfer and does not create an economic transaction.
-- Added AssetTransferServiceTests covering successful transfer, identity/state preservation, ownership mismatch, unregistered/missing assets, full destination, invalid actor/timestamp, ownership book rules and same-owner container movement.
+- Added AssetTransferServiceTests covering successful transfer, identity/state preservation, ownership mismatch, unregistered assets/containers, destination actor mismatch, missing assets, full destination, invalid actor/timestamp, ownership book rules and same-owner container movement.
 - Phase 1 state is runtime-only. It is not yet wired into GameSession or save data; Phase 2 must add versioned persistence before these services are used for persistent gameplay.
 - No Unity Editor or test runner was available to the assistant. C# compilation, EditMode tests and Unity verification are pending user validation.
 

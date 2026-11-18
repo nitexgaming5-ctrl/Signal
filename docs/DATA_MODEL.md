@@ -90,3 +90,8 @@ When a save shape changes, bump `version` and write a migration function in Core
 - No universal supply/demand, price simulation or continuous consumption simulation initially.
 - Ordinary goods use authored/simple availability. Stock is tracked selectively for gameplay-sensitive categories such as drugs and illegal materials.
 - Stock market, lottery, betting, business ownership, laundering and large-scale economic events are future consumers of the shared foundations.
+
+
+## Economic container custody
+- EconomicContainerRegistry maps each runtime GridInventory container to its responsible custodian actor. Asset ownership remains separate: an actor may own a stack stored in a container maintained by another actor.
+- AssetTransferService requires both physical containers to be registered and the destination container to be maintained by the receiving actor. The source custodian need not be the asset owner; custody and ownership are distinct.

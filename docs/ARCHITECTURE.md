@@ -137,3 +137,6 @@ Economic rules belong in Signal.Core as plain C#; Unity presentation, authoring 
 - Avoid a monolithic EconomyManager. Future account, business and market services should compose the shared actor, asset and transaction primitives.
 - Phase 1 ownership/transaction state is currently runtime-only. Before any persistent gameplay integration, add versioned save support and restore ownership consistently with carried, stored and world-held assets.
 - No universal supply/demand simulation is planned for the initial economy; stock simulation is selective and gameplay-driven.
+
+
+EconomicContainerRegistry records the custodian for each runtime inventory container. Asset ownership is deliberately not inferred from container custody. AssetTransferService validates the asset's current owner and requires the destination container to belong to the receiving actor; this allows assets to be held by a third-party custodian without confusing storage with ownership.

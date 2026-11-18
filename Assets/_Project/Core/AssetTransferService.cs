@@ -4,7 +4,7 @@ namespace Signal.Core
     public enum AssetTransferStatus
     {
         Completed = 0, InvalidRequest = 1, AssetNotFound = 2, OwnershipNotRegistered = 3,
-        OwnershipMismatch = 4, DestinationFull = 5, TransferFailed = 6
+        OwnershipMismatch = 4, SourceContainerNotRegistered = 5, DestinationContainerNotRegistered = 6, DestinationActorMismatch = 7, DestinationFull = 8, TransferFailed = 9
     }
     public readonly struct AssetTransferResult
     {
@@ -18,10 +18,12 @@ namespace Signal.Core
     public sealed class AssetTransferService
     {
         private readonly AssetOwnershipBook _ownership;
+        private readonly EconomicContainerRegistry _containers;
         private readonly EconomicTransactionLedger _ledger;
-        public AssetTransferService(AssetOwnershipBook ownership, EconomicTransactionLedger ledger)
+        public AssetTransferService(AssetOwnershipBook ownership, EconomicContainerRegistry containers, EconomicTransactionLedger ledger)
         {
             _ownership = ownership ?? throw new ArgumentNullException(nameof(ownership));
+            _containers = containers ?? throw new ArgumentNullException(nameof(containers));
             _ledger = ledger ?? throw new ArgumentNullException(nameof(ledger));
         }
         public AssetTransferResult TransferStack(GridInventory source, GridInventory destination, Guid itemInstanceId,
@@ -33,6 +35,12 @@ namespace Signal.Core
                 fromActor == toActor || day < 1 || minuteOfDay < 0 || minuteOfDay >= 1440 ||
                 !Enum.IsDefined(typeof(AssetTransferReason), reason))
                 return new AssetTransferResult(AssetTransferStatus.InvalidRequest, null);
+            if (!_containers.TryGetCustodian(source, out _))
+                return new AssetTransferResult(AssetTransferStatus.SourceContainerNotRegistered, null);
+            if (!_containers.TryGetCustodian(destination, out EconomicActorId destinationCustodian))
+                return new AssetTransferResult(AssetTransferStatus.DestinationContainerNotRegistered, null);
+            if (destinationCustodian != toActor)
+                return new AssetTransferResult(AssetTransferStatus.DestinationActorMismatch, null);
             if (!source.TryGetItemInstance(itemInstanceId, out PlacedItem item))
                 return new AssetTransferResult(AssetTransferStatus.AssetNotFound, null);
             if (!_ownership.TryGetOwner(itemInstanceId, out EconomicActorId currentOwner))
