@@ -32,6 +32,8 @@ namespace Signal.Game
         private NpcSocialWorld _socialWorld;
         private NpcSocialEncounterSystem _socialEncounterSystem;
         private bool _debugSimulationPaused;
+        private CityNavigationMap _navigationMap;
+        private CityNavigationDebugView _navigationDebugView;
 
         private static readonly Vector2 HomeDoor = new Vector2(10f, -1.5f);
         private static readonly Vector2 ShopDoor = new Vector2(0.5f, -10.8f);
@@ -42,6 +44,14 @@ namespace Signal.Game
         public string CurrentPlace => _place.ToString();
         public int ResidentCount => _residents.Count;
         public int SocialEncounterCount => _socialEncounterSystem != null ? _socialEncounterSystem.EncounterCount : 0;
+        public CityNavigationMap NavigationMap => _navigationMap;
+        public IReadOnlyList<NpcPresenter> DebugResidents => _residents;
+        public bool DebugNavigationOverlayVisible => _navigationDebugView != null && _navigationDebugView.IsVisible;
+
+        public bool DebugToggleNavigationOverlay()
+        {
+            return _navigationDebugView != null && _navigationDebugView.Toggle();
+        }
 
         public Vector2 GetResidentPosition(string npcId)
         {
@@ -218,11 +228,58 @@ namespace Signal.Game
             BuildInterior(_apartmentRoot.transform, new Vector2(1020f, 1000f), true);
             _apartmentRoot.SetActive(false);
 
+            _navigationMap = CreateNavigationMap(player);
+            _navigationDebugView = gameObject.AddComponent<CityNavigationDebugView>();
+            _navigationDebugView.Bind(_navigationMap, this, _player, camera);
+
             _place = Place.Hideout;
             SetResidentsActivePlace(_place.ToString());
             _clock.Changed += OnClockChanged;
             if (_cameraFollow != null)
                 _cameraFollow.Configure(_player, _worldBounds);
+        }
+
+        private CityNavigationMap CreateNavigationMap(Transform player)
+        {
+            var map = new CityNavigationMap();
+            RoomBootstrap room = player != null ? player.GetComponentInParent<RoomBootstrap>() : null;
+            map.AddRegion("Hideout", room != null ? room.Bounds : new Rect(-1f, -1f, 22f, 14f));
+            map.AddRegion("Street", new Rect(-9f, -26f, 38f, 27f));
+            map.AddRegion("CornerShop", InteriorBounds(new Vector2(1000f, 1000f)));
+            map.AddRegion("Apartment", InteriorBounds(new Vector2(1020f, 1000f)));
+
+            if (room != null)
+                AddNavigationObstacles(map, "Hideout", room.transform);
+            AddNavigationObstacles(map, "Street", _streetRoot.transform);
+            AddNavigationObstacles(map, "CornerShop", _shopRoot.transform);
+            AddNavigationObstacles(map, "Apartment", _apartmentRoot.transform);
+
+            map.AddConnection("hideout-street-door", "Hideout", HomeDoor,
+                "Street", new Vector2(10f, -4f));
+            map.AddConnection("street-shop-door", "Street", new Vector2(0.5f, -12f),
+                "CornerShop", new Vector2(1000f, 995.8f));
+            map.AddConnection("street-apartment-door", "Street", new Vector2(19.5f, -12f),
+                "Apartment", new Vector2(1020f, 995.8f));
+            return map;
+        }
+
+        private static void AddNavigationObstacles(CityNavigationMap map, string place, Transform root)
+        {
+            if (root == null)
+                return;
+
+            Collider2D[] colliders = root.GetComponentsInChildren<Collider2D>(true);
+            for (int i = 0; i < colliders.Length; i++)
+            {
+                Collider2D collider = colliders[i];
+                if (collider == null || !collider.enabled || collider.isTrigger ||
+                    collider.GetComponentInParent<PlayerMotor2D>() != null)
+                    continue;
+
+                Bounds bounds = collider.bounds;
+                map.AddObstacle(place, collider.gameObject.name,
+                    new Rect(bounds.min.x, bounds.min.y, bounds.size.x, bounds.size.y), collider);
+            }
         }
 
         public bool TryRestorePlace(string place, Vector2 position)
