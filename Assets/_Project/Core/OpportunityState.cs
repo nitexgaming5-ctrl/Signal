@@ -62,10 +62,23 @@ namespace Signal.Core
             return true;
         }
 
+        public bool SetParcelInstanceId(Guid parcelInstanceId)
+        {
+            if (parcelInstanceId == Guid.Empty ||
+                (Phase != OpportunityPhase.Dormant && Phase != OpportunityPhase.Available))
+                return false;
+            if (ParcelInstanceId != Guid.Empty && ParcelInstanceId != parcelInstanceId)
+                return false;
+
+            ParcelInstanceId = parcelInstanceId;
+            return true;
+        }
+
         public bool TryAccept(Guid parcelInstanceId, int day, int minuteOfDay)
         {
             ValidateTime(day, minuteOfDay);
-            if (Phase != OpportunityPhase.Available || parcelInstanceId == Guid.Empty)
+            if (Phase != OpportunityPhase.Available || parcelInstanceId == Guid.Empty ||
+                (ParcelInstanceId != Guid.Empty && ParcelInstanceId != parcelInstanceId))
                 return false;
 
             ParcelInstanceId = parcelInstanceId;
@@ -133,9 +146,6 @@ namespace Signal.Core
                 return false;
             if (phase != OpportunityPhase.Resolved && resolution != OpportunityResolution.None)
                 return false;
-            if (phase == OpportunityPhase.Dormant && parcelInstanceId != Guid.Empty && acceptanceCount == 0)
-                return false;
-
             restored = new OpportunityState(opportunityId)
             {
                 Phase = phase,
