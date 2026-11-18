@@ -93,7 +93,7 @@ Milestones are dependency notes, not a mandate to build isolated systems in orde
 4. **Keep the current block playable and readable.** Replace the most visible placeholders with cohesive art only when it improves the slice; preserve the compact scale and hideout as the anchor.
 5. **Close known reliability checks** when convenient: storage capacity/rollback, actual v1 migration, city transition tests and target-platform save replacement.
 
-Milo's parcel scenario and save v7 are user-verified (284/284 EditMode tests). Obstacle-aware NPC navigation v1 is also user-verified: the user completed the Play Mode inspection and confirmed 289/289 EditMode tests on 2026-11-18. NPC interruption/recovery v1 is the current implementation milestone; its Unity verification is pending. Do not start a broad economy, crime catalogue or generic quest framework in parallel.
+Milo's parcel scenario and save v7 are user-verified (284/284 EditMode tests). Obstacle-aware NPC navigation v1 is also user-verified: the user completed the Play Mode inspection and confirmed 289/289 EditMode tests on 2026-11-18. NPC interruption/recovery v1 and the follow-up game-clock pause correction are user-verified: 293/293 EditMode tests pass and the user confirmed Play Mode behaviour. Opportunity 001 fulfils the first-scenario validation requirement; a second opportunity is optional, not a framework prerequisite. Do not start a broad economy, crime catalogue or generic quest framework in parallel.
 
 ## Medium-term goals — deepen the shared-city loop
 
@@ -278,3 +278,12 @@ Do not expand into a generic quest journal, second named recipient, police/crimi
 - [x] Stop real-time NPC movement while the game clock is paused, without coupling it to the separate NPC-simulation pause control.
 - [x] Add tests for clock pause state and scheduled resident movement pause/resume.
 - [ ] User verification in Unity; expected full EditMode suite: 293 tests.
+
+
+## Roadmap clarification — second NPC opportunity is optional
+
+Opportunity 001: Milo's Parcel satisfies the NPC initiative's requirement for a first player-facing scenario. The framework has been exercised through discovery, relationships, item knowledge, reversible commitment, delivery, witnesses and save/load. Do not schedule a second opportunity solely as a framework test. Revisit another authored opportunity when it serves a distinct player experience or naturally belongs in a larger gameplay loop.
+
+**Recommended next initiative:** move toward the shared city's everyday gameplay loop, with a deliberately small goods/trade or service interaction that uses NPCs and item state/knowledge. First design the player-facing rules, value exchange, information asymmetry and consequences; do not implement an economy or commercial rules before the user approves the design. Extend Core only where this concrete loop demonstrates a need.
+
+The authored `NpcCharacterDefinition` Inspector workflow remains a useful short validation task, but should not become a large standalone framework initiative.
