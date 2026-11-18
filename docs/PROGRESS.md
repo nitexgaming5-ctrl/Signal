@@ -284,3 +284,6 @@ The shared branch now contains the discovery ledger, flexible contextual conditi
 
 
 - Updated StoragePanel to show only player-known item facts (unknown aspects remain `?`) instead of leaking authoritative item state; it refreshes when the player knowledge book changes.
+
+
+- The parcel starts Good. Delivery records the damaged/intact condition branch from authoritative item state, but this slice deliberately adds no new parcel-damage action or general damage mechanic.
