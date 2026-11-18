@@ -15,7 +15,8 @@ namespace Signal.Game
         public string DisplayName = "Resident";
         public string PublicRole = "Neighbour";
         [Min(0.1f)] public float AwarenessRadius = 8f;
-        [Min(0.1f)] public float WalkingSpeed = 1.6f;
+        [Min(0.1f), Tooltip("Movement speed in world units per real-time second.")]
+        public float WalkingSpeed = 1.6f;
 
         [Header("Routine")]
         public NpcUtilityProfile UtilityProfile = NpcUtilityProfile.CreateDefault();
