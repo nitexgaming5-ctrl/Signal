@@ -58,6 +58,10 @@ namespace Signal.Core
         public int lastDeclinedMinuteOfDay;
         public int resolvedDay;
         public int resolvedMinuteOfDay;
+        public bool hasDeliveryAssessment;
+        public bool deliveredOnTime;
+        public bool deliveredIntact;
+        public bool deliveryWitnessed;
     }
 
     [Serializable]
@@ -443,7 +447,11 @@ namespace Signal.Core
                 lastDeclinedDay = opportunity.LastDeclinedDay,
                 lastDeclinedMinuteOfDay = opportunity.LastDeclinedMinuteOfDay,
                 resolvedDay = opportunity.ResolvedDay,
-                resolvedMinuteOfDay = opportunity.ResolvedMinuteOfDay
+                resolvedMinuteOfDay = opportunity.ResolvedMinuteOfDay,
+                hasDeliveryAssessment = opportunity.HasDeliveryAssessment,
+                deliveredOnTime = opportunity.DeliveredOnTime,
+                deliveredIntact = opportunity.DeliveredIntact,
+                deliveryWitnessed = opportunity.DeliveryWitnessed
             };
         }
 
@@ -457,7 +465,9 @@ namespace Signal.Core
                 (OpportunityPhase)saved.phase, (OpportunityResolution)saved.resolution, parcelId,
                 saved.acceptanceCount, saved.declineCount, saved.lastAcceptedDay,
                 saved.lastAcceptedMinuteOfDay, saved.lastDeclinedDay, saved.lastDeclinedMinuteOfDay,
-                saved.resolvedDay, saved.resolvedMinuteOfDay, out OpportunityState restored)
+                saved.resolvedDay, saved.resolvedMinuteOfDay, saved.hasDeliveryAssessment,
+                saved.deliveredOnTime, saved.deliveredIntact, saved.deliveryWitnessed,
+                out OpportunityState restored)
                 ? restored
                 : null;
         }
