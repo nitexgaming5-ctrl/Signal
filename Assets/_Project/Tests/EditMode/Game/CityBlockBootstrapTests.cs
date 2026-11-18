@@ -81,6 +81,9 @@ namespace Signal.Game.Tests
 
                 clock.Advance(11 * 60);
                 Assert.That(city.GetResidentActivity("milo"), Is.EqualTo(NpcActivity.Socialize));
+                Assert.That(city.SocialWorld.TryGetNpc("milo", out NpcAgentState travellingMilo), Is.True);
+                Assert.That(travellingMilo.LocationId, Is.EqualTo("CornerShop"));
+                city.DebugAdvanceNpcMovement(30f);
                 Assert.That(city.TryRestorePlace("Street", city.GetResidentPosition("milo")), Is.True);
                 Vector2 eveningNpcPosition = city.GetResidentPosition("milo");
                 Assert.That(city.TryInteractNpc(eveningNpcPosition, out string eveningDialogue), Is.True);
@@ -88,10 +91,60 @@ namespace Signal.Game.Tests
 
                 clock.Advance(3 * 60);
                 Assert.That(city.GetResidentActivity("milo"), Is.EqualTo(NpcActivity.Home));
+                city.DebugAdvanceNpcMovement(30f);
                 Assert.That(city.TryRestorePlace("Apartment", city.GetResidentPosition("milo")), Is.True);
                 Vector2 homeNpcPosition = city.GetResidentPosition("milo");
                 Assert.That(city.TryInteractNpc(homeNpcPosition, out string homeDialogue), Is.True);
                 StringAssert.Contains("Shop's closed", homeDialogue);
+            }
+            finally
+            {
+                Object.DestroyImmediate(host);
+                Object.DestroyImmediate(player);
+                Object.DestroyImmediate(cameraObject);
+            }
+        }
+
+
+        [Test]
+        public void ResidentWalksThroughStreetWhenRoutineChangesLocation()
+        {
+            var host = new GameObject("CityHost");
+            var player = new GameObject("Player");
+            var cameraObject = new GameObject("MainCamera");
+            Rigidbody2D body = player.AddComponent<Rigidbody2D>();
+            Camera camera = cameraObject.AddComponent<Camera>();
+            var clock = new GameClock(1, 8 * 60);
+            CityBlockBootstrap city = host.AddComponent<CityBlockBootstrap>();
+
+            try
+            {
+                city.Build(player.transform, body, camera, clock);
+                Assert.That(city.SocialWorld.TryGetNpc("milo", out NpcAgentState initial), Is.True);
+                Assert.That(initial.LocationId, Is.EqualTo("CornerShop"));
+
+                clock.Advance(11 * 60);
+                Assert.That(city.GetResidentActivity("milo"), Is.EqualTo(NpcActivity.Socialize));
+                Assert.That(city.SocialWorld.TryGetNpc("milo", out NpcAgentState leavingShop), Is.True);
+                Assert.That(leavingShop.LocationId, Is.EqualTo("CornerShop"),
+                    "A schedule change sets a destination; it does not teleport the NPC.");
+
+                city.DebugAdvanceNpcMovement(30f);
+                Assert.That(city.SocialWorld.TryGetNpc("milo", out NpcAgentState arrivedStreet), Is.True);
+                Assert.That(arrivedStreet.LocationId, Is.EqualTo("Street"));
+                Assert.That(city.GetResidentPosition("milo").x, Is.EqualTo(18.2f).Within(0.05f));
+                Assert.That(city.GetResidentPosition("milo").y, Is.EqualTo(-11.6f).Within(0.05f));
+
+                clock.Advance(3 * 60);
+                Assert.That(city.GetResidentActivity("milo"), Is.EqualTo(NpcActivity.Home));
+                Assert.That(city.SocialWorld.TryGetNpc("milo", out NpcAgentState leavingStreet), Is.True);
+                Assert.That(leavingStreet.LocationId, Is.EqualTo("Street"));
+
+                city.DebugAdvanceNpcMovement(30f);
+                Assert.That(city.SocialWorld.TryGetNpc("milo", out NpcAgentState arrivedApartment), Is.True);
+                Assert.That(arrivedApartment.LocationId, Is.EqualTo("Apartment"));
+                Assert.That(city.GetResidentPosition("milo").x, Is.EqualTo(1016.5f).Within(0.05f));
+                Assert.That(city.GetResidentPosition("milo").y, Is.EqualTo(1000f).Within(0.05f));
             }
             finally
             {
@@ -121,6 +174,11 @@ namespace Signal.Game.Tests
 
                 Assert.That(city.GetResidentActivity("milo"), Is.EqualTo(NpcActivity.Socialize));
                 Assert.That(city.GetResidentActivity("rhea"), Is.EqualTo(NpcActivity.Socialize));
+                Assert.That(city.SocialEncounterCount, Is.EqualTo(0),
+                    "Milo is still travelling from the shop and must not socialize before arriving.");
+
+                city.DebugAdvanceNpcMovement(30f);
+                clock.Advance(1);
                 Assert.That(city.SocialEncounterCount, Is.EqualTo(1));
 
                 NpcRelationship miloToRhea = city.SocialWorld.GetRelationship("milo", "rhea");
