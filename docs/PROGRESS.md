@@ -243,14 +243,14 @@ The user approved Item Instance v1 and confirmed **235/235 EditMode tests passed
 
 ### Verification
 - User confirmed **245/245 EditMode tests passed** after the previous item state/inspection work (2026-11-18).
-- The new player-knowledge and v5 save integration code/tests have not yet been run in Unity. Compilation, full EditMode suite, Play Mode viewer behavior and v4→v5 save/load verification are pending.
+- The player item-knowledge v1 and save v5 work were user-verified at 245/245 EditMode tests. The current Milo opportunity changes introduce save v7; Unity compilation, full EditMode suite and Play Mode scenario verification are pending.
 
 
-## Current initiative: Milo Parcel — discovery foundation implemented; Unity verification pending
+## Current initiative: Milo Parcel — playable scenario implementation added; Unity verification pending
 
 The user gave full approval on 2026-11-18 for Opportunity 001: Milo's Parcel. Locked decisions: Milo helps someone he knows; the parcel contains stolen goods; it goes to a discreet physical drop-off; discovery is flexible across routine observation, contextual conversation, physical evidence and uncertain rumour; player commitment is reversible. See docs/tasks/OPPORTUNITY-001-MILO-PARCEL.md.
 
-Milestone 1 has been added on the shared branch: PlayerDiscoverySignal, PlayerDiscoveryLedger, InteractionConditionSet and InteractionContext, with Core EditMode tests. These are source-preserving records and conjunctive context checks, not conclusions or a quest checklist. No Unity compilation or tests have been run by the assistant; the user must pull and verify. Later milestones (opportunity state/persistence, Milo content, parcel delivery/outcomes) remain in progress.
+The shared branch now contains the discovery ledger, flexible contextual conditions, opportunity lifecycle, player-to-NPC relationship book, save v7 persistence, and a Game-layer Milo parcel scenario with the physical parcel, evidence slip, after-hours observation, Rhea rumour, reversible choices and drop-off outcome assessment. Unity compilation, full EditMode tests and Play Mode verification remain pending; no assistant-side Unity test run is claimed.
 
 ## 2026-11-18 — Opportunity 001: Milo's Parcel (approved; milestone 1 implemented)
 - Full user approval received for the consolidated specification. Narrative choices are locked as helping motive, stolen parcel, physical drop-off, flexible multi-signal discovery and reversible commitment.
@@ -267,3 +267,17 @@ Milestone 1 has been added on the shared branch: PlayerDiscoverySignal, PlayerDi
 - Added OpportunityState phases Dormant, Available, Accepted and Resolved. Decline records the choice without failing the opportunity; returning the parcel releases commitment and makes it available again; delivery resolves exactly once; an available opportunity can expire without a backlog.
 - Added tests for offer conditions, decline, accept/return, one-time delivery resolution, expiry and invalid transitions.
 - These Core models are not yet wired into GameSession or save/load. Unity compilation and the full EditMode suite remain user verification tasks.
+
+
+## 2026-11-18 — Opportunity 001: Milo's Parcel (implementation added; Unity verification pending)
+
+- Added reusable Core player discovery signals and ledger for routine observation, conversation, physical evidence and rumour. Stable occurrence IDs are idempotent; source, confidence, subject and learned in-game time are preserved. Flexible interaction conditions can require a minimum number of distinct signal types rather than a fixed clue checklist.
+- Added reusable Core player-to-NPC relationship impressions in PlayerRelationshipBook, separate from NPC-to-NPC relationships in NpcSocialWorld. Familiarity, trust and affinity are persisted.
+- Added OpportunityDefinition and OpportunityState with Dormant, Available, Accepted and Resolved phases. Decline is non-terminal; returning the parcel releases commitment; delivery resolves once and records on-time/intact/witnessed assessment.
+- Added save format v7. It persists player discovery signals, player-to-NPC relationships, opportunity phase, parcel stack identity, acceptance/decline history and delivery assessment. Older v1-v6 saves migrate with empty new collections and no active opportunity.
+- Added the Item_MiloParcel definition and assigned it to active HideoutSlice without granting it as a starter item. The authoritative parcel state is Standard / Good / Genuine / Stolen.
+- Added MiloParcelOpportunityController: routine observation when Milo is seen after closing with the parcel, contextual offer requiring Socialize + familiarity 0.2 + any two distinct discovery signal types, physical evidence at the bakery counter, uncertain Rhea rumour, question/inspect/accept/decline choices, parcel return, and a discreet physical street drop-off.
+- Delivery is deliberately soft: timing (same in-game day), parcel condition (damaged or not) and nearby third-party exposure are recorded independently. Complications do not trigger police, criminal progression or a hard failure. Milo is excluded from counting as an outside witness.
+- Updated temporary fallback Milo dialogue so it no longer directly reveals his private activity in a single line.
+- Added/updated Core tests for discovery, flexible signal combinations, player relationships, opportunity lifecycle, save v7 migration/round-trip and delivery assessment. Unity compilation, full EditMode suite and all Play Mode paths remain to be run by the user.
+- No old prototype scripts or legacy scenes were deleted. They remain protected as reference material.
