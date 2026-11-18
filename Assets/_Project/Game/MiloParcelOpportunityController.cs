@@ -35,6 +35,7 @@ namespace Signal.Game
         private GameObject _counterParcel;
         private GameObject _evidenceSlip;
         private GameObject _dropMarker;
+        private GameObject _deliveredParcel;
         private GameObject _carriedParcelMarker;
         private int _lastRoutineObservationDay;
         private int _lastRumourDay;
@@ -443,6 +444,7 @@ namespace Signal.Game
             _counterParcel = CreateParcelVisual("CounterParcel", new Vector2(ParcelCounterPosition.x, ParcelCounterPosition.y), 22);
             _evidenceSlip = CreateMarker("DeliverySlip", EvidencePosition, new Color32(218, 207, 170, 255), new Vector2(0.45f, 0.22f), 23);
             _dropMarker = CreateMarker("DiscreetDropOff", DropOffPosition, new Color32(174, 146, 103, 255), new Vector2(0.85f, 0.22f), 12);
+            _deliveredParcel = CreateParcelVisual("DeliveredParcel", DropOffPosition + new Vector2(0f, 0.45f), 20);
             _carriedParcelMarker = CreateParcelVisual("MiloAfterHoursParcel", Vector2.zero, 18);
         }
 
@@ -455,6 +457,8 @@ namespace Signal.Game
             if (_dropMarker != null)
                 _dropMarker.SetActive(_state.Phase == OpportunityPhase.Accepted ||
                     _state.Phase == OpportunityPhase.Resolved);
+            if (_deliveredParcel != null)
+                _deliveredParcel.SetActive(_state.Phase == OpportunityPhase.Resolved);
             if (_carriedParcelMarker != null)
             {
                 bool show = _state.Phase != OpportunityPhase.Accepted &&
@@ -505,6 +509,7 @@ namespace Signal.Game
             if (_counterParcel != null) Destroy(_counterParcel);
             if (_evidenceSlip != null) Destroy(_evidenceSlip);
             if (_dropMarker != null) Destroy(_dropMarker);
+            if (_deliveredParcel != null) Destroy(_deliveredParcel);
             if (_carriedParcelMarker != null) Destroy(_carriedParcelMarker);
         }
     }
