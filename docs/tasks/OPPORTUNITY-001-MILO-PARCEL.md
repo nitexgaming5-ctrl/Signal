@@ -109,3 +109,6 @@ No generic quest journal/tracker, full dialogue editor, second named recipient, 
 
 
 - StoragePanel now respects the player knowledge boundary: unknown parcel quality/authenticity/ownership aspects remain unknown in storage rows, and the item viewer shows only recorded facts with evidence source/confidence.
+
+
+- Condition assessment reads the parcel's authoritative ItemCondition. The parcel begins Good; this slice does not add a new action or general damage mechanic to make it Damaged. The damaged branch is ready for existing/future systems that legitimately change item condition.
