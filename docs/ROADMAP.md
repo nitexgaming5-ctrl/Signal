@@ -291,7 +291,7 @@ The authored `NpcCharacterDefinition` Inspector workflow remains a useful short 
 
 The next core initiative is the shared city economy, not a second NPC opportunity.
 
-### Phase 1 — physical asset transfer foundation (active)
+### Phase 1 — physical asset transfer foundation (implemented; 304/304 user-verified)
 - Stable economic actor identity.
 - Asset ownership independent of physical inventory location.
 - Whole-stack transfer with owner validation and rollback on failure.
