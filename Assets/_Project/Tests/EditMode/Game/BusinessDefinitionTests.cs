@@ -116,6 +116,7 @@ namespace Signal.Game.Tests
         public void BuybackOffersAreIndependentFromMerchandiseAndReturnTheirFixedPrice()
         {
             BusinessDefinition business = ScriptableObject.CreateInstance<BusinessDefinition>();
+            BusinessDefinition secondBusiness = ScriptableObject.CreateInstance<BusinessDefinition>();
             ItemDefinition bread = ScriptableObject.CreateInstance<ItemDefinition>();
             ItemDefinition water = ScriptableObject.CreateInstance<ItemDefinition>();
             try
@@ -145,9 +146,24 @@ namespace Signal.Game.Tests
                 Assert.That(buybackPrice, Is.EqualTo(3));
                 Assert.That(business.TryGetBuybackOffer(bread, out _), Is.False);
                 Assert.That(business.TryGetOffer(water, out _), Is.False);
+
+                SetPrivate(secondBusiness, "businessId", "second-shop");
+                SetPrivate(secondBusiness, "displayName", "Second Shop");
+                SetPrivate(secondBusiness, "businessType", "Shop");
+                SetPrivate(secondBusiness, "ownerNpcId", "rhea");
+                SetPrivate(secondBusiness, "locationId", "CornerShop");
+                SetPrivate(secondBusiness, "buybackOffers", new[]
+                {
+                    new BusinessDefinition.BuybackEntry { Item = bread, UnitPrice = 11 }
+                });
+                Assert.That(secondBusiness.TryValidate(out error), Is.True, error);
+                Assert.That(secondBusiness.TryGetBuybackOffer(bread, out int secondPrice), Is.True);
+                Assert.That(secondPrice, Is.EqualTo(11));
+                Assert.That(secondBusiness.TryGetBuybackOffer(water, out _), Is.False);
             }
             finally
             {
+                UnityEngine.Object.DestroyImmediate(secondBusiness);
                 UnityEngine.Object.DestroyImmediate(water);
                 UnityEngine.Object.DestroyImmediate(bread);
                 UnityEngine.Object.DestroyImmediate(business);
