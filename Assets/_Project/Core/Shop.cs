@@ -48,8 +48,16 @@ namespace Signal.Core
             if (inventory.CountOf(order.Item) < order.Quantity)
                 return FulfilResult.NotEnoughStock;
 
-            inventory.TryRemove(order.Item, order.Quantity);
-            stats.Earn((int)order.Total);
+            InventorySnapshot before = inventory.CreateSnapshot();
+            if (!inventory.TryRemove(order.Item, order.Quantity))
+                return FulfilResult.NotEnoughStock;
+
+            if (!stats.TryEarn((int)order.Total))
+            {
+                inventory.Restore(before);
+                return FulfilResult.InvalidOrder;
+            }
+
             return FulfilResult.Done;
         }
     }

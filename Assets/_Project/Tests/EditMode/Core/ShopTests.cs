@@ -41,6 +41,21 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void SaleDoesNotConsumeStockWhenCleanAccountCannotCredit()
+        {
+            var item = Item();
+            var grid = new GridInventory();
+            grid.Place(item, 0, 0, count: 2);
+            var stats = new PlayerStats(int.MaxValue);
+
+            FulfilResult result = Shop.TryFulfil(new ShopOrder(item, 1, 1), grid, stats);
+
+            Assert.That(result, Is.EqualTo(FulfilResult.InvalidOrder));
+            Assert.That(grid.CountOf(item), Is.EqualTo(2));
+            Assert.That(stats.CleanMoney.Balance, Is.EqualTo(int.MaxValue));
+        }
+
+        [Test]
         public void ADefaultOrderIsInvalid()
         {
             var result = Shop.TryFulfil(default(ShopOrder), new GridInventory(), new PlayerStats());

@@ -301,10 +301,10 @@ The next core initiative is the shared city economy, not a second NPC opportunit
 - This first pass is a runtime Core foundation; it must not be used for persistent gameplay until ownership and transaction state have versioned save integration.
 
 ### Phase 2 — money and account foundation (Core persistence implemented; Editor verification pending)
-- Clean money as an integer bank/card balance used for legitimate purchases.
-- Dirty money as physical inventory assets, excluded from legitimate card/bank payments and direct deposits.
+- CleanMoneyAccount is the player's bank/card balance; existing PlayerStats money/rent/debug-sale APIs delegate to it.
+- Save v8 persists the clean balance, carried/home-storage asset ownership mappings and completed economic transfer history.
 - Future cleaning operation consumes dirty-money assets and credits the clean balance directly.
-- Versioned persistence for accounts, dirty-money assets/provenance, ownership and relevant transaction history.
+- Dirty money remains a physical inventory asset, separate from the account; it has no direct deposit or legitimate-payment path. Its item definition/denomination and cleaning interaction remain future work.
 
 ### Phase 3 — economic actors and business assets
 - Resident/business/supplier financial profiles where needed.

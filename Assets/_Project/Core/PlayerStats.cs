@@ -17,7 +17,8 @@ namespace Signal.Core
         public CleanMoneyAccount CleanMoney => _cleanMoney;
         public int Health => _health;
         public event Action<PlayerStats> Changed;
-        public void Earn(int amount) => _cleanMoney.TryCredit(amount);
+        public void Earn(int amount) => TryEarn(amount);
+        public bool TryEarn(int amount) => _cleanMoney.TryCredit(amount);
         public bool TrySpend(int amount) => _cleanMoney.TryDebit(amount);
         public void Damage(int amount)
         {
