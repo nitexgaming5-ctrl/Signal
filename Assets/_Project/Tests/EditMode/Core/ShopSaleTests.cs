@@ -55,7 +55,7 @@ namespace Signal.Core.Tests
             var state = new ItemInstanceState(ItemQuality.Fine, ItemCondition.Worn,
                 ItemAuthenticity.Genuine, ItemOwnershipStatus.Stolen);
             var inventory = new GridInventory();
-            inventory.Place(item, 0, 0, count: 6, state: state);
+            inventory.Place(item, 1, 0, rotated: true, count: 6, state: state);
             PlacedItem original = inventory.Items[0];
             var ownership = new AssetOwnershipBook();
             ownership.TryRegister(original.ItemInstanceId, Player);
@@ -70,6 +70,9 @@ namespace Signal.Core.Tests
             Assert.That(remaining.ItemInstanceId, Is.EqualTo(original.ItemInstanceId));
             Assert.That(remaining.InstanceId, Is.EqualTo(original.InstanceId));
             Assert.That(remaining.Count, Is.EqualTo(4));
+            Assert.That(remaining.X, Is.EqualTo(original.X));
+            Assert.That(remaining.Y, Is.EqualTo(original.Y));
+            Assert.That(remaining.Rotated, Is.EqualTo(original.Rotated));
             Assert.That(remaining.State, Is.EqualTo(state));
             Assert.That(ownership.TryGetOwner(original.ItemInstanceId, out EconomicActorId owner), Is.True);
             Assert.That(owner, Is.EqualTo(Player));
@@ -109,10 +112,12 @@ namespace Signal.Core.Tests
             inventory.Place(item, 0, 0, count: 3);
             Guid stackId = inventory.Items[0].ItemInstanceId;
             var ownership = new AssetOwnershipBook();
-            ownership.TryRegister(stackId, new EconomicActorId("resident:milo"));
             var account = new CleanMoneyAccount(12);
             var ledger = new ShopSaleTransactionLedger();
 
+            Assert.That(Sell(inventory, ownership, account, ledger, stackId, item, 1, 5),
+                Is.EqualTo(FulfilResult.InvalidOrder));
+            Assert.That(ownership.TryRegister(stackId, new EconomicActorId("resident:milo")), Is.True);
             Assert.That(Sell(inventory, ownership, account, ledger, stackId, item, 1, 5),
                 Is.EqualTo(FulfilResult.InvalidOrder));
             Assert.That(inventory.CountOf(item), Is.EqualTo(3));
