@@ -34,6 +34,12 @@ namespace Signal.Core
 
     public static class Shop
     {
+        private static bool IsValidOrder(ShopOrder order)
+        {
+            return order.Quantity >= 1 && order.Item.Id != Guid.Empty && order.UnitPrice > 0 &&
+                order.Total >= 1 && order.Total <= int.MaxValue;
+        }
+
         /// <summary>Consumes one exact player-owned stack quantity and credits clean CARD atomically.</summary>
         public static FulfilResult TryFulfilExact(ShopOrder order, Guid itemInstanceId, string businessId,
             EconomicActorId seller, GridInventory inventory, AssetOwnershipBook ownership,
@@ -44,8 +50,7 @@ namespace Signal.Core
             if (account == null) throw new ArgumentNullException(nameof(account));
             if (ledger == null) throw new ArgumentNullException(nameof(ledger));
 
-            if (order.Quantity < 1 || order.Item.Id == Guid.Empty || order.UnitPrice <= 0 ||
-                order.Total < 1 || order.Total > int.MaxValue || itemInstanceId == Guid.Empty ||
+            if (!IsValidOrder(order) || itemInstanceId == Guid.Empty ||
                 string.IsNullOrWhiteSpace(businessId) || !seller.IsValid ||
                 day < 1 || minuteOfDay < 0 || minuteOfDay >= 1440)
                 return FulfilResult.InvalidOrder;
@@ -107,8 +112,7 @@ namespace Signal.Core
             if (stats == null)
                 throw new ArgumentNullException(nameof(stats));
 
-            if (order.Quantity < 1 || order.Item.Id == Guid.Empty || order.UnitPrice <= 0 ||
-                order.Total < 1 || order.Total > int.MaxValue)
+            if (!IsValidOrder(order))
                 return FulfilResult.InvalidOrder;
 
             if (inventory.CountOf(order.Item) < order.Quantity)
