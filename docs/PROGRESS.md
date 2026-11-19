@@ -1,8 +1,8 @@
 # Progress
 
-## Current status: player-facing sell-to-shop implemented in code; Unity verification pending
+## Current status: player-facing sell-to-shop complete and user-verified
 
-The user confirmed **354/354 EditMode tests passed on 2026-11-19**, including the player-facing sell-to-shop Core and persistence tests. Phase 3 Business & Retail remains verified at 335/335. The user approved separate fixed-price buyback offers per BusinessDefinition and authorized implementation. The Core exact-stack sale path, business buyback authoring, SELL tab and save v10 ledger are now implemented on the working branch. The user has now confirmed the full 354/354 EditMode suite. One defensive regression test remains pending, so 355 is the expected next suite count. The user explicitly authorized temporary test content; Corner Bakery now has a Bread buyback offer at CARD $3 (test-only, not balance design). Player-facing SELL Play Mode verification remains pending.
+On 2026-11-19, the user confirmed the full BUY → partial SELL → full SELL → save/reload Play Mode sequence works. The user also confirmed the complete EditMode suite **355/355 passed**. This closes the player-facing selling initiative. The tested sale credited the player and persisted the sale history; the user specifically observed Milo receiving the bakery's purchase revenue. Unity verification is user-reported; no assistant-side Unity execution is claimed.
 
 The working branch is `chore/collaboration-workflow-and-audit`; `main` remains untouched. The active architecture is Signal.Core + Signal.Game. The hideout, connected city, inventory/storage, item identity/state/knowledge, NPC framework, Milo parcel opportunity and NPC navigation foundations remain in place.
 
@@ -14,7 +14,7 @@ The economy now has:
 - Player-to-business sales use separate per-business fixed-price buyback offers, exact carried-stack identity and player ownership validation; sale history is separate from transfers and retail purchases.
 - Dirty money explicitly excluded from the bank/card account; it is reserved for physical inventory items and future illicit uses.
 
-Phase 2 is verified by the user's 316/316 report. No dirty-money item definition, cleaning interaction, shady-market exchange, bribe, supplier loop or finite-stock gameplay has been implemented. The Corner Bakery now has an authored Bread ItemDefinition and a one-item catalogue priced at CARD $5 as a temporary test value. The catalogue remains unlimited and event-driven.
+Phase 2 is verified by the user's 316/316 report. No dirty-money item definition, cleaning interaction, shady-market exchange, bribe, supplier loop or finite-stock gameplay has been implemented. The Corner Bakery has an authored Bread ItemDefinition and a one-item catalogue priced at CARD $5 (still a temporary test value, not final balancing). Its temporary CARD $3 Bread buyback fixture was removed after the SELL verification; no final bakery buyback content or price has been approved. The catalogue remains unlimited and event-driven.
 
 ## Approved project direction
 Signal is an immersive top-down 2D urban RPG about making a living in one layered city: meeting people, doing activities for money and resources, trading goods, taking risks, sometimes losing things, discovering secrets and returning to a personal hideout.
