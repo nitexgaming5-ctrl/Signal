@@ -147,6 +147,6 @@ A failure must never create money, consume goods, lose ownership, duplicate a re
 
 No dynamic pricing, automatic resale multiplier, `ItemValueCalculator` transaction formula, bargaining, reputation discounts, business budgets, finite stock, restocking, NPC shopping/spending AI, passive sales, operating costs, dirty-money cleaning, laundering, criminal progression, police/heat, or acceptance rules based on stolen/quality/condition/authenticity state.
 
-## Approval gate
+## Implementation and verification status
 
-**Q21 is approved. This specification is finalized for implementation planning. No code has been changed as part of this design update.** The implementation itself begins only after the user explicitly approves proceeding with this specification.
+**Q21 is approved and this specification has been implemented on `chore/collaboration-workflow-and-audit`.** The exact-stack sale path, per-business buyback authoring, SELL UI, dedicated sale ledger and v10 persistence are present in code. Unity compilation, EditMode execution and Play Mode verification remain pending. No buyback item or price has been authored for the Corner Bakery; approval of the offer model did not authorize new content values.
