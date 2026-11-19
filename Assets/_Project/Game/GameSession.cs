@@ -320,6 +320,7 @@ namespace Signal.Game
                     GUILayout.Label("  " + resident.DisplayName + ": $" + account.Balance);
             }
             GUILayout.Label("Retail transactions: " + (_retailTransactions != null ? _retailTransactions.Count.ToString() : "0"));
+            GUILayout.Label("Shop sale transactions: " + (_shopSaleTransactions != null ? _shopSaleTransactions.Count.ToString() : "0"));
             GUILayout.Space(8f);
 
             if (GUILayout.Button(_city.DebugSimulationPaused ? "Resume all NPC schedules" : "Pause all NPC schedules"))
