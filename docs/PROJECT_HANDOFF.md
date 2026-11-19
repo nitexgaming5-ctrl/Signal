@@ -500,3 +500,13 @@ The catalogue now contains `Item_Bread.asset` at a temporary CARD $5 test price,
 - Do not spend excessive time preserving obsolete development saves or maintaining migrations for every historical intermediate format.
 - A substantial change may deliberately invalidate old development saves and require a fresh game.
 - Do not silently corrupt or lose current-format progress; make intentional incompatibility/reset explicit and keep writes reliable.
+
+
+## 2026-11-19 — Transaction audit verified; player-facing selling design
+
+- User confirmed **342/342 EditMode tests passed**. The transaction-safety audit is closed.
+- `Shop.TryFulfil` is a Core primitive receiving `ShopOrder(item, quantity, unitPrice)`; it validates and executes the sale by removing goods and crediting player clean CARD. It does not derive a unit price or define per-business acceptance.
+- A player-facing sale flow is not implemented. Do not mistake the old developer test value ($10) for a real buyback policy.
+- Draft design and technical acceptance criteria: `docs/tasks/ECONOMY-PLAYER-SELLING-DESIGN.md`.
+- The only pending design approval is the buyback offer model. Recommendation: separate per-business authored buyback entries (item + fixed unit price), distinct from the business's retail catalogue. Do not implement until the user approves this or chooses an alternative.
+- Proposed transaction must validate the exact player-owned stack, preserve state/identity on partial sales, remove ownership only when the stack is fully consumed, credit clean CARD atomically, and persist a sale-specific transaction record. The old physical-transfer ledger is not a sale ledger.
