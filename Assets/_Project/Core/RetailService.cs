@@ -88,7 +88,7 @@ namespace Signal.Core
 
             if (customerInventory.Add(item, quantity, itemState) != 0)
             {
-                Rollback(customerInventory, inventoryBefore, customerAccount, customerBalanceBefore,
+                Rollback(customerInventory, inventoryBefore, customer, customerAccount, customerBalanceBefore,
                     ownerAccount, ownerBalanceBefore, null);
                 return new RetailPurchaseResult(RetailPurchaseStatus.InventoryFull, null);
             }
@@ -100,7 +100,7 @@ namespace Signal.Core
                     continue;
                 if (!_ownership.TryRegister(placed.ItemInstanceId, customer))
                 {
-                    Rollback(customerInventory, inventoryBefore, customerAccount, customerBalanceBefore,
+                    Rollback(customerInventory, inventoryBefore, customer, customerAccount, customerBalanceBefore,
                         ownerAccount, ownerBalanceBefore, registeredIds);
                     return new RetailPurchaseResult(RetailPurchaseStatus.OwnershipInvalid, null);
                 }
@@ -120,12 +120,12 @@ namespace Signal.Core
         }
 
         private void Rollback(GridInventory inventory, InventorySnapshot inventoryBefore,
-            CleanMoneyAccount customer, int customerBalance, CleanMoneyAccount owner, int ownerBalance,
+            EconomicActorId customerActor, CleanMoneyAccount customer, int customerBalance, CleanMoneyAccount owner, int ownerBalance,
             List<Guid> registeredIds)
         {
             if (registeredIds != null)
                 for (int i = registeredIds.Count - 1; i >= 0; i--)
-                    _ownership.TryRemove(registeredIds[i], owner: new EconomicActorId("player"));
+                    _ownership.TryRemove(registeredIds[i], customerActor);
             inventory.Restore(inventoryBefore);
             customer.Restore(customerBalance);
             owner.Restore(ownerBalance);
