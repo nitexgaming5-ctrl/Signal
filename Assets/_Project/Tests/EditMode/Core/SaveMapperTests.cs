@@ -250,7 +250,7 @@ namespace Signal.Core.Tests
 
             Assert.That(report.Success, Is.True);
             Assert.That(report.SkippedKnowledgeFacts, Is.Zero);
-            Assert.That(data.version, Is.EqualTo(8));
+            Assert.That(data.version, Is.EqualTo(SaveMigrator.CurrentVersion));
             Assert.That(target.Inventory.Items[0].ItemInstanceId, Is.EqualTo(itemId));
             Assert.That(targetKnowledge.FactCount, Is.EqualTo(2));
             Assert.That(targetKnowledge.TryGetFact(itemId, ItemKnowledgeAspect.Authenticity, out ItemKnowledgeFact rumour), Is.True);
@@ -270,7 +270,7 @@ namespace Signal.Core.Tests
             var data = new SaveData { version = 4, itemKnowledge = null };
 
             Assert.That(SaveMigrator.TryMigrate(data, out _), Is.True);
-            Assert.That(data.version, Is.EqualTo(8));
+            Assert.That(data.version, Is.EqualTo(SaveMigrator.CurrentVersion));
             Assert.That(data.itemKnowledge, Is.Empty);
         }
 
@@ -342,7 +342,7 @@ namespace Signal.Core.Tests
             SaveData data = SaveMapper.Capture(source.Stats, source.Inventory, null, source.Clock,
                 source.Heat, source.Rent, "Street", 4f, -12f, null, discoveries, opportunity);
 
-            Assert.That(data.version, Is.EqualTo(8));
+            Assert.That(data.version, Is.EqualTo(SaveMigrator.CurrentVersion));
             Assert.That(data.playerDiscoveries.Count, Is.EqualTo(2));
             Assert.That(data.opportunity.parcelInstanceId, Is.EqualTo(parcelId.ToString()));
 
@@ -370,7 +370,7 @@ namespace Signal.Core.Tests
             var data = new SaveData { version = 6, playerDiscoveries = null, opportunity = null, playerRelationships = null };
 
             Assert.That(SaveMigrator.TryMigrate(data, out _), Is.True);
-            Assert.That(data.version, Is.EqualTo(8));
+            Assert.That(data.version, Is.EqualTo(SaveMigrator.CurrentVersion));
             Assert.That(data.playerDiscoveries, Is.Empty);
             Assert.That(data.opportunity, Is.Null);
             Assert.That(data.playerRelationships, Is.Empty);
@@ -466,7 +466,7 @@ namespace Signal.Core.Tests
             };
 
             Assert.That(SaveMigrator.TryMigrate(data, out _), Is.True);
-            Assert.That(data.version, Is.EqualTo(8));
+            Assert.That(data.version, Is.EqualTo(SaveMigrator.CurrentVersion));
             Assert.That(data.opportunity.hasDeliveryAssessment, Is.True);
             Assert.That(data.opportunity.deliveredOnTime, Is.True);
             Assert.That(data.opportunity.deliveredIntact, Is.True);
@@ -478,7 +478,7 @@ namespace Signal.Core.Tests
         {
             var data = new SaveData { version = 7, money = 275, assetOwners = null, economicTransactions = null };
             Assert.That(SaveMigrator.TryMigrate(data, out _), Is.True);
-            Assert.That(data.version, Is.EqualTo(8));
+            Assert.That(data.version, Is.EqualTo(SaveMigrator.CurrentVersion));
             Assert.That(data.cleanBalance, Is.EqualTo(275));
             Assert.That(data.assetOwners, Is.Empty);
             Assert.That(data.economicTransactions, Is.Empty);
