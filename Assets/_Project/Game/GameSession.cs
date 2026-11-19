@@ -17,6 +17,7 @@ namespace Signal.Game
         [SerializeField] private ItemDefinition parcelItem;
         [SerializeField] private NpcCharacterDefinition[] npcDefinitions;
         [SerializeField] private BusinessDefinition[] businesses;
+        [SerializeField] private ContainerLootProfile[] searchableLootProfiles;
 
         [Header("Placeholder tuning (not final design)")]
         [SerializeField] private int startingMoney;
@@ -26,6 +27,9 @@ namespace Signal.Game
 
         private readonly Dictionary<Guid, ItemType> _catalog = new Dictionary<Guid, ItemType>();
         private readonly List<ItemDefinition> _allItemDefinitions = new List<ItemDefinition>();
+        private readonly List<SearchableContainer> _searchableContainers = new List<SearchableContainer>();
+        private readonly Dictionary<string, ContainerLootProfile> _searchableProfiles = new Dictionary<string, ContainerLootProfile>(StringComparer.Ordinal);
+        private readonly Dictionary<string, EconomicActorId> _searchableActors = new Dictionary<string, EconomicActorId>(StringComparer.Ordinal);
 
         private PlayerStats _stats;
         private AssetOwnershipBook _assetOwnership;
@@ -53,6 +57,8 @@ namespace Signal.Game
         private StoragePanel _storagePanel;
         private HudPanel _hud;
         private RetailPanel _retailPanel;
+        private SearchableContainerPanel _containerPanel;
+        private SearchableContainer _activeSearchableContainer;
         private WorkbenchWorkspace _workspace;
         private CityBlockBootstrap _city;
         private MiloParcelOpportunityController _miloScenario;
@@ -115,6 +121,7 @@ namespace Signal.Game
 
             _city = gameObject.AddComponent<CityBlockBootstrap>();
             _city.Build(_room.Player, _room.PlayerBody, camera, _clock, npcDefinitions);
+            CreateSearchableContainers();
             foreach (NpcPresenter resident in _city.DebugResidents)
             {
                 if (resident == null || string.IsNullOrWhiteSpace(resident.NpcId))
@@ -127,6 +134,8 @@ namespace Signal.Game
             _itemViewer.Bind(_allItemDefinitions, _itemKnowledge);
             _panel = gameObject.AddComponent<InventoryPanel>();
             _panel.Bind(_inventory, _allItemDefinitions, _itemViewer.Open);
+            _containerPanel = gameObject.AddComponent<SearchableContainerPanel>();
+            _containerPanel.Bind(_allItemDefinitions, TakeSearchableItem, TakeSearchableItemAt, _itemViewer.Open);
             _storagePanel = gameObject.AddComponent<StoragePanel>();
             _storagePanel.Bind(_inventory, _storage, _allItemDefinitions, _itemViewer.Open, _itemKnowledge);
 
@@ -169,10 +178,11 @@ namespace Signal.Game
             bool storageOpen = _storagePanel != null && _storagePanel.IsOpen;
             bool itemViewerOpen = _itemViewer != null && _itemViewer.IsOpen;
             bool retailOpen = _retailPanel != null && _retailPanel.IsOpen;
+            bool containerOpen = _containerPanel != null && _containerPanel.IsOpen;
             if (_panel != null)
-                _panel.enabled = !_debugMenuOpen && !workspaceOpen && !storageOpen && !itemViewerOpen && !retailOpen;
+                _panel.enabled = !_debugMenuOpen && !workspaceOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen;
             if (_storagePanel != null)
-                _storagePanel.enabled = !_debugMenuOpen && !itemViewerOpen && !retailOpen;
+                _storagePanel.enabled = !_debugMenuOpen && !itemViewerOpen && !retailOpen && !containerOpen;
             if (_debugMenuOpen && retailOpen)
             {
                 _retailPanel.Close();
@@ -181,7 +191,7 @@ namespace Signal.Game
 
             bool scenarioChoiceOpen = _miloScenario != null && _miloScenario.HasPendingChoice;
             _motor.enabled = !inventoryOpen && !workspaceOpen && !storageOpen && !itemViewerOpen &&
-                !scenarioChoiceOpen && !retailOpen && !_debugMenuOpen;
+                !scenarioChoiceOpen && !retailOpen && !containerOpen && !_debugMenuOpen;
 
             Vector2 playerPosition = _room.Player.position;
             bool nearWorkbench = _room.Workbench != null &&
@@ -189,10 +199,14 @@ namespace Signal.Game
             bool nearStorage = _city.IsAtHome && _room.Storage != null &&
                 Vector2.Distance(playerPosition, _room.Storage.position) <= 2.15f;
             BusinessDefinition nearbyBusiness = FindNearbyBusiness(playerPosition);
+            bool nearSearchableContainer = _city.TryGetNearbySearchableContainer(playerPosition,
+                out string nearbyContainerId, out string nearbyContainerLabel);
             string cityPrompt = _city.GetPrompt(playerPosition);
+            if (nearSearchableContainer)
+                cityPrompt = "E  Search " + nearbyContainerLabel;
             if (_miloScenario != null)
             {
-                if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen)
+                if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen)
                     _miloScenario.Tick(playerPosition, _city.CurrentPlace);
                 string scenarioPrompt = _miloScenario.GetPrompt(playerPosition, _city.CurrentPlace);
                 if (!string.IsNullOrEmpty(scenarioPrompt))
@@ -203,7 +217,9 @@ namespace Signal.Game
                 cityPrompt = nearbyBusiness.IsOpen(_clock.MinuteOfDay)
                     ? "E  Browse " + nearbyBusiness.DisplayName
                     : nearbyBusiness.DisplayName + "  —  Closed";
-            if (retailOpen)
+            if (containerOpen)
+                _hud.SetPrompt("ESC  Close container");
+            else if (retailOpen)
                 _hud.SetPrompt("ESC  Close shop");
             else if (workspaceOpen)
                 _hud.SetPrompt("ESC  Back to room");
@@ -240,7 +256,12 @@ namespace Signal.Game
                 }
             }
 
-            if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen &&
+            if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
+                nearSearchableContainer && keyboard.eKey.wasPressedThisFrame)
+            {
+                OpenSearchableContainer(nearbyContainerId);
+            }
+            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
                 nearbyBusiness != null && keyboard.eKey.wasPressedThisFrame)
             {
                 if (!nearbyBusiness.TryValidate(out string businessError))
@@ -254,8 +275,8 @@ namespace Signal.Game
                 _workspace.Open();
             else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && nearStorage && keyboard.eKey.wasPressedThisFrame)
                 _storagePanel.SetOpen(true);
-            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen &&
-                     nearbyBusiness == null && !nearWorkbench && !nearStorage &&
+            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
+                     !nearSearchableContainer && nearbyBusiness == null && !nearWorkbench && !nearStorage &&
                      cityPrompt.Length > 0 && keyboard.eKey.wasPressedThisFrame)
             {
                 if (_miloScenario != null &&
@@ -463,6 +484,7 @@ namespace Signal.Game
                                                _city.CurrentPlace, position.x, position.y, _itemKnowledge,
                                                _playerDiscoveries, _miloOpportunity, _playerRelationships,
                                                _assetOwnership, _economicTransactions, _economicAccounts, _retailTransactions, _shopSaleTransactions);
+            SearchableContainerSaveMapper.Capture(_searchableContainers, data);
 
             try
             {
@@ -484,6 +506,8 @@ namespace Signal.Game
                 return;
             }
 
+            if (_containerPanel != null) _containerPanel.Close();
+            _activeSearchableContainer = null;
             LoadReport report = SaveMapper.Apply(data, _stats, _inventory, _storage, _clock, _heat, _rent,
                 ResolveType, _itemKnowledge, _playerDiscoveries, _playerRelationships, _assetOwnership, _economicTransactions,
                 _economicAccounts, _retailTransactions, _shopSaleTransactions);
@@ -493,6 +517,8 @@ namespace Signal.Game
                 return;
             }
 
+            int skippedContainers = SearchableContainerSaveMapper.Apply(data, _searchableContainers, ResolveType);
+            RegisterSearchableContainerAssets();
             RegisterUnownedPlayerAssets(_inventory);
             _miloOpportunity = report.RestoredOpportunity != null &&
                 report.RestoredOpportunity.OpportunityId == "milo-parcel"
@@ -512,7 +538,7 @@ namespace Signal.Game
             Say(report.SkippedItems + report.SkippedStorageItems + report.SkippedKnowledgeFacts +
                 report.SkippedDiscoverySignals + report.SkippedPlayerRelationships +
                 report.SkippedAssetOwners + report.SkippedEconomicTransactions +
-                report.SkippedResidentAccounts + report.SkippedRetailTransactions + report.SkippedShopSaleTransactions > 0
+                report.SkippedResidentAccounts + report.SkippedRetailTransactions + report.SkippedShopSaleTransactions + skippedContainers > 0
                 ? "Loaded at " + data.worldPlace + ". Some saved item or discovery details could not be restored."
                 : "Loaded at " + data.worldPlace + ".");
         }
@@ -663,6 +689,21 @@ namespace Signal.Game
                 }
             }
 
+            if (searchableLootProfiles != null)
+            {
+                foreach (ContainerLootProfile profile in searchableLootProfiles)
+                {
+                    if (profile == null) continue;
+                    foreach (ItemDefinition lootItem in profile.Items)
+                    {
+                        if (lootItem == null) continue;
+                        ItemType lootType = lootItem.ToItemType();
+                        _catalog[lootType.Id] = lootType;
+                        if (!_allItemDefinitions.Contains(lootItem)) _allItemDefinitions.Add(lootItem);
+                    }
+                }
+            }
+
             if (parcelItem != null)
             {
                 ItemType parcelType = parcelItem.ToItemType();
@@ -674,6 +715,102 @@ namespace Signal.Game
             {
                 Debug.LogError("GameSession: assign the Milo parcel ItemDefinition before playing Opportunity 001.");
             }
+        }
+
+
+        private void CreateSearchableContainers()
+        {
+            _searchableContainers.Clear();
+            _searchableProfiles.Clear();
+            _searchableActors.Clear();
+            IReadOnlyList<string> ids = _city.SearchableContainerIds;
+            for (int i = 0; i < ids.Count; i++)
+            {
+                string id = ids[i];
+                var container = new SearchableContainer(id, 8, 6);
+                _searchableContainers.Add(container);
+                var actor = new EconomicActorId("world:" + id);
+                _searchableActors[id] = actor;
+                _economicContainers.TryRegister(container.Inventory, actor);
+                ContainerLootProfile profile = searchableLootProfiles != null && i < searchableLootProfiles.Length
+                    ? searchableLootProfiles[i] : null;
+                if (profile != null) _searchableProfiles[id] = profile;
+            }
+        }
+
+        private void OpenSearchableContainer(string containerId)
+        {
+            SearchableContainer container = FindSearchableContainer(containerId);
+            if (container == null || _containerPanel == null)
+                return;
+            if (!container.IsGenerated)
+            {
+                if (!_searchableProfiles.TryGetValue(containerId, out ContainerLootProfile profile))
+                {
+                    Say("This container has no loot profile assigned.", 5f);
+                    return;
+                }
+                if (!profile.TryGenerate(container, out string error))
+                {
+                    Say("This container cannot be searched: " + error, 5f);
+                    return;
+                }
+                RegisterSearchableContainerAssets(container);
+            }
+
+            _activeSearchableContainer = container;
+            _containerPanel.Open(container, _inventory);
+        }
+
+        private SearchableContainer FindSearchableContainer(string containerId)
+        {
+            for (int i = 0; i < _searchableContainers.Count; i++)
+                if (_searchableContainers[i].ContainerId == containerId)
+                    return _searchableContainers[i];
+            return null;
+        }
+
+        private void RegisterSearchableContainerAssets()
+        {
+            for (int i = 0; i < _searchableContainers.Count; i++)
+                RegisterSearchableContainerAssets(_searchableContainers[i]);
+        }
+
+        private void RegisterSearchableContainerAssets(SearchableContainer container)
+        {
+            if (container == null || !_searchableActors.TryGetValue(container.ContainerId, out EconomicActorId actor))
+                return;
+            foreach (PlacedItem item in container.Inventory.Items)
+                if (!_assetOwnership.TryGetOwner(item.ItemInstanceId, out _))
+                    _assetOwnership.TryRegister(item.ItemInstanceId, actor);
+        }
+
+        private bool TakeSearchableItem(Guid itemInstanceId)
+        {
+            if (_activeSearchableContainer == null || !_activeSearchableContainer.IsDiscovered(itemInstanceId))
+                return false;
+            if (!_searchableActors.TryGetValue(_activeSearchableContainer.ContainerId, out EconomicActorId actor))
+                return false;
+            AssetTransferResult result = _assetTransfers.TransferStack(_activeSearchableContainer.Inventory,
+                _inventory, itemInstanceId, actor, EconomicActorId.Player, AssetTransferReason.Scavenging,
+                _clock.Day, _clock.MinuteOfDay);
+            if (result.Success) Say("Item taken.");
+            else if (result.Status == AssetTransferStatus.DestinationFull) Say("Not enough room in your inventory.");
+            return result.Success;
+        }
+
+        private bool TakeSearchableItemAt(Guid itemInstanceId, int x, int y, bool rotated)
+        {
+            if (_activeSearchableContainer == null || !_activeSearchableContainer.IsDiscovered(itemInstanceId))
+                return false;
+            if (!_searchableActors.TryGetValue(_activeSearchableContainer.ContainerId, out EconomicActorId actor))
+                return false;
+            AssetTransferResult result = _assetTransfers.TransferStackAt(_activeSearchableContainer.Inventory,
+                _inventory, itemInstanceId, x, y, rotated, actor, EconomicActorId.Player,
+                AssetTransferReason.Scavenging, _clock.Day, _clock.MinuteOfDay);
+            if (result.Success) Say("Item taken.");
+            else if (result.Status == AssetTransferStatus.DestinationFull) Say("That spot is occupied or does not fit.");
+            return result.Success;
         }
 
         private void RegisterUnownedPlayerAssets(GridInventory inventory)

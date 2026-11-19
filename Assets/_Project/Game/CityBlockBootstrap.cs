@@ -17,6 +17,12 @@ namespace Signal.Game
         private static readonly Color Asphalt = new Color32(48, 53, 55, 255);
         private static readonly Color Concrete = new Color32(115, 112, 101, 255);
         private static readonly Color Wall = new Color32(91, 83, 76, 255);
+        private static readonly string[] SearchableBinIds = { "street-bin-a", "street-bin-b", "street-bin-c" };
+        private static readonly string[] SearchableBinLabels = { "Street bin A", "Street bin B", "Street bin C" };
+        private static readonly Vector2[] SearchableBinPositions =
+        {
+            new Vector2(5.0f, -8.2f), new Vector2(15.8f, -17.2f), new Vector2(5.0f, -22.3f)
+        };
 
         private Transform _player;
         private Rigidbody2D _body;
@@ -42,6 +48,7 @@ namespace Signal.Game
         private static readonly Vector2 ApartmentDoor = new Vector2(19.5f, -10.8f);
         private const float InteractionDistance = 1.85f;
 
+        public IReadOnlyList<string> SearchableContainerIds => SearchableBinIds;
         public bool IsAtHome => _place == Place.Hideout;
         public string CurrentPlace => _place.ToString();
         public int ResidentCount => _residents.Count;
@@ -414,11 +421,31 @@ namespace Signal.Game
                 locationId, position.x, position.y, visibilityRadius, _clock.Day, _clock.MinuteOfDay));
         }
 
+        public bool TryGetNearbySearchableContainer(Vector2 playerPosition, out string containerId, out string displayName)
+        {
+            containerId = null;
+            displayName = null;
+            if (_place != Place.Street) return false;
+            float bestDistance = InteractionDistance;
+            for (int i = 0; i < SearchableBinPositions.Length; i++)
+            {
+                float distance = Vector2.Distance(playerPosition, SearchableBinPositions[i]);
+                if (distance > bestDistance) continue;
+                bestDistance = distance;
+                containerId = SearchableBinIds[i];
+                displayName = SearchableBinLabels[i];
+            }
+            return containerId != null;
+        }
+
         public string GetPrompt(Vector2 playerPosition)
         {
             for (int i = 0; i < _residents.Count; i++)
                 if (_residents[i].CanTalkFrom(playerPosition))
                     return "E  Talk to " + _residents[i].DisplayName;
+
+            if (TryGetNearbySearchableContainer(playerPosition, out _, out string binName))
+                return "E  Search " + binName;
 
             switch (_place)
             {
@@ -618,6 +645,15 @@ namespace Signal.Game
             AddBlock(root, "StreetBenchSeat", new Vector2(3.5f, -17.5f), new Vector2(1.8f, 0.28f), new Color32(112, 81, 58, 255), false, 6);
             AddBlock(root, "StreetBenchLeg", new Vector2(2.9f, -17.85f), new Vector2(0.18f, 0.45f), new Color32(76, 61, 49, 255), false, 5);
             AddBlock(root, "StreetBenchLeg", new Vector2(4.1f, -17.85f), new Vector2(0.18f, 0.45f), new Color32(76, 61, 49, 255), false, 5);
+
+            for (int i = 0; i < SearchableBinPositions.Length; i++)
+            {
+                string suffix = ((char)('A' + i)).ToString();
+                AddBlock(root, "SearchableBin_" + suffix, SearchableBinPositions[i],
+                    new Vector2(0.95f, 0.72f), new Color32(66, 73, 76, 255), true, 6);
+                AddBlock(root, "SearchableBinLid_" + suffix, SearchableBinPositions[i] + new Vector2(0f, 0.38f),
+                    new Vector2(1.02f, 0.14f), new Color32(105, 111, 108, 255), false, 7);
+            }
 
             SpawnResidents();
         }
