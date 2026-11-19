@@ -31,6 +31,9 @@ namespace Signal.Game
         private EconomicTransactionLedger _economicTransactions;
         private EconomicContainerRegistry _economicContainers;
         private AssetTransferService _assetTransfers;
+        private EconomicAccountBook _economicAccounts;
+        private RetailTransactionLedger _retailTransactions;
+        private RetailService _retailService;
         private GridInventory _inventory;
         private GridInventory _storage;
         private ItemKnowledgeBook _itemKnowledge;
@@ -63,6 +66,9 @@ namespace Signal.Game
         public AssetOwnershipBook AssetOwnership => _assetOwnership;
         public EconomicTransactionLedger EconomicTransactions => _economicTransactions;
         public AssetTransferService AssetTransfers => _assetTransfers;
+        public EconomicAccountBook EconomicAccounts => _economicAccounts;
+        public RetailTransactionLedger RetailTransactions => _retailTransactions;
+        public RetailService Retail => _retailService;
 
         private void Start()
         {
@@ -75,6 +81,10 @@ namespace Signal.Game
             _economicContainers.TryRegister(_inventory, EconomicActorId.Player);
             _economicContainers.TryRegister(_storage, EconomicActorId.Player);
             _assetTransfers = new AssetTransferService(_assetOwnership, _economicContainers, _economicTransactions);
+            _economicAccounts = new EconomicAccountBook();
+            _economicAccounts.TryRegister(EconomicActorId.Player, _stats.CleanMoney);
+            _retailTransactions = new RetailTransactionLedger();
+            _retailService = new RetailService(_economicAccounts, _assetOwnership, _retailTransactions);
             _itemKnowledge = new ItemKnowledgeBook();
             _playerDiscoveries = new PlayerDiscoveryLedger();
             _miloOpportunity = new OpportunityState("milo-parcel");
@@ -100,6 +110,13 @@ namespace Signal.Game
 
             _city = gameObject.AddComponent<CityBlockBootstrap>();
             _city.Build(_room.Player, _room.PlayerBody, camera, _clock, npcDefinitions);
+            foreach (NpcPresenter resident in _city.DebugResidents)
+            {
+                if (resident == null || string.IsNullOrWhiteSpace(resident.NpcId))
+                    continue;
+                _economicAccounts.GetOrCreate(new EconomicActorId("resident:" + resident.NpcId),
+                    resident.Definition != null ? resident.Definition.StartingCleanBalance : 0);
+            }
 
             _itemViewer = gameObject.AddComponent<ItemViewerPanel>();
             _itemViewer.Bind(_allItemDefinitions, _itemKnowledge);
@@ -399,7 +416,7 @@ namespace Signal.Game
             SaveData data = SaveMapper.Capture(_stats, _inventory, _storage, _clock, _heat, _rent,
                                                _city.CurrentPlace, position.x, position.y, _itemKnowledge,
                                                _playerDiscoveries, _miloOpportunity, _playerRelationships,
-                                               _assetOwnership, _economicTransactions);
+                                               _assetOwnership, _economicTransactions, _economicAccounts, _retailTransactions);
 
             try
             {
@@ -422,7 +439,8 @@ namespace Signal.Game
             }
 
             LoadReport report = SaveMapper.Apply(data, _stats, _inventory, _storage, _clock, _heat, _rent,
-                ResolveType, _itemKnowledge, _playerDiscoveries, _playerRelationships, _assetOwnership, _economicTransactions);
+                ResolveType, _itemKnowledge, _playerDiscoveries, _playerRelationships, _assetOwnership, _economicTransactions,
+                _economicAccounts, _retailTransactions);
             if (!report.Success)
             {
                 Say("Load failed: " + report.Error);
@@ -447,7 +465,8 @@ namespace Signal.Game
 
             Say(report.SkippedItems + report.SkippedStorageItems + report.SkippedKnowledgeFacts +
                 report.SkippedDiscoverySignals + report.SkippedPlayerRelationships +
-                report.SkippedAssetOwners + report.SkippedEconomicTransactions > 0
+                report.SkippedAssetOwners + report.SkippedEconomicTransactions +
+                report.SkippedResidentAccounts + report.SkippedRetailTransactions > 0
                 ? "Loaded at " + data.worldPlace + ". Some saved item or discovery details could not be restored."
                 : "Loaded at " + data.worldPlace + ".");
         }
