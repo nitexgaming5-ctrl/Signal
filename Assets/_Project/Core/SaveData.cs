@@ -116,6 +116,25 @@ namespace Signal.Core
     }
 
     [Serializable]
+    public sealed class SavedShopSaleTransaction
+    {
+        public string transactionId;
+        public string businessId;
+        public string sellerActorId;
+        public string itemInstanceId;
+        public string itemDefinitionId;
+        public int quantity;
+        public int unitPrice;
+        public int totalAmount;
+        public int quality;
+        public int condition;
+        public int authenticity;
+        public int ownership;
+        public int day;
+        public int minuteOfDay;
+    }
+
+    [Serializable]
     public sealed class SaveData
     {
         public int version = SaveMigrator.CurrentVersion;
@@ -142,6 +161,7 @@ namespace Signal.Core
         public List<SavedEconomicTransaction> economicTransactions = new List<SavedEconomicTransaction>();
         public List<SavedEconomicAccount> residentAccounts = new List<SavedEconomicAccount>();
         public List<SavedRetailTransaction> retailTransactions = new List<SavedRetailTransaction>();
+        public List<SavedShopSaleTransaction> shopSaleTransactions = new List<SavedShopSaleTransaction>();
     }
 
     public sealed class LoadReport
@@ -157,14 +177,15 @@ namespace Signal.Core
         public int SkippedEconomicTransactions { get; set; }
         public int SkippedResidentAccounts { get; set; }
         public int SkippedRetailTransactions { get; set; }
+        public int SkippedShopSaleTransactions { get; set; }
         public OpportunityState RestoredOpportunity { get; set; }
     }
 
     public static class SaveMigrator
     {
-        public const int CurrentVersion = 9;
+        public const int CurrentVersion = 10;
 
-        /// <summary>Accepts save formats v1 through v9 and migrates them to the current inventory, social and economic format.</summary>
+        /// <summary>Accepts supported save formats and migrates them to the current inventory, social and economic format.</summary>
         public static bool TryMigrate(SaveData data, out string error)
         {
             error = null;
@@ -237,6 +258,10 @@ namespace Signal.Core
             if (data.retailTransactions == null)
                 data.retailTransactions = new List<SavedRetailTransaction>();
 
+            // Version 10 adds the dedicated player-to-business sale history.
+            if (data.shopSaleTransactions == null)
+                data.shopSaleTransactions = new List<SavedShopSaleTransaction>();
+
             data.version = CurrentVersion;
 
             return true;
@@ -279,7 +304,8 @@ namespace Signal.Core
                                        AssetOwnershipBook assetOwnership = null,
                                        EconomicTransactionLedger economicTransactions = null,
                                        EconomicAccountBook economicAccounts = null,
-                                       RetailTransactionLedger retailTransactions = null)
+                                       RetailTransactionLedger retailTransactions = null,
+                                       ShopSaleTransactionLedger shopSaleTransactions = null)
         {
             if (stats == null) throw new ArgumentNullException(nameof(stats));
             if (inventory == null) throw new ArgumentNullException(nameof(inventory));
@@ -313,6 +339,7 @@ namespace Signal.Core
             CaptureEconomicState(inventory, storage, assetOwnership, economicTransactions, data);
             CaptureResidentAccounts(economicAccounts, data.residentAccounts);
             CaptureRetailTransactions(retailTransactions, data.retailTransactions);
+            CaptureShopSaleTransactions(shopSaleTransactions, data.shopSaleTransactions);
 
             return data;
         }
@@ -331,7 +358,8 @@ namespace Signal.Core
                                        AssetOwnershipBook assetOwnership = null,
                                        EconomicTransactionLedger economicTransactions = null,
                                        EconomicAccountBook economicAccounts = null,
-                                       RetailTransactionLedger retailTransactions = null)
+                                       RetailTransactionLedger retailTransactions = null,
+                                       ShopSaleTransactionLedger shopSaleTransactions = null)
         {
             if (stats == null) throw new ArgumentNullException(nameof(stats));
             if (inventory == null) throw new ArgumentNullException(nameof(inventory));
@@ -365,6 +393,7 @@ namespace Signal.Core
             int skippedTransactions = RestoreEconomicTransactions(data.economicTransactions, economicTransactions);
             int skippedAccounts = RestoreResidentAccounts(data.residentAccounts, economicAccounts);
             int skippedRetail = RestoreRetailTransactions(data.retailTransactions, retailTransactions);
+            int skippedShopSales = RestoreShopSaleTransactions(data.shopSaleTransactions, shopSaleTransactions);
             OpportunityState restoredOpportunity = RestoreOpportunity(data.opportunity);
 
             return new LoadReport
@@ -379,6 +408,7 @@ namespace Signal.Core
                 SkippedEconomicTransactions = skippedTransactions,
                 SkippedResidentAccounts = skippedAccounts,
                 SkippedRetailTransactions = skippedRetail,
+                SkippedShopSaleTransactions = skippedShopSales,
                 RestoredOpportunity = restoredOpportunity
             };
         }
@@ -454,6 +484,62 @@ namespace Signal.Core
                     var transaction = new RetailTransaction(transactionId, saved.businessId,
                         new EconomicActorId(saved.customerActorId), new EconomicActorId(saved.ownerActorId),
                         itemDefinitionId, saved.quantity, saved.totalAmount, saved.day, saved.minuteOfDay);
+                    if (!destination.TryRecord(transaction)) skipped++;
+                }
+                catch (ArgumentException) { skipped++; }
+            }
+            return skipped;
+        }
+
+        private static void CaptureShopSaleTransactions(ShopSaleTransactionLedger ledger,
+            List<SavedShopSaleTransaction> destination)
+        {
+            if (ledger == null) return;
+            foreach (ShopSaleTransaction transaction in ledger.Transactions)
+                destination.Add(new SavedShopSaleTransaction
+                {
+                    transactionId = transaction.TransactionId.ToString(),
+                    businessId = transaction.BusinessId,
+                    sellerActorId = transaction.Seller.Value,
+                    itemInstanceId = transaction.ItemInstanceId.ToString(),
+                    itemDefinitionId = transaction.ItemDefinitionId.ToString(),
+                    quantity = transaction.Quantity,
+                    unitPrice = transaction.UnitPrice,
+                    totalAmount = transaction.TotalAmount,
+                    quality = (int)transaction.ItemState.Quality,
+                    condition = (int)transaction.ItemState.Condition,
+                    authenticity = (int)transaction.ItemState.Authenticity,
+                    ownership = (int)transaction.ItemState.Ownership,
+                    day = transaction.Day,
+                    minuteOfDay = transaction.MinuteOfDay
+                });
+        }
+
+        private static int RestoreShopSaleTransactions(List<SavedShopSaleTransaction> savedTransactions,
+            ShopSaleTransactionLedger destination)
+        {
+            if (destination == null) return 0;
+            destination.Clear();
+            int skipped = 0;
+            if (savedTransactions == null) return skipped;
+            foreach (SavedShopSaleTransaction saved in savedTransactions)
+            {
+                if (saved == null || !Guid.TryParse(saved.transactionId, out Guid transactionId) ||
+                    !Guid.TryParse(saved.itemInstanceId, out Guid itemInstanceId) ||
+                    !Guid.TryParse(saved.itemDefinitionId, out Guid itemDefinitionId) ||
+                    string.IsNullOrWhiteSpace(saved.businessId) || string.IsNullOrWhiteSpace(saved.sellerActorId))
+                {
+                    skipped++;
+                    continue;
+                }
+
+                try
+                {
+                    var state = new ItemInstanceState((ItemQuality)saved.quality, (ItemCondition)saved.condition,
+                        (ItemAuthenticity)saved.authenticity, (ItemOwnershipStatus)saved.ownership);
+                    var transaction = new ShopSaleTransaction(transactionId, saved.businessId,
+                        new EconomicActorId(saved.sellerActorId), itemInstanceId, itemDefinitionId,
+                        saved.quantity, saved.unitPrice, saved.totalAmount, state, saved.day, saved.minuteOfDay);
                     if (!destination.TryRecord(transaction)) skipped++;
                 }
                 catch (ArgumentException) { skipped++; }
