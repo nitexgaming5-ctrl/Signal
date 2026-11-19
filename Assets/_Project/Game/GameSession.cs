@@ -239,7 +239,9 @@ namespace Signal.Game
             if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen &&
                 nearbyBusiness != null && keyboard.eKey.wasPressedThisFrame)
             {
-                if (!nearbyBusiness.IsOpen(_clock.MinuteOfDay))
+                if (!nearbyBusiness.TryValidate(out string businessError))
+                    Say("Business configuration error: " + businessError, 6f);
+                else if (!nearbyBusiness.IsOpen(_clock.MinuteOfDay))
                     Say(nearbyBusiness.DisplayName + " is closed.");
                 else
                     _retailPanel.Open(nearbyBusiness);
@@ -517,7 +519,11 @@ namespace Signal.Game
 
         private string PurchaseFromBusiness(BusinessDefinition business, ItemDefinition item)
         {
-            if (business == null || item == null || !business.IsOpen(_clock.MinuteOfDay))
+            if (business == null || item == null)
+                return "The business is unavailable.";
+            if (!business.TryValidate(out string businessError))
+                return "Business configuration error: " + businessError;
+            if (!business.IsOpen(_clock.MinuteOfDay))
                 return "The business is closed.";
             if (!business.TryGetOffer(item, out int unitPrice))
                 return "That item is not offered here.";
@@ -566,10 +572,13 @@ namespace Signal.Game
                 {
                     if (business == null)
                         continue;
+                    if (!business.TryValidate(out string businessError))
+                    {
+                        Debug.LogError("GameSession: business '" + business.name + "' is invalid: " + businessError);
+                        continue;
+                    }
                     foreach (BusinessDefinition.MerchandiseEntry entry in business.Merchandise)
                     {
-                        if (entry == null || entry.Item == null)
-                            continue;
                         ItemType businessItemType = entry.Item.ToItemType();
                         _catalog[businessItemType.Id] = businessItemType;
                         if (!_allItemDefinitions.Contains(entry.Item))
