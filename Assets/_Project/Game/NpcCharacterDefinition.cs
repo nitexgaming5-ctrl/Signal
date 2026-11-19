@@ -18,6 +18,9 @@ namespace Signal.Game
         [Min(0.1f), Tooltip("Movement speed in world units per real-time second.")]
         public float WalkingSpeed = 1.6f;
 
+        [Header("Economy")]
+        [Min(0)] public int StartingCleanBalance;
+
         [Header("Routine")]
         public NpcUtilityProfile UtilityProfile = NpcUtilityProfile.CreateDefault();
         public Vector2 WorkPosition = new Vector2(1000f, 1000.4f);
