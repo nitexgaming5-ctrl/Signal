@@ -569,8 +569,7 @@ namespace Signal.Game
                 return "The sale request is invalid.";
 
             BusinessDefinition nearby = FindNearbyBusiness(_room.PlayerBody.position);
-            if (nearby == null || nearby.BusinessId != business.BusinessId ||
-                nearby.LocationId != _city.CurrentPlace)
+            if (!ReferenceEquals(nearby, business) || nearby.LocationId != _city.CurrentPlace)
                 return "Move back to this business counter before selling.";
 
             if (!business.TryValidate(out string businessError))
