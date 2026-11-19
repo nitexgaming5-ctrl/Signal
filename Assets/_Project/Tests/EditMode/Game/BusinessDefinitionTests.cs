@@ -1,7 +1,5 @@
 using System;
 using System.Reflection;
-using System;
-using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -22,65 +20,48 @@ namespace Signal.Game.Tests
             }
             finally
             {
-                Object.DestroyImmediate(business);
+                UnityEngine.Object.DestroyImmediate(business);
             }
         }
 
         [Test]
-        public void ValidAuthoredCataloguePassesBusinessValidation()
+        public void ValidAuthoredCataloguePassesValidationAndDuplicateItemsAreRejected()
         {
             BusinessDefinition business = ScriptableObject.CreateInstance<BusinessDefinition>();
-            ItemDefinition item = ScriptableObject.CreateInstance<ItemDefinition>();
+            ItemDefinition bread = ScriptableObject.CreateInstance<ItemDefinition>();
             try
             {
-                SetPrivate(item, "id", Guid.NewGuid().ToString());
-                SetPrivate(item, "displayName", "Bread");
                 SetPrivate(business, "businessId", "test-bakery");
-                SetPrivate(business, "merchandise", new[]
-                {
-                    new BusinessDefinition.MerchandiseEntry { Item = item, UnitPrice = 5 }
-                });
+                SetPrivate(business, "displayName", "Test Bakery");
+                SetPrivate(business, "businessType", "Bakery");
+                SetPrivate(business, "ownerNpcId", "milo");
+                SetPrivate(business, "locationId", "CornerShop");
+                SetPrivate(bread, "id", Guid.NewGuid().ToString());
+                SetPrivate(bread, "displayName", "Bread");
 
+                var breadOffer = new BusinessDefinition.MerchandiseEntry
+                {
+                    Item = bread,
+                    UnitPrice = 5
+                };
+
+                SetPrivate(business, "merchandise", new[] { breadOffer });
                 Assert.That(business.TryValidate(out string error), Is.True, error);
-            }
-            finally
-            {
-                Object.DestroyImmediate(item);
-                Object.DestroyImmediate(business);
-            }
-        }
 
-        [Test]
-        public void DuplicateCatalogueItemIsRejected()
-        {
-            BusinessDefinition business = ScriptableObject.CreateInstance<BusinessDefinition>();
-            ItemDefinition item = ScriptableObject.CreateInstance<ItemDefinition>();
-            try
-            {
-                SetPrivate(item, "id", Guid.NewGuid().ToString());
-                SetPrivate(item, "displayName", "Bread");
-                SetPrivate(business, "businessId", "test-bakery");
                 SetPrivate(business, "merchandise", new[]
                 {
-                    new BusinessDefinition.MerchandiseEntry { Item = item, UnitPrice = 5 },
-                    new BusinessDefinition.MerchandiseEntry { Item = item, UnitPrice = 7 }
+                    breadOffer,
+                    new BusinessDefinition.MerchandiseEntry { Item = bread, UnitPrice = 8 }
                 });
 
-                Assert.That(business.TryValidate(out string error), Is.False);
+                Assert.That(business.TryValidate(out error), Is.False);
                 Assert.That(error, Does.Contain("same item"));
             }
             finally
             {
-                Object.DestroyImmediate(item);
-                Object.DestroyImmediate(business);
+                UnityEngine.Object.DestroyImmediate(bread);
+                UnityEngine.Object.DestroyImmediate(business);
             }
-        }
-
-        private static void SetPrivate(object target, string fieldName, object value)
-        {
-            FieldInfo field = target.GetType().GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
-            Assert.That(field, Is.Not.Null, "Expected serialized field " + fieldName);
-            field.SetValue(target, value);
         }
 
         [Test]
@@ -94,41 +75,7 @@ namespace Signal.Game.Tests
             }
             finally
             {
-                Object.DestroyImmediate(business);
-            }
-        }
-
-        [Test]
-        public void ValidAuthoredCataloguePassesValidationAndRejectsDuplicateItems()
-        {
-            BusinessDefinition business = ScriptableObject.CreateInstance<BusinessDefinition>();
-            ItemDefinition bread = ScriptableObject.CreateInstance<ItemDefinition>();
-            try
-            {
-                SetField(business, "businessId", "test-bakery");
-                SetField(business, "displayName", "Test Bakery");
-                SetField(business, "businessType", "Bakery");
-                SetField(business, "ownerNpcId", "milo");
-                SetField(business, "locationId", "CornerShop");
-                SetField(bread, "id", Guid.NewGuid().ToString());
-                SetField(bread, "displayName", "Bread");
-
-                var first = new BusinessDefinition.MerchandiseEntry { Item = bread, UnitPrice = 5 };
-                SetField(business, "merchandise", new[] { first });
-                Assert.That(business.TryValidate(out string error), Is.True, error);
-
-                SetField(business, "merchandise", new[]
-                {
-                    first,
-                    new BusinessDefinition.MerchandiseEntry { Item = bread, UnitPrice = 8 }
-                });
-                Assert.That(business.TryValidate(out error), Is.False);
-                Assert.That(error, Does.Contain("more than once"));
-            }
-            finally
-            {
-                Object.DestroyImmediate(bread);
-                Object.DestroyImmediate(business);
+                UnityEngine.Object.DestroyImmediate(business);
             }
         }
 
@@ -139,14 +86,14 @@ namespace Signal.Game.Tests
             ItemDefinition bread = ScriptableObject.CreateInstance<ItemDefinition>();
             try
             {
-                SetField(business, "businessId", "test-bakery");
-                SetField(business, "displayName", "Test Bakery");
-                SetField(business, "businessType", "Bakery");
-                SetField(business, "ownerNpcId", "");
-                SetField(business, "locationId", "CornerShop");
-                SetField(bread, "id", Guid.NewGuid().ToString());
-                SetField(bread, "displayName", "Bread");
-                SetField(business, "merchandise", new[]
+                SetPrivate(business, "businessId", "test-bakery");
+                SetPrivate(business, "displayName", "Test Bakery");
+                SetPrivate(business, "businessType", "Bakery");
+                SetPrivate(business, "ownerNpcId", string.Empty);
+                SetPrivate(business, "locationId", "CornerShop");
+                SetPrivate(bread, "id", Guid.NewGuid().ToString());
+                SetPrivate(bread, "displayName", "Bread");
+                SetPrivate(business, "merchandise", new[]
                 {
                     new BusinessDefinition.MerchandiseEntry { Item = bread, UnitPrice = 0 }
                 });
@@ -154,20 +101,22 @@ namespace Signal.Game.Tests
                 Assert.That(business.TryValidate(out string error), Is.False);
                 Assert.That(error, Does.Contain("owner"));
 
-                SetField(business, "ownerNpcId", "milo");
+                SetPrivate(business, "ownerNpcId", "milo");
                 Assert.That(business.TryValidate(out error), Is.False);
                 Assert.That(error, Does.Contain("positive fixed price"));
             }
             finally
             {
-                Object.DestroyImmediate(bread);
-                Object.DestroyImmediate(business);
+                UnityEngine.Object.DestroyImmediate(bread);
+                UnityEngine.Object.DestroyImmediate(business);
             }
         }
 
-        private static void SetField(object target, string fieldName, object value)
+        private static void SetPrivate(object target, string fieldName, object value)
         {
-            FieldInfo field = target.GetType().GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
+            FieldInfo field = target.GetType().GetField(
+                fieldName,
+                BindingFlags.Instance | BindingFlags.NonPublic);
             Assert.That(field, Is.Not.Null, "Expected serialized field " + fieldName);
             field.SetValue(target, value);
         }
