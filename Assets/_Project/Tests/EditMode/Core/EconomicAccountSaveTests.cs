@@ -6,7 +6,7 @@ namespace Signal.Core.Tests
     public sealed class EconomicAccountSaveTests
     {
         [Test]
-        public void VersionEightMigratesToNineWithEmptyResidentAndRetailRecords()
+        public void VersionEightMigratesToCurrentWithEmptyResidentRetailAndSaleRecords()
         {
             var data = new SaveData
             {
@@ -14,14 +14,16 @@ namespace Signal.Core.Tests
                 money = 275,
                 cleanBalance = 275,
                 residentAccounts = null,
-                retailTransactions = null
+                retailTransactions = null,
+                shopSaleTransactions = null
             };
 
             Assert.That(SaveMigrator.TryMigrate(data, out _), Is.True);
-            Assert.That(data.version, Is.EqualTo(9));
+            Assert.That(data.version, Is.EqualTo(SaveMigrator.CurrentVersion));
             Assert.That(data.cleanBalance, Is.EqualTo(275));
             Assert.That(data.residentAccounts, Is.Empty);
             Assert.That(data.retailTransactions, Is.Empty);
+            Assert.That(data.shopSaleTransactions, Is.Empty);
         }
 
         [Test]
