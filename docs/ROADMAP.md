@@ -347,8 +347,8 @@ Stock markets, lottery, gambling, laundering, universal price simulation and bus
 - Save v9 persists resident account balances and retail purchase history; v1–v8 migrations initialize the new collections and preserve player clean balance.
 - Game layer has authored BusinessDefinition data, resident starting balances, a keyboard-driven retail panel and generic GameSession integration for proximity, opening hours, purchases and owner revenue.
 - Existing Shop/ShopOrder sell-to-shop rules remain unchanged.
-- Core and Game EditMode tests are authored but have not been run.
-- The actual merchandise catalogue/prices remain content authoring: create a Business Definition asset in Unity, configure its owner/location/schedule/ItemDefinition prices and assign it to GameSession.Businesses.
+- Core and Game EditMode tests are authored but have not been run. F1 debug view exposes each spawned resident's clean balance and the retail transaction count for Play Mode inspection.
+- `Business_CornerShop.asset` is already created and assigned in HideoutSlice. Its merchandise list is intentionally empty until the user chooses the first ItemDefinition(s) and fixed prices; add those entries to the existing asset in the Inspector.
 - Unity compilation, full EditMode suite, Play Mode purchase and save/load verification remain pending. Assistant cannot run Unity.
 
 The previous illicit seller/Dirty Cash Bundle/Contraband proposal remains superseded and is not part of Phase 3.
