@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Signal.Core;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -310,7 +309,10 @@ namespace Signal.Game
             }
             InputSystemUIInputModule inputModule = eventSystem.GetComponent<InputSystemUIInputModule>();
             if (inputModule == null)
+            {
                 inputModule = eventSystem.gameObject.AddComponent<InputSystemUIInputModule>();
+                inputModule.AssignDefaultActions();
+            }
 
             BaseInputModule[] modules = eventSystem.GetComponents<BaseInputModule>();
             for (int i = 0; i < modules.Length; i++)
