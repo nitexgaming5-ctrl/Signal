@@ -1,6 +1,6 @@
 # ECONOMY-PHASE-3 — businesses and retail
 
-**Status:** approved for implementation by the user on 2026-11-19  
+**Status:** first implementation pass added; Unity verification and authored shop content pending (user approved 2026-11-19)  
 **Branch:** `chore/collaboration-workflow-and-audit`  
 **Depends on:** Economy Phases 1–2 (asset ownership/transfers, clean account and save v8)
 
