@@ -23,6 +23,4 @@ MonoBehaviour:
   merchandise:
   - Item: {fileID: 11400000, guid: b7c4e2916a5d438f9c2e7b1d5a8046f3, type: 2}
     UnitPrice: 5
-  buybackOffers:
-  - Item: {fileID: 11400000, guid: b7c4e2916a5d438f9c2e7b1d5a8046f3, type: 2}
-    UnitPrice: 3
+  buybackOffers: []
