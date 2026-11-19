@@ -440,7 +440,8 @@ The approved shared-economy retail scope is in implementation. The old illicit-v
 - Created `Assets/_Project/Content/Businesses/Business_CornerShop.asset` and assigned it to `GameSession.Businesses` in `HideoutSlice.unity`. It targets owner `milo`, location `CornerShop`, hours 06:30–18:00 and interaction point (1000, 1000.6).
 - The asset's merchandise catalogue is intentionally empty because no actual ItemDefinition/price was approved. The runtime shop interaction opens and explains that no merchandise is configured; add the approved product(s) and fixed prices to the existing asset before purchase testing.
 - Business definitions are validated on interaction and purchase. Existing Core `Shop` / `ShopOrder` sell-to-shop behavior remains unchanged; no new valuation or acceptance rules were added.
+- F1 debug view exposes spawned resident clean balances and retail transaction count to support Play Mode verification.
 - Tests are authored but have not been executed. The assistant cannot run the Unity Editor, so Unity compilation, full EditMode suite and Play Mode verification remain pending.
 - Existing player-to-shop selling code remains unchanged; no new sell valuation, acceptance rules or shop budget were introduced.
 
-Next: create/configure the Business Definition asset in Unity, then run compilation and the full EditMode suite before Play Mode testing the purchase and save/load path.
+Next: add the approved merchandise ItemDefinition(s) and fixed price(s) to the existing Corner Bakery asset, then compile, run the full EditMode suite and Play Mode test purchase plus save/load.
