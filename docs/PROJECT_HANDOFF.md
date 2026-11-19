@@ -468,6 +468,7 @@ User-approved rules:
 - Save v9 resident account balances and retail transaction history; v1–v8 migration preserved and legacy account initialization made deterministic.
 - NPC authored starting clean balance, BusinessDefinition ScriptableObject, keyboard-driven RetailPanel and GameSession integration.
 - Core and Game EditMode tests authored; not run by the assistant.
+- F1 debug view shows each spawned resident's clean-money balance and the retail transaction count.
 
 ### Unity content authoring still required
 The Corner Bakery definition has already been created at `Assets/_Project/Content/Businesses/Business_CornerShop.asset` and assigned to `GameSession.Businesses` in `HideoutSlice.unity`. It targets Milo, `CornerShop`, 06:30–18:00 and interaction point (1000, 1000.6).
