@@ -48,6 +48,52 @@ namespace Signal.Game
             return minuteOfDay >= openingMinute || minuteOfDay < closingMinute;
         }
 
+        public bool TryValidate(out string error)
+        {
+            error = null;
+            if (string.IsNullOrWhiteSpace(businessId) || string.IsNullOrWhiteSpace(displayName) ||
+                string.IsNullOrWhiteSpace(businessType) || string.IsNullOrWhiteSpace(ownerNpcId) ||
+                string.IsNullOrWhiteSpace(locationId))
+            {
+                error = "Business identity, name, type, owner and location are required.";
+                return false;
+            }
+            if (float.IsNaN(interactionPoint.x) || float.IsInfinity(interactionPoint.x) ||
+                float.IsNaN(interactionPoint.y) || float.IsInfinity(interactionPoint.y) ||
+                openingMinute < 0 || openingMinute >= 1440 || closingMinute < 0 || closingMinute >= 1440)
+            {
+                error = "Business interaction point or opening schedule is invalid.";
+                return false;
+            }
+
+            var itemIds = new HashSet<Guid>();
+            if (merchandise == null)
+                return true;
+            for (int i = 0; i < merchandise.Length; i++)
+            {
+                MerchandiseEntry entry = merchandise[i];
+                if (entry == null || entry.Item == null || entry.UnitPrice < 1)
+                {
+                    error = "Every merchandise entry needs a valid item and a positive fixed price.";
+                    return false;
+                }
+                try
+                {
+                    if (!itemIds.Add(entry.Item.ToItemType().Id))
+                    {
+                        error = "A business catalogue cannot offer the same item more than once.";
+                        return false;
+                    }
+                }
+                catch (InvalidOperationException)
+                {
+                    error = "A merchandise item has no valid stable item ID.";
+                    return false;
+                }
+            }
+            return true;
+        }
+
         public bool TryGetOffer(ItemDefinition item, out int unitPrice)
         {
             unitPrice = 0;
