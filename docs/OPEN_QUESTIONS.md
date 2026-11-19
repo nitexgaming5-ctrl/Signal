@@ -107,3 +107,16 @@ Confirmed decisions:
 - Dirty money remains physical inventory items, excluded from clean accounts and legitimate retail.
 
 Implementation now includes resident account/persistence support, authored business definitions, atomic retail purchases and the first CornerShop runtime integration. Save v9 stores resident balances and retail history. Remaining content input: choose the first Corner Bakery ItemDefinition(s) and fixed clean-money price(s); the assigned business asset currently has an empty catalogue rather than invented prices.
+
+
+## Economy — player-facing sell-to-shop (design draft, awaiting approval)
+
+The existing Core `Shop.TryFulfil` accepts a `ShopOrder` with a caller-supplied item, quantity and unit price. It does not calculate resale value or define which goods a particular business accepts. The old fixed $10 developer shortcut was a test value, not a complete buyback policy.
+
+**Q21 — How should a business define the goods it buys and the price it pays?**
+
+Recommended: each `BusinessDefinition` has a separate authored buyback-offer list (ItemDefinition + positive fixed clean-CARD unit price). A business buys only listed item definitions; the offer is explicit and does not reuse the retail catalogue's sell price. No dynamic valuation, condition/quality/authenticity/ownership modifiers, stock limit, shop budget or NPC financial simulation in the first pass. The existing `ShopOrder` / `Shop.TryFulfil` transaction semantics remain the authority for quantity, price validation, inventory removal and player CARD credit.
+
+Alternative: use one shared authored buyback list/rule for all shops rather than per-business offers. Do not derive price automatically from `ItemValueCalculator`; it is only an indicative reference value and not an approved transaction formula.
+
+**ANSWER pending.** See `docs/tasks/ECONOMY-PLAYER-SELLING-DESIGN.md`.
