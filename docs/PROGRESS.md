@@ -437,8 +437,9 @@ The approved shared-economy retail scope is in implementation. The old illicit-v
 - Added Core tests for account registration/isolation, purchase success, insufficient funds, full inventory rollback, owner-account overflow, ownership validation, save v9 round-trip, legacy starting-balance reset and malformed-record handling. Added Game tests for the authored business schedule/default owner.
 
 ### Not yet complete / verification
-- No merchandise catalogue or prices were invented. A Business Definition asset must be created in Unity and assigned to GameSession's Businesses array. Defaults target owner NPC ID milo, location CornerShop, opening 06:30–18:00 and interaction point (1000, 1000.4); the user should author the actual ItemDefinition entries and prices.
-- The generic CornerShop interaction is implemented, but the shop is not populated until that authored asset is configured.
+- Created `Assets/_Project/Content/Businesses/Business_CornerShop.asset` and assigned it to `GameSession.Businesses` in `HideoutSlice.unity`. It targets owner `milo`, location `CornerShop`, hours 06:30–18:00 and interaction point (1000, 1000.6).
+- The asset's merchandise catalogue is intentionally empty because no actual ItemDefinition/price was approved. The runtime shop interaction opens and explains that no merchandise is configured; add the approved product(s) and fixed prices to the existing asset before purchase testing.
+- Business definitions are validated on interaction and purchase. Existing Core `Shop` / `ShopOrder` sell-to-shop behavior remains unchanged; no new valuation or acceptance rules were added.
 - Tests are authored but have not been executed. The assistant cannot run the Unity Editor, so Unity compilation, full EditMode suite and Play Mode verification remain pending.
 - Existing player-to-shop selling code remains unchanged; no new sell valuation, acceptance rules or shop budget were introduced.
 
