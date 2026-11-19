@@ -81,4 +81,4 @@ Stock markets, lottery, gambling/betting, business ownership, laundering and ric
 - Dirty money will have separate future uses in explicitly illicit exchanges such as shady markets and bribes.
 - The account and physical item paths are separate APIs. A clean-account credit does not accept an inventory item or infer value from one.
 - The prototype retains integer money units and existing placeholder values; currency denomination and display formatting remain undecided.
-- Universal supply/demand, automatic price movement and continuous consumption remain out of scope. Ordinary goods use authored availability; stock is selectively tracked only where it matters.
+- Universal supply/demand, automatic price movement and continuous consumption remain out of scope. Ordinary business merchandise is an authored unlimited catalogue for now; whether any goods later need finite stock remains undecided.
