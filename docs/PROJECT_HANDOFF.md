@@ -531,7 +531,7 @@ The specification is finalized, but implementation has **not** started. Wait for
 
 The approved player-selling initiative has been implemented in code on the working branch; Unity verification is pending.
 
-- `BusinessDefinition` has a separate `BuybackEntry` list (item reference + positive fixed clean-CARD unit price). It is independent of the merchandise catalogue. A temporary test-only Bread buyback offer at CARD $3 is now authored on the working branch, explicitly authorized by the user; do not treat it as final balancing.
+- `BusinessDefinition` has a separate `BuybackEntry` list (item reference + positive fixed clean-CARD unit price), independent of the merchandise catalogue. A temporary test-only Bread buyback offer at CARD $3 was used for Play Mode verification and has since been removed; do not treat it as final balancing.
 - `GridInventory.TryRemoveItemInstance(Guid, int)` removes from one exact stack; partial sales preserve the same stack identity and state.
 - `Shop.TryFulfilExact` validates the exact stack and seller ownership, removes the selected quantity, removes ownership only on full-stack sale, credits clean CARD and records one dedicated `ShopSaleTransaction`. Failure paths restore the inventory/account/ownership snapshot.
 - `ShopSaleTransactionLedger` is separate from `EconomicTransactionLedger` and `RetailTransactionLedger`.
@@ -567,11 +567,11 @@ The new regression test has not yet been run; expected full suite is now 355. Un
 
 ### SELL test fixture update — 2026-11-19
 
-The user authorized temporary test content. `Business_CornerShop.asset` now has a separate buyback offer for `Item_Bread.asset` at CARD $3 per unit; its existing merchandise offer remains CARD $5. Use a fresh game, buy/carry Bread or otherwise obtain player-owned Bread, then test partial and full sales. Remove/revise the buyback fixture after the SELL verification pass. The user subsequently confirmed the full EditMode suite 355/355 after the added seller-boundary test; Play Mode verification remains pending.
+The user authorized temporary test content: `Business_CornerShop.asset` briefly had a separate buyback offer for `Item_Bread.asset` at CARD $3 per unit, while its merchandise offer remained CARD $5. After the user confirmed the full SELL Play Mode flow and 355/355 EditMode tests, the temporary buyback offer was removed. The CARD $5 merchandise price remains temporary and unbalanced.
 
 ## Economy Engine inspiration captured (2026-11-19)
 
-The user asked us to review Unity Asset Store's Economy Engine 1.4 as inspiration. Five directions are parked in docs/IDEA_BACKLOG.md and sequenced as future candidates in docs/ROADMAP.md: context-specific shared trade foundations, an Economy Library/editor workflow, contextual loot tables, item-for-item barter and narrowly authored currency exchange. These are not approved mechanics or a commitment to adopt the asset/package. Preserve existing Signal Core/Game architecture and current economy constraints. The current active SELL slice still requires Play Mode verification; user has confirmed 355/355 EditMode tests.
+The user asked us to review Unity Asset Store's Economy Engine 1.4 as inspiration. Five directions are parked in docs/IDEA_BACKLOG.md and sequenced as future candidates in docs/ROADMAP.md: context-specific shared trade foundations, an Economy Library/editor workflow, contextual loot tables, item-for-item barter and narrowly authored currency exchange. These are not approved mechanics or a commitment to adopt the asset/package. Preserve existing Signal Core/Game architecture and current economy constraints. The SELL slice has since been fully verified and closed.
 
 
 ## Latest verified handoff — SELL milestone closed (2026-11-19)
