@@ -118,6 +118,7 @@ namespace Signal.Core.Tests
             Assert.That(restored.Inventory.Items.Count, Is.EqualTo(2));
             Assert.That(restored.SearchOrder[0], Is.EqualTo(order[0]));
             Assert.That(restored.DiscoveredCount, Is.EqualTo(1));
+            Assert.That(restored.HasSearchStarted, Is.True);
             Assert.That(restored.IsDiscovered(order[0]), Is.True);
             Assert.That(restored.IsDiscovered(order[1]), Is.False);
         }

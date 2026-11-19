@@ -21,6 +21,17 @@ namespace Signal.Game
         [SerializeField, Min(1)] private int maximumStacks = 4;
         [SerializeField] private LootEntry[] entries;
 
+        public IEnumerable<ItemDefinition> Items
+        {
+            get
+            {
+                if (entries == null) yield break;
+                foreach (LootEntry entry in entries)
+                    if (entry != null && entry.item != null)
+                        yield return entry.item;
+            }
+        }
+
         public bool TryGenerate(SearchableContainer container, out string error)
         {
             error = null;
