@@ -42,7 +42,8 @@ namespace Signal.Core
             if (stats == null)
                 throw new ArgumentNullException(nameof(stats));
 
-            if (order.Quantity < 1 || order.Total > int.MaxValue)
+            if (order.Quantity < 1 || order.Item.Id == Guid.Empty || order.UnitPrice <= 0 ||
+                order.Total < 1 || order.Total > int.MaxValue)
                 return FulfilResult.InvalidOrder;
 
             if (inventory.CountOf(order.Item) < order.Quantity)
