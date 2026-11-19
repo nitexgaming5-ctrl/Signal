@@ -307,7 +307,7 @@ The shared-city economy is the active initiative. Its foundations are now in pla
 - [x] HUD balance label explicitly reads CARD.
 - [x] User confirmed the full EditMode suite **316/316 passed on 2026-11-19** after the save-version assertion correction.
 
-### Phase 3 — businesses and retail (first implementation pass added; Unity verification pending)
+### Phase 3 — businesses and retail (implemented and user-verified; 335/335 EditMode tests passed)
 **Player outcome:** visit an ordinary business during authored opening hours, browse its predefined merchandise and purchase goods with clean CARD money. Business revenue goes directly to the resident owner's personal account. Existing sell-to-shop behaviour remains intact.
 
 - [x] User approved the revised Business & Retail scope on 2026-11-19.
@@ -322,7 +322,7 @@ The shared-city economy is the active initiative. Its foundations are now in pla
 - [x] Implement atomic purchases with customer debit, owner credit, inventory grant, ownership registration and durable retail transaction record.
 - [x] Integrate the existing CornerShop as the first data-driven business; `Business_CornerShop.asset` is assigned in `HideoutSlice.unity` (now contains Bread at temporary CARD $5 test price).
 - [x] Preserve existing Core Shop/ShopOrder selling rules and tests unchanged.
-- [x] Add Core/Game EditMode tests; [ ] run them and verify compilation/Play Mode in Unity.
+- [x] Add Core/Game EditMode tests; user confirmed the full 335/335 suite and working Phase 3 functionality in Unity.
 
 No finite stock, restocking, suppliers, production, NPC shopping, automatic sales/revenue, operating costs, dynamic prices or dirty-money retail in this phase. Full specification: `docs/tasks/ECONOMY-PHASE-3-BUSINESSES-RETAIL.md`.
 
@@ -341,15 +341,15 @@ Stock markets, lottery, gambling, laundering, universal price simulation and bus
 
 
 
-## Economy Phase 3 — Business & Retail (first implementation pass added; Unity verification pending)
+## Economy Phase 3 — Business & Retail (implemented and user-verified)
 
 - Core resident account registry, atomic retail purchase service and separate retail transaction ledger are implemented.
 - Save v9 persists resident account balances and retail purchase history; v1–v8 migrations initialize the new collections and preserve player clean balance.
 - Game layer has authored BusinessDefinition data, resident starting balances, a click-driven retail panel with adjacent BUY buttons and generic GameSession integration for proximity, opening hours, purchases and owner revenue.
 - Existing Shop/ShopOrder sell-to-shop rules remain unchanged.
-- Core and Game EditMode tests are authored but have not been run. F1 debug view exposes each spawned resident's clean balance and the retail transaction count for Play Mode inspection.
+- User confirmed **335/335 EditMode tests passed** and all Phase 3 functionality works as intended in Unity. F1 debug view exposes each spawned resident's clean balance and the retail transaction count for Play Mode inspection.
 - `Business_CornerShop.asset` is assigned in `HideoutSlice.unity` and now references `Item_Bread.asset` at a temporary CARD $5 test price. No final balancing decision is implied.
-- Unity compilation, full EditMode suite, Play Mode purchase and save/load verification remain pending. Assistant cannot run Unity.
+- Unity compilation, the full EditMode suite, click purchase, owner revenue and save/load were verified by the user as part of the Phase 3 completion report.
 
 The previous illicit seller/Dirty Cash Bundle/Contraband proposal remains superseded and is not part of Phase 3.
 
@@ -360,3 +360,13 @@ The previous illicit seller/Dirty Cash Bundle/Contraband proposal remains supers
 - [x] Route UGUI clicks through EventSystem + InputSystemUIInputModule.
 - [x] Seed the active HideoutSlice player clean CARD account with $5,000 for purchase testing (temporary test value, not final balance design).
 - [ ] Verify Unity compilation, full EditMode suite, click purchase, owner revenue and save/load in Play Mode.
+
+
+## 2026-11-19 — Transaction-safety audit follow-up
+
+- Audited the existing `RetailService` purchase path and legacy `Shop.TryFulfil` sale path without changing retail authority or sale valuation/acceptance rules.
+- RetailService already validates positive quantity/price, overflow-safe total, customer/owner accounts, sufficient funds, matching-stack ownership and inventory capacity through its guarded Add/rollback path. It records successful purchases in the retail ledger.
+- Shop.TryFulfil already checks stock and total bounds, snapshots inventory, and restores it when account credit fails. Added fail-fast rejection for uninitialized item definitions and zero-value orders, avoiding temporary inventory mutation.
+- Added regression cases for invalid retail quantities/prices/overflow and invalid sale inputs. The new cases are awaiting Unity; expected full suite is 342 test cases, not yet verified.
+- The existing Shop sale helper is currently developer-only and has no economic transaction record or AssetOwnershipBook check. A player-facing sale feature must be designed and integrated separately before this helper is exposed as normal gameplay.
+- Save policy: current-format round-trip/reliability first; obsolete development-save compatibility is optional and may be intentionally dropped after substantial schema changes. Never silently corrupt a current-format save.
