@@ -1,12 +1,19 @@
 # Progress
 
-## Current status: NPC interruption/recovery and game-clock pause verified; next focus is the shared-city gameplay loop
+## Current status: shared-city economy Phase 2 verified; next step is a designed player-facing economic slice
 
-The connected NPC framework and WorldPacingDirector foundation are implemented. The user confirmed **226/226 EditMode tests passed** after the pacing test correction (2026-11-17), **245/245** after Item Instance v1 (2026-11-18), and **284/284** after the Milo opportunity and city-navigation geometry work (2026-11-18).
+The user confirmed **316/316 EditMode tests passed on 2026-11-19** after the economy Phase 2 implementation and the follow-up correction to three legacy save-migration test expectations. This verifies the current v8 save/account/ownership implementation at the EditMode-suite level. The user has not yet reported a fresh Play Mode pass specifically for the economy changes.
 
-Player item-knowledge v1, knowledge-aware inspection and save v5 persistence were verified with 255/255 EditMode tests. The user subsequently confirmed the save-v7 Milo parcel scenario works in Play Mode, including carrying the parcel, saving/loading, delivery and being spotted by nearby residents. The new obstacle-aware NPC navigation v1 code is now committed; its Unity compilation, tests and Play Mode routes remain to be verified.
+The working branch is `chore/collaboration-workflow-and-audit`; `main` remains untouched. The active architecture is Signal.Core + Signal.Game. The hideout, connected city, inventory/storage, item identity/state/knowledge, NPC framework, Milo parcel opportunity and NPC navigation foundations remain in place.
 
-The pacing director remains a Core policy foundation, deliberately not wired to gameplay or scenario content. It needs an authored scenario owner, approved tuning, persistence/reconstruction design and a real context-valid candidate source before live integration. Work remains on `chore/collaboration-workflow-and-audit`; `main` is untouched.
+The economy now has:
+- Explicit asset ownership independent of the inventory/container holding an item.
+- Whole-stack owner-to-owner transfer and an append-only transaction ledger.
+- A clean bank/card account used by existing legitimate-money paths.
+- Save v8 persistence for clean balance, player-held carried/storage asset ownership and economic transfer history.
+- Dirty money explicitly excluded from the bank/card account; it is reserved for physical inventory items and future illicit uses.
+
+Phase 2 is verified by the user's 316/316 report. No dirty-money item definition, denomination, cleaning interaction, shady-market exchange, bribe, shop purchase, supplier loop or finite stock gameplay has been implemented. Those player-facing rules must be designed before coding.
 
 ## Approved project direction
 Signal is an immersive top-down 2D urban RPG about making a living in one layered city: meeting people, doing activities for money and resources, trading goods, taking risks, sometimes losing things, discovering secrets and returning to a personal hideout.
@@ -397,6 +404,16 @@ Next: pull the branch and run Unity compilation plus the full EditMode suite. Th
 - Added CleanMoneyAccount tests and SaveMapper migration/round-trip/invalid-record tests.
 
 ### Verification status
-- The 304/304 result applies to Phase 1 code before these Phase 2 changes.
-- Phase 2 code is committed but has not been compiled or run in Unity by the assistant. Unity compilation and the complete EditMode suite are pending the user's Editor run.
-- No Phase 2 Play Mode verification has been performed.
+- User pulled the implementation and confirmed the full EditMode suite **316/316 passed on 2026-11-19**.
+- The first Phase 2 test report was 313/316. All three failures were stale assertions in `ItemInstanceIdentityTests` expecting save version 7 after the save format advanced to v8. The assertions were changed to compare against `SaveMigrator.CurrentVersion`; no production code changed in that correction.
+- The 316/316 result is the user's Unity Test Runner report. The assistant did not independently run Unity.
+- Economy-specific Play Mode behavior has not yet been separately reported; the next in-Editor check should exercise the CARD display and save/load of the balance after any future player-facing economy interaction.
+
+
+## 2026-11-19 — Economy Phase 2 verified and documentation reconciled
+
+- User confirmed **316/316 EditMode tests passed** after pulling the Phase 2 implementation and the three stale save-version test expectation corrections.
+- Phase 2 is now marked verified: CleanMoneyAccount, PlayerStats compatibility delegation, save v8 clean balance migration, player-held ownership persistence, economic transaction persistence, GameSession composition and CARD HUD label.
+- No production-code changes were needed after the 313/316 report; the three failing tests were stale expected-version assertions, corrected to use `SaveMigrator.CurrentVersion`.
+- Housekeeping: refreshed this progress summary, reconciled the economy roadmap/task status, and updated the handoff. Older work-log entries remain as historical records and are not rewritten.
+- Next: design a compact player-facing illicit exchange/dirty-money slice. The physical item representation and its denomination/stack-value convention remain unresolved; do not invent them in implementation.

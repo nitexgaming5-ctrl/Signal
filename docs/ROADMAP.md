@@ -289,38 +289,43 @@ Opportunity 001: Milo's Parcel satisfies the NPC initiative's requirement for a 
 The authored `NpcCharacterDefinition` Inspector workflow remains a useful short validation task, but should not become a large standalone framework initiative.
 ## Economic system initiative — approved 2026-11-19
 
-The next core initiative is the shared city economy, not a second NPC opportunity.
+The shared-city economy is the active initiative. Its foundations are now in place; the next step is a deliberately small player-facing exchange, not more abstract economy infrastructure.
 
 ### Phase 1 — physical asset transfer foundation (implemented; 304/304 user-verified)
-- Stable economic actor identity.
-- Asset ownership independent of physical inventory location.
-- Whole-stack transfer with owner validation and rollback on failure.
-- Transaction records with participants, asset identity, quantity, reason and game timestamp.
-- Reuse existing GridInventory, stable item GUIDs and InventoryTransfer.
-- Core EditMode tests for success, ownership mismatch, unregistered assets, missing assets, full destinations and unchanged same-owner storage moves.
-- The first pass was runtime-only; Phase 2 now adds versioned save persistence for player-held ownership and completed transaction history.
+- [x] Stable economic actor identity.
+- [x] Asset ownership independent of physical inventory location.
+- [x] Whole-stack transfer with owner validation and rollback on failure.
+- [x] Transaction records with participants, asset identity, quantity, reason and game timestamp.
+- [x] Reuse existing GridInventory, stable item GUIDs and InventoryTransfer.
+- [x] Core EditMode coverage for success, ownership mismatch, unregistered assets/containers, full destinations and same-owner storage moves.
 
-### Phase 2 — money and account foundation (Core persistence implemented; Editor verification pending)
-- CleanMoneyAccount is the player's bank/card balance; existing PlayerStats money/rent/debug-sale APIs delegate to it.
-- Save v8 persists the clean balance, carried/home-storage asset ownership mappings and completed economic transfer history.
-- Future cleaning operation consumes dirty-money assets and credits the clean balance directly.
-- Dirty money remains a physical inventory asset, separate from the account; it has no direct deposit or legitimate-payment path. Its item definition/denomination and cleaning interaction remain future work.
+### Phase 2 — clean account and economic persistence (implemented; 316/316 user-verified)
+- [x] CleanMoneyAccount is the player's bank/card balance; existing PlayerStats money/rent/debug-sale APIs delegate to it.
+- [x] Save v8 persists clean balance, carried/home-storage asset ownership mappings and completed economic transfer history.
+- [x] Older v1-v7 saves migrate legacy money unchanged into cleanBalance and assign legacy held items to the player actor.
+- [x] GameSession composes ownership, transaction, container-custody and transfer services.
+- [x] HUD balance label explicitly reads CARD.
+- [x] User confirmed the full EditMode suite **316/316 passed on 2026-11-19** after the save-version assertion correction.
 
-### Phase 3 — economic actors and business assets
-- Resident/business/supplier financial profiles where needed.
-- Physical business stock and supplier relationships.
-- Actor and container registration in the active Game session.
+### Phase 3 — first player-facing illicit exchange (design gate; not yet approved in detail)
+**Recommended outcome:** the player can physically carry dirty-money items and use them in one discreet local exchange, while legitimate purchases continue to use only the clean card balance.
 
-### Phase 4 — first repeatable local economic interaction
-- A small player-facing exchange using real assets and the shared transaction contract.
-- No second quest/opportunity framework and no broad shop simulator.
+Before implementation, agree:
+- The physical dirty-money item form and denomination/stack-value convention.
+- The first exchange's context (who/where/why) and what the player receives.
+- Whether the first slice includes cleaning or only illicit spending; cleaning is already approved as a future operation that consumes dirty-money items and credits the clean card balance directly, but its rate, prerequisites, risks and presentation remain undecided.
+- Any immediate consequences or exposure risk. Do not invent police/heat consequences or criminal progression rules as part of the technical foundation.
 
-### Phase 5 — bounded local economic activity
+Implementation should reuse the existing item identity/state, ownership and transaction services. Keep dirty money out of CleanMoneyAccount and out of legitimate purchase APIs. Prefer one complete local interaction over a generic market/business simulator.
+
+### Phase 4 — bounded local economic activity (later)
 - Simple authored availability for ordinary goods.
 - Selective stock for gameplay-sensitive goods (e.g. drugs and illegal materials).
 - No universal supply/demand, price fluctuation or continuous consumption simulation initially.
 
-### Phase 6 — future economic consumers
-- World/economic events, stocks, lottery, betting, business ownership and laundering, each designed separately and built on the shared foundations.
+### Future consumers (separately designed)
+- Resident/business/supplier financial profiles only when a concrete interaction needs them.
+- World/economic events, stocks, lottery, betting, business ownership and laundering.
+- Each consumer reuses the shared actor, asset and transaction foundations; none is automatically part of the first economy slice.
 
 Stock markets, lottery, gambling, laundering, universal price simulation and business ownership are future consumers, not part of the initial economy foundation.

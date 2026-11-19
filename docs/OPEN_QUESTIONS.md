@@ -93,3 +93,12 @@ The first implementation is Milo, a neighbourhood baker with Work, Rest, Sociali
 - Dirty-money bundle denominations / stack-value convention.
 - The first illicit exchange and future cleaning interaction's risks, rates and prerequisites.
 - Which specific illegal goods require finite stock in the first neighbourhood.
+
+
+## Economy — first player-facing illicit exchange
+
+The following decisions remain open before Phase 3 implementation:
+- **Dirty-money physical form and denomination:** one fixed-value bundle item with stack quantity, several denomination item definitions, or another physical representation. Recommendation: prefer one simple bundle denomination for the first slice unless the interaction needs change-making; confirm its value before authoring content.
+- **First exchange:** which counterparty/location and what good or service the player receives. Recommendation: one discreet, local, repeatable exchange that demonstrates physical payment and asset ownership without requiring a general market.
+- **Cleaning scope:** cleaning dirty-money items into the clean card balance is approved as a future direction, but rate, prerequisites, risks and interaction are undecided. Recommendation: keep it outside the first illicit-spending slice unless it is necessary to demonstrate the clean/dirty boundary.
+- **Consequences:** whether the first exchange creates exposure or any other consequence. Recommendation: keep the first implementation consequence-light; do not add heat/police/criminal progression rules without a separate design decision.

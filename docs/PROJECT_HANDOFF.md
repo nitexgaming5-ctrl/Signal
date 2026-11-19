@@ -1,6 +1,6 @@
 # Signal — project handoff for the next agent
 
-> Read this document together with `AGENTS.md`, `docs/PROGRESS.md`, `docs/ROADMAP.md`, `docs/VISION.md`, `docs/ARCHITECTURE.md`, `docs/NPC_FRAMEWORK.md`, `docs/DESIGN.md`, `docs/OPEN_QUESTIONS.md` and `docs/DEVELOPMENT_WORKFLOW.md` before substantial work. This is the consolidated design and implementation handoff from the discussions and user-confirmed decisions through 2026-11-18. The user is the game director.
+> Read this document together with `AGENTS.md`, `docs/PROGRESS.md`, `docs/ROADMAP.md`, `docs/VISION.md`, `docs/ARCHITECTURE.md`, `docs/NPC_FRAMEWORK.md`, `docs/DESIGN.md`, `docs/OPEN_QUESTIONS.md` and `docs/DEVELOPMENT_WORKFLOW.md` before substantial work. This is the consolidated design and implementation handoff from the discussions and user-confirmed decisions through 2026-11-19. The user is the game director.
 
 ## 1. What Signal is
 
@@ -426,3 +426,23 @@ Branch: chore/collaboration-workflow-and-audit.
 - Legacy v1-v7 money migrates unchanged to the clean balance; legacy carried/storage items default to player ownership when no explicit owner exists.
 - Dirty-money content definitions, denominations and cleaning mechanics are not implemented yet.
 - Phase 2 Unity compilation and full EditMode verification are pending user run.
+
+
+## 13. Latest economy status — 2026-11-19
+
+The user confirmed **316/316 EditMode tests passed** after Economy Phase 2 and the three stale save-version test expectation fixes.
+
+### Verified economy foundations
+- Core asset ownership is independent of container custody.
+- Whole-stack owner-to-owner transfers validate owner and registered custody, preserve item identity/state and append completed transaction records.
+- `CleanMoneyAccount` is the player's clean bank/card balance. Existing `PlayerStats.Money`, `Earn` and `TrySpend` compatibility paths delegate to it.
+- Dirty money is not an account balance and has no direct deposit or legitimate-payment path. It must be represented by physical inventory items for illicit exchanges.
+- Save v8 persists clean balance, carried/storage asset ownership and completed economic transactions. v1-v7 legacy money migrates unchanged into cleanBalance.
+- GameSession composes the ownership book, transaction ledger, container registry and transfer service; player carried inventory and home storage are player-custodied.
+- HUD labels the clean balance as CARD.
+
+### Verification provenance
+The user's Unity Test Runner reported 313/316 initially. The three failures were old assertions expecting save version 7 in `ItemInstanceIdentityTests`; they were corrected to assert `SaveMigrator.CurrentVersion`. The user then confirmed **316/316**. The assistant did not run Unity independently. Economy-specific Play Mode checks have not yet been separately reported.
+
+### Immediate next step
+Design the first small player-facing illicit exchange around a physical dirty-money item. The exact item form and denomination/stack-value convention are still open. Cleaning dirty money into the clean card balance is an approved direction, but its rate, prerequisites, risks and interaction are not specified. Do not implement those unresolved rules without the user's approval.
