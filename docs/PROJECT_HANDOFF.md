@@ -466,7 +466,7 @@ User-approved rules:
 ### Code now on the branch
 - Core resident account registry, atomic retail purchase service and retail transaction ledger.
 - Save v9 resident account balances and retail transaction history; v1–v8 migration preserved and legacy account initialization made deterministic.
-- NPC authored starting clean balance, BusinessDefinition ScriptableObject, keyboard-driven RetailPanel and GameSession integration.
+- NPC authored starting clean balance, BusinessDefinition ScriptableObject, click-driven RetailPanel (product rows with BUY buttons) and GameSession integration.
 - Core and Game EditMode tests authored; not run by the assistant.
 - F1 debug view shows each spawned resident's clean-money balance and the retail transaction count.
 
@@ -474,3 +474,9 @@ User-approved rules:
 The Corner Bakery definition has already been created at `Assets/_Project/Content/Businesses/Business_CornerShop.asset` and assigned to `GameSession.Businesses` in `HideoutSlice.unity`. It targets Milo, `CornerShop`, 06:30–18:00 and interaction point (1000, 1000.6).
 
 The catalogue now contains `Item_Bread.asset` at a temporary CARD $5 test price, explicitly chosen only to exercise the purchase path. The item uses a 1×1 footprint and stack limit 10 with ordinary default state. No final price balancing is implied. Next, compile, run the full EditMode suite and verify a Bread purchase plus save/load in Play Mode. The assistant cannot run Unity. Existing Core `Shop` / `ShopOrder` selling logic remains unchanged.
+
+
+### Retail UI test follow-up — 2026-11-19
+- The retail panel is now click-driven: each catalogue row displays the item and fixed price with an adjacent BUY button. Paging and close are clickable; ESC also closes the panel. It uses runtime UGUI with an EventSystem and InputSystemUIInputModule.
+- `HideoutSlice.unity` seeds the player's clean CARD balance at $5,000 for testing. This is only a test starting value. Loading an existing save restores the saved balance, so use a fresh game to observe the seed.
+- This UI is still a first-pass test interface, not the final visual/UI design. Unity compile, tests and Play Mode purchase verification remain outstanding.
