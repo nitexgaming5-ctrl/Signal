@@ -2,7 +2,7 @@
 
 **Date:** 2026-11-19  
 **Branch:** `chore/collaboration-workflow-and-audit`  
-**Status:** code safeguards and regression tests added; Unity verification pending.
+**Status:** verified by the user; 342/342 EditMode tests passed (2026-11-19).
 
 ## Scope
 
@@ -42,7 +42,7 @@ The helper now rejects empty item IDs and non-positive unit prices/totals before
 - Shop: order with uninitialized ItemType is rejected as invalid.
 - RetailService: parameterized cases for zero/negative quantity, zero/negative unit price and total-cost overflow. Each asserts balances, inventory, ownership and retail ledger remain unchanged.
 
-Previous user-verified suite: **335/335**. Seven new test cases were added; expected next suite count is **342**. The assistant cannot run Unity; the new cases await user verification.
+Previous user-verified suite: **335/335**. The user subsequently confirmed **342/342 EditMode tests passed**, verifying all seven added cases.
 
 ## Deliberate boundary / remaining design work
 
@@ -60,3 +60,8 @@ That future integration must preserve the current user decision that sell-to-sho
 ## Save policy clarification
 
 The user decided that current-format save/load reliability and round-trip tests matter most. Obsolete development saves need not be preserved indefinitely; substantial changes may intentionally require a fresh game. Current saves must not be silently corrupted or discarded.
+
+
+## Final verification — 2026-11-19
+
+The user confirmed **342/342 EditMode tests passed**. The audit is closed. No new player-facing selling code was added; that is a separate design initiative.
