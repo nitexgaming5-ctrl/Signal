@@ -567,7 +567,7 @@ The new regression test has not yet been run; expected full suite is now 355. Un
 
 ### SELL test fixture update — 2026-11-19
 
-The user authorized temporary test content. `Business_CornerShop.asset` now has a separate buyback offer for `Item_Bread.asset` at CARD $3 per unit; its existing merchandise offer remains CARD $5. Use a fresh game, buy/carry Bread or otherwise obtain player-owned Bread, then test partial and full sales. Remove/revise the buyback fixture after the SELL verification pass. The 354-test baseline is user-confirmed; the added seller-boundary test makes 355 expected, not yet verified.
+The user authorized temporary test content. `Business_CornerShop.asset` now has a separate buyback offer for `Item_Bread.asset` at CARD $3 per unit; its existing merchandise offer remains CARD $5. Use a fresh game, buy/carry Bread or otherwise obtain player-owned Bread, then test partial and full sales. Remove/revise the buyback fixture after the SELL verification pass. The user subsequently confirmed the full EditMode suite 355/355 after the added seller-boundary test; Play Mode verification remains pending.
 
 ## Economy Engine inspiration captured (2026-11-19)
 
