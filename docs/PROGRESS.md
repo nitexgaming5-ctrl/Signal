@@ -2,7 +2,7 @@
 
 ## Current status: Economy Phase 2 verified; Phase 3 Business & Retail first implementation pass added, Unity verification pending
 
-The user confirmed **316/316 EditMode tests passed on 2026-11-19** after the economy Phase 2 implementation and the follow-up correction to three legacy save-migration test expectations. This verifies the current v8 save/account/ownership implementation at the EditMode-suite level. The user has not yet reported a fresh Play Mode pass specifically for the economy changes.
+The user confirmed **316/316 EditMode tests passed on 2026-11-19** after the economy Phase 2 implementation and the follow-up correction to three legacy save-migration test expectations. This verifies the Phase 2 v8 save/account/ownership implementation as it stood at that time. The Phase 3 v9 resident-account/retail changes and newly authored tests have not yet been run by the user. No Phase 3 Play Mode verification has been reported.
 
 The working branch is `chore/collaboration-workflow-and-audit`; `main` remains untouched. The active architecture is Signal.Core + Signal.Game. The hideout, connected city, inventory/storage, item identity/state/knowledge, NPC framework, Milo parcel opportunity and NPC navigation foundations remain in place.
 
