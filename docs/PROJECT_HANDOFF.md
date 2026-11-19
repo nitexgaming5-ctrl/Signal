@@ -552,3 +552,14 @@ The recurring version failure was caused by a stale test expectation, not by a r
 - Historical input versions remain explicit in fixtures; only the expected migrated/current version uses the constant.
 - The rule is documented beside `SaveMigrator.CurrentVersion` and in `docs/DATA_MODEL.md`: increment only for serialized persistent-schema changes, not ordinary UI/runtime/gameplay changes.
 - No production migration behavior or serialized fields changed in this maintenance pass. Unity compile and EditMode verification remain pending.
+
+
+## 2026-11-19 — 354/354 confirmed; sale boundary hardening
+
+The user confirmed **354/354 EditMode tests passed** after the save-version test correction. The save-version maintenance issue is closed.
+
+A further review of the active player-selling initiative found two defensive improvements, now committed:
+- `Shop.TryFulfilExact` now rejects any seller other than `EconomicActorId.Player`, matching its player-facing contract. A new test verifies that even a resident who owns a stack cannot use the player sale operation; no inventory, ownership, account or ledger state changes.
+- `GameSession.SellToBusiness` revalidates the exact active `BusinessDefinition` object reference, not merely its ID, to avoid stale or duplicate-ID content references being accepted.
+
+The new regression test has not yet been run; expected full suite is now 355. Unity compilation and SELL Play Mode checks remain pending. The user must author at least one buyback offer (item + positive fixed price) to test the UI; none is invented in the Corner Bakery asset.
