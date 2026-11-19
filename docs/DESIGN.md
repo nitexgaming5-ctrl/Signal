@@ -66,7 +66,7 @@ Signal has one connected city economy shared by residents, businesses, suppliers
 - Do not implement universal supply/demand, automatic price fluctuations or continuous consumption simulation initially.
 - Ordinary goods do not need continuously simulated stock.
 - Use authored/simple availability for ordinary shop goods.
-- Track stock selectively where it matters to gameplay, such as drugs, illegal materials and other explicitly stock-sensitive supplies.
+- Finite stock is not part of Phase 3. Which goods, if any, should have finite stock and how they restock remain undecided until a concrete gameplay need is designed.
 - Businesses, suppliers and residents will eventually participate in the same shared economy. The simulation should be bounded and event-driven rather than simulating every purchase.
 
 ### Future systems
