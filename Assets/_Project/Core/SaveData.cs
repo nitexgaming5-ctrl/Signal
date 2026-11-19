@@ -95,6 +95,27 @@ namespace Signal.Core
     }
 
     [Serializable]
+    public sealed class SavedEconomicAccount
+    {
+        public string actorId;
+        public int balance;
+    }
+
+    [Serializable]
+    public sealed class SavedRetailTransaction
+    {
+        public string transactionId;
+        public string businessId;
+        public string customerActorId;
+        public string ownerActorId;
+        public string itemDefinitionId;
+        public int quantity;
+        public int totalAmount;
+        public int day;
+        public int minuteOfDay;
+    }
+
+    [Serializable]
     public sealed class SaveData
     {
         public int version = SaveMigrator.CurrentVersion;
@@ -119,6 +140,8 @@ namespace Signal.Core
         public List<SavedPlayerRelationship> playerRelationships = new List<SavedPlayerRelationship>();
         public List<SavedAssetOwner> assetOwners = new List<SavedAssetOwner>();
         public List<SavedEconomicTransaction> economicTransactions = new List<SavedEconomicTransaction>();
+        public List<SavedEconomicAccount> residentAccounts = new List<SavedEconomicAccount>();
+        public List<SavedRetailTransaction> retailTransactions = new List<SavedRetailTransaction>();
     }
 
     public sealed class LoadReport
@@ -132,14 +155,16 @@ namespace Signal.Core
         public int SkippedPlayerRelationships { get; set; }
         public int SkippedAssetOwners { get; set; }
         public int SkippedEconomicTransactions { get; set; }
+        public int SkippedResidentAccounts { get; set; }
+        public int SkippedRetailTransactions { get; set; }
         public OpportunityState RestoredOpportunity { get; set; }
     }
 
     public static class SaveMigrator
     {
-        public const int CurrentVersion = 8;
+        public const int CurrentVersion = 9;
 
-        /// <summary>Accepts save formats v1 through v8 and migrates them to the current inventory, player-knowledge and economic format.</summary>
+        /// <summary>Accepts save formats v1 through v9 and migrates them to the current inventory, social and economic format.</summary>
         public static bool TryMigrate(SaveData data, out string error)
         {
             error = null;
@@ -206,6 +231,12 @@ namespace Signal.Core
             if (data.economicTransactions == null)
                 data.economicTransactions = new List<SavedEconomicTransaction>();
 
+            // Version 9 adds resident clean-account balances and the retail purchase ledger.
+            if (data.residentAccounts == null)
+                data.residentAccounts = new List<SavedEconomicAccount>();
+            if (data.retailTransactions == null)
+                data.retailTransactions = new List<SavedRetailTransaction>();
+
             data.version = CurrentVersion;
 
             return true;
@@ -246,7 +277,9 @@ namespace Signal.Core
                                        PlayerDiscoveryLedger discoveries = null, OpportunityState opportunity = null,
                                        PlayerRelationshipBook relationships = null,
                                        AssetOwnershipBook assetOwnership = null,
-                                       EconomicTransactionLedger economicTransactions = null)
+                                       EconomicTransactionLedger economicTransactions = null,
+                                       EconomicAccountBook economicAccounts = null,
+                                       RetailTransactionLedger retailTransactions = null)
         {
             if (stats == null) throw new ArgumentNullException(nameof(stats));
             if (inventory == null) throw new ArgumentNullException(nameof(inventory));
@@ -278,6 +311,8 @@ namespace Signal.Core
             data.opportunity = CaptureOpportunity(opportunity);
             CapturePlayerRelationships(relationships, data.playerRelationships);
             CaptureEconomicState(inventory, storage, assetOwnership, economicTransactions, data);
+            CaptureResidentAccounts(economicAccounts, data.residentAccounts);
+            CaptureRetailTransactions(retailTransactions, data.retailTransactions);
 
             return data;
         }
@@ -294,7 +329,9 @@ namespace Signal.Core
                                        PlayerDiscoveryLedger discoveries = null,
                                        PlayerRelationshipBook relationships = null,
                                        AssetOwnershipBook assetOwnership = null,
-                                       EconomicTransactionLedger economicTransactions = null)
+                                       EconomicTransactionLedger economicTransactions = null,
+                                       EconomicAccountBook economicAccounts = null,
+                                       RetailTransactionLedger retailTransactions = null)
         {
             if (stats == null) throw new ArgumentNullException(nameof(stats));
             if (inventory == null) throw new ArgumentNullException(nameof(inventory));
@@ -326,6 +363,8 @@ namespace Signal.Core
             int skippedRelationships = RestorePlayerRelationships(data.playerRelationships, relationships);
             int skippedOwners = RestoreAssetOwners(data.assetOwners, inventory, storage, assetOwnership);
             int skippedTransactions = RestoreEconomicTransactions(data.economicTransactions, economicTransactions);
+            int skippedAccounts = RestoreResidentAccounts(data.residentAccounts, economicAccounts);
+            int skippedRetail = RestoreRetailTransactions(data.retailTransactions, retailTransactions);
             OpportunityState restoredOpportunity = RestoreOpportunity(data.opportunity);
 
             return new LoadReport
@@ -338,10 +377,88 @@ namespace Signal.Core
                 SkippedPlayerRelationships = skippedRelationships,
                 SkippedAssetOwners = skippedOwners,
                 SkippedEconomicTransactions = skippedTransactions,
+                SkippedResidentAccounts = skippedAccounts,
+                SkippedRetailTransactions = skippedRetail,
                 RestoredOpportunity = restoredOpportunity
             };
         }
 
+
+        private static void CaptureResidentAccounts(EconomicAccountBook accounts, List<SavedEconomicAccount> destination)
+        {
+            if (accounts == null) return;
+            foreach (KeyValuePair<EconomicActorId, CleanMoneyAccount> entry in accounts.Accounts)
+            {
+                // The player's account already has its canonical cleanBalance save field.
+                if (entry.Key == EconomicActorId.Player || entry.Value == null) continue;
+                destination.Add(new SavedEconomicAccount { actorId = entry.Key.Value, balance = entry.Value.Balance });
+            }
+        }
+
+        private static int RestoreResidentAccounts(List<SavedEconomicAccount> savedAccounts, EconomicAccountBook destination)
+        {
+            if (destination == null) return 0;
+            int skipped = 0;
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+            if (savedAccounts == null) return skipped;
+            foreach (SavedEconomicAccount saved in savedAccounts)
+            {
+                if (saved == null || string.IsNullOrWhiteSpace(saved.actorId) ||
+                    string.Equals(saved.actorId, EconomicActorId.Player.Value, StringComparison.Ordinal) ||
+                    saved.balance < 0 || !seen.Add(saved.actorId))
+                { skipped++; continue; }
+                try
+                {
+                    if (!destination.RestoreBalance(new EconomicActorId(saved.actorId), saved.balance))
+                        skipped++;
+                }
+                catch (ArgumentException) { skipped++; }
+            }
+            return skipped;
+        }
+
+        private static void CaptureRetailTransactions(RetailTransactionLedger ledger, List<SavedRetailTransaction> destination)
+        {
+            if (ledger == null) return;
+            foreach (RetailTransaction transaction in ledger.Transactions)
+                destination.Add(new SavedRetailTransaction
+                {
+                    transactionId = transaction.TransactionId.ToString(),
+                    businessId = transaction.BusinessId,
+                    customerActorId = transaction.Customer.Value,
+                    ownerActorId = transaction.Owner.Value,
+                    itemDefinitionId = transaction.ItemDefinitionId.ToString(),
+                    quantity = transaction.Quantity,
+                    totalAmount = transaction.TotalAmount,
+                    day = transaction.Day,
+                    minuteOfDay = transaction.MinuteOfDay
+                });
+        }
+
+        private static int RestoreRetailTransactions(List<SavedRetailTransaction> savedTransactions, RetailTransactionLedger destination)
+        {
+            if (destination == null) return 0;
+            destination.Clear();
+            int skipped = 0;
+            if (savedTransactions == null) return skipped;
+            foreach (SavedRetailTransaction saved in savedTransactions)
+            {
+                if (saved == null || !Guid.TryParse(saved.transactionId, out Guid transactionId) ||
+                    !Guid.TryParse(saved.itemDefinitionId, out Guid itemDefinitionId) ||
+                    string.IsNullOrWhiteSpace(saved.businessId) ||
+                    string.IsNullOrWhiteSpace(saved.customerActorId) || string.IsNullOrWhiteSpace(saved.ownerActorId))
+                { skipped++; continue; }
+                try
+                {
+                    var transaction = new RetailTransaction(transactionId, saved.businessId,
+                        new EconomicActorId(saved.customerActorId), new EconomicActorId(saved.ownerActorId),
+                        itemDefinitionId, saved.quantity, saved.totalAmount, saved.day, saved.minuteOfDay);
+                    if (!destination.TryRecord(transaction)) skipped++;
+                }
+                catch (ArgumentException) { skipped++; }
+            }
+            return skipped;
+        }
 
         private static void CaptureEconomicState(GridInventory inventory, GridInventory storage,
             AssetOwnershipBook ownership, EconomicTransactionLedger ledger, SaveData destination)
