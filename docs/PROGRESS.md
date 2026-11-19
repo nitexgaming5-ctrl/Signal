@@ -11,7 +11,8 @@ The economy now has:
 - Whole-stack owner-to-owner transfer and an append-only transaction ledger.
 - A clean bank/card account used by existing legitimate-money paths, plus passive personal clean accounts for residents and an atomic retail purchase service that credits business owners.
 - Save v10 persistence for clean balance, resident account balances, player-held carried/storage asset ownership, economic transfer history, retail purchase history and the dedicated player-to-business sale ledger.
-- Player-to-business sales use separate per-business fixed-price buyback offers, exact carried-stack identity and player ownership validation; sale history is separate from transfers and retail purchases.\n- Dirty money explicitly excluded from the bank/card account; it is reserved for physical inventory items and future illicit uses.
+- Player-to-business sales use separate per-business fixed-price buyback offers, exact carried-stack identity and player ownership validation; sale history is separate from transfers and retail purchases.
+- Dirty money explicitly excluded from the bank/card account; it is reserved for physical inventory items and future illicit uses.
 
 Phase 2 is verified by the user's 316/316 report. No dirty-money item definition, cleaning interaction, shady-market exchange, bribe, supplier loop or finite-stock gameplay has been implemented. The Corner Bakery now has an authored Bread ItemDefinition and a one-item catalogue priced at CARD $5 as a temporary test value. The catalogue remains unlimited and event-driven.
 
@@ -514,3 +515,13 @@ Implemented the approved player-facing sale slice on `chore/collaboration-workfl
 - No Corner Bakery buyback items/prices were authored because the user approved the model, not content entries.
 - Added 7 Core sale/inventory tests, 2 BusinessDefinition buyback tests and 3 save/migration tests (12 new test cases; expected suite 354 from the previously verified 342 baseline). These tests are authored but **not yet run in Unity**.
 - No Unity compile, EditMode run or Play Mode verification has been performed by the assistant. User verification remains required.
+
+
+## 2026-11-19 — Save-version test maintenance
+
+- Audited the current save schema and migration tests after the v9 → v10 shop-sale ledger addition.
+- `SaveMigrator.CurrentVersion` remains the single authoritative current-format number. It should change only when serialized persistent data changes; UI, runtime-only and ordinary gameplay logic changes do not require a save-version increment.
+- Fixed the stale v8 migration test that expected literal version 9. It now expects `SaveMigrator.CurrentVersion` and also verifies that the migration initializes the v10 shop-sale ledger.
+- Fixed the v9 → current migration test to assert `SaveMigrator.CurrentVersion` rather than literal 10. Historical source versions remain explicit in test fixtures.
+- Added the versioning rule beside `SaveMigrator.CurrentVersion` and aligned the player-selling task status with the implemented code.
+- These are test/documentation maintenance changes; no save schema or runtime migration behavior changed. Unity compilation and the full EditMode suite are pending user verification.
