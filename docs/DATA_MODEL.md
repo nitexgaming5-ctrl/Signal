@@ -28,7 +28,7 @@ Ids: each ScriptableObject gets a `Guid` field generated once and never changed,
 - File location: `SignalSave/` in project root (already gitignored).
 
 ## Migration
-When a save shape changes, bump `version` and write a migration function in Core with a test.
+When a save shape changes, keep the current format reliable and add round-trip coverage for the new persistent state. The project does not need to preserve every obsolete development save or maintain a migration chain for all intermediate versions. A substantial schema change may intentionally invalidate older development saves and require a fresh game. Never silently corrupt or discard a current-format save; make intentional incompatibility explicit and protect the active save during writes.
 
 
 ## Item state, player knowledge and inspection
@@ -120,3 +120,11 @@ When a save shape changes, bump `version` and write a migration function in Core
 - Save v9 stores resident account balances and retail transaction history. Authored business definitions, schedules, prices and unlimited catalogue entries are loaded from content and are not serialized.
 - Existing player-to-shop sale behaviour and its valuation/acceptance rules remain unchanged in this phase.
 - No NPC spending/earning simulation, automatic business sales, operating costs, finite stock, restocking, dynamic pricing or dirty-money retail is implemented.
+
+
+## Current persistence policy (user decision, 2026-11-19)
+
+- Current-format save/load correctness and round-trip tests are mandatory when persistent state changes.
+- Backward compatibility with obsolete development saves is optional; do not spend disproportionate effort maintaining historical migrations.
+- Substantial changes may intentionally invalidate older development saves and require a new game.
+- Current-format saves must not be silently corrupted or discarded. Save writes should remain reliable/atomic, and intentional resets/incompatibilities must be explicit.
