@@ -1,6 +1,6 @@
 # Progress
 
-## Current status: Economy Phase 2 verified; Phase 3 Business & Retail approved, implementation not yet started
+## Current status: Economy Phase 2 verified; Phase 3 Business & Retail first implementation pass added, Unity verification pending
 
 The user confirmed **316/316 EditMode tests passed on 2026-11-19** after the economy Phase 2 implementation and the follow-up correction to three legacy save-migration test expectations. This verifies the current v8 save/account/ownership implementation at the EditMode-suite level. The user has not yet reported a fresh Play Mode pass specifically for the economy changes.
 
@@ -419,26 +419,27 @@ Next: pull the branch and run Unity compilation plus the full EditMode suite. Th
 - Next: design a compact player-facing illicit exchange/dirty-money slice. The physical item representation and its denomination/stack-value convention remain unresolved; do not invent them in implementation.
 
 
-## 2026-11-19 — Economy Phase 3 redirected and approved: Business & Retail
 
-The earlier Phase 3 illicit-vendor proposal was superseded after the user clarified that the active initiative is the shared economy itself, not another NPC opportunity or a discreet seller scenario. No illicit seller, dirty-cash bundle, contraband or seller-stock implementation should be started under Phase 3.
+## 2026-11-19 — Economy Phase 3: Business & Retail first implementation pass
 
-User-approved rules:
-- Every resident has a personal clean-money account.
-- Business merchandise is predefined according to authored business/NPC roles.
-- Prices are fixed authored values for now; reputation-based fluctuations are a future possibility.
-- Business revenue from player purchases credits the NPC owner's personal account directly. There is no separate business revenue balance.
-- Existing player-to-shop selling behaviour is retained; do not invent new item acceptance or valuation rules.
-- Merchandise is unlimited for now and available whenever the business is open.
-- No supplier, delivery, production, ingredients, skills, finite stock, restocking, NPC shopping behaviour, automatic sales, passive revenue or continuous/hourly simulation.
-- Economy changes occur only on relevant gameplay events. Dirty money remains physical items and never enters clean accounts or legitimate retail.
+The approved shared-economy retail scope is in implementation. The old illicit-vendor proposal remains superseded.
 
-The implementation specification is `docs/tasks/ECONOMY-PHASE-3-BUSINESSES-RETAIL.md`. The old illicit-exchange task file is explicitly marked superseded.
+### Added
+- Core EconomicAccountBook registers the existing player clean account and idempotently creates one passive clean account per resident actor. It prevents two actors from sharing one account instance and remembers authored initial balances.
+- Added RetailService for atomic catalogue purchases: validates actors, account availability, price/quantity/time, existing stack ownership and inventory capacity; debits the customer; credits the resident owner; grants merchandise; registers new item-stack ownership; and records one retail transaction. Failure restores both balances, inventory and newly registered ownership.
+- Added RetailTransactionLedger and transaction data separate from the physical asset-transfer ledger. Unlimited catalogue purchases do not pretend to transfer a pre-existing finite stock stack.
+- Save format advanced v8 → v9. v9 persists resident account balances and retail transaction history. v1–v8 migrations initialize these collections; legacy loads restore resident authored starting balances, while v9 saved balances override them. Player clean balance remains in its canonical cleanBalance field.
+- Added StartingCleanBalance to authored NPC definitions and registers all spawned residents, including fallback fixtures, with their own account.
+- Added BusinessDefinition ScriptableObject with stable business ID, owner NPC ID, location/interaction point, opening schedule and ItemDefinition-based fixed-price catalogue.
+- Added a compact keyboard-driven RetailPanel with paged 1–9 catalogue selection and ESC close.
+- GameSession now resolves nearby authored businesses, opens the panel, revalidates opening hours and offers on purchase, and credits the owner's account. Business merchandise is included in the item-definition save resolver.
+- Existing Core Shop / ShopOrder selling rules were not changed.
+- Added Core tests for account registration/isolation, purchase success, insufficient funds, full inventory rollback, owner-account overflow, ownership validation, save v9 round-trip, legacy starting-balance reset and malformed-record handling. Added Game tests for the authored business schedule/default owner.
 
-Implementation status at this documentation checkpoint:
-- Specification and roadmap direction updated.
-- No Phase 3 gameplay code has been changed yet.
-- Next: inspect and implement the shared resident-account/persistence layer, then business definitions, atomic retail purchase, and first CornerShop integration.
-- Expected save version: v9 for resident account balances and retail transaction history.
-- Unity compilation, EditMode and Play Mode verification have not been performed for Phase 3.
+### Not yet complete / verification
+- No merchandise catalogue or prices were invented. A Business Definition asset must be created in Unity and assigned to GameSession's Businesses array. Defaults target owner NPC ID milo, location CornerShop, opening 06:30–18:00 and interaction point (1000, 1000.4); the user should author the actual ItemDefinition entries and prices.
+- The generic CornerShop interaction is implemented, but the shop is not populated until that authored asset is configured.
+- Tests are authored but have not been executed. The assistant cannot run the Unity Editor, so Unity compilation, full EditMode suite and Play Mode verification remain pending.
+- Existing player-to-shop selling code remains unchanged; no new sell valuation, acceptance rules or shop budget were introduced.
 
+Next: create/configure the Business Definition asset in Unity, then run compilation and the full EditMode suite before Play Mode testing the purchase and save/load path.
