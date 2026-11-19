@@ -133,9 +133,9 @@ Economic rules belong in Signal.Core as plain C#; Unity presentation, authoring 
 - Actor identity and asset ownership are explicit. A physical inventory is a location/container, not proof of ownership.
 - AssetTransferService composes the existing stable stack identity and InventoryTransfer behavior with ownership validation and an append-only transaction ledger.
 - Moving an item between containers of the same owner remains an inventory operation. A change of owner is an economic asset transfer.
-- Monetary accounts will be distinct from physical inventories. Dirty money is a physical inventory asset and must never be accepted by legitimate bank/card operations.
-- Avoid a monolithic EconomyManager. Future account, business and market services should compose the shared actor, asset and transaction primitives.
-- Phase 1 ownership/transaction state is currently runtime-only. Before any persistent gameplay integration, add versioned save support and restore ownership consistently with carried, stored and world-held assets.
+- Monetary accounts are distinct from physical inventories. Dirty money is a physical inventory asset and is never accepted by legitimate bank/card operations.
+- Avoid a monolithic EconomyManager. EconomicAccountBook, RetailService and future market services compose the shared actor, asset and transaction primitives.
+- Save v8 persists the player clean balance, held-asset ownership and physical asset-transfer history. Save v9 adds resident account balances and retail purchase history; runtime container custody is reconstructed from live GridInventory references.
 - No universal supply/demand simulation is planned for the initial economy; stock simulation is selective and gameplay-driven.
 
 
@@ -145,7 +145,17 @@ EconomicContainerRegistry records the custodian for each runtime inventory conta
 ## Economic account and persistence composition
 
 - `CleanMoneyAccount` is a Core account owned by `PlayerStats`. Legacy `Money`, `Earn` and `TrySpend` APIs delegate to it, so rent and debug-sale paths remain clean-account operations.
-- Dirty money is never a field in PlayerStats or CleanMoneyAccount. It is represented by physical inventory stacks; future illicit payment/cleaning services must consume or transfer those stacks explicitly.
-- GameSession owns the runtime AssetOwnershipBook, EconomicTransactionLedger, EconomicContainerRegistry and AssetTransferService. It registers carried inventory and home storage as player-custodied containers.
-- SaveMapper v8 persists the clean balance, player-held asset owner mappings and completed economic transaction records. Older saves migrate their money value to the clean balance and assign legacy held items to the player actor.
+- `EconomicAccountBook` registers the same player account under actor `player` and one independent account for each resident under `resident:<npc-id>`. Authored resident starting balances initialize once; saved v9 balances override them.
+- Dirty money is never a field in PlayerStats, CleanMoneyAccount or EconomicAccountBook. It remains a physical inventory asset; future illicit payment/cleaning services must consume or transfer those stacks explicitly.
+- GameSession composes AssetOwnershipBook, EconomicTransactionLedger, EconomicContainerRegistry, AssetTransferService, EconomicAccountBook, RetailService and RetailTransactionLedger. It registers carried inventory and home storage as player-custodied containers and registers spawned residents as financial actors.
+- SaveMapper v8 persists the player clean balance, player-held asset owner mappings and physical asset-transfer records. Save v9 additionally persists resident account balances and retail transaction history. Older saves preserve the player balance and initialize the new resident/retail collections safely.
 - The container registry is rebuilt from live GridInventory references; Unity object/container references are not serialized.
+
+
+## Business and retail runtime (Phase 3 first pass)
+
+- `BusinessDefinition` is authored Game content: stable business ID, display/type, resident owner ID, city location, interaction point, opening schedule and an unlimited catalogue of `ItemDefinition` references with fixed clean-money prices. It is not serialized into save data.
+- `RetailPanel` is a shared keyboard-driven catalogue UI. GameSession resolves the nearby business, checks its schedule and owner account, and delegates each confirmed one-unit purchase to Core `RetailService`.
+- `RetailService` validates customer/owner accounts, clean balance, inventory capacity and ownership of any matching stack that may be topped up. It grants the item using the authored default state, registers new stack ownership, transfers clean money from customer to owner and appends a `RetailTransaction`. It restores the pre-operation state on failure.
+- `RetailTransactionLedger` is distinct from the physical asset-transfer ledger because unlimited catalogue merchandise is instantiated for the customer rather than transferred from a finite business inventory.
+- The Corner Bakery definition is assigned in the active HideoutSlice scene. Its catalogue is intentionally empty pending user-approved merchandise and prices. Existing Core `Shop` / `ShopOrder` selling logic remains unchanged.
