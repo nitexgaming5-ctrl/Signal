@@ -568,3 +568,7 @@ The new regression test has not yet been run; expected full suite is now 355. Un
 ### SELL test fixture update — 2026-11-19
 
 The user authorized temporary test content. `Business_CornerShop.asset` now has a separate buyback offer for `Item_Bread.asset` at CARD $3 per unit; its existing merchandise offer remains CARD $5. Use a fresh game, buy/carry Bread or otherwise obtain player-owned Bread, then test partial and full sales. Remove/revise the buyback fixture after the SELL verification pass. The 354-test baseline is user-confirmed; the added seller-boundary test makes 355 expected, not yet verified.
+
+## Economy Engine inspiration captured (2026-11-19)
+
+The user asked us to review Unity Asset Store's Economy Engine 1.4 as inspiration. Five directions are parked in docs/IDEA_BACKLOG.md and sequenced as future candidates in docs/ROADMAP.md: context-specific shared trade foundations, an Economy Library/editor workflow, contextual loot tables, item-for-item barter and narrowly authored currency exchange. These are not approved mechanics or a commitment to adopt the asset/package. Preserve existing Signal Core/Game architecture and current economy constraints. The current active SELL slice still requires Play Mode verification; user has confirmed 355/355 EditMode tests.
