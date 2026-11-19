@@ -307,7 +307,7 @@ The shared-city economy is the active initiative. Its foundations are now in pla
 - [x] HUD balance label explicitly reads CARD.
 - [x] User confirmed the full EditMode suite **316/316 passed on 2026-11-19** after the save-version assertion correction.
 
-### Phase 3 — businesses and retail (approved; implementation next)
+### Phase 3 — businesses and retail (first implementation pass added; Unity verification pending)
 **Player outcome:** visit an ordinary business during authored opening hours, browse its predefined merchandise and purchase goods with clean CARD money. Business revenue goes directly to the resident owner's personal account. Existing sell-to-shop behaviour remains intact.
 
 - [x] User approved the revised Business & Retail scope on 2026-11-19.
