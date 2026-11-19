@@ -111,7 +111,7 @@ namespace Signal.Core
                 item.Id, quantity, total, day, minuteOfDay);
             if (!_ledger.TryRecord(transaction))
             {
-                Rollback(customerInventory, inventoryBefore, customerAccount, customerBalanceBefore,
+                Rollback(customerInventory, inventoryBefore, customer, customerAccount, customerBalanceBefore,
                     ownerAccount, ownerBalanceBefore, registeredIds);
                 return new RetailPurchaseResult(RetailPurchaseStatus.CommitFailed, null);
             }
