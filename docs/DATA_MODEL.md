@@ -109,7 +109,7 @@ When a save shape changes, bump `version` and write a migration function in Core
 
 
 
-## Economy Phase 3 — Business & Retail (approved; implementation pending)
+## Economy Phase 3 — Business & Retail (first implementation pass added 2026-11-19; Unity verification pending)
 
 - `EconomicAccountBook` is the runtime registry of clean accounts by stable `EconomicActorId`. The player's existing `PlayerStats.CleanMoney` instance is registered as actor `player`; each resident receives one account under `resident:<npc-id>`. No duplicate player account is created.
 - Authored resident starting balances are applied only when an account is first registered. Save v9 stores stable actor IDs and balances; saved balances override authored values. Missing newly authored residents in an older save receive their initial balance once.
