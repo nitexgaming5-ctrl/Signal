@@ -370,3 +370,11 @@ The previous illicit seller/Dirty Cash Bundle/Contraband proposal remains supers
 - Added regression cases for invalid retail quantities/prices/overflow and invalid sale inputs. The new cases are awaiting Unity; expected full suite is 342 test cases, not yet verified.
 - The existing Shop sale helper is currently developer-only and has no economic transaction record or AssetOwnershipBook check. A player-facing sale feature must be designed and integrated separately before this helper is exposed as normal gameplay.
 - Save policy: current-format round-trip/reliability first; obsolete development-save compatibility is optional and may be intentionally dropped after substantial schema changes. Never silently corrupt a current-format save.
+
+
+## Next initiative — player-facing sell-to-shop (design pending)
+
+- [ ] Approve how businesses author buyback acceptance and fixed unit prices (see Q21 and `docs/tasks/ECONOMY-PLAYER-SELLING-DESIGN.md`).
+- [ ] After approval, implement a player-facing SELL tab at an open business counter, using the existing `ShopOrder` / `Shop.TryFulfil` rules for transaction validation and player CARD credit.
+- [ ] Add exact-stack ownership validation and a sale-specific persistent transaction ledger; keep the physical asset-transfer and retail purchase ledgers semantically separate.
+- [ ] Verify full-stack and partial-stack sales, rollback, save/load, and the existing BUY flow.
