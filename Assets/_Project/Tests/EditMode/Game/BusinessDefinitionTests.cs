@@ -199,6 +199,21 @@ namespace Signal.Game.Tests
                 });
                 Assert.That(business.TryValidate(out string priceError), Is.False);
                 Assert.That(priceError, Does.Contain("positive fixed price"));
+
+                SetPrivate(business, "buybackOffers", new[]
+                {
+                    new BusinessDefinition.BuybackEntry { Item = null, UnitPrice = 5 }
+                });
+                Assert.That(business.TryValidate(out string itemError), Is.False);
+                Assert.That(itemError, Does.Contain("valid item"));
+
+                SetPrivate(bread, "id", string.Empty);
+                SetPrivate(business, "buybackOffers", new[]
+                {
+                    new BusinessDefinition.BuybackEntry { Item = bread, UnitPrice = 5 }
+                });
+                Assert.That(business.TryValidate(out string idError), Is.False);
+                Assert.That(idError, Does.Contain("stable item ID"));
             }
             finally
             {
