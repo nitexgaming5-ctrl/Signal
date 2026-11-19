@@ -17,7 +17,7 @@ Money:
 Simulation:
 - No universal supply/demand, price changes or continuous consumption simulation initially.
 - Ordinary goods use simple authored availability.
-- Track stock selectively where gameplay needs it (e.g. drugs and illegal materials).
+- Finite stock is not part of the current retail slice. Which goods, if any, should have finite stock and how they restock remain undecided.
 - Future stocks, lottery, betting, business ownership, laundering and economic world events reuse shared foundations.
 
 ## Phase 1 — asset transfer foundation
