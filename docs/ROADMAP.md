@@ -372,7 +372,7 @@ The previous illicit seller/Dirty Cash Bundle/Contraband proposal remains supers
 - Save policy: current-format round-trip/reliability first; obsolete development-save compatibility is optional and may be intentionally dropped after substantial schema changes. Never silently corrupt a current-format save.
 
 
-## Next initiative — player-facing sell-to-shop (specification finalized; implementation awaiting approval)
+## Current initiative — player-facing sell-to-shop (implemented; Unity verification pending)
 
 - [x] User approved separate fixed-price buyback offers per `BusinessDefinition` (Q21).
 - [x] Finalize the implementation specification in `docs/tasks/ECONOMY-PLAYER-SELLING-DESIGN.md`.
@@ -380,3 +380,12 @@ The previous illicit seller/Dirty Cash Bundle/Contraband proposal remains supers
 - [ ] Implement exact-stack, player-owned sales through the existing Core sale transaction boundary, preserving its validation/account-credit/rollback semantics.
 - [ ] Add a separate persistent sale ledger and v10 current-format round-trip; keep physical transfer and retail purchase ledgers separate.
 - [ ] Add SELL tab while leaving BUY / `RetailService` unchanged; verify full/partial sale, rejection, rollback and save/load in Unity.
+
+
+### 2026-11-19 — Player-facing sell-to-shop implementation
+
+- Added exact-stack inventory removal and a Core sale path with player ownership validation, clean CARD credit and rollback.
+- Added separate fixed-price buyback offers to BusinessDefinition; no buyback content was invented for the Corner Bakery.
+- Added sale-specific transaction history and save v10.
+- Added SELL tab and per-stack quantity controls; BUY remains routed through RetailService.
+- Code is implemented; Unity compile, tests and Play Mode verification are pending. See `docs/tasks/ECONOMY-PLAYER-SELLING-DESIGN.md`.
