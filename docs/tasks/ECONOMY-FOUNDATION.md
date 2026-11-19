@@ -1,6 +1,6 @@
 # ECONOMY-FOUNDATION — shared city economy
 
-**Status:** Phases 1–2 implemented and user-verified (316/316 EditMode tests); Phase 3 specification finalized, awaiting explicit implementation approval  
+**Status:** Phases 1–2 implemented and user-verified (316/316 EditMode tests); Phase 3 Business & Retail approved for implementation  
 **Branch:** chore/collaboration-workflow-and-audit
 
 ## Approved design
@@ -63,17 +63,24 @@ Simulation:
 - Currency symbol/denomination and actual starting balance remain undecided.
 
 
-## Phase 3 — first player-facing illicit exchange (spec finalized; awaiting approval)
+## Phase 3 — businesses and retail (approved; implementation next)
 
-The detailed implementation specification is in ECONOMY-PHASE-3-ILLICIT-EXCHANGE.md.
+The active specification is `docs/tasks/ECONOMY-PHASE-3-BUSINESSES-RETAIL.md`.
 
 User decisions:
-- Dirty Cash Bundle is a physical, indivisible item worth 100; MaxStack = 1.
-- The seller is a new discreet NPC, separate from Milo, located in the existing shared city.
-- First merchandise is a generic Contraband item; its specific identity and effects remain intentionally undefined.
+- Every resident has a personal clean-money account.
+- Business revenue from player purchases is credited directly to the NPC owner's personal account; no separate business revenue balance.
+- Existing player-to-shop selling behaviour is retained without inventing new valuation or acceptance rules.
+- Business merchandise is predefined by authored business/NPC role; availability is unlimited for now.
+- Prices are authored and fixed initially; reputation-based changes are a possible future extension.
+- No suppliers, deliveries, production, ingredients, skills, finite stock, restocking, NPC shopping or continuous/hourly simulation.
+- Dirty money remains a physical inventory item and never enters clean accounts or legitimate retail. Future cleaning consumes dirty items and credits clean balance directly.
 
-The slice is one seller, one contraband definition and one authored stock unit. Price (an integer number of bundles) and exact placement are content inputs and must not be guessed. No automatic restocking.
+Implementation target:
+- Shared resident account registry reusing CleanMoneyAccount, with idempotent authored initialization and save v9 persistence.
+- Reusable authored BusinessDefinition with owner, location, opening schedule and ItemDefinition-based merchandise catalogue.
+- Atomic player purchases: debit player, credit owner, grant merchandise, record a durable retail transaction.
+- First integration is the existing CornerShop. Existing sell-to-shop rules remain intact.
+- Retail transaction history is distinct from the physical asset-transfer ledger because catalogue stock is unlimited and is not a pre-existing physical stack.
 
-Technical safeguards include explicit seller actor/custody registration, whole-item ownership validation, two-sided atomic exchange with complete rollback, a seller stock inventory persisted through save v9, and revalidation at confirmation. The clean CARD balance is not read or changed by the illicit exchange.
-
-**No gameplay code until the user explicitly approves the final specification.**
+No Phase 3 code is implemented yet. Unity compilation, EditMode and Play Mode verification remain pending.
