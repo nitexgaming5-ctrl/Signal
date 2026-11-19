@@ -1,6 +1,6 @@
 # ECONOMY-PHASE-3 — businesses and retail
 
-**Status:** first implementation pass added; Unity verification and authored shop content pending (user approved 2026-11-19)  
+**Status:** first implementation pass and first shop content added; Unity verification pending (user approved 2026-11-19)  
 **Branch:** `chore/collaboration-workflow-and-audit`  
 **Depends on:** Economy Phases 1–2 (asset ownership/transfers, clean account and save v8)
 
@@ -126,6 +126,6 @@ The assistant cannot run the user's Unity Editor. Report code inspection, tests 
 
 ### Remaining integration and verification
 - `Assets/_Project/Content/Businesses/Business_CornerShop.asset` is now created and assigned to `GameSession.Businesses` in `Assets/_Project/Scenes/HideoutSlice.unity`. It targets Milo at `CornerShop`, opens 06:30–18:00, and uses interaction point (1000, 1000.6).
-- Its merchandise catalogue is intentionally empty. No actual ItemDefinition or fixed price has been approved/selected, so the shop opens and displays the empty-catalogue message rather than inventing merchandise pricing. The remaining content step is to add the chosen item(s) and fixed prices to this asset.
+- Added `Assets/_Project/Content/Items/Item_Bread.asset` and referenced it from the Corner Bakery catalogue at CARD $5. This is a temporary test value chosen by the user; it is not a final economy balance. Bread is 1×1, stack limit 10, and uses ordinary default item state.
 - GameSession validates business identity, owner/location data and catalogue entries before opening/purchasing; invalid definitions fail visibly. Existing `Shop` / `ShopOrder` sell-to-shop Core behavior and tests remain unchanged; no new sale UI or valuation rule was introduced.
-- The assistant cannot run Unity. All newly authored EditMode tests remain unexecuted; Unity compilation, full EditMode suite and Play Mode purchase/save-load checks are pending user verification.
+- The assistant cannot run Unity. All newly authored EditMode tests remain unexecuted; Unity compilation, full EditMode suite and Play Mode purchase/save-load checks are pending user verification. The next test should buy one Bread and confirm CARD -$5, Milo's resident account +$5, inventory grant, retail ledger entry and persistence after save/load.
