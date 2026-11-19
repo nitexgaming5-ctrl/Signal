@@ -431,7 +431,7 @@ The approved shared-economy retail scope is in implementation. The old illicit-v
 - Save format advanced v8 → v9. v9 persists resident account balances and retail transaction history. v1–v8 migrations initialize these collections; legacy loads restore resident authored starting balances, while v9 saved balances override them. Player clean balance remains in its canonical cleanBalance field.
 - Added StartingCleanBalance to authored NPC definitions and registers all spawned residents, including fallback fixtures, with their own account.
 - Added BusinessDefinition ScriptableObject with stable business ID, owner NPC ID, location/interaction point, opening schedule and ItemDefinition-based fixed-price catalogue.
-- Added a compact keyboard-driven RetailPanel with paged 1–9 catalogue selection and ESC close.
+- Added a compact keyboard-driven RetailPanel with paged F2–F10 catalogue selection and ESC close.
 - GameSession now resolves nearby authored businesses, opens the panel, revalidates opening hours and offers on purchase, and credits the owner's account. Business merchandise is included in the item-definition save resolver.
 - Existing Core Shop / ShopOrder selling rules were not changed.
 - Added Core tests for account registration/isolation, purchase success, insufficient funds, full inventory rollback, owner-account overflow, ownership validation, save v9 round-trip, legacy starting-balance reset and malformed-record handling. Added Game tests for the authored business schedule/default owner.
