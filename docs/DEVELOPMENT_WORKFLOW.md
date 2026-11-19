@@ -55,7 +55,7 @@ A system is not "done" merely because its C# class exists. It is done when it co
 The existing Core systems are the foundation, not disposable scaffolding.
 - Prefer additive changes and small, reversible refactors.
 - Before changing a Core API, inspect all callers and tests.
-- Preserve save compatibility; any save-format change requires a versioned migration and tests.
+- Protect current-format save integrity. Add round-trip tests whenever persistent state changes. Backward compatibility with obsolete development saves is optional; a substantial schema change may deliberately invalidate older development saves and require a fresh game. Never silently corrupt or discard a current-format save; keep writes reliable/atomic and make intentional resets explicit.
 - Preserve Unity asset GUIDs and scene references. Do not casually rename/move/delete scenes, scripts, prefabs, or ScriptableObjects.
 - Keep a known-good branch and use initiative branches for substantial work.
 - Do not replace a working implementation just because a different architecture looks cleaner.
