@@ -653,6 +653,13 @@ namespace Signal.Game
                         if (!_allItemDefinitions.Contains(entry.Item))
                             _allItemDefinitions.Add(entry.Item);
                     }
+                    foreach (BusinessDefinition.BuybackEntry entry in business.BuybackOffers)
+                    {
+                        ItemType buybackItemType = entry.Item.ToItemType();
+                        _catalog[buybackItemType.Id] = buybackItemType;
+                        if (!_allItemDefinitions.Contains(entry.Item))
+                            _allItemDefinitions.Add(entry.Item);
+                    }
                 }
             }
 
