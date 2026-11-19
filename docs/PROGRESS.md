@@ -10,8 +10,8 @@ The economy now has:
 - Explicit asset ownership independent of the inventory/container holding an item.
 - Whole-stack owner-to-owner transfer and an append-only transaction ledger.
 - A clean bank/card account used by existing legitimate-money paths, plus passive personal clean accounts for residents and an atomic retail purchase service that credits business owners.
-- Save v9 persistence for clean balance, resident account balances, player-held carried/storage asset ownership, economic transfer history and retail purchase history.
-- Dirty money explicitly excluded from the bank/card account; it is reserved for physical inventory items and future illicit uses.
+- Save v10 persistence for clean balance, resident account balances, player-held carried/storage asset ownership, economic transfer history, retail purchase history and the dedicated player-to-business sale ledger.
+- Player-to-business sales use separate per-business fixed-price buyback offers, exact carried-stack identity and player ownership validation; sale history is separate from transfers and retail purchases.\n- Dirty money explicitly excluded from the bank/card account; it is reserved for physical inventory items and future illicit uses.
 
 Phase 2 is verified by the user's 316/316 report. No dirty-money item definition, cleaning interaction, shady-market exchange, bribe, supplier loop or finite-stock gameplay has been implemented. The Corner Bakery now has an authored Bread ItemDefinition and a one-item catalogue priced at CARD $5 as a temporary test value. The catalogue remains unlimited and event-driven.
 
