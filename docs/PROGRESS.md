@@ -471,7 +471,7 @@ Next: pull the branch, compile, run the full EditMode suite and verify a Bread p
 - Tightened sale preflight validation so default/uninitialized item definitions and zero-value orders are rejected before inventory mutation. Existing sale valuation and acceptance rules are unchanged.
 - Added Shop regression coverage for zero-value fail-fast behavior (including no inventory change notification) and uninitialized item definitions.
 - Added RetailService regression cases for zero/negative quantity, zero/negative unit price and total-cost overflow. These verify that account balances, inventory, ownership and the retail ledger remain unchanged.
-- The sale helper is currently only called by the developer sale control in GameSession; there is no player-facing sale flow yet. It does not currently create economic transaction records or validate AssetOwnershipBook ownership. Do not retrofit a new sale economy silently; design the player-facing sale integration before enabling it.
+- `Shop.TryFulfil` is not wired to a runtime player-facing sale UI; it is a Core transaction primitive exercised by tests. There is no player-facing sale flow yet. It does not currently create economic transaction records or validate AssetOwnershipBook ownership. Do not retrofit a new sale economy silently; design the player-facing sale integration before enabling it.
 - Expected EditMode suite count after these additions: **342 test cases** (335 prior + 2 Shop tests + 5 RetailService parameter cases). This is an expected count, not a test result; Unity verification is pending.
 - No save schema change was required.
 
