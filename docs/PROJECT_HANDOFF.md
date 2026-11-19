@@ -470,10 +470,6 @@ User-approved rules:
 - Core and Game EditMode tests authored; not run by the assistant.
 
 ### Unity content authoring still required
-No actual merchandise or prices were invented. In Unity:
-1. Create an asset via Assets → Create → Signal → Business Definition.
-2. Set Owner NPC ID to milo, Location ID to CornerShop, Interaction Point to (1000, 1000.4), and hours to 390–1080 (06:30–18:00) unless you choose different authored values.
-3. Add the ItemDefinition assets and fixed prices you want the business to sell.
-4. Assign the asset to GameSession's Businesses array in HideoutSlice.
+The Corner Bakery definition has already been created at `Assets/_Project/Content/Businesses/Business_CornerShop.asset` and assigned to `GameSession.Businesses` in `HideoutSlice.unity`. It targets Milo, `CornerShop`, 06:30–18:00 and interaction point (1000, 1000.6).
 
-After that, compile, run the full EditMode suite and verify a purchase plus save/load in Play Mode. The assistant cannot run Unity. Existing Shop/ShopOrder selling logic remains unchanged.
+Its merchandise list is intentionally empty: no ItemDefinition or fixed price was approved, so no price was invented. Add the chosen product(s) and fixed prices to this existing asset in the Inspector. Then compile, run the full EditMode suite and verify a purchase plus save/load in Play Mode. The assistant cannot run Unity. Existing Core `Shop` / `ShopOrder` selling logic remains unchanged.
