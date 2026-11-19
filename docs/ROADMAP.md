@@ -387,7 +387,7 @@ The previous illicit seller/Dirty Cash Bundle/Contraband proposal remains supers
 ### 2026-11-19 — Player-facing sell-to-shop implementation
 
 - Added exact-stack inventory removal and a Core sale path with player ownership validation, clean CARD credit and rollback.
-- Added separate fixed-price buyback offers to BusinessDefinition; added a temporary test-only Bread buyback offer at CARD $3 after the user's explicit authorization.
+- Added separate fixed-price buyback offers to BusinessDefinition. A temporary test-only Bread buyback offer at CARD $3 was used for Play Mode verification and subsequently removed after the user confirmed the full flow.
 - Added sale-specific transaction history and save v10.
 - Added SELL tab and per-stack quantity controls; BUY remains routed through RetailService.
 - User verified the implementation in Unity and confirmed 355/355 EditMode tests. See `docs/tasks/ECONOMY-PLAYER-SELLING-DESIGN.md` for the completed contract.
