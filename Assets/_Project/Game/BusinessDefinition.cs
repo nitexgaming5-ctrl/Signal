@@ -15,6 +15,13 @@ namespace Signal.Game
             [Min(1)] public int UnitPrice = 1;
         }
 
+        [Serializable]
+        public sealed class BuybackEntry
+        {
+            public ItemDefinition Item;
+            [Min(1)] public int UnitPrice = 1;
+        }
+
         [SerializeField, HideInInspector] private string businessId;
         [SerializeField] private string displayName = "Business";
         [SerializeField] private string businessType = "Shop";
@@ -24,6 +31,7 @@ namespace Signal.Game
         [SerializeField, Range(0, 1439)] private int openingMinute = 390;
         [SerializeField, Range(0, 1439)] private int closingMinute = 1080;
         [SerializeField] private MerchandiseEntry[] merchandise = new MerchandiseEntry[0];
+        [SerializeField] private BuybackEntry[] buybackOffers = new BuybackEntry[0];
 
         public string BusinessId => businessId;
         public string DisplayName => displayName;
@@ -34,6 +42,7 @@ namespace Signal.Game
         public int OpeningMinute => openingMinute;
         public int ClosingMinute => closingMinute;
         public IReadOnlyList<MerchandiseEntry> Merchandise => merchandise ?? Array.Empty<MerchandiseEntry>();
+        public IReadOnlyList<BuybackEntry> BuybackOffers => buybackOffers ?? Array.Empty<BuybackEntry>();
 
         public EconomicActorId OwnerActor => new EconomicActorId("resident:" + (ownerNpcId ?? string.Empty));
 
@@ -66,29 +75,57 @@ namespace Signal.Game
                 return false;
             }
 
-            var itemIds = new HashSet<Guid>();
-            if (merchandise == null)
-                return true;
-            for (int i = 0; i < merchandise.Length; i++)
+            var merchandiseIds = new HashSet<Guid>();
+            if (merchandise != null)
             {
-                MerchandiseEntry entry = merchandise[i];
-                if (entry == null || entry.Item == null || entry.UnitPrice < 1)
+                for (int i = 0; i < merchandise.Length; i++)
                 {
-                    error = "Every merchandise entry needs a valid item and a positive fixed price.";
-                    return false;
-                }
-                try
-                {
-                    if (!itemIds.Add(entry.Item.ToItemType().Id))
+                    MerchandiseEntry entry = merchandise[i];
+                    if (entry == null || entry.Item == null || entry.UnitPrice < 1)
                     {
-                        error = "A business catalogue cannot offer the same item more than once.";
+                        error = "Every merchandise entry needs a valid item and a positive fixed price.";
+                        return false;
+                    }
+                    try
+                    {
+                        if (!merchandiseIds.Add(entry.Item.ToItemType().Id))
+                        {
+                            error = "A business catalogue cannot offer the same item more than once.";
+                            return false;
+                        }
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        error = "A merchandise item has no valid stable item ID.";
                         return false;
                     }
                 }
-                catch (InvalidOperationException)
+            }
+
+            var buybackIds = new HashSet<Guid>();
+            if (buybackOffers != null)
+            {
+                for (int i = 0; i < buybackOffers.Length; i++)
                 {
-                    error = "A merchandise item has no valid stable item ID.";
-                    return false;
+                    BuybackEntry entry = buybackOffers[i];
+                    if (entry == null || entry.Item == null || entry.UnitPrice < 1)
+                    {
+                        error = "Every buyback offer needs a valid item and a positive fixed price.";
+                        return false;
+                    }
+                    try
+                    {
+                        if (!buybackIds.Add(entry.Item.ToItemType().Id))
+                        {
+                            error = "A business buyback list cannot accept the same item more than once.";
+                            return false;
+                        }
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        error = "A buyback item has no valid stable item ID.";
+                        return false;
+                    }
                 }
             }
             return true;
@@ -111,6 +148,23 @@ namespace Signal.Game
             return false;
         }
 
+        public bool TryGetBuybackOffer(ItemDefinition item, out int unitPrice)
+        {
+            unitPrice = 0;
+            if (item == null || buybackOffers == null)
+                return false;
+
+            for (int i = 0; i < buybackOffers.Length; i++)
+            {
+                BuybackEntry entry = buybackOffers[i];
+                if (entry == null || entry.Item != item || entry.UnitPrice < 1)
+                    continue;
+                unitPrice = entry.UnitPrice;
+                return true;
+            }
+            return false;
+        }
+
         private void Reset()
         {
             EnsureBusinessId();
@@ -123,6 +177,8 @@ namespace Signal.Game
             closingMinute = Mathf.Clamp(closingMinute, 0, 1439);
             if (merchandise == null)
                 merchandise = new MerchandiseEntry[0];
+            if (buybackOffers == null)
+                buybackOffers = new BuybackEntry[0];
         }
 
         private void EnsureBusinessId()
