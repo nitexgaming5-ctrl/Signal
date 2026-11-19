@@ -510,3 +510,18 @@ The catalogue now contains `Item_Bread.asset` at a temporary CARD $5 test price,
 - Draft design and technical acceptance criteria: `docs/tasks/ECONOMY-PLAYER-SELLING-DESIGN.md`.
 - The only pending design approval is the buyback offer model. Recommendation: separate per-business authored buyback entries (item + fixed unit price), distinct from the business's retail catalogue. Do not implement until the user approves this or chooses an alternative.
 - Proposed transaction must validate the exact player-owned stack, preserve state/identity on partial sales, remove ownership only when the stack is fully consumed, credit clean CARD atomically, and persist a sale-specific transaction record. The old physical-transfer ledger is not a sale ledger.
+
+
+## 2026-11-19 — Player-facing sell-to-shop specification finalized
+
+Q21 is resolved: the user approved **separate fixed-price buyback offers per `BusinessDefinition`**. Each business accepts only explicitly listed `ItemDefinition` entries at authored positive clean-CARD unit prices. The offer list is separate from its merchandise catalogue; catalogue inclusion does not imply buyback acceptance. No specific new offer items or prices are approved by this decision.
+
+The finalized implementation contract is `docs/tasks/ECONOMY-PLAYER-SELLING-DESIGN.md`. Key constraints:
+- Reuse the existing business interaction and `RetailPanel`; add SELL while preserving BUY through `RetailService`.
+- Sell only from carried inventory, one exact selected stack at a time. Partial sales preserve stack identity/state/ownership; full sales remove the ownership entry.
+- Validate player ownership and revalidate the business offer/opening hours at confirmation.
+- Preserve existing `Shop.TryFulfil` safety and clean-account-credit semantics, but do not use its current type-wide stack removal for a selected-stack sale. Refactor/reuse the Core transaction boundary to target exact `ItemInstanceId`.
+- Add a dedicated sale transaction ledger, separate from physical asset transfers and retail purchases; persist it in current save v10 with v9 initialization.
+- No business budget debit, finite stock, dynamic valuation, dirty-money payment or automatic buyback content.
+
+The specification is finalized, but implementation has **not** started. Wait for the user's explicit go-ahead before changing code.
