@@ -572,3 +572,15 @@ The user authorized temporary test content. `Business_CornerShop.asset` now has 
 ## Economy Engine inspiration captured (2026-11-19)
 
 The user asked us to review Unity Asset Store's Economy Engine 1.4 as inspiration. Five directions are parked in docs/IDEA_BACKLOG.md and sequenced as future candidates in docs/ROADMAP.md: context-specific shared trade foundations, an Economy Library/editor workflow, contextual loot tables, item-for-item barter and narrowly authored currency exchange. These are not approved mechanics or a commitment to adopt the asset/package. Preserve existing Signal Core/Game architecture and current economy constraints. The current active SELL slice still requires Play Mode verification; user has confirmed 355/355 EditMode tests.
+
+
+## Latest verified handoff — SELL milestone closed (2026-11-19)
+
+The user confirmed that the full player-facing BUY → partial SELL → full SELL → save/reload sequence works in Unity Play Mode, and confirmed **355/355 EditMode tests passed**. The user also observed Milo receiving the Corner Bakery's purchase revenue in his personal account, validating the resident-owner credit path in the live scene.
+
+- The SELL initiative is complete: exact carried-stack selection, player ownership validation, per-business authored buyback rules, partial/full sale behavior, clean CARD credit, dedicated sale history and save v10 persistence.
+- The temporary Bread buyback offer at CARD $3 was removed from `Business_CornerShop.asset` after testing. It was disposable verification content, not approved final pricing. The temporary CARD $5 retail catalogue test price remains as before; do not treat it as balanced content.
+- No final bakery buyback items/prices have been approved. The SELL system is implemented, but a business must have authored offers to accept items.
+- Unity compilation, EditMode results and Play Mode behavior are user-reported. No assistant-side Unity execution is claimed.
+
+**Next:** begin with a design proposal for the next compact player-facing everyday city loop. Use the current roadmap and parked idea backlog; explain the player experience, rules, information/relationship hooks, economic exchange and consequences, then wait for explicit approval before implementing new gameplay.
