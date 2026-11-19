@@ -126,6 +126,32 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void SaleBoundaryRejectsNonPlayerSellerEvenWhenTheyOwnTheStack()
+        {
+            ItemType item = Item();
+            var inventory = new GridInventory();
+            inventory.Place(item, 0, 0, count: 2);
+            PlacedItem stack = inventory.Items[0];
+            var resident = new EconomicActorId("resident:milo");
+            var ownership = new AssetOwnershipBook();
+            ownership.TryRegister(stack.ItemInstanceId, resident);
+            var account = new CleanMoneyAccount(10);
+            var ledger = new ShopSaleTransactionLedger();
+
+            FulfilResult result = Shop.TryFulfilExact(new ShopOrder(item, 1, 5),
+                stack.ItemInstanceId, "test-business", resident, inventory, ownership,
+                account, ledger, 2, 615);
+
+            Assert.That(result, Is.EqualTo(FulfilResult.InvalidOrder));
+            Assert.That(inventory.TryGetItemInstance(stack.ItemInstanceId, out PlacedItem unchanged), Is.True);
+            Assert.That(unchanged.Count, Is.EqualTo(2));
+            Assert.That(ownership.TryGetOwner(stack.ItemInstanceId, out EconomicActorId owner), Is.True);
+            Assert.That(owner, Is.EqualTo(resident));
+            Assert.That(account.Balance, Is.EqualTo(10));
+            Assert.That(ledger.Count, Is.Zero);
+        }
+
+        [Test]
         public void InvalidQuantityAndOversizedTotalChangeNothing()
         {
             ItemType item = Item();
