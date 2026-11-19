@@ -1,8 +1,8 @@
 # Progress
 
-## Current status: Economy Phase 3 and transaction-safety audit verified; player-facing selling specification finalized
+## Current status: player-facing sell-to-shop implemented in code; Unity verification pending
 
-The user confirmed **342/342 EditMode tests passed on 2026-11-19** after the transaction-safety audit changes. Phase 3 Business & Retail remains verified at 335/335. The player-facing sell-to-shop specification is now finalized after the user's approval of separate fixed-price buyback offers per BusinessDefinition. No player-facing sale code or buyback content has been implemented.
+The user confirmed **342/342 EditMode tests passed on 2026-11-19** after the transaction-safety audit changes. Phase 3 Business & Retail remains verified at 335/335. The user approved separate fixed-price buyback offers per BusinessDefinition and authorized implementation. The Core exact-stack sale path, business buyback authoring, SELL tab and save v10 ledger are now implemented on the working branch. Unity compilation, EditMode tests and Play Mode verification are pending.
 
 The working branch is `chore/collaboration-workflow-and-audit`; `main` remains untouched. The active architecture is Signal.Core + Signal.Game. The hideout, connected city, inventory/storage, item identity/state/knowledge, NPC framework, Milo parcel opportunity and NPC navigation foundations remain in place.
 
@@ -498,3 +498,19 @@ Next: pull the branch, compile, run the full EditMode suite and verify a Bread p
 - Finalized `docs/tasks/ECONOMY-PLAYER-SELLING-DESIGN.md` with the approved business policy, exact-stack/ownership contract, atomic transaction semantics, dedicated sale ledger, current-format save v10 plan, UI integration and acceptance tests.
 - Important implementation constraint: the existing `Shop.TryFulfil` removes by item type and does not validate asset ownership or record a sale. The new path must preserve its safety/credit/rollback rules while targeting the exact selected `ItemInstanceId`; do not call its old type-wide removal path for a selected-stack sale.
 - No gameplay code, business buyback entries or buyback prices were changed/created. Await explicit user approval before implementation.
+
+
+## 2026-11-19 — Player-facing sell-to-shop implementation (Unity verification pending)
+
+Implemented the approved player-facing sale slice on `chore/collaboration-workflow-and-audit`.
+
+- Core `GridInventory.TryRemoveItemInstance(Guid, int)` removes quantity from one exact stable stack. Partial remainder preserves local/stable IDs, position, orientation and state.
+- Core `Shop.TryFulfilExact` extends the established sale boundary with exact stack identity, seller ownership validation, clean CARD credit, full-stack ownership removal and rollback. The existing type-wide `Shop.TryFulfil` API remains available and unchanged for its existing callers/tests.
+- Added `ShopSaleTransaction` and `ShopSaleTransactionLedger`, separate from physical asset transfers and unlimited retail purchases. Records retain business, seller, stack/item IDs, quantity, fixed price/total, item-state snapshot and in-game timestamp.
+- `BusinessDefinition` now has an independent `BuybackEntry[]` with positive fixed clean-CARD prices, duplicate/invalid-item validation and `TryGetBuybackOffer`. Merchandise and buyback acceptance remain independent.
+- `GameSession` composes the sale ledger, includes buyback-only definitions in the item resolver, validates counter proximity/business identity/open hours/current offer/exact stack/player ownership and routes sales through Core.
+- `RetailPanel` now has BUY and SELL tabs. BUY continues to call the existing `RetailService`; SELL shows only carried player-owned stacks accepted by that business and provides per-stack quantity controls.
+- Save format advanced from v9 to v10. The dedicated sale ledger is captured/restored; v9 saves initialize an empty sale list. Malformed individual sale records are skipped without rejecting the save.
+- No Corner Bakery buyback items/prices were authored because the user approved the model, not content entries.
+- Added 7 Core sale/inventory tests, 2 BusinessDefinition buyback tests and 3 save/migration tests (12 new test cases; expected suite 354 from the previously verified 342 baseline). These tests are authored but **not yet run in Unity**.
+- No Unity compile, EditMode run or Play Mode verification has been performed by the assistant. User verification remains required.
