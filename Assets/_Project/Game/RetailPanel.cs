@@ -311,7 +311,6 @@ namespace Signal.Game
             if (inputModule == null)
             {
                 inputModule = eventSystem.gameObject.AddComponent<InputSystemUIInputModule>();
-                inputModule.AssignDefaultActions();
             }
 
             BaseInputModule[] modules = eventSystem.GetComponents<BaseInputModule>();
