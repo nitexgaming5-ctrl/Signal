@@ -1,6 +1,6 @@
 # ECONOMY-FOUNDATION — shared city economy
 
-**Status:** Phases 1–2 implemented and user-verified (316/316 EditMode tests); Phase 3 Business & Retail approved for implementation  
+**Status:** Phases 1–2 user-verified (316/316 EditMode tests); Phase 3 Business & Retail first implementation pass added, Unity verification pending  
 **Branch:** chore/collaboration-workflow-and-audit
 
 ## Approved design
@@ -63,7 +63,7 @@ Simulation:
 - Currency symbol/denomination and actual starting balance remain undecided.
 
 
-## Phase 3 — businesses and retail (approved; implementation next)
+## Phase 3 — businesses and retail (approved; first implementation pass added)
 
 The active specification is `docs/tasks/ECONOMY-PHASE-3-BUSINESSES-RETAIL.md`.
 
@@ -83,4 +83,4 @@ Implementation target:
 - First integration is the existing CornerShop. Existing sell-to-shop rules remain intact.
 - Retail transaction history is distinct from the physical asset-transfer ledger because catalogue stock is unlimited and is not a pre-existing physical stack.
 
-No Phase 3 code is implemented yet. Unity compilation, EditMode and Play Mode verification remain pending.
+First implementation pass is now on the working branch: EconomicAccountBook, RetailService, RetailTransactionLedger, save v9 resident/retail persistence, authored BusinessDefinition, RetailPanel and GameSession integration. Tests have been authored but not run. A Business Definition asset still needs to be created/configured in Unity because no merchandise items or prices were invented. Unity compilation, EditMode and Play Mode verification remain pending.
