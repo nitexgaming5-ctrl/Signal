@@ -6,7 +6,7 @@
 
 ## Player-facing outcome
 
-The player can visit an ordinary business during its authored opening hours, browse its predefined merchandise and purchase goods with clean bank/card money. The business owner's personal clean-money account receives the revenue. The existing player-to-shop selling behaviour is retained and integrated without inventing new acceptance or valuation rules.
+The player can visit an ordinary business during its authored opening hours, browse its predefined merchandise and purchase goods with clean bank/card money. The business owner's personal clean-money account receives the revenue. The existing player-to-shop selling rules are retained without inventing new acceptance or valuation rules. The active GameSession currently has no player-facing sell entry point to integrate.
 
 This is the first reusable business/retail layer for the shared city economy. It is not a shop-management simulator.
 
@@ -63,7 +63,7 @@ The catalogue is unlimited, so purchases create customer-owned item instances; t
 
 ## Existing sell-to-shop behaviour
 
-Retain the existing Shop/ShopOrder selling rules and valuation exactly. Do not add a new price formula, acceptance category, stock model or shop budget rule as part of Phase 3. Integrate the existing sale entry point with the business context where the active runtime already exposes it; do not break the existing debug/test path. A future authored shop-purchasing budget or business expense rule requires separate approval.
+Retain the existing Shop/ShopOrder selling rules and valuation exactly. Do not add a new price formula, acceptance category, stock model or shop budget rule as part of Phase 3. The current active GameSession does not expose a player-facing sale entry point. Keep the existing Shop/ShopOrder Core API and tests unchanged; do not add a new sale UI or alter its rules in this phase. A future authored shop-purchasing budget or business expense rule requires separate approval.
 
 ## Runtime integration
 
