@@ -614,12 +614,12 @@ namespace Signal.Core.Tests
         }
 
         [Test]
-        public void VersionNineSaveInitializesAnEmptyShopSaleLedger()
+        public void VersionNineSaveMigratesToCurrentAndInitializesAnEmptyShopSaleLedger()
         {
             var data = new SaveData { version = 9, shopSaleTransactions = null };
 
             Assert.That(SaveMigrator.TryMigrate(data, out _), Is.True);
-            Assert.That(data.version, Is.EqualTo(10));
+            Assert.That(data.version, Is.EqualTo(SaveMigrator.CurrentVersion));
             Assert.That(data.shopSaleTransactions, Is.Empty);
         }
 
