@@ -304,7 +304,7 @@ namespace Signal.Game
             EventSystem eventSystem = EventSystem.current;
             if (eventSystem == null)
             {
-                var eventSystemObject = new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
+                var eventSystemObject = new GameObject("EventSystem", typeof(EventSystem));
                 eventSystem = eventSystemObject.GetComponent<EventSystem>();
             }
             InputSystemUIInputModule inputModule = eventSystem.GetComponent<InputSystemUIInputModule>();
