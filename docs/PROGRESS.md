@@ -1,8 +1,8 @@
 # Progress
 
-## Current status: Economy Phase 3 Business & Retail verified; transaction-safety audit underway
+## Current status: Economy Phase 3 and transaction-safety audit verified; player-facing selling design underway
 
-The user confirmed **335/335 EditMode tests passed on 2026-11-19** and reported that all Phase 3 Business & Retail functionality works as intended in Unity. This verifies the v9 resident-account/retail implementation and the Corner Bakery purchase slice. A follow-up transaction-safety audit has now added fail-fast validation to the legacy Shop sale path and adversarial input regression tests; those newest tests have not yet been run in Unity.
+The user confirmed **342/342 EditMode tests passed on 2026-11-19** after the transaction-safety audit changes. Phase 3 Business & Retail remains verified at 335/335, and the seven additional regression cases for invalid sale inputs and retail purchase validation are now verified. The next initiative is the design specification for player-facing sell-to-shop transactions; no sale UI or new sale pricing/acceptance rules have been implemented.
 
 The working branch is `chore/collaboration-workflow-and-audit`; `main` remains untouched. The active architecture is Signal.Core + Signal.Game. The hideout, connected city, inventory/storage, item identity/state/knowledge, NPC framework, Milo parcel opportunity and NPC navigation foundations remain in place.
 
@@ -481,3 +481,12 @@ Next: pull the branch, compile, run the full EditMode suite and verify a Bread p
 - Do not spend disproportionate effort preserving obsolete development saves or maintaining a long chain of historical migrations.
 - A substantial schema change may deliberately invalidate older development saves and require starting a fresh game.
 - Never silently corrupt or discard a current-format save; keep writes reliable/atomic and make any intentional reset/incompatibility explicit.
+
+
+## 2026-11-19 — Transaction-safety audit verified; player-facing selling design
+
+- User confirmed **342/342 EditMode tests passed** after the seven transaction-safety regression cases were added. The transaction-safety audit is closed.
+- The existing `Shop.TryFulfil` helper remains a Core transaction primitive: it accepts a `ShopOrder` containing item, quantity and caller-supplied unit price; removes goods and credits the player's clean CARD balance atomically. It does not calculate resale prices or define a shop's accepted catalogue.
+- The next proposed initiative is a player-facing sell-to-shop flow. Draft specification: `docs/tasks/ECONOMY-PLAYER-SELLING-DESIGN.md`.
+- Key unresolved design point: how each business authors the items it will buy and the unit prices supplied to `ShopOrder`. Recommendation is a separate, explicit fixed-price buyback offer list per business, not reuse of the business's player-facing retail catalogue and not an automatic ItemValueCalculator formula.
+- No player-facing sale code has been implemented. Await the user's approval of the buyback offer model before implementation.
