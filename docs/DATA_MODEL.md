@@ -139,3 +139,11 @@ When a save shape changes, keep the current format reliable and add round-trip c
 - Save v10 persists this ledger. A v9 save initializes an empty sale history. The business's authored offer data remains in ScriptableObject content and is not duplicated into the save.
 - The business does not debit a separate budget or acquire finite stock; the sale consumes the selected goods and credits only the player's clean CARD account.
 
+
+
+## Save schema versioning rule
+
+- `SaveMigrator.CurrentVersion` is the single source of truth for the current serialized save format.
+- Increment it only when the serialized persistent schema changes (adding/removing/changing the meaning or representation of persisted data). UI changes, runtime-only systems, and gameplay logic that do not alter persisted data do not require a version increment.
+- Migration tests should keep historical input versions explicit, but assert `SaveMigrator.CurrentVersion` for the resulting current-format version. This prevents unrelated future schema additions from making old migration tests fail just because they expected a previous current version.
+- Current-format capture/restore round-trip coverage remains mandatory whenever persistent state changes. Do not weaken explicit historical migration behavior or current-save integrity to avoid maintaining tests.
