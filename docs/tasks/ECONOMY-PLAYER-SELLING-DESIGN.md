@@ -120,6 +120,7 @@ A failure must never create money, consume goods, lose ownership, duplicate a re
 ## Required tests
 
 ### Core transaction tests
+- The exact player-to-business sale boundary rejects non-player sellers even when they own the selected stack; failure preserves inventory, ownership, account and ledger.
 - Full-stack sale removes the exact stack and ownership entry, credits exact CARD and records one sale.
 - Partial sale changes only the selected stack count and preserves its ID, state and ownership.
 - A sale never consumes another stack of the same item type.
@@ -149,4 +150,4 @@ No dynamic pricing, automatic resale multiplier, `ItemValueCalculator` transacti
 
 ## Implementation and verification status
 
-**Q21 is approved and this specification has been implemented on `chore/collaboration-workflow-and-audit`.** The exact-stack sale path, per-business buyback authoring, SELL UI, dedicated sale ledger and v10 persistence are present in code. Unity compilation, EditMode execution and Play Mode verification remain pending. No buyback item or price has been authored for the Corner Bakery; approval of the offer model did not authorize new content values.
+**Q21 is approved and this specification has been implemented on `chore/collaboration-workflow-and-audit`.** The exact-stack sale path, per-business buyback authoring, SELL UI, dedicated sale ledger and v10 persistence are present in code. The user confirmed 354/354 EditMode tests after the initial implementation. A subsequent hardening change adds one non-player-seller rejection test and exact business-object revalidation; the updated 355-test suite and Unity compilation are pending. Player-facing SELL Play Mode verification remains pending. No buyback item or price has been authored for the Corner Bakery; approval of the offer model did not authorize new content values.
