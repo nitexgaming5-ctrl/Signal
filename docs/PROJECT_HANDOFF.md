@@ -448,25 +448,32 @@ The user's Unity Test Runner reported 313/316 initially. The three failures were
 Design the first small player-facing illicit exchange around a physical dirty-money item. The exact item form and denomination/stack-value convention are still open. Cleaning dirty money into the clean card balance is an approved direction, but its rate, prerequisites, risks and interaction are not specified. Do not implement those unresolved rules without the user's approval.
 
 
-## Economy Phase 3 handoff — Business & Retail (approved 2026-11-19)
 
-The old Phase 3 discreet-seller / dirty-cash / contraband proposal is superseded. The active approved implementation specification is `docs/tasks/ECONOMY-PHASE-3-BUSINESSES-RETAIL.md`.
+## Economy Phase 3 handoff — Business & Retail (first implementation pass added 2026-11-19)
 
-User decisions:
+The old Phase 3 discreet-seller / dirty-cash / contraband proposal is superseded. The active specification is docs/tasks/ECONOMY-PHASE-3-BUSINESSES-RETAIL.md.
+
+User-approved rules:
 - Every resident has a personal clean-money account.
 - Businesses use predefined merchandise authored according to business/NPC roles.
 - Prices are fixed authored values initially; reputation-based fluctuations may be considered later.
-- Business revenue from player purchases is credited directly to the owner's personal account; no separate business revenue balance.
+- Business sales credit the owner's personal account directly; no separate business revenue balance.
 - Existing player-to-shop selling behaviour is retained without new acceptance or valuation rules.
-- Merchandise is unlimited for now, available whenever the business is open.
+- Merchandise is unlimited for now and available whenever the business is open.
 - No supplier/delivery/production chain, finite stock/restocking, NPC shopping AI, automatic sales/revenue or continuous/hourly simulation.
 - Dirty money remains physical inventory items, separate from clean accounts and legitimate retail.
 
-Implementation order:
-1. Shared resident account registry using CleanMoneyAccount; player account is the existing PlayerStats account, not a duplicate. Authored NPC starting balances initialize once; save v9 balances override them.
-2. Authored BusinessDefinition with owner, location, opening schedule, ItemDefinition merchandise and fixed prices.
-3. Atomic retail purchase: debit player, credit owner, grant item, record durable retail transaction.
-4. Integrate existing CornerShop as first data-driven business; preserve existing sell-to-shop rules.
-5. Add tests and document Unity verification. Assistant cannot run Unity.
+### Code now on the branch
+- Core resident account registry, atomic retail purchase service and retail transaction ledger.
+- Save v9 resident account balances and retail transaction history; v1–v8 migration preserved and legacy account initialization made deterministic.
+- NPC authored starting clean balance, BusinessDefinition ScriptableObject, keyboard-driven RetailPanel and GameSession integration.
+- Core and Game EditMode tests authored; not run by the assistant.
 
-No Phase 3 code is implemented at this checkpoint. Do not revive the superseded illicit-exchange slice as part of this milestone.
+### Unity content authoring still required
+No actual merchandise or prices were invented. In Unity:
+1. Create an asset via Assets → Create → Signal → Business Definition.
+2. Set Owner NPC ID to milo, Location ID to CornerShop, Interaction Point to (1000, 1000.4), and hours to 390–1080 (06:30–18:00) unless you choose different authored values.
+3. Add the ItemDefinition assets and fixed prices you want the business to sell.
+4. Assign the asset to GameSession's Businesses array in HideoutSlice.
+
+After that, compile, run the full EditMode suite and verify a purchase plus save/load in Play Mode. The assistant cannot run Unity. Existing Shop/ShopOrder selling logic remains unchanged.
