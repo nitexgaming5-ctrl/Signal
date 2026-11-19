@@ -379,7 +379,7 @@ The previous illicit seller/Dirty Cash Bundle/Contraband proposal remains supers
 - [x] Implement exact-stack, player-owned sales through the Core sale transaction boundary, preserving validation/account-credit/rollback semantics.
 - [x] Add a separate persistent sale ledger and v10 current-format round-trip; keep physical transfer and retail purchase ledgers separate.
 - [x] Add SELL tab while leaving BUY / `RetailService` unchanged.
-- [ ] Verify Unity compilation, the full EditMode suite (expected 354 tests from the 342 baseline), and Play Mode full/partial sale, rejection, rollback and save/load.
+- [ ] Verify Unity compilation, the full EditMode suite (354/354 confirmed before the latest one-test hardening; 355 expected now), and Play Mode full/partial sale, rejection, rollback and save/load.
 
 ### 2026-11-19 — Player-facing sell-to-shop implementation
 
@@ -394,4 +394,12 @@ The previous illicit seller/Dirty Cash Bundle/Contraband proposal remains supers
 - [x] Establish `SaveMigrator.CurrentVersion` as the sole expected value for tests asserting a migrated save's current version.
 - [x] Keep historical source versions explicit in migration fixtures (for example, v8 and v9), while avoiding hardcoded current-version expectations.
 - [x] Document that only serialized persistent-schema changes require a save-version increment; UI/runtime-only changes do not.
-- [ ] User to run Unity compilation and the full EditMode suite after the test expectation correction.
+- [x] User confirmed Unity EditMode suite 354/354 after the test expectation correction.
+
+
+### 2026-11-19 — Sell boundary hardening
+- [x] User confirmed 354/354 EditMode tests after the save-version correction.
+- [x] Restrict the player-facing exact-stack sale boundary to the player actor and add a non-player-seller rejection regression test.
+- [x] Revalidate the exact active BusinessDefinition object at sale confirmation, not only its business ID.
+- [ ] Run Unity compilation and the full EditMode suite again (355 expected after the additional test).
+- [ ] Complete SELL Play Mode verification using an explicitly authored buyback offer; test partial/full sale, rejection, CARD and save/load.
