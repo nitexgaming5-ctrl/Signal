@@ -298,7 +298,7 @@ The next core initiative is the shared city economy, not a second NPC opportunit
 - Transaction records with participants, asset identity, quantity, reason and game timestamp.
 - Reuse existing GridInventory, stable item GUIDs and InventoryTransfer.
 - Core EditMode tests for success, ownership mismatch, unregistered assets, missing assets, full destinations and unchanged same-owner storage moves.
-- This first pass is a runtime Core foundation; it must not be used for persistent gameplay until ownership and transaction state have versioned save integration.
+- The first pass was runtime-only; Phase 2 now adds versioned save persistence for player-held ownership and completed transaction history.
 
 ### Phase 2 — money and account foundation (Core persistence implemented; Editor verification pending)
 - CleanMoneyAccount is the player's bank/card balance; existing PlayerStats money/rent/debug-sale APIs delegate to it.
