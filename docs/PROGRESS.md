@@ -9,11 +9,11 @@ The working branch is `chore/collaboration-workflow-and-audit`; `main` remains u
 The economy now has:
 - Explicit asset ownership independent of the inventory/container holding an item.
 - Whole-stack owner-to-owner transfer and an append-only transaction ledger.
-- A clean bank/card account used by existing legitimate-money paths.
-- Save v8 persistence for clean balance, player-held carried/storage asset ownership and economic transfer history.
+- A clean bank/card account used by existing legitimate-money paths, plus passive personal clean accounts for residents and an atomic retail purchase service that credits business owners.
+- Save v9 persistence for clean balance, resident account balances, player-held carried/storage asset ownership, economic transfer history and retail purchase history.
 - Dirty money explicitly excluded from the bank/card account; it is reserved for physical inventory items and future illicit uses.
 
-Phase 2 is verified by the user's 316/316 report. No dirty-money item definition, denomination, cleaning interaction, shady-market exchange, bribe, shop purchase, supplier loop or finite stock gameplay has been implemented. Those player-facing rules must be designed before coding.
+Phase 2 is verified by the user's 316/316 report. No dirty-money item definition, cleaning interaction, shady-market exchange, bribe, supplier loop or finite-stock gameplay has been implemented. The generic retail purchase framework is present, but the Corner Bakery catalogue remains empty pending approved item/price content.
 
 ## Approved project direction
 Signal is an immersive top-down 2D urban RPG about making a living in one layered city: meeting people, doing activities for money and resources, trading goods, taking risks, sometimes losing things, discovering secrets and returning to a personal hideout.
