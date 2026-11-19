@@ -95,10 +95,20 @@ The first implementation is Milo, a neighbourhood baker with Work, Rest, Sociali
 - Which specific illegal goods require finite stock in the first neighbourhood.
 
 
-## Economy — first player-facing illicit exchange
+## Economy — Phase 3 illicit exchange
 
-The following decisions remain open before Phase 3 implementation:
-- **Dirty-money physical form and denomination:** one fixed-value bundle item with stack quantity, several denomination item definitions, or another physical representation. Recommendation: prefer one simple bundle denomination for the first slice unless the interaction needs change-making; confirm its value before authoring content.
-- **First exchange:** which counterparty/location and what good or service the player receives. Recommendation: one discreet, local, repeatable exchange that demonstrates physical payment and asset ownership without requiring a general market.
-- **Cleaning scope:** cleaning dirty-money items into the clean card balance is approved as a future direction, but rate, prerequisites, risks and interaction are undecided. Recommendation: keep it outside the first illicit-spending slice unless it is necessary to demonstrate the clean/dirty boundary.
-- **Consequences:** whether the first exchange creates exposure or any other consequence. Recommendation: keep the first implementation consequence-light; do not add heat/police/criminal progression rules without a separate design decision.
+**Status: design decisions resolved; implementation specification awaiting explicit approval.**
+
+- Dirty-money item: one physical Dirty Cash Bundle, face value 100, indivisible, MaxStack 1.
+- Seller: new discreet NPC, separate from Milo, in an existing shared-city region.
+- Merchandise: one generic Contraband item; specific identity/effects are intentionally unspecified.
+- First slice: one seller, one authored stock unit, no automatic restocking.
+- Dirty bundles remain physical assets for illicit exchange only. They never enter CleanMoneyAccount and are not accepted by legitimate purchases.
+
+Still to be authored as content inputs rather than guessed by implementation:
+- Exact bundle count/price for the Contraband item.
+- Exact interaction point within an existing city region.
+
+Technical requirements and safeguards are specified in docs/tasks/ECONOMY-PHASE-3-ILLICIT-EXCHANGE.md. Save v9 is required to persist seller stock and prevent sold stock from reappearing after load.
+
+Cleaning, dynamic prices, restocking, heat/police/exposure and criminal progression remain outside this slice.
