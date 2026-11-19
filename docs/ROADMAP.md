@@ -307,16 +307,25 @@ The shared-city economy is the active initiative. Its foundations are now in pla
 - [x] HUD balance label explicitly reads CARD.
 - [x] User confirmed the full EditMode suite **316/316 passed on 2026-11-19** after the save-version assertion correction.
 
-### Phase 3 — first player-facing illicit exchange (design gate; not yet approved in detail)
-**Recommended outcome:** the player can physically carry dirty-money items and use them in one discreet local exchange, while legitimate purchases continue to use only the clean card balance.
+### Phase 3 — businesses and retail (approved; implementation next)
+**Player outcome:** visit an ordinary business during authored opening hours, browse its predefined merchandise and purchase goods with clean CARD money. Business revenue goes directly to the resident owner's personal account. Existing sell-to-shop behaviour remains intact.
 
-Before implementation, agree:
-- The physical dirty-money item form and denomination/stack-value convention.
-- The first exchange's context (who/where/why) and what the player receives.
-- Whether the first slice includes cleaning or only illicit spending; cleaning is already approved as a future operation that consumes dirty-money items and credits the clean card balance directly, but its rate, prerequisites, risks and presentation remain undecided.
-- Any immediate consequences or exposure risk. Do not invent police/heat consequences or criminal progression rules as part of the technical foundation.
+- [x] User approved the revised Business & Retail scope on 2026-11-19.
+- [x] Decide every resident has a personal clean-money account.
+- [x] Decide business revenue credits the owner's account directly; no separate business revenue balance.
+- [x] Decide existing selling behaviour is retained without new valuation/acceptance rules.
+- [x] Decide business merchandise is authored, unlimited for now, and sold at fixed authored prices.
+- [x] Decide economy updates are event-driven, not continuous/hourly.
+- [ ] Implement a shared resident account registry that reuses CleanMoneyAccount and initializes authored balances exactly once.
+- [ ] Add save v9 for resident account balances and retail transaction history; preserve v1–v8 migration.
+- [ ] Add reusable authored BusinessDefinition data (owner, location, opening schedule, ItemDefinition catalogue and fixed prices).
+- [ ] Implement atomic purchases with customer debit, owner credit, inventory grant and durable retail transaction record.
+- [ ] Integrate the existing CornerShop as the first business through data, not a shop-specific implementation.
+- [ ] Preserve existing player-to-shop selling rules and tests.
+- [ ] Add Core/Game EditMode tests and user Unity Play Mode verification.
 
-Implementation should reuse the existing item identity/state, ownership and transaction services. Keep dirty money out of CleanMoneyAccount and out of legitimate purchase APIs. Prefer one complete local interaction over a generic market/business simulator.
+No finite stock, restocking, suppliers, production, NPC shopping, automatic sales/revenue, operating costs, dynamic prices or dirty-money retail in this phase. Full specification: `docs/tasks/ECONOMY-PHASE-3-BUSINESSES-RETAIL.md`.
+
 
 ### Phase 4 — bounded local economic activity (later)
 - Simple authored availability for ordinary goods.
@@ -331,13 +340,8 @@ Implementation should reuse the existing item identity/state, ownership and tran
 Stock markets, lottery, gambling, laundering, universal price simulation and business ownership are future consumers, not part of the initial economy foundation.
 
 
-## Economy Phase 3 — first illicit exchange (specification finalized; awaiting approval)
+## Economy Phase 3 — Business & Retail (approved; implementation not yet started)
 
-- [x] Confirm physical dirty-cash denomination: one indivisible bundle worth 100 (MaxStack = 1).
-- [x] Confirm a new discreet seller NPC, separate from Milo, in the existing shared city.
-- [x] Confirm generic Contraband as the first merchandise.
-- [x] Finalize atomic exchange, ownership/custody checks, save v9 seller-stock persistence, UI safeguards and test criteria in docs/tasks/ECONOMY-PHASE-3-ILLICIT-EXCHANGE.md.
-- [ ] Obtain explicit user approval before implementation.
-- [ ] Author exact bundle price and interaction placement; do not invent these values.
+The previous illicit-exchange proposal was superseded. Do not implement the former discreet seller, Dirty Cash Bundle or Contraband slice as Phase 3. Dirty money remains a future physical-item system under the approved separation rules.
 
-Scope excludes cleaning, legitimate dirty-money purchases, restocking simulation, dynamic prices, heat/police/exposure and criminal progression.
+The active approved scope is `docs/tasks/ECONOMY-PHASE-3-BUSINESSES-RETAIL.md`: every resident has a clean account; business sales credit the owner; merchandise is predefined and unlimited; prices are fixed/authored; existing sell-to-shop behaviour is retained; purchases are atomic and event-driven; the existing CornerShop is the first integration. Save v9 will persist resident account balances and retail transaction history.
