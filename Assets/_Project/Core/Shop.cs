@@ -51,7 +51,7 @@ namespace Signal.Core
             if (ledger == null) throw new ArgumentNullException(nameof(ledger));
 
             if (!IsValidOrder(order) || itemInstanceId == Guid.Empty ||
-                string.IsNullOrWhiteSpace(businessId) || !seller.IsValid ||
+                string.IsNullOrWhiteSpace(businessId) || seller != EconomicActorId.Player ||
                 day < 1 || minuteOfDay < 0 || minuteOfDay >= 1440)
                 return FulfilResult.InvalidOrder;
 
