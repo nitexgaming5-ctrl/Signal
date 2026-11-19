@@ -372,9 +372,11 @@ The previous illicit seller/Dirty Cash Bundle/Contraband proposal remains supers
 - Save policy: current-format round-trip/reliability first; obsolete development-save compatibility is optional and may be intentionally dropped after substantial schema changes. Never silently corrupt a current-format save.
 
 
-## Next initiative — player-facing sell-to-shop (design pending)
+## Next initiative — player-facing sell-to-shop (specification finalized; implementation awaiting approval)
 
-- [ ] Approve how businesses author buyback acceptance and fixed unit prices (see Q21 and `docs/tasks/ECONOMY-PLAYER-SELLING-DESIGN.md`).
-- [ ] After approval, implement a player-facing SELL tab at an open business counter, using the existing `ShopOrder` / `Shop.TryFulfil` rules for transaction validation and player CARD credit.
-- [ ] Add exact-stack ownership validation and a sale-specific persistent transaction ledger; keep the physical asset-transfer and retail purchase ledgers semantically separate.
-- [ ] Verify full-stack and partial-stack sales, rollback, save/load, and the existing BUY flow.
+- [x] User approved separate fixed-price buyback offers per `BusinessDefinition` (Q21).
+- [x] Finalize the implementation specification in `docs/tasks/ECONOMY-PLAYER-SELLING-DESIGN.md`.
+- [ ] Await explicit user approval to begin implementation.
+- [ ] Implement exact-stack, player-owned sales through the existing Core sale transaction boundary, preserving its validation/account-credit/rollback semantics.
+- [ ] Add a separate persistent sale ledger and v10 current-format round-trip; keep physical transfer and retail purchase ledgers separate.
+- [ ] Add SELL tab while leaving BUY / `RetailService` unchanged; verify full/partial sale, rejection, rollback and save/load in Unity.
