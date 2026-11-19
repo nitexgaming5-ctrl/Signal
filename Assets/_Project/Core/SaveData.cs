@@ -183,6 +183,8 @@ namespace Signal.Core
 
     public static class SaveMigrator
     {
+        // Increment only when the serialized save schema changes. Runtime/UI/gameplay-only changes do not require a new save version.
+        // Migration tests for historical inputs should assert this constant for their migrated result.
         public const int CurrentVersion = 10;
 
         /// <summary>Accepts supported save formats and migrates them to the current inventory, social and economic format.</summary>
