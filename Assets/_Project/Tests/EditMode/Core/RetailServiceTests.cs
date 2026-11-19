@@ -191,6 +191,35 @@ namespace Signal.Core.Tests
             Assert.That(inventory.CountOf(item), Is.EqualTo(1));
         }
 
+        [TestCase(0, 10)]
+        [TestCase(-1, 10)]
+        [TestCase(1, 0)]
+        [TestCase(1, -1)]
+        [TestCase(int.MaxValue, 2)]
+        public void InvalidQuantityOrPriceNeverChangesPurchaseState(int quantity, int unitPrice)
+        {
+            var accounts = new EconomicAccountBook();
+            var customer = new CleanMoneyAccount(100);
+            var owner = new CleanMoneyAccount(25);
+            accounts.TryRegister(Customer, customer);
+            accounts.TryRegister(Owner, owner);
+            var ownership = new AssetOwnershipBook();
+            var ledger = new RetailTransactionLedger();
+            var inventory = new GridInventory();
+            var item = new ItemType(Guid.NewGuid(), 1, 1, 10);
+
+            RetailPurchaseResult result = CreateService(accounts, ownership, ledger).TryPurchase(
+                "old-bakery", inventory, Customer, Owner, item, ItemInstanceState.Default,
+                quantity, unitPrice, 1, 600);
+
+            Assert.That(result.Status, Is.EqualTo(RetailPurchaseStatus.InvalidRequest));
+            Assert.That(customer.Balance, Is.EqualTo(100));
+            Assert.That(owner.Balance, Is.EqualTo(25));
+            Assert.That(inventory.Items, Is.Empty);
+            Assert.That(ledger.Count, Is.Zero);
+            Assert.That(ownership.Count, Is.Zero);
+        }
+
         [Test]
         public void InvalidRequestAndMissingAccountsAreRejected()
         {
