@@ -300,7 +300,7 @@ The next core initiative is the shared city economy, not a second NPC opportunit
 - Core EditMode tests for success, ownership mismatch, unregistered assets, missing assets, full destinations and unchanged same-owner storage moves.
 - This first pass is a runtime Core foundation; it must not be used for persistent gameplay until ownership and transaction state have versioned save integration.
 
-### Phase 2 — money and account foundation
+### Phase 2 — money and account foundation (Core persistence implemented; Editor verification pending)
 - Clean money as an integer bank/card balance used for legitimate purchases.
 - Dirty money as physical inventory assets, excluded from legitimate card/bank payments and direct deposits.
 - Future cleaning operation consumes dirty-money assets and credits the clean balance directly.
@@ -323,4 +323,4 @@ The next core initiative is the shared city economy, not a second NPC opportunit
 ### Phase 6 — future economic consumers
 - World/economic events, stocks, lottery, betting, business ownership and laundering, each designed separately and built on the shared foundations.
 
-Stock markets, lottery, gambling, laundering, universal price simulation and business ownership are not part of Phase 1.
+Stock markets, lottery, gambling, laundering, universal price simulation and business ownership are future consumers, not part of the initial economy foundation.

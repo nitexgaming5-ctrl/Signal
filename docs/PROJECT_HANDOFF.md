@@ -408,3 +408,21 @@ The service requires registered source and destination containers, validates the
 This is not yet a persistent player-facing feature. Ownership and transaction state are runtime-only and are not connected to GameSession or save v7. Phase 2 must add versioned persistence before using these primitives in saved gameplay. Unity compilation, EditMode tests and Play Mode verification remain pending the user's Editor run.
 
 Branch: chore/collaboration-workflow-and-audit.
+
+
+## Economy initiative handoff — 2026-11-19
+
+### Confirmed design
+- One shared city economy for player, residents, businesses and suppliers.
+- Clean money is the player's bank/card balance for legitimate purchases and ordinary clean expenses.
+- Dirty money is physical inventory items only. It is excluded from legitimate card/bank payments and cannot be deposited directly. Future cleaning consumes those items and credits the clean account; illicit uses include shady markets and bribes.
+- No universal supply/demand, automatic price fluctuation or continuous consumption simulation initially. Ordinary goods use authored availability; stock is selectively tracked for gameplay-sensitive categories.
+- Stocks, lottery, betting, laundering, business ownership and richer economic events are future consumers of the shared foundation, not current features.
+
+### Phase 1 and Phase 2 code state
+- Phase 1 Core asset ownership, container custody, transfer service and transaction ledger were added. User confirmed 304/304 EditMode tests on that code.
+- Phase 2 adds CleanMoneyAccount, preserves PlayerStats compatibility APIs, upgrades saves to v8, persists player-held asset owner mappings and completed transfer history, and wires the runtime economic services into GameSession.
+- The GameSession container registry is reconstructed for carried inventory and home storage. The ownership book and transaction ledger are captured/restored with saves.
+- Legacy v1-v7 money migrates unchanged to the clean balance; legacy carried/storage items default to player ownership when no explicit owner exists.
+- Dirty-money content definitions, denominations and cleaning mechanics are not implemented yet.
+- Phase 2 Unity compilation and full EditMode verification are pending user run.

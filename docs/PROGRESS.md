@@ -380,3 +380,23 @@ The user approved the shared city economy design, with two refinements:
 - No Unity Editor or test runner was available to the assistant. C# compilation, EditMode tests and Unity verification are pending user validation.
 
 Next: pull the branch and run Unity compilation plus the full EditMode suite. Then address any reported failures before adding account/money mechanics.
+
+
+## 2026-11-19 — Economy Phase 2 account and persistence foundation
+
+### User verification of Phase 1
+- User ran the full Unity EditMode suite and confirmed **304/304 passed** after the Phase 1 asset-transfer foundation.
+
+### Added in Phase 2
+- Added CleanMoneyAccount as the explicit clean bank/card balance. PlayerStats.Money/Earn/TrySpend remain compatibility APIs delegating to that account, keeping existing rent and debug-sale flows clean.
+- Dirty money is not represented by an account balance or deposit API; it remains a physical inventory-item direction for future illicit exchanges and cleaning.
+- Save format advanced from v7 to v8. Existing v1-v7 money values migrate unchanged into cleanBalance.
+- Save v8 captures/restores carried/storage asset ownership mappings and economic transfer history.
+- GameSession now owns/composes the ownership book, transaction ledger, player container registry and transfer service. Carried inventory and home storage are registered as player-custodied containers.
+- HUD explicitly labels the existing balance as CARD.
+- Added CleanMoneyAccount tests and SaveMapper migration/round-trip/invalid-record tests.
+
+### Verification status
+- The 304/304 result applies to Phase 1 code before these Phase 2 changes.
+- Phase 2 code is committed but has not been compiled or run in Unity by the assistant. Unity compilation and the complete EditMode suite are pending the user's Editor run.
+- No Phase 2 Play Mode verification has been performed.

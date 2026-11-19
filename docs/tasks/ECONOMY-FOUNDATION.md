@@ -42,3 +42,20 @@ Simulation:
 - Assistant cannot run the Unity Editor or Unity Test Runner.
 - Pull the branch, allow Unity to compile, then run the full EditMode suite.
 - Report any compiler or test failures before proceeding to Phase 2.
+
+
+## Phase 2 — clean account and economic persistence (implemented; verification pending)
+
+- Added CleanMoneyAccount as the explicit clean bank/card balance. Existing PlayerStats Money/Earn/TrySpend APIs delegate to it; rent and current debug sale therefore remain clean-money operations.
+- Dirty money is not part of this account and has no direct deposit path. It remains a physical item direction for later illicit payments and cleaning.
+- Save v8 stores cleanBalance, carried/storage asset owner mappings and completed economic transfer records.
+- v1-v7 migration copies legacy money to cleanBalance unchanged. Legacy carried/storage assets default to player ownership.
+- GameSession owns/composes AssetOwnershipBook, EconomicTransactionLedger, EconomicContainerRegistry and AssetTransferService; player inventory and home storage are registered as player-custodied containers.
+- HUD balance label now explicitly reads CARD.
+- Added tests for clean account operations, v7 migration, economic state round-trip and malformed economic records.
+- User confirmed 304/304 tests for Phase 1. Phase 2 code is not yet Unity-verified; run compilation and the full EditMode suite after pulling.
+
+### Phase 2 boundaries / remaining work
+- No dirty-money ItemDefinition or denomination convention has been authored.
+- No cleaning, shady market, bribe, shop purchase, supplier, finite stock or player-facing economy interaction is implemented.
+- Currency symbol/denomination and actual starting balance remain undecided.
