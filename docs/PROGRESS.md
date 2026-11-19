@@ -1,8 +1,8 @@
 # Progress
 
-## Current status: Economy Phase 2 verified; Phase 3 Business & Retail implementation added, Unity verification pending
+## Current status: Economy Phase 3 Business & Retail verified; transaction-safety audit underway
 
-The user confirmed **316/316 EditMode tests passed on 2026-11-19** after the economy Phase 2 implementation and the follow-up correction to three legacy save-migration test expectations. This verifies the Phase 2 v8 save/account/ownership implementation as it stood at that time. The Phase 3 v9 resident-account/retail changes and newly authored tests have not yet been run by the user. No Phase 3 Play Mode verification has been reported.
+The user confirmed **335/335 EditMode tests passed on 2026-11-19** and reported that all Phase 3 Business & Retail functionality works as intended in Unity. This verifies the v9 resident-account/retail implementation and the Corner Bakery purchase slice. A follow-up transaction-safety audit has now added fail-fast validation to the legacy Shop sale path and adversarial input regression tests; those newest tests have not yet been run in Unity.
 
 The working branch is `chore/collaboration-workflow-and-audit`; `main` remains untouched. The active architecture is Signal.Core + Signal.Game. The hideout, connected city, inventory/storage, item identity/state/knowledge, NPC framework, Milo parcel opportunity and NPC navigation foundations remain in place.
 
@@ -461,3 +461,23 @@ Next: pull the branch, compile, run the full EditMode suite and verify a Bread p
 - Added an EventSystem/InputSystemUIInputModule and GraphicRaycaster setup for runtime-created UGUI so mouse clicks work with the project's Input System.
 - Changed `HideoutSlice.unity` GameSession `startingMoney` from 0 to **5000**. This is a temporary clean CARD test balance, not a final player-starting-money design. A loaded save keeps its persisted balance; start a fresh game to see the seed.
 - Unity compilation, full EditMode suite and Play Mode click/purchase/save-load checks are still pending. The assistant cannot run Unity.
+
+
+## 2026-11-19 — Economy Phase 3 verified; transaction-safety audit
+
+- User confirmed the full Unity EditMode suite **335/335 passed** and reported that all Phase 3 Business & Retail functionality works as intended in Play Mode.
+- Phase 3 is now verified: resident clean accounts, authored Corner Bakery catalogue, click-driven purchases through the existing RetailService, owner revenue, inventory ownership and retail transaction persistence.
+- Audited the separate legacy `Shop.TryFulfil` sale operation. It already snapshots inventory, rejects insufficient stock and oversized totals, and restores inventory if the clean account cannot accept payment. `CleanMoneyAccount.TryCredit` rejects non-positive credits and integer overflow.
+- Tightened sale preflight validation so default/uninitialized item definitions and zero-value orders are rejected before inventory mutation. Existing sale valuation and acceptance rules are unchanged.
+- Added Shop regression coverage for zero-value fail-fast behavior (including no inventory change notification) and uninitialized item definitions.
+- Added RetailService regression cases for zero/negative quantity, zero/negative unit price and total-cost overflow. These verify that account balances, inventory, ownership and the retail ledger remain unchanged.
+- The sale helper is currently only called by the developer sale control in GameSession; there is no player-facing sale flow yet. It does not currently create economic transaction records or validate AssetOwnershipBook ownership. Do not retrofit a new sale economy silently; design the player-facing sale integration before enabling it.
+- Expected EditMode suite count after these additions: **342 test cases** (335 prior + 2 Shop tests + 5 RetailService parameter cases). This is an expected count, not a test result; Unity verification is pending.
+- No save schema change was required.
+
+### Persistence policy clarification (user-approved 2026-11-19)
+
+- Prioritize reliable save/load for the current save format and round-trip tests whenever persistent systems change.
+- Do not spend disproportionate effort preserving obsolete development saves or maintaining a long chain of historical migrations.
+- A substantial schema change may deliberately invalidate older development saves and require starting a fresh game.
+- Never silently corrupt or discard a current-format save; keep writes reliable/atomic and make any intentional reset/incompatibility explicit.
