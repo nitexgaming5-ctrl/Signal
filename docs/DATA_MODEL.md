@@ -128,3 +128,14 @@ When a save shape changes, keep the current format reliable and add round-trip c
 - Backward compatibility with obsolete development saves is optional; do not spend disproportionate effort maintaining historical migrations.
 - Substantial changes may intentionally invalidate older development saves and require a new game.
 - Current-format saves must not be silently corrupted or discarded. Save writes should remain reliable/atomic, and intentional resets/incompatibilities must be explicit.
+
+
+## Player-to-business sales (save v10)
+
+- Each `BusinessDefinition` has a separate authored buyback-offer list. Each entry references an `ItemDefinition` and a positive fixed clean-CARD unit price. This is independent of the merchandise catalogue.
+- A player sale targets one exact `ItemInstanceId` in carried inventory. Partial quantity removal preserves the stack ID and `ItemInstanceState`; full removal deletes the stack's player ownership entry.
+- `ShopSaleTransaction` records business/seller identity, exact stack and definition IDs, quantity, fixed unit price/total, item-state snapshot and in-game timestamp.
+- `ShopSaleTransactionLedger` is separate from physical asset transfers and unlimited retail purchases.
+- Save v10 persists this ledger. A v9 save initializes an empty sale history. The business's authored offer data remains in ScriptableObject content and is not duplicated into the save.
+- The business does not debit a separate budget or acquire finite stock; the sale consumes the selected goods and credits only the player's clean CARD account.
+
