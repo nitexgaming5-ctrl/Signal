@@ -1,8 +1,8 @@
 # Progress
 
-## Current status: Economy Phase 3 and transaction-safety audit verified; player-facing selling design underway
+## Current status: Economy Phase 3 and transaction-safety audit verified; player-facing selling specification finalized
 
-The user confirmed **342/342 EditMode tests passed on 2026-11-19** after the transaction-safety audit changes. Phase 3 Business & Retail remains verified at 335/335, and the seven additional regression cases for invalid sale inputs and retail purchase validation are now verified. The next initiative is the design specification for player-facing sell-to-shop transactions; no sale UI or new sale pricing/acceptance rules have been implemented.
+The user confirmed **342/342 EditMode tests passed on 2026-11-19** after the transaction-safety audit changes. Phase 3 Business & Retail remains verified at 335/335. The player-facing sell-to-shop specification is now finalized after the user's approval of separate fixed-price buyback offers per BusinessDefinition. No player-facing sale code or buyback content has been implemented.
 
 The working branch is `chore/collaboration-workflow-and-audit`; `main` remains untouched. The active architecture is Signal.Core + Signal.Game. The hideout, connected city, inventory/storage, item identity/state/knowledge, NPC framework, Milo parcel opportunity and NPC navigation foundations remain in place.
 
@@ -490,3 +490,11 @@ Next: pull the branch, compile, run the full EditMode suite and verify a Bread p
 - The next proposed initiative is a player-facing sell-to-shop flow. Draft specification: `docs/tasks/ECONOMY-PLAYER-SELLING-DESIGN.md`.
 - Key unresolved design point: how each business authors the items it will buy and the unit prices supplied to `ShopOrder`. Recommendation is a separate, explicit fixed-price buyback offer list per business, not reuse of the business's player-facing retail catalogue and not an automatic ItemValueCalculator formula.
 - No player-facing sale code has been implemented. Await the user's approval of the buyback offer model before implementation.
+
+
+## 2026-11-19 — Player-facing sell-to-shop specification finalized
+
+- User approved Q21: each `BusinessDefinition` owns a separate authored buyback-offer list with fixed positive clean-CARD unit prices, independent of its merchandise catalogue.
+- Finalized `docs/tasks/ECONOMY-PLAYER-SELLING-DESIGN.md` with the approved business policy, exact-stack/ownership contract, atomic transaction semantics, dedicated sale ledger, current-format save v10 plan, UI integration and acceptance tests.
+- Important implementation constraint: the existing `Shop.TryFulfil` removes by item type and does not validate asset ownership or record a sale. The new path must preserve its safety/credit/rollback rules while targeting the exact selected `ItemInstanceId`; do not call its old type-wide removal path for a selected-stack sale.
+- No gameplay code, business buyback entries or buyback prices were changed/created. Await explicit user approval before implementation.
