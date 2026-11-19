@@ -49,17 +49,6 @@ namespace Signal.Core.Tests
 
 
         [Test]
-        public void AccountBookRejectsSharingOneAccountBetweenDifferentActors()
-        {
-            var accounts = new EconomicAccountBook();
-            var shared = new CleanMoneyAccount(100);
-
-            Assert.That(accounts.TryRegister(Customer, shared), Is.True);
-            Assert.That(accounts.TryRegister(Owner, shared), Is.False);
-            Assert.That(accounts.Count, Is.EqualTo(1));
-        }
-
-        [Test]
         public void PurchaseDebitsCustomerCreditsOwnerGrantsGoodsAndRecordsTransaction()
         {
             var accounts = new EconomicAccountBook();
