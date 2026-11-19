@@ -531,7 +531,7 @@ The specification is finalized, but implementation has **not** started. Wait for
 
 The approved player-selling initiative has been implemented in code on the working branch; Unity verification is pending.
 
-- `BusinessDefinition` has a separate `BuybackEntry` list (item reference + positive fixed clean-CARD unit price). It is independent of the merchandise catalogue. No buyback item/price has been authored for the Corner Bakery.
+- `BusinessDefinition` has a separate `BuybackEntry` list (item reference + positive fixed clean-CARD unit price). It is independent of the merchandise catalogue. A temporary test-only Bread buyback offer at CARD $3 is now authored on the working branch, explicitly authorized by the user; do not treat it as final balancing.
 - `GridInventory.TryRemoveItemInstance(Guid, int)` removes from one exact stack; partial sales preserve the same stack identity and state.
 - `Shop.TryFulfilExact` validates the exact stack and seller ownership, removes the selected quantity, removes ownership only on full-stack sale, credits clean CARD and records one dedicated `ShopSaleTransaction`. Failure paths restore the inventory/account/ownership snapshot.
 - `ShopSaleTransactionLedger` is separate from `EconomicTransactionLedger` and `RetailTransactionLedger`.
@@ -562,4 +562,9 @@ A further review of the active player-selling initiative found two defensive imp
 - `Shop.TryFulfilExact` now rejects any seller other than `EconomicActorId.Player`, matching its player-facing contract. A new test verifies that even a resident who owns a stack cannot use the player sale operation; no inventory, ownership, account or ledger state changes.
 - `GameSession.SellToBusiness` revalidates the exact active `BusinessDefinition` object reference, not merely its ID, to avoid stale or duplicate-ID content references being accepted.
 
-The new regression test has not yet been run; expected full suite is now 355. Unity compilation and SELL Play Mode checks remain pending. The user must author at least one buyback offer (item + positive fixed price) to test the UI; none is invented in the Corner Bakery asset.
+The new regression test has not yet been run; expected full suite is now 355. Unity compilation and SELL Play Mode checks remain pending. The user explicitly authorized test content: `Business_CornerShop.asset` now buys the existing Bread ItemDefinition at CARD $3 (retail sale price remains $5). This is disposable test content, not a final economy decision. The next expected EditMode count is 355; only 354 has been user-confirmed so far.
+
+
+### SELL test fixture update — 2026-11-19
+
+The user authorized temporary test content. `Business_CornerShop.asset` now has a separate buyback offer for `Item_Bread.asset` at CARD $3 per unit; its existing merchandise offer remains CARD $5. Use a fresh game, buy/carry Bread or otherwise obtain player-owned Bread, then test partial and full sales. Remove/revise the buyback fixture after the SELL verification pass. The 354-test baseline is user-confirmed; the added seller-boundary test makes 355 expected, not yet verified.
