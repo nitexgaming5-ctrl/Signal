@@ -45,6 +45,29 @@ namespace Signal.Core
             return new InventoryTransferResult(item.Count, 0, true);
         }
 
+        public static InventoryTransferResult MoveStackAt(GridInventory source, GridInventory destination, Guid itemInstanceId,
+            int destinationX, int destinationY, bool rotated)
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            if (destination == null) throw new ArgumentNullException(nameof(destination));
+            if (ReferenceEquals(source, destination))
+                throw new ArgumentException("Source and destination must be different inventories.");
+            if (!source.TryGetItemInstance(itemInstanceId, out PlacedItem item))
+                return new InventoryTransferResult(0, 0, true);
+
+            InventorySnapshot sourceBefore = source.CreateSnapshot();
+            InventorySnapshot destinationBefore = destination.CreateSnapshot();
+            if (!destination.TryPlaceTransferred(item, destinationX, destinationY, rotated))
+                return new InventoryTransferResult(0, item.Count, true);
+            if (!source.TryRemoveItemInstance(itemInstanceId))
+            {
+                source.Restore(sourceBefore);
+                destination.Restore(destinationBefore);
+                return new InventoryTransferResult(0, item.Count, false);
+            }
+            return new InventoryTransferResult(item.Count, 0, true);
+        }
+
         public static InventoryTransferResult MoveAll(GridInventory source, GridInventory destination, ItemType type)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));

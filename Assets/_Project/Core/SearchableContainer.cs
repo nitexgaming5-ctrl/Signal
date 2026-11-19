@@ -24,6 +24,7 @@ namespace Signal.Core
         public GridInventory Inventory { get; }
         public bool IsGenerated { get; private set; }
         public int DiscoveredCount { get; private set; }
+        public bool HasSearchStarted { get; private set; }
         public int TotalGeneratedCount => _searchOrder.Count;
         public bool IsSearchComplete => IsGenerated && DiscoveredCount >= _searchOrder.Count;
         public IReadOnlyList<Guid> SearchOrder => _readOnlySearchOrder;
@@ -55,10 +56,19 @@ namespace Signal.Core
             return true;
         }
 
+        /// <summary>Marks the container as actively searched; this flag survives closing and saving.</summary>
+        public bool TryStartSearch()
+        {
+            if (!IsGenerated || IsSearchComplete)
+                return false;
+            HasSearchStarted = true;
+            return true;
+        }
+
         /// <summary>Reveals the next item in the saved order. The item remains in the container.</summary>
         public bool TryRevealNext(out Guid itemInstanceId)
         {
-            if (!IsGenerated || IsSearchComplete)
+            if (!IsGenerated || !HasSearchStarted || IsSearchComplete)
             {
                 itemInstanceId = Guid.Empty;
                 return false;
@@ -92,9 +102,16 @@ namespace Signal.Core
         /// <summary>Restores saved progress without generating or rerolling contents.</summary>
         public bool TryRestoreSearchState(bool generated, IList<Guid> itemOrder, int discoveredCount)
         {
+            return TryRestoreSearchState(generated, itemOrder, discoveredCount, false);
+        }
+
+        public bool TryRestoreSearchState(bool generated, IList<Guid> itemOrder, int discoveredCount, bool searchStarted)
+        {
             if (itemOrder == null || discoveredCount < 0 || discoveredCount > itemOrder.Count)
                 return false;
-            if (!generated && (itemOrder.Count != 0 || discoveredCount != 0))
+            if (!generated && (itemOrder.Count != 0 || discoveredCount != 0 || searchStarted))
+                return false;
+            if (discoveredCount > 0 && !searchStarted)
                 return false;
 
             var unique = new HashSet<Guid>();
@@ -117,6 +134,7 @@ namespace Signal.Core
 
             IsGenerated = generated;
             DiscoveredCount = discoveredCount;
+            HasSearchStarted = searchStarted;
             return true;
         }
 
@@ -128,6 +146,7 @@ namespace Signal.Core
             _knownOrderIds.Clear();
             IsGenerated = false;
             DiscoveredCount = 0;
+            HasSearchStarted = false;
         }
     }
 }

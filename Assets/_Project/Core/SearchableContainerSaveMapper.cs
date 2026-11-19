@@ -21,6 +21,7 @@ namespace Signal.Core
                 {
                     containerId = container.ContainerId,
                     generated = container.IsGenerated,
+                    searchStarted = container.HasSearchStarted,
                     discoveredCount = container.DiscoveredCount
                 };
 
@@ -124,7 +125,7 @@ namespace Signal.Core
                     }
                 }
 
-                if (!destination.TryRestoreSearchState(saved.generated, order, saved.discoveredCount))
+                if (!destination.TryRestoreSearchState(saved.generated, order, saved.discoveredCount, saved.searchStarted))
                 {
                     destination.Reset();
                     skipped++;

@@ -139,6 +139,7 @@ namespace Signal.Core
     {
         public string containerId;
         public bool generated;
+        public bool searchStarted;
         public int discoveredCount;
         public List<string> searchOrder = new List<string>();
         public List<SavedItem> items = new List<SavedItem>();
@@ -196,7 +197,7 @@ namespace Signal.Core
     {
         // Increment only when the serialized save schema changes. Runtime/UI/gameplay-only changes do not require a new save version.
         // Migration tests for historical inputs should assert this constant for their migrated result.
-        public const int CurrentVersion = 11;
+        public const int CurrentVersion = 12;
 
         /// <summary>Accepts supported save formats and migrates them to the current inventory, social and economic format.</summary>
         public static bool TryMigrate(SaveData data, out string error)
@@ -278,6 +279,9 @@ namespace Signal.Core
             // Version 11 stores generated searchable-container contents and progressive discovery.
             if (data.searchableContainers == null)
                 data.searchableContainers = new List<SavedSearchableContainer>();
+
+            // Version 12 persists whether the player started searching before closing the container.
+            // Older records default to false, preserving generated contents without auto-starting a search.
 
             data.version = CurrentVersion;
 

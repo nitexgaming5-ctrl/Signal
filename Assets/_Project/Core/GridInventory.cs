@@ -357,6 +357,18 @@ namespace Signal.Core
         /// in the first free spot (rows top to bottom, left to right, unrotated).
         /// Returns how many could not be placed.
         /// </summary>
+        internal bool TryPlaceTransferred(PlacedItem item, int x, int y, bool rotated)
+        {
+            if (item.ItemInstanceId == Guid.Empty || item.Count < 1 || item.Count > item.Type.MaxStack ||
+                _items.Exists(existing => existing.ItemInstanceId == item.ItemInstanceId) ||
+                !Fits(item.Type, x, y, rotated, 0))
+                return false;
+
+            _items.Add(new PlacedItem(_nextInstanceId++, item.ItemInstanceId, item.Type, x, y, rotated, item.Count, item.State));
+            Changed?.Invoke(this);
+            return true;
+        }
+
         public int Add(ItemType type, int count)
         {
             return Add(type, count, ItemInstanceState.Default);
