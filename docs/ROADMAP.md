@@ -368,7 +368,7 @@ The previous illicit seller/Dirty Cash Bundle/Contraband proposal remains supers
 - RetailService already validates positive quantity/price, overflow-safe total, customer/owner accounts, sufficient funds, matching-stack ownership and inventory capacity through its guarded Add/rollback path. It records successful purchases in the retail ledger.
 - Shop.TryFulfil already checks stock and total bounds, snapshots inventory, and restores it when account credit fails. Added fail-fast rejection for uninitialized item definitions and zero-value orders, avoiding temporary inventory mutation.
 - Added regression cases for invalid retail quantities/prices/overflow and invalid sale inputs. The new cases are awaiting Unity; expected full suite is 342 test cases, not yet verified.
-- The existing Shop sale helper is currently developer-only and has no economic transaction record or AssetOwnershipBook check. A player-facing sale feature must be designed and integrated separately before this helper is exposed as normal gameplay.
+- `Shop.TryFulfil` is not wired to a runtime player-facing sale UI and has no economic transaction record or AssetOwnershipBook check. A player-facing sale feature must be designed and integrated separately before this helper is exposed as normal gameplay.
 - Save policy: current-format round-trip/reliability first; obsolete development-save compatibility is optional and may be intentionally dropped after substantial schema changes. Never silently corrupt a current-format save.
 
 
