@@ -480,3 +480,23 @@ The catalogue now contains `Item_Bread.asset` at a temporary CARD $5 test price,
 - The retail panel is now click-driven: each catalogue row displays the item and fixed price with an adjacent BUY button. Paging and close are clickable; ESC also closes the panel. It uses runtime UGUI with an EventSystem and InputSystemUIInputModule.
 - `HideoutSlice.unity` seeds the player's clean CARD balance at $5,000 for testing. This is only a test starting value. Loading an existing save restores the saved balance, so use a fresh game to observe the seed.
 - This UI is still a first-pass test interface, not the final visual/UI design. Unity compile, tests and Play Mode purchase verification remain outstanding.
+
+
+## Latest handoff correction — 2026-11-19
+
+### Verified economy state
+- Economy Phase 3 Business & Retail is complete. The user confirmed **335/335 EditMode tests passed** and all Phase 3 functionality works as intended in Unity.
+- Purchases continue to use `RetailService` as the sole Core transaction authority. Do not bypass its account checks, quantity/price/overflow validation, inventory capacity handling, ownership registration or retail transaction recording from UI or GameSession.
+- Existing `Shop` / `ShopOrder` sell valuation and acceptance rules remain unchanged.
+
+### Transaction-safety audit follow-up
+- `Shop.TryFulfil` now rejects uninitialized item definitions and zero-value orders before touching inventory. It retains the existing inventory snapshot/restore behavior if account credit fails.
+- New regression cases cover zero-value and default-item sale orders, plus RetailService zero/negative quantity, zero/negative price and oversized totals. These new tests have not yet been run by the user; expected full suite is 342 test cases.
+- The legacy sale helper is currently used only by the developer sale control. It does not write an economic transaction record or consult AssetOwnershipBook. This is not silently expanded here because player-facing sale acceptance/ownership/recording needs a deliberate integration design.
+- No save schema change was made in this audit.
+
+### Persistence policy — updated user decision
+- Make the current save format reliable and test its round-trip whenever persistent state changes.
+- Do not spend excessive time preserving obsolete development saves or maintaining migrations for every historical intermediate format.
+- A substantial change may deliberately invalidate old development saves and require a fresh game.
+- Do not silently corrupt or lose current-format progress; make intentional incompatibility/reset explicit and keep writes reliable.
