@@ -21,6 +21,7 @@ namespace Signal.Game
         private Text _status;
         private Text _footer;
         private BusinessDefinition _business;
+        private int _pageIndex;
         private Func<BusinessDefinition, ItemDefinition, string> _purchase;
         private Action _closed;
 
@@ -40,6 +41,7 @@ namespace Signal.Game
                 return;
             BuildIfNeeded();
             _business = business;
+            _pageIndex = 0;
             _title.text = business.DisplayName.ToUpperInvariant() + "  —  " + business.BusinessType;
             RefreshCatalogue();
             _status.text = string.Empty;
@@ -69,6 +71,15 @@ namespace Signal.Game
                 return;
             }
 
+            if (keyboard.digit0Key.wasPressedThisFrame && _business != null && _business.Merchandise.Count > 9)
+            {
+                int pageCount = (_business.Merchandise.Count + 8) / 9;
+                _pageIndex = (_pageIndex + 1) % pageCount;
+                RefreshCatalogue();
+                _status.text = string.Empty;
+                return;
+            }
+
             int selected = keyboard.digit1Key.wasPressedThisFrame ? 0 :
                 keyboard.digit2Key.wasPressedThisFrame ? 1 :
                 keyboard.digit3Key.wasPressedThisFrame ? 2 :
@@ -79,10 +90,11 @@ namespace Signal.Game
                 keyboard.digit8Key.wasPressedThisFrame ? 7 :
                 keyboard.digit9Key.wasPressedThisFrame ? 8 : -1;
 
-            if (selected < 0 || _business == null || selected >= _business.Merchandise.Count)
+            int entryIndex = _pageIndex * 9 + selected;
+            if (selected < 0 || _business == null || entryIndex >= _business.Merchandise.Count)
                 return;
 
-            BusinessDefinition.MerchandiseEntry entry = _business.Merchandise[selected];
+            BusinessDefinition.MerchandiseEntry entry = _business.Merchandise[entryIndex];
             if (entry == null || entry.Item == null)
             {
                 _status.text = "This catalogue entry is not configured.";
@@ -101,17 +113,18 @@ namespace Signal.Game
             }
             else
             {
-                int shown = Math.Min(9, _business.Merchandise.Count);
+                int start = _pageIndex * 9;
+                int shown = Math.Min(9, _business.Merchandise.Count - start);
                 for (int i = 0; i < shown; i++)
                 {
-                    BusinessDefinition.MerchandiseEntry entry = _business.Merchandise[i];
+                    BusinessDefinition.MerchandiseEntry entry = _business.Merchandise[start + i];
                     if (entry == null || entry.Item == null)
                         builder.AppendLine((i + 1) + ". [Unconfigured item]");
                     else
                         builder.AppendLine((i + 1) + ". " + entry.Item.DisplayName + "    $" + entry.UnitPrice);
                 }
                 if (_business.Merchandise.Count > 9)
-                    builder.AppendLine("More catalogue entries are hidden; the first nine are selectable.");
+                    builder.AppendLine("Page " + (_pageIndex + 1) + " / " + ((_business.Merchandise.Count + 8) / 9) + "   (0 = next page)");
             }
             _catalogue.text = builder.ToString();
         }
@@ -142,7 +155,7 @@ namespace Signal.Game
             RectTransform rootRect = panelObject.GetComponent<RectTransform>();
             rootRect.anchorMin = rootRect.anchorMax = new Vector2(0.5f, 0.5f);
             rootRect.pivot = new Vector2(0.5f, 0.5f);
-            rootRect.sizeDelta = new Vector2(620f, 390f);
+            rootRect.sizeDelta = new Vector2(620f, 430f);
 
             _title = NewText("Title", rootRect, 22, AccentColor, TextAnchor.MiddleCenter);
             SetRect(_title.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
@@ -150,14 +163,14 @@ namespace Signal.Game
 
             _catalogue = NewText("Catalogue", rootRect, 20, TextColor, TextAnchor.UpperLeft);
             SetRect(_catalogue.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f),
-                new Vector2(28f, -86f), new Vector2(-56f, 205f));
+                new Vector2(28f, -86f), new Vector2(-56f, 250f));
 
             _status = NewText("Status", rootRect, 17, AccentColor, TextAnchor.MiddleCenter);
             SetRect(_status.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f),
                 new Vector2(0f, 54f), new Vector2(-48f, 34f));
 
             _footer = NewText("Footer", rootRect, 15, TextColor, TextAnchor.MiddleCenter);
-            _footer.text = "Press 1–9 to purchase one item   •   ESC to close";
+            _footer.text = "Press 1–9 to purchase one item   •   0 next page   •   ESC to close";
             SetRect(_footer.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f),
                 new Vector2(0f, 20f), new Vector2(-48f, 28f));
         }
