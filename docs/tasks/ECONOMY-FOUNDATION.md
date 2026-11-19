@@ -1,6 +1,6 @@
 # ECONOMY-FOUNDATION — shared city economy
 
-**Status:** Phases 1–2 implemented and user-verified (316/316 EditMode tests); Phase 3 player-facing slice awaiting detailed design approval  
+**Status:** Phases 1–2 implemented and user-verified (316/316 EditMode tests); Phase 3 specification finalized, awaiting explicit implementation approval  
 **Branch:** chore/collaboration-workflow-and-audit
 
 ## Approved design
@@ -63,29 +63,17 @@ Simulation:
 - Currency symbol/denomination and actual starting balance remain undecided.
 
 
-## Phase 3 — first player-facing illicit exchange (design gate)
+## Phase 3 — first player-facing illicit exchange (spec finalized; awaiting approval)
 
-The technical economy foundations should now be exercised by a small, complete player interaction rather than expanded into a broad business simulator.
+The detailed implementation specification is in ECONOMY-PHASE-3-ILLICIT-EXCHANGE.md.
 
-### Recommended target
-Let the player carry physical dirty-money items and spend them in one discreet local exchange. The clean card balance remains exclusively for legitimate purchases. The exchange should transfer real inventory assets and use the shared ownership/transaction foundation.
+User decisions:
+- Dirty Cash Bundle is a physical, indivisible item worth 100; MaxStack = 1.
+- The seller is a new discreet NPC, separate from Milo, located in the existing shared city.
+- First merchandise is a generic Contraband item; its specific identity and effects remain intentionally undefined.
 
-### Decisions required before implementation
-- Physical form of dirty money and the denomination/stack-value convention.
-- First exchange context, counterparty and received asset/service.
-- Whether the slice includes cleaning now or only illicit spending. Cleaning is approved as a future operation that consumes dirty-money items and credits the clean card balance directly; rate, prerequisites, risk and presentation remain open.
-- Whether the exchange has any immediate exposure/consequence. Do not invent heat, police response or criminal progression.
+The slice is one seller, one contraband definition and one authored stock unit. Price (an integer number of bundles) and exact placement are content inputs and must not be guessed. No automatic restocking.
 
-### Explicit exclusions
-- No direct dirty-money deposit into CleanMoneyAccount.
-- No dirty-money acceptance by legitimate shop/card purchase APIs.
-- No universal supply/demand, automatic price fluctuation or continuous consumption.
-- No general market/business simulator, stock market, lottery or betting feature in this slice.
-- No denomination, cleaning rate or risk tuning invented by implementation.
+Technical safeguards include explicit seller actor/custody registration, whole-item ownership validation, two-sided atomic exchange with complete rollback, a seller stock inventory persisted through save v9, and revalidation at confirmation. The clean CARD balance is not read or changed by the illicit exchange.
 
-### Exit criteria (once design is approved)
-- Dirty-money items are ordinary physical inventory assets with stable identity and explicit owner.
-- The approved illicit exchange consumes/transfers the physical item stack atomically and records the economic transaction.
-- Save/load preserves the resulting inventory and ownership state.
-- Player-facing feedback makes clear that the card balance was not used.
-- Core rules have EditMode coverage; Unity compilation and a short Play Mode script are verified by the user.
+**No gameplay code until the user explicitly approves the final specification.**
