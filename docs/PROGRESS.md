@@ -417,3 +417,11 @@ Next: pull the branch and run Unity compilation plus the full EditMode suite. Th
 - No production-code changes were needed after the 313/316 report; the three failing tests were stale expected-version assertions, corrected to use `SaveMigrator.CurrentVersion`.
 - Housekeeping: refreshed this progress summary, reconciled the economy roadmap/task status, and updated the handoff. Older work-log entries remain as historical records and are not rewritten.
 - Next: design a compact player-facing illicit exchange/dirty-money slice. The physical item representation and its denomination/stack-value convention remain unresolved; do not invent them in implementation.
+
+
+## 2026-11-19 — Economy Phase 3 specification finalized (awaiting approval)
+
+- User selected a physical Dirty Cash Bundle worth 100, indivisible (MaxStack = 1); a new discreet seller NPC separate from Milo; and generic Contraband as the first merchandise.
+- Finalized the player interaction, ownership/custody validation, atomic two-sided exchange and rollback requirements, seller stock persistence (save v9), UI safeguards, tests and exclusions in docs/tasks/ECONOMY-PHASE-3-ILLICIT-EXCHANGE.md.
+- Price in bundles and exact placement in an existing city region remain authored content inputs; implementation must not invent either.
+- **No Phase 3 gameplay code has been written. Awaiting the user's explicit approval of the specification.**
