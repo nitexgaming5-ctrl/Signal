@@ -1,6 +1,6 @@
 # Progress
 
-## Current status: Economy Phase 2 verified; Phase 3 Business & Retail content added, Unity verification pending
+## Current status: Economy Phase 2 verified; Phase 3 Business & Retail implementation added, Unity verification pending
 
 The user confirmed **316/316 EditMode tests passed on 2026-11-19** after the economy Phase 2 implementation and the follow-up correction to three legacy save-migration test expectations. This verifies the Phase 2 v8 save/account/ownership implementation as it stood at that time. The Phase 3 v9 resident-account/retail changes and newly authored tests have not yet been run by the user. No Phase 3 Play Mode verification has been reported.
 
@@ -431,7 +431,7 @@ The approved shared-economy retail scope is in implementation. The old illicit-v
 - Save format advanced v8 → v9. v9 persists resident account balances and retail transaction history. v1–v8 migrations initialize these collections; legacy loads restore resident authored starting balances, while v9 saved balances override them. Player clean balance remains in its canonical cleanBalance field.
 - Added StartingCleanBalance to authored NPC definitions and registers all spawned residents, including fallback fixtures, with their own account.
 - Added BusinessDefinition ScriptableObject with stable business ID, owner NPC ID, location/interaction point, opening schedule and ItemDefinition-based fixed-price catalogue.
-- Added a compact keyboard-driven RetailPanel with paged F2–F10 catalogue selection and ESC close.
+- Added a click-driven RetailPanel with merchandise rows, adjacent BUY buttons, clickable paging/close controls and ESC close.
 - GameSession now resolves nearby authored businesses, opens the panel, revalidates opening hours and offers on purchase, and credits the owner's account. Business merchandise is included in the item-definition save resolver.
 - Existing Core Shop / ShopOrder selling rules were not changed.
 - Added Core tests for account registration/isolation, purchase success, insufficient funds, full inventory rollback, owner-account overflow, ownership validation, save v9 round-trip, legacy starting-balance reset and malformed-record handling. Added Game tests for the authored business schedule/default owner.
@@ -440,7 +440,7 @@ The approved shared-economy retail scope is in implementation. The old illicit-v
 - Created `Assets/_Project/Content/Businesses/Business_CornerShop.asset` and assigned it to `GameSession.Businesses` in `HideoutSlice.unity`. It targets owner `milo`, location `CornerShop`, hours 06:30–18:00 and interaction point (1000, 1000.6).
 - Added `Assets/_Project/Content/Items/Item_Bread.asset` (stable item ID, 1×1 footprint, stack limit 10, ordinary default state) and assigned it to the Corner Bakery catalogue at CARD $5. The price is explicitly a temporary test value, not final balancing.
 - Business definitions are validated on interaction and purchase. Existing Core `Shop` / `ShopOrder` sell-to-shop behavior remains unchanged; no new valuation or acceptance rules were added.
-- F1 debug view exposes spawned resident clean balances and retail transaction count to support Play Mode verification.
+- F1 debug view exposes spawned resident clean balances and retail transaction count to support Play Mode verification. The active HideoutSlice GameSession now seeds the player's clean CARD balance at $5,000 for testing; existing saved balances still override this when a save is loaded.
 - Tests are authored but have not been executed. The assistant cannot run the Unity Editor, so Unity compilation, full EditMode suite and Play Mode verification remain pending.
 - Existing player-to-shop selling code remains unchanged; no new sell valuation, acceptance rules or shop budget were introduced.
 
@@ -453,3 +453,11 @@ Next: pull the branch, compile, run the full EditMode suite and verify a Bread p
 - Consolidated overlapping catalogue-validation coverage while retaining schedule, owner identity, valid catalogue, duplicate item, missing owner and non-positive price assertions.
 - This is a test-source correction only; no production gameplay code or design rules changed.
 - Unity compilation and EditMode execution have not yet been rerun. Recompile and run the full suite in the Editor to confirm the correction and surface any subsequent errors.
+
+
+## 2026-11-19 — Retail UI usability and test balance
+
+- Replaced the temporary F2–F10 shop selection scheme with a mouse-clickable catalogue. Each merchandise entry has its own BUY button beside the product name/price; previous/next paging, close button and ESC close are available. The UI calls the existing GameSession purchase callback, so business-hours, catalogue, account, inventory-capacity, ownership and atomic-transaction validation remain authoritative.
+- Added an EventSystem/InputSystemUIInputModule and GraphicRaycaster setup for runtime-created UGUI so mouse clicks work with the project's Input System.
+- Changed `HideoutSlice.unity` GameSession `startingMoney` from 0 to **5000**. This is a temporary clean CARD test balance, not a final player-starting-money design. A loaded save keeps its persisted balance; start a fresh game to see the seed.
+- Unity compilation, full EditMode suite and Play Mode click/purchase/save-load checks are still pending. The assistant cannot run Unity.
