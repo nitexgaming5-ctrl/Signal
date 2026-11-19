@@ -35,6 +35,7 @@ namespace Signal.Game
         private EconomicAccountBook _economicAccounts;
         private RetailTransactionLedger _retailTransactions;
         private RetailService _retailService;
+        private ShopSaleTransactionLedger _shopSaleTransactions;
         private GridInventory _inventory;
         private GridInventory _storage;
         private ItemKnowledgeBook _itemKnowledge;
@@ -71,6 +72,7 @@ namespace Signal.Game
         public EconomicAccountBook EconomicAccounts => _economicAccounts;
         public RetailTransactionLedger RetailTransactions => _retailTransactions;
         public RetailService Retail => _retailService;
+        public ShopSaleTransactionLedger ShopSaleTransactions => _shopSaleTransactions;
 
         private void Start()
         {
@@ -87,6 +89,7 @@ namespace Signal.Game
             _economicAccounts.TryRegister(EconomicActorId.Player, _stats.CleanMoney);
             _retailTransactions = new RetailTransactionLedger();
             _retailService = new RetailService(_economicAccounts, _assetOwnership, _retailTransactions);
+            _shopSaleTransactions = new ShopSaleTransactionLedger();
             _itemKnowledge = new ItemKnowledgeBook();
             _playerDiscoveries = new PlayerDiscoveryLedger();
             _miloOpportunity = new OpportunityState("milo-parcel");
@@ -130,7 +133,8 @@ namespace Signal.Game
             _hud = gameObject.AddComponent<HudPanel>();
             _hud.Bind(_stats, _clock);
             _retailPanel = gameObject.AddComponent<RetailPanel>();
-            _retailPanel.Bind(PurchaseFromBusiness, () => { });
+            _retailPanel.Bind(PurchaseFromBusiness, SellToBusiness, _inventory, _allItemDefinitions,
+                _assetOwnership, () => { });
 
             if (parcelItem != null)
             {
@@ -457,7 +461,7 @@ namespace Signal.Game
             SaveData data = SaveMapper.Capture(_stats, _inventory, _storage, _clock, _heat, _rent,
                                                _city.CurrentPlace, position.x, position.y, _itemKnowledge,
                                                _playerDiscoveries, _miloOpportunity, _playerRelationships,
-                                               _assetOwnership, _economicTransactions, _economicAccounts, _retailTransactions);
+                                               _assetOwnership, _economicTransactions, _economicAccounts, _retailTransactions, _shopSaleTransactions);
 
             try
             {
@@ -481,7 +485,7 @@ namespace Signal.Game
 
             LoadReport report = SaveMapper.Apply(data, _stats, _inventory, _storage, _clock, _heat, _rent,
                 ResolveType, _itemKnowledge, _playerDiscoveries, _playerRelationships, _assetOwnership, _economicTransactions,
-                _economicAccounts, _retailTransactions);
+                _economicAccounts, _retailTransactions, _shopSaleTransactions);
             if (!report.Success)
             {
                 Say("Load failed: " + report.Error);
@@ -507,7 +511,7 @@ namespace Signal.Game
             Say(report.SkippedItems + report.SkippedStorageItems + report.SkippedKnowledgeFacts +
                 report.SkippedDiscoverySignals + report.SkippedPlayerRelationships +
                 report.SkippedAssetOwners + report.SkippedEconomicTransactions +
-                report.SkippedResidentAccounts + report.SkippedRetailTransactions > 0
+                report.SkippedResidentAccounts + report.SkippedRetailTransactions + report.SkippedShopSaleTransactions > 0
                 ? "Loaded at " + data.worldPlace + ". Some saved item or discovery details could not be restored."
                 : "Loaded at " + data.worldPlace + ".");
         }
@@ -556,6 +560,61 @@ namespace Signal.Game
                 case RetailPurchaseStatus.AccountNotFound: return "A required clean-money account is unavailable.";
                 default: return "Purchase failed (" + result.Status + ").";
             }
+        }
+
+        private string SellToBusiness(BusinessDefinition business, Guid itemInstanceId, int quantity)
+        {
+            if (business == null || itemInstanceId == Guid.Empty || quantity < 1)
+                return "The sale request is invalid.";
+
+            BusinessDefinition nearby = FindNearbyBusiness(_room.PlayerBody.position);
+            if (nearby == null || nearby.BusinessId != business.BusinessId ||
+                nearby.LocationId != _city.CurrentPlace)
+                return "Move back to this business counter before selling.";
+
+            if (!business.TryValidate(out string businessError))
+                return "Business configuration error: " + businessError;
+            if (!business.IsOpen(_clock.MinuteOfDay))
+                return "The business is closed.";
+            if (!_inventory.TryGetItemInstance(itemInstanceId, out PlacedItem selected))
+                return "That inventory stack is no longer available.";
+            if (!_assetOwnership.TryGetOwner(itemInstanceId, out EconomicActorId owner) ||
+                owner != EconomicActorId.Player)
+                return "You do not own that item.";
+
+            ItemDefinition definition = FindItemDefinition(selected.Type.Id);
+            if (definition == null || !business.TryGetBuybackOffer(definition, out int unitPrice))
+                return "This business does not buy that item.";
+            if (quantity > selected.Count)
+                return "That stack no longer contains the requested quantity.";
+
+            FulfilResult result = Shop.TryFulfilExact(new ShopOrder(selected.Type, quantity, unitPrice),
+                itemInstanceId, business.BusinessId, EconomicActorId.Player, _inventory, _assetOwnership,
+                _stats.CleanMoney, _shopSaleTransactions, _clock.Day, _clock.MinuteOfDay);
+            if (result == FulfilResult.Done)
+                return "Sold " + quantity + " " + definition.DisplayName +
+                    (quantity == 1 ? "" : "s") + " for $" + ((long)quantity * unitPrice) + ".";
+
+            return result == FulfilResult.NotEnoughStock
+                ? "That stack no longer contains the requested quantity."
+                : "Sale failed. Your items and CARD balance were left unchanged.";
+        }
+
+        private ItemDefinition FindItemDefinition(Guid itemDefinitionId)
+        {
+            for (int i = 0; i < _allItemDefinitions.Count; i++)
+            {
+                ItemDefinition definition = _allItemDefinitions[i];
+                if (definition == null)
+                    continue;
+                try
+                {
+                    if (definition.ToItemType().Id == itemDefinitionId)
+                        return definition;
+                }
+                catch (InvalidOperationException) { }
+            }
+            return null;
         }
 
         private void BuildCatalog()
