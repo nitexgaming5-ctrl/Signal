@@ -106,4 +106,4 @@ Confirmed decisions:
 - No NPC shopping/spending AI, supplier or production simulation, finite stock/restocking, automatic sales, passive revenue or continuous/hourly economy simulation.
 - Dirty money remains physical inventory items, excluded from clean accounts and legitimate retail.
 
-Implementation should begin with shared resident account/persistence support, then authored business definitions and atomic retail purchases, then integrate the existing CornerShop. Save v9 is expected for resident account balances and retail transaction history. This is a technical persistence requirement, not a new gameplay mechanic.
+Implementation now includes resident account/persistence support, authored business definitions, atomic retail purchases and the first CornerShop runtime integration. Save v9 stores resident balances and retail history. Remaining content input: choose the first Corner Bakery ItemDefinition(s) and fixed clean-money price(s); the assigned business asset currently has an empty catalogue rather than invented prices.
