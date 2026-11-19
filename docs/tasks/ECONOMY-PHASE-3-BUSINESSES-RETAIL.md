@@ -120,7 +120,7 @@ The assistant cannot run the user's Unity Editor. Report code inspection, tests 
 - Core RetailService: atomic catalogue purchase coordinating customer debit, owner credit, inventory grant, new asset ownership registration and rollback.
 - Core RetailTransactionLedger: durable purchase history distinct from the physical asset-transfer ledger.
 - Save v9: persists resident account balances and retail transactions; v1–v8 migration initializes these collections safely. Legacy loads reset resident accounts to authored initial balances before saved v9 balances are applied.
-- Game content/runtime: NpcCharacterDefinition.StartingCleanBalance, reusable BusinessDefinition, keyboard-driven RetailPanel, and GameSession composition for resident accounts, business interaction, purchase handling and catalogue item resolution.
+- Game content/runtime: NpcCharacterDefinition.StartingCleanBalance, reusable BusinessDefinition, click-driven RetailPanel with BUY buttons, and GameSession composition for resident accounts, business interaction, purchase handling and catalogue item resolution.
 - Tests authored for account isolation/initialization, purchases, rollback cases, business opening hours and v9 persistence/malformed records.
 - Existing Shop / ShopOrder selling rules were left unchanged.
 
