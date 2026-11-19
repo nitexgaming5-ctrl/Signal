@@ -123,7 +123,4 @@ Approved rules:
 - Only clean CARD is paid; dirty money remains physical inventory and is not part of legitimate retail.
 - No item or price entries are implied by this approval; content offers require their own authored values.
 
-Implementation specification: `docs/tasks/ECONOMY-PLAYER-SELLING-DESIGN.md`. The approved model has been implemented on `chore/collaboration-workflow-and-audit`; the 354-test baseline is user-verified, with one additional defensive regression test now pending. Player-facing SELL still awaits Play Mode verification. No item or price has been authored for the Corner Bakery.
-
-
-**Temporary test content authorized 2026-11-19:** `Business_CornerShop.asset` includes a separate buyback offer for the existing Bread ItemDefinition at CARD $3. Its merchandise catalogue still sells Bread at CARD $5. This fixture is disposable and must not be mistaken for final economy balance.
+Implementation specification: `docs/tasks/ECONOMY-PLAYER-SELLING-DESIGN.md`. The approved model is implemented and user-verified: the full EditMode suite passed 355/355, and the BUY → partial SELL → full SELL → save/reload Play Mode sequence works. The temporary Bread buyback offer at CARD $3 was used only for testing and has been removed from `Business_CornerShop.asset`. No final bakery buyback item or price has been approved. The existing Bread merchandise price of CARD $5 remains temporary test content, not final balancing.
