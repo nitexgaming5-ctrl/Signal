@@ -123,4 +123,4 @@ Approved rules:
 - Only clean CARD is paid; dirty money remains physical inventory and is not part of legitimate retail.
 - No item or price entries are implied by this approval; content offers require their own authored values.
 
-Implementation specification: `docs/tasks/ECONOMY-PLAYER-SELLING-DESIGN.md`. Design is finalized; implementation awaits the user's explicit go-ahead.
+Implementation specification: `docs/tasks/ECONOMY-PLAYER-SELLING-DESIGN.md`. The approved model has been implemented on `chore/collaboration-workflow-and-audit`; the 354-test baseline is user-verified, with one additional defensive regression test now pending. Player-facing SELL still awaits Play Mode verification. No item or price has been authored for the Corner Bakery.
