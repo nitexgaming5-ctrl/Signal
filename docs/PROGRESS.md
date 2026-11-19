@@ -543,3 +543,12 @@ Implemented the approved player-facing sale slice on `chore/collaboration-workfl
 - Reused the existing `Item_Bread.asset` definition and added it to `Business_CornerShop.asset` as a separate buyback offer at **CARD $3 per Bread**. The existing retail catalogue still sells Bread at CARD $5.
 - This temporary buyback entry is test content only, not a final business policy, item valuation, or balancing decision. It must be revisited after SELL verification.
 - The latest code includes one additional player-only sale-boundary regression test; expected EditMode suite is 355, pending Unity verification. No Unity compile or tests were run by the assistant.
+
+## 2026-11-19 — Economy Engine reference review and roadmap capture
+
+- User asked to review Unity Asset Store's Economy Engine 1.4 as inspiration for Signal's economy. The reference prompted five parked directions: a context-specific shared trade foundation, an Economy Library/editor workflow, contextual loot tables, item-for-item barter and narrowly authored currency exchange.
+- Recorded the ideas and their player fantasies, likely dependencies and guardrails in docs/IDEA_BACKLOG.md; added candidate sequencing to docs/ROADMAP.md.
+- These are inspiration only. No third-party package/code adoption, new gameplay mechanic, dynamic pricing, universal supply/demand, NPC shopping simulation or currency-conversion policy has been approved.
+- User confirmed the full Unity EditMode suite **355/355 passed** after the player-only seller-boundary regression test.
+- Player-facing SELL remains the active initiative until its Play Mode checks (partial/full sale, rejection, CARD changes, transaction history and save/load) are completed. The temporary Corner Bakery Bread buyback offer at CARD $3 remains test-only and must be revisited after verification.
+- No Unity compilation or Play Mode verification is claimed by the assistant.
