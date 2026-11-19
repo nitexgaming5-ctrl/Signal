@@ -96,7 +96,7 @@ The first implementation is Milo, a neighbourhood baker with Work, Rest, Sociali
 
 ## Economy — Phase 3 Business & Retail
 
-**Status: approved for implementation (2026-11-19).** Full scope and acceptance criteria: `docs/tasks/ECONOMY-PHASE-3-BUSINESSES-RETAIL.md`.
+**Status: approved; first implementation pass added (2026-11-19).** Full scope and acceptance criteria: `docs/tasks/ECONOMY-PHASE-3-BUSINESSES-RETAIL.md`.
 
 Confirmed decisions:
 - Every resident has a personal clean-money account.
