@@ -1,118 +1,152 @@
-# ECONOMY — player-facing sell-to-shop (design draft)
+# ECONOMY — player-facing sell-to-shop implementation specification
 
-**Status:** design proposal; awaiting user approval of Q21 before implementation.  
+**Status:** design finalized; Q21 approved by the user on 2026-11-19. Awaiting explicit approval to begin implementation.  
 **Date:** 2026-11-19  
-**Depends on:** verified Economy Phase 3; transaction-safety audit (342/342 EditMode tests).
+**Depends on:** Economy Phase 3 (335/335 EditMode tests and Play Mode functionality user-verified); transaction-safety audit (342/342 EditMode tests user-verified).
 
 ## Player-facing outcome
 
-At an open business counter, the player can switch the existing retail panel between BUY and SELL. SELL shows goods carried by the player and allows them to sell eligible quantities to that business for clean CARD. The flow is local to the shared city: no separate underground market or new map.
+At an open business counter, the player can switch the existing retail panel between BUY and SELL.
 
-This completes the basic two-way retail interaction without turning businesses into a management simulator.
+- BUY remains the existing unlimited authored merchandise catalogue and continues to call Core `RetailService`.
+- SELL lets the player offer eligible goods currently carried in their player inventory to that specific business.
+- A successful sale consumes the selected goods and credits the player's clean CARD account.
+- Both directions use the same local business interaction and opening-hours gate.
 
-## Existing rules and important limitation
+This adds a basic two-way retail interaction without turning businesses into a management simulator.
 
-The current Core `ShopOrder` contains `ItemType`, `Quantity` and caller-supplied `UnitPrice`. `Shop.TryFulfil` validates the order, removes matching goods from the inventory and credits the player's clean CARD account. It protects against invalid quantities/items/prices, insufficient goods, oversized totals and failed account credit (inventory rollback).
+## Approved buyback policy — Q21
 
-It does **not**:
-- calculate a sale price;
-- decide which goods a named business accepts;
-- identify a selected physical stack (it removes matching item types, newest stacks first);
-- validate `AssetOwnershipBook`;
-- record a completed sale transaction.
+**Approved: each `BusinessDefinition` owns a separate authored fixed-price buyback-offer list.**
 
-The old $10 developer sale value is not a complete gameplay pricing policy. `ItemValueCalculator` is an indicative reference valuation only, not an approved buy/sell formula.
+Each offer contains:
+- A reference to one `ItemDefinition`.
+- A positive fixed clean-CARD unit price paid by that business.
 
-Therefore the transaction primitive can be reused, but the game still needs an authored source for per-business acceptance and the unit price supplied to `ShopOrder`.
+Rules:
+- A business accepts only item definitions explicitly present in its own buyback-offer list.
+- The buyback list is independent of the business's player-facing `Merchandise` catalogue. Selling Bread to the player does not imply that the business buys Bread back.
+- Different businesses may accept different goods and may offer different prices for the same item.
+- A missing offer means the business refuses that item.
+- Offers are authored data, not dynamically generated prices.
+- No `ItemValueCalculator` formula, retail-price multiplier, quality/condition/authenticity/ownership modifier, reputation adjustment, bargaining or market fluctuation is introduced.
+- Offers are available whenever the business is open. No business cash budget or account debit is modeled.
 
-## Proposed design — pending Q21 approval
+The user has approved the model, not any specific new buyback item or price. Do not invent buyback entries or prices in content assets without an explicit content decision. Existing temporary Bread retail price is not a buyback offer.
 
-### Business buyback offers
+## Existing sale primitive and required adaptation
 
-Add a separate authored buyback-offer collection to `BusinessDefinition`, distinct from its existing player-facing `Merchandise` catalogue. Each entry references an `ItemDefinition` and a positive fixed clean-CARD unit price.
+The current Core `ShopOrder` contains item type, quantity and caller-supplied unit price. `Shop.TryFulfil` validates the order, removes matching goods and credits the player's clean account, with inventory rollback if account credit fails. It rejects invalid item/quantity/price and oversized totals.
 
-- Only explicitly listed item definitions are accepted by that business.
-- Buyback offers are not inferred from the retail catalogue; a business selling bread does not automatically buy bread back.
-- Price is fixed and authored; no automatic `ItemValueCalculator` formula, quality/condition/authenticity/ownership multipliers, reputation, negotiation or market fluctuation.
-- No finite shop budget, stock simulation, operating cost, NPC shopping or passive economy simulation.
-- A missing offer means the item cannot be sold there.
-- The existing ShopOrder and Shop.TryFulfil semantics remain the transaction authority for positive quantity/price, total overflow, inventory removal and clean CARD credit.
+It does not calculate prices, define per-business acceptance, target a selected physical stack, validate `AssetOwnershipBook`, or record a sale transaction. Its existing item-type removal may consume matching stacks other than the one the player selected.
 
-This keeps business acceptance explicit while avoiding a new pricing algorithm. The user must approve this model or choose the shared-list alternative in Q21.
+Implementation must preserve the established sale rules and safety semantics (positive quantity/price, overflow-safe total, sufficient goods, clean-account credit and rollback), while extending the operation to target one exact `ItemInstanceId`. Do not route a selected-stack sale through the old type-wide removal path and risk consuming a different stack. Prefer extracting/reusing the shared validation and atomic account-credit behavior inside the existing Core sale boundary rather than creating a competing, weaker transaction path.
 
 ## Player interaction
 
 - Reuse the existing `RetailPanel` and business interaction point.
-- Add BUY and SELL tabs; BUY remains unchanged and continues to call `RetailService`.
-- SELL lists eligible stacks in the player's carried inventory only. Home locker contents are not sellable from the counter; the player must physically carry goods to the shop.
-- Show item name, carried quantity, fixed offer price per unit and calculated total for the selected quantity.
-- Initial interaction should target one selected stack at a time. Quantity is bounded from 1 to that stack's current count. No cross-stack aggregation.
-- Revalidate business identity/opening hours, offer, selected stack, quantity, price, inventory presence and ownership at confirmation time.
-- Disable or refresh the row after a successful sale; show clear failure feedback without hiding the goods.
-- Closing the panel restores normal movement and interaction, as it does today.
+- Add BUY and SELL tabs. BUY remains unchanged and continues to call `RetailService`.
+- SELL lists eligible stacks in the player's carried inventory only. Home locker contents are not sellable at the counter; the player must physically carry goods to the business.
+- Each row identifies the item, available stack quantity, that business's fixed unit offer and the selected quantity's total.
+- Operate on one selected stack at a time. Quantity is bounded from 1 through that exact stack's current count. Do not aggregate multiple stacks.
+- The UI must not be authoritative. Revalidate business identity, opening hours, offer existence/current price, selected stack identity, quantity, carried-inventory presence and ownership at confirmation time.
+- A closed business, removed/changed offer, missing stack or failed validation rejects the sale without consuming goods or crediting money.
+- After success, refresh the row/list and CARD display. Provide clear failure feedback while preserving the goods.
+- Closing the panel restores normal movement and interaction as it does today.
 
-## Ownership and item identity
+## Exact stack identity and ownership
 
-The inventory currently supports removing quantities by ItemType across stacks, but that is unsafe for a player-facing sale because different stacks can have different state and stable identities. The new sale path must target one exact `ItemInstanceId`.
+- Validate that the selected `ItemInstanceId` still exists in the player's carried inventory.
+- Validate `AssetOwnershipBook` says the owner is `player`. Missing or mismatched ownership is a hard rejection; do not silently repair it during a sale.
+- Add a Core inventory operation that removes a requested positive quantity from one exact stack.
+- Partial sale: remaining stack retains its stable `ItemInstanceId`, `ItemInstanceState`, orientation and player ownership. No split/new identity is needed.
+- Full sale: remove the stack and its ownership entry.
+- Never consume another stack of the same item type to satisfy the request.
+- Item state is recorded for provenance but does not affect eligibility or price in this phase.
 
-- Validate that the selected stack still exists in carried inventory and `AssetOwnershipBook` says its owner is `player`.
-- Do not trust the UI's displayed count, price or ownership.
-- Add a Core inventory operation to remove a requested quantity from one exact stack while preserving its stable identity for any remainder.
-- If the full stack is sold, remove its ownership entry after the physical stack is removed.
-- If only part is sold, the remaining stack retains the same identity, state and player ownership. No stack split/new identity is required for this first pass.
-- Missing or mismatched ownership is a hard rejection; do not silently repair it as part of a sale.
-- Preserve the stack's item state. No state-based valuation or acceptance rules are introduced in this slice.
+## Money, ownership and transaction semantics
 
-## Money and transaction semantics
+- Sale proceeds credit only the player's existing `CleanMoneyAccount` / CARD.
+- Dirty-money items are not accepted as payment and are not generated by this flow.
+- The business owner account is not debited. Phase 3 deliberately has no business budget/account constraint.
+- Sold goods are consumed by the sale operation. They do not become business stock, catalogue stock or a finite shop inventory.
+- A sale is not an `AssetTransferService` transfer because there is no registered receiving container and no modeled business inventory custody.
+- Add a dedicated `ShopSaleTransaction` and `ShopSaleTransactionLedger`, separate from:
+  - `EconomicTransactionLedger` (physical owner-to-owner asset transfers);
+  - `RetailTransactionLedger` (unlimited catalogue purchases).
+- Each sale record should contain a stable transaction ID, business ID, seller actor ID, source `ItemInstanceId`, item-definition ID, quantity, fixed unit price, total clean amount, item-state snapshot and in-game timestamp.
+- A successful sale appends exactly one sale record. A failed sale appends none and must not alter the other ledgers.
+- Persist sale history in the current save format. Since the current format is v9, add the sale collection in v10 and initialize it empty for v9 saves. Do not build a broad historical migration framework; obsolete development saves may be intentionally reset under the user's persistence policy.
 
-- Sales credit the player's existing `CleanMoneyAccount` / CARD only. Dirty-money items are not involved.
-- Preserve existing `Shop.TryFulfil` behaviour: the business does not debit a simulated budget/account. The Phase 3 decision against business budgets remains in force.
-- No finite shop stock is created or restocked. Sold goods are consumed by the sale operation as they are in the existing helper; they do not become catalogue stock or silently increase inventory.
-- Do not record a sale as an `AssetTransferService` transfer: the goods are consumed rather than transferred into a registered destination container.
-- Add a dedicated `ShopSaleTransaction` and `ShopSaleTransactionLedger`, separate from the physical asset-transfer ledger and the unlimited-catalogue `RetailTransactionLedger`. Each record should contain stable transaction ID, business ID, seller actor, source item-instance ID, item-definition ID, sold quantity, unit price, total clean amount, item-state snapshot and in-game timestamp.
-- Persist the sale ledger with the current save format. A simple v9-to-v10 initialization of an empty sale collection is sufficient; do not build a large historical migration framework.
+## Atomicity and failure behavior
 
-## Atomicity and failure behaviour
+A sale is all-or-nothing:
 
-A sale must be all-or-nothing:
-1. Validate request, business offer, exact stack, player ownership, quantity, positive unit price and overflow-safe total.
-2. Snapshot inventory, player balance and ownership state.
-3. Remove the requested quantity from the exact stack.
-4. If the stack is fully consumed, remove its ownership record; otherwise keep ownership unchanged.
-5. Credit player clean CARD.
-6. Record exactly one sale transaction.
-7. On any failure after mutation, restore inventory, account balance and ownership to the snapshots; no transaction record remains.
+1. Resolve and validate the active business, open schedule and current authored offer.
+2. Validate positive quantity, positive unit price and overflow-safe total.
+3. Resolve the exact selected stack and verify it is still carried by the player and owned by `player`.
+4. Snapshot the relevant inventory, player account, ownership entry and sale-ledger state.
+5. Remove the requested quantity from that exact stack.
+6. Remove ownership only if the whole stack was consumed; preserve it for a partial sale.
+7. Credit the player's clean CARD account.
+8. Append exactly one sale transaction.
+9. If any step after mutation fails, restore inventory, account, ownership and ledger to their snapshots.
 
-A failed sale must never create money, consume goods, lose ownership, duplicate a record or leave a partial update. UI confirmation is not trusted as validation.
+A failure must never create money, consume goods, lose ownership, duplicate a record or leave a partial update. Revalidate at commit time; never trust UI values.
+
+## Required implementation work
+
+### Core
+- Add an immutable buyback-offer data value (or equivalent) that binds an `ItemDefinition` identity to a positive fixed clean price.
+- Extend `BusinessDefinition` with a distinct authored buyback-offer collection and validation for null/uninitialized item references, duplicate item offers and non-positive prices.
+- Add exact-stack quantity removal to `GridInventory`, preserving identity/state for partial remainder.
+- Extend/refactor the Core sale transaction boundary so exact-stack removal, ownership validation, account credit and rollback share one authoritative path.
+- Add `ShopSaleTransaction` and `ShopSaleTransactionLedger` with duplicate/stable-ID protection and immutable records.
+- Keep `RetailService` and `RetailTransactionLedger` behavior unchanged.
+
+### Game
+- Extend the existing business interaction composition to resolve offers for the active `BusinessDefinition`.
+- Add SELL tab and row/quantity/confirm interaction to `RetailPanel`.
+- List only carried, player-owned stacks for which the current business has an offer.
+- Revalidate at confirmation and refresh UI/CARD after success.
+- Preserve current proximity, opening-hours, close/ESC and input restoration behavior.
+- Do not add buyback offers or prices to content without approved authored values.
+
+### Persistence
+- Add sale-ledger DTO mapping and current-format v10 save round-trip.
+- Initialize v9 saves with an empty sale history; do not invest in compatibility for obsolete earlier development saves beyond the project's existing policy.
+- Keep save writes reliable and atomic; malformed sale records must not invalidate otherwise valid current player state where record-level recovery is practical.
 
 ## Required tests
 
-Core EditMode:
-- Valid full-stack sale removes the stack, removes ownership, credits exact CARD amount and records one sale.
-- Valid partial sale decreases only the selected stack count; preserves its ID, state and ownership.
-- Sale cannot consume a different stack of the same ItemType.
-- Missing stack, missing ownership, wrong owner, invalid item, zero/negative quantity, quantity above selected stack, zero/negative price and overflow all fail without mutation.
-- Insufficient inventory and account-credit overflow fail without mutation.
-- Ledger failure/duplicate transaction rolls back inventory, balance and ownership.
-- A failed sale creates no ledger record; a successful sale creates exactly one.
-- Sales never debit resident/business accounts or alter retail purchase history.
+### Core transaction tests
+- Full-stack sale removes the exact stack and ownership entry, credits exact CARD and records one sale.
+- Partial sale changes only the selected stack count and preserves its ID, state and ownership.
+- A sale never consumes another stack of the same item type.
+- Missing stack, missing ownership, wrong owner, invalid item, zero/negative quantity, quantity above selected count, zero/negative price and total overflow fail without mutation.
+- Insufficient goods and account-credit overflow fail without mutation.
+- Duplicate/invalid ledger append or injected failure rolls back inventory, account and ownership.
+- Failed sale creates no sale record; successful sale creates exactly one.
+- Sale never debits a resident/business account and never changes retail purchase history or physical asset-transfer history.
 
-Game/EditMode integration:
-- SELL tab appears only at an open, valid business interaction.
-- Only carried eligible stacks appear; home storage stacks do not.
-- Closed business or changed/removed offer is rejected on confirmation.
-- BUY tab still uses RetailService unchanged.
-- Successful sale refreshes the UI and CARD display.
+### Business definition and Game integration tests
+- Buyback offer validation rejects invalid, duplicate and non-positive entries.
+- Business A accepts only its authored offers; Business B's offers do not leak across businesses.
+- Selling a catalogue item is impossible unless that same item is separately listed as a buyback offer.
+- SELL only lists carried eligible player-owned stacks; locker contents and non-player-owned stacks are excluded.
+- Closed business, removed offer, changed offer price, removed stack or changed ownership is rejected at confirmation.
+- BUY continues to use `RetailService` unchanged.
+- Successful sale refreshes the UI and CARD display; failure leaves goods and balance unchanged.
 
-Persistence:
-- Save/load round-trip preserves sale transaction history.
-- v9-to-v10 adds an empty sale history for older development saves.
-- Malformed individual sale records are skipped without losing valid player state.
+### Persistence tests
+- Current v10 save/load round-trip preserves sale history and all relevant player state.
+- v9 save initializes an empty sale history while preserving supported current player state.
+- Malformed individual sale records do not discard otherwise valid current-format player state.
 
 ## Explicit exclusions
 
-No dynamic pricing, automatic resale multiplier, ItemValueCalculator-based trade price, bargaining, reputation discounts, business budgets, finite stock, restocking, NPC shopping, passive sales, operating costs, dirty-money cleaning, laundering, criminal progression, police/heat, or new acceptance rules based on stolen/quality/condition/authenticity state.
+No dynamic pricing, automatic resale multiplier, `ItemValueCalculator` transaction formula, bargaining, reputation discounts, business budgets, finite stock, restocking, NPC shopping/spending AI, passive sales, operating costs, dirty-money cleaning, laundering, criminal progression, police/heat, or acceptance rules based on stolen/quality/condition/authenticity state.
 
 ## Approval gate
 
-**Q21 must be answered before implementation.** Recommended answer: approve the separate per-business fixed-price buyback offer list. The rest of this document is the proposed technical and interaction contract, subject to any changes the user requests.
+**Q21 is approved. This specification is finalized for implementation planning. No code has been changed as part of this design update.** The implementation itself begins only after the user explicitly approves proceeding with this specification.
