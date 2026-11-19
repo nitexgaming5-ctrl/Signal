@@ -316,13 +316,13 @@ The shared-city economy is the active initiative. Its foundations are now in pla
 - [x] Decide existing selling behaviour is retained without new valuation/acceptance rules.
 - [x] Decide business merchandise is authored, unlimited for now, and sold at fixed authored prices.
 - [x] Decide economy updates are event-driven, not continuous/hourly.
-- [ ] Implement a shared resident account registry that reuses CleanMoneyAccount and initializes authored balances exactly once.
-- [ ] Add save v9 for resident account balances and retail transaction history; preserve v1–v8 migration.
-- [ ] Add reusable authored BusinessDefinition data (owner, location, opening schedule, ItemDefinition catalogue and fixed prices).
-- [ ] Implement atomic purchases with customer debit, owner credit, inventory grant and durable retail transaction record.
+- [x] Implement a shared resident account registry that reuses CleanMoneyAccount, prevents account aliasing and initializes authored balances exactly once.
+- [x] Add save v9 for resident account balances and retail transaction history; preserve v1–v8 migration.
+- [x] Add reusable authored BusinessDefinition data (owner, location, opening schedule, ItemDefinition catalogue and fixed prices).
+- [x] Implement atomic purchases with customer debit, owner credit, inventory grant, ownership registration and durable retail transaction record.
 - [ ] Integrate the existing CornerShop as the first business through data, not a shop-specific implementation.
-- [ ] Preserve existing player-to-shop selling rules and tests.
-- [ ] Add Core/Game EditMode tests and user Unity Play Mode verification.
+- [x] Preserve existing Core Shop/ShopOrder selling rules and tests unchanged.
+- [x] Add Core/Game EditMode tests; [ ] run them and verify compilation/Play Mode in Unity.
 
 No finite stock, restocking, suppliers, production, NPC shopping, automatic sales/revenue, operating costs, dynamic prices or dirty-money retail in this phase. Full specification: `docs/tasks/ECONOMY-PHASE-3-BUSINESSES-RETAIL.md`.
 
@@ -340,8 +340,15 @@ No finite stock, restocking, suppliers, production, NPC shopping, automatic sale
 Stock markets, lottery, gambling, laundering, universal price simulation and business ownership are future consumers, not part of the initial economy foundation.
 
 
-## Economy Phase 3 — Business & Retail (approved; implementation not yet started)
 
-The previous illicit-exchange proposal was superseded. Do not implement the former discreet seller, Dirty Cash Bundle or Contraband slice as Phase 3. Dirty money remains a future physical-item system under the approved separation rules.
+## Economy Phase 3 — Business & Retail (first implementation pass added; Unity verification pending)
 
-The active approved scope is `docs/tasks/ECONOMY-PHASE-3-BUSINESSES-RETAIL.md`: every resident has a clean account; business sales credit the owner; merchandise is predefined and unlimited; prices are fixed/authored; existing sell-to-shop behaviour is retained; purchases are atomic and event-driven; the existing CornerShop is the first integration. Save v9 will persist resident account balances and retail transaction history.
+- Core resident account registry, atomic retail purchase service and separate retail transaction ledger are implemented.
+- Save v9 persists resident account balances and retail purchase history; v1–v8 migrations initialize the new collections and preserve player clean balance.
+- Game layer has authored BusinessDefinition data, resident starting balances, a keyboard-driven retail panel and generic GameSession integration for proximity, opening hours, purchases and owner revenue.
+- Existing Shop/ShopOrder sell-to-shop rules remain unchanged.
+- Core and Game EditMode tests are authored but have not been run.
+- The actual merchandise catalogue/prices remain content authoring: create a Business Definition asset in Unity, configure its owner/location/schedule/ItemDefinition prices and assign it to GameSession.Businesses.
+- Unity compilation, full EditMode suite, Play Mode purchase and save/load verification remain pending. Assistant cannot run Unity.
+
+The previous illicit seller/Dirty Cash Bundle/Contraband proposal remains superseded and is not part of Phase 3.
