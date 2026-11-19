@@ -388,3 +388,10 @@ The previous illicit seller/Dirty Cash Bundle/Contraband proposal remains supers
 - Added sale-specific transaction history and save v10.
 - Added SELL tab and per-stack quantity controls; BUY remains routed through RetailService.
 - Code is implemented; Unity compile, tests and Play Mode verification are pending. See `docs/tasks/ECONOMY-PLAYER-SELLING-DESIGN.md`.
+
+
+### Save-version maintenance guardrail (2026-11-19)
+- [x] Establish `SaveMigrator.CurrentVersion` as the sole expected value for tests asserting a migrated save's current version.
+- [x] Keep historical source versions explicit in migration fixtures (for example, v8 and v9), while avoiding hardcoded current-version expectations.
+- [x] Document that only serialized persistent-schema changes require a save-version increment; UI/runtime-only changes do not.
+- [ ] User to run Unity compilation and the full EditMode suite after the test expectation correction.
