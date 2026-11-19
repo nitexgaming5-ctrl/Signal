@@ -359,7 +359,7 @@ The previous illicit seller/Dirty Cash Bundle/Contraband proposal remains supers
 - [x] Add clickable catalogue paging and close controls while retaining ESC close.
 - [x] Route UGUI clicks through EventSystem + InputSystemUIInputModule.
 - [x] Seed the active HideoutSlice player clean CARD account with $5,000 for purchase testing (temporary test value, not final balance design).
-- [ ] Verify Unity compilation, full EditMode suite, click purchase, owner revenue and save/load in Play Mode.
+- [x] User confirmed Unity compilation, full EditMode suite, click purchase, owner revenue and save/load in Play Mode as part of the Phase 3 completion.
 
 
 ## 2026-11-19 — Transaction-safety audit follow-up
@@ -425,3 +425,8 @@ Potential later sequence (not yet committed milestones):
 4. **Narrowly authored currency exchange:** only for a concrete designed interaction; clean CARD and physical dirty-money items remain distinct, and conversion must not bypass a separately designed laundering system.
 
 These are candidates, not approved mechanics or implementation commitments. No third-party asset/code adoption is approved. Existing economy constraints remain binding: event-driven transactions, fixed authored retail prices/offers, no universal dynamic pricing or supply/demand simulation, no automatic NPC shopping, and no passive/continuous economy simulation. See docs/IDEA_BACKLOG.md for player fantasies, dependencies and guardrails.
+
+
+## Next initiative — everyday shared-city gameplay loop (design first)
+
+The economy and player-facing BUY/SELL counter loop are now verified foundations, not the whole game loop. The next recommended initiative is to design one compact everyday city activity that gives the player a reason to engage with a resident and a place beyond retail. Use existing NPC presence/routines, item identity/state/knowledge, relationships, discovery and economic transaction foundations where they genuinely help. Define the player-facing rules, information available to each participant, outcomes/rewards and consequences before proposing implementation. This is a design recommendation, not an approved mechanic; wait for the user's explicit approval before coding.
