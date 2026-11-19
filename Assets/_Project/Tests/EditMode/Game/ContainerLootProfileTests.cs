@@ -21,7 +21,7 @@ namespace Signal.Game.Tests
                     .SetValue(item, "Test item");
 
                 Type entryType = typeof(ContainerLootProfile).GetNestedType("LootEntry", BindingFlags.NonPublic);
-                object entry = Activator.CreateInstance(entryType);
+                object entry = Activator.CreateInstance(entryType, true);
                 entryType.GetField("item").SetValue(entry, item);
                 entryType.GetField("weight").SetValue(entry, 1);
                 entryType.GetField("minimumCount").SetValue(entry, 1);

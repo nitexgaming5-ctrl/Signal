@@ -50,7 +50,8 @@ namespace Signal.Game
         private Text _containerTitle;
         private Text _playerTitle;
         private Text _status;
-        private Button _searchButton;
+        private Image _searchButton;
+        private Image _closeButton;
         private Text _searchButtonText;
         private Image _dragGhost;
         private Text _dragGhostText;
@@ -177,6 +178,19 @@ namespace Signal.Game
         private void UpdatePointer(Keyboard keyboard, Mouse mouse)
         {
             Vector2 screen = mouse.position.ReadValue();
+            if (mouse.leftButton.wasPressedThisFrame && _closeButton != null &&
+                RectTransformUtility.RectangleContainsScreenPoint(_closeButton.rectTransform, screen, null))
+            {
+                Close();
+                return;
+            }
+            if (mouse.leftButton.wasPressedThisFrame && _searchButton != null &&
+                RectTransformUtility.RectangleContainsScreenPoint(_searchButton.rectTransform, screen, null))
+            {
+                StartSearch();
+                return;
+            }
+
             bool inContainer = TryGetCell(_containerGrid, _container.Inventory.Width, _container.Inventory.Height,
                 screen, out int containerX, out int containerY, out Vector2 containerLocal);
             bool inPlayer = TryGetCell(_playerGrid, _playerInventory.Width, _playerInventory.Height,
@@ -316,7 +330,11 @@ namespace Signal.Game
             _status.text = _container.IsSearchComplete ? "Search complete" :
                 _container.HasSearchStarted ? (_searching ? "Searching..." : "Search paused — reopening resumes") :
                 "Contents are concealed";
-            _searchButton.interactable = !_container.HasSearchStarted && !_container.IsSearchComplete;
+            _containerTitle.text = _container.HasSearchStarted
+                ? "CONTAINER  " + _container.DiscoveredCount + " / " + _container.TotalGeneratedCount
+                : "CONTAINER";
+            _searchButton.color = _container.HasSearchStarted || _container.IsSearchComplete
+                ? new Color32(80, 86, 92, 255) : new Color32(62, 230, 210, 255);
             _searchButtonText.text = _container.IsSearchComplete ? "SEARCH COMPLETE" :
                 _container.HasSearchStarted ? "SEARCHING..." : "SEARCH";
         }
@@ -366,8 +384,7 @@ namespace Signal.Game
                 TextAnchor.MiddleLeft, TitleColor);
             SetTopLeft(heading.rectTransform, 24f, 12f, 760f, 30f);
 
-            Button close = CreateButton("Close", _root, "CLOSE", new Vector2(420f, 12f), new Vector2(110f, 34f));
-            close.onClick.AddListener(Close);
+            _closeButton = CreateButton("Close", _root, "CLOSE", new Vector2(860f, 12f), new Vector2(110f, 34f));
 
             Image left = NewImage("ContainerPanel", _root, new Color32(22, 27, 34, 255));
             Center(left.rectTransform, new Vector2(-255f, -22f), new Vector2(470f, 470f));
@@ -383,7 +400,6 @@ namespace Signal.Game
             SetTopLeft(_status.rectTransform, 20f, 350f, 420f, 24f);
             _searchButton = CreateButton("Search", left.transform, "SEARCH", new Vector2(20f, 390f), new Vector2(180f, 42f));
             _searchButtonText = _searchButton.GetComponentInChildren<Text>();
-            _searchButton.onClick.AddListener(StartSearch);
 
             Image right = NewImage("PlayerPanel", _root, new Color32(22, 27, 34, 255));
             Center(right.rectTransform, new Vector2(255f, -22f), new Vector2(470f, 470f));
@@ -419,15 +435,13 @@ namespace Signal.Game
                 }
         }
 
-        private Button CreateButton(string name, Transform parent, string label, Vector2 topLeft, Vector2 size)
+        private Image CreateButton(string name, Transform parent, string label, Vector2 topLeft, Vector2 size)
         {
             Image image = NewImage(name, parent, new Color32(62, 230, 210, 255));
-            image.raycastTarget = true;
             SetTopLeft(image.rectTransform, topLeft.x, topLeft.y, size.x, size.y);
-            Button button = image.gameObject.AddComponent<Button>();
             Text text = NewText("Label", image.transform, label, 13, TextAnchor.MiddleCenter, InkColor);
             Stretch(text.rectTransform);
-            return button;
+            return image;
         }
 
         private Image NewImage(string name, Transform parent, Color color)
