@@ -140,3 +140,12 @@ Economic rules belong in Signal.Core as plain C#; Unity presentation, authoring 
 
 
 EconomicContainerRegistry records the custodian for each runtime inventory container. Asset ownership is deliberately not inferred from container custody. AssetTransferService validates the asset's current owner and requires the destination container to belong to the receiving actor; this allows assets to be held by a third-party custodian without confusing storage with ownership.
+
+
+## Economic account and persistence composition
+
+- `CleanMoneyAccount` is a Core account owned by `PlayerStats`. Legacy `Money`, `Earn` and `TrySpend` APIs delegate to it, so rent and debug-sale paths remain clean-account operations.
+- Dirty money is never a field in PlayerStats or CleanMoneyAccount. It is represented by physical inventory stacks; future illicit payment/cleaning services must consume or transfer those stacks explicitly.
+- GameSession owns the runtime AssetOwnershipBook, EconomicTransactionLedger, EconomicContainerRegistry and AssetTransferService. It registers carried inventory and home storage as player-custodied containers.
+- SaveMapper v8 persists the clean balance, player-held asset owner mappings and completed economic transaction records. Older saves migrate their money value to the clean balance and assign legacy held items to the player actor.
+- The container registry is rebuilt from live GridInventory references; Unity object/container references are not serialized.

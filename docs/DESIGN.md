@@ -71,3 +71,14 @@ Signal has one connected city economy shared by residents, businesses, suppliers
 
 ### Future systems
 Stock markets, lottery, gambling/betting, business ownership, laundering and richer economic events are future systems that must reuse the shared actor, asset, account, transfer and transaction foundations. They are not included in the initial implementation.
+
+
+## Clean money and dirty money separation (approved 2026-11-19)
+
+- Clean money is held in the player's bank/card account and is the payment source for legitimate purchases and ordinary clean expenses.
+- Dirty money is represented by physical inventory items. It is not a balance in the bank/card account, cannot pay for legitimate purchases and cannot be deposited directly.
+- A future cleaning operation will consume dirty-money items and credit the clean account directly. It is not implemented in this phase.
+- Dirty money will have separate future uses in explicitly illicit exchanges such as shady markets and bribes.
+- The account and physical item paths are separate APIs. A clean-account credit does not accept an inventory item or infer value from one.
+- The prototype retains integer money units and existing placeholder values; currency denomination and display formatting remain undecided.
+- Universal supply/demand, automatic price movement and continuous consumption remain out of scope. Ordinary goods use authored availability; stock is selectively tracked only where it matters.

@@ -85,3 +85,11 @@ Approved approach:
 - This is a foundation, not a requirement to simulate every citizen in equal detail.
 
 The first implementation is Milo, a neighbourhood baker with Work, Rest, Socialize and Home activities. His evening dialogue hints that his public occupation is not his entire life. Persistent relationships, discovered secrets and a concrete side activity remain future work and must be designed as part of a connected scenario.
+
+
+## Economic details still undecided
+- Currency name/symbol and how integer balance units are displayed.
+- Starting clean bank/card balance for the actual game (current inspector value remains placeholder tuning).
+- Dirty-money bundle denominations / stack-value convention.
+- The first illicit exchange and future cleaning interaction's risks, rates and prerequisites.
+- Which specific illegal goods require finite stock in the first neighbourhood.

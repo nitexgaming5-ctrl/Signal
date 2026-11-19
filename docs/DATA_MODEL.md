@@ -95,3 +95,14 @@ When a save shape changes, bump `version` and write a migration function in Core
 ## Economic container custody
 - EconomicContainerRegistry maps each runtime GridInventory container to its responsible custodian actor. Asset ownership remains separate: an actor may own a stack stored in a container maintained by another actor.
 - AssetTransferService requires both physical containers to be registered and the destination container to be maintained by the receiving actor. The source custodian need not be the asset owner; custody and ownership are distinct.
+
+
+## Economic persistence (save v8)
+
+- `CleanMoneyAccount` is the player's clean bank/card balance. It is a non-negative integer balance with guarded credit/debit operations and no direct physical-item deposit API.
+- `PlayerStats.Money` remains a compatibility view over `PlayerStats.CleanMoney.Balance`; existing rent and debug-sale paths therefore operate on clean money, not dirty cash.
+- Dirty money is a physical inventory item and is not stored in `CleanMoneyAccount`. Its item definition, stack identity, state and ownership use the existing inventory save shape.
+- `AssetOwnershipBook` is saved per stable stack GUID for carried and home-storage items. Legacy v1-v7 saves migrate those player-held assets to the player actor by default.
+- `EconomicTransactionLedger` is saved as completed item-transfer records, preserving transaction ID, item and definition IDs, quantity, actors, reason and in-game timestamp.
+- Save v8 adds `cleanBalance`, `assetOwners` and `economicTransactions`. v1-v7 `money` migrates to the clean account unchanged.
+- The runtime container registry is reconstructed by GameSession for carried inventory and home storage. Container custody remains separate from asset ownership.
