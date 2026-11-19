@@ -1,6 +1,6 @@
 # Progress
 
-## Current status: Economy Phase 2 verified; Phase 3 Business & Retail first implementation pass added, Unity verification pending
+## Current status: Economy Phase 2 verified; Phase 3 Business & Retail content added, Unity verification pending
 
 The user confirmed **316/316 EditMode tests passed on 2026-11-19** after the economy Phase 2 implementation and the follow-up correction to three legacy save-migration test expectations. This verifies the Phase 2 v8 save/account/ownership implementation as it stood at that time. The Phase 3 v9 resident-account/retail changes and newly authored tests have not yet been run by the user. No Phase 3 Play Mode verification has been reported.
 
@@ -13,7 +13,7 @@ The economy now has:
 - Save v9 persistence for clean balance, resident account balances, player-held carried/storage asset ownership, economic transfer history and retail purchase history.
 - Dirty money explicitly excluded from the bank/card account; it is reserved for physical inventory items and future illicit uses.
 
-Phase 2 is verified by the user's 316/316 report. No dirty-money item definition, cleaning interaction, shady-market exchange, bribe, supplier loop or finite-stock gameplay has been implemented. The generic retail purchase framework is present, but the Corner Bakery catalogue remains empty pending approved item/price content.
+Phase 2 is verified by the user's 316/316 report. No dirty-money item definition, cleaning interaction, shady-market exchange, bribe, supplier loop or finite-stock gameplay has been implemented. The Corner Bakery now has an authored Bread ItemDefinition and a one-item catalogue priced at CARD $5 as a temporary test value. The catalogue remains unlimited and event-driven.
 
 ## Approved project direction
 Signal is an immersive top-down 2D urban RPG about making a living in one layered city: meeting people, doing activities for money and resources, trading goods, taking risks, sometimes losing things, discovering secrets and returning to a personal hideout.
@@ -438,10 +438,10 @@ The approved shared-economy retail scope is in implementation. The old illicit-v
 
 ### Not yet complete / verification
 - Created `Assets/_Project/Content/Businesses/Business_CornerShop.asset` and assigned it to `GameSession.Businesses` in `HideoutSlice.unity`. It targets owner `milo`, location `CornerShop`, hours 06:30–18:00 and interaction point (1000, 1000.6).
-- The asset's merchandise catalogue is intentionally empty because no actual ItemDefinition/price was approved. The runtime shop interaction opens and explains that no merchandise is configured; add the approved product(s) and fixed prices to the existing asset before purchase testing.
+- Added `Assets/_Project/Content/Items/Item_Bread.asset` (stable item ID, 1×1 footprint, stack limit 10, ordinary default state) and assigned it to the Corner Bakery catalogue at CARD $5. The price is explicitly a temporary test value, not final balancing.
 - Business definitions are validated on interaction and purchase. Existing Core `Shop` / `ShopOrder` sell-to-shop behavior remains unchanged; no new valuation or acceptance rules were added.
 - F1 debug view exposes spawned resident clean balances and retail transaction count to support Play Mode verification.
 - Tests are authored but have not been executed. The assistant cannot run the Unity Editor, so Unity compilation, full EditMode suite and Play Mode verification remain pending.
 - Existing player-to-shop selling code remains unchanged; no new sell valuation, acceptance rules or shop budget were introduced.
 
-Next: add the approved merchandise ItemDefinition(s) and fixed price(s) to the existing Corner Bakery asset, then compile, run the full EditMode suite and Play Mode test purchase plus save/load.
+Next: pull the branch, compile, run the full EditMode suite and verify a Bread purchase plus save/load in Play Mode. Confirm the player's CARD decreases by $5 and Milo's resident account increases by $5.
