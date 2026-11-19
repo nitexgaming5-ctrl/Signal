@@ -69,7 +69,7 @@ Retain the existing Shop/ShopOrder selling rules and valuation exactly. Do not a
 
 - Provide a reusable business/retail runtime that resolves authored business definitions and checks opening schedules.
 - Integrate the existing CornerShop as the first business using authored definition data; avoid a per-shop implementation.
-- Reuse existing UGUI conventions and GameSession composition. A compact panel should show business name, product names, authored prices, quantity selection (or a simple one-unit purchase if quantity controls are not already supported), confirm and close.
+- Reuse existing UGUI conventions and GameSession composition. A compact click-driven panel should show the business name and one merchandise row per catalogue entry, with its authored price and a BUY button. Purchases are one unit per click for this first pass; include visible paging when the catalogue exceeds the page size and a clear close action.
 - Keep movement disabled while the panel is open. Revalidate all purchase conditions when confirming.
 - The owner must be a registered resident account. Missing definitions, owner accounts or item definitions should fail visibly and safely rather than silently minting content.
 - Do not add new NPC behaviour. The shop may be available according to its business schedule independently of whether the owner is physically standing at the counter.
@@ -129,3 +129,11 @@ The assistant cannot run the user's Unity Editor. Report code inspection, tests 
 - Added `Assets/_Project/Content/Items/Item_Bread.asset` and referenced it from the Corner Bakery catalogue at CARD $5. This is a temporary test value chosen by the user; it is not a final economy balance. Bread is 1×1, stack limit 10, and uses ordinary default item state.
 - GameSession validates business identity, owner/location data and catalogue entries before opening/purchasing; invalid definitions fail visibly. Existing `Shop` / `ShopOrder` sell-to-shop Core behavior and tests remain unchanged; no new sale UI or valuation rule was introduced.
 - The assistant cannot run Unity. All newly authored EditMode tests remain unexecuted; Unity compilation, full EditMode suite and Play Mode purchase/save-load checks are pending user verification. The next test should buy one Bread and confirm CARD -$5, Milo's resident account +$5, inventory grant, retail ledger entry and persistence after save/load.
+
+
+## 2026-11-19 — Click-driven retail panel and test starting balance
+
+- Replaced the F2–F10 purchase shortcuts with clickable merchandise rows and adjacent BUY buttons. The panel also has clickable previous/next page and close controls, a scrollable catalogue viewport, purchase feedback and ESC-to-close support. The panel remains data-driven for other businesses; each BUY action still calls the same validated atomic RetailService path.
+- Ensured the runtime-created UGUI canvas has a GraphicRaycaster and an EventSystem using InputSystemUIInputModule so mouse clicks are routed through the project's Input System.
+- Set the active HideoutSlice GameSession serialized starting clean balance to **$5,000 CARD** as a temporary testing seed. This is not an economy-balance decision. A previously saved game will restore its saved balance when loaded; use a fresh game/new save to see the $5,000 starting value.
+- Unity compilation, EditMode tests and Play Mode click/purchase verification remain pending user validation.
