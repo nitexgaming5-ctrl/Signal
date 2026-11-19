@@ -1,6 +1,6 @@
 # ECONOMY-PHASE-3 — businesses and retail
 
-**Status:** first implementation pass and first shop content added; Unity verification pending (user approved 2026-11-19)  
+**Status:** implemented and user-verified; 335/335 EditMode tests passed (2026-11-19)  
 **Branch:** `chore/collaboration-workflow-and-audit`  
 **Depends on:** Economy Phases 1–2 (asset ownership/transfers, clean account and save v8)
 
@@ -137,3 +137,17 @@ The assistant cannot run the user's Unity Editor. Report code inspection, tests 
 - Ensured the runtime-created UGUI canvas has a GraphicRaycaster and an EventSystem using InputSystemUIInputModule so mouse clicks are routed through the project's Input System.
 - Set the active HideoutSlice GameSession serialized starting clean balance to **$5,000 CARD** as a temporary testing seed. This is not an economy-balance decision. A previously saved game will restore its saved balance when loaded; use a fresh game/new save to see the $5,000 starting value.
 - Unity compilation, EditMode tests and Play Mode click/purchase verification remain pending user validation.
+
+
+## Verification update — 2026-11-19
+
+The user confirmed the full Unity EditMode suite **335/335 passed** and reported that all Phase 3 functionality works as intended in Unity. Phase 3 is complete.
+
+The subsequent transaction-safety audit did not change the RetailService transaction design or any approved shop-sale valuation/acceptance rule. It added:
+- Fail-fast rejection in `Shop.TryFulfil` for an uninitialized item definition and a zero-value order.
+- Regression tests proving those invalid sale requests do not mutate inventory.
+- RetailService parameterized regression tests for zero/negative quantity, zero/negative price and multiplication totals above `int.MaxValue`, asserting no account, inventory, ownership or ledger mutation.
+
+These newest tests are **not yet Unity-verified**. Expected full EditMode suite count: 342 test cases (335 previously verified plus 7 added cases).
+
+Audit boundary: `Shop.TryFulfil` is currently called only by the developer sale control. It does not yet consult AssetOwnershipBook or record a completed economic transaction. The existing behavior is retained; a player-facing sale system must add those economic guarantees through a deliberately designed integration rather than by changing this legacy helper's valuation/acceptance rules in this phase.
