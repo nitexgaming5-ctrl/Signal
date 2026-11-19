@@ -320,7 +320,7 @@ The shared-city economy is the active initiative. Its foundations are now in pla
 - [x] Add save v9 for resident account balances and retail transaction history; preserve v1–v8 migration.
 - [x] Add reusable authored BusinessDefinition data (owner, location, opening schedule, ItemDefinition catalogue and fixed prices).
 - [x] Implement atomic purchases with customer debit, owner credit, inventory grant, ownership registration and durable retail transaction record.
-- [ ] Integrate the existing CornerShop as the first business through data, not a shop-specific implementation.
+- [x] Integrate the existing CornerShop as the first data-driven business; `Business_CornerShop.asset` is assigned in `HideoutSlice.unity` (catalogue intentionally empty pending approved product/price content).
 - [x] Preserve existing Core Shop/ShopOrder selling rules and tests unchanged.
 - [x] Add Core/Game EditMode tests; [ ] run them and verify compilation/Play Mode in Unity.
 
