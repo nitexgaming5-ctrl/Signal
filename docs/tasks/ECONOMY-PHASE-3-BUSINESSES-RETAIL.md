@@ -125,6 +125,7 @@ The assistant cannot run the user's Unity Editor. Report code inspection, tests 
 - Existing Shop / ShopOrder selling rules were left unchanged.
 
 ### Remaining integration and verification
-- No final merchandise catalogue or prices have been invented. Create a Business Definition asset in Unity, set owner NPC ID, location, interaction point and opening hours, add approved ItemDefinition/price entries, then assign it to GameSession's Businesses array. Defaults target Milo at CornerShop (06:30–18:00; interaction point 1000, 1000.4).
-- The generic runtime integration is present, but a configured business asset is required for a populated playable shop.
+- `Assets/_Project/Content/Businesses/Business_CornerShop.asset` is now created and assigned to `GameSession.Businesses` in `Assets/_Project/Scenes/HideoutSlice.unity`. It targets Milo at `CornerShop`, opens 06:30–18:00, and uses interaction point (1000, 1000.6).
+- Its merchandise catalogue is intentionally empty. No actual ItemDefinition or fixed price has been approved/selected, so the shop opens and displays the empty-catalogue message rather than inventing merchandise pricing. The remaining content step is to add the chosen item(s) and fixed prices to this asset.
+- GameSession validates business identity, owner/location data and catalogue entries before opening/purchasing; invalid definitions fail visibly. Existing `Shop` / `ShopOrder` sell-to-shop Core behavior and tests remain unchanged; no new sale UI or valuation rule was introduced.
 - The assistant cannot run Unity. All newly authored EditMode tests remain unexecuted; Unity compilation, full EditMode suite and Play Mode purchase/save-load checks are pending user verification.
