@@ -58,6 +58,17 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void MoneyCompatibilityApiUsesTheCleanBankCardAccount()
+        {
+            var stats = new PlayerStats(100);
+            Assert.That(stats.CleanMoney.Balance, Is.EqualTo(100));
+            Assert.That(stats.TrySpend(25), Is.True);
+            Assert.That(stats.CleanMoney.Balance, Is.EqualTo(75));
+            stats.Earn(10);
+            Assert.That(stats.Money, Is.EqualTo(85));
+        }
+
+        [Test]
         public void Damage_ReducesHealth()
         {
             var stats = new PlayerStats();

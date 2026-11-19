@@ -250,7 +250,7 @@ namespace Signal.Core.Tests
 
             Assert.That(report.Success, Is.True);
             Assert.That(report.SkippedKnowledgeFacts, Is.Zero);
-            Assert.That(data.version, Is.EqualTo(7));
+            Assert.That(data.version, Is.EqualTo(8));
             Assert.That(target.Inventory.Items[0].ItemInstanceId, Is.EqualTo(itemId));
             Assert.That(targetKnowledge.FactCount, Is.EqualTo(2));
             Assert.That(targetKnowledge.TryGetFact(itemId, ItemKnowledgeAspect.Authenticity, out ItemKnowledgeFact rumour), Is.True);
@@ -270,7 +270,7 @@ namespace Signal.Core.Tests
             var data = new SaveData { version = 4, itemKnowledge = null };
 
             Assert.That(SaveMigrator.TryMigrate(data, out _), Is.True);
-            Assert.That(data.version, Is.EqualTo(7));
+            Assert.That(data.version, Is.EqualTo(8));
             Assert.That(data.itemKnowledge, Is.Empty);
         }
 
@@ -342,7 +342,7 @@ namespace Signal.Core.Tests
             SaveData data = SaveMapper.Capture(source.Stats, source.Inventory, null, source.Clock,
                 source.Heat, source.Rent, "Street", 4f, -12f, null, discoveries, opportunity);
 
-            Assert.That(data.version, Is.EqualTo(7));
+            Assert.That(data.version, Is.EqualTo(8));
             Assert.That(data.playerDiscoveries.Count, Is.EqualTo(2));
             Assert.That(data.opportunity.parcelInstanceId, Is.EqualTo(parcelId.ToString()));
 
@@ -370,7 +370,7 @@ namespace Signal.Core.Tests
             var data = new SaveData { version = 6, playerDiscoveries = null, opportunity = null, playerRelationships = null };
 
             Assert.That(SaveMigrator.TryMigrate(data, out _), Is.True);
-            Assert.That(data.version, Is.EqualTo(7));
+            Assert.That(data.version, Is.EqualTo(8));
             Assert.That(data.playerDiscoveries, Is.Empty);
             Assert.That(data.opportunity, Is.Null);
             Assert.That(data.playerRelationships, Is.Empty);
@@ -466,11 +466,101 @@ namespace Signal.Core.Tests
             };
 
             Assert.That(SaveMigrator.TryMigrate(data, out _), Is.True);
-            Assert.That(data.version, Is.EqualTo(7));
+            Assert.That(data.version, Is.EqualTo(8));
             Assert.That(data.opportunity.hasDeliveryAssessment, Is.True);
             Assert.That(data.opportunity.deliveredOnTime, Is.True);
             Assert.That(data.opportunity.deliveredIntact, Is.True);
             Assert.That(data.opportunity.deliveryWitnessed, Is.False);
+        }
+
+        [Test]
+        public void VersionSevenSaveMigratesLegacyMoneyIntoCleanAccountAndInitializesEconomicLedgers()
+        {
+            var data = new SaveData { version = 7, money = 275, assetOwners = null, economicTransactions = null };
+            Assert.That(SaveMigrator.TryMigrate(data, out _), Is.True);
+            Assert.That(data.version, Is.EqualTo(8));
+            Assert.That(data.cleanBalance, Is.EqualTo(275));
+            Assert.That(data.assetOwners, Is.Empty);
+            Assert.That(data.economicTransactions, Is.Empty);
+        }
+
+        [Test]
+        public void EconomicAccountOwnershipAndTransactionHistoryRoundTrip()
+        {
+            var source = new World();
+            source.Stats.Restore(321, 73);
+            ItemType type = Item(1, 1, 5);
+            var residentContainer = new GridInventory();
+            residentContainer.Place(type, 0, 0, count: 2);
+            Guid itemId = residentContainer.Items[0].ItemInstanceId;
+            var ownership = new AssetOwnershipBook();
+            EconomicActorId resident = new EconomicActorId("resident:milo");
+            Assert.That(ownership.TryRegister(itemId, resident), Is.True);
+            var containers = new EconomicContainerRegistry();
+            Assert.That(containers.TryRegister(residentContainer, resident), Is.True);
+            Assert.That(containers.TryRegister(source.Inventory, EconomicActorId.Player), Is.True);
+            var ledger = new EconomicTransactionLedger();
+            var transfer = new AssetTransferService(ownership, containers, ledger);
+            AssetTransferResult moved = transfer.TransferStack(residentContainer, source.Inventory, itemId,
+                resident, EconomicActorId.Player, AssetTransferReason.Purchase, 2, 615);
+            Assert.That(moved.Success, Is.True);
+
+            var sourceStorage = new GridInventory(8, 6);
+            SaveData data = SaveMapper.Capture(source.Stats, source.Inventory, sourceStorage,
+                source.Clock, source.Heat, source.Rent, "Hideout", 2f, 3f,
+                null, null, null, null, ownership, ledger);
+            var target = new World();
+            var targetStorage = new GridInventory(8, 6);
+            var restoredOwnership = new AssetOwnershipBook();
+            var restoredLedger = new EconomicTransactionLedger();
+            LoadReport report = SaveMapper.Apply(data, target.Stats, target.Inventory, targetStorage,
+                target.Clock, target.Heat, target.Rent, Resolver(type), null, null, null,
+                restoredOwnership, restoredLedger);
+
+            Assert.That(report.Success, Is.True);
+            Assert.That(report.SkippedAssetOwners, Is.Zero);
+            Assert.That(report.SkippedEconomicTransactions, Is.Zero);
+            Assert.That(target.Stats.CleanMoney.Balance, Is.EqualTo(321));
+            Assert.That(target.Stats.Health, Is.EqualTo(73));
+            Assert.That(target.Inventory.Items.Count, Is.EqualTo(1));
+            Assert.That(target.Inventory.Items[0].ItemInstanceId, Is.EqualTo(itemId));
+            Assert.That(restoredOwnership.TryGetOwner(itemId, out EconomicActorId restoredOwner), Is.True);
+            Assert.That(restoredOwner, Is.EqualTo(EconomicActorId.Player));
+            Assert.That(restoredLedger.Count, Is.EqualTo(1));
+            EconomicTransaction transaction = restoredLedger.Transactions[0];
+            Assert.That(transaction.TransactionId, Is.EqualTo(moved.Transaction.TransactionId));
+            Assert.That(transaction.ItemInstanceId, Is.EqualTo(itemId));
+            Assert.That(transaction.ItemDefinitionId, Is.EqualTo(type.Id));
+            Assert.That(transaction.Quantity, Is.EqualTo(2));
+            Assert.That(transaction.FromActor, Is.EqualTo(resident));
+            Assert.That(transaction.ToActor, Is.EqualTo(EconomicActorId.Player));
+            Assert.That(transaction.Reason, Is.EqualTo(AssetTransferReason.Purchase));
+            Assert.That(transaction.Day, Is.EqualTo(2));
+            Assert.That(transaction.MinuteOfDay, Is.EqualTo(615));
+        }
+
+        [Test]
+        public void InvalidEconomicRecordsAreSkippedWithoutRejectingTheSave()
+        {
+            var data = new SaveData();
+            data.assetOwners.Add(new SavedAssetOwner { instanceId = "not-a-guid", actorId = "resident:milo" });
+            data.economicTransactions.Add(new SavedEconomicTransaction
+            {
+                transactionId = "bad-id", itemInstanceId = Guid.NewGuid().ToString(),
+                itemDefinitionId = Guid.NewGuid().ToString(), quantity = 1,
+                fromActorId = "resident:milo", toActorId = "player",
+                reason = (int)AssetTransferReason.Gift, day = 1, minuteOfDay = 10
+            });
+            var world = new World();
+            var ownership = new AssetOwnershipBook();
+            var ledger = new EconomicTransactionLedger();
+            LoadReport report = SaveMapper.Apply(data, world.Stats, world.Inventory, null,
+                world.Clock, world.Heat, world.Rent, Resolver(), null, null, null, ownership, ledger);
+            Assert.That(report.Success, Is.True);
+            Assert.That(report.SkippedAssetOwners, Is.EqualTo(1));
+            Assert.That(report.SkippedEconomicTransactions, Is.EqualTo(1));
+            Assert.That(ownership.Count, Is.Zero);
+            Assert.That(ledger.Count, Is.Zero);
         }
     }
 }

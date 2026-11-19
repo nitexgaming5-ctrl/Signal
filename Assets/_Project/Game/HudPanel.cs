@@ -60,7 +60,7 @@ namespace Signal.Game
         private void Refresh()
         {
             _status.text = _clock.Label
-                         + "    $" + _stats.Money
+                         + "    CARD $" + _stats.CleanMoney.Balance
                          + "    HP " + _stats.Health;
         }
 

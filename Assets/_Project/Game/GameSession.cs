@@ -27,6 +27,10 @@ namespace Signal.Game
         private readonly List<ItemDefinition> _allItemDefinitions = new List<ItemDefinition>();
 
         private PlayerStats _stats;
+        private AssetOwnershipBook _assetOwnership;
+        private EconomicTransactionLedger _economicTransactions;
+        private EconomicContainerRegistry _economicContainers;
+        private AssetTransferService _assetTransfers;
         private GridInventory _inventory;
         private GridInventory _storage;
         private ItemKnowledgeBook _itemKnowledge;
@@ -55,12 +59,22 @@ namespace Signal.Game
         public PlayerDiscoveryLedger PlayerDiscoveries => _playerDiscoveries;
         public OpportunityState MiloOpportunity => _miloOpportunity;
         public PlayerRelationshipBook PlayerRelationships => _playerRelationships;
+        public CleanMoneyAccount CleanMoney => _stats != null ? _stats.CleanMoney : null;
+        public AssetOwnershipBook AssetOwnership => _assetOwnership;
+        public EconomicTransactionLedger EconomicTransactions => _economicTransactions;
+        public AssetTransferService AssetTransfers => _assetTransfers;
 
         private void Start()
         {
             _stats = new PlayerStats(startingMoney);
             _inventory = new GridInventory();
             _storage = new GridInventory(8, 6);
+            _assetOwnership = new AssetOwnershipBook();
+            _economicTransactions = new EconomicTransactionLedger();
+            _economicContainers = new EconomicContainerRegistry();
+            _economicContainers.TryRegister(_inventory, EconomicActorId.Player);
+            _economicContainers.TryRegister(_storage, EconomicActorId.Player);
+            _assetTransfers = new AssetTransferService(_assetOwnership, _economicContainers, _economicTransactions);
             _itemKnowledge = new ItemKnowledgeBook();
             _playerDiscoveries = new PlayerDiscoveryLedger();
             _miloOpportunity = new OpportunityState("milo-parcel");
@@ -72,6 +86,7 @@ namespace Signal.Game
 
             BuildCatalog();
             GiveStartingItems();
+            RegisterUnownedPlayerAssets(_inventory);
 
             Camera camera = Camera.main;
             if (camera == null)
@@ -181,6 +196,7 @@ namespace Signal.Game
                     keyboard.digit4Key.wasPressedThisFrame ? 4 : 0;
                 if (choice > 0 && _miloScenario.HandleChoice(choice, out string choiceMessage))
                 {
+                    RegisterUnownedPlayerAssets(_inventory);
                     Say(choiceMessage, 8f);
                     return;
                 }
@@ -195,7 +211,10 @@ namespace Signal.Game
             {
                 if (_miloScenario != null &&
                     _miloScenario.TryInteract(playerPosition, _city.CurrentPlace, out string scenarioMessage))
+                {
+                    RegisterUnownedPlayerAssets(_inventory);
                     Say(scenarioMessage, 8f);
+                }
                 else if (_city.TryInteractNpc(playerPosition, out string npcDialogue))
                     Say(npcDialogue, 5f);
                 else if (_city.TryInteract(playerPosition))
@@ -379,7 +398,8 @@ namespace Signal.Game
             Vector2 position = _room.PlayerBody.position;
             SaveData data = SaveMapper.Capture(_stats, _inventory, _storage, _clock, _heat, _rent,
                                                _city.CurrentPlace, position.x, position.y, _itemKnowledge,
-                                               _playerDiscoveries, _miloOpportunity, _playerRelationships);
+                                               _playerDiscoveries, _miloOpportunity, _playerRelationships,
+                                               _assetOwnership, _economicTransactions);
 
             try
             {
@@ -401,13 +421,15 @@ namespace Signal.Game
                 return;
             }
 
-            LoadReport report = SaveMapper.Apply(data, _stats, _inventory, _storage, _clock, _heat, _rent, ResolveType, _itemKnowledge, _playerDiscoveries, _playerRelationships);
+            LoadReport report = SaveMapper.Apply(data, _stats, _inventory, _storage, _clock, _heat, _rent,
+                ResolveType, _itemKnowledge, _playerDiscoveries, _playerRelationships, _assetOwnership, _economicTransactions);
             if (!report.Success)
             {
                 Say("Load failed: " + report.Error);
                 return;
             }
 
+            RegisterUnownedPlayerAssets(_inventory);
             _miloOpportunity = report.RestoredOpportunity != null &&
                 report.RestoredOpportunity.OpportunityId == "milo-parcel"
                 ? report.RestoredOpportunity
@@ -424,7 +446,8 @@ namespace Signal.Game
             }
 
             Say(report.SkippedItems + report.SkippedStorageItems + report.SkippedKnowledgeFacts +
-                report.SkippedDiscoverySignals + report.SkippedPlayerRelationships > 0
+                report.SkippedDiscoverySignals + report.SkippedPlayerRelationships +
+                report.SkippedAssetOwners + report.SkippedEconomicTransactions > 0
                 ? "Loaded at " + data.worldPlace + ". Some saved item or discovery details could not be restored."
                 : "Loaded at " + data.worldPlace + ".");
         }
@@ -458,6 +481,14 @@ namespace Signal.Game
             {
                 Debug.LogError("GameSession: assign the Milo parcel ItemDefinition before playing Opportunity 001.");
             }
+        }
+
+        private void RegisterUnownedPlayerAssets(GridInventory inventory)
+        {
+            if (inventory == null || _assetOwnership == null) return;
+            foreach (PlacedItem item in inventory.Items)
+                if (!_assetOwnership.TryGetOwner(item.ItemInstanceId, out _))
+                    _assetOwnership.TryRegister(item.ItemInstanceId, EconomicActorId.Player);
         }
 
         private void GiveStartingItems()
