@@ -7,6 +7,7 @@ namespace Signal.Core
     {
         private readonly Dictionary<Guid, EconomicActorId> _owners = new Dictionary<Guid, EconomicActorId>();
         public int Count => _owners.Count;
+        public void Clear() => _owners.Clear();
         public bool TryRegister(Guid itemInstanceId, EconomicActorId owner)
         {
             if (itemInstanceId == Guid.Empty || !owner.IsValid || _owners.ContainsKey(itemInstanceId)) return false;

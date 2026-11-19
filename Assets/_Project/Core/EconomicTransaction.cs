@@ -32,6 +32,7 @@ namespace Signal.Core
         public IReadOnlyList<EconomicTransaction> Transactions => _readOnlyTransactions;
         public int Count => _transactions.Count;
         public bool Contains(Guid transactionId) => _transactionIds.Contains(transactionId);
+        public void Clear() { _transactions.Clear(); _transactionIds.Clear(); }
         public bool TryRecord(EconomicTransaction transaction)
         {
             if (transaction == null || transaction.TransactionId == Guid.Empty || transaction.ItemInstanceId == Guid.Empty ||

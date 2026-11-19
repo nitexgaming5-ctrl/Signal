@@ -74,10 +74,33 @@ namespace Signal.Core
     }
 
     [Serializable]
+    public sealed class SavedAssetOwner
+    {
+        public string instanceId;
+        public string actorId;
+    }
+
+    [Serializable]
+    public sealed class SavedEconomicTransaction
+    {
+        public string transactionId;
+        public string itemInstanceId;
+        public string itemDefinitionId;
+        public int quantity;
+        public string fromActorId;
+        public string toActorId;
+        public int reason;
+        public int day;
+        public int minuteOfDay;
+    }
+
+    [Serializable]
     public sealed class SaveData
     {
         public int version = SaveMigrator.CurrentVersion;
+        // Legacy v1-v7 field retained for migration; v8 mirrors the clean account value.
         public int money;
+        public int cleanBalance;
         public int health;
         public int day = 1;
         public int minuteOfDay;
@@ -94,6 +117,8 @@ namespace Signal.Core
         public List<SavedDiscoverySignal> playerDiscoveries = new List<SavedDiscoverySignal>();
         public SavedOpportunityState opportunity;
         public List<SavedPlayerRelationship> playerRelationships = new List<SavedPlayerRelationship>();
+        public List<SavedAssetOwner> assetOwners = new List<SavedAssetOwner>();
+        public List<SavedEconomicTransaction> economicTransactions = new List<SavedEconomicTransaction>();
     }
 
     public sealed class LoadReport
@@ -105,12 +130,14 @@ namespace Signal.Core
         public int SkippedKnowledgeFacts { get; set; }
         public int SkippedDiscoverySignals { get; set; }
         public int SkippedPlayerRelationships { get; set; }
+        public int SkippedAssetOwners { get; set; }
+        public int SkippedEconomicTransactions { get; set; }
         public OpportunityState RestoredOpportunity { get; set; }
     }
 
     public static class SaveMigrator
     {
-        public const int CurrentVersion = 7;
+        public const int CurrentVersion = 8;
 
         /// <summary>Accepts save formats v1 through v7 and migrates them to the current inventory and player-knowledge format.</summary>
         public static bool TryMigrate(SaveData data, out string error)
@@ -170,6 +197,15 @@ namespace Signal.Core
                 data.opportunity.deliveryWitnessed = false;
             }
 
+            // Version 8 separates the clean bank/card balance and persists asset ownership
+            // plus completed economic transfer history.
+            if (data.version <= 7)
+                data.cleanBalance = data.money;
+            if (data.assetOwners == null)
+                data.assetOwners = new List<SavedAssetOwner>();
+            if (data.economicTransactions == null)
+                data.economicTransactions = new List<SavedEconomicTransaction>();
+
             data.version = CurrentVersion;
 
             return true;
@@ -208,7 +244,9 @@ namespace Signal.Core
                                        GameClock clock, HeatMeter heat, RentLedger rent, string worldPlace,
                                        float playerX, float playerY, ItemKnowledgeBook itemKnowledge = null,
                                        PlayerDiscoveryLedger discoveries = null, OpportunityState opportunity = null,
-                                       PlayerRelationshipBook relationships = null)
+                                       PlayerRelationshipBook relationships = null,
+                                       AssetOwnershipBook assetOwnership = null,
+                                       EconomicTransactionLedger economicTransactions = null)
         {
             if (stats == null) throw new ArgumentNullException(nameof(stats));
             if (inventory == null) throw new ArgumentNullException(nameof(inventory));
@@ -219,6 +257,7 @@ namespace Signal.Core
             var data = new SaveData
             {
                 money = stats.Money,
+                cleanBalance = stats.CleanMoney.Balance,
                 health = stats.Health,
                 day = clock.Day,
                 minuteOfDay = clock.MinuteOfDay,
@@ -238,6 +277,7 @@ namespace Signal.Core
             CaptureDiscoveries(discoveries, data.playerDiscoveries);
             data.opportunity = CaptureOpportunity(opportunity);
             CapturePlayerRelationships(relationships, data.playerRelationships);
+            CaptureEconomicState(inventory, storage, assetOwnership, economicTransactions, data);
 
             return data;
         }
@@ -252,7 +292,9 @@ namespace Signal.Core
                                        GameClock clock, HeatMeter heat, RentLedger rent, Func<Guid, ItemType?> resolve,
                                        ItemKnowledgeBook itemKnowledge = null,
                                        PlayerDiscoveryLedger discoveries = null,
-                                       PlayerRelationshipBook relationships = null)
+                                       PlayerRelationshipBook relationships = null,
+                                       AssetOwnershipBook assetOwnership = null,
+                                       EconomicTransactionLedger economicTransactions = null)
         {
             if (stats == null) throw new ArgumentNullException(nameof(stats));
             if (inventory == null) throw new ArgumentNullException(nameof(inventory));
@@ -264,7 +306,7 @@ namespace Signal.Core
             if (!SaveMigrator.TryMigrate(data, out string error))
                 return new LoadReport { Success = false, Error = error };
 
-            stats.Restore(data.money, data.health);
+            stats.Restore(data.cleanBalance, data.health);
             clock.Restore(data.day, data.minuteOfDay);
             heat.Restore(data.heat);
             rent.Restore(data.missedRent);
@@ -282,6 +324,8 @@ namespace Signal.Core
             int skippedKnowledge = RestoreKnowledge(data.itemKnowledge, itemKnowledge);
             int skippedDiscoveries = RestoreDiscoveries(data.playerDiscoveries, discoveries);
             int skippedRelationships = RestorePlayerRelationships(data.playerRelationships, relationships);
+            int skippedOwners = RestoreAssetOwners(data.assetOwners, inventory, storage, assetOwnership);
+            int skippedTransactions = RestoreEconomicTransactions(data.economicTransactions, economicTransactions);
             OpportunityState restoredOpportunity = RestoreOpportunity(data.opportunity);
 
             return new LoadReport
@@ -292,8 +336,101 @@ namespace Signal.Core
                 SkippedKnowledgeFacts = skippedKnowledge,
                 SkippedDiscoverySignals = skippedDiscoveries,
                 SkippedPlayerRelationships = skippedRelationships,
+                SkippedAssetOwners = skippedOwners,
+                SkippedEconomicTransactions = skippedTransactions,
                 RestoredOpportunity = restoredOpportunity
             };
+        }
+
+
+        private static void CaptureEconomicState(GridInventory inventory, GridInventory storage,
+            AssetOwnershipBook ownership, EconomicTransactionLedger ledger, SaveData destination)
+        {
+            if (ownership != null)
+            {
+                CaptureAssetOwners(inventory, ownership, destination.assetOwners);
+                if (storage != null) CaptureAssetOwners(storage, ownership, destination.assetOwners);
+            }
+            if (ledger == null) return;
+            foreach (EconomicTransaction transaction in ledger.Transactions)
+                destination.economicTransactions.Add(new SavedEconomicTransaction
+                {
+                    transactionId = transaction.TransactionId.ToString(),
+                    itemInstanceId = transaction.ItemInstanceId.ToString(),
+                    itemDefinitionId = transaction.ItemDefinitionId.ToString(),
+                    quantity = transaction.Quantity,
+                    fromActorId = transaction.FromActor.Value,
+                    toActorId = transaction.ToActor.Value,
+                    reason = (int)transaction.Reason,
+                    day = transaction.Day,
+                    minuteOfDay = transaction.MinuteOfDay
+                });
+        }
+
+        private static void CaptureAssetOwners(GridInventory inventory, AssetOwnershipBook ownership,
+            List<SavedAssetOwner> destination)
+        {
+            foreach (PlacedItem item in inventory.Items)
+            {
+                EconomicActorId owner = ownership.TryGetOwner(item.ItemInstanceId, out EconomicActorId registered)
+                    ? registered : EconomicActorId.Player;
+                destination.Add(new SavedAssetOwner { instanceId = item.ItemInstanceId.ToString(), actorId = owner.Value });
+            }
+        }
+
+        private static int RestoreAssetOwners(List<SavedAssetOwner> savedOwners, GridInventory inventory,
+            GridInventory storage, AssetOwnershipBook destination)
+        {
+            if (destination == null) return 0;
+            destination.Clear();
+            int skipped = 0;
+            if (savedOwners != null)
+                foreach (SavedAssetOwner saved in savedOwners)
+                {
+                    if (saved == null || !Guid.TryParse(saved.instanceId, out Guid id) ||
+                        id == Guid.Empty || string.IsNullOrWhiteSpace(saved.actorId))
+                    { skipped++; continue; }
+                    try
+                    {
+                        if (!destination.TryRegister(id, new EconomicActorId(saved.actorId))) skipped++;
+                    }
+                    catch (ArgumentException) { skipped++; }
+                }
+            RegisterMissingPlayerOwners(inventory, destination);
+            if (storage != null) RegisterMissingPlayerOwners(storage, destination);
+            return skipped;
+        }
+
+        private static void RegisterMissingPlayerOwners(GridInventory inventory, AssetOwnershipBook ownership)
+        {
+            foreach (PlacedItem item in inventory.Items)
+                if (!ownership.TryGetOwner(item.ItemInstanceId, out _))
+                    ownership.TryRegister(item.ItemInstanceId, EconomicActorId.Player);
+        }
+
+        private static int RestoreEconomicTransactions(List<SavedEconomicTransaction> savedTransactions,
+            EconomicTransactionLedger destination)
+        {
+            if (destination == null) return 0;
+            destination.Clear();
+            int skipped = 0;
+            if (savedTransactions == null) return skipped;
+            foreach (SavedEconomicTransaction saved in savedTransactions)
+            {
+                if (saved == null || !Guid.TryParse(saved.transactionId, out Guid transactionId) ||
+                    !Guid.TryParse(saved.itemInstanceId, out Guid itemId) ||
+                    !Guid.TryParse(saved.itemDefinitionId, out Guid definitionId))
+                { skipped++; continue; }
+                try
+                {
+                    var transaction = new EconomicTransaction(transactionId, itemId, definitionId, saved.quantity,
+                        new EconomicActorId(saved.fromActorId), new EconomicActorId(saved.toActorId),
+                        (AssetTransferReason)saved.reason, saved.day, saved.minuteOfDay);
+                    if (!destination.TryRecord(transaction)) skipped++;
+                }
+                catch (ArgumentException) { skipped++; }
+            }
+            return skipped;
         }
 
         private static void CaptureItems(GridInventory inventory, List<SavedItem> destination)
