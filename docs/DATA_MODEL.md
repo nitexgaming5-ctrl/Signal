@@ -106,3 +106,17 @@ When a save shape changes, bump `version` and write a migration function in Core
 - `EconomicTransactionLedger` is saved as completed item-transfer records, preserving transaction ID, item and definition IDs, quantity, actors, reason and in-game timestamp.
 - Save v8 adds `cleanBalance`, `assetOwners` and `economicTransactions`. v1-v7 `money` migrates to the clean account unchanged.
 - The runtime container registry is reconstructed by GameSession for carried inventory and home storage. Container custody remains separate from asset ownership.
+
+
+
+## Economy Phase 3 — Business & Retail (approved; implementation pending)
+
+- `EconomicAccountBook` is the runtime registry of clean accounts by stable `EconomicActorId`. The player's existing `PlayerStats.CleanMoney` instance is registered as actor `player`; each resident receives one account under `resident:<npc-id>`. No duplicate player account is created.
+- Authored resident starting balances are applied only when an account is first registered. Save v9 stores stable actor IDs and balances; saved balances override authored values. Missing newly authored residents in an older save receive their initial balance once.
+- `BusinessDefinition` is authored content (ScriptableObject), not save state. It contains stable business ID, display name/type, owner resident ID, location/interaction point, opening schedule and merchandise entries that reference `ItemDefinition` assets with fixed integer prices.
+- A business catalogue is unlimited availability, not a physical inventory. It does not create supplier, delivery, production or stock state.
+- `RetailTransaction` records a purchase from a business catalogue: transaction ID, business ID, customer/owner actor IDs, item definition ID, quantity, total clean amount and in-game timestamp. This is separate from the physical asset-transfer ledger because the catalogue product is not a pre-existing physical stack.
+- Retail purchase updates customer account, owner account and player inventory atomically. Item instance state comes from the referenced ItemDefinition's authored default state.
+- Save v9 stores resident account balances and retail transaction history. Authored business definitions, schedules, prices and unlimited catalogue entries are loaded from content and are not serialized.
+- Existing player-to-shop sale behaviour and its valuation/acceptance rules remain unchanged in this phase.
+- No NPC spending/earning simulation, automatic business sales, operating costs, finite stock, restocking, dynamic pricing or dirty-money retail is implemented.
