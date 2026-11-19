@@ -329,3 +329,15 @@ Implementation should reuse the existing item identity/state, ownership and tran
 - Each consumer reuses the shared actor, asset and transaction foundations; none is automatically part of the first economy slice.
 
 Stock markets, lottery, gambling, laundering, universal price simulation and business ownership are future consumers, not part of the initial economy foundation.
+
+
+## Economy Phase 3 — first illicit exchange (specification finalized; awaiting approval)
+
+- [x] Confirm physical dirty-cash denomination: one indivisible bundle worth 100 (MaxStack = 1).
+- [x] Confirm a new discreet seller NPC, separate from Milo, in the existing shared city.
+- [x] Confirm generic Contraband as the first merchandise.
+- [x] Finalize atomic exchange, ownership/custody checks, save v9 seller-stock persistence, UI safeguards and test criteria in docs/tasks/ECONOMY-PHASE-3-ILLICIT-EXCHANGE.md.
+- [ ] Obtain explicit user approval before implementation.
+- [ ] Author exact bundle price and interaction placement; do not invent these values.
+
+Scope excludes cleaning, legitimate dirty-money purchases, restocking simulation, dynamic prices, heat/police/exposure and criminal progression.
