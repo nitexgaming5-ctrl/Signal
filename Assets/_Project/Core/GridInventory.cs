@@ -115,6 +115,27 @@ namespace Signal.Core
             return true;
         }
 
+        /// <summary>Removes quantity from one exact stable stack identity without merging or consuming other stacks.</summary>
+        public bool TryRemoveItemInstance(Guid itemInstanceId, int quantity)
+        {
+            if (itemInstanceId == Guid.Empty || quantity < 1)
+                return false;
+
+            int index = _items.FindIndex(item => item.ItemInstanceId == itemInstanceId);
+            if (index < 0 || quantity > _items[index].Count)
+                return false;
+
+            PlacedItem current = _items[index];
+            if (quantity == current.Count)
+                _items.RemoveAt(index);
+            else
+                _items[index] = new PlacedItem(current.InstanceId, current.ItemInstanceId, current.Type,
+                    current.X, current.Y, current.Rotated, current.Count - quantity, current.State);
+
+            Changed?.Invoke(this);
+            return true;
+        }
+
         internal bool TryRemoveItemInstance(Guid itemInstanceId)
         {
             int index = _items.FindIndex(item => item.ItemInstanceId == itemInstanceId);
