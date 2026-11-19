@@ -17,6 +17,9 @@ namespace Signal.Core
         {
             if (!actor.IsValid || account == null || _accounts.ContainsKey(actor))
                 return false;
+            foreach (CleanMoneyAccount existing in _accounts.Values)
+                if (ReferenceEquals(existing, account))
+                    return false;
             _accounts.Add(actor, account);
             _initialBalances.Add(actor, account.Balance);
             return true;
