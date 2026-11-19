@@ -166,9 +166,14 @@ namespace Signal.Game
             bool itemViewerOpen = _itemViewer != null && _itemViewer.IsOpen;
             bool retailOpen = _retailPanel != null && _retailPanel.IsOpen;
             if (_panel != null)
-                _panel.enabled = !_debugMenuOpen && !workspaceOpen && !storageOpen && !itemViewerOpen;
+                _panel.enabled = !_debugMenuOpen && !workspaceOpen && !storageOpen && !itemViewerOpen && !retailOpen;
             if (_storagePanel != null)
-                _storagePanel.enabled = !_debugMenuOpen && !itemViewerOpen;
+                _storagePanel.enabled = !_debugMenuOpen && !itemViewerOpen && !retailOpen;
+            if (_debugMenuOpen && retailOpen)
+            {
+                _retailPanel.Close();
+                retailOpen = false;
+            }
 
             bool scenarioChoiceOpen = _miloScenario != null && _miloScenario.HasPendingChoice;
             _motor.enabled = !inventoryOpen && !workspaceOpen && !storageOpen && !itemViewerOpen &&
@@ -259,9 +264,12 @@ namespace Signal.Game
                     Say("Location: " + _city.CurrentPlace);
             }
 
-            if (keyboard.f6Key.wasPressedThisFrame) Sleep();
-            if (keyboard.f5Key.wasPressedThisFrame) SaveGame();
-            if (keyboard.f9Key.wasPressedThisFrame) LoadGame();
+            if (!retailOpen)
+            {
+                if (keyboard.f6Key.wasPressedThisFrame) Sleep();
+                if (keyboard.f5Key.wasPressedThisFrame) SaveGame();
+                if (keyboard.f9Key.wasPressedThisFrame) LoadGame();
+            }
         }
 
         private void TickClock()
