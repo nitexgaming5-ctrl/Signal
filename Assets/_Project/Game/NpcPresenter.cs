@@ -41,6 +41,7 @@ namespace Signal.Game
         private int _nextTravelWaypoint;
         private SpriteRenderer[] _visualRenderers = new SpriteRenderer[0];
 
+        public NpcCharacterDefinition Definition => _definition;
         public string NpcId => _definition != null ? _definition.NpcId : string.Empty;
         public string DisplayName => _definition != null ? _definition.DisplayName : string.Empty;
         public string PublicRole => _definition != null ? _definition.PublicRole : string.Empty;
