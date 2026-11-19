@@ -32,7 +32,7 @@ Rules:
 - No `ItemValueCalculator` formula, retail-price multiplier, quality/condition/authenticity/ownership modifier, reputation adjustment, bargaining or market fluctuation is introduced.
 - Offers are available whenever the business is open. No business cash budget or account debit is modeled.
 
-The user has approved the model, not any specific new buyback item or price. Do not invent buyback entries or prices in content assets without an explicit content decision. Existing temporary Bread retail price is not a buyback offer.
+The user subsequently explicitly authorized temporary test content (2026-11-19): `Business_CornerShop.asset` now has a separate buyback offer for the existing `Item_Bread.asset` at CARD $3 per unit, while its retail merchandise price remains CARD $5. This is disposable verification content, not a final authored economy value. Do not generalize this exception to other content without authorization.
 
 ## Existing sale primitive and required adaptation
 
@@ -150,4 +150,12 @@ No dynamic pricing, automatic resale multiplier, `ItemValueCalculator` transacti
 
 ## Implementation and verification status
 
-**Q21 is approved and this specification has been implemented on `chore/collaboration-workflow-and-audit`.** The exact-stack sale path, per-business buyback authoring, SELL UI, dedicated sale ledger and v10 persistence are present in code. The user confirmed 354/354 EditMode tests after the initial implementation. A subsequent hardening change adds one non-player-seller rejection test and exact business-object revalidation; the updated 355-test suite and Unity compilation are pending. Player-facing SELL Play Mode verification remains pending. No buyback item or price has been authored for the Corner Bakery; approval of the offer model did not authorize new content values.
+**Q21 is approved and this specification has been implemented on `chore/collaboration-workflow-and-audit`.** The exact-stack sale path, per-business buyback authoring, SELL UI, dedicated sale ledger and v10 persistence are present in code. The user confirmed 354/354 EditMode tests after the initial implementation. A subsequent hardening change adds one non-player-seller rejection test and exact business-object revalidation; the updated 355-test suite and Unity compilation are pending. Player-facing SELL Play Mode verification remains pending. The user has now explicitly authorized a temporary test offer: Corner Bakery buys Bread at CARD $3. This is not final balancing.
+
+
+## Temporary Play Mode fixture (user-authorized)
+
+- `Business_CornerShop.asset` contains a separate Bread buyback offer at CARD $3; Bread remains CARD $5 in the retail merchandise list.
+- Use a fresh game or buy Bread from the Corner Bakery, then exercise partial and full sales. Check CARD and F1 sale transaction count, then save/reload.
+- The offer is temporary test content only. Remove or replace it after verification; it does not establish final bakery pricing or a general resale ratio.
+- The 354-test baseline is user-confirmed. The later player-only seller regression test makes 355 expected; Unity compilation and the updated suite are still pending.
