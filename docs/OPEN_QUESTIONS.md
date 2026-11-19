@@ -89,26 +89,21 @@ The first implementation is Milo, a neighbourhood baker with Work, Rest, Sociali
 
 ## Economic details still undecided
 - Currency name/symbol and how integer balance units are displayed.
-- Starting clean bank/card balance for the actual game (current inspector value remains placeholder tuning).
-- Dirty-money bundle denominations / stack-value convention.
-- The first illicit exchange and future cleaning interaction's risks, rates and prerequisites.
+- Starting clean bank/card balance for the player and authored starting balances for named residents.
+- Cleaning rate, prerequisites, risks and presentation.
 - Which specific illegal goods require finite stock in the first neighbourhood.
 
 
-## Economy — Phase 3 illicit exchange
+## Economy — Phase 3 Business & Retail
 
-**Status: design decisions resolved; implementation specification awaiting explicit approval.**
+**Status: approved for implementation (2026-11-19).** Full scope and acceptance criteria: `docs/tasks/ECONOMY-PHASE-3-BUSINESSES-RETAIL.md`.
 
-- Dirty-money item: one physical Dirty Cash Bundle, face value 100, indivisible, MaxStack 1.
-- Seller: new discreet NPC, separate from Milo, in an existing shared-city region.
-- Merchandise: one generic Contraband item; specific identity/effects are intentionally unspecified.
-- First slice: one seller, one authored stock unit, no automatic restocking.
-- Dirty bundles remain physical assets for illicit exchange only. They never enter CleanMoneyAccount and are not accepted by legitimate purchases.
+Confirmed decisions:
+- Every resident has a personal clean-money account.
+- A business has authored merchandise and fixed authored prices; merchandise is unlimited and available whenever the business is open.
+- Business sales credit the owner's personal account directly. No separate business revenue account.
+- Existing player-to-shop selling behaviour is retained without new valuation/acceptance rules.
+- No NPC shopping/spending AI, supplier or production simulation, finite stock/restocking, automatic sales, passive revenue or continuous/hourly economy simulation.
+- Dirty money remains physical inventory items, excluded from clean accounts and legitimate retail.
 
-Still to be authored as content inputs rather than guessed by implementation:
-- Exact bundle count/price for the Contraband item.
-- Exact interaction point within an existing city region.
-
-Technical requirements and safeguards are specified in docs/tasks/ECONOMY-PHASE-3-ILLICIT-EXCHANGE.md. Save v9 is required to persist seller stock and prevent sold stock from reappearing after load.
-
-Cleaning, dynamic prices, restocking, heat/police/exposure and criminal progression remain outside this slice.
+Implementation should begin with shared resident account/persistence support, then authored business definitions and atomic retail purchases, then integrate the existing CornerShop. Save v9 is expected for resident account balances and retail transaction history. This is a technical persistence requirement, not a new gameplay mechanic.
