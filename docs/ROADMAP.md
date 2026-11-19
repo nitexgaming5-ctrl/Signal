@@ -379,12 +379,12 @@ The previous illicit seller/Dirty Cash Bundle/Contraband proposal remains supers
 - [x] Implement exact-stack, player-owned sales through the Core sale transaction boundary, preserving validation/account-credit/rollback semantics.
 - [x] Add a separate persistent sale ledger and v10 current-format round-trip; keep physical transfer and retail purchase ledgers separate.
 - [x] Add SELL tab while leaving BUY / `RetailService` unchanged.
-- [ ] Verify Unity compilation, the full EditMode suite (354/354 confirmed before the latest one-test hardening; 355 expected now), and Play Mode full/partial sale, rejection, rollback and save/load.
+- [ ] Verify Unity compilation, the full EditMode suite (354/354 confirmed before the latest one-test hardening; 355 expected now), and Play Mode full/partial sale, rejection, rollback and save/load. The Corner Bakery now has a temporary Bread buyback offer at CARD $3 solely for this test.
 
 ### 2026-11-19 — Player-facing sell-to-shop implementation
 
 - Added exact-stack inventory removal and a Core sale path with player ownership validation, clean CARD credit and rollback.
-- Added separate fixed-price buyback offers to BusinessDefinition; no buyback content was invented for the Corner Bakery.
+- Added separate fixed-price buyback offers to BusinessDefinition; added a temporary test-only Bread buyback offer at CARD $3 after the user's explicit authorization.
 - Added sale-specific transaction history and save v10.
 - Added SELL tab and per-stack quantity controls; BUY remains routed through RetailService.
 - Code is implemented; Unity compile, tests and Play Mode verification are pending. See `docs/tasks/ECONOMY-PLAYER-SELLING-DESIGN.md`.
@@ -403,3 +403,10 @@ The previous illicit seller/Dirty Cash Bundle/Contraband proposal remains supers
 - [x] Revalidate the exact active BusinessDefinition object at sale confirmation, not only its business ID.
 - [ ] Run Unity compilation and the full EditMode suite again (355 expected after the additional test).
 - [ ] Complete SELL Play Mode verification using an explicitly authored buyback offer; test partial/full sale, rejection, CARD and save/load.
+
+
+### 2026-11-19 — SELL test content
+
+- User explicitly authorized a temporary test item/price. `Business_CornerShop.asset` now buys the existing Bread ItemDefinition at CARD $3; its player-facing retail price remains CARD $5.
+- This is a disposable test fixture, not an approved final price or economy balance. Revisit/remove after the SELL slice is verified.
+- The latest player-only seller-boundary regression test brings the expected EditMode count to 355; Unity verification remains pending.
