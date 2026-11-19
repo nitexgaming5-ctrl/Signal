@@ -40,8 +40,8 @@ Simulation:
 
 ### Verification
 - Assistant cannot run the Unity Editor or Unity Test Runner.
-- Pull the branch, allow Unity to compile, then run the full EditMode suite.
-- Report any compiler or test failures before proceeding to Phase 2.
+- User confirmed **304/304 EditMode tests passed** for Phase 1 before Phase 2 began.
+- Phase 1 is closed; its ownership/transfer contracts are now extended by the verified Phase 2 save/account composition.
 
 
 ## Phase 2 — clean account and economic persistence (implemented; 316/316 user-verified)

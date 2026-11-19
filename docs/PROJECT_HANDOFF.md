@@ -425,7 +425,7 @@ Branch: chore/collaboration-workflow-and-audit.
 - The GameSession container registry is reconstructed for carried inventory and home storage. The ownership book and transaction ledger are captured/restored with saves.
 - Legacy v1-v7 money migrates unchanged to the clean balance; legacy carried/storage items default to player ownership when no explicit owner exists.
 - Dirty-money content definitions, denominations and cleaning mechanics are not implemented yet.
-- Phase 2 Unity compilation and full EditMode verification are pending user run.
+- User confirmed the full EditMode suite **316/316 passed on 2026-11-19** after the Phase 2 save-version assertion correction. Economy-specific Play Mode verification has not yet been separately reported.
 
 
 ## 13. Latest economy status — 2026-11-19
