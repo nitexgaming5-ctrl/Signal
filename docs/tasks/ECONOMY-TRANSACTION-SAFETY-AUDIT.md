@@ -46,7 +46,7 @@ Previous user-verified suite: **335/335**. The user subsequently confirmed **342
 
 ## Deliberate boundary / remaining design work
 
-The existing `Shop.TryFulfil` call in GameSession is a developer sale control, not a player-facing sell interaction. The helper does not consult AssetOwnershipBook and does not create an economic transaction record. These are not silently added because doing so would change the scope and economic semantics of the legacy sale path.
+The current `GameSession` has no runtime call to `Shop.TryFulfil`; the helper is a Core API exercised by its tests, not an active player-facing or developer sale interaction. It does not consult AssetOwnershipBook and does not create an economic transaction record. These are not silently added because doing so would change the scope and economic semantics of the legacy sale path.
 
 Before exposing player-facing selling, design a sale operation that:
 - validates the actor's ownership of the exact physical stack(s);
