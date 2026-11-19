@@ -445,3 +445,11 @@ The approved shared-economy retail scope is in implementation. The old illicit-v
 - Existing player-to-shop selling code remains unchanged; no new sell valuation, acceptance rules or shop budget were introduced.
 
 Next: pull the branch, compile, run the full EditMode suite and verify a Bread purchase plus save/load in Play Mode. Confirm the player's CARD decreases by $5 and Milo's resident account increases by $5.
+
+## 2026-11-19 — BusinessDefinitionTests compile correction
+
+- Fixed the duplicate `System` and `System.Reflection` using directives in `Assets/_Project/Tests/EditMode/Game/BusinessDefinitionTests.cs`.
+- Qualified Unity object cleanup calls as `UnityEngine.Object.DestroyImmediate` to resolve the `Object` ambiguity between `System.Object` and `UnityEngine.Object`.
+- Consolidated overlapping catalogue-validation coverage while retaining schedule, owner identity, valid catalogue, duplicate item, missing owner and non-positive price assertions.
+- This is a test-source correction only; no production gameplay code or design rules changed.
+- Unity compilation and EditMode execution have not yet been rerun. Recompile and run the full suite in the Editor to confirm the correction and surface any subsequent errors.
