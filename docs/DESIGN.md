@@ -82,3 +82,26 @@ Stock markets, lottery, gambling/betting, business ownership, laundering and ric
 - The account and physical item paths are separate APIs. A clean-account credit does not accept an inventory item or infer value from one.
 - The prototype retains integer money units and existing placeholder values; currency denomination and display formatting remain undecided.
 - Universal supply/demand, automatic price movement and continuous consumption remain out of scope. Ordinary business merchandise is an authored unlimited catalogue for now; whether any goods later need finite stock remains undecided.
+
+
+## Physical containers and progressive scavenging — approved 2026-11-20
+
+### Player experience
+The player finds physical bins in the city and searches them like someone rummaging through a real container. Each bin has a distinct authored loot profile. Contents are unknown until searched, and the player chooses what to keep.
+
+### Rules
+- First interaction generates contents once. Item stacks, stable IDs and randomized reveal order are saved; closing/reopening does not reroll.
+- Pressing Search starts an automatic sequence, revealing one item at a time until the container is fully searched or the player closes the interface.
+- Revealed items remain physically in the container and can be taken individually. Undiscovered contents stay hidden.
+- Closing mid-search preserves the exact next reveal. Reopening resumes without restarting or regenerating.
+- Container and player inventory panels are open together. Double-clicking or dragging/dropping a discovered item transfers that stack to carried inventory.
+- A failed transfer (for example, insufficient space) leaves the item in the bin.
+- No respawn or replenishment in this first slice.
+
+### First test slice
+- Three authored loot profiles A/B/C.
+- Two or three physical bins placed in Street.
+- Existing ItemDefinitions and GridInventory are reused; loot profiles are test fixtures, not a final economy or rarity system.
+
+### Boundaries
+Tarkov is an experience reference for progressive container discovery, inventory management during search and separate item examination. Do not import its skill progression, timed container resets, raid rules, secure-container rules or loot economy. No third-party package, Asset Store dependency or copied game code is required.

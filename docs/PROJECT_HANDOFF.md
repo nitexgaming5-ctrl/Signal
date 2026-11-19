@@ -584,3 +584,20 @@ The user confirmed that the full player-facing BUY → partial SELL → full SEL
 - Unity compilation, EditMode results and Play Mode behavior are user-reported. No assistant-side Unity execution is claimed.
 
 **Next:** begin with a design proposal for the next compact player-facing everyday city loop. Use the current roadmap and parked idea backlog; explain the player experience, rules, information/relationship hooks, economic exchange and consequences, then wait for explicit approval before implementing new gameplay.
+
+
+## 2026-11-20 — Active initiative: physical containers and scavenging
+
+The user approved a physical-container scavenging slice. The player approaches a physical street bin, presses E, opens container and carried-inventory panels together, presses Search once, watches one item at a time become discovered, then double-clicks or drag/drops discovered items into carried inventory. Discovered items remain in the bin until transferred. Closing during search pauses it; reopening resumes at the next undiscovered item. Contents are generated once, saved, never rerolled, and do not respawn.
+
+Three authored test loot profiles A/B/C and 2–3 street bins are the first content slice. Use existing ItemDefinitions, GridInventory, stable item IDs/state, safe transfer and save/load. Do not add third-party packages or copy Tarkov code. Tarkov is only an experience reference for progressive discovery, container-specific loot identity, concurrent inventory management and separate examination. Exclude Tarkov skills, raid rules, timed respawns and rarity economy.
+
+Core groundwork now committed:
+- Assets/_Project/Core/SearchableContainer.cs owns stable container identity, inventory, generated reveal order and discovered count.
+- Assets/_Project/Core/SearchableContainerSaveMapper.cs captures/restores generated contents and reveal progress.
+- Save format is v11.
+- Initial Core tests cover reveal progression, one-time initialization, empty bins, interruption/reopen and taking a discovered item.
+
+Not yet complete: Game-layer loot profile definitions/assets, physical bin placement, E interaction, side-by-side UI, automatic search animation, double-click and cross-panel drag/drop, GameSession save/load integration, complete tests and Unity Play Mode verification. Do not describe the scavenging loop as playable until those are finished.
+
+The SELL milestone is now fully user-verified in Play Mode, including Milo receiving the business revenue; older pending notes in the historical progress section are superseded.

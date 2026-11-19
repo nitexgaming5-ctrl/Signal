@@ -147,3 +147,16 @@ When a save shape changes, keep the current format reliable and add round-trip c
 - Increment it only when the serialized persistent schema changes (adding/removing/changing the meaning or representation of persisted data). UI changes, runtime-only systems, and gameplay logic that do not alter persisted data do not require a version increment.
 - Migration tests should keep historical input versions explicit, but assert `SaveMigrator.CurrentVersion` for the resulting current-format version. This prevents unrelated future schema additions from making old migration tests fail just because they expected a previous current version.
 - Current-format capture/restore round-trip coverage remains mandatory whenever persistent state changes. Do not weaken explicit historical migration behavior or current-save integrity to avoid maintaining tests.
+
+
+## Physical searchable containers — approved 2026-11-20
+
+- Each physical container has a stable authored ID and persistent runtime GridInventory.
+- Contents are generated on first interaction only. Generated item instances, stable IDs and randomized reveal order are persisted. Reopening never rerolls.
+- One Search action starts an automatic sequence revealing items one at a time. Discovery changes visibility, not physical location: revealed items remain in the container.
+- Container and carried inventory are presented together. The player may double-click or drag/drop a discovered stack into carried inventory. Transfer preserves stable item identity and instance state; failed capacity/placement leaves the item in the bin.
+- Closing the UI pauses the sequence without resetting it. Reopening resumes at the next undiscovered entry.
+- No respawn or replenishment in the first implementation.
+- First test content uses three authored profiles A/B/C and 2–3 bins in Street. These are fixtures, not a final city loot economy.
+- Save schema v11 adds searchable-container contents, reveal order and discovery progress. v10 saves migrate with an empty container-state collection; bins generate on first interaction.
+- No new package or external code is required. Tarkov is an interaction reference only; its skills, timed resets, raid mechanics and rarity economy are excluded.

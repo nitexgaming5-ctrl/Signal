@@ -552,3 +552,17 @@ Implemented the approved player-facing sale slice on `chore/collaboration-workfl
 - User confirmed the full Unity EditMode suite **355/355 passed** after the player-only seller-boundary regression test.
 - Player-facing SELL remains the active initiative until its Play Mode checks (partial/full sale, rejection, CARD changes, transaction history and save/load) are completed. The temporary Corner Bakery Bread buyback offer at CARD $3 remains test-only and must be revisited after verification.
 - No Unity compilation or Play Mode verification is claimed by the assistant.
+
+
+## 2026-11-20 — Scavenging: physical containers and progressive search
+
+- User approved a player-driven scavenging slice focused on physical city bins and Tarkov-inspired item-by-item searching.
+- Locked rules: each container generates contents once on first interaction; generated contents and reveal order persist; one Search action starts an automatic one-by-one reveal sequence; revealed items remain in the container; the player can double-click or drag/drop individual items into carried inventory; closing mid-search preserves progress; no respawn or replenishment.
+- The player-facing interface is intended to show the container and player inventory side by side. Search reveals are separate from item inspection and from item transfer.
+- Tarkov references were used only for interaction inspiration: progressive discovery, container-specific loot identities, concurrent inventory management, and separate examination. Tarkov skill systems, respawn timers, raid rules and external code/packages are explicitly excluded.
+- Implemented the first Core foundation: stable SearchableContainer identity, one-time search-order initialization, progressive reveal state, and save DTO/mapper support. Save schema advanced to v11.
+- Added initial EditMode tests for one-time initialization, reveal order, empty bins, interrupted/reopened progress and taking already-discovered items. Tests have not been run in Unity.
+- Runtime loot-profile authoring, physical bin placement, dual-panel UI, cross-panel drag/drop, double-click transfer, GameSession save/load wiring and full acceptance tests remain to be implemented. No Unity compilation, EditMode execution or Play Mode verification is claimed.
+- Reconcile the previous SELL status: user confirmed successful Play Mode testing, including Milo receiving sale revenue. SELL is complete and user-verified; stale pending-verification notes above are superseded.
+
+Next: complete the Game-layer loot profiles, city bin interactions, two-panel search UI and GameSession save/load integration, then run the full EditMode suite and verify interrupted search plus item transfer in Play Mode.

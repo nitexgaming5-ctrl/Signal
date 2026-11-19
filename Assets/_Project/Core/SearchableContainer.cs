@@ -101,6 +101,11 @@ namespace Signal.Core
             for (int i = 0; i < itemOrder.Count; i++)
                 if (itemOrder[i] == Guid.Empty || !unique.Add(itemOrder[i]))
                     return false;
+            if (!generated && Inventory.Items.Count != 0)
+                return false;
+            foreach (PlacedItem item in Inventory.Items)
+                if (!unique.Contains(item.ItemInstanceId))
+                    return false;
 
             _searchOrder.Clear();
             _knownOrderIds.Clear();

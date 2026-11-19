@@ -92,5 +92,57 @@ namespace Signal.Core.Tests
             Assert.That(container.IsSearchComplete, Is.True);
             Assert.That(container.TryRevealNext(out _), Is.False);
         }
+        [Test]
+        public void SaveMapperRoundTripsGeneratedContentsOrderAndPartialDiscovery()
+        {
+            Guid definitionId = Guid.NewGuid();
+            var type = new ItemType(definitionId, 1, 1, 5);
+            var source = new SearchableContainer("street-bin-save");
+            source.Inventory.Place(type, 0, 0, count: 2, state: ItemInstanceState.Default);
+            source.Inventory.Place(type, 1, 0, count: 1, state: ItemInstanceState.Default);
+            Guid[] order = { source.Inventory.Items[1].ItemInstanceId, source.Inventory.Items[0].ItemInstanceId };
+            Assert.That(source.TryInitializeSearchOrder(order), Is.True);
+            Assert.That(source.TryRevealNext(out _), Is.True);
+            var data = new SaveData();
+            SearchableContainerSaveMapper.Capture(new[] { source }, data);
+            var restored = new SearchableContainer("street-bin-save");
+            int skipped = SearchableContainerSaveMapper.Apply(data, new[] { restored },
+                id => id == definitionId ? type : (ItemType?)null);
+            Assert.That(skipped, Is.Zero);
+            Assert.That(restored.IsGenerated, Is.True);
+            Assert.That(restored.Inventory.Items.Count, Is.EqualTo(2));
+            Assert.That(restored.SearchOrder[0], Is.EqualTo(order[0]));
+            Assert.That(restored.DiscoveredCount, Is.EqualTo(1));
+            Assert.That(restored.IsDiscovered(order[0]), Is.True);
+            Assert.That(restored.IsDiscovered(order[1]), Is.False);
+        }
+
+        [Test]
+        public void SaveMapperPreservesRevealOrderAfterAnItemWasTaken()
+        {
+            Guid definitionId = Guid.NewGuid();
+            var type = new ItemType(definitionId, 1, 1, 5);
+            var source = new SearchableContainer("street-bin-taken");
+            source.Inventory.Place(type, 0, 0);
+            source.Inventory.Place(type, 1, 0);
+            Guid taken = source.Inventory.Items[0].ItemInstanceId;
+            Guid remaining = source.Inventory.Items[1].ItemInstanceId;
+            Guid[] order = { taken, remaining };
+            source.TryInitializeSearchOrder(order);
+            source.TryRevealNext(out _);
+            InventoryTransfer.MoveStack(source.Inventory, new GridInventory(), taken);
+            var data = new SaveData();
+            SearchableContainerSaveMapper.Capture(new[] { source }, data);
+            var restored = new SearchableContainer("street-bin-taken");
+            int skipped = SearchableContainerSaveMapper.Apply(data, new[] { restored },
+                id => id == definitionId ? type : (ItemType?)null);
+            Assert.That(skipped, Is.Zero);
+            Assert.That(restored.SearchOrder[0], Is.EqualTo(taken));
+            Assert.That(restored.DiscoveredCount, Is.EqualTo(1));
+            Assert.That(restored.Inventory.TryGetItemInstance(remaining, out _), Is.True);
+            Assert.That(restored.TryRevealNext(out Guid next), Is.True);
+            Assert.That(next, Is.EqualTo(remaining));
+        }
+
     }
 }

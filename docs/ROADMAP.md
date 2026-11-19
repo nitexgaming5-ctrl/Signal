@@ -427,6 +427,30 @@ Potential later sequence (not yet committed milestones):
 These are candidates, not approved mechanics or implementation commitments. No third-party asset/code adoption is approved. Existing economy constraints remain binding: event-driven transactions, fixed authored retail prices/offers, no universal dynamic pricing or supply/demand simulation, no automatic NPC shopping, and no passive/continuous economy simulation. See docs/IDEA_BACKLOG.md for player fantasies, dependencies and guardrails.
 
 
-## Next initiative — everyday shared-city gameplay loop (design first)
+## Active initiative — physical containers and item-by-item scavenging
 
-The economy and player-facing BUY/SELL counter loop are now verified foundations, not the whole game loop. The next recommended initiative is to design one compact everyday city activity that gives the player a reason to engage with a resident and a place beyond retail. Use existing NPC presence/routines, item identity/state/knowledge, relationships, discovery and economic transaction foundations where they genuinely help. Define the player-facing rules, information available to each participant, outcomes/rewards and consequences before proposing implementation. This is a design recommendation, not an approved mechanic; wait for the user's explicit approval before coding.
+Player outcome: search physical bins in the shared city, discover contents progressively, choose what to take, and preserve exact container state between visits and saves.
+
+Approved rules:
+- Each bin has a stable identity and its own authored loot profile.
+- First interaction generates contents exactly once. Reopening never rerolls.
+- One Search action starts an automatic sequence revealing one item at a time in randomized order.
+- Revealed items remain in the bin; undiscovered items remain concealed.
+- Container and player inventory panels are open together. The player can double-click or drag/drop an individual discovered item into carried inventory.
+- Closing mid-search preserves progress; reopening resumes at the next undiscovered item.
+- No respawn, replenishment or timed reset in this first slice.
+
+Implementation sequence:
+1. [x] Core SearchableContainer model with stable ID, one-time reveal-order initialization and progressive discovery.
+2. [x] Save v11 DTO and mapper foundation for container contents, reveal order and progress.
+3. [ ] Authored container loot profiles A/B/C using existing ItemDefinitions.
+4. [ ] Place 2–3 physical searchable bins in Street and expose E interaction.
+5. [ ] Build side-by-side container/player inventory UI with concealed undiscovered contents, automatic reveal sequence, double-click transfer and cross-panel drag/drop.
+6. [ ] Reuse GridInventory, stable ItemInstanceId/ItemInstanceState and safe whole-stack transfer; failed capacity/placement leaves the item in the bin.
+7. [ ] Wire container state into GameSession save/load; v10 saves start with ungenerated bins.
+8. [ ] Add tests for generation idempotency, interruption, discovery visibility, transfer identity/state, capacity rejection and save/load.
+9. [ ] User verifies Unity compilation, full EditMode suite and Play Mode behavior.
+
+Tarkov is inspiration for container-specific loot identity, progressive search, concurrent inventory management and separate examination. Signal excludes Tarkov skills, raid rules, timed respawn, loot timers and external code/packages. No third-party dependency or Asset Store package is required.
+
+The player-facing SELL milestone is complete and user-verified; the user's 2026-11-20 confirmation supersedes older pending notes.
