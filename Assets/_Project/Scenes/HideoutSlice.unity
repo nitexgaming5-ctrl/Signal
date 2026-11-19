@@ -247,6 +247,10 @@ MonoBehaviour:
   parcelItem: {fileID: 11400000, guid: 6a9c2f1d8b4e47a0a3d5c7e9f102468c, type: 2}
   businesses:
   - {fileID: 11400000, guid: 07e1d5f4a9b36c8d2f0e7a1b5c4d9e63, type: 2}
+  searchableLootProfiles:
+  - {fileID: 11400000, guid: a1c2e3f4051647289a0b1c2d3e4f5061, type: 2}
+  - {fileID: 11400000, guid: b2d3f40516274839a0b1c2d3e4f50617, type: 2}
+  - {fileID: 11400000, guid: c3e4f5061728493aa0b1c2d3e4f50618, type: 2}
   startingMoney: 5000
   rentAmount: 0
   rentEveryDays: 7
