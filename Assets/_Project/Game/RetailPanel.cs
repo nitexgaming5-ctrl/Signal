@@ -71,7 +71,7 @@ namespace Signal.Game
                 return;
             }
 
-            if (keyboard.digit0Key.wasPressedThisFrame && _business != null && _business.Merchandise.Count > 9)
+            if (keyboard.f11Key.wasPressedThisFrame && _business != null && _business.Merchandise.Count > 9)
             {
                 int pageCount = (_business.Merchandise.Count + 8) / 9;
                 _pageIndex = (_pageIndex + 1) % pageCount;
@@ -80,15 +80,15 @@ namespace Signal.Game
                 return;
             }
 
-            int selected = keyboard.digit1Key.wasPressedThisFrame ? 0 :
-                keyboard.digit2Key.wasPressedThisFrame ? 1 :
-                keyboard.digit3Key.wasPressedThisFrame ? 2 :
-                keyboard.digit4Key.wasPressedThisFrame ? 3 :
-                keyboard.digit5Key.wasPressedThisFrame ? 4 :
-                keyboard.digit6Key.wasPressedThisFrame ? 5 :
-                keyboard.digit7Key.wasPressedThisFrame ? 6 :
-                keyboard.digit8Key.wasPressedThisFrame ? 7 :
-                keyboard.digit9Key.wasPressedThisFrame ? 8 : -1;
+            int selected = keyboard.f2Key.wasPressedThisFrame ? 0 :
+                keyboard.f3Key.wasPressedThisFrame ? 1 :
+                keyboard.f4Key.wasPressedThisFrame ? 2 :
+                keyboard.f5Key.wasPressedThisFrame ? 3 :
+                keyboard.f6Key.wasPressedThisFrame ? 4 :
+                keyboard.f7Key.wasPressedThisFrame ? 5 :
+                keyboard.f8Key.wasPressedThisFrame ? 6 :
+                keyboard.f9Key.wasPressedThisFrame ? 7 :
+                keyboard.f10Key.wasPressedThisFrame ? 8 : -1;
 
             int entryIndex = _pageIndex * 9 + selected;
             if (selected < 0 || _business == null || entryIndex >= _business.Merchandise.Count)
@@ -124,7 +124,7 @@ namespace Signal.Game
                         builder.AppendLine((i + 1) + ". " + entry.Item.DisplayName + "    $" + entry.UnitPrice);
                 }
                 if (_business.Merchandise.Count > 9)
-                    builder.AppendLine("Page " + (_pageIndex + 1) + " / " + ((_business.Merchandise.Count + 8) / 9) + "   (0 = next page)");
+                    builder.AppendLine("Page " + (_pageIndex + 1) + " / " + ((_business.Merchandise.Count + 8) / 9) + "   (F11 = next page)");
             }
             _catalogue.text = builder.ToString();
         }
@@ -170,7 +170,7 @@ namespace Signal.Game
                 new Vector2(0f, 54f), new Vector2(-48f, 34f));
 
             _footer = NewText("Footer", rootRect, 15, TextColor, TextAnchor.MiddleCenter);
-            _footer.text = "Press 1–9 to purchase one item   •   0 next page   •   ESC to close";
+            _footer.text = "Press F2–F10 to purchase one item   •   F11 next page   •   ESC to close";
             SetRect(_footer.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f),
                 new Vector2(0f, 20f), new Vector2(-48f, 28f));
         }
