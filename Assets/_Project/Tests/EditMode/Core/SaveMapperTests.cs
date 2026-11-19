@@ -562,5 +562,94 @@ namespace Signal.Core.Tests
             Assert.That(ownership.Count, Is.Zero);
             Assert.That(ledger.Count, Is.Zero);
         }
+
+        [Test]
+        public void ShopSaleHistoryAndItemStateRoundTripInCurrentSave()
+        {
+            ItemType type = Item(1, 1, 5);
+            var state = new ItemInstanceState(ItemQuality.Fine, ItemCondition.Worn,
+                ItemAuthenticity.Genuine, ItemOwnershipStatus.Stolen);
+            var sourceStats = new PlayerStats(25);
+            var sourceInventory = new GridInventory();
+            sourceInventory.Place(type, 0, 0, count: 3, state: state);
+            PlacedItem sourceStack = sourceInventory.Items[0];
+            var sourceOwnership = new AssetOwnershipBook();
+            sourceOwnership.TryRegister(sourceStack.ItemInstanceId, EconomicActorId.Player);
+            var sourceSales = new ShopSaleTransactionLedger();
+
+            Assert.That(Shop.TryFulfilExact(new ShopOrder(type, 1, 6), sourceStack.ItemInstanceId,
+                "test-bakery", EconomicActorId.Player, sourceInventory, sourceOwnership,
+                sourceStats.CleanMoney, sourceSales, 3, 720), Is.EqualTo(FulfilResult.Done));
+
+            SaveData data = SaveMapper.Capture(sourceStats, sourceInventory, null,
+                new GameClock(), new HeatMeter(), new RentLedger(50, 7), "Hideout", 0f, 0f,
+                null, null, null, null, sourceOwnership, null, null, null, sourceSales);
+            Assert.That(data.version, Is.EqualTo(SaveMigrator.CurrentVersion));
+            Assert.That(data.shopSaleTransactions.Count, Is.EqualTo(1));
+
+            var targetStats = new PlayerStats();
+            var targetInventory = new GridInventory();
+            var targetOwnership = new AssetOwnershipBook();
+            var targetSales = new ShopSaleTransactionLedger();
+            LoadReport report = SaveMapper.Apply(data, targetStats, targetInventory, null,
+                new GameClock(), new HeatMeter(), new RentLedger(50, 7), Resolver(type),
+                null, null, null, targetOwnership, null, null, null, targetSales);
+
+            Assert.That(report.Success, Is.True);
+            Assert.That(report.SkippedShopSaleTransactions, Is.Zero);
+            Assert.That(targetStats.CleanMoney.Balance, Is.EqualTo(31));
+            Assert.That(targetInventory.Items.Count, Is.EqualTo(1));
+            Assert.That(targetInventory.Items[0].ItemInstanceId, Is.EqualTo(sourceStack.ItemInstanceId));
+            Assert.That(targetInventory.Items[0].Count, Is.EqualTo(2));
+            Assert.That(targetInventory.Items[0].State, Is.EqualTo(state));
+            Assert.That(targetOwnership.TryGetOwner(sourceStack.ItemInstanceId, out EconomicActorId owner), Is.True);
+            Assert.That(owner, Is.EqualTo(EconomicActorId.Player));
+            Assert.That(targetSales.Count, Is.EqualTo(1));
+            ShopSaleTransaction restored = targetSales.Transactions[0];
+            Assert.That(restored.BusinessId, Is.EqualTo("test-bakery"));
+            Assert.That(restored.ItemInstanceId, Is.EqualTo(sourceStack.ItemInstanceId));
+            Assert.That(restored.Quantity, Is.EqualTo(1));
+            Assert.That(restored.UnitPrice, Is.EqualTo(6));
+            Assert.That(restored.ItemState, Is.EqualTo(state));
+        }
+
+        [Test]
+        public void VersionNineSaveInitializesAnEmptyShopSaleLedger()
+        {
+            var data = new SaveData { version = 9, shopSaleTransactions = null };
+
+            Assert.That(SaveMigrator.TryMigrate(data, out _), Is.True);
+            Assert.That(data.version, Is.EqualTo(10));
+            Assert.That(data.shopSaleTransactions, Is.Empty);
+        }
+
+        [Test]
+        public void InvalidShopSaleRecordsAreSkippedWithoutRejectingTheSave()
+        {
+            var data = new SaveData();
+            data.shopSaleTransactions.Add(new SavedShopSaleTransaction
+            {
+                transactionId = "not-a-guid",
+                businessId = "test-business",
+                sellerActorId = "player",
+                itemInstanceId = Guid.NewGuid().ToString(),
+                itemDefinitionId = Guid.NewGuid().ToString(),
+                quantity = 1,
+                unitPrice = 5,
+                totalAmount = 5,
+                day = 1,
+                minuteOfDay = 10
+            });
+            var sales = new ShopSaleTransactionLedger();
+            var world = new World();
+
+            LoadReport report = SaveMapper.Apply(data, world.Stats, world.Inventory, null,
+                world.Clock, world.Heat, world.Rent, Resolver(), null, null, null,
+                null, null, null, null, sales);
+
+            Assert.That(report.Success, Is.True);
+            Assert.That(report.SkippedShopSaleTransactions, Is.EqualTo(1));
+            Assert.That(sales.Count, Is.Zero);
+        }
     }
 }
