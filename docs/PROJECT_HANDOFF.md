@@ -525,3 +525,19 @@ The finalized implementation contract is `docs/tasks/ECONOMY-PLAYER-SELLING-DESI
 - No business budget debit, finite stock, dynamic valuation, dirty-money payment or automatic buyback content.
 
 The specification is finalized, but implementation has **not** started. Wait for the user's explicit go-ahead before changing code.
+
+
+## 2026-11-19 — Player-facing sell-to-shop implementation
+
+The approved player-selling initiative has been implemented in code on the working branch; Unity verification is pending.
+
+- `BusinessDefinition` has a separate `BuybackEntry` list (item reference + positive fixed clean-CARD unit price). It is independent of the merchandise catalogue. No buyback item/price has been authored for the Corner Bakery.
+- `GridInventory.TryRemoveItemInstance(Guid, int)` removes from one exact stack; partial sales preserve the same stack identity and state.
+- `Shop.TryFulfilExact` validates the exact stack and seller ownership, removes the selected quantity, removes ownership only on full-stack sale, credits clean CARD and records one dedicated `ShopSaleTransaction`. Failure paths restore the inventory/account/ownership snapshot.
+- `ShopSaleTransactionLedger` is separate from `EconomicTransactionLedger` and `RetailTransactionLedger`.
+- `RetailPanel` now has BUY/SELL tabs and per-stack quantity controls. BUY still calls `RetailService`; SELL lists only carried, player-owned stacks accepted by the current business.
+- `GameSession` revalidates the current nearby business, location, opening schedule, authored offer, exact stack and ownership at confirmation.
+- Save v10 persists the sale ledger. v9 initializes an empty sale collection. Current-format round-trip and malformed-record recovery tests have been added.
+- 12 new EditMode test cases have been authored; expected full suite is 354 from the last user-verified 342 baseline. They have not yet been run. No Unity compilation or Play Mode verification has been performed by the assistant.
+
+Next: user pulls the branch, compiles, runs the full EditMode suite, then tests both partial and full sales plus save/load in Play Mode. Do not mark this initiative complete until those results are reported.
