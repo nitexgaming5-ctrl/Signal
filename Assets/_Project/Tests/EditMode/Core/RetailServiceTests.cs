@@ -170,17 +170,14 @@ namespace Signal.Core.Tests
             var inventory = new GridInventory();
             var item = new ItemType(Guid.NewGuid(), 1, 1, 5);
             inventory.Place(item, 0, 0);
-            ownershipRegisterAsOwner();
+            var ownership = new AssetOwnershipBook();
+            ownership.TryRegister(inventory.Items[0].ItemInstanceId, Owner);
 
-            void ownershipRegisterAsOwner()
-            {
-                var ownership = new AssetOwnershipBook();
-                ownership.TryRegister(inventory.Items[0].ItemInstanceId, Owner);
-                RetailPurchaseResult result = CreateService(accounts, ownership, new RetailTransactionLedger())
-                    .TryPurchase("old-bakery", inventory, Customer, Owner, item, ItemInstanceState.Default, 1, 10, 1, 600);
-                Assert.That(result.Status, Is.EqualTo(RetailPurchaseStatus.OwnershipInvalid));
-                Assert.That(inventory.CountOf(item), Is.EqualTo(1));
-            }
+            RetailPurchaseResult result = CreateService(accounts, ownership, new RetailTransactionLedger())
+                .TryPurchase("old-bakery", inventory, Customer, Owner, item, ItemInstanceState.Default, 1, 10, 1, 600);
+
+            Assert.That(result.Status, Is.EqualTo(RetailPurchaseStatus.OwnershipInvalid));
+            Assert.That(inventory.CountOf(item), Is.EqualTo(1));
         }
 
         [Test]
