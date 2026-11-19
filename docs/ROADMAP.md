@@ -345,10 +345,18 @@ Stock markets, lottery, gambling, laundering, universal price simulation and bus
 
 - Core resident account registry, atomic retail purchase service and separate retail transaction ledger are implemented.
 - Save v9 persists resident account balances and retail purchase history; v1–v8 migrations initialize the new collections and preserve player clean balance.
-- Game layer has authored BusinessDefinition data, resident starting balances, a keyboard-driven retail panel and generic GameSession integration for proximity, opening hours, purchases and owner revenue.
+- Game layer has authored BusinessDefinition data, resident starting balances, a click-driven retail panel with adjacent BUY buttons and generic GameSession integration for proximity, opening hours, purchases and owner revenue.
 - Existing Shop/ShopOrder sell-to-shop rules remain unchanged.
 - Core and Game EditMode tests are authored but have not been run. F1 debug view exposes each spawned resident's clean balance and the retail transaction count for Play Mode inspection.
 - `Business_CornerShop.asset` is assigned in `HideoutSlice.unity` and now references `Item_Bread.asset` at a temporary CARD $5 test price. No final balancing decision is implied.
 - Unity compilation, full EditMode suite, Play Mode purchase and save/load verification remain pending. Assistant cannot run Unity.
 
 The previous illicit seller/Dirty Cash Bundle/Contraband proposal remains superseded and is not part of Phase 3.
+
+
+### Retail usability follow-up — click-to-buy test panel (2026-11-19)
+- [x] Replace F2–F10 item selection with clickable catalogue rows and adjacent BUY buttons.
+- [x] Add clickable catalogue paging and close controls while retaining ESC close.
+- [x] Route UGUI clicks through EventSystem + InputSystemUIInputModule.
+- [x] Seed the active HideoutSlice player clean CARD account with $5,000 for purchase testing (temporary test value, not final balance design).
+- [ ] Verify Unity compilation, full EditMode suite, click purchase, owner revenue and save/load in Play Mode.
