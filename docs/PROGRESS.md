@@ -2,7 +2,7 @@
 
 ## Current status: player-facing sell-to-shop implemented in code; Unity verification pending
 
-The user confirmed **354/354 EditMode tests passed on 2026-11-19**, including the player-facing sell-to-shop Core and persistence tests. Phase 3 Business & Retail remains verified at 335/335. The user approved separate fixed-price buyback offers per BusinessDefinition and authorized implementation. The Core exact-stack sale path, business buyback authoring, SELL tab and save v10 ledger are now implemented on the working branch. The user has now confirmed the full 354/354 EditMode suite. Player-facing SELL Play Mode verification remains pending.
+The user confirmed **354/354 EditMode tests passed on 2026-11-19**, including the player-facing sell-to-shop Core and persistence tests. Phase 3 Business & Retail remains verified at 335/335. The user approved separate fixed-price buyback offers per BusinessDefinition and authorized implementation. The Core exact-stack sale path, business buyback authoring, SELL tab and save v10 ledger are now implemented on the working branch. The user has now confirmed the full 354/354 EditMode suite. One defensive regression test remains pending, so 355 is the expected next suite count. The user explicitly authorized temporary test content; Corner Bakery now has a Bread buyback offer at CARD $3 (test-only, not balance design). Player-facing SELL Play Mode verification remains pending.
 
 The working branch is `chore/collaboration-workflow-and-audit`; `main` remains untouched. The active architecture is Signal.Core + Signal.Game. The hideout, connected city, inventory/storage, item identity/state/knowledge, NPC framework, Milo parcel opportunity and NPC navigation foundations remain in place.
 
@@ -534,4 +534,12 @@ Implemented the approved player-facing sale slice on `chore/collaboration-workfl
 - `GameSession.SellToBusiness` now revalidates the exact active `BusinessDefinition` object reference rather than comparing only its stable ID. This prevents a stale/duplicate-ID definition from being used to confirm a sale against a different nearby business asset.
 - These are defensive transaction-boundary corrections within the approved selling initiative; no new gameplay rule or content value was introduced.
 - One additional EditMode test is authored. The expected suite is now **355 tests** based on the user-verified 354 baseline; the new test and Unity compilation are pending user verification.
-- Player-facing SELL still needs Play Mode verification with a user-authored buyback offer: partial sale, full sale, rejection, CARD change, sale history and save/load. No Corner Bakery buyback item or price was invented.
+- Player-facing SELL still needs Play Mode verification with a user-authored buyback offer: partial sale, full sale, rejection, CARD change, sale history and save/load. A temporary Corner Bakery Bread buyback offer at CARD $3 was added after the user explicitly authorized test content; remove or replace this test-only offer after verification.
+
+
+### 2026-11-19 — Temporary SELL test content authorized
+
+- The user explicitly authorized adding a test item and arbitrary test price to exercise the player-facing SELL flow.
+- Reused the existing `Item_Bread.asset` definition and added it to `Business_CornerShop.asset` as a separate buyback offer at **CARD $3 per Bread**. The existing retail catalogue still sells Bread at CARD $5.
+- This temporary buyback entry is test content only, not a final business policy, item valuation, or balancing decision. It must be revisited after SELL verification.
+- The latest code includes one additional player-only sale-boundary regression test; expected EditMode suite is 355, pending Unity verification. No Unity compile or tests were run by the assistant.
