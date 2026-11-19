@@ -376,11 +376,10 @@ The previous illicit seller/Dirty Cash Bundle/Contraband proposal remains supers
 
 - [x] User approved separate fixed-price buyback offers per `BusinessDefinition` (Q21).
 - [x] Finalize the implementation specification in `docs/tasks/ECONOMY-PLAYER-SELLING-DESIGN.md`.
-- [ ] Await explicit user approval to begin implementation.
-- [ ] Implement exact-stack, player-owned sales through the existing Core sale transaction boundary, preserving its validation/account-credit/rollback semantics.
-- [ ] Add a separate persistent sale ledger and v10 current-format round-trip; keep physical transfer and retail purchase ledgers separate.
-- [ ] Add SELL tab while leaving BUY / `RetailService` unchanged; verify full/partial sale, rejection, rollback and save/load in Unity.
-
+- [x] Implement exact-stack, player-owned sales through the Core sale transaction boundary, preserving validation/account-credit/rollback semantics.
+- [x] Add a separate persistent sale ledger and v10 current-format round-trip; keep physical transfer and retail purchase ledgers separate.
+- [x] Add SELL tab while leaving BUY / `RetailService` unchanged.
+- [ ] Verify Unity compilation, the full EditMode suite (expected 354 tests from the 342 baseline), and Play Mode full/partial sale, rejection, rollback and save/load.
 
 ### 2026-11-19 — Player-facing sell-to-shop implementation
 
