@@ -372,14 +372,17 @@ The previous illicit seller/Dirty Cash Bundle/Contraband proposal remains supers
 - Save policy: current-format round-trip/reliability first; obsolete development-save compatibility is optional and may be intentionally dropped after substantial schema changes. Never silently corrupt a current-format save.
 
 
-## Current initiative — player-facing sell-to-shop (implemented; Unity verification pending)
+## Completed initiative — player-facing sell-to-shop (user-verified 2026-11-19)
 
 - [x] User approved separate fixed-price buyback offers per `BusinessDefinition` (Q21).
 - [x] Finalize the implementation specification in `docs/tasks/ECONOMY-PLAYER-SELLING-DESIGN.md`.
 - [x] Implement exact-stack, player-owned sales through the Core sale transaction boundary, preserving validation/account-credit/rollback semantics.
 - [x] Add a separate persistent sale ledger and v10 current-format round-trip; keep physical transfer and retail purchase ledgers separate.
 - [x] Add SELL tab while leaving BUY / `RetailService` unchanged.
-- [ ] Verify Unity compilation, the full EditMode suite 355/355 user-confirmed, and Play Mode full/partial sale, rejection, rollback and save/load. The Corner Bakery now has a temporary Bread buyback offer at CARD $3 solely for this test.
+- [x] User confirmed Unity Play Mode BUY → partial SELL → full SELL → save/reload works.
+- [x] User confirmed the full EditMode suite 355/355 passed.
+- [x] User observed the Corner Bakery's sale revenue crediting Milo's personal account.
+- [x] Removed the temporary CARD $3 Bread buyback test offer after verification; no final bakery buyback offer or price is approved.
 
 ### 2026-11-19 — Player-facing sell-to-shop implementation
 
@@ -387,7 +390,7 @@ The previous illicit seller/Dirty Cash Bundle/Contraband proposal remains supers
 - Added separate fixed-price buyback offers to BusinessDefinition; added a temporary test-only Bread buyback offer at CARD $3 after the user's explicit authorization.
 - Added sale-specific transaction history and save v10.
 - Added SELL tab and per-stack quantity controls; BUY remains routed through RetailService.
-- Code is implemented; Unity compile, tests and Play Mode verification are pending. See `docs/tasks/ECONOMY-PLAYER-SELLING-DESIGN.md`.
+- User verified the implementation in Unity and confirmed 355/355 EditMode tests. See `docs/tasks/ECONOMY-PLAYER-SELLING-DESIGN.md` for the completed contract.
 
 
 ### Save-version maintenance guardrail (2026-11-19)
@@ -402,18 +405,18 @@ The previous illicit seller/Dirty Cash Bundle/Contraband proposal remains supers
 - [x] Restrict the player-facing exact-stack sale boundary to the player actor and add a non-player-seller rejection regression test.
 - [x] Revalidate the exact active BusinessDefinition object at sale confirmation, not only its business ID.
 - [x] User confirmed the full EditMode suite 355/355 after the additional regression test.
-- [ ] Complete SELL Play Mode verification using an explicitly authored buyback offer; test partial/full sale, rejection, CARD and save/load.
+- [x] User completed SELL Play Mode verification, including partial/full sale, CARD and save/load.
 
 
 ### 2026-11-19 — SELL test content
 
-- User explicitly authorized a temporary test item/price. `Business_CornerShop.asset` now buys the existing Bread ItemDefinition at CARD $3; its player-facing retail price remains CARD $5.
-- This is a disposable test fixture, not an approved final price or economy balance. Revisit/remove after the SELL slice is verified.
-- The latest player-only seller-boundary regression test brings the expected EditMode count to 355; Unity verification remains pending.
+- User explicitly authorized a temporary Bread buyback offer at CARD $3 for verification. After the user confirmed the full Play Mode flow, the temporary offer was removed from `Business_CornerShop.asset`; the existing temporary CARD $5 retail test price remains unchanged.
+- The CARD $3 buyback value was never approved as final pricing. The bakery currently has no buyback offers.
+- User confirmed 355/355 EditMode tests and successful Play Mode BUY → partial SELL → full SELL → save/reload.
 
 ## Future economy directions — inspiration captured 2026-11-19
 
-The Unity Asset Store asset **Economy Engine 1.4** was reviewed as a source of ideas, not as a proposed dependency. Keep these directions parked until the current player-facing SELL slice has passed Unity Play Mode verification and a concrete gameplay scenario selects one.
+The Unity Asset Store asset **Economy Engine 1.4** was reviewed as a source of ideas, not as a proposed dependency. Keep these directions parked until a concrete gameplay scenario selects one. The player-facing SELL slice is now verified and closed.
 
 Potential later sequence (not yet committed milestones):
 1. **Context-specific trade interactions on shared transaction foundations:** evolve beyond BUY/SELL only when a real slice needs another exchange context (for example, item-for-item barter, a specialist buyer or a discreet contact). Preserve distinct acceptance/offer policies; NPCs do not automatically become shops.
