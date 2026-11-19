@@ -2,7 +2,7 @@
 
 ## Current status: player-facing sell-to-shop implemented in code; Unity verification pending
 
-The user confirmed **342/342 EditMode tests passed on 2026-11-19** after the transaction-safety audit changes. Phase 3 Business & Retail remains verified at 335/335. The user approved separate fixed-price buyback offers per BusinessDefinition and authorized implementation. The Core exact-stack sale path, business buyback authoring, SELL tab and save v10 ledger are now implemented on the working branch. Unity compilation, EditMode tests and Play Mode verification are pending.
+The user confirmed **354/354 EditMode tests passed on 2026-11-19**, including the player-facing sell-to-shop Core and persistence tests. Phase 3 Business & Retail remains verified at 335/335. The user approved separate fixed-price buyback offers per BusinessDefinition and authorized implementation. The Core exact-stack sale path, business buyback authoring, SELL tab and save v10 ledger are now implemented on the working branch. The user has now confirmed the full 354/354 EditMode suite. Player-facing SELL Play Mode verification remains pending.
 
 The working branch is `chore/collaboration-workflow-and-audit`; `main` remains untouched. The active architecture is Signal.Core + Signal.Game. The hideout, connected city, inventory/storage, item identity/state/knowledge, NPC framework, Milo parcel opportunity and NPC navigation foundations remain in place.
 
@@ -524,4 +524,14 @@ Implemented the approved player-facing sale slice on `chore/collaboration-workfl
 - Fixed the stale v8 migration test that expected literal version 9. It now expects `SaveMigrator.CurrentVersion` and also verifies that the migration initializes the v10 shop-sale ledger.
 - Fixed the v9 → current migration test to assert `SaveMigrator.CurrentVersion` rather than literal 10. Historical source versions remain explicit in test fixtures.
 - Added the versioning rule beside `SaveMigrator.CurrentVersion` and aligned the player-selling task status with the implemented code.
-- These are test/documentation maintenance changes; no save schema or runtime migration behavior changed. Unity compilation and the full EditMode suite are pending user verification.
+- These are test/documentation maintenance changes; no save schema or runtime migration behavior changed. The user subsequently confirmed 354/354 EditMode tests passed. The save-version correction is verified; SELL Play Mode checks remain pending.
+
+
+## 2026-11-19 — Sell boundary hardening after 354/354 verification
+
+- User confirmed the full EditMode suite **354/354 passed** after the save-version test maintenance changes.
+- A follow-up code review found the Core player-to-business sale boundary accepted any valid seller actor if that actor owned the stack, despite the operation being explicitly player-facing. `Shop.TryFulfilExact` now requires `EconomicActorId.Player`; a regression test verifies a resident cannot invoke the player sale path even for a resident-owned stack, and that inventory, ownership, CARD and sale history remain unchanged.
+- `GameSession.SellToBusiness` now revalidates the exact active `BusinessDefinition` object reference rather than comparing only its stable ID. This prevents a stale/duplicate-ID definition from being used to confirm a sale against a different nearby business asset.
+- These are defensive transaction-boundary corrections within the approved selling initiative; no new gameplay rule or content value was introduced.
+- One additional EditMode test is authored. The expected suite is now **355 tests** based on the user-verified 354 baseline; the new test and Unity compilation are pending user verification.
+- Player-facing SELL still needs Play Mode verification with a user-authored buyback offer: partial sale, full sale, rejection, CARD change, sale history and save/load. No Corner Bakery buyback item or price was invented.
