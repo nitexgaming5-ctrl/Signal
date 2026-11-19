@@ -49,3 +49,35 @@ These are inspiration and content directions, not approved detailed rules.
 
 ## Parked ideas
 Future ideas about specific money-making activities, loot rules, police response, NPC schedules, faction structures, and furniture placement rules should be captured here and agreed before implementation.
+
+## Economy Engine-inspired directions — parked (2026-11-19)
+
+Reference reviewed: Unity Asset Store's Economy Engine 1.4. These are design inspirations only; Signal will retain its existing Core/Game architecture and transaction authority. No third-party asset or code is approved for adoption.
+
+- **Shared trade framework** — explore a common, validated transaction foundation that can support distinct contexts such as ordinary shop purchases, fixed-price buybacks, item-for-item barter, specialist buyers and discreet exchanges. Each context/business/NPC defines its own acceptance and offer policy; sharing transaction safety must not make every NPC a shop or force every interaction through a retail UI.
+  - Player fantasy: negotiate the practical problem of moving goods between people and places, with different kinds of exchange.
+  - Why it matters: connects legal and illegal livelihoods through the same shared-city economy.
+  - Likely dependencies: current item identity, ownership, inventory, account and transaction-ledger foundations; concrete player-facing slices before abstractions.
+  - Status: parked / needs design.
+- **Economy Library and authoring tools** — consider an editor-facing catalogue/workflow for browsing and validating item, currency, business, offer, trade-table and loot-table definitions as content grows. Prefer improving Signal's ScriptableObject authoring and validation over importing an external runtime framework.
+  - Player fantasy: indirect; enables a richer, more consistent world economy and faster content iteration.
+  - Why it matters: reduces authoring friction and definition errors once the number of goods and businesses grows.
+  - Likely dependencies: stable definition schemas and demonstrated content-authoring pain.
+  - Status: parked / tooling candidate.
+- **Loot tables and item sources** — explore authored weighted outcomes and quantity ranges for specific containers, discoveries or activities. Keep source/context-specific rules; do not turn all item acquisition into random drops.
+  - Player fantasy: search places and discover uncertain but contextually plausible goods.
+  - Why it matters: supports scavenging, abandoned properties and environmental discovery.
+  - Likely dependencies: item definitions, container/search interactions, deterministic testable random source and save-state rules where outcomes persist.
+  - Status: parked / needs design.
+- **Barter / item-for-item exchange** — explore offers that exchange one or more exact item quantities for other goods, with ownership and inventory-capacity safeguards. This is distinct from simply selling for CARD.
+  - Player fantasy: trade useful goods when cash is unavailable or undesirable.
+  - Why it matters: supports informal contacts, desperate residents and discreet exchanges.
+  - Likely dependencies: shared trade transaction rules, exact-stack removal, atomic rollback and a clear player-facing offer/acceptance design.
+  - Status: parked / needs design.
+- **Explicit currency exchange** — consider narrowly authored exchange interactions only when a real scenario needs them. Preserve the approved distinction between clean CARD and dirty money as a physical inventory item; exchange must not silently turn dirty money into clean funds or bypass a separately designed laundering mechanic.
+  - Player fantasy: access a specific financial service or contact with understandable terms and risks.
+  - Why it matters: can add texture to different economic contexts without collapsing money systems.
+  - Likely dependencies: currency/account definitions and a separately approved conversion policy.
+  - Status: parked / needs design.
+
+**Guardrails:** these ideas do not approve universal supply/demand, dynamic pricing, automatic currency conversion, continuous economy simulation, NPC shopping AI, finite stock/restocking, or a wholesale replacement of Signal's existing transaction systems. Build only the smallest player-facing vertical slice that proves a need.
