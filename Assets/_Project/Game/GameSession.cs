@@ -16,6 +16,7 @@ namespace Signal.Game
         [SerializeField] private ItemDefinition[] items;
         [SerializeField] private ItemDefinition parcelItem;
         [SerializeField] private NpcCharacterDefinition[] npcDefinitions;
+        [SerializeField] private BusinessDefinition[] businesses;
 
         [Header("Placeholder tuning (not final design)")]
         [SerializeField] private int startingMoney;
@@ -50,6 +51,7 @@ namespace Signal.Game
         private ItemViewerPanel _itemViewer;
         private StoragePanel _storagePanel;
         private HudPanel _hud;
+        private RetailPanel _retailPanel;
         private WorkbenchWorkspace _workspace;
         private CityBlockBootstrap _city;
         private MiloParcelOpportunityController _miloScenario;
@@ -127,6 +129,8 @@ namespace Signal.Game
 
             _hud = gameObject.AddComponent<HudPanel>();
             _hud.Bind(_stats, _clock);
+            _retailPanel = gameObject.AddComponent<RetailPanel>();
+            _retailPanel.Bind(PurchaseFromBusiness, () => { });
 
             if (parcelItem != null)
             {
@@ -160,6 +164,7 @@ namespace Signal.Game
             bool inventoryOpen = _panel != null && _panel.IsOpen;
             bool storageOpen = _storagePanel != null && _storagePanel.IsOpen;
             bool itemViewerOpen = _itemViewer != null && _itemViewer.IsOpen;
+            bool retailOpen = _retailPanel != null && _retailPanel.IsOpen;
             if (_panel != null)
                 _panel.enabled = !_debugMenuOpen && !workspaceOpen && !storageOpen && !itemViewerOpen;
             if (_storagePanel != null)
@@ -167,24 +172,31 @@ namespace Signal.Game
 
             bool scenarioChoiceOpen = _miloScenario != null && _miloScenario.HasPendingChoice;
             _motor.enabled = !inventoryOpen && !workspaceOpen && !storageOpen && !itemViewerOpen &&
-                !scenarioChoiceOpen && !_debugMenuOpen;
+                !scenarioChoiceOpen && !retailOpen && !_debugMenuOpen;
 
             Vector2 playerPosition = _room.Player.position;
             bool nearWorkbench = _room.Workbench != null &&
                 Vector2.Distance(playerPosition, _room.Workbench.position) <= 2.15f;
             bool nearStorage = _city.IsAtHome && _room.Storage != null &&
                 Vector2.Distance(playerPosition, _room.Storage.position) <= 2.15f;
+            BusinessDefinition nearbyBusiness = FindNearbyBusiness(playerPosition);
             string cityPrompt = _city.GetPrompt(playerPosition);
+            if (nearbyBusiness != null)
+                cityPrompt = nearbyBusiness.IsOpen(_clock.MinuteOfDay)
+                    ? "E  Browse " + nearbyBusiness.DisplayName
+                    : nearbyBusiness.DisplayName + "  —  Closed";
             if (_miloScenario != null)
             {
-                if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen)
+                if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen)
                     _miloScenario.Tick(playerPosition, _city.CurrentPlace);
                 string scenarioPrompt = _miloScenario.GetPrompt(playerPosition, _city.CurrentPlace);
                 if (!string.IsNullOrEmpty(scenarioPrompt))
                     cityPrompt = scenarioPrompt;
             }
 
-            if (workspaceOpen)
+            if (retailOpen)
+                _hud.SetPrompt("ESC  Close shop");
+            else if (workspaceOpen)
                 _hud.SetPrompt("ESC  Back to room");
             else if (itemViewerOpen)
                 _hud.SetPrompt("ESC  Close item inspection");
@@ -204,7 +216,7 @@ namespace Signal.Game
             if (_debugMenuOpen || keyboard == null)
                 return;
 
-            if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen &&
+            if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen &&
                 _miloScenario != null && _miloScenario.HasPendingChoice)
             {
                 int choice = keyboard.digit1Key.wasPressedThisFrame ? 1 :
@@ -219,11 +231,20 @@ namespace Signal.Game
                 }
             }
 
-            if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && nearWorkbench && keyboard.eKey.wasPressedThisFrame)
+            if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen &&
+                nearbyBusiness != null && keyboard.eKey.wasPressedThisFrame)
+            {
+                if (!nearbyBusiness.IsOpen(_clock.MinuteOfDay))
+                    Say(nearbyBusiness.DisplayName + " is closed.");
+                else
+                    _retailPanel.Open(nearbyBusiness);
+            }
+            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && nearWorkbench && keyboard.eKey.wasPressedThisFrame)
                 _workspace.Open();
             else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && nearStorage && keyboard.eKey.wasPressedThisFrame)
                 _storagePanel.SetOpen(true);
-            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !nearWorkbench && !nearStorage &&
+            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen &&
+                     nearbyBusiness == null && !nearWorkbench && !nearStorage &&
                      cityPrompt.Length > 0 && keyboard.eKey.wasPressedThisFrame)
             {
                 if (_miloScenario != null &&
@@ -471,6 +492,48 @@ namespace Signal.Game
                 : "Loaded at " + data.worldPlace + ".");
         }
 
+        private BusinessDefinition FindNearbyBusiness(Vector2 playerPosition)
+        {
+            if (businesses == null || _city == null)
+                return null;
+            for (int i = 0; i < businesses.Length; i++)
+            {
+                BusinessDefinition business = businesses[i];
+                if (business == null || business.LocationId != _city.CurrentPlace)
+                    continue;
+                if (Vector2.Distance(playerPosition, business.InteractionPoint) <= 1.85f)
+                    return business;
+            }
+            return null;
+        }
+
+        private string PurchaseFromBusiness(BusinessDefinition business, ItemDefinition item)
+        {
+            if (business == null || item == null || !business.IsOpen(_clock.MinuteOfDay))
+                return "The business is closed.";
+            if (!business.TryGetOffer(item, out int unitPrice))
+                return "That item is not offered here.";
+            if (string.IsNullOrWhiteSpace(business.OwnerNpcId))
+                return "This business has no valid owner.";
+            EconomicActorId owner = business.OwnerActor;
+            if (!_economicAccounts.TryGetAccount(owner, out _))
+                return "The business owner's account is unavailable.";
+
+            RetailPurchaseResult result = _retailService.TryPurchase(business.BusinessId, _inventory,
+                EconomicActorId.Player, owner, item.ToItemType(), item.DefaultInstanceState,
+                1, unitPrice, _clock.Day, _clock.MinuteOfDay);
+            if (result.Success)
+                return "Purchased " + item.DisplayName + " for $" + unitPrice + ".";
+            switch (result.Status)
+            {
+                case RetailPurchaseStatus.InsufficientFunds: return "Not enough CARD balance.";
+                case RetailPurchaseStatus.InventoryFull: return "Not enough inventory space.";
+                case RetailPurchaseStatus.AccountOverflow: return "The owner's account cannot accept this payment.";
+                case RetailPurchaseStatus.AccountNotFound: return "A required clean-money account is unavailable.";
+                default: return "Purchase failed (" + result.Status + ").";
+            }
+        }
+
         private void BuildCatalog()
         {
             _catalog.Clear();
@@ -486,6 +549,24 @@ namespace Signal.Game
                     ItemType type = definition.ToItemType();
                     _catalog[type.Id] = type;
                     _allItemDefinitions.Add(definition);
+                }
+            }
+
+            if (businesses != null)
+            {
+                foreach (BusinessDefinition business in businesses)
+                {
+                    if (business == null)
+                        continue;
+                    foreach (BusinessDefinition.MerchandiseEntry entry in business.Merchandise)
+                    {
+                        if (entry == null || entry.Item == null)
+                            continue;
+                        ItemType businessItemType = entry.Item.ToItemType();
+                        _catalog[businessItemType.Id] = businessItemType;
+                        if (!_allItemDefinitions.Contains(entry.Item))
+                            _allItemDefinitions.Add(entry.Item);
+                    }
                 }
             }
 
