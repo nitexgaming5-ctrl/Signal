@@ -109,14 +109,18 @@ Confirmed decisions:
 Implementation now includes resident account/persistence support, authored business definitions, atomic retail purchases and the first CornerShop runtime integration. Save v9 stores resident balances and retail history. Remaining content input: choose the first Corner Bakery ItemDefinition(s) and fixed clean-money price(s); the assigned business asset currently has an empty catalogue rather than invented prices.
 
 
-## Economy — player-facing sell-to-shop (design draft, awaiting approval)
+## Economy — player-facing sell-to-shop
 
-The existing Core `Shop.TryFulfil` accepts a `ShopOrder` with a caller-supplied item, quantity and unit price. It does not calculate resale value or define which goods a particular business accepts. The old fixed $10 developer shortcut was a test value, not a complete buyback policy.
+**Q21 — Buyback acceptance and pricing model**
 
-**Q21 — How should a business define the goods it buys and the price it pays?**
+ANSWER: Each `BusinessDefinition` has its own separate authored buyback-offer list. Each offer references an `ItemDefinition` and a positive fixed clean-CARD unit price.
 
-Recommended: each `BusinessDefinition` has a separate authored buyback-offer list (ItemDefinition + positive fixed clean-CARD unit price). A business buys only listed item definitions; the offer is explicit and does not reuse the retail catalogue's sell price. No dynamic valuation, condition/quality/authenticity/ownership modifiers, stock limit, shop budget or NPC financial simulation in the first pass. The existing `ShopOrder` / `Shop.TryFulfil` transaction semantics remain the authority for quantity, price validation, inventory removal and player CARD credit.
+Approved rules:
+- Each business buys only items explicitly listed in its own buyback offers.
+- Buyback offers are separate from the business's player-facing merchandise catalogue. Selling an item does not imply the business buys it.
+- Prices are fixed authored values; no dynamic valuation, `ItemValueCalculator` formula, condition/quality/authenticity/ownership modifiers, reputation or bargaining.
+- No business budget/account debit, finite stock, restocking or NPC economy simulation.
+- Only clean CARD is paid; dirty money remains physical inventory and is not part of legitimate retail.
+- No item or price entries are implied by this approval; content offers require their own authored values.
 
-Alternative: use one shared authored buyback list/rule for all shops rather than per-business offers. Do not derive price automatically from `ItemValueCalculator`; it is only an indicative reference value and not an approved transaction formula.
-
-**ANSWER pending.** See `docs/tasks/ECONOMY-PLAYER-SELLING-DESIGN.md`.
+Implementation specification: `docs/tasks/ECONOMY-PLAYER-SELLING-DESIGN.md`. Design is finalized; implementation awaits the user's explicit go-ahead.
