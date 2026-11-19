@@ -8,6 +8,8 @@ namespace Signal.Core
     {
         private readonly Dictionary<EconomicActorId, CleanMoneyAccount> _accounts =
             new Dictionary<EconomicActorId, CleanMoneyAccount>();
+        private readonly Dictionary<EconomicActorId, int> _initialBalances =
+            new Dictionary<EconomicActorId, int>();
 
         public int Count => _accounts.Count;
 
@@ -16,6 +18,7 @@ namespace Signal.Core
             if (!actor.IsValid || account == null || _accounts.ContainsKey(actor))
                 return false;
             _accounts.Add(actor, account);
+            _initialBalances.Add(actor, account.Balance);
             return true;
         }
 
@@ -29,6 +32,7 @@ namespace Signal.Core
 
             var account = new CleanMoneyAccount(startingBalance);
             _accounts.Add(actor, account);
+            _initialBalances.Add(actor, account.Balance);
             return account;
         }
 
@@ -43,6 +47,17 @@ namespace Signal.Core
         }
 
         /// <summary>Restores a saved balance, creating an account only for a valid saved actor.</summary>
+        public void ResetNonPlayerAccountsToInitialBalances()
+        {
+            foreach (KeyValuePair<EconomicActorId, CleanMoneyAccount> entry in _accounts)
+            {
+                if (entry.Key == EconomicActorId.Player)
+                    continue;
+                if (_initialBalances.TryGetValue(entry.Key, out int initialBalance))
+                    entry.Value.Restore(initialBalance);
+            }
+        }
+
         public bool RestoreBalance(EconomicActorId actor, int balance)
         {
             if (!actor.IsValid || balance < 0)
