@@ -139,7 +139,7 @@ namespace Signal.Core
     {
         public const int CurrentVersion = 8;
 
-        /// <summary>Accepts save formats v1 through v7 and migrates them to the current inventory and player-knowledge format.</summary>
+        /// <summary>Accepts save formats v1 through v8 and migrates them to the current inventory, player-knowledge and economic format.</summary>
         public static bool TryMigrate(SaveData data, out string error)
         {
             error = null;
