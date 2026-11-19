@@ -306,6 +306,16 @@ namespace Signal.Game
             GUILayout.Label("Milo opportunity: " + (_miloOpportunity != null ? _miloOpportunity.Phase.ToString() : "Unavailable"));
             GUILayout.Label("Discovery signals: " + (_playerDiscoveries != null ? _playerDiscoveries.Count.ToString() : "0") +
                 "   Familiarity: " + (_playerRelationships != null ? _playerRelationships.Get("milo").Familiarity.ToString("0.00") : "0.00"));
+            GUILayout.Label("Resident clean accounts:");
+            foreach (NpcPresenter resident in _city.DebugResidents)
+            {
+                if (resident == null || string.IsNullOrWhiteSpace(resident.NpcId))
+                    continue;
+                EconomicActorId actor = new EconomicActorId("resident:" + resident.NpcId);
+                if (_economicAccounts.TryGetAccount(actor, out CleanMoneyAccount account))
+                    GUILayout.Label("  " + resident.DisplayName + ": $" + account.Balance);
+            }
+            GUILayout.Label("Retail transactions: " + (_retailTransactions != null ? _retailTransactions.Count.ToString() : "0"));
             GUILayout.Space(8f);
 
             if (GUILayout.Button(_city.DebugSimulationPaused ? "Resume all NPC schedules" : "Pause all NPC schedules"))
