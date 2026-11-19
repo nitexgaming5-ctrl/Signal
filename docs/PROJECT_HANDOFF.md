@@ -416,7 +416,7 @@ Branch: chore/collaboration-workflow-and-audit.
 - One shared city economy for player, residents, businesses and suppliers.
 - Clean money is the player's bank/card balance for legitimate purchases and ordinary clean expenses.
 - Dirty money is physical inventory items only. It is excluded from legitimate card/bank payments and cannot be deposited directly. Future cleaning consumes those items and credits the clean account; illicit uses include shady markets and bribes.
-- No universal supply/demand, automatic price fluctuation or continuous consumption simulation initially. Ordinary goods use authored availability; stock is selectively tracked for gameplay-sensitive categories.
+- No universal supply/demand, automatic price fluctuation or continuous consumption simulation initially. Business merchandise is an authored unlimited catalogue for now; which goods, if any, need finite stock remains undecided.
 - Stocks, lottery, betting, laundering, business ownership and richer economic events are future consumers of the shared foundation, not current features.
 
 ### Phase 1 and Phase 2 code state
@@ -444,8 +444,8 @@ The user confirmed **316/316 EditMode tests passed** after Economy Phase 2 and t
 ### Verification provenance
 The user's Unity Test Runner reported 313/316 initially. The three failures were old assertions expecting save version 7 in `ItemInstanceIdentityTests`; they were corrected to assert `SaveMigrator.CurrentVersion`. The user then confirmed **316/316**. The assistant did not run Unity independently. Economy-specific Play Mode checks have not yet been separately reported.
 
-### Immediate next step
-Design the first small player-facing illicit exchange around a physical dirty-money item. The exact item form and denomination/stack-value convention are still open. Cleaning dirty money into the clean card balance is an approved direction, but its rate, prerequisites, risks and interaction are not specified. Do not implement those unresolved rules without the user's approval.
+### Historical next step — superseded 2026-11-19
+The earlier suggestion to implement a first illicit exchange was superseded when the user redirected Phase 3 to the shared business and retail economy. The active Phase 3 implementation and remaining Unity verification/content steps are documented in the latest handoff section below.
 
 
 
