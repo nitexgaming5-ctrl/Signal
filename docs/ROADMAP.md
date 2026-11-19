@@ -329,7 +329,7 @@ No finite stock, restocking, suppliers, production, NPC shopping, automatic sale
 
 ### Phase 4 — bounded local economic activity (later)
 - Simple authored availability for ordinary goods.
-- Selective stock for gameplay-sensitive goods (e.g. drugs and illegal materials).
+- Decide whether any gameplay-sensitive goods need finite stock; do not assume categories or restocking rules before a concrete slice requires them.
 - No universal supply/demand, price fluctuation or continuous consumption simulation initially.
 
 ### Future consumers (separately designed)
