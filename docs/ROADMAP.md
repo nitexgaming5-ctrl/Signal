@@ -410,3 +410,15 @@ The previous illicit seller/Dirty Cash Bundle/Contraband proposal remains supers
 - User explicitly authorized a temporary test item/price. `Business_CornerShop.asset` now buys the existing Bread ItemDefinition at CARD $3; its player-facing retail price remains CARD $5.
 - This is a disposable test fixture, not an approved final price or economy balance. Revisit/remove after the SELL slice is verified.
 - The latest player-only seller-boundary regression test brings the expected EditMode count to 355; Unity verification remains pending.
+
+## Future economy directions — inspiration captured 2026-11-19
+
+The Unity Asset Store asset **Economy Engine 1.4** was reviewed as a source of ideas, not as a proposed dependency. Keep these directions parked until the current player-facing SELL slice has passed Unity Play Mode verification and a concrete gameplay scenario selects one.
+
+Potential later sequence (not yet committed milestones):
+1. **Context-specific trade interactions on shared transaction foundations:** evolve beyond BUY/SELL only when a real slice needs another exchange context (for example, item-for-item barter, a specialist buyer or a discreet contact). Preserve distinct acceptance/offer policies; NPCs do not automatically become shops.
+2. **Economy authoring library/tooling:** improve ScriptableObject browsing, validation and authoring workflows for items, currencies, businesses, offers and tables when content scale justifies it.
+3. **Contextual loot tables:** authored, testable outcomes for specific discovery sources such as containers or abandoned locations, only when a playable scavenging/search loop needs them.
+4. **Narrowly authored currency exchange:** only for a concrete designed interaction; clean CARD and physical dirty-money items remain distinct, and conversion must not bypass a separately designed laundering system.
+
+These are candidates, not approved mechanics or implementation commitments. No third-party asset/code adoption is approved. Existing economy constraints remain binding: event-driven transactions, fixed authored retail prices/offers, no universal dynamic pricing or supply/demand simulation, no automatic NPC shopping, and no passive/continuous economy simulation. See docs/IDEA_BACKLOG.md for player fantasies, dependencies and guardrails.
