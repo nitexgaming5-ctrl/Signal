@@ -21,6 +21,7 @@ namespace Signal.Core.Tests
             Assert.That(container.TryInitializeSearchOrder(new[] { second, first }), Is.True);
             Assert.That(container.TryInitializeSearchOrder(new[] { first, second }), Is.False);
             Assert.That(container.DiscoveredCount, Is.Zero);
+            Assert.That(container.TryStartSearch(), Is.True);
             Assert.That(container.TryRevealNext(out Guid revealed), Is.True);
             Assert.That(revealed, Is.EqualTo(second));
             Assert.That(container.Inventory.TryGetItemInstance(revealed, out _), Is.True);
@@ -53,13 +54,15 @@ namespace Signal.Core.Tests
             container.Inventory.Place(type, 1, 0);
             Guid[] order = { container.Inventory.Items[1].ItemInstanceId, container.Inventory.Items[0].ItemInstanceId };
             container.TryInitializeSearchOrder(order);
+            container.TryStartSearch();
             container.TryRevealNext(out _);
 
             var restored = new SearchableContainer("street-bin-c");
             Assert.That(restored.Inventory.Place(type, 0, 0, itemInstanceId: order[0]).HasValue, Is.True);
             Assert.That(restored.Inventory.Place(type, 1, 0, itemInstanceId: order[1]).HasValue, Is.True);
-            Assert.That(restored.TryRestoreSearchState(true, order, 1), Is.True);
+            Assert.That(restored.TryRestoreSearchState(true, order, 1, true), Is.True);
             Assert.That(restored.DiscoveredCount, Is.EqualTo(1));
+            Assert.That(restored.HasSearchStarted, Is.True);
             Assert.That(restored.IsDiscovered(order[0]), Is.True);
             Assert.That(restored.IsDiscovered(order[1]), Is.False);
             Assert.That(restored.TryRevealNext(out Guid next), Is.True);
@@ -75,6 +78,7 @@ namespace Signal.Core.Tests
             container.Inventory.Place(type, 1, 0);
             Guid[] order = { container.Inventory.Items[0].ItemInstanceId, container.Inventory.Items[1].ItemInstanceId };
             Assert.That(container.TryInitializeSearchOrder(order), Is.True);
+            Assert.That(container.TryStartSearch(), Is.True);
             Assert.That(container.TryRevealNext(out Guid found), Is.True);
             var destination = new GridInventory();
             Assert.That(InventoryTransfer.MoveStack(container.Inventory, destination, found).Moved, Is.EqualTo(1));
@@ -102,6 +106,7 @@ namespace Signal.Core.Tests
             source.Inventory.Place(type, 1, 0, count: 1, state: ItemInstanceState.Default);
             Guid[] order = { source.Inventory.Items[1].ItemInstanceId, source.Inventory.Items[0].ItemInstanceId };
             Assert.That(source.TryInitializeSearchOrder(order), Is.True);
+            Assert.That(source.TryStartSearch(), Is.True);
             Assert.That(source.TryRevealNext(out _), Is.True);
             var data = new SaveData();
             SearchableContainerSaveMapper.Capture(new[] { source }, data);
@@ -129,6 +134,7 @@ namespace Signal.Core.Tests
             Guid remaining = source.Inventory.Items[1].ItemInstanceId;
             Guid[] order = { taken, remaining };
             source.TryInitializeSearchOrder(order);
+            source.TryStartSearch();
             source.TryRevealNext(out _);
             InventoryTransfer.MoveStack(source.Inventory, new GridInventory(), taken);
             var data = new SaveData();
@@ -139,6 +145,7 @@ namespace Signal.Core.Tests
             Assert.That(skipped, Is.Zero);
             Assert.That(restored.SearchOrder[0], Is.EqualTo(taken));
             Assert.That(restored.DiscoveredCount, Is.EqualTo(1));
+            Assert.That(restored.HasSearchStarted, Is.True);
             Assert.That(restored.Inventory.TryGetItemInstance(remaining, out _), Is.True);
             Assert.That(restored.TryRevealNext(out Guid next), Is.True);
             Assert.That(next, Is.EqualTo(remaining));

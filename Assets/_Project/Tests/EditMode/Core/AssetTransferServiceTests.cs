@@ -116,6 +116,68 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void PositionedScavengingTransferPreservesIdentityStateAndChangesOwnership()
+        {
+            var source = new GridInventory(3, 2);
+            var destination = new GridInventory(3, 2);
+            ItemType type = Item();
+            var state = new ItemInstanceState(ItemQuality.Fine, ItemCondition.Worn,
+                ItemAuthenticity.Genuine, ItemOwnershipStatus.Stolen);
+            source.Place(type, 0, 0, count: 3, state: state);
+            Guid id = source.Items[0].ItemInstanceId;
+            var world = new EconomicActorId("world:street-bin-a");
+            var ownership = new AssetOwnershipBook();
+            ownership.TryRegister(id, world);
+            var containers = new EconomicContainerRegistry();
+            containers.TryRegister(source, world);
+            containers.TryRegister(destination, Player);
+            var ledger = new EconomicTransactionLedger();
+
+            AssetTransferResult result = Service(ownership, containers, ledger).TransferStackAt(
+                source, destination, id, 2, 1, false, world, Player, AssetTransferReason.Scavenging, 2, 615);
+
+            Assert.That(result.Success, Is.True);
+            Assert.That(source.Items, Is.Empty);
+            Assert.That(destination.Items.Count, Is.EqualTo(1));
+            Assert.That(destination.Items[0].ItemInstanceId, Is.EqualTo(id));
+            Assert.That(destination.Items[0].X, Is.EqualTo(2));
+            Assert.That(destination.Items[0].Y, Is.EqualTo(1));
+            Assert.That(destination.Items[0].State, Is.EqualTo(state));
+            Assert.That(ownership.TryGetOwner(id, out EconomicActorId owner), Is.True);
+            Assert.That(owner, Is.EqualTo(Player));
+            Assert.That(ledger.Transactions[0].Reason, Is.EqualTo(AssetTransferReason.Scavenging));
+        }
+
+        [Test]
+        public void PositionedScavengingTransferRejectsFullDestinationWithoutChangingOwnerOrSource()
+        {
+            var source = new GridInventory(2, 1);
+            var destination = new GridInventory(1, 1);
+            ItemType type = Item();
+            ItemType blocker = Item();
+            source.Place(type, 0, 0);
+            destination.Place(blocker, 0, 0);
+            Guid id = source.Items[0].ItemInstanceId;
+            var world = new EconomicActorId("world:street-bin-b");
+            var ownership = new AssetOwnershipBook();
+            ownership.TryRegister(id, world);
+            var containers = new EconomicContainerRegistry();
+            containers.TryRegister(source, world);
+            containers.TryRegister(destination, Player);
+            var ledger = new EconomicTransactionLedger();
+
+            AssetTransferResult result = Service(ownership, containers, ledger).TransferStackAt(
+                source, destination, id, 0, 0, false, world, Player, AssetTransferReason.Scavenging, 2, 615);
+
+            Assert.That(result.Status, Is.EqualTo(AssetTransferStatus.DestinationFull));
+            Assert.That(source.Items.Count, Is.EqualTo(1));
+            Assert.That(source.Items[0].ItemInstanceId, Is.EqualTo(id));
+            Assert.That(ownership.TryGetOwner(id, out EconomicActorId owner), Is.True);
+            Assert.That(owner, Is.EqualTo(world));
+            Assert.That(ledger.Count, Is.Zero);
+        }
+
+        [Test]
         public void OwnershipBookRejectsDuplicateRegistrationAndWrongOwnerRemoval()
         {
             var ownership = new AssetOwnershipBook(); Guid itemId = Guid.NewGuid();

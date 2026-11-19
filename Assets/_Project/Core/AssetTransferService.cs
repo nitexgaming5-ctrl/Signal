@@ -29,27 +29,6 @@ namespace Signal.Core
         public AssetTransferResult TransferStack(GridInventory source, GridInventory destination, Guid itemInstanceId,
             EconomicActorId fromActor, EconomicActorId toActor, AssetTransferReason reason, int day, int minuteOfDay)
         {
-            if (source == null) throw new ArgumentNullException(nameof(source));
-            if (destination == null) throw new ArgumentNullException(nameof(destination));
-            if (ReferenceEquals(source, destination) || itemInstanceId == Guid.Empty || !fromActor.IsValid || !toActor.IsValid ||
-                fromActor == toActor || day < 1 || minuteOfDay < 0 || minuteOfDay >= 1440 ||
-                !Enum.IsDefined(typeof(AssetTransferReason), reason))
-                return new AssetTransferResult(AssetTransferStatus.InvalidRequest, null);
-            if (!_containers.TryGetCustodian(source, out _))
-                return new AssetTransferResult(AssetTransferStatus.SourceContainerNotRegistered, null);
-            if (!_containers.TryGetCustodian(destination, out EconomicActorId destinationCustodian))
-                return new AssetTransferResult(AssetTransferStatus.DestinationContainerNotRegistered, null);
-            if (destinationCustodian != toActor)
-                return new AssetTransferResult(AssetTransferStatus.DestinationActorMismatch, null);
-            if (!source.TryGetItemInstance(itemInstanceId, out PlacedItem item))
-                return new AssetTransferResult(AssetTransferStatus.AssetNotFound, null);
-            if (!_ownership.TryGetOwner(itemInstanceId, out EconomicActorId currentOwner))
-                return new AssetTransferResult(AssetTransferStatus.OwnershipNotRegistered, null);
-            if (currentOwner != fromActor)
-                return new AssetTransferResult(AssetTransferStatus.OwnershipMismatch, null);
-
-            InventorySnapshot sourceBefore = source.CreateSnapshot();
-            InventorySnapshot destinationBefore = destination.CreateSnapshot();
             return TransferStackCore(source, destination, itemInstanceId, fromActor, toActor, reason, day, minuteOfDay,
                 () => InventoryTransfer.MoveStack(source, destination, itemInstanceId));
         }
