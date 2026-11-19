@@ -446,3 +446,8 @@ The user's Unity Test Runner reported 313/316 initially. The three failures were
 
 ### Immediate next step
 Design the first small player-facing illicit exchange around a physical dirty-money item. The exact item form and denomination/stack-value convention are still open. Cleaning dirty money into the clean card balance is an approved direction, but its rate, prerequisites, risks and interaction are not specified. Do not implement those unresolved rules without the user's approval.
+
+
+## Economy Phase 3 handoff — 2026-11-19
+
+The user selected a 100-value physical Dirty Cash Bundle (MaxStack = 1), a new discreet seller NPC separate from Milo, and generic Contraband as first merchandise. The finalized specification is docs/tasks/ECONOMY-PHASE-3-ILLICIT-EXCHANGE.md. It requires a two-sided atomic exchange with full rollback, seller actor/custody registration, seller stock persistence through save v9, and no use or mutation of the clean CARD balance. Exact bundle price and placement remain content inputs. **Do not code until the user explicitly approves the specification.**
