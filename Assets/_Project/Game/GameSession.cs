@@ -186,10 +186,6 @@ namespace Signal.Game
                 Vector2.Distance(playerPosition, _room.Storage.position) <= 2.15f;
             BusinessDefinition nearbyBusiness = FindNearbyBusiness(playerPosition);
             string cityPrompt = _city.GetPrompt(playerPosition);
-            if (nearbyBusiness != null)
-                cityPrompt = nearbyBusiness.IsOpen(_clock.MinuteOfDay)
-                    ? "E  Browse " + nearbyBusiness.DisplayName
-                    : nearbyBusiness.DisplayName + "  —  Closed";
             if (_miloScenario != null)
             {
                 if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen)
@@ -199,6 +195,10 @@ namespace Signal.Game
                     cityPrompt = scenarioPrompt;
             }
 
+            if (nearbyBusiness != null)
+                cityPrompt = nearbyBusiness.IsOpen(_clock.MinuteOfDay)
+                    ? "E  Browse " + nearbyBusiness.DisplayName
+                    : nearbyBusiness.DisplayName + "  —  Closed";
             if (retailOpen)
                 _hud.SetPrompt("ESC  Close shop");
             else if (workspaceOpen)
