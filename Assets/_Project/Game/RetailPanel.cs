@@ -308,11 +308,14 @@ namespace Signal.Game
                 var eventSystemObject = new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
                 eventSystem = eventSystemObject.GetComponent<EventSystem>();
             }
-            else if (eventSystem.GetComponent<InputSystemUIInputModule>() == null &&
-                     eventSystem.GetComponent<BaseInputModule>() == null)
-            {
-                eventSystem.gameObject.AddComponent<InputSystemUIInputModule>();
-            }
+            InputSystemUIInputModule inputModule = eventSystem.GetComponent<InputSystemUIInputModule>();
+            if (inputModule == null)
+                inputModule = eventSystem.gameObject.AddComponent<InputSystemUIInputModule>();
+
+            BaseInputModule[] modules = eventSystem.GetComponents<BaseInputModule>();
+            for (int i = 0; i < modules.Length; i++)
+                if (modules[i] != inputModule)
+                    modules[i].enabled = false;
         }
     }
 }
