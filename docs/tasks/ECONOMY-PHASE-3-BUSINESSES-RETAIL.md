@@ -111,3 +111,20 @@ No finite stock, restocking, suppliers, deliveries, production, ingredients, cra
 ## Verification
 
 The assistant cannot run the user's Unity Editor. Report code inspection, tests authored, Unity compilation, EditMode execution and Play Mode verification separately. User verification must include compilation, full EditMode suite, a purchase at the CornerShop, account/ledger checks, save/load, and a check that existing sell-to-shop behaviour remains intact.
+
+
+## Implementation checkpoint — first pass added (2026-11-19)
+
+### Added to the working branch
+- Core EconomicAccountBook: one clean account per economic actor; player registration shares the existing PlayerStats.CleanMoney instance; resident account creation is idempotent and stores authored initial balances.
+- Core RetailService: atomic catalogue purchase coordinating customer debit, owner credit, inventory grant, new asset ownership registration and rollback.
+- Core RetailTransactionLedger: durable purchase history distinct from the physical asset-transfer ledger.
+- Save v9: persists resident account balances and retail transactions; v1–v8 migration initializes these collections safely. Legacy loads reset resident accounts to authored initial balances before saved v9 balances are applied.
+- Game content/runtime: NpcCharacterDefinition.StartingCleanBalance, reusable BusinessDefinition, keyboard-driven RetailPanel, and GameSession composition for resident accounts, business interaction, purchase handling and catalogue item resolution.
+- Tests authored for account isolation/initialization, purchases, rollback cases, business opening hours and v9 persistence/malformed records.
+- Existing Shop / ShopOrder selling rules were left unchanged.
+
+### Remaining integration and verification
+- No final merchandise catalogue or prices have been invented. Create a Business Definition asset in Unity, set owner NPC ID, location, interaction point and opening hours, add approved ItemDefinition/price entries, then assign it to GameSession's Businesses array. Defaults target Milo at CornerShop (06:30–18:00; interaction point 1000, 1000.4).
+- The generic runtime integration is present, but a configured business asset is required for a populated playable shop.
+- The assistant cannot run Unity. All newly authored EditMode tests remain unexecuted; Unity compilation, full EditMode suite and Play Mode purchase/save-load checks are pending user verification.
