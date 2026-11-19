@@ -320,7 +320,7 @@ The shared-city economy is the active initiative. Its foundations are now in pla
 - [x] Add save v9 for resident account balances and retail transaction history; preserve v1–v8 migration.
 - [x] Add reusable authored BusinessDefinition data (owner, location, opening schedule, ItemDefinition catalogue and fixed prices).
 - [x] Implement atomic purchases with customer debit, owner credit, inventory grant, ownership registration and durable retail transaction record.
-- [x] Integrate the existing CornerShop as the first data-driven business; `Business_CornerShop.asset` is assigned in `HideoutSlice.unity` (catalogue intentionally empty pending approved product/price content).
+- [x] Integrate the existing CornerShop as the first data-driven business; `Business_CornerShop.asset` is assigned in `HideoutSlice.unity` (now contains Bread at temporary CARD $5 test price).
 - [x] Preserve existing Core Shop/ShopOrder selling rules and tests unchanged.
 - [x] Add Core/Game EditMode tests; [ ] run them and verify compilation/Play Mode in Unity.
 
@@ -348,7 +348,7 @@ Stock markets, lottery, gambling, laundering, universal price simulation and bus
 - Game layer has authored BusinessDefinition data, resident starting balances, a keyboard-driven retail panel and generic GameSession integration for proximity, opening hours, purchases and owner revenue.
 - Existing Shop/ShopOrder sell-to-shop rules remain unchanged.
 - Core and Game EditMode tests are authored but have not been run. F1 debug view exposes each spawned resident's clean balance and the retail transaction count for Play Mode inspection.
-- `Business_CornerShop.asset` is already created and assigned in HideoutSlice. Its merchandise list is intentionally empty until the user chooses the first ItemDefinition(s) and fixed prices; add those entries to the existing asset in the Inspector.
+- `Business_CornerShop.asset` is assigned in `HideoutSlice.unity` and now references `Item_Bread.asset` at a temporary CARD $5 test price. No final balancing decision is implied.
 - Unity compilation, full EditMode suite, Play Mode purchase and save/load verification remain pending. Assistant cannot run Unity.
 
 The previous illicit seller/Dirty Cash Bundle/Contraband proposal remains superseded and is not part of Phase 3.
