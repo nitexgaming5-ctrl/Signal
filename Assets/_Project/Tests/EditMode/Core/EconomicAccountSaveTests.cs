@@ -105,6 +105,26 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void LoadingLegacySaveResetsResidentsToAuthoredStartingBalances()
+        {
+            var stats = new PlayerStats();
+            var accounts = new EconomicAccountBook();
+            accounts.TryRegister(EconomicActorId.Player, stats.CleanMoney);
+            EconomicActorId resident = new EconomicActorId("resident:baker");
+            CleanMoneyAccount residentAccount = accounts.GetOrCreate(resident, 60);
+            residentAccount.TryDebit(20);
+
+            var legacy = new SaveData { version = 8, money = 10, cleanBalance = 10 };
+            LoadReport report = SaveMapper.Apply(legacy, stats, new GridInventory(), null,
+                new GameClock(), new HeatMeter(), new RentLedger(50, 7), id => null,
+                null, null, null, new AssetOwnershipBook(), new EconomicTransactionLedger(),
+                accounts, new RetailTransactionLedger());
+
+            Assert.That(report.Success, Is.True);
+            Assert.That(residentAccount.Balance, Is.EqualTo(60));
+        }
+
+        [Test]
         public void MalformedResidentAndRetailRecordsAreSkippedIndividually()
         {
             var data = new SaveData();
