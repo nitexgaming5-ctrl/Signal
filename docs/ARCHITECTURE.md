@@ -152,6 +152,15 @@ EconomicContainerRegistry records the custodian for each runtime inventory conta
 - The container registry is rebuilt from live GridInventory references; Unity object/container references are not serialized.
 
 
+## Player-to-business sale transaction path
+
+- `BusinessDefinition` is the authority for each business's separate fixed-price buyback offers. The list is independent from its merchandise catalogue.
+- GameSession validates active counter proximity, business identity, opening schedule, current offer, selected carried stack and `AssetOwnershipBook` owner before calling the Core sale boundary.
+- `Shop.TryFulfilExact` is the Core transaction boundary for a selected stack. It reuses the existing `ShopOrder` validation/account-credit semantics but removes quantity from the exact `ItemInstanceId`, never from another matching stack.
+- Full-stack sale removes the player ownership entry; partial sale retains it. Clean CARD credit and sale ledger recording are atomic with inventory mutation and rollback.
+- `ShopSaleTransactionLedger` is distinct from physical asset-transfer and retail-purchase ledgers. SaveMapper persists it in v10.
+- RetailPanel owns presentation only. BUY remains delegated to `RetailService`; SELL delegates a selected stack/quantity to GameSession and never makes UI state authoritative.
+
 ## Business and retail runtime (Phase 3 first pass)
 
 - `BusinessDefinition` is authored Game content: stable business ID, display/type, resident owner ID, city location, interaction point, opening schedule and an unlimited catalogue of `ItemDefinition` references with fixed clean-money prices. It is not serialized into save data.
