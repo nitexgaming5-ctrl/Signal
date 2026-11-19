@@ -1,6 +1,6 @@
 # ECONOMY — player-facing sell-to-shop implementation specification
 
-**Status:** design finalized; Q21 approved by the user on 2026-11-19. Awaiting explicit approval to begin implementation.  
+**Status:** implemented in the working branch; awaiting Unity compilation, EditMode tests and Play Mode verification. Q21 approved by the user on 2026-11-19.  
 **Date:** 2026-11-19  
 **Depends on:** Economy Phase 3 (335/335 EditMode tests and Play Mode functionality user-verified); transaction-safety audit (342/342 EditMode tests user-verified).
 
