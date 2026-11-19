@@ -56,6 +56,37 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void AZeroValueOrderIsRejectedBeforeInventoryChanges()
+        {
+            var item = Item();
+            var grid = new GridInventory();
+            grid.Place(item, 0, 0, count: 2);
+            var stats = new PlayerStats();
+            int changeNotifications = 0;
+            grid.Changed += _ => changeNotifications++;
+
+            FulfilResult result = Shop.TryFulfil(new ShopOrder(item, 1, 0), grid, stats);
+
+            Assert.That(result, Is.EqualTo(FulfilResult.InvalidOrder));
+            Assert.That(grid.CountOf(item), Is.EqualTo(2));
+            Assert.That(stats.Money, Is.Zero);
+            Assert.That(changeNotifications, Is.Zero);
+        }
+
+        [Test]
+        public void AnUninitializedItemOrderIsInvalid()
+        {
+            var grid = new GridInventory();
+            var stats = new PlayerStats();
+
+            FulfilResult result = Shop.TryFulfil(new ShopOrder(default(ItemType), 1, 10), grid, stats);
+
+            Assert.That(result, Is.EqualTo(FulfilResult.InvalidOrder));
+            Assert.That(stats.Money, Is.Zero);
+            Assert.That(grid.Items, Is.Empty);
+        }
+
+        [Test]
         public void ADefaultOrderIsInvalid()
         {
             var result = Shop.TryFulfil(default(ShopOrder), new GridInventory(), new PlayerStats());
