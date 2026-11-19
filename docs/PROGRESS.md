@@ -1,6 +1,6 @@
 # Progress
 
-## Current status: shared-city economy Phase 2 verified; next step is a designed player-facing economic slice
+## Current status: Economy Phase 2 verified; Phase 3 Business & Retail approved, implementation not yet started
 
 The user confirmed **316/316 EditMode tests passed on 2026-11-19** after the economy Phase 2 implementation and the follow-up correction to three legacy save-migration test expectations. This verifies the current v8 save/account/ownership implementation at the EditMode-suite level. The user has not yet reported a fresh Play Mode pass specifically for the economy changes.
 
@@ -419,9 +419,26 @@ Next: pull the branch and run Unity compilation plus the full EditMode suite. Th
 - Next: design a compact player-facing illicit exchange/dirty-money slice. The physical item representation and its denomination/stack-value convention remain unresolved; do not invent them in implementation.
 
 
-## 2026-11-19 — Economy Phase 3 specification finalized (awaiting approval)
+## 2026-11-19 — Economy Phase 3 redirected and approved: Business & Retail
 
-- User selected a physical Dirty Cash Bundle worth 100, indivisible (MaxStack = 1); a new discreet seller NPC separate from Milo; and generic Contraband as the first merchandise.
-- Finalized the player interaction, ownership/custody validation, atomic two-sided exchange and rollback requirements, seller stock persistence (save v9), UI safeguards, tests and exclusions in docs/tasks/ECONOMY-PHASE-3-ILLICIT-EXCHANGE.md.
-- Price in bundles and exact placement in an existing city region remain authored content inputs; implementation must not invent either.
-- **No Phase 3 gameplay code has been written. Awaiting the user's explicit approval of the specification.**
+The earlier Phase 3 illicit-vendor proposal was superseded after the user clarified that the active initiative is the shared economy itself, not another NPC opportunity or a discreet seller scenario. No illicit seller, dirty-cash bundle, contraband or seller-stock implementation should be started under Phase 3.
+
+User-approved rules:
+- Every resident has a personal clean-money account.
+- Business merchandise is predefined according to authored business/NPC roles.
+- Prices are fixed authored values for now; reputation-based fluctuations are a future possibility.
+- Business revenue from player purchases credits the NPC owner's personal account directly. There is no separate business revenue balance.
+- Existing player-to-shop selling behaviour is retained; do not invent new item acceptance or valuation rules.
+- Merchandise is unlimited for now and available whenever the business is open.
+- No supplier, delivery, production, ingredients, skills, finite stock, restocking, NPC shopping behaviour, automatic sales, passive revenue or continuous/hourly simulation.
+- Economy changes occur only on relevant gameplay events. Dirty money remains physical items and never enters clean accounts or legitimate retail.
+
+The implementation specification is `docs/tasks/ECONOMY-PHASE-3-BUSINESSES-RETAIL.md`. The old illicit-exchange task file is explicitly marked superseded.
+
+Implementation status at this documentation checkpoint:
+- Specification and roadmap direction updated.
+- No Phase 3 gameplay code has been changed yet.
+- Next: inspect and implement the shared resident-account/persistence layer, then business definitions, atomic retail purchase, and first CornerShop integration.
+- Expected save version: v9 for resident account balances and retail transaction history.
+- Unity compilation, EditMode and Play Mode verification have not been performed for Phase 3.
+
