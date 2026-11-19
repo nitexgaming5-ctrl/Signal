@@ -1,6 +1,6 @@
 # ECONOMY — player-facing sell-to-shop implementation specification
 
-**Status:** implemented in the working branch; awaiting Unity compilation, EditMode tests and Play Mode verification. Q21 approved by the user on 2026-11-19.  
+**Status:** complete and user-verified on 2026-11-19. Q21 approved by the user on 2026-11-19; user confirmed 355/355 EditMode tests and the full BUY → partial SELL → full SELL → save/reload Play Mode flow.  
 **Date:** 2026-11-19  
 **Depends on:** Economy Phase 3 (335/335 EditMode tests and Play Mode functionality user-verified); transaction-safety audit (342/342 EditMode tests user-verified).
 
@@ -32,7 +32,7 @@ Rules:
 - No `ItemValueCalculator` formula, retail-price multiplier, quality/condition/authenticity/ownership modifier, reputation adjustment, bargaining or market fluctuation is introduced.
 - Offers are available whenever the business is open. No business cash budget or account debit is modeled.
 
-The user subsequently explicitly authorized temporary test content (2026-11-19): `Business_CornerShop.asset` now has a separate buyback offer for the existing `Item_Bread.asset` at CARD $3 per unit, while its retail merchandise price remains CARD $5. This is disposable verification content, not a final authored economy value. Do not generalize this exception to other content without authorization.
+The user subsequently explicitly authorized temporary test content (2026-11-19): `Business_CornerShop.asset` briefly had a separate Bread buyback offer at CARD $3 per unit for verification, while its retail merchandise price remained CARD $5. After successful Play Mode verification, the temporary buyback offer was removed. Neither value is approved final economy balancing.
 
 ## Existing sale primitive and required adaptation
 
@@ -150,12 +150,12 @@ No dynamic pricing, automatic resale multiplier, `ItemValueCalculator` transacti
 
 ## Implementation and verification status
 
-**Q21 is approved and this specification has been implemented on `chore/collaboration-workflow-and-audit`.** The exact-stack sale path, per-business buyback authoring, SELL UI, dedicated sale ledger and v10 persistence are present in code. The user confirmed 354/354 EditMode tests after the initial implementation. A subsequent hardening change adds one non-player-seller rejection test and exact business-object revalidation; the updated 355-test suite and Unity compilation are pending. Player-facing SELL Play Mode verification remains pending. The user has now explicitly authorized a temporary test offer: Corner Bakery buys Bread at CARD $3. This is not final balancing.
+**Q21 is approved and this specification has been implemented on `chore/collaboration-workflow-and-audit`.** The exact-stack sale path, per-business buyback authoring, SELL UI, dedicated sale ledger and v10 persistence are present in code. The user confirmed the full EditMode suite **355/355 passed** and successful Play Mode BUY → partial SELL → full SELL → save/reload. The user also observed the Corner Bakery's sale revenue crediting Milo's personal account. The temporary CARD $3 Bread buyback offer was removed after verification; it was never final balancing.
 
 
 ## Temporary Play Mode fixture (user-authorized)
 
-- `Business_CornerShop.asset` contains a separate Bread buyback offer at CARD $3; Bread remains CARD $5 in the retail merchandise list.
-- Use a fresh game or buy Bread from the Corner Bakery, then exercise partial and full sales. Check CARD and F1 sale transaction count, then save/reload.
-- The offer is temporary test content only. Remove or replace it after verification; it does not establish final bakery pricing or a general resale ratio.
-- The 354-test baseline is user-confirmed. The later player-only seller regression test makes 355 expected; Unity compilation and the updated suite are still pending.
+- The temporary Bread buyback offer at CARD $3 was removed from `Business_CornerShop.asset` after successful verification. The existing Bread retail catalogue price of CARD $5 remains temporary and is not final balancing.
+- User confirmed the BUY → partial SELL → full SELL → save/reload Play Mode sequence works and the full EditMode suite is **355/355**.
+- The user observed Milo receiving the bakery's purchase revenue in his personal account.
+- No final buyback items/prices have been approved for the Corner Bakery. The SELL system requires explicitly authored offers for a business to accept goods.
