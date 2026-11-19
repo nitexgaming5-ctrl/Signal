@@ -20,4 +20,6 @@ MonoBehaviour:
   interactionPoint: {x: 1000, y: 1000.6}
   openingMinute: 390
   closingMinute: 1080
-  merchandise: []
+  merchandise:
+  - Item: {fileID: 11400000, guid: b7c4e2916a5d438f9c2e7b1d5a8046f3, type: 2}
+    UnitPrice: 5
