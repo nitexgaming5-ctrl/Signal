@@ -541,3 +541,14 @@ The approved player-selling initiative has been implemented in code on the worki
 - 12 new EditMode test cases have been authored; expected full suite is 354 from the last user-verified 342 baseline. They have not yet been run. No Unity compilation or Play Mode verification has been performed by the assistant.
 
 Next: user pulls the branch, compiles, runs the full EditMode suite, then tests both partial and full sales plus save/load in Play Mode. Do not mark this initiative complete until those results are reported.
+
+
+## 2026-11-19 — Save-version test maintenance follow-up
+
+The recurring version failure was caused by a stale test expectation, not by a runtime migration defect: the v8 migration test expected version 9 after the current format had advanced to v10 for the dedicated shop-sale ledger.
+
+- `SaveMigrator.CurrentVersion` is authoritative. The v8 migration test now expects that constant and checks initialization of resident accounts, retail purchases and shop-sale history.
+- The v9 migration test now expects `SaveMigrator.CurrentVersion` rather than hardcoded 10.
+- Historical input versions remain explicit in fixtures; only the expected migrated/current version uses the constant.
+- The rule is documented beside `SaveMigrator.CurrentVersion` and in `docs/DATA_MODEL.md`: increment only for serialized persistent-schema changes, not ordinary UI/runtime/gameplay changes.
+- No production migration behavior or serialized fields changed in this maintenance pass. Unity compile and EditMode verification remain pending.
