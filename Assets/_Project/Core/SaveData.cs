@@ -398,6 +398,7 @@ namespace Signal.Core
         private static int RestoreResidentAccounts(List<SavedEconomicAccount> savedAccounts, EconomicAccountBook destination)
         {
             if (destination == null) return 0;
+            destination.ResetNonPlayerAccountsToInitialBalances();
             int skipped = 0;
             var seen = new HashSet<string>(StringComparer.Ordinal);
             if (savedAccounts == null) return skipped;
