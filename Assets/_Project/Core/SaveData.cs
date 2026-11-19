@@ -135,6 +135,16 @@ namespace Signal.Core
     }
 
     [Serializable]
+    public sealed class SavedSearchableContainer
+    {
+        public string containerId;
+        public bool generated;
+        public int discoveredCount;
+        public List<string> searchOrder = new List<string>();
+        public List<SavedItem> items = new List<SavedItem>();
+    }
+
+    [Serializable]
     public sealed class SaveData
     {
         public int version = SaveMigrator.CurrentVersion;
@@ -162,6 +172,7 @@ namespace Signal.Core
         public List<SavedEconomicAccount> residentAccounts = new List<SavedEconomicAccount>();
         public List<SavedRetailTransaction> retailTransactions = new List<SavedRetailTransaction>();
         public List<SavedShopSaleTransaction> shopSaleTransactions = new List<SavedShopSaleTransaction>();
+        public List<SavedSearchableContainer> searchableContainers = new List<SavedSearchableContainer>();
     }
 
     public sealed class LoadReport
@@ -185,7 +196,7 @@ namespace Signal.Core
     {
         // Increment only when the serialized save schema changes. Runtime/UI/gameplay-only changes do not require a new save version.
         // Migration tests for historical inputs should assert this constant for their migrated result.
-        public const int CurrentVersion = 10;
+        public const int CurrentVersion = 11;
 
         /// <summary>Accepts supported save formats and migrates them to the current inventory, social and economic format.</summary>
         public static bool TryMigrate(SaveData data, out string error)
@@ -263,6 +274,10 @@ namespace Signal.Core
             // Version 10 adds the dedicated player-to-business sale history.
             if (data.shopSaleTransactions == null)
                 data.shopSaleTransactions = new List<SavedShopSaleTransaction>();
+
+            // Version 11 stores generated searchable-container contents and progressive discovery.
+            if (data.searchableContainers == null)
+                data.searchableContainers = new List<SavedSearchableContainer>();
 
             data.version = CurrentVersion;
 
