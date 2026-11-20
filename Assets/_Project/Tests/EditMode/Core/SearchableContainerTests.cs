@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using Signal.Core;
 
@@ -116,6 +117,7 @@ namespace Signal.Core.Tests
             Assert.That(skipped, Is.Zero);
             Assert.That(restored.IsGenerated, Is.True);
             Assert.That(restored.Inventory.Items.Count, Is.EqualTo(2));
+            Assert.That(restored.HasSearchStarted, Is.True);
             Assert.That(restored.SearchOrder[0], Is.EqualTo(order[0]));
             Assert.That(restored.DiscoveredCount, Is.EqualTo(1));
             Assert.That(restored.HasSearchStarted, Is.True);
@@ -150,6 +152,38 @@ namespace Signal.Core.Tests
             Assert.That(restored.Inventory.TryGetItemInstance(remaining, out _), Is.True);
             Assert.That(restored.TryRevealNext(out Guid next), Is.True);
             Assert.That(next, Is.EqualTo(remaining));
+        }
+
+        [Test]
+        public void VersionElevenSaveMigratesGeneratedBinWithoutStartingSearch()
+        {
+            var data = new SaveData
+            {
+                version = 11,
+                searchableContainers = new List<SavedSearchableContainer>
+                {
+                    new SavedSearchableContainer { containerId = "street-bin-a", generated = true }
+                }
+            };
+
+            Assert.That(SaveMigrator.TryMigrate(data, out string error), Is.True, error);
+            Assert.That(data.version, Is.EqualTo(SaveMigrator.CurrentVersion));
+            Assert.That(data.searchableContainers[0].searchStarted, Is.False);
+        }
+
+        [Test]
+        public void SearchCannotRevealItemsUntilThePlayerStartsSearching()
+        {
+            var container = new SearchableContainer("untouched-bin");
+            ItemType type = Item();
+            container.Inventory.Place(type, 0, 0);
+            Guid id = container.Inventory.Items[0].ItemInstanceId;
+            Assert.That(container.TryInitializeSearchOrder(new[] { id }), Is.True);
+            Assert.That(container.TryRevealNext(out _), Is.False);
+            Assert.That(container.DiscoveredCount, Is.Zero);
+            Assert.That(container.TryStartSearch(), Is.True);
+            Assert.That(container.TryRevealNext(out Guid revealed), Is.True);
+            Assert.That(revealed, Is.EqualTo(id));
         }
 
     }
