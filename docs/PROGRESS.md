@@ -1,5 +1,13 @@
 # Progress
 
+## New design initiative — CRIME-ECONOMY-001 (2026-11-20)
+
+- User approved the three design boundaries: gradual/authored heat consequences with exposure distinct from heat; contact-specific dirty-money cleaning offers with no universal conversion rate; production only for explicitly authored businesses/workspaces, with no city-wide supply/demand simulation.
+- Drafted the integrated design proposal at docs/tasks/CRIME-ECONOMY-001-SHARED-CITY-DESIGN.md. It separates crime action, character-scoped exposure, global heat, long-term criminal progression and authored consequences; preserves dirty money as a physical item; and treats production as an optional authored capability.
+- The document proposes a staged sequence: crime/exposure foundation, dirty-money illicit payment and cleaning, one authored production interaction, then a small integrated scenario. These are design proposals, not implementation approval.
+- Detailed decisions remain open: first crime action and heat/progression effects, witness reporting, heat consequences, dirty-money value convention, first illicit exchange, cleaning terms, and first production recipe.
+- No gameplay code, content assets or save schema changed. Next step: review the detailed proposal and approve/adjust the first implementation slice before coding.
+
 ## Current status: SCAVENGE-001 complete and user-verified
 
 On 2026-11-20, the user confirmed the latest full Unity EditMode suite **368/368 passed**, including the carried-inventory interaction and drag-ghost snapping polish. The user also confirmed in Play Mode that carried inventory is manageable while an empty bin is open and that item snapping now works correctly. SCAVENGE-001 is complete. Unity verification is user-reported; no assistant-side Unity execution is claimed.
