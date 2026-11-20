@@ -12,10 +12,10 @@ namespace Signal.Game
     /// </summary>
     public sealed class GameSession : MonoBehaviour
     {
-        private const string DirtyCashContactNpcId = DirtyCashContactNpcId;
+        private const string DirtyCashContactNpcId = "Clean_Dirtycash";
         private static readonly EconomicActorId DirtyCashContactActorId =
             new EconomicActorId("resident:" + DirtyCashContactNpcId);
-        private const float InteractionDistance = InteractionDistance;
+        private const float InteractionDistance = 1.85f;
         [Header("Content")]
         [SerializeField] private ItemDefinition[] items;
         [SerializeField] private ItemDefinition parcelItem;
@@ -117,7 +117,7 @@ namespace Signal.Game
             _illicitExchanges = new IllicitExchangeTransactionLedger();
             _dirtyCashCleanings = new DirtyCashCleaningTransactionLedger();
             _contactInventory = new GridInventory(8, 6);
-            _economicContainers.TryRegister(_contactInventory, new EconomicActorId("resident:Clean_Dirtycash"));
+            _economicContainers.TryRegister(_contactInventory, DirtyCashContactActorId);
             _itemKnowledge = new ItemKnowledgeBook();
             _playerDiscoveries = new PlayerDiscoveryLedger();
             _miloOpportunity = new OpportunityState("milo-parcel");
@@ -679,7 +679,7 @@ namespace Signal.Game
 
             IllicitExchangeResult result = IllicitExchangeService.TryExchange(_inventory, _contactInventory,
                 selected.ItemInstanceId, acceptedType, acceptedQuantity, cashItem.ToItemType(),
-                dirtyCashUnits, new EconomicActorId("resident:Clean_Dirtycash"),
+                dirtyCashUnits, DirtyCashContactActorId,
                 _assetOwnership, _economicTransactions, _illicitExchanges, _clock.Day, _clock.MinuteOfDay);
             if (result.Success)
                 return "Exchange complete. Received " + dirtyCashUnits + " Dirty Cash units.";
@@ -705,7 +705,7 @@ namespace Signal.Game
             if (dirtyCashContactOffer == null || !dirtyCashContactOffer.TryValidate(out _))
                 return "The cleaning offer is unavailable.";
 
-            var contactActor = new EconomicActorId("resident:Clean_Dirtycash");
+            var contactActor = DirtyCashContactActorId;
             if (!_economicAccounts.TryGetAccount(contactActor, out CleanMoneyAccount contactAccount))
                 return "The contact's account is unavailable.";
 
