@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Signal.Core;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -8,66 +9,127 @@ using UnityEngine.UI;
 
 namespace Signal.Game
 {
-    /// <summary>Player-confirmed fence exchange and Dirty Cash cleaning for the unnamed neighbourhood contact.</summary>
+    /// <summary>Side-by-side contact/player inventory workspace for the fixed fence and cleaning offers.</summary>
     public sealed class DirtyCashContactPanel : MonoBehaviour
     {
-        private static readonly Color PanelColor = new Color32(27, 30, 35, 250);
-        private static readonly Color RowColor = new Color32(39, 44, 51, 255);
-        private static readonly Color ButtonColor = new Color32(49, 86, 82, 255);
+        private const float CellSize = 44f;
+        private static readonly Color Background = new Color32(14, 17, 22, 248);
+        private static readonly Color PanelColor = new Color32(22, 27, 34, 255);
+        private static readonly Color CellColor = new Color32(35, 40, 48, 255);
+        private static readonly Color Accent = new Color32(62, 230, 210, 255);
         private static readonly Color TextColor = new Color32(225, 228, 230, 255);
+        private static readonly Color Muted = new Color32(157, 166, 176, 255);
+        private static readonly Color Selected = new Color32(200, 162, 74, 255);
+        private static readonly Color[] Palette =
+        {
+            new Color32(139, 74, 43, 255), new Color32(200, 162, 74, 255),
+            new Color32(62, 230, 210, 255), new Color32(226, 79, 181, 255),
+            new Color32(107, 114, 128, 255), new Color32(201, 206, 214, 255)
+        };
+
+        private enum ServiceMode { Fence, Cleaning }
+
+        private readonly Dictionary<Guid, string> _names = new Dictionary<Guid, string>();
+        private readonly Dictionary<Guid, Color> _colors = new Dictionary<Guid, Color>();
         private Font _font;
-        private GameObject _root;
-        private RectTransform _cashRows;
-        private Text _status;
+        private GameObject _rootObject;
+        private RectTransform _root;
+        private RectTransform _contactItems;
+        private RectTransform _playerItems;
+        private Text _contactTitle;
+        private Text _playerTitle;
+        private Text _offerText;
         private Text _preview;
-        private Text _fenceInfo;
+        private Text _status;
+        private Button _fenceTab;
+        private Button _cleanTab;
         private Button _reviewFence;
         private Button _confirmFence;
+        private Button _cancelReview;
         private Button _confirmClean;
-        private GridInventory _inventory;
+
+        private GridInventory _playerInventory;
+        private GridInventory _contactInventory;
         private AssetOwnershipBook _ownership;
         private ItemDefinition _dirtyCash;
         private ItemDefinition _acceptedItem;
         private int _acceptedQuantity;
         private int _dirtyCashUnits;
-        private int _cleaningFeePercent;
-        private Func<string> _exchange;
+        private int _feePercent;
+        private Func<Guid, string> _exchange;
         private Func<Guid, string> _clean;
-        private Guid _selectedCashStack;
-        private bool _fenceReviewed;
+        private Guid _selectedPlayerStack;
+        private ServiceMode _mode;
+        private bool _reviewingFence;
 
-        public bool IsOpen => _root != null && _root.activeSelf;
+        public bool IsOpen => _rootObject != null && _rootObject.activeSelf;
 
-        public void Bind(GridInventory inventory, AssetOwnershipBook ownership, ItemDefinition dirtyCash, ItemDefinition acceptedItem,
-            int acceptedQuantity, int dirtyCashUnits, int cleaningFeePercent,
-            Func<string> exchange, Func<Guid, string> clean)
+        public void Bind(GridInventory playerInventory, GridInventory contactInventory, AssetOwnershipBook ownership,
+            IReadOnlyList<ItemDefinition> definitions, ItemDefinition dirtyCash, ItemDefinition acceptedItem,
+            int acceptedQuantity, int dirtyCashUnits, int feePercent,
+            Func<Guid, string> exchange, Func<Guid, string> clean)
         {
-            _inventory = inventory ?? throw new ArgumentNullException(nameof(inventory));
+            _playerInventory = playerInventory ?? throw new ArgumentNullException(nameof(playerInventory));
+            _contactInventory = contactInventory ?? throw new ArgumentNullException(nameof(contactInventory));
             _ownership = ownership ?? throw new ArgumentNullException(nameof(ownership));
             _dirtyCash = dirtyCash ?? throw new ArgumentNullException(nameof(dirtyCash));
             _acceptedItem = acceptedItem ?? throw new ArgumentNullException(nameof(acceptedItem));
             _acceptedQuantity = acceptedQuantity;
             _dirtyCashUnits = dirtyCashUnits;
-            _cleaningFeePercent = cleaningFeePercent;
+            _feePercent = feePercent;
             _exchange = exchange ?? throw new ArgumentNullException(nameof(exchange));
             _clean = clean ?? throw new ArgumentNullException(nameof(clean));
+
+            _names.Clear();
+            _colors.Clear();
+            if (definitions != null)
+            {
+                for (int i = 0; i < definitions.Count; i++)
+                {
+                    ItemDefinition definition = definitions[i];
+                    if (definition == null) continue;
+                    try
+                    {
+                        ItemType type = definition.ToItemType();
+                        _names[type.Id] = string.IsNullOrWhiteSpace(definition.DisplayName) ? definition.name : definition.DisplayName;
+                        _colors[type.Id] = Palette[i % Palette.Length];
+                    }
+                    catch (InvalidOperationException) { }
+                }
+            }
+
+            _playerInventory.Changed += OnInventoryChanged;
+            _contactInventory.Changed += OnInventoryChanged;
             BuildIfNeeded();
-            _root.SetActive(false);
+            Close();
         }
 
         public void Open()
         {
-            if (_root == null) BuildIfNeeded();
-            _selectedCashStack = Guid.Empty;
-            _fenceReviewed = false;
+            if (_rootObject == null) BuildIfNeeded();
+            _mode = ServiceMode.Fence;
+            _selectedPlayerStack = Guid.Empty;
+            _reviewingFence = false;
             _status.text = string.Empty;
-            _root.SetActive(true);
+            _rootObject.SetActive(true);
             Refresh();
         }
 
         public void Close()
         {
-            if (IsOpen) _root.SetActive(false);
+            if (_rootObject != null) _rootObject.SetActive(false);
+            _reviewingFence = false;
+        }
+
+        private void OnDestroy()
+        {
+            if (_playerInventory != null) _playerInventory.Changed -= OnInventoryChanged;
+            if (_contactInventory != null) _contactInventory.Changed -= OnInventoryChanged;
+        }
+
+        private void OnInventoryChanged(GridInventory changed)
+        {
+            if (IsOpen) Refresh();
         }
 
         private void Update()
@@ -76,241 +138,327 @@ namespace Signal.Game
                 Close();
         }
 
-        private void Refresh()
+        private void SetMode(ServiceMode mode)
         {
-            if (_inventory == null || _cashRows == null) return;
-            for (int i = _cashRows.childCount - 1; i >= 0; i--)
-                Destroy(_cashRows.GetChild(i).gameObject);
-
-            ItemType cashType = _dirtyCash.ToItemType();
-            int row = 0;
-            bool selectedStillExists = false;
-            foreach (PlacedItem stack in _inventory.Items)
-            {
-                if (stack.Type != cashType || !IsPlayerOwned(stack)) continue;
-                Guid stackId = stack.ItemInstanceId;
-                if (stackId == _selectedCashStack) selectedStillExists = true;
-                Button choose = NewButton("DirtyCashStack", "Select Dirty Cash  x" + stack.Count);
-                choose.transform.SetParent(_cashRows, false);
-                RectTransform rect = choose.GetComponent<RectTransform>();
-                rect.anchorMin = new Vector2(0f, 1f);
-                rect.anchorMax = new Vector2(1f, 1f);
-                rect.pivot = new Vector2(0.5f, 1f);
-                rect.anchoredPosition = new Vector2(0f, -row++ * 38f);
-                rect.sizeDelta = new Vector2(0f, 34f);
-                choose.onClick.AddListener(() => SelectCash(stackId));
-            }
-
-            if (!selectedStillExists) _selectedCashStack = Guid.Empty;
-            _cashRows.sizeDelta = new Vector2(0f, Math.Max(38, row * 38));
-            _preview.text = BuildCleaningPreview();
-            _confirmClean.interactable = _selectedCashStack != Guid.Empty;
-            bool canFence = HasEligibleFenceStack();
-            _reviewFence.interactable = canFence;
-            _confirmFence.interactable = canFence;
-            _reviewFence.gameObject.SetActive(!_fenceReviewed);
-            _confirmFence.gameObject.SetActive(_fenceReviewed);
-            _fenceInfo.text = "FENCE OFFER\nBring " + _acceptedQuantity + " stolen " + _acceptedItem.DisplayName +
-                " items. Payment: " + _dirtyCashUnits + " Dirty Cash units.\n" +
-                (canFence ? "Offer available." : "Requires an eligible stolen stack in carried inventory.");
-        }
-
-        private void SelectCash(Guid stackId)
-        {
-            _selectedCashStack = stackId;
+            _mode = mode;
+            _selectedPlayerStack = Guid.Empty;
+            _reviewingFence = false;
             _status.text = string.Empty;
             Refresh();
         }
 
-        private bool HasEligibleFenceStack()
+        private void SelectPlayerStack(Guid id)
         {
-            ItemType acceptedType = _acceptedItem.ToItemType();
-            foreach (PlacedItem stack in _inventory.Items)
-                if (stack.Type == acceptedType && stack.Count == _acceptedQuantity &&
-                    stack.State.Ownership == ItemOwnershipStatus.Stolen && IsPlayerOwned(stack))
-                    return true;
-            return false;
+            _selectedPlayerStack = id;
+            _reviewingFence = false;
+            _status.text = string.Empty;
+            Refresh();
         }
 
-        private bool IsPlayerOwned(PlacedItem stack)
+        private bool TryGetSelected(out PlacedItem selected)
         {
-            return _ownership.TryGetOwner(stack.ItemInstanceId, out EconomicActorId owner) &&
+            return _selectedPlayerStack != Guid.Empty &&
+                _playerInventory.TryGetItemInstance(_selectedPlayerStack, out selected);
+        }
+
+        private bool IsPlayerOwned(PlacedItem item)
+        {
+            return _ownership.TryGetOwner(item.ItemInstanceId, out EconomicActorId owner) &&
                 owner == EconomicActorId.Player;
         }
 
-        private string BuildCleaningPreview()
+        private bool IsEligibleFenceStack(PlacedItem item)
         {
-            if (_selectedCashStack == Guid.Empty ||
-                !_inventory.TryGetItemInstance(_selectedCashStack, out PlacedItem stack))
-                return "Select a Dirty Cash stack to preview cleaning.";
-            if (!DirtyCashRules.TryGetCleaningAmounts(stack.Count, _cleaningFeePercent, out int payout, out int feeAmount))
-                return "That Dirty Cash quantity cannot be cleaned.";
-            int faceValue = stack.Count * DirtyCashRules.FaceValuePerUnit;
-            return "Selected: " + stack.Count + " Dirty Cash units  |  Face value $" + faceValue +
-                "  |  Contact keeps $" + feeAmount + " (" + _cleaningFeePercent + "%)  |  You receive $" + payout + " clean CARD.";
+            return item.Type == _acceptedItem.ToItemType() &&
+                item.Count == _acceptedQuantity &&
+                item.State.Ownership == ItemOwnershipStatus.Stolen &&
+                IsPlayerOwned(item);
+        }
+
+        private bool IsEligibleCashStack(PlacedItem item)
+        {
+            return item.Type == _dirtyCash.ToItemType() && item.Count > 0 && IsPlayerOwned(item);
+        }
+
+        private void Refresh()
+        {
+            if (!IsOpen) return;
+            Clear(_contactItems);
+            Clear(_playerItems);
+
+            foreach (PlacedItem item in _contactInventory.Items)
+                DrawItem(item, _contactItems, false);
+            foreach (PlacedItem item in _playerInventory.Items)
+                DrawItem(item, _playerItems, true);
+
+            _contactTitle.text = "CONTACT INVENTORY  ·  " + _contactInventory.Width + " × " + _contactInventory.Height;
+            _playerTitle.text = "YOUR CARRIED INVENTORY  ·  " + _playerInventory.Width + " × " + _playerInventory.Height;
+
+            bool selectedExists = TryGetSelected(out PlacedItem selected);
+            if (!selectedExists) _selectedPlayerStack = Guid.Empty;
+            bool selectedFence = selectedExists && IsEligibleFenceStack(selected);
+            bool selectedCash = selectedExists && IsEligibleCashStack(selected);
+
+            _fenceTab.interactable = _mode != ServiceMode.Fence;
+            _cleanTab.interactable = _mode != ServiceMode.Cleaning;
+            _reviewFence.gameObject.SetActive(_mode == ServiceMode.Fence && !_reviewingFence);
+            _confirmFence.gameObject.SetActive(_mode == ServiceMode.Fence && _reviewingFence);
+            _cancelReview.gameObject.SetActive(_mode == ServiceMode.Fence && _reviewingFence);
+            _reviewFence.interactable = selectedFence;
+            _confirmFence.interactable = selectedFence;
+            _confirmClean.gameObject.SetActive(_mode == ServiceMode.Cleaning);
+            _confirmClean.interactable = selectedCash;
+
+            if (_mode == ServiceMode.Fence)
+            {
+                _offerText.text = "FENCE OFFER\nExchange exactly " + _acceptedQuantity + " stolen, player-owned " +
+                    DisplayName(_acceptedItem) + " in one stack for " + _dirtyCashUnits + " Dirty Cash units.\n" +
+                    (selectedFence ? "Selected stack qualifies." : "Select a qualifying stack in your carried inventory.");
+                _preview.text = selectedExists
+                    ? "Selected: " + DisplayName(selected.Type) + " ×" + selected.Count +
+                      (selectedFence ? "  ·  STOLEN / PLAYER-OWNED" : "  ·  DOES NOT QUALIFY")
+                    : "No item stack selected.";
+            }
+            else
+            {
+                _offerText.text = "CLEANING SERVICE\nConvert your selected Dirty Cash stack into clean CARD.\n" +
+                    "The contact retains " + _feePercent + "%; cleaning is immediate.";
+                if (selectedCash && DirtyCashRules.TryGetCleaningAmounts(selected.Count, _feePercent, out int payout, out int fee))
+                {
+                    int gross = selected.Count * DirtyCashRules.FaceValuePerUnit;
+                    _preview.text = "Selected: " + selected.Count + " Dirty Cash units  ·  Face value $" + gross +
+                        "\nContact fee: $" + fee + " (" + _feePercent + "%)  ·  You receive: $" + payout + " clean CARD.";
+                }
+                else
+                    _preview.text = selectedExists
+                        ? "Select a player-owned Dirty Cash stack to see its exact cleaning payout."
+                        : "Select a Dirty Cash stack in your carried inventory.";
+            }
+        }
+
+        private void DrawItem(PlacedItem item, RectTransform parent, bool selectable)
+        {
+            string label = DisplayName(item.Type);
+            Color color = _colors.TryGetValue(item.Type.Id, out Color found) ? found : Palette[5];
+            bool selected = selectable && item.ItemInstanceId == _selectedPlayerStack;
+            if (selected) color = Selected;
+
+            var go = new GameObject("Item_" + item.ItemInstanceId,
+                typeof(RectTransform), typeof(Image), typeof(Button));
+            go.transform.SetParent(parent, false);
+            Image image = go.GetComponent<Image>();
+            image.color = color;
+            Button button = go.GetComponent<Button>();
+            button.targetGraphic = image;
+            button.interactable = selectable;
+            SetTopLeft(go.GetComponent<RectTransform>(),
+                item.X * CellSize + 2f, item.Y * CellSize + 2f,
+                item.FootprintWidth * CellSize - 4f, item.FootprintHeight * CellSize - 4f);
+            Text text = NewText(go.transform, label + (item.Count > 1 ? "\nx" + item.Count : string.Empty),
+                11, TextAnchor.MiddleCenter, new Color32(14, 17, 22, 255));
+            Stretch(text.rectTransform);
+            if (selectable)
+            {
+                Guid id = item.ItemInstanceId;
+                button.onClick.AddListener(() => SelectPlayerStack(id));
+            }
+        }
+
+        private string DisplayName(ItemDefinition definition)
+        {
+            if (definition == null) return "Unknown item";
+            try { return DisplayName(definition.ToItemType()); }
+            catch (InvalidOperationException) { return definition.name; }
+        }
+
+        private string DisplayName(ItemType type)
+        {
+            return _names.TryGetValue(type.Id, out string name) ? name : type.Id.ToString();
         }
 
         private void BuildIfNeeded()
         {
-            if (_root != null) return;
+            if (_rootObject != null) return;
             EnsureEventSystem();
             _font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             if (_font == null) _font = Font.CreateDynamicFontFromOSFont("Arial", 16);
 
-            var canvasObject = new GameObject("DirtyCashContactCanvas", typeof(RectTransform), typeof(Canvas),
-                typeof(CanvasScaler), typeof(GraphicRaycaster));
+            var canvasObject = new GameObject("DirtyCashContactCanvas",
+                typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
             canvasObject.transform.SetParent(transform, false);
             Canvas canvas = canvasObject.GetComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 140;
             CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1280f, 720f);
+            scaler.referenceResolution = new Vector2(1600f, 900f);
             scaler.matchWidthOrHeight = 0.5f;
 
-            var panel = new GameObject("ContactPanel", typeof(RectTransform), typeof(Image));
-            panel.transform.SetParent(canvasObject.transform, false);
-            panel.GetComponent<Image>().color = PanelColor;
-            _root = panel;
-            RectTransform root = panel.GetComponent<RectTransform>();
-            root.anchorMin = root.anchorMax = new Vector2(0.5f, 0.5f);
-            root.pivot = new Vector2(0.5f, 0.5f);
-            root.sizeDelta = new Vector2(650f, 520f);
+            Image background = NewImage("Background", canvasObject.transform, Background);
+            _root = background.rectTransform;
+            _root.anchorMin = _root.anchorMax = new Vector2(0.5f, 0.5f);
+            _root.pivot = new Vector2(0.5f, 0.5f);
+            _root.sizeDelta = new Vector2(1100f, 680f);
+            _rootObject = background.gameObject;
 
-            Text title = NewText("Title", root, 24, new Color32(92, 225, 204, 255));
-            SetRect(title.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f),
-                new Vector2(22f, -34f), new Vector2(-130f, 42f));
-            title.text = "A discreet arrangement";
-
-            Button close = NewButton("Close", "CLOSE");
-            close.transform.SetParent(root, false);
-            SetRect(close.GetComponent<RectTransform>(), new Vector2(1f, 1f), new Vector2(1f, 1f),
-                new Vector2(-62f, -34f), new Vector2(96f, 34f));
+            Text heading = NewText(_root, "A DISCREET ARRANGEMENT  ·  [ESC] CLOSE", 21,
+                TextAnchor.MiddleLeft, Accent);
+            SetTopLeft(heading.rectTransform, 28f, 18f, 760f, 34f);
+            Button close = NewButton(_root, "CLOSE", 130f, 18f, 100f, 36f);
             close.onClick.AddListener(Close);
 
-            _fenceInfo = NewText("FenceOffer", root, 17, TextColor);
-            SetRect(_fenceInfo.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f),
-                new Vector2(22f, -100f), new Vector2(-44f, 68f));
-            _fenceInfo.text = "FENCE OFFER\nBring " + _acceptedQuantity + " stolen " + _acceptedItem.DisplayName +
-                " items. Payment: " + _dirtyCashUnits + " Dirty Cash units.";
+            Image contactPanel = NewImage("ContactInventoryPanel", _root, PanelColor);
+            SetTopLeft(contactPanel.rectTransform, 24f, 70f, 500f, 420f);
+            _contactTitle = NewText(contactPanel.transform, "CONTACT INVENTORY", 16, TextAnchor.MiddleLeft, TextColor);
+            SetTopLeft(_contactTitle.rectTransform, 16f, 12f, 460f, 28f);
+            RectTransform contactGrid = NewRect("Grid", contactPanel.transform);
+            SetTopLeft(contactGrid, 20f, 52f, 8f * CellSize, 6f * CellSize);
+            BuildCells(contactGrid, 8, 6);
+            _contactItems = NewRect("Items", contactGrid);
+            Stretch(_contactItems);
 
-            _reviewFence = NewButton("ReviewFence", "REVIEW EXCHANGE");
-            _reviewFence.transform.SetParent(root, false);
-            SetRect(_reviewFence.GetComponent<RectTransform>(), new Vector2(0f, 1f), new Vector2(0f, 1f),
-                new Vector2(110f, -165f), new Vector2(190f, 34f));
-            _reviewFence.onClick.AddListener(() => { _fenceReviewed = true; Refresh(); });
+            Image playerPanel = NewImage("PlayerInventoryPanel", _root, PanelColor);
+            SetTopLeft(playerPanel.rectTransform, 550f, 70f, 526f, 420f);
+            _playerTitle = NewText(playerPanel.transform, "YOUR CARRIED INVENTORY", 16, TextAnchor.MiddleLeft, TextColor);
+            SetTopLeft(_playerTitle.rectTransform, 16f, 12f, 490f, 28f);
+            RectTransform playerGrid = NewRect("Grid", playerPanel.transform);
+            SetTopLeft(playerGrid, 20f, 52f, 6f * CellSize, 4f * CellSize);
+            BuildCells(playerGrid, 6, 4);
+            _playerItems = NewRect("Items", playerGrid);
+            Stretch(_playerItems);
 
-            _confirmFence = NewButton("ConfirmFence", "CONFIRM EXCHANGE");
-            _confirmFence.transform.SetParent(root, false);
-            SetRect(_confirmFence.GetComponent<RectTransform>(), new Vector2(0f, 1f), new Vector2(0f, 1f),
-                new Vector2(110f, -165f), new Vector2(190f, 34f));
+            _fenceTab = NewButton(_root, "FENCE OFFER", 28f, 510f, 170f, 38f);
+            _fenceTab.onClick.AddListener(() => SetMode(ServiceMode.Fence));
+            _cleanTab = NewButton(_root, "CLEAN DIRTY CASH", 208f, 510f, 210f, 38f);
+            _cleanTab.onClick.AddListener(() => SetMode(ServiceMode.Cleaning));
+
+            _offerText = NewText(_root, string.Empty, 15, TextAnchor.UpperLeft, TextColor);
+            SetTopLeft(_offerText.rectTransform, 28f, 558f, 500f, 58f);
+            _preview = NewText(_root, string.Empty, 14, TextAnchor.UpperLeft, Muted);
+            SetTopLeft(_preview.rectTransform, 550f, 558f, 520f, 58f);
+
+            _reviewFence = NewButton(_root, "REVIEW FENCE OFFER", 28f, 625f, 190f, 36f);
+            _reviewFence.onClick.AddListener(() =>
+            {
+                if (TryGetSelected(out PlacedItem item) && IsEligibleFenceStack(item))
+                {
+                    _reviewingFence = true;
+                    Refresh();
+                }
+            });
+            _confirmFence = NewButton(_root, "CONFIRM FENCE EXCHANGE", 28f, 625f, 230f, 36f);
             _confirmFence.onClick.AddListener(() =>
             {
-                _status.text = _exchange();
-                _fenceReviewed = false;
+                if (!TryGetSelected(out PlacedItem item) || !IsEligibleFenceStack(item)) return;
+                _status.text = _exchange(item.ItemInstanceId);
+                _selectedPlayerStack = Guid.Empty;
+                _reviewingFence = false;
                 Refresh();
             });
-
-            Text cleaningTitle = NewText("CleaningTitle", root, 18, new Color32(92, 225, 204, 255));
-            SetRect(cleaningTitle.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f),
-                new Vector2(22f, -220f), new Vector2(-44f, 30f));
-            cleaningTitle.text = "CLEAN DIRTY CASH  —  " + _cleaningFeePercent + "% fee, paid immediately";
-
-            var scrollObject = new GameObject("DirtyCashScroll", typeof(RectTransform), typeof(Image), typeof(ScrollRect));
-            scrollObject.transform.SetParent(root, false);
-            SetRect(scrollObject.GetComponent<RectTransform>(), new Vector2(0f, 1f), new Vector2(1f, 1f),
-                new Vector2(22f, -250f), new Vector2(-44f, 130f));
-            scrollObject.GetComponent<Image>().color = RowColor;
-            var viewport = new GameObject("Viewport", typeof(RectTransform), typeof(Image), typeof(Mask));
-            viewport.transform.SetParent(scrollObject.transform, false);
-            RectTransform viewportRect = viewport.GetComponent<RectTransform>();
-            viewportRect.anchorMin = Vector2.zero;
-            viewportRect.anchorMax = Vector2.one;
-            viewportRect.offsetMin = Vector2.zero;
-            viewportRect.offsetMax = Vector2.zero;
-            viewport.GetComponent<Image>().color = Color.white;
-            viewport.GetComponent<Mask>().showMaskGraphic = false;
-            var rows = new GameObject("Rows", typeof(RectTransform));
-            rows.transform.SetParent(viewport.transform, false);
-            _cashRows = rows.GetComponent<RectTransform>();
-            _cashRows.anchorMin = new Vector2(0f, 1f);
-            _cashRows.anchorMax = new Vector2(1f, 1f);
-            _cashRows.pivot = new Vector2(0.5f, 1f);
-            _cashRows.sizeDelta = new Vector2(0f, 38f);
-            ScrollRect scroll = scrollObject.GetComponent<ScrollRect>();
-            scroll.viewport = viewportRect;
-            scroll.content = _cashRows;
-            scroll.horizontal = false;
-            scroll.vertical = true;
-
-            _preview = NewText("CleaningPreview", root, 15, TextColor);
-            SetRect(_preview.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f),
-                new Vector2(22f, 66f), new Vector2(-44f, 36f));
-            _confirmClean = NewButton("ConfirmCleaning", "CONFIRM CLEANING");
-            _confirmClean.transform.SetParent(root, false);
-            SetRect(_confirmClean.GetComponent<RectTransform>(), new Vector2(1f, 0f), new Vector2(1f, 0f),
-                new Vector2(-112f, 26f), new Vector2(190f, 34f));
+            _cancelReview = NewButton(_root, "CANCEL", 270f, 625f, 110f, 36f);
+            _cancelReview.onClick.AddListener(() => { _reviewingFence = false; Refresh(); });
+            _confirmClean = NewButton(_root, "CONFIRM CLEANING", 28f, 625f, 190f, 36f);
             _confirmClean.onClick.AddListener(() =>
             {
-                if (_selectedCashStack == Guid.Empty) return;
-                _status.text = _clean(_selectedCashStack);
-                _selectedCashStack = Guid.Empty;
+                if (!TryGetSelected(out PlacedItem item) || !IsEligibleCashStack(item)) return;
+                _status.text = _clean(item.ItemInstanceId);
+                _selectedPlayerStack = Guid.Empty;
                 Refresh();
             });
 
-            _status = NewText("Status", root, 15, new Color32(240, 195, 120, 255));
-            SetRect(_status.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f),
-                new Vector2(22f, 18f), new Vector2(-230f, 32f));
-            _root.SetActive(false);
+            _status = NewText(_root, string.Empty, 14, TextAnchor.MiddleLeft, new Color32(240, 195, 120, 255));
+            SetTopLeft(_status.rectTransform, 550f, 625f, 520f, 36f);
+            _rootObject.SetActive(false);
         }
 
-        private Text NewText(string name, Transform parent, int size, Color color)
+        private void BuildCells(RectTransform grid, int width, int height)
         {
-            var obj = new GameObject(name, typeof(RectTransform), typeof(Text));
-            obj.transform.SetParent(parent, false);
-            Text text = obj.GetComponent<Text>();
-            text.font = _font;
-            text.fontSize = size;
-            text.color = color;
-            text.alignment = TextAnchor.MiddleLeft;
-            text.horizontalOverflow = HorizontalWrapMode.Wrap;
-            text.verticalOverflow = VerticalWrapMode.Overflow;
-            return text;
+            for (int y = 0; y < height; y++)
+                for (int x = 0; x < width; x++)
+                {
+                    Image cell = NewImage("Cell_" + x + "_" + y, grid, CellColor);
+                    SetTopLeft(cell.rectTransform, x * CellSize + 1f, y * CellSize + 1f,
+                        CellSize - 2f, CellSize - 2f);
+                }
         }
 
-        private Button NewButton(string name, string label)
+        private Button NewButton(Transform parent, string label, float x, float y, float width, float height)
         {
-            var obj = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
-            obj.GetComponent<Image>().color = ButtonColor;
-            Button button = obj.GetComponent<Button>();
-            Text text = NewText("Label", obj.transform, 14, Color.white);
-            SetRect(text.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-            text.alignment = TextAnchor.MiddleCenter;
-            text.text = label;
+            Image image = NewImage(label.Replace(" ", "") + "Button", parent, new Color32(62, 230, 210, 255));
+            SetTopLeft(image.rectTransform, x, y, width, height);
+            Button button = image.gameObject.AddComponent<Button>();
+            button.targetGraphic = image;
+            Text text = NewText(image.transform, label, 13, TextAnchor.MiddleCenter,
+                new Color32(14, 17, 22, 255));
+            Stretch(text.rectTransform);
             return button;
         }
 
-        private static void SetRect(RectTransform rect, Vector2 anchorMin, Vector2 anchorMax,
-            Vector2 anchoredPosition, Vector2 size)
+        private Image NewImage(string name, Transform parent, Color color)
         {
-            rect.anchorMin = anchorMin;
-            rect.anchorMax = anchorMax;
-            rect.pivot = new Vector2(0.5f, 0.5f);
-            rect.anchoredPosition = anchoredPosition;
-            rect.sizeDelta = size;
+            var go = new GameObject(name, typeof(RectTransform), typeof(Image));
+            go.transform.SetParent(parent, false);
+            Image image = go.GetComponent<Image>();
+            image.color = color;
+            image.raycastTarget = false;
+            return image;
+        }
+
+        private Text NewText(Transform parent, string value, int size, TextAnchor alignment, Color color)
+        {
+            var go = new GameObject("Text", typeof(RectTransform), typeof(Text));
+            go.transform.SetParent(parent, false);
+            Text text = go.GetComponent<Text>();
+            text.font = _font;
+            text.fontSize = size;
+            text.alignment = alignment;
+            text.color = color;
+            text.text = value;
+            text.raycastTarget = false;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Truncate;
+            return text;
+        }
+
+        private static RectTransform NewRect(string name, Transform parent)
+        {
+            var go = new GameObject(name, typeof(RectTransform));
+            go.transform.SetParent(parent, false);
+            return go.GetComponent<RectTransform>();
+        }
+
+        private static void SetTopLeft(RectTransform rect, float x, float y, float width, float height)
+        {
+            rect.anchorMin = rect.anchorMax = new Vector2(0f, 1f);
+            rect.pivot = new Vector2(0f, 1f);
+            rect.anchoredPosition = new Vector2(x, -y);
+            rect.sizeDelta = new Vector2(width, height);
+        }
+
+        private static void Stretch(RectTransform rect)
+        {
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+        }
+
+        private static void Clear(RectTransform parent)
+        {
+            for (int i = parent.childCount - 1; i >= 0; i--)
+                Destroy(parent.GetChild(i).gameObject);
         }
 
         private static void EnsureEventSystem()
         {
             if (EventSystem.current == null)
             {
-                var eventSystem = new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
+                var eventSystem = new GameObject("DirtyCashEventSystem",
+                    typeof(EventSystem), typeof(InputSystemUIInputModule));
                 eventSystem.GetComponent<InputSystemUIInputModule>().AssignDefaultActions();
             }
             else if (EventSystem.current.GetComponent<InputSystemUIInputModule>() == null)
-            {
                 EventSystem.current.gameObject.AddComponent<InputSystemUIInputModule>().AssignDefaultActions();
-            }
         }
     }
 }
