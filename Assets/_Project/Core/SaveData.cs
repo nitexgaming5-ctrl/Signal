@@ -281,7 +281,12 @@ namespace Signal.Core
                 data.searchableContainers = new List<SavedSearchableContainer>();
 
             // Version 12 persists whether the player started searching before closing the container.
-            // Older records default to false, preserving generated contents without auto-starting a search.
+            if (data.version < 12 && data.searchableContainers != null)
+            {
+                foreach (SavedSearchableContainer container in data.searchableContainers)
+                    if (container != null) container.searchStarted = false;
+            }
+
 
             data.version = CurrentVersion;
 

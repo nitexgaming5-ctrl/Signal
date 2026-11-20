@@ -183,6 +183,8 @@ namespace Signal.Game
                 _panel.enabled = !_debugMenuOpen && !workspaceOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen;
             if (_storagePanel != null)
                 _storagePanel.enabled = !_debugMenuOpen && !itemViewerOpen && !retailOpen && !containerOpen;
+            if (_containerPanel != null)
+                _containerPanel.enabled = !_debugMenuOpen && !itemViewerOpen;
             if (_debugMenuOpen && retailOpen)
             {
                 _retailPanel.Close();
@@ -213,10 +215,12 @@ namespace Signal.Game
                     cityPrompt = scenarioPrompt;
             }
 
-            if (nearbyBusiness != null)
+            if (nearbyBusiness != null && !nearSearchableContainer)
                 cityPrompt = nearbyBusiness.IsOpen(_clock.MinuteOfDay)
                     ? "E  Browse " + nearbyBusiness.DisplayName
                     : nearbyBusiness.DisplayName + "  —  Closed";
+            if (nearSearchableContainer)
+                cityPrompt = "E  Search " + nearbyContainerLabel;
             if (containerOpen)
                 _hud.SetPrompt("ESC  Close container");
             else if (retailOpen)
@@ -241,7 +245,7 @@ namespace Signal.Game
             if (_debugMenuOpen || keyboard == null)
                 return;
 
-            if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen &&
+            if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
                 _miloScenario != null && _miloScenario.HasPendingChoice)
             {
                 int choice = keyboard.digit1Key.wasPressedThisFrame ? 1 :
@@ -273,7 +277,7 @@ namespace Signal.Game
             }
             else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && nearWorkbench && keyboard.eKey.wasPressedThisFrame)
                 _workspace.Open();
-            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && nearStorage && keyboard.eKey.wasPressedThisFrame)
+            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && nearStorage && keyboard.eKey.wasPressedThisFrame)
                 _storagePanel.SetOpen(true);
             else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
                      !nearSearchableContainer && nearbyBusiness == null && !nearWorkbench && !nearStorage &&
@@ -291,7 +295,7 @@ namespace Signal.Game
                     Say("Location: " + _city.CurrentPlace);
             }
 
-            if (!retailOpen)
+            if (!retailOpen && !containerOpen)
             {
                 if (keyboard.f6Key.wasPressedThisFrame) Sleep();
                 if (keyboard.f5Key.wasPressedThisFrame) SaveGame();

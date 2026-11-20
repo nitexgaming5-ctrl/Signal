@@ -325,7 +325,6 @@ namespace Signal.Game
             foreach (PlacedItem item in _playerInventory.Items)
                 CreateItemView(item, _playerItems, false);
 
-            _containerTitle.text = "CONTAINER  " + _container.DiscoveredCount + " / " + _container.TotalGeneratedCount;
             _playerTitle.text = "CARRIED INVENTORY";
             _status.text = _container.IsSearchComplete ? "Search complete" :
                 _container.HasSearchStarted ? (_searching ? "Searching..." : "Search paused — reopening resumes") :
