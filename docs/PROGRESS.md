@@ -600,3 +600,11 @@ Next: open HideoutSlice in Unity, resolve any compiler/test issues, run the full
 - Tightened the loot-profile generation test to assert the configured 2–3 roll range, in addition to one-time generation and stable item-instance identity.
 - This is a compile correction to the already approved loot-profile behavior; no gameplay rule or save format changed.
 - Unity compilation and EditMode tests still need to be run in the Editor.
+
+## 2026-11-20 — SCAVENGE-001 interaction polish after 368/368
+
+- User confirmed the full Unity EditMode suite **368/368 passed** on the implementation baseline.
+- Play Mode feedback identified two usability issues: the carried inventory was visible beside a bin but could not be rearranged there, and the drag ghost/drop presentation appeared diagonally offset.
+- Updated `SearchableContainerPanel` so the carried inventory remains an active inventory-management surface even when the bin is empty: player-owned stacks can be dragged within the player grid, rotated with R, and inspected with right-click. Empty containers continue to open and display their completed/empty state; they do not reroll.
+- Corrected drag-ghost anchoring to preserve the grabbed cell and align the ghost's top-left with the target grid cell/drop preview. The Core inventory placement rules and save schema are unchanged.
+- These are UI interaction/presentation corrections, not new economy or scavenging rules. The user must pull the update, rerun the full EditMode suite, and recheck empty-bin inventory management plus grid snapping in Play Mode. No Unity verification is claimed by the assistant.
