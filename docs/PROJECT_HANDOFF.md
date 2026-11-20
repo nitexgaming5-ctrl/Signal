@@ -660,3 +660,18 @@ The user approved multi-slice implementation within the previously agreed crime/
 **Verification:** implementation and tests are committed but Unity compilation, EditMode and Play Mode remain pending. The last user-confirmed baseline was 368/368; 14 new test cases make 382 the expected suite count. No assistant-side Unity execution is claimed.
 
 **Next:** pull the branch, open HideoutSlice, run the full EditMode suite, then verify street-bin regression, wardrobe theft, item Stolen state, transaction/heat/progression, witness and no-witness paths, absence of automatic reporting, and save/load. Only after Slice A is verified should we choose whether dirty-money payment/cleaning or authored production comes next.
+
+
+## Latest design decision — CRIME-ECONOMY-SLICE-B (2026-11-20)
+
+The user approved Slice B and confirmed:
+- New discreet shared-city contact, internal NPC ID `Clean_Dirtycash`, visible display name blank.
+- Physical Dirty Cash denomination 10 per unit.
+- Cleaning retains 20%, paying 8 clean CARD per unit immediately.
+- One fixed fence purchase for one specifically authored stolen item; one separate contact-specific cleaning offer.
+- Both transactions must be explicit, player-confirmed, atomic, separately recorded and save/load-safe.
+- Dirty Cash cannot be used in legal retail or deposited directly. No cleaning risk/delay, heat, witness, police or passive laundering in this first slice.
+
+Full specification: `docs/tasks/CRIME-ECONOMY-SLICE-B-DIRTY-CASH.md`.
+
+**Before implementation:** the exact accepted stolen ItemDefinition and fixed Dirty Cash payout quantity remain unapproved. Ask the user to choose/approve that one fence offer. Do not invent a new narrative item, price or contact identity. The prior superseded Phase 3 illicit-vendor proposal remains historical and is not the active specification; Slice B is the newly approved, narrowly scoped transaction loop.
