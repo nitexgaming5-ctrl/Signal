@@ -1,6 +1,13 @@
 # Signal — project handoff for the next agent
 
-> Read this document together with `AGENTS.md`, `docs/PROGRESS.md`, `docs/ROADMAP.md`, `docs/VISION.md`, `docs/ARCHITECTURE.md`, `docs/NPC_FRAMEWORK.md`, `docs/DESIGN.md`, `docs/OPEN_QUESTIONS.md` and `docs/DEVELOPMENT_WORKFLOW.md` before substantial work. This is the consolidated design and implementation handoff from the discussions and user-confirmed decisions through 2026-11-19. The user is the game director.
+> Read this document together with `AGENTS.md`, `docs/PROGRESS.md`, `docs/ROADMAP.md`, `docs/VISION.md`, `docs/ARCHITECTURE.md`, `docs/NPC_FRAMEWORK.md`, `docs/DESIGN.md`, `docs/OPEN_QUESTIONS.md` and `docs/DEVELOPMENT_WORKFLOW.md` before substantial work. This is the consolidated design and implementation handoff from the discussions and user-confirmed decisions through 2026-11-20. The user is the game director.
+
+## Latest verification update — 2026-11-20
+
+- SCAVENGE-001 physical containers and progressive search are complete. The user confirmed the latest full EditMode suite **368/368 passed** after UI polish and confirmed empty-bin carried-inventory management plus grid snapping in Play Mode.
+- Opportunity 001: Milo's Parcel is user-verified: 284/284 EditMode tests and successful end-to-end Play Mode completion were confirmed by the user. Any older pending-verification wording in historical notes is superseded.
+- Player-facing sell-to-shop is user-verified: 355/355 EditMode tests and the BUY/partial SELL/full SELL/save-reload Play Mode path were confirmed; the user also observed Milo receiving business revenue.
+- Verification is based on user reports. The assistant has not run the local Unity Editor.
 
 ## 1. What Signal is
 
