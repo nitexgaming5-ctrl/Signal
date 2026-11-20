@@ -104,7 +104,9 @@ namespace Signal.Core.Tests
             Guid definitionId = Guid.NewGuid();
             var type = new ItemType(definitionId, 1, 1, 5);
             var source = new SearchableContainer("street-bin-save");
-            source.Inventory.Place(type, 0, 0, count: 2, state: ItemInstanceState.Default);
+            var savedState = new ItemInstanceState(ItemQuality.Fine, ItemCondition.Worn,
+                ItemAuthenticity.Genuine, ItemOwnershipStatus.Stolen);
+            source.Inventory.Place(type, 0, 0, count: 2, state: savedState);
             source.Inventory.Place(type, 1, 0, count: 1, state: ItemInstanceState.Default);
             Guid[] order = { source.Inventory.Items[1].ItemInstanceId, source.Inventory.Items[0].ItemInstanceId };
             Assert.That(source.TryInitializeSearchOrder(order), Is.True);
@@ -118,6 +120,7 @@ namespace Signal.Core.Tests
             Assert.That(skipped, Is.Zero);
             Assert.That(restored.IsGenerated, Is.True);
             Assert.That(restored.Inventory.Items.Count, Is.EqualTo(2));
+            Assert.That(restored.Inventory.Items[0].State, Is.EqualTo(savedState));
             Assert.That(restored.HasSearchStarted, Is.True);
             Assert.That(restored.SearchOrder[0], Is.EqualTo(order[0]));
             Assert.That(restored.DiscoveredCount, Is.EqualTo(1));
