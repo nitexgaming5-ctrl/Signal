@@ -1,8 +1,8 @@
 # CRIME-ECONOMY-001 — Shared-city crime, dirty money and production
 
-**Status:** design proposal drafted from user-approved direction; detailed gameplay rules await approval  
+**Status:** broad design approved; Slice A resident-container theft implementation committed, awaiting Unity verification. Slices B–D remain design-stage.  
 **Date:** 2026-11-20  
-**Scope:** design only. No gameplay code, content assets or save schema changes are authorized by this document.
+**Scope:** shared-city crime/economy architecture and staged implementation. The first crime action is specified in [CRIME-THEFT-001](CRIME-THEFT-001-RESIDENT-CONTAINER-THEFT.md).
 
 ## 1. Purpose and player outcome
 
@@ -144,15 +144,24 @@ Do not implement all three domains as parallel frameworks. Use this sequence:
 ### Slice A — crime/exposure foundation
 **Player outcome:** complete one authored crime-related action and see a locally grounded exposure outcome without omniscient city knowledge.
 
-Minimum:
-- A semantic crime outcome contract in Core.
-- Explicit inputs for crime category, actor, location/time and authored base risk/heat/progression effects.
-- A clear distinction between action success, witness exposure, heat change and criminal progression award.
-- A bridge to existing NPC world events/knowledge where observers are actually present.
-- Tests for no-observer, one-observer, out-of-radius, duplicate outcome and invalid input cases.
-- No police pursuit, arrest simulator or generic investigation AI.
+**First action chosen by the user:** steal a physical item from a resident-owned container inside an apartment. NPC theft/pickpocketing, torn references, aggression, weapons and stealth are deferred until their interaction foundations exist.
 
-Exit: a small authored scenario can produce a crime result, correct observers may learn only observable facts, and heat/progression outputs are deterministic and testable.
+The first implementation is Rhea's wardrobe, but the reusable property definition references its owner and location through authored data; the Core crime and transfer systems are not hardwired to Rhea.
+
+Minimum:
+- A semantic crime outcome contract and global criminal progression track in Core.
+- One fixed-content resident property container using existing GridInventory, stable item identity, ownership/custody and save foundations.
+- A successful transfer uses the existing Theft reason and marks the item Stolen within the atomic transfer boundary; street-bin Scavenging remains unchanged.
+- A successful theft emits one CrimeOutcome, authored heat/progression awards and at most one local witness event.
+- A witness is selected from residents physically present in the authored location and within the witness and NPC-awareness radii. Knowledge is delivered to that character only and is restored after load.
+- No automatic reporting, police response, relationship penalty or suspicion from an unwitnessed event. The existing ambient social-encounter exchange skips `crime-observed` events until witness-sharing/reporting rules are designed and approved.
+- Tests for successful/failed transfer, stolen item state, no-observer, one-observer, out-of-radius, duplicate outcome and current-format save/load.
+
+Initial prototype tuning on Rhea's wardrobe is +2 heat, +1 global criminal-progression point per successfully stolen stack, and an 8-unit witness radius. These are serialized authoring values for playtesting, not final balance. Existing HeatMeter daily cooling remains placeholder tuning; criminal progression does not decay and has no unlock thresholds yet.
+
+**Implementation status:** code/content/test batch committed; awaiting Unity compilation, EditMode and Play Mode verification. Full details and acceptance checks: [CRIME-THEFT-001](CRIME-THEFT-001-RESIDENT-CONTAINER-THEFT.md).
+
+Exit: a small authored scenario produces a crime result, only the selected local observer learns the observable fact, and heat/progression outputs and save/load are deterministic and testable.
 
 ### Slice B — dirty-money payment and cleaning
 **Player outcome:** receive dirty money from an authored illegal opportunity, spend some at an illicit contact, and clean an explicitly offered amount into CARD.
@@ -207,22 +216,21 @@ Do not introduce a universal transaction engine, generic crime framework or prod
 - Reconstruct runtime container custody from actual inventory references; do not serialize Unity object references.
 - Unity EditMode tests, compilation and Play Mode verification must be reported separately. The assistant cannot claim local Unity execution through GitHub.
 
-## 9. Decisions still required before implementation
+## 9. Decisions still required
 
-The three broad boundaries above are approved. The following detailed rules are not:
+The user has since green-lit implementation of Slice A and selected the first action as theft from a physical apartment container. The following details remain open beyond the initial prototype fixture:
 
-1. Crime categories and the first crime action to model.
-2. Which successful/failed actions raise heat, by how much, and whether unwitnessed actions can raise it.
-3. Whether heat has bands and the exact gradual consequences available in each band.
-4. How a witness can report/share information, who receives it and what can be contested or forgotten.
-5. Criminal progression award rules and what progression unlocks.
-6. Dirty-money denomination/value convention and first item definition.
-7. First illicit contact, accepted amount and exchange outcome.
-8. Cleaning fee/retention model, rate, prerequisites, delay and exposure consequences.
-9. First production-capable business/workspace, recipe inputs/outputs and whether production is immediate or time-based.
-10. Which one of Slices A–C becomes the first implementation initiative.
+1. Additional crime categories/actions and the exact award rules for each.
+2. Final heat values, daily cooling, heat bands and gradual consequences.
+3. Whether/how witnesses later share or report information, who receives it, timing and confidence. The first slice only gives one local witness direct knowledge and does not auto-report.
+4. Criminal progression award policy across future crime categories and what progression unlocks. The first slice awards one prototype point per successful stolen stack; no unlock thresholds exist.
+5. Dirty-money denomination/value convention and first item definition.
+6. First illicit contact, accepted amount and exchange outcome.
+7. Cleaning fee/retention model, rate, prerequisites, delay and exposure consequences.
+8. First production-capable business/workspace, recipe inputs/outputs and whether production is immediate or time-based.
+9. Whether Slice B (dirty-money payment/cleaning) or Slice C (authored production) should follow the verified theft slice.
 
-**Recommended next design choice:** start with Slice A, but keep it deliberately small: one authored low-severity crime action, at most one possible local witness, no automatic report, and a modest heat/progression result. This proves the distinction between crime, exposure and heat before dirty-money or production systems depend on it.
+The first action's current serialized prototype tuning is +2 heat, +1 progression point per successful stolen stack, and an 8-unit witness radius. These values are intentionally small and editable; they are not a final balance decision. The existing HeatMeter daily cooling value remains placeholder tuning.
 
 ## 10. Explicit exclusions
 

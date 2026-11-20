@@ -174,3 +174,17 @@ When a save shape changes, keep the current format reliable and add round-trip c
 - Save v12 adds `SavedSearchableContainer.searchStarted`. v10 saves without container state leave bins ungenerated. v11 generated contents/progress are retained, with the newly introduced search-started flag defaulting false.
 - Game content includes three test profiles A/B/C referencing existing ITEM_A/B/C definitions. These are vertical-slice fixtures, not a generic loot-economy framework.
 - The side-by-side UI uses the existing UGUI and Input System; no package or third-party code was added.
+
+
+## Resident property containers, crime outcomes and progression — save v13
+
+- `ResidentPropertyContainerDefinition` is authored Game content. It identifies a stable container, resident owner, location, world interaction point, fixed ItemDefinition contents, witness radius, and the crime action's heat/progression awards and observable witness description.
+- Unlike street-bin `ContainerLootProfile` content, resident-property contents are fixed authored entries. They are initialized once and are never randomized or respawned.
+- The runtime property inventory is registered with `EconomicContainerRegistry` under the resident owner actor. Container custody and asset ownership remain distinct.
+- A successful transfer from a resident-property container uses `AssetTransferReason.Theft`; street-bin transfers remain `Scavenging`.
+- `AssetTransferService` marks the moved stack's `ItemOwnershipStatus` as `Stolen` inside the existing snapshot/rollback boundary. Quality, condition, authenticity and ItemInstanceId are preserved.
+- The economic transfer ledger records the exact item/quantity, from/to actors, Theft reason and timestamp. `CrimeOutcome` is a separate semantic record tied to the transfer transaction ID; it records the action, actor, item, location/time, authored awards and optional single witness/event.
+- `CrimeOutcomeLedger` is independent from both the economic transaction ledger and NPC knowledge. `CriminalProgressionTrack` is one global non-decaying integer total; heat remains the separate bounded/cooling `HeatMeter`.
+- A witness is selected only from residents physically in the property's authored location and within both the authored witness radius and the NPC's awareness radius. The selected resident receives one explicit character-scoped `NpcWorldEvent`; other residents do not receive a broadcast. Generic ambient social encounters skip `crime-observed` events until witness-sharing rules are approved. The saved outcome retains enough information to restore that one witness's knowledge after load.
+- The first Rhea wardrobe fixture uses ITEM_A ×2, ITEM_C ×1, +2 heat, +1 progression point per successful stolen stack and an 8-unit witness radius. These are prototype playtest values, not final balance. There is no automatic reporting, police response, heat-band consequence or relationship change.
+- Save v13 adds `criminalProgressionPoints` and `SavedCrimeOutcome` records. `SearchableContainerSaveMapper` continues to persist the wardrobe's generated fixed contents, reveal order and search progress. v12 and older saves initialize an empty crime ledger and zero progression.

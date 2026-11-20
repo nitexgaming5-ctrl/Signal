@@ -7,6 +7,7 @@
 - SCAVENGE-001 physical containers and progressive search are complete. The user confirmed the latest full EditMode suite **368/368 passed** after UI polish and confirmed empty-bin carried-inventory management plus grid snapping in Play Mode.
 - Opportunity 001: Milo's Parcel is user-verified: 284/284 EditMode tests and successful end-to-end Play Mode completion were confirmed by the user. Any older pending-verification wording in historical notes is superseded.
 - Player-facing sell-to-shop is user-verified: 355/355 EditMode tests and the BUY/partial SELL/full SELL/save-reload Play Mode path were confirmed; the user also observed Milo receiving business revenue.
+- CRIME-THEFT-001 resident-owned apartment container theft is now implemented and committed, with 14 new EditMode test cases and save v13. Unity compilation, the expected 382/382 full EditMode suite and Play Mode acceptance checks are still pending. This is implementation status, not a verification claim.
 - Verification is based on user reports. The assistant has not run the local Unity Editor.
 
 ## 1. What Signal is
@@ -55,7 +56,9 @@ The player should have satisfying ways to make a living without crime. Possible 
 - Crime is a major pillar, including fictional drug-related activity and a broad range of other illegal activities.
 - All criminal activity contributes to one global criminal progression track, rather than separate skill trees for each crime.
 - Serious criminal failure should have harsh, potentially lasting consequences.
-- Exact crime activities, progression thresholds, penalties, police response, heat rules and recovery options are not designed yet. They require a separate design conversation and approval.
+- The first action is now selected and implemented as a prototype: stealing a fixed authored item from a resident-owned apartment container. Rhea's wardrobe is the first content fixture; the owner/location are data-driven, and the flow is reusable for future `StealingHouse_NPC` content.
+- The first fixture records successful theft, marks the item Stolen, awards editable prototype heat/progression, and gives at most one local resident direct-observation knowledge. It has no automatic report or police response.
+- Other crime actions, final progression thresholds, penalties, police response, heat bands/cooling and recovery rules remain open. The current +2 heat/+1 progression values are prototype tuning, not final balance.
 
 ### People and narrative
 NPCs are people first, not quest dispensers. They have public roles, private motives, routines, needs, relationships, incomplete knowledge, secrets and social networks. Their lives should not exist only when the player is nearby. The player discovers opportunities and truths through observation, conversation, requests, rumours, inspection and consequences.
@@ -640,3 +643,20 @@ The complete first playable implementation batch for physical-container scavengi
 7. F5 save while a search is partly complete, close/reload with F9, and confirm contents, discoveries, started state and taken items are unchanged.
 
 No assistant-side Unity compile, EditMode or Play Mode run has occurred. Do not call this verified until those checks pass.
+
+
+## Latest handoff — CRIME-THEFT-001 implementation committed (2026-11-20)
+
+The user approved multi-slice implementation within the previously agreed crime/economy boundaries and selected theft from a physical apartment container as the first crime action. Rhea's wardrobe is the first authored fixture; the reusable property definition and Core crime systems reference owner/location data rather than hardcoding Rhea.
+
+- Fixed contents: ITEM_A ×2 and ITEM_C ×1. Existing searchable-container UI and persistence are reused; no random loot, respawn or scavenging semantics are applied.
+- Successful transfers use Theft, mark the item Stolen inside the atomic AssetTransferService operation, preserve stable identity and other item-state fields, and record the existing economic transaction.
+- A separate CrimeOutcomeLedger records successful thefts with the player actor; CriminalProgressionTrack is one global non-decaying total. Initial editable fixture awards are +2 heat and +1 progression point per stolen stack.
+- At most one nearest resident physically in the authored location and within the 8-unit witness/awareness radius receives an anonymous character-scoped event. Ambient social encounters do not share crime observations while witness-sharing/reporting rules remain open. No automatic reporting, police response, suspicion or relationship penalty.
+- Crime outcomes, progression and selected witness identity/event persist in save v13. Loading restores the event to that same NPC only.
+- F1 debug controls can force Rhea Home + focus, return her to schedule, and show heat/progression/outcome count.
+- Parent design and acceptance details: `docs/tasks/CRIME-ECONOMY-001-SHARED-CITY-DESIGN.md`; implementation checklist: `docs/tasks/CRIME-THEFT-001-RESIDENT-CONTAINER-THEFT.md`.
+
+**Verification:** implementation and tests are committed but Unity compilation, EditMode and Play Mode remain pending. The last user-confirmed baseline was 368/368; 14 new test cases make 382 the expected suite count. No assistant-side Unity execution is claimed.
+
+**Next:** pull the branch, open HideoutSlice, run the full EditMode suite, then verify street-bin regression, wardrobe theft, item Stolen state, transaction/heat/progression, witness and no-witness paths, absence of automatic reporting, and save/load. Only after Slice A is verified should we choose whether dirty-money payment/cleaning or authored production comes next.

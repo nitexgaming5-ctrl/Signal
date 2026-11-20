@@ -119,6 +119,24 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void ExplicitWitnessEventIsKnownOnlyByTheSelectedNpcAndCanBeRestoredIdempotently()
+        {
+            var world = new NpcSocialWorld();
+            world.RegisterNpc("rhea", "Apartment", 0f, 0f, 8f);
+            world.RegisterNpc("milo", "Apartment", 1f, 0f, 8f);
+
+            var occurrence = new NpcWorldEvent(
+                "crime-1", "crime-observed", "Someone took something from the wardrobe.",
+                null, "Apartment", 0f, 0f, 8f, 1, 600);
+
+            Assert.That(world.PublishEventToNpc(occurrence, "rhea"), Is.True);
+            Assert.That(world.BuildPerceptionFor("rhea", 8f).KnowsEvent("crime-1"), Is.True);
+            Assert.That(world.BuildPerceptionFor("milo", 8f).KnowsEvent("crime-1"), Is.False);
+            Assert.That(world.PublishEventToNpc(occurrence, "rhea"), Is.True);
+            Assert.That(world.EventCount, Is.EqualTo(1));
+        }
+
+        [Test]
         public void DuplicateNpcAndEventIdsAreRejected()
         {
             var world = new NpcSocialWorld();

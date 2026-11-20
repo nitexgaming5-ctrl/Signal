@@ -91,7 +91,7 @@ NPC runtime belongs to the shared city simulation, not to isolated character-spe
 - An NPC's knowledge is not the same as the world event journal. Decision-making must consume the individual agent's NpcPerception snapshot (nearby people plus its own knowledge), never the global journal as an omniscient shortcut.
 - World events must contain only information that could be perceived by their witnesses. Hidden motives, identities and causes must not leak through event descriptions.
 - The current Milo component is a temporary integration fixture. It is not the production character-authoring pattern. Move identity, appearance, routine preferences and dialogue into data-driven definitions before bulk NPC creation.
-- NPC-to-NPC social knowledge/relationships and transient perception are not yet saved. Player-to-NPC relationship impressions used by the Milo scenario are persisted in save v7. Add NPC social-world persistence only when a scenario requires it.
+- NPC-to-NPC social knowledge/relationships and transient perception remain runtime-only in general. The resident-property theft slice is a narrow exception: its persisted CrimeOutcome stores the selected witness and event so that one character's direct-observation knowledge can be rehydrated after load. This is not a general social-memory save system. Player-to-NPC relationship impressions used by the Milo scenario are persisted in save v7.
 
 The implementation contract and phased delivery plan are documented in [NPC_FRAMEWORK.md](NPC_FRAMEWORK.md). Keep the simulation deterministic and event-driven; do not add per-frame full-population reasoning, external AI services or separate legal/criminal social worlds.
 
@@ -180,3 +180,16 @@ EconomicContainerRegistry records the custodian for each runtime inventory conta
 - Bin inventories are registered as world-custodied containers under `world:<container-id>`. The player inventory remains registered to Player. Ownership and custody remain separate concepts.
 - SaveMapper handles player inventory/ownership; SearchableContainerSaveMapper separately handles bin contents and search state. Runtime registry entries are rebuilt from live inventory references, not serialized Unity objects.
 - Save v12 persists `searchStarted` in addition to generated contents, reveal order and discovery count. No external package or third-party code is required.
+
+
+## Crime outcomes and resident-property theft
+
+- The crime action is emitted by the authoritative item-transfer operation, not inferred from UI text or arbitrary inventory changes. Its CrimeOutcome records the action ID, player actor, transferred ItemInstanceId, location/time, awards and optional selected witness. A failed move creates no crime outcome.
+- `AssetTransferService` owns the atomic theft-state transition: reason `Theft` changes the moved item's ownership-status state to `Stolen` before ownership and transaction commit; snapshot rollback restores both inventories if any commit step fails.
+- `CrimeOutcome` / `CrimeOutcomeLedger` records the semantic crime result separately from the economic transfer ledger. `CriminalProgressionTrack` is a single global, non-decaying total. `HeatMeter` remains current pressure; it is not a witness or evidence database.
+- `ResidentPropertyContainerDefinition` is reusable authored Game content. It supplies the resident owner, location, interaction position, fixed contents and initial crime/exposure tuning. Rhea's wardrobe is a first content fixture; future `StealingHouse_NPC` containers should reuse this definition and flow rather than add Rhea-specific branches.
+- A Game-layer witness selection chooses at most one resident physically present in the property's location and within the minimum of the authored witness radius and that NPC's awareness radius. Core `NpcSocialWorld.PublishEventToNpc` gives the event only to that explicit observer. The description is observable and does not reveal the player's identity.
+- Generic ambient social encounters explicitly skip `crime-observed` events. Witness sharing/reporting is disabled until its rules are separately designed and approved.
+- Crime outcome persistence stores the selected witness identity and observation event. On load, only that NPC's knowledge is restored; no event is broadcast to newly nearby residents. There is no automatic report, police response, suspicion or relationship penalty in this first slice.
+- Save v13 stores the global progression total and crime outcomes; the existing searchable-container mapper stores the physical resident-property inventory and reveal state. Runtime container custody is reconstructed from the authored owner and live inventory.
+- Dirty-money exchange/cleaning and authored production remain later slices. Do not build a universal crime, transaction, production or police framework ahead of a concrete repeated use case.

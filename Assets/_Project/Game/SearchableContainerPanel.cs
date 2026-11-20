@@ -29,6 +29,7 @@ namespace Signal.Game
         private readonly Dictionary<Guid, ItemVisual> _visuals = new Dictionary<Guid, ItemVisual>();
         private GridInventory _playerInventory;
         private SearchableContainer _container;
+        private string _containerDisplayName;
         private Func<Guid, bool> _takeFirstFit;
         private Func<Guid, int, int, bool, bool> _takeAt;
         private Action<PlacedItem> _inspectItem;
@@ -96,7 +97,7 @@ namespace Signal.Game
             Close();
         }
 
-        public void Open(SearchableContainer container, GridInventory playerInventory)
+        public void Open(SearchableContainer container, GridInventory playerInventory, string displayName = null)
         {
             if (container == null || playerInventory == null)
                 throw new ArgumentNullException(container == null ? nameof(container) : nameof(playerInventory));
@@ -104,6 +105,7 @@ namespace Signal.Game
             Unsubscribe();
             CancelDrag();
             _container = container;
+            _containerDisplayName = string.IsNullOrWhiteSpace(displayName) ? "CONTAINER" : displayName.ToUpperInvariant();
             _playerInventory = playerInventory;
             _lastClickId = Guid.Empty;
             _lastClickTime = -10f;
@@ -380,8 +382,8 @@ namespace Signal.Game
                 _container.HasSearchStarted ? (_searching ? "Searching..." : "Search paused — reopening resumes") :
                 "Contents are concealed";
             _containerTitle.text = _container.HasSearchStarted
-                ? "CONTAINER  " + _container.DiscoveredCount + " / " + _container.TotalGeneratedCount
-                : "CONTAINER";
+                ? _containerDisplayName + "  " + _container.DiscoveredCount + " / " + _container.TotalGeneratedCount
+                : _containerDisplayName;
             _searchButton.color = _container.HasSearchStarted || _container.IsSearchComplete
                 ? new Color32(80, 86, 92, 255) : new Color32(62, 230, 210, 255);
             _searchButtonText.text = _container.IsSearchComplete ? "SEARCH COMPLETE" :

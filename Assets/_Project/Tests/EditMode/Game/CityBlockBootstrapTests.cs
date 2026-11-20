@@ -86,6 +86,35 @@ namespace Signal.Game.Tests
         }
 
         [Test]
+        public void ApartmentWitnessSelectionRequiresAResidentPhysicallyNearTheProperty()
+        {
+            var host = new GameObject("CityHost");
+            var player = new GameObject("Player");
+            var cameraObject = new GameObject("MainCamera");
+            Rigidbody2D body = player.AddComponent<Rigidbody2D>();
+            Camera camera = cameraObject.AddComponent<Camera>();
+            CityBlockBootstrap city = host.AddComponent<CityBlockBootstrap>();
+
+            try
+            {
+                city.Build(player.transform, body, camera, new GameClock(1, 18 * 60));
+                Assert.That(city.DebugForceResidentActivity("rhea", NpcActivity.Home), Is.True);
+                Assert.That(city.TryRestorePlace("Apartment", new Vector2(1020f, 1000f)), Is.True);
+
+                Vector2 wardrobePosition = new Vector2(1024.8f, 1003.2f);
+                Assert.That(city.TryGetNearestResidentWithin(wardrobePosition, 8f, out string witness), Is.True);
+                Assert.That(witness, Is.EqualTo("rhea"));
+                Assert.That(city.TryGetNearestResidentWithin(wardrobePosition, 3f, out _), Is.False);
+            }
+            finally
+            {
+                Object.DestroyImmediate(host);
+                Object.DestroyImmediate(player);
+                Object.DestroyImmediate(cameraObject);
+            }
+        }
+
+        [Test]
         public void FallbackResidentsUseSharedPresenterAndCanBeTalkedTo()
         {
             var host = new GameObject("CityHost");

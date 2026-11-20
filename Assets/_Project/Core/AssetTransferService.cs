@@ -69,6 +69,19 @@ namespace Signal.Core
             InventoryTransferResult movement = move();
             if (!movement.Success) return new AssetTransferResult(AssetTransferStatus.TransferFailed, null);
             if (movement.Moved == 0) return new AssetTransferResult(AssetTransferStatus.DestinationFull, null);
+
+            if (reason == AssetTransferReason.Theft)
+            {
+                var stolenState = new ItemInstanceState(item.State.Quality, item.State.Condition,
+                    item.State.Authenticity, ItemOwnershipStatus.Stolen);
+                if (!destination.TryUpdateItemState(itemInstanceId, stolenState))
+                {
+                    source.Restore(sourceBefore);
+                    destination.Restore(destinationBefore);
+                    return new AssetTransferResult(AssetTransferStatus.TransferFailed, null);
+                }
+            }
+
             if (!_ownership.TryTransferOwnership(itemInstanceId, fromActor, toActor))
             {
                 source.Restore(sourceBefore); destination.Restore(destinationBefore);

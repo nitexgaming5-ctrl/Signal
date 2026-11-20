@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8c7d6e5f4a3412a9b8c7d6e5f4a3210, type: 3}
+  m_Name: Rhea_Wardrobe
+  m_EditorClassIdentifier: Signal.Game::Signal.Game.ResidentPropertyContainerDefinition
+  containerId: rhea-wardrobe
+  ownerNpcId: rhea
+  locationId: Apartment
+  displayName: Rhea's wardrobe
+  interactionPosition: {x: 1024.8, y: 1003.2}
+  witnessRadius: 8
+  heatAward: 2
+  progressionAward: 1
+  actionId: apartment-container-theft
+  witnessDescription: Someone took something from the wardrobe.
+  contents:
+  - item: {fileID: 11400000, guid: 39a634896790a6f42aa67446e05bb8de, type: 2}
+    quantity: 2
+  - item: {fileID: 11400000, guid: 93ce0b046196ab54ea7ba4defbc4c608, type: 2}
+    quantity: 1

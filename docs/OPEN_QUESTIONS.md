@@ -126,18 +126,27 @@ Approved rules:
 Implementation specification: `docs/tasks/ECONOMY-PLAYER-SELLING-DESIGN.md`. The approved model is implemented and user-verified: the full EditMode suite passed 355/355, and the BUY → partial SELL → full SELL → save/reload Play Mode sequence works. The temporary Bread buyback offer at CARD $3 was used only for testing and has been removed from `Business_CornerShop.asset`. No final bakery buyback item or price has been approved. The existing Bread merchandise price of CARD $5 remains temporary test content, not final balancing.
 
 
-## Crime, dirty money and production — detailed rules pending (2026-11-20)
+## Crime, dirty money and production — Slice A implementation underway (2026-11-20)
 
-The user approved the high-level boundaries documented in `docs/tasks/CRIME-ECONOMY-001-SHARED-CITY-DESIGN.md`. The following details are not yet approved and must not be implemented by assumption:
+The user approved the high-level boundaries in `docs/tasks/CRIME-ECONOMY-001-SHARED-CITY-DESIGN.md`, green-lit multi-slice implementation, and selected theft from a physical container inside an apartment as the first crime action. NPC theft/pickpocketing (including torn references), aggression, weapons and stealth remain deferred until their interaction foundations exist.
 
-- First crime action/category and its success/failure outcomes.
-- Which actions contribute to heat and criminal progression; exact values and whether unwitnessed actions can add heat.
-- Heat bands, gradual consequences, cooling and recovery.
-- How a witness can report or share information; recipient, timing and confidence.
-- Dirty-money item value/denomination and the first authored item.
-- First illicit contact, accepted payment and exchanged outcome.
-- Cleaning offer structure (fixed fee or retained percentage), exact rate, prerequisites, delay and exposure.
-- First production-capable business/workspace, recipe inputs/outputs and whether production is immediate or time-based.
-- First implementation slice.
+The first implementation uses Rhea's wardrobe as a content fixture, not a Rhea-specific crime system. The reusable `ResidentPropertyContainerDefinition` references an owner NPC and location through authored data, and the Core crime/transfer systems are reusable for future `StealingHouse_NPC` content.
 
-Current recommendation: Slice A first — one authored low-severity crime action, at most one possible local witness, no automatic report, and modest authored heat/progression effects. Keep exposure character-scoped; do not make heat a proxy for universal knowledge. This recommendation is awaiting the user's detailed design approval.
+Current prototype fixture:
+- Fixed contents: ITEM_A ×2 and ITEM_C ×1; no loot roll or respawn.
+- Successful theft uses `AssetTransferReason.Theft`, marks the item `Stolen` inside the atomic transfer, preserves its stable identity and records ownership history.
+- One successful stolen stack awards +2 heat and +1 global criminal-progression point.
+- At most one nearest resident physically present in the property location and within the 8-unit witness radius/awareness range receives the anonymous observation. No automatic report, police response or relationship penalty.
+- Crime outcomes, progression points and the selected witness event are saved in schema v13.
+
+These are initial editable playtest values, not final balance. Still open:
+- Final heat awards, daily cooling, heat bands and gradual consequences.
+- Rules for future crime categories/actions and progression awards/unlocks.
+- How witnesses later share or report information, recipients, timing and confidence.
+- Dirty-money denomination/value and first item.
+- First illicit contact and accepted payment/outcome.
+- Cleaning fee/retention, rate, prerequisites, delay and exposure.
+- First production-capable business/workspace, recipe inputs/outputs and timing.
+- Whether Slice B (dirty-money payment/cleaning) or Slice C (authored production) follows the verified theft slice.
+
+Implementation details and the Unity acceptance checklist: `docs/tasks/CRIME-THEFT-001-RESIDENT-CONTAINER-THEFT.md`.

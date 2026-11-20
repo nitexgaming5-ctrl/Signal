@@ -49,6 +49,68 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void TheftTransferRecordsTheftWithoutChangingTheAtomicTransferRules()
+        {
+            var source = new GridInventory();
+            var destination = new GridInventory();
+            ItemType type = Item();
+            var originalState = new ItemInstanceState(ItemQuality.Fine, ItemCondition.Worn,
+                ItemAuthenticity.Genuine, ItemOwnershipStatus.Legitimate);
+            source.Place(type, 0, 0, count: 2, state: originalState);
+            Guid id = source.Items[0].ItemInstanceId;
+            var ownership = new AssetOwnershipBook();
+            ownership.TryRegister(id, Milo);
+            var ledger = new EconomicTransactionLedger();
+            var containers = new EconomicContainerRegistry();
+            Assert.That(containers.TryRegister(source, Milo), Is.True);
+            Assert.That(containers.TryRegister(destination, Player), Is.True);
+
+            AssetTransferResult result = Service(ownership, containers, ledger).TransferStack(
+                source, destination, id, Milo, Player, AssetTransferReason.Theft, 1, 615);
+
+            Assert.That(result.Success, Is.True);
+            Assert.That(result.Transaction.Reason, Is.EqualTo(AssetTransferReason.Theft));
+            Assert.That(result.Transaction.Quantity, Is.EqualTo(2));
+            Assert.That(destination.Items[0].ItemInstanceId, Is.EqualTo(id));
+            Assert.That(destination.Items[0].State.Quality, Is.EqualTo(ItemQuality.Fine));
+            Assert.That(destination.Items[0].State.Condition, Is.EqualTo(ItemCondition.Worn));
+            Assert.That(destination.Items[0].State.Ownership, Is.EqualTo(ItemOwnershipStatus.Stolen));
+            Assert.That(ownership.TryGetOwner(id, out EconomicActorId owner), Is.True);
+            Assert.That(owner, Is.EqualTo(Player));
+            Assert.That(ledger.Count, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void FailedTheftTransferDoesNotMarkTheItemStolenOrRecordATransaction()
+        {
+            var source = new GridInventory(1, 1);
+            var destination = new GridInventory(1, 1);
+            ItemType type = Item();
+            ItemType blocker = Item();
+            var legitimateState = new ItemInstanceState(ItemQuality.Fine, ItemCondition.Worn,
+                ItemAuthenticity.Genuine, ItemOwnershipStatus.Legitimate);
+            source.Place(type, 0, 0, state: legitimateState);
+            destination.Place(blocker, 0, 0);
+            Guid id = source.Items[0].ItemInstanceId;
+            var ownership = new AssetOwnershipBook();
+            ownership.TryRegister(id, Milo);
+            var containers = new EconomicContainerRegistry();
+            containers.TryRegister(source, Milo);
+            containers.TryRegister(destination, Player);
+            var ledger = new EconomicTransactionLedger();
+
+            AssetTransferResult result = Service(ownership, containers, ledger).TransferStack(
+                source, destination, id, Milo, Player, AssetTransferReason.Theft, 1, 615);
+
+            Assert.That(result.Status, Is.EqualTo(AssetTransferStatus.DestinationFull));
+            Assert.That(source.Items[0].ItemInstanceId, Is.EqualTo(id));
+            Assert.That(source.Items[0].State.Ownership, Is.EqualTo(ItemOwnershipStatus.Legitimate));
+            Assert.That(ownership.TryGetOwner(id, out EconomicActorId owner), Is.True);
+            Assert.That(owner, Is.EqualTo(Milo));
+            Assert.That(ledger.Count, Is.Zero);
+        }
+
+        [Test]
         public void OwnershipMismatchChangesNothing()
         {
             ItemType type = Item(); var source = new GridInventory(); var destination = new GridInventory();

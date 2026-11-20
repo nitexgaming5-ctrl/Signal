@@ -251,6 +251,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: a1c2e3f4051647289a0b1c2d3e4f5061, type: 2}
   - {fileID: 11400000, guid: b2d3f40516274839a0b1c2d3e4f50617, type: 2}
   - {fileID: 11400000, guid: c3e4f5061728493aa0b1c2d3e4f50618, type: 2}
+  residentPropertyContainers:
+  - {fileID: 11400000, guid: c9d8e7f6a5b44321b0c9d8e7f6a5b432, type: 2}
   startingMoney: 5000
   rentAmount: 0
   rentEveryDays: 7

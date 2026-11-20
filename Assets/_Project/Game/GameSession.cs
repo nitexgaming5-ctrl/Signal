@@ -18,6 +18,7 @@ namespace Signal.Game
         [SerializeField] private NpcCharacterDefinition[] npcDefinitions;
         [SerializeField] private BusinessDefinition[] businesses;
         [SerializeField] private ContainerLootProfile[] searchableLootProfiles;
+        [SerializeField] private ResidentPropertyContainerDefinition[] residentPropertyContainers;
 
         [Header("Placeholder tuning (not final design)")]
         [SerializeField] private int startingMoney;
@@ -30,6 +31,8 @@ namespace Signal.Game
         private readonly List<SearchableContainer> _searchableContainers = new List<SearchableContainer>();
         private readonly Dictionary<string, ContainerLootProfile> _searchableProfiles = new Dictionary<string, ContainerLootProfile>(StringComparer.Ordinal);
         private readonly Dictionary<string, EconomicActorId> _searchableActors = new Dictionary<string, EconomicActorId>(StringComparer.Ordinal);
+        private readonly Dictionary<string, ResidentPropertyContainerDefinition> _residentPropertyDefinitions =
+            new Dictionary<string, ResidentPropertyContainerDefinition>(StringComparer.Ordinal);
 
         private PlayerStats _stats;
         private AssetOwnershipBook _assetOwnership;
@@ -48,6 +51,8 @@ namespace Signal.Game
         private PlayerRelationshipBook _playerRelationships;
         private GameClock _clock;
         private HeatMeter _heat;
+        private CriminalProgressionTrack _criminalProgression;
+        private CrimeOutcomeLedger _crimeOutcomes;
         private RentLedger _rent;
 
         private RoomBootstrap _room;
@@ -79,6 +84,8 @@ namespace Signal.Game
         public RetailTransactionLedger RetailTransactions => _retailTransactions;
         public RetailService Retail => _retailService;
         public ShopSaleTransactionLedger ShopSaleTransactions => _shopSaleTransactions;
+        public CriminalProgressionTrack CriminalProgression => _criminalProgression;
+        public CrimeOutcomeLedger CrimeOutcomes => _crimeOutcomes;
 
         private void Start()
         {
@@ -102,6 +109,8 @@ namespace Signal.Game
             _playerRelationships = new PlayerRelationshipBook();
             _clock = new GameClock();
             _heat = new HeatMeter();
+            _criminalProgression = new CriminalProgressionTrack();
+            _crimeOutcomes = new CrimeOutcomeLedger();
             _rent = new RentLedger(rentAmount, rentEveryDays);
             _clock.DayStarted += OnDayStarted;
 
@@ -203,6 +212,13 @@ namespace Signal.Game
             BusinessDefinition nearbyBusiness = FindNearbyBusiness(playerPosition);
             bool nearSearchableContainer = _city.TryGetNearbySearchableContainer(playerPosition,
                 out string nearbyContainerId, out string nearbyContainerLabel);
+            ResidentPropertyContainerDefinition nearbyProperty = FindNearbyResidentProperty(playerPosition);
+            if (nearbyProperty != null)
+            {
+                nearSearchableContainer = true;
+                nearbyContainerId = nearbyProperty.ContainerId;
+                nearbyContainerLabel = nearbyProperty.DisplayName;
+            }
             string cityPrompt = _city.GetPrompt(playerPosition);
             if (nearSearchableContainer)
                 cityPrompt = "E  Search " + nearbyContainerLabel;
@@ -333,6 +349,9 @@ namespace Signal.Game
             GUILayout.Label(_city.DebugResidentSummary("milo"));
             GUILayout.Label(_city.DebugResidentSummary("rhea"));
             GUILayout.Label("Milo opportunity: " + (_miloOpportunity != null ? _miloOpportunity.Phase.ToString() : "Unavailable"));
+            GUILayout.Label("Heat: " + (_heat != null ? _heat.Heat.ToString() : "0") +
+                "   Criminal progression: " + (_criminalProgression != null ? _criminalProgression.Points.ToString() : "0"));
+            GUILayout.Label("Crime outcomes: " + (_crimeOutcomes != null ? _crimeOutcomes.Count.ToString() : "0"));
             GUILayout.Label("Discovery signals: " + (_playerDiscoveries != null ? _playerDiscoveries.Count.ToString() : "0") +
                 "   Familiarity: " + (_playerRelationships != null ? _playerRelationships.Get("milo").Familiarity.ToString("0.00") : "0.00"));
             GUILayout.Label("Resident clean accounts:");
@@ -380,6 +399,17 @@ namespace Signal.Game
             }
 
             GUILayout.Space(8f);
+            GUILayout.Label("RHEA — PROPERTY THEFT TEST");
+            if (GUILayout.Button("Force Rhea: Home + focus"))
+                DebugForceRheaHome();
+            if (GUILayout.Button("Return Rhea to authored schedule"))
+            {
+                _city.DebugSetNpcSimulationPaused(false);
+                _city.DebugResumeResidentSchedule("rhea");
+                Say("Rhea returned to her authored schedule.", 4f);
+            }
+
+            GUILayout.Space(8f);
             GUILayout.Label("OPPORTUNITY 001 — TEST CONTROLS");
             if (GUILayout.Button("TRIGGER MILO OFFER NOW (bypass discovery gates)"))
                 DebugTriggerMiloOffer();
@@ -387,6 +417,20 @@ namespace Signal.Game
             GUILayout.Space(8f);
             GUILayout.Label("F1 closes this menu. Debug controls do not represent player abilities.");
             GUILayout.EndArea();
+        }
+
+        private void DebugForceRheaHome()
+        {
+            _city.DebugSetNpcSimulationPaused(true);
+            if (!_city.DebugForceResidentActivity("rhea", NpcActivity.Home) ||
+                !_city.DebugFocusResident("rhea"))
+            {
+                Say("Rhea is unavailable.", 4f);
+                return;
+            }
+
+            _debugMenuOpen = false;
+            Say("DEBUG: Rhea is home. Move to her wardrobe to test the theft.", 6f);
         }
 
         private void DebugFocusMilo()
@@ -487,7 +531,8 @@ namespace Signal.Game
             SaveData data = SaveMapper.Capture(_stats, _inventory, _storage, _clock, _heat, _rent,
                                                _city.CurrentPlace, position.x, position.y, _itemKnowledge,
                                                _playerDiscoveries, _miloOpportunity, _playerRelationships,
-                                               _assetOwnership, _economicTransactions, _economicAccounts, _retailTransactions, _shopSaleTransactions);
+                                               _assetOwnership, _economicTransactions, _economicAccounts, _retailTransactions,
+                                               _shopSaleTransactions, _criminalProgression, _crimeOutcomes);
             SearchableContainerSaveMapper.Capture(_searchableContainers, data);
 
             try
@@ -514,7 +559,7 @@ namespace Signal.Game
             _activeSearchableContainer = null;
             LoadReport report = SaveMapper.Apply(data, _stats, _inventory, _storage, _clock, _heat, _rent,
                 ResolveType, _itemKnowledge, _playerDiscoveries, _playerRelationships, _assetOwnership, _economicTransactions,
-                _economicAccounts, _retailTransactions, _shopSaleTransactions);
+                _economicAccounts, _retailTransactions, _shopSaleTransactions, _criminalProgression, _crimeOutcomes);
             if (!report.Success)
             {
                 Say("Load failed: " + report.Error);
@@ -531,6 +576,7 @@ namespace Signal.Game
             if (_miloScenario != null)
                 _miloScenario.RestoreOpportunityState(_miloOpportunity);
 
+            RestoreCrimeWitnessKnowledge();
             var position = new Vector2(data.playerX, data.playerY);
             if (!_city.TryRestorePlace(data.worldPlace, position))
             {
@@ -542,7 +588,8 @@ namespace Signal.Game
             Say(report.SkippedItems + report.SkippedStorageItems + report.SkippedKnowledgeFacts +
                 report.SkippedDiscoverySignals + report.SkippedPlayerRelationships +
                 report.SkippedAssetOwners + report.SkippedEconomicTransactions +
-                report.SkippedResidentAccounts + report.SkippedRetailTransactions + report.SkippedShopSaleTransactions + skippedContainers > 0
+                report.SkippedResidentAccounts + report.SkippedRetailTransactions + report.SkippedShopSaleTransactions +
+                report.SkippedCrimeOutcomes + skippedContainers > 0
                 ? "Loaded at " + data.worldPlace + ". Some saved item or discovery details could not be restored."
                 : "Loaded at " + data.worldPlace + ".");
         }
@@ -708,6 +755,25 @@ namespace Signal.Game
                 }
             }
 
+            if (residentPropertyContainers != null)
+            {
+                foreach (ResidentPropertyContainerDefinition property in residentPropertyContainers)
+                {
+                    if (property == null) continue;
+                    if (!property.TryValidate(out string propertyError))
+                    {
+                        Debug.LogError("GameSession: invalid resident property container '" + property.name + "': " + propertyError);
+                        continue;
+                    }
+                    foreach (ItemDefinition propertyItem in property.Items)
+                    {
+                        ItemType propertyType = propertyItem.ToItemType();
+                        _catalog[propertyType.Id] = propertyType;
+                        if (!_allItemDefinitions.Contains(propertyItem)) _allItemDefinitions.Add(propertyItem);
+                    }
+                }
+            }
+
             if (parcelItem != null)
             {
                 ItemType parcelType = parcelItem.ToItemType();
@@ -727,6 +793,7 @@ namespace Signal.Game
             _searchableContainers.Clear();
             _searchableProfiles.Clear();
             _searchableActors.Clear();
+            _residentPropertyDefinitions.Clear();
             IReadOnlyList<string> ids = _city.SearchableContainerIds;
             for (int i = 0; i < ids.Count; i++)
             {
@@ -740,6 +807,36 @@ namespace Signal.Game
                     ? searchableLootProfiles[i] : null;
                 if (profile != null) _searchableProfiles[id] = profile;
             }
+
+            if (residentPropertyContainers == null) return;
+            foreach (ResidentPropertyContainerDefinition definition in residentPropertyContainers)
+            {
+                if (definition == null)
+                    continue;
+                if (!definition.TryValidate(out string error))
+                {
+                    Debug.LogError("GameSession: invalid resident property container '" + definition.name + "': " + error);
+                    continue;
+                }
+                if (!_city.HasResident(definition.OwnerNpcId))
+                {
+                    Debug.LogError("GameSession: property container '" + definition.ContainerId +
+                        "' references an unavailable owner NPC '" + definition.OwnerNpcId + "'.");
+                    continue;
+                }
+                if (_searchableActors.ContainsKey(definition.ContainerId))
+                {
+                    Debug.LogError("GameSession: duplicate searchable container id '" + definition.ContainerId + "'.");
+                    continue;
+                }
+
+                var container = new SearchableContainer(definition.ContainerId, 8, 6);
+                var owner = new EconomicActorId("resident:" + definition.OwnerNpcId);
+                _searchableContainers.Add(container);
+                _searchableActors.Add(definition.ContainerId, owner);
+                _residentPropertyDefinitions.Add(definition.ContainerId, definition);
+                _economicContainers.TryRegister(container.Inventory, owner);
+            }
         }
 
         private void OpenSearchableContainer(string containerId)
@@ -749,21 +846,35 @@ namespace Signal.Game
                 return;
             if (!container.IsGenerated)
             {
-                if (!_searchableProfiles.TryGetValue(containerId, out ContainerLootProfile profile))
+                if (_residentPropertyDefinitions.TryGetValue(containerId, out ResidentPropertyContainerDefinition property))
                 {
-                    Say("This container has no loot profile assigned.", 5f);
-                    return;
+                    if (!property.TryPopulate(container, out string error))
+                    {
+                        Say("This property cannot be searched: " + error, 5f);
+                        return;
+                    }
                 }
-                if (!profile.TryGenerate(container, out string error))
+                else
                 {
-                    Say("This container cannot be searched: " + error, 5f);
-                    return;
+                    if (!_searchableProfiles.TryGetValue(containerId, out ContainerLootProfile profile))
+                    {
+                        Say("This container has no loot profile assigned.", 5f);
+                        return;
+                    }
+                    if (!profile.TryGenerate(container, out string error))
+                    {
+                        Say("This container cannot be searched: " + error, 5f);
+                        return;
+                    }
                 }
                 RegisterSearchableContainerAssets(container);
             }
 
             _activeSearchableContainer = container;
-            _containerPanel.Open(container, _inventory);
+            string displayName = _residentPropertyDefinitions.TryGetValue(containerId,
+                out ResidentPropertyContainerDefinition propertyDefinition)
+                ? propertyDefinition.DisplayName : null;
+            _containerPanel.Open(container, _inventory, displayName);
         }
 
         private SearchableContainer FindSearchableContainer(string containerId)
@@ -795,12 +906,7 @@ namespace Signal.Game
                 return false;
             if (!_searchableActors.TryGetValue(_activeSearchableContainer.ContainerId, out EconomicActorId actor))
                 return false;
-            AssetTransferResult result = _assetTransfers.TransferStack(_activeSearchableContainer.Inventory,
-                _inventory, itemInstanceId, actor, EconomicActorId.Player, AssetTransferReason.Scavenging,
-                _clock.Day, _clock.MinuteOfDay);
-            if (result.Success) Say("Item taken.");
-            else if (result.Status == AssetTransferStatus.DestinationFull) Say("Not enough room in your inventory.");
-            return result.Success;
+            return TransferSearchableItem(itemInstanceId, actor, false, 0, 0, false);
         }
 
         private bool TakeSearchableItemAt(Guid itemInstanceId, int x, int y, bool rotated)
@@ -809,12 +915,116 @@ namespace Signal.Game
                 return false;
             if (!_searchableActors.TryGetValue(_activeSearchableContainer.ContainerId, out EconomicActorId actor))
                 return false;
-            AssetTransferResult result = _assetTransfers.TransferStackAt(_activeSearchableContainer.Inventory,
-                _inventory, itemInstanceId, x, y, rotated, actor, EconomicActorId.Player,
-                AssetTransferReason.Scavenging, _clock.Day, _clock.MinuteOfDay);
-            if (result.Success) Say("Item taken.");
-            else if (result.Status == AssetTransferStatus.DestinationFull) Say("That spot is occupied or does not fit.");
-            return result.Success;
+            return TransferSearchableItem(itemInstanceId, actor, true, x, y, rotated);
+        }
+
+        private bool TransferSearchableItem(Guid itemInstanceId, EconomicActorId actor,
+            bool positioned, int x, int y, bool rotated)
+        {
+            bool isTheft = _residentPropertyDefinitions.TryGetValue(_activeSearchableContainer.ContainerId,
+                out ResidentPropertyContainerDefinition property);
+            string witnessNpcId = null;
+            if (isTheft && _city.TryGetNearestResidentWithin(property.InteractionPosition,
+                property.WitnessRadius, out string nearbyWitness))
+                witnessNpcId = nearbyWitness;
+
+            AssetTransferResult result = positioned
+                ? _assetTransfers.TransferStackAt(_activeSearchableContainer.Inventory, _inventory,
+                    itemInstanceId, x, y, rotated, actor, EconomicActorId.Player,
+                    isTheft ? AssetTransferReason.Theft : AssetTransferReason.Scavenging,
+                    _clock.Day, _clock.MinuteOfDay)
+                : _assetTransfers.TransferStack(_activeSearchableContainer.Inventory, _inventory,
+                    itemInstanceId, actor, EconomicActorId.Player,
+                    isTheft ? AssetTransferReason.Theft : AssetTransferReason.Scavenging,
+                    _clock.Day, _clock.MinuteOfDay);
+
+            if (!result.Success)
+            {
+                if (result.Status == AssetTransferStatus.DestinationFull)
+                    Say(positioned ? "That spot is occupied or does not fit." : "Not enough room in your inventory.");
+                return false;
+            }
+
+            if (isTheft)
+            {
+                RecordTheft(property, result.Transaction, witnessNpcId);
+            }
+            else
+            {
+                Say("Item taken.");
+            }
+            return true;
+        }
+
+        private void RecordTheft(ResidentPropertyContainerDefinition property,
+            EconomicTransaction transaction, string witnessNpcId)
+        {
+            bool witnessed = !string.IsNullOrWhiteSpace(witnessNpcId);
+            string eventId = witnessed ? "crime-" + transaction.TransactionId.ToString("N") : string.Empty;
+            var outcome = new CrimeOutcome(transaction.TransactionId, property.ActionId,
+                EconomicActorId.Player.Value, transaction.ItemInstanceId, property.LocationId, witnessNpcId, eventId,
+                property.WitnessDescription, property.InteractionPosition.x, property.InteractionPosition.y,
+                property.WitnessRadius, _clock.Day, _clock.MinuteOfDay,
+                property.HeatAward, property.ProgressionAward);
+
+            if (!_crimeOutcomes.TryRecord(outcome))
+            {
+                Debug.LogError("A completed theft could not be recorded in the crime outcome ledger: " +
+                    transaction.TransactionId);
+                return;
+            }
+
+            _heat.Add(property.HeatAward);
+            _criminalProgression.Award(property.ProgressionAward);
+
+            if (witnessed)
+            {
+                var worldEvent = new NpcWorldEvent(eventId, "crime-observed",
+                    property.WitnessDescription, null, property.LocationId,
+                    property.InteractionPosition.x, property.InteractionPosition.y,
+                    property.WitnessRadius, _clock.Day, _clock.MinuteOfDay);
+                if (_city.SocialWorld == null || !_city.SocialWorld.PublishEventToNpc(worldEvent, witnessNpcId))
+                    Debug.LogWarning("The theft was recorded, but its selected witness is no longer registered: " + witnessNpcId);
+            }
+
+            Say(witnessed ? "Taken. Someone nearby saw it." : "Taken. No one nearby witnessed it.", 4f);
+        }
+
+        private void RestoreCrimeWitnessKnowledge()
+        {
+            if (_crimeOutcomes == null || _city == null || _city.SocialWorld == null)
+                return;
+
+            foreach (CrimeOutcome outcome in _crimeOutcomes.Outcomes)
+            {
+                if (!outcome.WasWitnessed)
+                    continue;
+
+                var worldEvent = new NpcWorldEvent(outcome.WitnessEventId, "crime-observed",
+                    outcome.WitnessDescription, null, outcome.LocationId,
+                    outcome.WitnessX, outcome.WitnessY, outcome.WitnessRadius,
+                    outcome.Day, outcome.MinuteOfDay);
+                _city.SocialWorld.PublishEventToNpc(worldEvent, outcome.WitnessNpcId);
+            }
+        }
+
+        private ResidentPropertyContainerDefinition FindNearbyResidentProperty(Vector2 playerPosition)
+        {
+            if (_city == null || residentPropertyContainers == null)
+                return null;
+
+            ResidentPropertyContainerDefinition nearest = null;
+            float bestDistance = 1.85f * 1.85f;
+            foreach (ResidentPropertyContainerDefinition definition in residentPropertyContainers)
+            {
+                if (definition == null || definition.LocationId != _city.CurrentPlace ||
+                    !_residentPropertyDefinitions.ContainsKey(definition.ContainerId)) continue;
+                float distance = (playerPosition - definition.InteractionPosition).sqrMagnitude;
+                if (distance > bestDistance) continue;
+                bestDistance = distance;
+                nearest = definition;
+            }
+            return nearest;
         }
 
         private void RegisterUnownedPlayerAssets(GridInventory inventory)

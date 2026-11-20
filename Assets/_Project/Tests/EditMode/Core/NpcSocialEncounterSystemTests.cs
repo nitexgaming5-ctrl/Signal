@@ -43,6 +43,24 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void AmbientSocialEncounterDoesNotSpreadCrimeWitnessKnowledge()
+        {
+            var world = new NpcSocialWorld();
+            world.RegisterNpc("witness", "Apartment", 0f, 0f, 8f);
+            world.RegisterNpc("listener", "Apartment", 1f, 0f, 8f);
+            var crime = new NpcWorldEvent("crime-private", "crime-observed",
+                "Someone took something from the wardrobe.", null,
+                "Apartment", 0f, 0f, 8f, 1, 600);
+            Assert.That(world.PublishEventToNpc(crime, "witness"), Is.True);
+
+            var encounters = new NpcSocialEncounterSystem();
+            Assert.That(encounters.AdvanceTo(world, new[] { "witness", "listener" }, 1, 700), Is.EqualTo(1));
+
+            Assert.That(world.BuildPerceptionFor("witness", 8f).KnowsEvent("crime-private"), Is.True);
+            Assert.That(world.BuildPerceptionFor("listener", 8f).KnowsEvent("crime-private"), Is.False);
+        }
+
+        [Test]
         public void EncounterCooldownAndSinglePartnerLimitKeepSimulationControlled()
         {
             var world = new NpcSocialWorld();

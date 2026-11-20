@@ -116,3 +116,19 @@ Tarkov is an experience reference for progressive container discovery, inventory
 - A successful take is an economic asset transfer from the bin's world actor to Player. The item instance ID, state and ownership record are preserved/updated through the shared transfer service. If the selected placement does not fit, no source or ownership mutation occurs.
 - Search start, reveal order and discovered count persist. Closing pauses the sequence; reopening resumes automatically. F5 can save while the panel is open; F9 closes it and restores the saved state.
 - Save schema is v12. No respawn or replenishment is included.
+
+
+## First crime action — resident-owned apartment container theft (2026-11-20)
+
+The user chose theft from a physical container inside an apartment as the first crime action. Stealing directly from an NPC (pickpocketing, torn references, etc.) is deferred until interaction, stealth, aggression and related foundations exist.
+
+- The first content fixture is Rhea's wardrobe. Rhea is not hardcoded into the crime system: a reusable `ResidentPropertyContainerDefinition` names the owner and location, and future `StealingHouse_NPC` content can reuse the same framework.
+- The wardrobe contains fixed authored items (ITEM_A ×2 and ITEM_C ×1), not a randomized scavenging profile. It uses the existing progressive container search UI and never respawns its contents.
+- A successful take is a Theft asset transfer from `resident:rhea` to Player. The transfer preserves ItemInstanceId and all non-ownership state, marks `ItemOwnershipStatus.Stolen` atomically and records an economic transaction with reason Theft. Public street bins remain Scavenging.
+- Only a successful theft emits a separate `CrimeOutcome`. The first editable prototype tuning is +2 heat and +1 global criminal-progression point per stolen stack.
+- At most one nearest resident who is physically present in the authored location and within the 8-unit witness/awareness radius receives the anonymous observation. The witness's knowledge is character-scoped and persists through save/load. Ambient social encounters do not share crime observations until witness-sharing rules are approved.
+- No automatic report, police response, heat-band consequence, relationship penalty or suspicion is introduced. Unwitnessed theft still receives its authored prototype heat/progression awards but creates no witness knowledge.
+- Heat and long-term criminal progression are separate: the existing HeatMeter cools using its current placeholder daily decay; progression is a global non-decaying total with no unlock thresholds yet.
+- These values are testable prototype tuning, not final balance. Dirty-money exchange/cleaning and production are not part of this first theft slice.
+
+Implementation and acceptance criteria: `docs/tasks/CRIME-THEFT-001-RESIDENT-CONTAINER-THEFT.md`. Unity verification remains pending.

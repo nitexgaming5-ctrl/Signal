@@ -146,6 +146,26 @@ namespace Signal.Core
     }
 
     [Serializable]
+    public sealed class SavedCrimeOutcome
+    {
+        public string outcomeId;
+        public string actionId;
+        public string actorId;
+        public string assetInstanceId;
+        public string locationId;
+        public string witnessNpcId;
+        public string witnessEventId;
+        public string witnessDescription;
+        public float witnessX;
+        public float witnessY;
+        public float witnessRadius;
+        public int day;
+        public int minuteOfDay;
+        public int heatAward;
+        public int progressionAward;
+    }
+
+    [Serializable]
     public sealed class SaveData
     {
         public int version = SaveMigrator.CurrentVersion;
@@ -174,6 +194,8 @@ namespace Signal.Core
         public List<SavedRetailTransaction> retailTransactions = new List<SavedRetailTransaction>();
         public List<SavedShopSaleTransaction> shopSaleTransactions = new List<SavedShopSaleTransaction>();
         public List<SavedSearchableContainer> searchableContainers = new List<SavedSearchableContainer>();
+        public int criminalProgressionPoints;
+        public List<SavedCrimeOutcome> crimeOutcomes = new List<SavedCrimeOutcome>();
     }
 
     public sealed class LoadReport
@@ -190,6 +212,7 @@ namespace Signal.Core
         public int SkippedResidentAccounts { get; set; }
         public int SkippedRetailTransactions { get; set; }
         public int SkippedShopSaleTransactions { get; set; }
+        public int SkippedCrimeOutcomes { get; set; }
         public OpportunityState RestoredOpportunity { get; set; }
     }
 
@@ -197,7 +220,7 @@ namespace Signal.Core
     {
         // Increment only when the serialized save schema changes. Runtime/UI/gameplay-only changes do not require a new save version.
         // Migration tests for historical inputs should assert this constant for their migrated result.
-        public const int CurrentVersion = 12;
+        public const int CurrentVersion = 13;
 
         /// <summary>Accepts supported save formats and migrates them to the current inventory, social and economic format.</summary>
         public static bool TryMigrate(SaveData data, out string error)
@@ -287,6 +310,9 @@ namespace Signal.Core
                     if (container != null) container.searchStarted = false;
             }
 
+            // Version 13 records completed crime outcomes and the global criminal progression total.
+            if (data.crimeOutcomes == null)
+                data.crimeOutcomes = new List<SavedCrimeOutcome>();
 
             data.version = CurrentVersion;
 
@@ -331,7 +357,9 @@ namespace Signal.Core
                                        EconomicTransactionLedger economicTransactions = null,
                                        EconomicAccountBook economicAccounts = null,
                                        RetailTransactionLedger retailTransactions = null,
-                                       ShopSaleTransactionLedger shopSaleTransactions = null)
+                                       ShopSaleTransactionLedger shopSaleTransactions = null,
+                                       CriminalProgressionTrack criminalProgression = null,
+                                       CrimeOutcomeLedger crimeOutcomes = null)
         {
             if (stats == null) throw new ArgumentNullException(nameof(stats));
             if (inventory == null) throw new ArgumentNullException(nameof(inventory));
@@ -352,7 +380,8 @@ namespace Signal.Core
                 inventoryHeight = inventory.Height,
                 worldPlace = string.IsNullOrWhiteSpace(worldPlace) ? "Hideout" : worldPlace,
                 playerX = playerX,
-                playerY = playerY
+                playerY = playerY,
+                criminalProgressionPoints = criminalProgression != null ? criminalProgression.Points : 0
             };
 
             CaptureItems(inventory, data.items);
@@ -366,6 +395,7 @@ namespace Signal.Core
             CaptureResidentAccounts(economicAccounts, data.residentAccounts);
             CaptureRetailTransactions(retailTransactions, data.retailTransactions);
             CaptureShopSaleTransactions(shopSaleTransactions, data.shopSaleTransactions);
+            CaptureCrimeOutcomes(crimeOutcomes, data.crimeOutcomes);
 
             return data;
         }
@@ -385,7 +415,9 @@ namespace Signal.Core
                                        EconomicTransactionLedger economicTransactions = null,
                                        EconomicAccountBook economicAccounts = null,
                                        RetailTransactionLedger retailTransactions = null,
-                                       ShopSaleTransactionLedger shopSaleTransactions = null)
+                                       ShopSaleTransactionLedger shopSaleTransactions = null,
+                                       CriminalProgressionTrack criminalProgression = null,
+                                       CrimeOutcomeLedger crimeOutcomes = null)
         {
             if (stats == null) throw new ArgumentNullException(nameof(stats));
             if (inventory == null) throw new ArgumentNullException(nameof(inventory));
@@ -401,6 +433,8 @@ namespace Signal.Core
             clock.Restore(data.day, data.minuteOfDay);
             heat.Restore(data.heat);
             rent.Restore(data.missedRent);
+            if (criminalProgression != null)
+                criminalProgression.Restore(data.criminalProgressionPoints);
 
             inventory.Clear();
             int skipped = RestoreItems(data.items, inventory, resolve);
@@ -420,6 +454,7 @@ namespace Signal.Core
             int skippedAccounts = RestoreResidentAccounts(data.residentAccounts, economicAccounts);
             int skippedRetail = RestoreRetailTransactions(data.retailTransactions, retailTransactions);
             int skippedShopSales = RestoreShopSaleTransactions(data.shopSaleTransactions, shopSaleTransactions);
+            int skippedCrimeOutcomes = RestoreCrimeOutcomes(data.crimeOutcomes, crimeOutcomes);
             OpportunityState restoredOpportunity = RestoreOpportunity(data.opportunity);
 
             return new LoadReport
@@ -435,10 +470,65 @@ namespace Signal.Core
                 SkippedResidentAccounts = skippedAccounts,
                 SkippedRetailTransactions = skippedRetail,
                 SkippedShopSaleTransactions = skippedShopSales,
+                SkippedCrimeOutcomes = skippedCrimeOutcomes,
                 RestoredOpportunity = restoredOpportunity
             };
         }
 
+
+        private static void CaptureCrimeOutcomes(CrimeOutcomeLedger ledger, List<SavedCrimeOutcome> destination)
+        {
+            if (ledger == null) return;
+            foreach (CrimeOutcome outcome in ledger.Outcomes)
+                destination.Add(new SavedCrimeOutcome
+                {
+                    outcomeId = outcome.OutcomeId.ToString(),
+                    actionId = outcome.ActionId,
+                    actorId = outcome.ActorId,
+                    assetInstanceId = outcome.AssetInstanceId.ToString(),
+                    locationId = outcome.LocationId,
+                    witnessNpcId = outcome.WitnessNpcId,
+                    witnessEventId = outcome.WitnessEventId,
+                    witnessDescription = outcome.WitnessDescription,
+                    witnessX = outcome.WitnessX,
+                    witnessY = outcome.WitnessY,
+                    witnessRadius = outcome.WitnessRadius,
+                    day = outcome.Day,
+                    minuteOfDay = outcome.MinuteOfDay,
+                    heatAward = outcome.HeatAward,
+                    progressionAward = outcome.ProgressionAward
+                });
+        }
+
+        private static int RestoreCrimeOutcomes(List<SavedCrimeOutcome> savedOutcomes, CrimeOutcomeLedger destination)
+        {
+            if (destination == null) return 0;
+            destination.Clear();
+            int skipped = 0;
+            if (savedOutcomes == null) return skipped;
+            foreach (SavedCrimeOutcome saved in savedOutcomes)
+            {
+                if (saved == null || !Guid.TryParse(saved.outcomeId, out Guid outcomeId) ||
+                    !Guid.TryParse(saved.assetInstanceId, out Guid assetInstanceId) ||
+                    string.IsNullOrWhiteSpace(saved.actionId) || string.IsNullOrWhiteSpace(saved.actorId) ||
+                    string.IsNullOrWhiteSpace(saved.locationId))
+                {
+                    skipped++;
+                    continue;
+                }
+
+                try
+                {
+                    var outcome = new CrimeOutcome(outcomeId, saved.actionId, saved.actorId, assetInstanceId,
+                        saved.locationId, saved.witnessNpcId, saved.witnessEventId,
+                        saved.witnessDescription, saved.witnessX, saved.witnessY, saved.witnessRadius,
+                        saved.day, saved.minuteOfDay, saved.heatAward, saved.progressionAward);
+                    if (!destination.TryRecord(outcome)) skipped++;
+                }
+                catch (ArgumentException) { skipped++; }
+            }
+            return skipped;
+        }
 
         private static void CaptureResidentAccounts(EconomicAccountBook accounts, List<SavedEconomicAccount> destination)
         {

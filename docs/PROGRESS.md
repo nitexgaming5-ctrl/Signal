@@ -1,16 +1,18 @@
 # Progress
 
-## New design initiative — CRIME-ECONOMY-001 (2026-11-20)
+## Current crime/economy initiative — CRIME-ECONOMY-001 / Slice A (2026-11-20)
 
-- User approved the three design boundaries: gradual/authored heat consequences with exposure distinct from heat; contact-specific dirty-money cleaning offers with no universal conversion rate; production only for explicitly authored businesses/workspaces, with no city-wide supply/demand simulation.
-- Drafted the integrated design proposal at docs/tasks/CRIME-ECONOMY-001-SHARED-CITY-DESIGN.md. It separates crime action, character-scoped exposure, global heat, long-term criminal progression and authored consequences; preserves dirty money as a physical item; and treats production as an optional authored capability.
-- The document proposes a staged sequence: crime/exposure foundation, dirty-money illicit payment and cleaning, one authored production interaction, then a small integrated scenario. These are design proposals, not implementation approval.
-- Detailed decisions remain open: first crime action and heat/progression effects, witness reporting, heat consequences, dirty-money value convention, first illicit exchange, cleaning terms, and first production recipe.
-- No gameplay code, content assets or save schema changed. Next step: review the detailed proposal and approve/adjust the first implementation slice before coding.
+- User approved the broad shared-city boundaries: gradual/authored heat consequences with exposure distinct from heat; contact-specific dirty-money cleaning offers with no universal conversion rate; production only for explicitly authored businesses/workspaces, with no city-wide supply/demand simulation.
+- The user green-lit multi-slice implementation and selected theft from a physical container inside an apartment as the first crime action. NPC theft/pickpocketing, torn references, aggression, weapons and stealth remain deferred until their interaction foundations exist.
+- Rhea's existing apartment wardrobe is the first content fixture, not a Rhea-specific system. Reusable `ResidentPropertyContainerDefinition`, Core `CrimeOutcome` / `CrimeOutcomeLedger`, `CriminalProgressionTrack` and the atomic Theft transfer path are committed.
+- Prototype fixture: fixed ITEM_A ×2 / ITEM_C ×1 contents, +2 heat and +1 global progression point per successful stolen stack, and an 8-unit witness radius. These values are editable playtest tuning, not final balance.
+- One nearest resident physically present and within witness/awareness range receives an anonymous character-scoped event. Ambient social encounters do not share crime observations while witness-sharing/reporting rules remain open. No automatic report, police response, suspicion or relationship penalty. Outcomes, progression and the selected witness event persist in save v13.
+- Dirty-money exchange/cleaning and authored production remain later slices; their offer, denomination and recipe rules are still open.
+- Implementation and tests are committed. Unity compilation, EditMode and Play Mode verification are pending. The previous user-confirmed baseline was 368/368; 14 new test cases make 382 the expected suite count.
 
-## Current status: SCAVENGE-001 complete and user-verified
+## Current status: SCAVENGE-001 complete and user-verified; CRIME-THEFT-001 awaiting Unity verification
 
-On 2026-11-20, the user confirmed the latest full Unity EditMode suite **368/368 passed**, including the carried-inventory interaction and drag-ghost snapping polish. The user also confirmed in Play Mode that carried inventory is manageable while an empty bin is open and that item snapping now works correctly. SCAVENGE-001 is complete. Unity verification is user-reported; no assistant-side Unity execution is claimed.
+On 2026-11-20, the user confirmed the latest full Unity EditMode suite **368/368 passed**, including the carried-inventory interaction and drag-ghost snapping polish. The user also confirmed in Play Mode that carried inventory is manageable while an empty bin is open and that item snapping now works correctly. SCAVENGE-001 is complete. The new theft implementation is committed but not yet verified in Unity.
 
 The player-facing sell-to-shop initiative is also complete and user-verified: BUY → partial SELL → full SELL → save/reload worked in Play Mode, the full suite passed 355/355 at that milestone, and the user observed Milo receiving the bakery's purchase revenue. Opportunity 001: Milo's Parcel is likewise user-verified: the user confirmed 284/284 EditMode tests and successful end-to-end Play Mode completion, including the physical drop-off and witness situation. Older progress entries that say either initiative was awaiting verification are historical snapshots and are superseded by these later confirmations.
 
@@ -122,11 +124,11 @@ The repository contains more of the intended hideout/city direction than the pre
 
 ## Next actions and priorities
 
-1. **Recommended next initiative — integrated livelihood/economy design.** Design how three connected areas should fit the shared city before choosing the next implementation slice: (a) crime and its heat/exposure/consequence model, (b) dirty money as a physical item with a deliberately bounded illicit exchange/cleaning lifecycle, and (c) legitimate production and goods flows. Keep clean CARD separate from dirty-money items. The purpose is to agree the player-facing loops and their dependencies together, not to implement a universal economy simulation.
-2. **Choose one vertical slice only after the design is approved.** A concrete player activity should demonstrate the relevant rules end to end; do not build all three systems as disconnected frameworks or implement every crime/recipe/business category at once.
-3. **Preserve existing economy boundaries.** Retail remains fixed-price, authored and event-driven; no universal supply/demand, dynamic pricing, automatic NPC shopping or passive economy simulation. Economy Engine ideas remain inspiration/backlog candidates, not package adoption or automatic scope.
-4. **NPC content validation:** when convenient, assign one or more real `NpcCharacterDefinition` assets in the Unity Inspector and verify the authored-content path in `HideoutSlice`. Milo and Rhea remain fallback fixtures, not confirmed final cast.
-5. **World pacing and persistence:** design scenario-phase ownership and durable-state persistence when a concrete approved scenario needs them. Rebuild transient location/perception data after load; do not wire arbitrary events into `WorldPacingDirector`.
+1. **Verify CRIME-THEFT-001 in Unity.** Pull the latest branch, open `HideoutSlice`, resolve compiler/asset-reference errors, run the full EditMode suite (expected 382 tests), and complete the Play Mode checklist in `docs/tasks/CRIME-THEFT-001-RESIDENT-CONTAINER-THEFT.md`.
+2. **Regression-check SCAVENGE-001.** Confirm the three street bins still use Scavenging, do not award heat/progression/crime outcomes, and retain their previous search/transfer/save behavior.
+3. **After Slice A is verified, choose the next vertical slice:** dirty-money illicit payment/cleaning (Slice B) or one authored production interaction (Slice C). Do not invent the open denomination, contact offer, cleaning terms or recipe rules.
+4. **Preserve existing economy boundaries.** Retail remains fixed-price, authored and event-driven; no universal supply/demand, dynamic pricing, automatic NPC shopping or passive economy simulation. Economy Engine ideas remain inspiration/backlog candidates, not package adoption or automatic scope.
+5. **NPC content validation:** when convenient, replace fallback Milo/Rhea with authored `NpcCharacterDefinition` assets and verify the authored-content path in `HideoutSlice`.
 6. **Parked reliability checks:** storage capacity/rollback edge cases, actual v1 save migration, automated city-transition tests and target-platform save replacement.
 7. Keep the shared-city model: lawful and illegal activity, public life and concealed dealings coexist in the same locations and social network. No new detailed crime, laundering, production or consequence rule is approved by this roadmap wording alone.
 
@@ -618,3 +620,31 @@ Next: open HideoutSlice in Unity, resolve any compiler/test issues, run the full
 - User confirmed the corresponding Play Mode checks: carried inventory remains manageable while an empty bin is open, and item snapping/drag feedback now behaves correctly.
 - SCAVENGE-001 is complete and user-verified. No new gameplay rule or save-schema change was introduced by the UI polish.
 - This final confirmation supersedes the earlier implementation/polish entries below that described verification as pending. Those entries remain intact as historical records of the state at the time.
+
+
+## 2026-11-20 — CRIME-THEFT-001 resident-owned apartment container theft (implementation committed; Unity verification pending)
+
+The user green-lit the multi-slice crime/economy implementation, chose theft from a physical container inside an apartment as the first crime action, and asked the assistant to take the lead on the first owner/content fixture. Rhea's existing apartment is used, but the system is data-driven and not hardwired to Rhea.
+
+Implemented:
+- Added Core `CrimeOutcome` / `CrimeOutcomeLedger` and a global non-decaying `CriminalProgressionTrack`.
+- Added reusable Game `ResidentPropertyContainerDefinition` with stable container/owner/location IDs, interaction point, fixed ItemDefinition contents, witness radius, heat/progression awards and observable witness description.
+- Authored `Rhea_Wardrobe.asset` at the existing wardrobe prop location, owned by `resident:rhea`, with fixed ITEM_A ×2 and ITEM_C ×1 contents. This does not use a randomized loot profile and never respawns.
+- Reused SearchableContainer, SearchableContainerPanel, GridInventory, AssetOwnershipBook, EconomicContainerRegistry and SearchableContainerSaveMapper. The wardrobe has its own resident-owned inventory; street bins remain world-owned.
+- Extended AssetTransferService so a Theft transfer marks `ItemOwnershipStatus.Stolen` inside the same snapshot/rollback boundary. It preserves ItemInstanceId, quality, condition and authenticity; the existing economic ledger records the Theft reason. Scavenging behavior is unchanged.
+- Only a successful theft creates a separate CrimeOutcome recording the player actor. Failed capacity/placement produces no theft outcome, heat, progression or witness event.
+- The first editable prototype tuning is +2 heat and +1 global criminal-progression point per successfully stolen stack. The witness radius is 8 units, matching existing NPC awareness. These are playtest values, not final balance.
+- At most one nearest resident physically present in the authored location and within the witness/awareness radius receives an anonymous character-scoped observation. Ambient social encounters do not share crime observations pending approved witness-sharing rules. No automatic report, police response, suspicion or relationship penalty. The selected witness identity/event is persisted and restored to that NPC after load.
+- Added F1 test controls to force Rhea Home + focus and return her to her authored schedule. Debug UI displays heat, progression and crime outcome count.
+- Save schema advanced from v12 to v13 for criminal progression points and crime outcome history. The existing searchable-container mapper persists wardrobe contents/search progress separately.
+- Added tests for crime outcome validation/idempotency, global progression, save/load and v12 migration, single-NPC witness knowledge/restoration, local witness selection, Theft transfer state and fixed authored property contents.
+
+New task card: `docs/tasks/CRIME-THEFT-001-RESIDENT-CONTAINER-THEFT.md`. Updated the parent crime/economy design, roadmap, open questions, data model, architecture, design and handoff documentation.
+
+**Expected test count:** the last user-confirmed baseline was 368/368. This batch adds 14 test cases, so 382 is expected if no other test files changed. The assistant cannot run Unity in this environment; no compile, EditMode or Play Mode success is claimed. The branch is awaiting Editor verification.
+
+Next:
+1. Pull the latest branch and open `Assets/_Project/Scenes/HideoutSlice.unity`; fix any Unity compiler or asset-reference errors.
+2. Run the full EditMode suite (expected 382 tests) and share the XML/results if anything fails.
+3. Verify street-bin scavenging is unchanged; test Rhea's wardrobe contents, Theft reason, Stolen item state, ownership, +2 heat/+1 progression, failed-transfer safety, witness/no-witness behavior, no automatic report and F5/F9 persistence.
+4. After this slice is verified, decide whether the next implementation is dirty-money payment/cleaning (Slice B) or authored production (Slice C). Do not invent their open offer/recipe rules.

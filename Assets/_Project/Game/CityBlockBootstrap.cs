@@ -107,6 +107,36 @@ namespace Signal.Game
             }
             return false;
         }
+
+        public bool TryGetNearestResidentWithin(Vector2 position, float radius, out string npcId)
+        {
+            npcId = null;
+            if (radius < 0f || _socialWorld == null)
+                return false;
+
+            float bestDistanceSquared = radius * radius;
+            for (int i = 0; i < _residents.Count; i++)
+            {
+                NpcPresenter resident = _residents[i];
+                if (resident == null || resident.CurrentPlace != _place.ToString() ||
+                    !_socialWorld.TryGetNpc(resident.NpcId, out NpcAgentState observer))
+                    continue;
+
+                float distanceSquared = (resident.Position - position).sqrMagnitude;
+                float effectiveRadius = Mathf.Min(radius, observer.AwarenessRadius);
+                if (distanceSquared > effectiveRadius * effectiveRadius)
+                    continue;
+
+                if (npcId == null || distanceSquared < bestDistanceSquared ||
+                    (Mathf.Approximately(distanceSquared, bestDistanceSquared) &&
+                     string.CompareOrdinal(resident.NpcId, npcId) < 0))
+                {
+                    bestDistanceSquared = distanceSquared;
+                    npcId = resident.NpcId;
+                }
+            }
+            return npcId != null;
+        }
         public NpcSocialWorld SocialWorld => _socialWorld;
 
         public bool DebugSimulationPaused => _debugSimulationPaused;

@@ -94,10 +94,7 @@ namespace Signal.Core
         public void PublishEvent(NpcWorldEvent worldEvent)
         {
             if (worldEvent == null) throw new ArgumentNullException(nameof(worldEvent));
-            for (int i = 0; i < _eventJournal.Count; i++)
-                if (_eventJournal[i].EventId == worldEvent.EventId)
-                    throw new InvalidOperationException("World event id is already in use: " + worldEvent.EventId);
-
+            EnsureEventIdAvailable(worldEvent.EventId);
             _eventJournal.Add(worldEvent);
 
             foreach (NpcAgentState npc in _npcs.Values)
@@ -110,6 +107,38 @@ namespace Signal.Core
                 if (isActor || canObserve)
                     npc.Remember(NpcKnowledge.Observe(worldEvent));
             }
+        }
+
+        /// <summary>
+        /// Records an observation for one explicitly identified witness. The caller must
+        /// establish that this character was present and able to perceive the event.
+        /// This also supports restoring that witness's knowledge after loading a save.
+        /// </summary>
+        public bool PublishEventToNpc(NpcWorldEvent worldEvent, string observerNpcId)
+        {
+            if (worldEvent == null) throw new ArgumentNullException(nameof(worldEvent));
+            if (string.IsNullOrWhiteSpace(observerNpcId))
+                throw new ArgumentException("Observer NPC id is required.", nameof(observerNpcId));
+            if (!_npcs.TryGetValue(observerNpcId, out NpcAgentState observer))
+                return false;
+
+            for (int i = 0; i < _eventJournal.Count; i++)
+            {
+                if (_eventJournal[i].EventId != worldEvent.EventId)
+                    continue;
+                return observer.Remember(NpcKnowledge.Observe(_eventJournal[i])) ||
+                    observer.KnowsEvent(worldEvent.EventId);
+            }
+
+            _eventJournal.Add(worldEvent);
+            return observer.Remember(NpcKnowledge.Observe(worldEvent));
+        }
+
+        private void EnsureEventIdAvailable(string eventId)
+        {
+            for (int i = 0; i < _eventJournal.Count; i++)
+                if (_eventJournal[i].EventId == eventId)
+                    throw new InvalidOperationException("World event id is already in use: " + eventId);
         }
 
         /// <summary>

@@ -90,9 +90,9 @@ Milestones are dependency notes, not a mandate to build isolated systems in orde
 1. **[x] Verify Opportunity 001: Milo's Parcel.** The user confirmed 284/284 EditMode tests and successfully completed the scenario in Play Mode, including the parcel inventory/save/load/drop-off loop and a nearby-resident witness.
 2. **[x] Establish the first event-driven economy and retail loop.** Asset ownership/transfers, clean CARD accounts, resident-owner revenue, fixed-price retail and player-facing exact-stack selling are implemented and user-verified.
 3. **[x] Complete SCAVENGE-001.** Physical bins, one-time generated contents, progressive discovery, transactional item transfer and save/load are implemented; the user confirmed 368/368 EditMode tests and final Play Mode interaction polish.
-4. **[active design] CRIME-ECONOMY-001 — shared-city crime, dirty money and production.** The user approved gradual/authored heat consequences, exposure distinct from heat, contact-specific cleaning terms, and production only for explicitly authored businesses. The detailed proposal is in `docs/tasks/CRIME-ECONOMY-001-SHARED-CITY-DESIGN.md`. No implementation is approved yet.
-5. **Next — approve the first vertical slice and its detailed player-facing rules.** The recommendation is a low-severity crime action with at most one local witness and no automatic report, proving the distinction between crime, exposure, heat and criminal progression before building dirty-money or production systems.
-6. **Validate authored NPC content in Unity** when convenient: assign one or two real `NpcCharacterDefinition` assets through the Inspector and verify schedules, destinations, appearance and activity dialogue without character-specific scripts.
+4. **[active implementation] CRIME-THEFT-001 — resident-owned apartment container theft.** The user chose stealing from a physical apartment container as the first crime action and green-lit implementation. Rhea's wardrobe is the first data-driven owner fixture; implementation, save v13 and tests are committed. Unity verification is pending. See `docs/tasks/CRIME-THEFT-001-RESIDENT-CONTAINER-THEFT.md`.
+5. **Next — verify Slice A, then choose Slice B or C.** Run the full EditMode suite (expected 382 cases) and verify theft, witness/no-witness, failure rollback, no automatic report and save/load in Play Mode. Afterward decide whether dirty-money payment/cleaning or authored production is the next vertical slice; do not invent open offer/recipe rules.
+6. **Validate authored NPC content in Unity** when convenient: replace fallback Milo/Rhea with real `NpcCharacterDefinition` assets and verify schedules, destinations, appearance and activity dialogue without character-specific scripts.
 7. **Close parked reliability checks** when convenient: storage capacity/rollback, actual v1 migration, automated city-transition tests and target-platform save replacement.
 
 Milo's parcel scenario and save v7 are user-verified (284/284 EditMode tests). Obstacle-aware NPC navigation v1 is user-verified (289/289 EditMode tests and Play Mode inspection); NPC interruption/recovery and game-clock pause correction are user-verified (293/293 and Play Mode). Opportunity 001 fulfils the first-scenario validation requirement; a second opportunity is optional, not a framework prerequisite.
@@ -427,7 +427,7 @@ Potential later sequence (not yet committed milestones):
 These are candidates, not approved mechanics or implementation commitments. No third-party asset/code adoption is approved. Existing economy constraints remain binding: event-driven transactions, fixed authored retail prices/offers, no universal dynamic pricing or supply/demand simulation, no automatic NPC shopping, and no passive/continuous economy simulation. See docs/IDEA_BACKLOG.md for player fantasies, dependencies and guardrails.
 
 
-## Active initiative — physical containers and item-by-item scavenging
+## Completed initiative — physical containers and item-by-item scavenging
 
 Player outcome: search physical bins in the shared city, discover contents progressively, choose what to take, and preserve exact container state between visits and saves.
 
@@ -459,3 +459,24 @@ The player-facing SELL milestone is complete and user-verified; the user's 2026-
 
 
 **Completion note (2026-11-20):** SCAVENGE-001 is complete and user-verified. The user confirmed 368/368 EditMode tests after the UI corrections and confirmed in Play Mode that empty-bin carried-inventory management and grid snapping work. See docs/PROGRESS.md and docs/tasks/SCAVENGE-001-PHYSICAL-CONTAINERS.md.
+
+
+## Active initiative — CRIME-THEFT-001 resident-owned apartment container theft
+
+Player outcome: take a physical item from a resident-owned apartment container and see a meaningful distinction from public scavenging: the item is marked stolen, the owner/asset history is recorded, local exposure is character-scoped, and heat/progression are separate.
+
+Approved first action: steal from a physical container inside an apartment. Direct NPC theft/pickpocketing (including torn references), aggression, weapons and stealth are deferred until their core interactions exist.
+
+Implementation:
+1. [x] Add Core `CrimeOutcome` / `CrimeOutcomeLedger` and one global non-decaying `CriminalProgressionTrack`.
+2. [x] Extend the shared atomic AssetTransferService Theft path to mark the transferred item `Stolen`, preserving stable identity and other instance state. Scavenging remains unchanged.
+3. [x] Add reusable authored `ResidentPropertyContainerDefinition` with resident owner, location, fixed contents, interaction position and configurable witness/heat/progression values.
+4. [x] Author Rhea's wardrobe as the first fixture (ITEM_A ×2, ITEM_C ×1), with +2 heat, +1 progression point and 8-unit witness radius. These are prototype values, not final balance.
+5. [x] Reuse the searchable-container UI, inventory, custody, ownership and save foundations; only successful theft transfers create crime outcomes.
+6. [x] Select at most one nearest resident physically present and within witness/awareness range; deliver an anonymous event only to that NPC. No automatic report, police response or relationship penalty.
+7. [x] Persist crime outcomes, progression points and selected witness identity/event in save v13; restore the same witness's knowledge after load.
+8. [x] Add Core/Game tests for theft transfer state, witness-specific knowledge, fixed authored property contents, progression and save/load.
+9. [ ] Open HideoutSlice in Unity, compile, run the full EditMode suite (expected 382 cases based on the 368/368 user-verified baseline plus 14 new cases), and fix any failures.
+10. [ ] Verify Play Mode theft, failed-transfer safety, witness/no-witness behavior, no automatic report, and F5/F9 persistence. See [CRIME-THEFT-001 acceptance checklist](tasks/CRIME-THEFT-001-RESIDENT-CONTAINER-THEFT.md).
+
+**Current status:** implementation and documentation committed; Unity verification pending. The current prototype heat/progression/witness values are editable test tuning and must be revisited after Play Mode.
