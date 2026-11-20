@@ -1,20 +1,14 @@
 # Progress
 
-## Current status: player-facing sell-to-shop complete and user-verified
+## Current status: SCAVENGE-001 complete and user-verified
 
-On 2026-11-19, the user confirmed the full BUY → partial SELL → full SELL → save/reload Play Mode sequence works. The user also confirmed the complete EditMode suite **355/355 passed**. This closes the player-facing selling initiative. The tested sale credited the player and persisted the sale history; the user specifically observed Milo receiving the bakery's purchase revenue. Unity verification is user-reported; no assistant-side Unity execution is claimed.
+On 2026-11-20, the user confirmed the latest full Unity EditMode suite **368/368 passed**, including the carried-inventory interaction and drag-ghost snapping polish. The user also confirmed in Play Mode that carried inventory is manageable while an empty bin is open and that item snapping now works correctly. SCAVENGE-001 is complete. Unity verification is user-reported; no assistant-side Unity execution is claimed.
 
-The working branch is `chore/collaboration-workflow-and-audit`; `main` remains untouched. The active architecture is Signal.Core + Signal.Game. The hideout, connected city, inventory/storage, item identity/state/knowledge, NPC framework, Milo parcel opportunity and NPC navigation foundations remain in place.
+The player-facing sell-to-shop initiative is also complete and user-verified: BUY → partial SELL → full SELL → save/reload worked in Play Mode, the full suite passed 355/355 at that milestone, and the user observed Milo receiving the bakery's purchase revenue. Opportunity 001: Milo's Parcel is likewise user-verified: the user confirmed 284/284 EditMode tests and successful end-to-end Play Mode completion, including the physical drop-off and witness situation. Older progress entries that say either initiative was awaiting verification are historical snapshots and are superseded by these later confirmations.
 
-The economy now has:
-- Explicit asset ownership independent of the inventory/container holding an item.
-- Whole-stack owner-to-owner transfer and an append-only transaction ledger.
-- A clean bank/card account used by existing legitimate-money paths, plus passive personal clean accounts for residents and an atomic retail purchase service that credits business owners.
-- Save v10 persistence for clean balance, resident account balances, player-held carried/storage asset ownership, economic transfer history, retail purchase history and the dedicated player-to-business sale ledger.
-- Player-to-business sales use separate per-business fixed-price buyback offers, exact carried-stack identity and player ownership validation; sale history is separate from transfers and retail purchases.
-- Dirty money explicitly excluded from the bank/card account; it is reserved for physical inventory items and future illicit uses.
+The working branch is `chore/collaboration-workflow-and-audit`; `main` remains untouched. The active architecture is Signal.Core + Signal.Game. The hideout, connected city, inventory/storage, item identity/state/knowledge, NPC framework, Milo parcel opportunity, NPC navigation, economy and physical-container scavenging foundations remain in place.
 
-Phase 2 is verified by the user's 316/316 report. No dirty-money item definition, cleaning interaction, shady-market exchange, bribe, supplier loop or finite-stock gameplay has been implemented. The Corner Bakery has an authored Bread ItemDefinition and a one-item catalogue priced at CARD $5 (still a temporary test value, not final balancing). Its temporary CARD $3 Bread buyback fixture was removed after the SELL verification; no final bakery buyback content or price has been approved. The catalogue remains unlimited and event-driven.
+The economy currently supports explicit asset ownership, safe owner-to-owner transfers, clean CARD accounts, resident personal accounts, fixed-price authored retail, business-owner revenue credit and separate exact-stack player sales with persistent transaction history. Dirty money remains excluded from CARD and is reserved for a future physical-item/illicit-use design. The Corner Bakery's CARD $5 Bread catalogue price remains temporary test content, not final balancing; no final bakery buyback offer or price is approved.
 
 ## Approved project direction
 Signal is an immersive top-down 2D urban RPG about making a living in one layered city: meeting people, doing activities for money and resources, trading goods, taking risks, sometimes losing things, discovering secrets and returning to a personal hideout.
@@ -608,3 +602,11 @@ Next: open HideoutSlice in Unity, resolve any compiler/test issues, run the full
 - Updated `SearchableContainerPanel` so the carried inventory remains an active inventory-management surface even when the bin is empty: player-owned stacks can be dragged within the player grid, rotated with R, and inspected with right-click. Empty containers continue to open and display their completed/empty state; they do not reroll.
 - Corrected drag-ghost anchoring to preserve the grabbed cell and align the ghost's top-left with the target grid cell/drop preview. The Core inventory placement rules and save schema are unchanged.
 - These are UI interaction/presentation corrections, not new economy or scavenging rules. The user must pull the update, rerun the full EditMode suite, and recheck empty-bin inventory management plus grid snapping in Play Mode. No Unity verification is claimed by the assistant.
+
+
+## 2026-11-20 — SCAVENGE-001 final user verification
+
+- User confirmed the latest full Unity EditMode suite **368/368 passed**, after the carried-inventory usability and drag-ghost alignment corrections.
+- User confirmed the corresponding Play Mode checks: carried inventory remains manageable while an empty bin is open, and item snapping/drag feedback now behaves correctly.
+- SCAVENGE-001 is complete and user-verified. No new gameplay rule or save-schema change was introduced by the UI polish.
+- This final confirmation supersedes the earlier implementation/polish entries below that described verification as pending. Those entries remain intact as historical records of the state at the time.
