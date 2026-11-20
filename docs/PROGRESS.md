@@ -648,3 +648,18 @@ Next:
 2. Run the full EditMode suite (expected 382 tests) and share the XML/results if anything fails.
 3. Verify street-bin scavenging is unchanged; test Rhea's wardrobe contents, Theft reason, Stolen item state, ownership, +2 heat/+1 progression, failed-transfer safety, witness/no-witness behavior, no automatic report and F5/F9 persistence.
 4. After this slice is verified, decide whether the next implementation is dirty-money payment/cleaning (Slice B) or authored production (Slice C). Do not invent their open offer/recipe rules.
+
+
+## 2026-11-20 — CRIME-ECONOMY-SLICE-B design specification approved
+
+The user approved Slice B and confirmed the first illicit contact convention and cleaning economics:
+- New shared-city contact: internal NPC ID `Clean_Dirtycash`; visible display name intentionally blank.
+- Dirty Cash is a physical item with denomination 10 per unit.
+- Contact-specific cleaning fee retains 20%, paying 8 clean CARD per Dirty Cash unit immediately.
+- One fixed fence offer accepts one specific stolen item for a fixed whole-number quantity of Dirty Cash.
+- Fence exchange and cleaning are explicit player-confirmed atomic transactions with separate histories and save/load support.
+- Dirty Cash cannot be used in legal retail or deposited directly. No dynamic pricing, passive laundering, cleaning risk/delay, heat, witness or police consequences in this slice.
+
+Created `docs/tasks/CRIME-ECONOMY-SLICE-B-DIRTY-CASH.md` with Core/Game/content/persistence design, acceptance criteria and verification plan. Updated DESIGN, DATA_MODEL, ROADMAP and OPEN_QUESTIONS.
+
+**Implementation has not started.** One authored content value remains: the exact stolen ItemDefinition accepted by the first fence offer and the fixed Dirty Cash unit payout. The user should choose or approve the recommended fixture offer before implementation. No Unity compilation or tests were run for this documentation-only step.
