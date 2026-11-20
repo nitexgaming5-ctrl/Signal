@@ -510,5 +510,39 @@ namespace Signal.Game.Tests
             }
         }
 
+        [Test]
+        public void StreetBuildExposesThreePhysicalSearchableBins()
+        {
+            var host = new GameObject("CityHost");
+            var player = new GameObject("Player");
+            var cameraObject = new GameObject("MainCamera");
+            Rigidbody2D body = player.AddComponent<Rigidbody2D>();
+            Camera camera = cameraObject.AddComponent<Camera>();
+            CityBlockBootstrap city = host.AddComponent<CityBlockBootstrap>();
+            try
+            {
+                city.Build(player.transform, body, camera);
+                Assert.That(city.SearchableContainerIds.Count, Is.EqualTo(3));
+                Assert.That(city.TryRestorePlace("Street", new Vector2(2.5f, -8.2f)), Is.True);
+                Assert.That(city.TryGetNearbySearchableContainer(new Vector2(2.5f, -8.2f),
+                    out string id, out string label), Is.True);
+                Assert.That(id, Is.EqualTo("street-bin-a"));
+                Assert.That(label, Is.EqualTo("Street bin A"));
+                Assert.That(city.GetPrompt(new Vector2(2.5f, -8.2f)), Is.EqualTo("E  Search Street bin A"));
+                Assert.That(city.TryGetNearbySearchableContainer(new Vector2(17.5f, -17.2f),
+                    out string secondId, out _), Is.True);
+                Assert.That(secondId, Is.EqualTo("street-bin-b"));
+                Assert.That(city.TryGetNearbySearchableContainer(new Vector2(2.5f, -22.3f),
+                    out string thirdId, out _), Is.True);
+                Assert.That(thirdId, Is.EqualTo("street-bin-c"));
+            }
+            finally
+            {
+                Object.DestroyImmediate(host);
+                Object.DestroyImmediate(player);
+                Object.DestroyImmediate(cameraObject);
+            }
+        }
+
     }
 }
