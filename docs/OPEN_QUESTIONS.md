@@ -135,7 +135,7 @@ The first implementation uses Rhea's wardrobe as a content fixture, not a Rhea-s
 Current prototype fixture:
 - Fixed contents: ITEM_A ×2 and ITEM_C ×1; no loot roll or respawn.
 - Successful theft uses `AssetTransferReason.Theft`, marks the item `Stolen` inside the atomic transfer, preserves its stable identity and records ownership history.
-- One successful stolen stack awards +2 heat and +1 global criminal-progression point.
+- One successful stolen stack awards +1 global criminal-progression point. The first apartment-theft fixture awards +2 heat only if a local witness is selected; an unwitnessed theft adds zero heat.
 - At most one nearest resident physically present in the property location and within the 8-unit witness radius/awareness range receives the anonymous observation. No automatic report, police response or relationship penalty.
 - Crime outcomes, progression points and the selected witness event are saved in schema v13.
 
@@ -147,6 +147,6 @@ These are initial editable playtest values, not final balance. Still open:
 - First illicit contact and accepted payment/outcome.
 - Cleaning fee/retention, rate, prerequisites, delay and exposure.
 - First production-capable business/workspace, recipe inputs/outputs and timing.
-- Whether Slice B (dirty-money payment/cleaning) or Slice C (authored production) follows the verified theft slice.
+- Recommended next vertical slice: Slice B (one authored dirty-money illicit exchange plus one contact-specific cleaning offer), because it connects the now-tested crime/ownership foundation to physical dirty money and clean CARD. This is a recommendation, not an implementation approval. Denomination, item definition, first contact, accepted exchange outcome and cleaning terms still require user decisions. Slice C production remains a strong later alternative once a concrete workspace/recipe has a clear player loop.
 
 Implementation details and the Unity acceptance checklist: `docs/tasks/CRIME-THEFT-001-RESIDENT-CONTAINER-THEFT.md`.
