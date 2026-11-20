@@ -437,23 +437,25 @@ Approved rules:
 - One Search action starts an automatic sequence revealing one item at a time in randomized order.
 - Revealed items remain in the bin; undiscovered items remain concealed.
 - Container and player inventory panels are open together. The player can double-click or drag/drop an individual discovered item into carried inventory.
+- The carried inventory remains independently manageable while the container is open, even when the bin is empty: the player can reposition, rotate and inspect carried stacks.
 - Closing mid-search preserves progress; reopening resumes at the next undiscovered item.
 - No respawn, replenishment or timed reset in this first slice.
 
 Implementation sequence:
 1. [x] Core SearchableContainer model with stable ID, one-time reveal-order initialization and progressive discovery.
 2. [x] Save v11 DTO and mapper foundation for container contents, reveal order and progress.
-3. [ ] Authored container loot profiles A/B/C using existing ItemDefinitions.
-4. [ ] Place 2–3 physical searchable bins in Street and expose E interaction.
-5. [ ] Build side-by-side container/player inventory UI with concealed undiscovered contents, automatic reveal sequence, double-click transfer and cross-panel drag/drop.
-6. [ ] Reuse GridInventory, stable ItemInstanceId/ItemInstanceState and safe whole-stack transfer; failed capacity/placement leaves the item in the bin.
-7. [ ] Wire container state into GameSession save/load; v10 saves start with ungenerated bins.
-8. [ ] Add tests for generation idempotency, interruption, discovery visibility, transfer identity/state, capacity rejection and save/load.
-9. [ ] User verifies Unity compilation, full EditMode suite and Play Mode behavior.
+3. [x] Authored container loot profiles A/B/C using existing ItemDefinitions.
+4. [x] Place three physical searchable bins in Street and expose E interaction.
+5. [x] Build side-by-side container/player inventory UI with concealed undiscovered contents, automatic reveal sequence, double-click transfer and cross-panel drag/drop.
+6. [x] Reuse GridInventory, stable ItemInstanceId/ItemInstanceState and safe whole-stack transfer; failed capacity/placement leaves the item in the bin.
+7. [x] Wire container state into GameSession save/load; v10/v11 saves migrate safely to v12.
+8. [x] Add tests for generation idempotency, interruption, discovery visibility, transfer identity/state, capacity rejection and save/load.
+9. [x] User confirmed **368/368 EditMode tests passed** on the pre-polish implementation.
+10. [ ] User rechecks empty-bin carried-inventory management and grid snapping in Play Mode after the UI correction.
 
 Tarkov is inspiration for container-specific loot identity, progressive search, concurrent inventory management and separate examination. Signal excludes Tarkov skills, raid rules, timed respawn, loot timers and external code/packages. No third-party dependency or Asset Store package is required.
 
 The player-facing SELL milestone is complete and user-verified; the user's 2026-11-20 confirmation supersedes older pending notes.
 
 
-**Implementation note (2026-11-20):** all runtime/content/save integration and test code for SCAVENGE-001 has now been committed. Only Unity compilation, EditMode execution and Play Mode acceptance verification remain. See the latest SCAVENGE-001 section in docs/PROGRESS.md and docs/tasks/SCAVENGE-001-PHYSICAL-CONTAINERS.md.
+**Implementation note (2026-11-20):** runtime/content/save integration is committed, and the user reports 368/368 EditMode tests passed on the baseline. Follow-up UI corrections now allow carried-inventory rearrangement/rotation/inspection with an empty bin and align drag-ghost snapping; these corrections still need a fresh Unity compile/test run and Play Mode confirmation. See docs/PROGRESS.md and docs/tasks/SCAVENGE-001-PHYSICAL-CONTAINERS.md.
