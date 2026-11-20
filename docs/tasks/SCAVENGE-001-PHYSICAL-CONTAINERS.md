@@ -22,7 +22,7 @@ The player approaches physical bins in the shared city, searches them item by it
 
 ## First content slice
 - Three authored loot profiles A/B/C using existing ItemDefinitions, initially ITEM_A, ITEM_B and ITEM_C.
-- Two or three visible physical bins in Street.
+- Three visible physical bins in Street.
 - Each bin has one profile; its result is randomized once and persisted.
 - Profiles are test fixtures, not a final city-wide loot economy or rarity system.
 
