@@ -58,6 +58,7 @@ namespace Signal.Game
         private Image _dropPreview;
 
         private bool _dragging;
+        private bool _dragFromPlayer;
         private Guid _draggedItemId;
         private PlacedItem _draggedItem;
         private int _grabX;
@@ -196,37 +197,59 @@ namespace Signal.Game
             }
 
             bool inContainer = TryGetCell(_containerGrid, _container.Inventory.Width, _container.Inventory.Height,
-                screen, out int containerX, out int containerY, out Vector2 containerLocal);
+                screen, out int containerX, out int containerY, out _);
             bool inPlayer = TryGetCell(_playerGrid, _playerInventory.Width, _playerInventory.Height,
-                screen, out int playerX, out int playerY, out Vector2 playerLocal);
+                screen, out int playerX, out int playerY, out _);
 
             if (!_dragging)
             {
                 if (mouse.rightButton.wasPressedThisFrame && inContainer &&
-                    _container.Inventory.TryGetItemAt(containerX, containerY, out PlacedItem inspected) &&
-                    _container.IsDiscovered(inspected.ItemInstanceId))
+                    _container.Inventory.TryGetItemAt(containerX, containerY, out PlacedItem inspectedContainerItem) &&
+                    _container.IsDiscovered(inspectedContainerItem.ItemInstanceId))
                 {
-                    _inspectItem?.Invoke(inspected);
+                    _inspectItem?.Invoke(inspectedContainerItem);
                     return;
                 }
 
-                if (!mouse.leftButton.wasPressedThisFrame || !inContainer ||
-                    !_container.Inventory.TryGetItemAt(containerX, containerY, out PlacedItem hit) ||
-                    !_container.IsDiscovered(hit.ItemInstanceId))
+                if (mouse.rightButton.wasPressedThisFrame && inPlayer &&
+                    _playerInventory.TryGetItemAt(playerX, playerY, out PlacedItem inspectedPlayerItem))
+                {
+                    _inspectItem?.Invoke(inspectedPlayerItem);
+                    return;
+                }
+
+                if (!mouse.leftButton.wasPressedThisFrame)
                     return;
 
-                if (_lastClickId == hit.ItemInstanceId && Time.unscaledTime - _lastClickTime <= DoubleClickWindow)
+                if (inContainer &&
+                    _container.Inventory.TryGetItemAt(containerX, containerY, out PlacedItem containerItem) &&
+                    _container.IsDiscovered(containerItem.ItemInstanceId))
+                {
+                    if (_lastClickId == containerItem.ItemInstanceId &&
+                        Time.unscaledTime - _lastClickTime <= DoubleClickWindow)
+                    {
+                        _lastClickId = Guid.Empty;
+                        _lastClickTime = -10f;
+                        _takeFirstFit?.Invoke(containerItem.ItemInstanceId);
+                        Refresh();
+                        return;
+                    }
+
+                    _lastClickId = containerItem.ItemInstanceId;
+                    _lastClickTime = Time.unscaledTime;
+                    BeginDrag(containerItem, containerX, containerY, false);
+                }
+                else if (inPlayer &&
+                    _playerInventory.TryGetItemAt(playerX, playerY, out PlacedItem playerItem))
                 {
                     _lastClickId = Guid.Empty;
                     _lastClickTime = -10f;
-                    _takeFirstFit?.Invoke(hit.ItemInstanceId);
-                    Refresh();
+                    BeginDrag(playerItem, playerX, playerY, true);
+                }
+                else
+                {
                     return;
                 }
-
-                _lastClickId = hit.ItemInstanceId;
-                _lastClickTime = Time.unscaledTime;
-                BeginDrag(hit, containerX, containerY);
             }
 
             if (!_dragging) return;
@@ -241,23 +264,33 @@ namespace Signal.Game
 
             int targetX = playerX - _grabX;
             int targetY = playerY - _grabY;
-            bool canDrop = inPlayer && _playerInventory.CanPlaceTransferred(_draggedItem, targetX, targetY, _dragRotated);
+            bool canDrop = inPlayer && (_dragFromPlayer
+                ? _playerInventory.CanMove(_draggedItem.InstanceId, targetX, targetY, _dragRotated)
+                : _playerInventory.CanPlaceTransferred(_draggedItem, targetX, targetY, _dragRotated));
             UpdateDragVisuals(screen, inPlayer, targetX, targetY, canDrop);
 
             if (mouse.leftButton.wasReleasedThisFrame)
             {
                 Guid itemId = _draggedItemId;
+                int localInstanceId = _draggedItem.InstanceId;
+                bool fromPlayer = _dragFromPlayer;
                 bool rotated = _dragRotated;
                 EndDrag();
                 if (canDrop)
-                    _takeAt?.Invoke(itemId, targetX, targetY, rotated);
+                {
+                    if (fromPlayer)
+                        _playerInventory.TryMove(localInstanceId, targetX, targetY, rotated);
+                    else
+                        _takeAt?.Invoke(itemId, targetX, targetY, rotated);
+                }
                 Refresh();
             }
         }
 
-        private void BeginDrag(PlacedItem item, int cellX, int cellY)
+        private void BeginDrag(PlacedItem item, int cellX, int cellY, bool fromPlayer)
         {
             _dragging = true;
+            _dragFromPlayer = fromPlayer;
             _draggedItem = item;
             _draggedItemId = item.ItemInstanceId;
             _dragRotated = item.Rotated;
@@ -283,6 +316,7 @@ namespace Signal.Game
         private void CancelDrag()
         {
             _dragging = false;
+            _dragFromPlayer = false;
             if (_dragGhost != null) _dragGhost.gameObject.SetActive(false);
             if (_dropPreview != null) _dropPreview.gameObject.SetActive(false);
         }
@@ -291,11 +325,23 @@ namespace Signal.Game
 
         private void UpdateDragVisuals(Vector2 screen, bool inPlayer, int targetX, int targetY, bool canDrop)
         {
-            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(_root, screen, null, out Vector2 local))
-                _dragGhost.rectTransform.anchoredPosition = local;
             float width = (_dragRotated ? _draggedItem.Type.Height : _draggedItem.Type.Width) * CellSize;
             float height = (_dragRotated ? _draggedItem.Type.Width : _draggedItem.Type.Height) * CellSize;
             _dragGhost.rectTransform.sizeDelta = new Vector2(width, height);
+
+            if (inPlayer)
+            {
+                Vector3 targetWorld = _playerGrid.TransformPoint(
+                    new Vector3(targetX * CellSize, -targetY * CellSize, 0f));
+                _dragGhost.rectTransform.anchoredPosition = _root.InverseTransformPoint(targetWorld);
+            }
+            else if (RectTransformUtility.ScreenPointToLocalPointInRectangle(_root, screen, null, out Vector2 local))
+            {
+                // Keep the cell originally grabbed under the pointer instead of centring the whole item on it.
+                _dragGhost.rectTransform.anchoredPosition = new Vector2(
+                    local.x - _grabX * CellSize, local.y + _grabY * CellSize);
+            }
+
             if (!inPlayer)
             {
                 _dropPreview.gameObject.SetActive(false);
@@ -327,7 +373,7 @@ namespace Signal.Game
                     CreateItemView(item, _containerItems, _dragging && item.ItemInstanceId == _draggedItemId);
 
             foreach (PlacedItem item in _playerInventory.Items)
-                CreateItemView(item, _playerItems, false);
+                CreateItemView(item, _playerItems, _dragging && _dragFromPlayer && item.ItemInstanceId == _draggedItemId);
 
             _playerTitle.text = "CARRIED INVENTORY";
             _status.text = _container.IsSearchComplete ? "Search complete" :
@@ -417,6 +463,7 @@ namespace Signal.Game
 
             _dragGhost = NewImage("DragGhost", _root, Color.white);
             Center(_dragGhost.rectTransform, Vector2.zero, new Vector2(CellSize, CellSize));
+            _dragGhost.rectTransform.pivot = new Vector2(0f, 1f);
             _dragGhostText = NewText("Label", _dragGhost.transform, string.Empty, 12, TextAnchor.MiddleCenter, InkColor);
             Stretch(_dragGhostText.rectTransform);
             _dragGhost.gameObject.SetActive(false);
