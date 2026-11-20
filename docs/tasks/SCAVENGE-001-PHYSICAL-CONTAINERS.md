@@ -16,7 +16,9 @@ The player approaches physical bins in the shared city, searches them item by it
 7. Double-click or drag/drop transfers one discovered whole stack into carried inventory.
 8. If the destination cannot fit the item, nothing is removed from the container.
 9. Closing during the sequence stops presentation but preserves contents, order and discovered count. Reopening resumes at the next undiscovered item.
-10. Empty bins stay empty. No respawn or replenishment.\n11. The carried inventory remains fully manageable while the container panel is open, even when the bin is empty: player stacks can be repositioned, rotated and inspected without requiring a container item.\n12. Drag feedback keeps the grabbed cell under the pointer and aligns the ghost with the snapped target/drop preview.
+10. Empty bins stay empty. No respawn or replenishment.
+11. The carried inventory remains fully manageable while the container panel is open, even when the bin is empty: player stacks can be repositioned, rotated and inspected without requiring a container item.
+12. Drag feedback keeps the grabbed cell under the pointer and aligns the ghost with the snapped target/drop preview.\n11. The carried inventory remains fully manageable while the container panel is open, even when the bin is empty: player stacks can be repositioned, rotated and inspected without requiring a container item.\n12. Drag feedback keeps the grabbed cell under the pointer and aligns the ghost with the snapped target/drop preview.
 
 ## First content slice
 - Three authored loot profiles A/B/C using existing ItemDefinitions, initially ITEM_A, ITEM_B and ITEM_C.
@@ -58,6 +60,8 @@ Excluded: Tarkov skill progression, raid/extraction rules, timed respawn, secure
 - [x] Side-by-side container and carried inventory UI.
 - [x] Automatic one-by-one reveal presentation; close/reopen resumes.
 - [x] Double-click and cross-panel drag/drop whole-stack transfer.
+- [x] Player-owned stacks can be rearranged/rotated and inspected in the carried grid while the container panel is open, including for an empty bin.
+- [x] Drag ghost anchoring aligns with the grabbed cell and snapped drop preview.
 - [x] Register acquired items to player without losing identity/state.
 - [x] GameSession capture/load integration and safe v10/v11 migration.
 - [x] Tests for generation idempotency, search order, interruption, transfers, capacity rejection, state/identity preservation and save/load.
@@ -73,7 +77,9 @@ Excluded: Tarkov skill progression, raid/extraction rules, timed respawn, secure
 - Full inventory rejection leaves source unchanged.
 - ItemInstanceId and ItemInstanceState survive transfer and save/load.
 - Taken items never reappear after save/load.
-- Empty bins remain empty.
+- Empty bins remain empty and can still be reopened as an inventory-management context.
+- Carried inventory can be rearranged, rotated and inspected while the container panel is open, even with zero container items.
+- Drag ghost and drop preview agree on the snapped grid position.
 - No respawn or timed reset.
 
 ## Current implementation status
