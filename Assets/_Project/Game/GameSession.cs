@@ -173,10 +173,10 @@ namespace Signal.Game
             if (dirtyCashContactOffer != null && dirtyCashContactOffer.TryValidate(out _))
             {
                 _dirtyCashPanel = gameObject.AddComponent<DirtyCashContactPanel>();
-                _dirtyCashPanel.Bind(_inventory, _assetOwnership, dirtyCashContactOffer.DirtyCashItem,
-                    dirtyCashContactOffer.AcceptedItem, dirtyCashContactOffer.AcceptedQuantity,
-                    dirtyCashContactOffer.DirtyCashUnits, dirtyCashContactOffer.CleaningFeePercent,
-                    ExchangeWithContact, CleanDirtyCash);
+                _dirtyCashPanel.Bind(_inventory, _contactInventory, _assetOwnership, _allItemDefinitions,
+                    dirtyCashContactOffer.DirtyCashItem, dirtyCashContactOffer.AcceptedItem,
+                    dirtyCashContactOffer.AcceptedQuantity, dirtyCashContactOffer.DirtyCashUnits,
+                    dirtyCashContactOffer.CleaningFeePercent, ExchangeWithContact, CleanDirtyCash);
             }
             else
             {
@@ -653,7 +653,7 @@ namespace Signal.Game
             return _city != null && _city.IsResidentWithin("Clean_Dirtycash", _room.PlayerBody.position, 1.85f);
         }
 
-        private string ExchangeWithContact()
+        private string ExchangeWithContact(Guid selectedItemInstanceId)
         {
             if (!IsNearDirtyCashContact())
                 return "Move closer to the contact.";
@@ -665,21 +665,12 @@ namespace Signal.Game
             int acceptedQuantity = dirtyCashContactOffer.AcceptedQuantity;
             int dirtyCashUnits = dirtyCashContactOffer.DirtyCashUnits;
             ItemType acceptedType = acceptedItem.ToItemType();
-            PlacedItem selected = default;
-            bool found = false;
-            foreach (PlacedItem stack in _inventory.Items)
-            {
-                if (stack.Type != acceptedType || stack.Count != acceptedQuantity ||
-                    stack.State.Ownership != ItemOwnershipStatus.Stolen ||
-                    !_assetOwnership.TryGetOwner(stack.ItemInstanceId, out EconomicActorId owner) ||
-                    owner != EconomicActorId.Player)
-                    continue;
-                selected = stack;
-                found = true;
-                break;
-            }
-            if (!found)
-                return "Bring one player-owned stolen stack of " + acceptedQuantity + " " +
+            if (!_inventory.TryGetItemInstance(selectedItemInstanceId, out PlacedItem selected) ||
+                selected.Type != acceptedType || selected.Count != acceptedQuantity ||
+                selected.State.Ownership != ItemOwnershipStatus.Stolen ||
+                !_assetOwnership.TryGetOwner(selectedItemInstanceId, out EconomicActorId owner) ||
+                owner != EconomicActorId.Player)
+                return "Select one player-owned stolen stack of exactly " + acceptedQuantity + " " +
                     acceptedItem.DisplayName + " items.";
 
             IllicitExchangeResult result = IllicitExchangeService.TryExchange(_inventory, _contactInventory,
