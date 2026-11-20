@@ -447,6 +447,13 @@ namespace Signal.Game
             return image;
         }
 
+        private static RectTransform NewRect(string name, Transform parent)
+        {
+            var go = new GameObject(name, typeof(RectTransform));
+            go.transform.SetParent(parent, false);
+            return go.GetComponent<RectTransform>();
+        }
+
         private Image NewImage(string name, Transform parent, Color color)
         {
             var go = new GameObject(name, typeof(RectTransform), typeof(Image));
