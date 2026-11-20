@@ -1,6 +1,6 @@
 # SCAVENGE-001 — Physical containers and progressive scavenging
 
-**Status:** implementation committed; Unity verification pending.  
+**Status:** implementation committed; user reports 368/368 EditMode tests passed; interaction polish follow-up committed and awaiting re-verification.  
 **Approved:** 2026-11-20
 
 ## Player outcome
@@ -16,7 +16,7 @@ The player approaches physical bins in the shared city, searches them item by it
 7. Double-click or drag/drop transfers one discovered whole stack into carried inventory.
 8. If the destination cannot fit the item, nothing is removed from the container.
 9. Closing during the sequence stops presentation but preserves contents, order and discovered count. Reopening resumes at the next undiscovered item.
-10. Empty bins stay empty. No respawn or replenishment.
+10. Empty bins stay empty. No respawn or replenishment.\n11. The carried inventory remains fully manageable while the container panel is open, even when the bin is empty: player stacks can be repositioned, rotated and inspected without requiring a container item.\n12. Drag feedback keeps the grabbed cell under the pointer and aligns the ghost with the snapped target/drop preview.
 
 ## First content slice
 - Three authored loot profiles A/B/C using existing ItemDefinitions, initially ITEM_A, ITEM_B and ITEM_C.
@@ -83,4 +83,4 @@ The full code/content integration is committed. Main files:
 - Content: LootProfile_A/B/C assets and HideoutSlice scene references
 - Tests: SearchableContainerTests.cs, AssetTransferServiceTests.cs, ContainerLootProfileTests.cs, CityBlockBootstrapTests.cs
 
-No Unity compile or EditMode tests have been run by the assistant. The implementation is ready for Editor verification, not yet verified or Play Mode-confirmed.
+The user reports **368/368 EditMode tests passed** on the pre-polish implementation. The carried-inventory interaction and drag-ghost alignment corrections are now committed; rerun Unity compilation/EditMode tests and Play Mode checks for empty-bin inventory management and grid snapping. The assistant has not run Unity and does not claim the follow-up is verified.
