@@ -566,3 +566,29 @@ Implemented the approved player-facing sale slice on `chore/collaboration-workfl
 - Reconcile the previous SELL status: user confirmed successful Play Mode testing, including Milo receiving sale revenue. SELL is complete and user-verified; stale pending-verification notes above are superseded.
 
 Next: complete the Game-layer loot profiles, city bin interactions, two-panel search UI and GameSession save/load integration, then run the full EditMode suite and verify interrupted search plus item transfer in Play Mode.
+
+
+## 2026-11-20 — SCAVENGE-001 implementation batch completed (verification pending)
+
+The user authorized completing the whole physical-container scavenging slice in one coherent batch. The approved behavior is now implemented in Core/Game code and authored into HideoutSlice:
+
+- Three ScriptableObject loot profiles A/B/C, weighted across the existing ITEM_A / ITEM_B / ITEM_C definitions. Each of the three street bins is assigned its matching profile.
+- Three visible, solid physical bin props are generated in the Street at stable IDs: `street-bin-a`, `street-bin-b`, `street-bin-c`. Each exposes an E search prompt.
+- First interaction generates a bin once. Generated stacks and randomized reveal order live in its stable `SearchableContainer`; closing/reopening never generates again.
+- Search is a one-time action. It reveals one stack every 0.85 real seconds. The `searchStarted` flag and discovery count are persisted, so closing mid-search or saving/loading resumes automatically at the next undiscovered item.
+- A side-by-side UGUI container/player inventory panel displays only discovered bin contents. Right-click opens the existing item viewer; double-click transfers to the first free player slot; drag/drop transfers to the chosen cell and supports rotation.
+- Transfers use the existing asset ownership and container-custody model. Bin contents are world-owned by a stable `world:<container-id>` actor; a successful scavenging transfer changes ownership to Player, preserves ItemInstanceId/ItemInstanceState, and records a Scavenging economic transaction.
+- Capacity/placement failure is transactional: the stack remains in the bin and its owner remains unchanged.
+- GameSession captures/restores all container contents, search order, discovery count and started state. Save schema advanced to v12; v10/v11 records without the new state safely leave bins ungenerated or search-not-started as appropriate.
+- Added Core tests for one-time search start, interrupted search persistence, v11 migration, positioned transfer identity/state/ownership, and full-destination rejection; Game tests cover loot-profile generation and street-bin discovery. Existing save/transfer test suites also cover the underlying transaction rules.
+
+Key files added/changed:
+- Core: SearchableContainer, SearchableContainerSaveMapper, SaveData, GridInventory, InventoryTransfer, AssetTransferService, EconomicTransaction.
+- Game: ContainerLootProfile, SearchableContainerPanel, GameSession, CityBlockBootstrap.
+- Content: LootProfile_A/B/C assets and HideoutSlice references.
+- Tests: SearchableContainerTests, AssetTransferServiceTests, ContainerLootProfileTests, CityBlockBootstrapTests.
+- Docs: roadmap, progress, data model, design, architecture, handoff and SCAVENGE-001 task card.
+
+**Verification status:** code and tests are committed, but the assistant cannot run Unity in this environment. No Unity compilation, EditMode test run or Play Mode test is claimed. The full feature is awaiting Editor verification. The user previously confirmed SELL works in Play Mode (including Milo receiving the revenue); that confirmation supersedes older pending SELL notes elsewhere in this historical log.
+
+Next: open HideoutSlice in Unity, resolve any compiler/test issues, run the full EditMode suite, then verify searching/closing/reopening, double-click, drag/drop, full-inventory rejection and F5/F9 persistence in Play Mode.

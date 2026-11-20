@@ -601,3 +601,35 @@ Core groundwork now committed:
 Not yet complete: Game-layer loot profile definitions/assets, physical bin placement, E interaction, side-by-side UI, automatic search animation, double-click and cross-panel drag/drop, GameSession save/load integration, complete tests and Unity Play Mode verification. Do not describe the scavenging loop as playable until those are finished.
 
 The SELL milestone is now fully user-verified in Play Mode, including Milo receiving the business revenue; older pending notes in the historical progress section are superseded.
+
+
+## 2026-11-20 — SCAVENGE-001 implementation committed; Unity verification pending
+
+The complete first playable implementation batch for physical-container scavenging is now in the branch.
+
+**Content and world**
+- `Assets/_Project/Content/Containers/LootProfile_A.asset`, `LootProfile_B.asset`, `LootProfile_C.asset` are assigned to the active `HideoutSlice.unity` GameSession. They use the existing ITEM_A/B/C definitions with weighted test distributions.
+- `CityBlockBootstrap` creates three physical solid bin props in Street, with stable IDs `street-bin-a/b/c`, prompts and E interaction.
+
+**Runtime and UI**
+- `ContainerLootProfile` generates actual GridInventory item stacks and randomizes a stable reveal order once.
+- `SearchableContainerPanel` presents bin and carried inventory together. Search starts once and automatically reveals one stack at a time. Only discovered items are visible. Right-click inspects; double-click takes; drag/drop places the stack at the selected inventory cell.
+- Closing the panel stops the animation only. The persisted started flag means reopening automatically resumes. There is no respawn.
+- GameSession owns the runtime containers, registers bin custody and world ownership, uses AssetTransferService to take discovered stacks, and captures/restores all bin states.
+- Scavenging transfers preserve ItemInstanceId and ItemInstanceState, change owner from the bin world actor to Player, and append an economic transaction with reason Scavenging. Capacity failure leaves the item in the bin.
+
+**Persistence and tests**
+- Save schema is now v12. SearchableContainerSaveMapper stores contents, reveal order, discovered count and searchStarted.
+- v10 saves have no container records and generate bins on first interaction. v11 records retain their generated contents and progress but default searchStarted to false.
+- Core tests cover one-time search start, save/resume, v11 migration, transfer identity/state/ownership and destination-full rejection. Game tests cover profile generation and physical-bin prompt/discovery.
+
+**Unity verification still required**
+1. Open `Assets/_Project/Scenes/HideoutSlice.unity` and confirm no compile errors.
+2. Run the full EditMode suite.
+3. Enter Street, approach each bin and press E. Confirm each profile yields contents once.
+4. Press Search, wait for several reveals, close with ESC, reopen and confirm it resumes with the next item.
+5. Double-click a discovered item; repeat using drag/drop to a chosen cell. Verify item identity/state and ownership.
+6. Fill the player inventory and confirm a failed take leaves the stack in the bin.
+7. F5 save while a search is partly complete, close/reload with F9, and confirm contents, discoveries, started state and taken items are unchanged.
+
+No assistant-side Unity compile, EditMode or Play Mode run has occurred. Do not call this verified until those checks pass.

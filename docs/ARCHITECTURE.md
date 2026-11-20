@@ -168,3 +168,15 @@ EconomicContainerRegistry records the custodian for each runtime inventory conta
 - `RetailService` validates customer/owner accounts, clean balance, inventory capacity and ownership of any matching stack that may be topped up. It grants the item using the authored default state, registers new stack ownership, transfers clean money from customer to owner and appends a `RetailTransaction`. It restores the pre-operation state on failure.
 - `RetailTransactionLedger` is distinct from the physical asset-transfer ledger because unlimited catalogue merchandise is instantiated for the customer rather than transferred from a finite business inventory.
 - The Corner Bakery definition is assigned in the active HideoutSlice scene. Its catalogue is intentionally empty pending user-approved merchandise and prices. Existing Core `Shop` / `ShopOrder` selling logic remains unchanged.
+
+
+## Physical searchable containers and cross-inventory transfer
+
+- Core `SearchableContainer` owns persistent state only: stable container ID, normal `GridInventory`, immutable reveal order, discovery count and search-started flag. It has no Unity dependencies or random-generation policy.
+- Game `ContainerLootProfile` ScriptableObjects author weighted item definitions and quantity ranges. `GameSession` invokes generation once on first interaction and registers generated instances to the bin's world actor.
+- `CityBlockBootstrap` owns the physical street placement and proximity prompt for three stable bin IDs. `GameSession` maps those IDs to the three authored profiles and runtime Core containers.
+- `SearchableContainerPanel` owns only presentation/input: it renders discovered stacks in a side-by-side grid UI, animates the reveal sequence, pauses it on close and resumes from Core state on reopen. It delegates transfers to GameSession.
+- Cross-inventory transfer is transactional. Core first validates destination placement, then removes the source stack; AssetTransferService changes ownership and records the `Scavenging` transaction, rolling back inventory/ownership if the transaction cannot be committed.
+- Bin inventories are registered as world-custodied containers under `world:<container-id>`. The player inventory remains registered to Player. Ownership and custody remain separate concepts.
+- SaveMapper handles player inventory/ownership; SearchableContainerSaveMapper separately handles bin contents and search state. Runtime registry entries are rebuilt from live inventory references, not serialized Unity objects.
+- Save v12 persists `searchStarted` in addition to generated contents, reveal order and discovery count. No external package or third-party code is required.

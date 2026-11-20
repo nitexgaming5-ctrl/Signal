@@ -105,3 +105,14 @@ The player finds physical bins in the city and searches them like someone rummag
 
 ### Boundaries
 Tarkov is an experience reference for progressive container discovery, inventory management during search and separate item examination. Do not import its skill progression, timed container resets, raid rules, secure-container rules or loot economy. No third-party package, Asset Store dependency or copied game code is required.
+
+
+## Physical containers and progressive scavenging — implementation details
+
+- Street contains three physical bins with stable IDs and authored profile assignments A/B/C.
+- The first interaction generates each bin once. The actual generated stacks and randomized reveal order are persisted; profile randomness is not replayed on load.
+- The player presses Search once. The UI reveals one item stack at a time (current placeholder interval: 0.85 real seconds). This interval is presentation tuning, not an in-game search skill or timed respawn.
+- The container and carried inventory are visible side by side. Only discovered container stacks are rendered. Right-click opens the existing read-only item viewer; double-click transfers a discovered stack to the first free carried slot; drag/drop places it at the selected carried-inventory cell.
+- A successful take is an economic asset transfer from the bin's world actor to Player. The item instance ID, state and ownership record are preserved/updated through the shared transfer service. If the selected placement does not fit, no source or ownership mutation occurs.
+- Search start, reveal order and discovered count persist. Closing pauses the sequence; reopening resumes automatically. F5 can save while the panel is open; F9 closes it and restores the saved state.
+- Save schema is v12. No respawn or replenishment is included.

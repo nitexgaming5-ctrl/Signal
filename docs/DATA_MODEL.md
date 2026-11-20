@@ -160,3 +160,17 @@ When a save shape changes, keep the current format reliable and add round-trip c
 - First test content uses three authored profiles A/B/C and 2–3 bins in Street. These are fixtures, not a final city loot economy.
 - Save schema v11 adds searchable-container contents, reveal order and discovery progress. v10 saves migrate with an empty container-state collection; bins generate on first interaction.
 - No new package or external code is required. Tarkov is an interaction reference only; its skills, timed resets, raid mechanics and rarity economy are excluded.
+
+
+## Searchable-container runtime and save model (save v12)
+
+- `SearchableContainer` is a stable-ID runtime aggregate containing a normal `GridInventory`, a randomized immutable reveal order, a discovered count and a persisted `HasSearchStarted` flag.
+- Generation is performed by a Game-layer `ContainerLootProfile` exactly once, on first interaction. The generated item stacks, stable ItemInstanceIds, instance states and reveal order are saved. The random generator is not rerun during load.
+- The reveal order retains IDs for items already transferred out. This lets the remaining search sequence resume without rediscovering or recreating taken items.
+- Search can begin once. Each presentation tick reveals the next ordered stack; discovery does not move it out of the bin. The UI only renders discovered container stacks.
+- Closing the panel stops the presentation timer but does not change generated state, reveal order, started state or discovered count. Reopening a started incomplete container resumes automatically.
+- Each bin's inventory is registered with `EconomicContainerRegistry` under `world:<container-id>`; generated item instances are initially owned by that actor. A successful `AssetTransferService` scavenging transfer changes ownership to Player, records reason `Scavenging`, and preserves exact stack identity and state.
+- Container state is persisted separately from carried inventory by `SearchableContainerSaveMapper`. The economic container registry is reconstructed from runtime inventory references. Remaining bin contents receive their world actor ownership after load; taken items remain in the player's normal saved inventory and ownership data.
+- Save v12 adds `SavedSearchableContainer.searchStarted`. v10 saves without container state leave bins ungenerated. v11 generated contents/progress are retained, with the newly introduced search-started flag defaulting false.
+- Game content includes three test profiles A/B/C referencing existing ITEM_A/B/C definitions. These are vertical-slice fixtures, not a generic loot-economy framework.
+- The side-by-side UI uses the existing UGUI and Input System; no package or third-party code was added.

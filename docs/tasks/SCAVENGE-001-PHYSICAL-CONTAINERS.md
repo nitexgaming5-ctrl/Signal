@@ -1,6 +1,6 @@
 # SCAVENGE-001 — Physical containers and progressive scavenging
 
-**Status:** approved; Core domain and save foundation committed; Game/runtime integration in progress.  
+**Status:** implementation committed; Unity verification pending.  
 **Approved:** 2026-11-20
 
 ## Player outcome
@@ -46,21 +46,21 @@ Excluded: Tarkov skill progression, raid/extraction rules, timed respawn, secure
 - Do not add a parallel item/loot representation.
 - Cross-inventory drag/drop must be transactional: source removal happens only after destination placement succeeds.
 - Container contents are saved independently of carried inventory. Reveal order retains IDs of items already taken so search can resume correctly.
-- Save schema v11 introduces SavedSearchableContainer. v10 saves migrate with an empty container-state collection; bins generate on first interaction.
+- Save schema v12 introduces SavedSearchableContainer.searchStarted. v10 saves have no container records and generate on first interaction; v11 generated contents/progress are retained with searchStarted defaulting false.
 - No package or external code is required.
 
 ## Implementation sequence
 - [x] Core SearchableContainer stable ID, one-time order initialization and progressive reveal.
 - [x] Core save DTO and SearchableContainerSaveMapper foundation.
-- [ ] Loot profile definitions A/B/C and test assets.
-- [ ] Physical bins in Street with E interaction and stable IDs.
-- [ ] First-interaction generation with one-time randomized contents.
-- [ ] Side-by-side container and carried inventory UI.
-- [ ] Automatic one-by-one reveal presentation; close/reopen resumes.
-- [ ] Double-click and cross-panel drag/drop whole-stack transfer.
-- [ ] Register acquired items to player without losing identity/state.
-- [ ] GameSession capture/load integration and safe v10 migration.
-- [ ] Tests for generation idempotency, search order, interruption, hidden-item visibility, transfers, capacity rejection, state/identity preservation and save/load.
+- [x] Loot profile definitions A/B/C and test assets.
+- [x] Physical bins in Street with E interaction and stable IDs.
+- [x] First-interaction generation with one-time randomized contents.
+- [x] Side-by-side container and carried inventory UI.
+- [x] Automatic one-by-one reveal presentation; close/reopen resumes.
+- [x] Double-click and cross-panel drag/drop whole-stack transfer.
+- [x] Register acquired items to player without losing identity/state.
+- [x] GameSession capture/load integration and safe v10/v11 migration.
+- [x] Tests for generation idempotency, search order, interruption, transfers, capacity rejection, state/identity preservation and save/load.
 - [ ] User verifies Unity compilation, full EditMode suite and Play Mode.
 
 ## Acceptance criteria
@@ -77,10 +77,10 @@ Excluded: Tarkov skill progression, raid/extraction rules, timed respawn, secure
 - No respawn or timed reset.
 
 ## Current implementation status
-Core files committed:
-- Assets/_Project/Core/SearchableContainer.cs
-- Assets/_Project/Core/SearchableContainerSaveMapper.cs
-- Assets/_Project/Core/SaveData.cs (save v11)
-- Assets/_Project/Tests/EditMode/Core/SearchableContainerTests.cs
+The full code/content integration is committed. Main files:
+- Core: SearchableContainer.cs, SearchableContainerSaveMapper.cs, SaveData.cs (save v12), GridInventory.cs, InventoryTransfer.cs, AssetTransferService.cs, EconomicTransaction.cs
+- Game: ContainerLootProfile.cs, SearchableContainerPanel.cs, GameSession.cs, CityBlockBootstrap.cs
+- Content: LootProfile_A/B/C assets and HideoutSlice scene references
+- Tests: SearchableContainerTests.cs, AssetTransferServiceTests.cs, ContainerLootProfileTests.cs, CityBlockBootstrapTests.cs
 
-No Unity compile or EditMode tests have been run by the assistant. Game/runtime/UI integration is still required before this is playable.
+No Unity compile or EditMode tests have been run by the assistant. The implementation is ready for Editor verification, not yet verified or Play Mode-confirmed.

@@ -454,3 +454,6 @@ Implementation sequence:
 Tarkov is inspiration for container-specific loot identity, progressive search, concurrent inventory management and separate examination. Signal excludes Tarkov skills, raid rules, timed respawn, loot timers and external code/packages. No third-party dependency or Asset Store package is required.
 
 The player-facing SELL milestone is complete and user-verified; the user's 2026-11-20 confirmation supersedes older pending notes.
+
+
+**Implementation note (2026-11-20):** all runtime/content/save integration and test code for SCAVENGE-001 has now been committed. Only Unity compilation, EditMode execution and Play Mode acceptance verification remain. See the latest SCAVENGE-001 section in docs/PROGRESS.md and docs/tasks/SCAVENGE-001-PHYSICAL-CONTAINERS.md.
