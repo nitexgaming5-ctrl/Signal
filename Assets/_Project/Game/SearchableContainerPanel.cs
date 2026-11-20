@@ -383,7 +383,7 @@ namespace Signal.Game
             _root.pivot = new Vector2(0.5f, 0.5f);
             _root.sizeDelta = new Vector2(1000f, 560f);
 
-            Text heading = NewText("Heading", _root, "SEARCHING  —  [ESC] close   [R] rotate while dragging", 18,
+            Text heading = NewText("Heading", _root, "CONTAINER SEARCH  —  [ESC] close   [R] rotate while dragging", 18,
                 TextAnchor.MiddleLeft, TitleColor);
             SetTopLeft(heading.rectTransform, 24f, 12f, 760f, 30f);
 

@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c1a8b5d3e6f4a2c9d0e1f2a3b4c5d61, type: 3}
   m_Name: LootProfile_B
   m_EditorClassIdentifier: Signal.Game::Signal.Game.ContainerLootProfile
-  minimumStacks: 2
-  maximumStacks: 4
+  minimumRolls: 2
+  maximumRolls: 4
   entries:
   - item: {fileID: 11400000, guid: 39a634896790a6f42aa67446e05bb8de, type: 2}
     weight: 25

@@ -30,9 +30,9 @@ namespace Signal.Game.Tests
                     .SetValue(profile, Array.CreateInstance(entryType, 1));
                 Array entries = (Array)typeof(ContainerLootProfile).GetField("entries", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(profile);
                 entries.SetValue(entry, 0);
-                typeof(ContainerLootProfile).GetField("minimumStacks", BindingFlags.Instance | BindingFlags.NonPublic)
+                typeof(ContainerLootProfile).GetField("minimumRolls", BindingFlags.Instance | BindingFlags.NonPublic)
                     .SetValue(profile, 2);
-                typeof(ContainerLootProfile).GetField("maximumStacks", BindingFlags.Instance | BindingFlags.NonPublic)
+                typeof(ContainerLootProfile).GetField("maximumRolls", BindingFlags.Instance | BindingFlags.NonPublic)
                     .SetValue(profile, 3);
 
                 var container = new SearchableContainer("profile-test-bin", 8, 6);

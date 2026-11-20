@@ -17,8 +17,8 @@ namespace Signal.Game
             [Min(1)] public int maximumCount = 1;
         }
 
-        [SerializeField, Min(1)] private int minimumStacks = 2;
-        [SerializeField, Min(1)] private int maximumStacks = 4;
+        [SerializeField, Min(1)] private int minimumRolls = 2;
+        [SerializeField, Min(1)] private int maximumRolls = 4;
         [SerializeField] private LootEntry[] entries;
 
         public IEnumerable<ItemDefinition> Items
