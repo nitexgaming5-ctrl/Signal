@@ -1,6 +1,6 @@
 # CRIME-ECONOMY-001 — Shared-city crime, dirty money and production
 
-**Status:** broad design approved; Slice A resident-container theft implementation committed, awaiting Unity verification. Slices B–D remain design-stage.  
+**Status:** broad design approved; Slice A resident-container theft is user-tested, with a witness-gated heat correction committed and awaiting post-fix Unity verification. Slices B–D remain design-stage.  
 **Date:** 2026-11-20  
 **Scope:** shared-city crime/economy architecture and staged implementation. The first crime action is specified in [CRIME-THEFT-001](CRIME-THEFT-001-RESIDENT-CONTAINER-THEFT.md).
 
@@ -157,9 +157,9 @@ Minimum:
 - No automatic reporting, police response, relationship penalty or suspicion from an unwitnessed event. The existing ambient social-encounter exchange skips `crime-observed` events until witness-sharing/reporting rules are designed and approved.
 - Tests for successful/failed transfer, stolen item state, no-observer, one-observer, out-of-radius, duplicate outcome and current-format save/load.
 
-Initial prototype tuning on Rhea's wardrobe is +2 heat, +1 global criminal-progression point per successfully stolen stack, and an 8-unit witness radius. These are serialized authoring values for playtesting, not final balance. Existing HeatMeter daily cooling remains placeholder tuning; criminal progression does not decay and has no unlock thresholds yet.
+Initial prototype tuning on Rhea's wardrobe is +2 heat only when a local resident witnesses the theft, +1 global criminal-progression point per successfully stolen stack whether witnessed or not, and an 8-unit witness radius. An unwitnessed theft adds zero heat. These are serialized authoring values for playtesting, not final balance. Existing HeatMeter daily cooling remains placeholder tuning; criminal progression does not decay and has no unlock thresholds yet.
 
-**Implementation status:** code/content/test batch committed; awaiting Unity compilation, EditMode and Play Mode verification. Full details and acceptance checks: [CRIME-THEFT-001](CRIME-THEFT-001-RESIDENT-CONTAINER-THEFT.md).
+**Implementation status:** the user confirmed 382/382 EditMode tests and successful Play Mode behavior apart from the unwitnessed-heat defect. The correction and regression assertion are committed; the post-fix suite and quick Play Mode retest remain. Full details and acceptance checks: [CRIME-THEFT-001](CRIME-THEFT-001-RESIDENT-CONTAINER-THEFT.md).
 
 Exit: a small authored scenario produces a crime result, only the selected local observer learns the observable fact, and heat/progression outputs and save/load are deterministic and testable.
 
