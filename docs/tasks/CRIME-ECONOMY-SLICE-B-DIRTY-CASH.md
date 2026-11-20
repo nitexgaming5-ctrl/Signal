@@ -1,6 +1,6 @@
 # CRIME-ECONOMY-SLICE-B — Dirty Cash, illicit exchange and contact-specific cleaning
 
-**Status:** implementation committed; Unity verification pending  
+**Status:** core/economy implementation and 392/392 EditMode suite user-verified; contact UI correction committed, Unity verification pending  
 **Parent:** [CRIME-ECONOMY-001 shared-city design](CRIME-ECONOMY-001-SHARED-CITY-DESIGN.md)  
 **Prerequisite:** CRIME-THEFT-001 resident-owned container theft  
 **User approval:** Slice B and the first fence offer approved on 2026-11-20.
@@ -114,3 +114,10 @@ The offer must require `ItemOwnershipStatus.Stolen`; a legitimate copy of the sa
 ## Implementation and verification status
 
 The approved offer and contact values are implemented in content and wired through the Core/Game integration. Expected EditMode suite: 392 tests (382 baseline + 10 new cases); this is not yet a reported Unity result. Unity compilation, EditMode execution and the full Play Mode/save-load loop remain pending.
+
+
+## UI correction — 2026-11-20
+
+The initial panel was rejected by the user as confusing and incomplete. The replacement is a dual-inventory workspace with a read-only contact inventory and selectable carried inventory. Fence and cleaning are separate modes; review does not execute; confirm controls are distinct and spatially separated. The fence callback now requires the exact selected stack ID and GameSession validates its accepted type, exact quantity, Stolen state and Player ownership.
+
+The 392/392 result was reported before this UI correction. No economy rule or serialized field changed. Unity compile and Play Mode verification of the replacement UI remain outstanding.
