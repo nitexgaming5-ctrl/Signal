@@ -7,7 +7,7 @@
 - SCAVENGE-001 physical containers and progressive search are complete. The user confirmed the latest full EditMode suite **368/368 passed** after UI polish and confirmed empty-bin carried-inventory management plus grid snapping in Play Mode.
 - Opportunity 001: Milo's Parcel is user-verified: 284/284 EditMode tests and successful end-to-end Play Mode completion were confirmed by the user. Any older pending-verification wording in historical notes is superseded.
 - Player-facing sell-to-shop is user-verified: 355/355 EditMode tests and the BUY/partial SELL/full SELL/save-reload Play Mode path were confirmed; the user also observed Milo receiving business revenue.
-- CRIME-THEFT-001 resident-owned apartment container theft is now implemented and committed, with 14 new EditMode test cases and save v13. Unity compilation, the expected 382/382 full EditMode suite and Play Mode acceptance checks are still pending. This is implementation status, not a verification claim.
+- CRIME-THEFT-001 resident-owned apartment container theft is implemented and user-tested. The user confirmed 382/382 EditMode tests and that Play Mode works except unwitnessed theft incorrectly raised heat. A follow-up correction is committed: the apartment theft fixture awards +2 heat only when a local witness is selected; unwitnessed theft still awards +1 global progression and records the crime, but adds zero heat. The regression assertion is added to an existing test, so the expected suite remains 382. Post-fix Unity compilation/test rerun and quick witnessed/unwitnessed Play Mode retest are pending.
 - Verification is based on user reports. The assistant has not run the local Unity Editor.
 
 ## 1. What Signal is
