@@ -194,6 +194,7 @@ namespace Signal.Game.Tests
             contact.NpcId = "Clean_Dirtycash";
             contact.DisplayName = string.Empty;
             contact.PublicRole = "Neighbour";
+            contact.SocialDialogue = "Keep your voice down. What do you need?";
             contact.UtilityProfile = NpcUtilityProfile.CreateDefault();
             contact.UtilityProfile.WorkStartMinute = 420;
             contact.UtilityProfile.WorkEndMinute = 420;
