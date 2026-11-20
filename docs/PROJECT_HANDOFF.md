@@ -680,3 +680,17 @@ The user approved Slice B and confirmed:
 Full specification: `docs/tasks/CRIME-ECONOMY-SLICE-B-DIRTY-CASH.md`.
 
 **Before implementation:** the exact accepted stolen ItemDefinition and fixed Dirty Cash payout quantity remain unapproved. Ask the user to choose/approve that one fence offer. Do not invent a new narrative item, price or contact identity. The prior superseded Phase 3 illicit-vendor proposal remains historical and is not the active specification; Slice B is the newly approved, narrowly scoped transaction loop.
+
+
+## Latest status — Slice B UI correction (2026-11-20)
+
+The user confirmed **392/392 EditMode tests passed**. Save-version naming/numbering policy is deferred until a release/compatibility milestone; do not spend further effort on it now.
+
+The user found the first Dirty Cash contact panel confusing and reported that the fence appeared executable without the required ITEM_A ×2, the review control behaved like a transaction confirmation, and the player's carried inventory was not visible beside the contact inventory. The UI has now been rebuilt:
+- Side-by-side contact inventory (read-only) and player carried inventory (selectable), using the same grid-workspace visual language as SearchableContainerPanel.
+- Separate Fence Offer and Clean Dirty Cash modes.
+- The player must select the exact eligible stack. Fence review is a non-transactional step; confirm fence exchange is a separate control in a different screen position.
+- Cleaning has its own selected Dirty Cash preview and Confirm Cleaning control. Fee and exact CARD payout are visible before execution.
+- GameSession now receives the selected ItemInstanceId and validates that exact stack for accepted type, exact quantity, Stolen state and Player ownership. It no longer auto-selects any qualifying stack.
+
+**Verification status:** code and docs are committed, but this latest UI correction has not yet been compiled or tested in Unity. The 392/392 result predates this UI-only change. User should pull the branch, confirm compilation, and test: no selection / wrong item / legitimate ITEM_A cannot fence; a valid stolen ITEM_A ×2 can be reviewed without executing; only Confirm Fence Exchange performs the exchange; Dirty Cash appears in carried inventory; selecting it in Clean mode shows the 20% fee and exact payout; only Confirm Cleaning cleans it; both inventory grids remain visible throughout. Then save/reload and regression-test scavenging, theft, and retail.
