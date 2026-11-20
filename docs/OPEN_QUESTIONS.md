@@ -124,3 +124,20 @@ Approved rules:
 - No item or price entries are implied by this approval; content offers require their own authored values.
 
 Implementation specification: `docs/tasks/ECONOMY-PLAYER-SELLING-DESIGN.md`. The approved model is implemented and user-verified: the full EditMode suite passed 355/355, and the BUY → partial SELL → full SELL → save/reload Play Mode sequence works. The temporary Bread buyback offer at CARD $3 was used only for testing and has been removed from `Business_CornerShop.asset`. No final bakery buyback item or price has been approved. The existing Bread merchandise price of CARD $5 remains temporary test content, not final balancing.
+
+
+## Crime, dirty money and production — detailed rules pending (2026-11-20)
+
+The user approved the high-level boundaries documented in `docs/tasks/CRIME-ECONOMY-001-SHARED-CITY-DESIGN.md`. The following details are not yet approved and must not be implemented by assumption:
+
+- First crime action/category and its success/failure outcomes.
+- Which actions contribute to heat and criminal progression; exact values and whether unwitnessed actions can add heat.
+- Heat bands, gradual consequences, cooling and recovery.
+- How a witness can report or share information; recipient, timing and confidence.
+- Dirty-money item value/denomination and the first authored item.
+- First illicit contact, accepted payment and exchanged outcome.
+- Cleaning offer structure (fixed fee or retained percentage), exact rate, prerequisites, delay and exposure.
+- First production-capable business/workspace, recipe inputs/outputs and whether production is immediate or time-based.
+- First implementation slice.
+
+Current recommendation: Slice A first — one authored low-severity crime action, at most one possible local witness, no automatic report, and modest authored heat/progression effects. Keep exposure character-scoped; do not make heat a proxy for universal knowledge. This recommendation is awaiting the user's detailed design approval.
