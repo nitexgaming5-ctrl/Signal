@@ -114,13 +114,13 @@ The repository contains more of the intended hideout/city direction than the pre
 
 ## Next actions and priorities
 
-1. **Recommended next initiative — design a compact player-facing NPC scenario.** Use the existing connected NPC framework to create a small situation in which the player can notice, investigate or interact with a resident's public/private life and experience a meaningful outcome. Agree the exact player-facing rules, clues, risks and consequences with the user before implementation. Do not assume the baker example is the final story.
-2. **Short technical validation:** create/assign one or more real `NpcCharacterDefinition` assets in the Unity Inspector and verify the authored-content path in `HideoutSlice`. The fallback Milo/Rhea definitions remain fixtures, not final cast.
-3. **Scenario and pacing ownership design:** decide which scenario system owns the current phase, what makes a candidate context-valid, when the shared `WorldPacingDirector` is called, and how phase/last-authorization state is saved or reconstructed. Do not wire arbitrary events into the director.
-4. **Persistence only when the scenario needs it:** design stable-ID persistence for meaningful relationships, selected memories, discoveries and durable world changes, with versioned save migration tests. Rebuild transient location/perception data after load.
-5. **Scale boundaries:** verify event-driven updates and location/area partitioning before adding many residents. Do not simulate every citizen at equal fidelity.
-6. **Parked verification:** storage capacity edge cases, actual version-1 save migration, automated city-transition tests and target-platform save replacement.
-7. Keep the shared-city model: lawful and illegal activity, public life and concealed dealings coexist in the same locations and social network.
+1. **Recommended next initiative — integrated livelihood/economy design.** Design how three connected areas should fit the shared city before choosing the next implementation slice: (a) crime and its heat/exposure/consequence model, (b) dirty money as a physical item with a deliberately bounded illicit exchange/cleaning lifecycle, and (c) legitimate production and goods flows. Keep clean CARD separate from dirty-money items. The purpose is to agree the player-facing loops and their dependencies together, not to implement a universal economy simulation.
+2. **Choose one vertical slice only after the design is approved.** A concrete player activity should demonstrate the relevant rules end to end; do not build all three systems as disconnected frameworks or implement every crime/recipe/business category at once.
+3. **Preserve existing economy boundaries.** Retail remains fixed-price, authored and event-driven; no universal supply/demand, dynamic pricing, automatic NPC shopping or passive economy simulation. Economy Engine ideas remain inspiration/backlog candidates, not package adoption or automatic scope.
+4. **NPC content validation:** when convenient, assign one or more real `NpcCharacterDefinition` assets in the Unity Inspector and verify the authored-content path in `HideoutSlice`. Milo and Rhea remain fallback fixtures, not confirmed final cast.
+5. **World pacing and persistence:** design scenario-phase ownership and durable-state persistence when a concrete approved scenario needs them. Rebuild transient location/perception data after load; do not wire arbitrary events into `WorldPacingDirector`.
+6. **Parked reliability checks:** storage capacity/rollback edge cases, actual v1 save migration, automated city-transition tests and target-platform save replacement.
+7. Keep the shared-city model: lawful and illegal activity, public life and concealed dealings coexist in the same locations and social network. No new detailed crime, laundering, production or consequence rule is approved by this roadmap wording alone.
 
 ## Work log
 - 2026-11-17: Confirmed GitHub access and created the working branch; documented the focus-friendly workflow and original hybrid RPG direction.
