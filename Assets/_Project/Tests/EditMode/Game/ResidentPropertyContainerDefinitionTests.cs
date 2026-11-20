@@ -53,6 +53,8 @@ namespace Signal.Game.Tests
                 SetPrivateField(definition, "contents", entries);
 
                 var container = new SearchableContainer("property-test", 8, 6);
+                Assert.That(definition.GetHeatAward(true), Is.EqualTo(2));
+                Assert.That(definition.GetHeatAward(false), Is.Zero);
                 Assert.That(definition.TryValidate(out string validationError), Is.True, validationError);
                 Assert.That(definition.TryPopulate(container, out string populateError), Is.True, populateError);
                 Assert.That(container.IsGenerated, Is.True);
