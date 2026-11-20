@@ -9,7 +9,7 @@
 - Fence transfers the sold item into the contact's persistent physical inventory. Cleaning consumes the selected Dirty Cash stack and credits both accounts atomically.
 - Legal retail remains clean-CARD-only. No automatic laundering, dynamic pricing, risk, delay, heat, witnesses or progression effects in Slice B.
 - Save schema v14 persists contact inventory, ownership and both dedicated histories; v13 migration initializes the new collections empty.
-- Implementation status: in progress; Unity verification pending.
+- Implementation status: committed at `12b62e82196b18603f20f039a3f122221726b757`; Unity verification pending.
 
 Still open after Slice B: the first authored production workspace, recipe inputs/outputs and timing for Slice C.
 

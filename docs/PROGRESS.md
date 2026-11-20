@@ -4,8 +4,8 @@
 
 - The user approved the complete Slice B content: one discreet unnamed contact (internal ID `Clean_Dirtycash`, blank visible name); physical Dirty Cash at 10 face value per unit; exactly 2 stolen, player-owned ITEM_A items exchanged for 3 Dirty Cash units; contact-specific 20% cleaning fee.
 - Cleaning 3 units credits 24 clean CARD to the player and 6 CARD to the contact's existing resident account. The retained fee is not destroyed and no universal cleaning rate is introduced.
-- Implementation is being integrated into the existing Core/Game architecture: a separate contact inventory, atomic illicit-exchange and cleaning services, explicit player-facing panel, dedicated transaction histories and save schema v14.
-- The previous implementation pass had created uncommitted Git blobs. The current pass is reconciling and completing those changes; no Unity verification has yet been performed. Do not mark Slice B complete until the user runs compilation, EditMode tests and the Play Mode/save-load loop.
+- Implementation is committed on `chore/collaboration-workflow-and-audit` at `12b62e82196b18603f20f039a3f122221726b757`: separate contact inventory, atomic illicit-exchange and cleaning services, explicit player-facing panel, dedicated transaction histories and save schema v14.
+- No Unity compilation, EditMode tests or Play Mode verification have been performed for Slice B. Do not mark it complete until the user runs the expected 392-case suite and the full contact/save-load loop.
 - Expected EditMode suite count after the 10 new test cases: 392 (the prior 382-case baseline plus 10). This is an expected count, not a reported test result.
 
 ## Completed earlier slice — CRIME-ECONOMY-001 / Slice A (2026-11-20)

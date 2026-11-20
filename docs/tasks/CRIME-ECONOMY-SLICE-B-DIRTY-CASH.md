@@ -1,6 +1,6 @@
 # CRIME-ECONOMY-SLICE-B — Dirty Cash, illicit exchange and contact-specific cleaning
 
-**Status:** implementation in progress; Unity verification pending  
+**Status:** implementation committed; Unity verification pending  
 **Parent:** [CRIME-ECONOMY-001 shared-city design](CRIME-ECONOMY-001-SHARED-CITY-DESIGN.md)  
 **Prerequisite:** CRIME-THEFT-001 resident-owned container theft  
 **User approval:** Slice B and the first fence offer approved on 2026-11-20.

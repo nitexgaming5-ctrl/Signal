@@ -8,9 +8,9 @@
 - [x] Approve denomination: 10 face value per physical Dirty Cash unit.
 - [x] Approve first fence offer: 2 stolen, player-owned ITEM_A items for 3 Dirty Cash units.
 - [x] Approve contact-specific 20% cleaning fee: 24 CARD to the player and 6 CARD to the contact for the 3-unit stack.
-- [ ] Complete Core atomic exchange/cleaning services, ownership transfer and separate ledgers.
-- [ ] Complete shared-city contact, physical contact inventory and player-facing interaction panel.
-- [ ] Complete save v14 contact inventory, ownership, accounts and transaction histories; preserve v13 migration.
+- [x] Complete Core atomic exchange/cleaning services, ownership transfer and separate ledgers.
+- [x] Complete shared-city contact, physical contact inventory and player-facing interaction panel.
+- [x] Complete save v14 contact inventory, ownership, accounts and transaction histories; preserve v13 migration.
 - [ ] User runs Unity compilation, full EditMode suite (392 expected), and Play Mode/save-load regression checks.
 
 Slice C production design remains parked until Slice B verification is complete.
