@@ -157,6 +157,7 @@ namespace Signal.Game
 
         private bool TryGetSelected(out PlacedItem selected)
         {
+            selected = default;
             return _selectedPlayerStack != Guid.Empty &&
                 _playerInventory.TryGetItemInstance(_selectedPlayerStack, out selected);
         }
@@ -248,6 +249,7 @@ namespace Signal.Game
             go.transform.SetParent(parent, false);
             Image image = go.GetComponent<Image>();
             image.color = color;
+            image.raycastTarget = selectable;
             Button button = go.GetComponent<Button>();
             button.targetGraphic = image;
             button.interactable = selectable;
@@ -386,6 +388,7 @@ namespace Signal.Game
         {
             Image image = NewImage(label.Replace(" ", "") + "Button", parent, new Color32(62, 230, 210, 255));
             SetTopLeft(image.rectTransform, x, y, width, height);
+            image.raycastTarget = true;
             Button button = image.gameObject.AddComponent<Button>();
             button.targetGraphic = image;
             Text text = NewText(image.transform, label, 13, TextAnchor.MiddleCenter,
