@@ -188,3 +188,16 @@ When a save shape changes, keep the current format reliable and add round-trip c
 - A witness is selected only from residents physically in the property's authored location and within both the authored witness radius and the NPC's awareness radius. The selected resident receives one explicit character-scoped `NpcWorldEvent`; other residents do not receive a broadcast. Generic ambient social encounters skip `crime-observed` events until witness-sharing rules are approved. The saved outcome retains enough information to restore that one witness's knowledge after load.
 - The first Rhea wardrobe fixture uses ITEM_A ×2, ITEM_C ×1, +2 heat, +1 progression point per successful stolen stack and an 8-unit witness radius. These are prototype playtest values, not final balance. There is no automatic reporting, police response, heat-band consequence or relationship change.
 - Save v13 adds `criminalProgressionPoints` and `SavedCrimeOutcome` records. `SearchableContainerSaveMapper` continues to persist the wardrobe's generated fixed contents, reveal order and search progress. v12 and older saves initialize an empty crime ledger and zero progression.
+
+
+## Dirty Cash and Slice B illicit transactions — approved design
+
+- Dirty Cash is a normal physical item stack with stable ItemInstanceId and ItemInstanceState, not a clean-money account balance.
+- Denomination is 10 per unit. The first contact's cleaning fee is 20%; each unit immediately credits 8 clean CARD.
+- A fence exchange consumes one exact player-owned, Stolen item stack and creates the authored quantity of Dirty Cash as a new player-owned item stack. The sold item transfers to the contact. The exact accepted ItemDefinition and reward quantity remain a content decision.
+- Cleaning consumes an exact player-owned Dirty Cash stack and credits the player's existing clean CARD account. Both paths are atomic across inventory, ownership and account state.
+- Illicit exchange and cleaning histories are distinct from legitimate retail purchase and shop-sale histories.
+- The contact is an ordinary shared-city resident with internal NPC ID `Clean_Dirtycash` and an intentionally blank visible display name.
+- Dirty Cash cannot pay for legal retail or be deposited directly. No passive conversion, automatic cleaning, dynamic rate or global laundering simulation.
+- Save/load must preserve Dirty Cash through the normal item path, clean CARD through the existing account path, and the new transaction histories through dedicated save records. v13 migration initializes those histories empty.
+- Full specification: `docs/tasks/CRIME-ECONOMY-SLICE-B-DIRTY-CASH.md`.
