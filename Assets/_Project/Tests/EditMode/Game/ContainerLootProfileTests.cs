@@ -38,7 +38,7 @@ namespace Signal.Game.Tests
                 var container = new SearchableContainer("profile-test-bin", 8, 6);
                 Assert.That(profile.TryGenerate(container, out string error), Is.True, error);
                 Assert.That(container.IsGenerated, Is.True);
-                Assert.That(container.Inventory.Items.Count, Is.GreaterThanOrEqualTo(1));
+                Assert.That(container.Inventory.Items.Count, Is.InRange(2, 3));
                 Guid[] generatedIds = new Guid[container.Inventory.Items.Count];
                 for (int i = 0; i < generatedIds.Length; i++)
                     generatedIds[i] = container.Inventory.Items[i].ItemInstanceId;

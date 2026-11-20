@@ -592,3 +592,11 @@ Key files added/changed:
 **Verification status:** code and tests are committed, but the assistant cannot run Unity in this environment. No Unity compilation, EditMode test run or Play Mode test is claimed. The full feature is awaiting Editor verification. The user previously confirmed SELL works in Play Mode (including Milo receiving the revenue); that confirmation supersedes older pending SELL notes elsewhere in this historical log.
 
 Next: open HideoutSlice in Unity, resolve any compiler/test issues, run the full EditMode suite, then verify searching/closing/reopening, double-click, drag/drop, full-inventory rejection and F5/F9 persistence in Play Mode.
+
+
+## 2026-11-20 — SCAVENGE-001 compile correction
+
+- Fixed a field-name mismatch in `ContainerLootProfile.TryGenerate`: generation and validation now consistently use the serialized `minimumRolls` / `maximumRolls` fields instead of nonexistent `minimumStacks` / `maximumStacks` identifiers.
+- Tightened the loot-profile generation test to assert the configured 2–3 roll range, in addition to one-time generation and stable item-instance identity.
+- This is a compile correction to the already approved loot-profile behavior; no gameplay rule or save format changed.
+- Unity compilation and EditMode tests still need to be run in the Editor.

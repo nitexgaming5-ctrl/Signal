@@ -40,9 +40,9 @@ namespace Signal.Game
                 error = "The target container is unavailable or has already been generated.";
                 return false;
             }
-            if (entries == null || entries.Length == 0 || minimumStacks < 1 || maximumStacks < minimumStacks)
+            if (entries == null || entries.Length == 0 || minimumRolls < 1 || maximumRolls < minimumRolls)
             {
-                error = "The loot profile has no valid entries or stack range.";
+                error = "The loot profile has no valid entries or roll range.";
                 return false;
             }
 
@@ -67,7 +67,7 @@ namespace Signal.Game
             }
 
             var random = new System.Random(Guid.NewGuid().GetHashCode());
-            int stackCount = random.Next(minimumStacks, maximumStacks + 1);
+            int stackCount = random.Next(minimumRolls, maximumRolls + 1);
             for (int i = 0; i < stackCount; i++)
             {
                 LootEntry selected = SelectEntry(random, totalWeight);
