@@ -961,11 +961,12 @@ namespace Signal.Game
         {
             bool witnessed = !string.IsNullOrWhiteSpace(witnessNpcId);
             string eventId = witnessed ? "crime-" + transaction.TransactionId.ToString("N") : string.Empty;
+            int heatAward = property.GetHeatAward(witnessed);
             var outcome = new CrimeOutcome(transaction.TransactionId, property.ActionId,
                 EconomicActorId.Player.Value, transaction.ItemInstanceId, property.LocationId, witnessNpcId, eventId,
                 property.WitnessDescription, property.InteractionPosition.x, property.InteractionPosition.y,
                 property.WitnessRadius, _clock.Day, _clock.MinuteOfDay,
-                property.HeatAward, property.ProgressionAward);
+                heatAward, property.ProgressionAward);
 
             if (!_crimeOutcomes.TryRecord(outcome))
             {
@@ -974,7 +975,7 @@ namespace Signal.Game
                 return;
             }
 
-            _heat.Add(property.HeatAward);
+            _heat.Add(outcome.HeatAward);
             _criminalProgression.Award(property.ProgressionAward);
 
             if (witnessed)
