@@ -348,7 +348,7 @@ namespace Signal.Game
                     Refresh();
                 }
             });
-            _confirmFence = NewButton(_root, "CONFIRM FENCE EXCHANGE", 28f, 625f, 230f, 36f);
+            _confirmFence = NewButton(_root, "CONFIRM FENCE EXCHANGE", 238f, 625f, 230f, 36f);
             _confirmFence.onClick.AddListener(() =>
             {
                 if (!TryGetSelected(out PlacedItem item) || !IsEligibleFenceStack(item)) return;
@@ -357,9 +357,9 @@ namespace Signal.Game
                 _reviewingFence = false;
                 Refresh();
             });
-            _cancelReview = NewButton(_root, "CANCEL", 270f, 625f, 110f, 36f);
+            _cancelReview = NewButton(_root, "CANCEL REVIEW", 480f, 625f, 140f, 36f);
             _cancelReview.onClick.AddListener(() => { _reviewingFence = false; Refresh(); });
-            _confirmClean = NewButton(_root, "CONFIRM CLEANING", 28f, 625f, 190f, 36f);
+            _confirmClean = NewButton(_root, "CONFIRM CLEANING", 650f, 625f, 190f, 36f);
             _confirmClean.onClick.AddListener(() =>
             {
                 if (!TryGetSelected(out PlacedItem item) || !IsEligibleCashStack(item)) return;
@@ -369,7 +369,7 @@ namespace Signal.Game
             });
 
             _status = NewText(_root, string.Empty, 14, TextAnchor.MiddleLeft, new Color32(240, 195, 120, 255));
-            SetTopLeft(_status.rectTransform, 550f, 625f, 520f, 36f);
+            SetTopLeft(_status.rectTransform, 28f, 665f, 1040f, 14f);
             _rootObject.SetActive(false);
         }
 
