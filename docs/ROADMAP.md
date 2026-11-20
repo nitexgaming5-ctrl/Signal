@@ -85,15 +85,17 @@ Milestones are dependency notes, not a mandate to build isolated systems in orde
 - [ ] Design save/load reconstruction for the director's phase start and last authorization.
 - [ ] Integrate only when a real scenario has a valid consequential development to authorize. Do not connect it to routine NPC encounters.
 
-## Short-term goals — next playable outcome
+## Short-term goals — next design and playable outcome
 
 1. **[x] Verify Opportunity 001: Milo's Parcel.** The user confirmed 284/284 EditMode tests and successfully completed the scenario in Play Mode, including the parcel inventory/save/load/drop-off loop and a nearby-resident witness.
-2. **Validate authored NPC content in Unity.** Create and assign one or two real `NpcCharacterDefinition` assets through the Inspector; confirm that schedules, destinations, appearance and activity dialogue work without character-specific scripts.
-3. **Implement only the scenario's required persistence.** Use stable IDs and versioned migration. Avoid persisting transient perception/proximity if it can be rebuilt.
-4. **Keep the current block playable and readable.** Replace the most visible placeholders with cohesive art only when it improves the slice; preserve the compact scale and hideout as the anchor.
-5. **Close known reliability checks** when convenient: storage capacity/rollback, actual v1 migration, city transition tests and target-platform save replacement.
+2. **[x] Establish the first event-driven economy and retail loop.** Asset ownership/transfers, clean CARD accounts, resident-owner revenue, fixed-price retail and player-facing exact-stack selling are implemented and user-verified.
+3. **[x] Complete SCAVENGE-001.** Physical bins, one-time generated contents, progressive discovery, transactional item transfer and save/load are implemented; the user confirmed 368/368 EditMode tests and final Play Mode interaction polish.
+4. **Next — design the connected livelihood and crime economy before implementation.** Work out how crime/heat/exposure and consequences, physical dirty-money items and their illicit exchange/cleaning lifecycle, and legitimate production/goods flows should coexist in the same city. Keep clean CARD distinct. This is a design initiative, not approval to implement any specific rules.
+5. **Choose one concrete vertical slice after approval.** Implement only the smallest player-facing loop that validates the agreed design; do not build a broad crime catalogue, universal economy simulator or disconnected production framework.
+6. **Validate authored NPC content in Unity** when convenient: assign one or two real `NpcCharacterDefinition` assets through the Inspector and verify schedules, destinations, appearance and activity dialogue without character-specific scripts.
+7. **Close parked reliability checks** when convenient: storage capacity/rollback, actual v1 migration, automated city-transition tests and target-platform save replacement.
 
-Milo's parcel scenario and save v7 are user-verified (284/284 EditMode tests). Obstacle-aware NPC navigation v1 is also user-verified: the user completed the Play Mode inspection and confirmed 289/289 EditMode tests on 2026-11-18. NPC interruption/recovery v1 and the follow-up game-clock pause correction are user-verified: 293/293 EditMode tests pass and the user confirmed Play Mode behaviour. Opportunity 001 fulfils the first-scenario validation requirement; a second opportunity is optional, not a framework prerequisite. Do not start a broad economy, crime catalogue or generic quest framework in parallel.
+Milo's parcel scenario and save v7 are user-verified (284/284 EditMode tests). Obstacle-aware NPC navigation v1 is user-verified (289/289 EditMode tests and Play Mode inspection); NPC interruption/recovery and game-clock pause correction are user-verified (293/293 and Play Mode). Opportunity 001 fulfils the first-scenario validation requirement; a second opportunity is optional, not a framework prerequisite.
 
 ## Medium-term goals — deepen the shared-city loop
 
@@ -284,9 +286,7 @@ Do not expand into a generic quest journal, second named recipient, police/crimi
 
 Opportunity 001: Milo's Parcel satisfies the NPC initiative's requirement for a first player-facing scenario. The framework has been exercised through discovery, relationships, item knowledge, reversible commitment, delivery, witnesses and save/load. Do not schedule a second opportunity solely as a framework test. Revisit another authored opportunity when it serves a distinct player experience or naturally belongs in a larger gameplay loop.
 
-**Recommended next initiative:** move toward the shared city's everyday gameplay loop, with a deliberately small goods/trade or service interaction that uses NPCs and item state/knowledge. First design the player-facing rules, value exchange, information asymmetry and consequences; do not implement an economy or commercial rules before the user approves the design. Extend Core only where this concrete loop demonstrates a need.
-
-The authored `NpcCharacterDefinition` Inspector workflow remains a useful short validation task, but should not become a large standalone framework initiative.
+**Status:** the earlier recommendation to build a first everyday goods/trade interaction has since been fulfilled by the approved economy and player-facing BUY/SELL work. The next design focus is now the connected livelihood/crime economy described in the short-term goals above. The authored `NpcCharacterDefinition` Inspector workflow remains a useful short validation task, not a standalone framework initiative.
 ## Economic system initiative — approved 2026-11-19
 
 The shared-city economy is the active initiative. Its foundations are now in place; the next step is a deliberately small player-facing exchange, not more abstract economy infrastructure.
