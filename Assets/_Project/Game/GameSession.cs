@@ -12,6 +12,10 @@ namespace Signal.Game
     /// </summary>
     public sealed class GameSession : MonoBehaviour
     {
+        private const string DirtyCashContactNpcId = DirtyCashContactNpcId;
+        private static readonly EconomicActorId DirtyCashContactActorId =
+            new EconomicActorId("resident:" + DirtyCashContactNpcId);
+        private const float InteractionDistance = InteractionDistance;
         [Header("Content")]
         [SerializeField] private ItemDefinition[] items;
         [SerializeField] private ItemDefinition parcelItem;
@@ -247,7 +251,7 @@ namespace Signal.Game
             bool nearStorage = _city.IsAtHome && _room.Storage != null &&
                 Vector2.Distance(playerPosition, _room.Storage.position) <= 2.15f;
             BusinessDefinition nearbyBusiness = FindNearbyBusiness(playerPosition);
-            bool nearDirtyCashContact = _city.IsResidentWithin("Clean_Dirtycash", playerPosition, 1.85f);
+            bool nearDirtyCashContact = _city.IsResidentWithin(DirtyCashContactNpcId, playerPosition, InteractionDistance);
             bool nearSearchableContainer = _city.TryGetNearbySearchableContainer(playerPosition,
                 out string nearbyContainerId, out string nearbyContainerLabel);
             ResidentPropertyContainerDefinition nearbyProperty = FindNearbyResidentProperty(playerPosition);
@@ -650,7 +654,7 @@ namespace Signal.Game
 
         private bool IsNearDirtyCashContact()
         {
-            return _city != null && _city.IsResidentWithin("Clean_Dirtycash", _room.PlayerBody.position, 1.85f);
+            return _city != null && _city.IsResidentWithin(DirtyCashContactNpcId, _room.PlayerBody.position, InteractionDistance);
         }
 
         private string ExchangeWithContact(Guid selectedItemInstanceId)
@@ -730,7 +734,7 @@ namespace Signal.Game
                 BusinessDefinition business = businesses[i];
                 if (business == null || business.LocationId != _city.CurrentPlace)
                     continue;
-                if (Vector2.Distance(playerPosition, business.InteractionPoint) <= 1.85f)
+                if (Vector2.Distance(playerPosition, business.InteractionPoint) <= InteractionDistance)
                     return business;
             }
             return null;
@@ -1154,7 +1158,7 @@ namespace Signal.Game
                 return null;
 
             ResidentPropertyContainerDefinition nearest = null;
-            float bestDistance = 1.85f * 1.85f;
+            float bestDistance = InteractionDistance * InteractionDistance;
             foreach (ResidentPropertyContainerDefinition definition in residentPropertyContainers)
             {
                 if (definition == null || definition.LocationId != _city.CurrentPlace ||

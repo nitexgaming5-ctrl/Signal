@@ -196,5 +196,63 @@ namespace Signal.Core.Tests
             Assert.That(DirtyCashRules.TryGetCleaningAmounts(int.MaxValue, 20, out _, out _), Is.False);
             Assert.That(DirtyCashRules.TryGetCleaningAmounts(3, 100, out _, out _), Is.False);
         }
+
+        [Test]
+        public void FenceReplayCannotRewardTheSameStackTwiceAndLedgerRejectsDuplicateId()
+        {
+            ItemType accepted = Item();
+            ItemType cash = Item();
+            var player = new GridInventory(3, 2);
+            player.Place(accepted, 0, 0, count: 2, state: Stolen);
+            PlacedItem stolen = player.Items[0];
+            var contact = new GridInventory(3, 2);
+            var ownership = new AssetOwnershipBook();
+            ownership.TryRegister(stolen.ItemInstanceId, Player);
+            var ledger = new IllicitExchangeTransactionLedger();
+            var economicLedger = new EconomicTransactionLedger();
+
+            IllicitExchangeResult first = IllicitExchangeService.TryExchange(player, contact,
+                stolen.ItemInstanceId, accepted, 2, cash, 3, Contact, ownership, economicLedger, ledger, 2, 600);
+            IllicitExchangeResult replay = IllicitExchangeService.TryExchange(player, contact,
+                stolen.ItemInstanceId, accepted, 2, cash, 3, Contact, ownership, economicLedger, ledger, 2, 601);
+
+            Assert.That(first.Success, Is.True);
+            Assert.That(replay.Status, Is.EqualTo(IllicitExchangeStatus.ItemNotFound));
+            Assert.That(player.CountOf(cash), Is.EqualTo(3));
+            Assert.That(contact.CountOf(accepted), Is.EqualTo(2));
+            Assert.That(ledger.Count, Is.EqualTo(1));
+            Assert.That(ledger.TryRecord(first.Transaction), Is.False);
+            Assert.That(economicLedger.Count, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void CleaningReplayCannotPayTheSameStackTwiceAndLedgerRejectsDuplicateId()
+        {
+            ItemType cash = Item();
+            var inventory = new GridInventory();
+            inventory.Place(cash, 0, 0, count: 3);
+            PlacedItem stack = inventory.Items[0];
+            var ownership = new AssetOwnershipBook();
+            ownership.TryRegister(stack.ItemInstanceId, Player);
+            var playerAccount = new CleanMoneyAccount();
+            var contactAccount = new CleanMoneyAccount();
+            var ledger = new DirtyCashCleaningTransactionLedger();
+
+            DirtyCashCleaningResult first = DirtyCashCleaningService.TryClean(inventory,
+                stack.ItemInstanceId, cash, Player, ownership, playerAccount, contactAccount,
+                Contact, 20, ledger, 3, 720);
+            DirtyCashCleaningResult replay = DirtyCashCleaningService.TryClean(inventory,
+                stack.ItemInstanceId, cash, Player, ownership, playerAccount, contactAccount,
+                Contact, 20, ledger, 3, 721);
+
+            Assert.That(first.Success, Is.True);
+            Assert.That(replay.Status, Is.EqualTo(DirtyCashCleaningStatus.ItemNotFound));
+            Assert.That(playerAccount.Balance, Is.EqualTo(24));
+            Assert.That(contactAccount.Balance, Is.EqualTo(6));
+            Assert.That(ledger.Count, Is.EqualTo(1));
+            Assert.That(ledger.TryRecord(first.Transaction), Is.False);
+            Assert.That(inventory.CountOf(cash), Is.Zero);
+        }
+
     }
 }

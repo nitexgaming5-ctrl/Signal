@@ -91,7 +91,7 @@ namespace Signal.Game
                     try
                     {
                         ItemType type = definition.ToItemType();
-                        _names[type.Id] = string.IsNullOrWhiteSpace(definition.DisplayName) ? definition.name : definition.DisplayName;
+                        _names[type.Id] = string.IsNullOrWhiteSpace(definition.DisplayName) ? "Unknown item" : definition.DisplayName;
                         _colors[type.Id] = Palette[i % Palette.Length];
                     }
                     catch (InvalidOperationException) { }
@@ -270,7 +270,7 @@ namespace Signal.Game
         {
             if (definition == null) return "Unknown item";
             try { return DisplayName(definition.ToItemType()); }
-            catch (InvalidOperationException) { return definition.name; }
+            catch (InvalidOperationException) { return "Unknown item"; }
         }
 
         private string DisplayName(ItemType type)

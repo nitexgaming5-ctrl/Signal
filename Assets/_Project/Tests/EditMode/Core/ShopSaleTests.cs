@@ -214,5 +214,33 @@ namespace Signal.Core.Tests
             Assert.That(inventory.Items[0].Count, Is.EqualTo(3));
             Assert.That(notifications, Is.Zero);
         }
+
+        [Test]
+        public void DirtyCashCannotBeSoldAgainstAnOfferForAnotherItem()
+        {
+            ItemType dirtyCash = Item();
+            ItemType otherItem = Item();
+            var inventory = new GridInventory();
+            inventory.Place(dirtyCash, 0, 0, count: 3);
+            PlacedItem cashStack = inventory.Items[0];
+            var ownership = new AssetOwnershipBook();
+            ownership.TryRegister(cashStack.ItemInstanceId, Player);
+            var account = new CleanMoneyAccount(12);
+            var ledger = new ShopSaleTransactionLedger();
+
+            FulfilResult result = Shop.TryFulfilExact(new ShopOrder(otherItem, 1, 5),
+                cashStack.ItemInstanceId, "test-business", Player, inventory, ownership,
+                account, ledger, 2, 615);
+
+            Assert.That(result, Is.EqualTo(FulfilResult.NotEnoughStock));
+            Assert.That(inventory.TryGetItemInstance(cashStack.ItemInstanceId, out PlacedItem unchanged), Is.True);
+            Assert.That(unchanged.Type, Is.EqualTo(dirtyCash));
+            Assert.That(unchanged.Count, Is.EqualTo(3));
+            Assert.That(ownership.TryGetOwner(cashStack.ItemInstanceId, out EconomicActorId owner), Is.True);
+            Assert.That(owner, Is.EqualTo(Player));
+            Assert.That(account.Balance, Is.EqualTo(12));
+            Assert.That(ledger.Count, Is.Zero);
+        }
+
     }
 }

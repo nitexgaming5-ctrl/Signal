@@ -235,5 +235,38 @@ namespace Signal.Core.Tests
             Assert.That(service.TryPurchase("shop", inventory, Customer, Owner, item,
                 ItemInstanceState.Default, 1, int.MaxValue, 1, 600).Status, Is.EqualTo(RetailPurchaseStatus.AccountNotFound));
         }
+
+        [Test]
+        public void PhysicalDirtyCashCannotFundRetailPurchaseAndRemainsUntouched()
+        {
+            var accounts = new EconomicAccountBook();
+            var customer = new CleanMoneyAccount();
+            var owner = new CleanMoneyAccount();
+            accounts.TryRegister(Customer, customer);
+            accounts.TryRegister(Owner, owner);
+            var ownership = new AssetOwnershipBook();
+            var ledger = new RetailTransactionLedger();
+            var inventory = new GridInventory();
+            var dirtyCash = new ItemType(Guid.NewGuid(), 1, 1, 50);
+            var retailGood = new ItemType(Guid.NewGuid(), 1, 1, 5);
+            inventory.Place(dirtyCash, 0, 0, count: 3);
+            PlacedItem cashStack = inventory.Items[0];
+            ownership.TryRegister(cashStack.ItemInstanceId, Customer);
+
+            RetailPurchaseResult result = CreateService(accounts, ownership, ledger).TryPurchase(
+                "old-bakery", inventory, Customer, Owner, retailGood, ItemInstanceState.Default,
+                1, 1, 1, 600);
+
+            Assert.That(result.Status, Is.EqualTo(RetailPurchaseStatus.InsufficientFunds));
+            Assert.That(customer.Balance, Is.Zero);
+            Assert.That(owner.Balance, Is.Zero);
+            Assert.That(inventory.TryGetItemInstance(cashStack.ItemInstanceId, out PlacedItem unchanged), Is.True);
+            Assert.That(unchanged.Count, Is.EqualTo(3));
+            Assert.That(unchanged.Type, Is.EqualTo(dirtyCash));
+            Assert.That(ownership.TryGetOwner(cashStack.ItemInstanceId, out EconomicActorId cashOwner), Is.True);
+            Assert.That(cashOwner, Is.EqualTo(Customer));
+            Assert.That(ledger.Count, Is.Zero);
+        }
+
     }
 }
