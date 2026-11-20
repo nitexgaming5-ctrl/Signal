@@ -173,7 +173,7 @@ namespace Signal.Game
 
         private void StartSearch()
         {
-            if (_container == null || !_container.TryStartSearch()) return;
+            if (_container == null || _container.HasSearchStarted || !_container.TryStartSearch()) return;
             _searching = true;
             _revealTimer = 0f;
             Refresh();

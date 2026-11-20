@@ -59,7 +59,7 @@ namespace Signal.Core
         /// <summary>Marks the container as actively searched; this flag survives closing and saving.</summary>
         public bool TryStartSearch()
         {
-            if (!IsGenerated || IsSearchComplete)
+            if (!IsGenerated || HasSearchStarted || IsSearchComplete)
                 return false;
             HasSearchStarted = true;
             return true;

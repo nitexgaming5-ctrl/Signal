@@ -23,6 +23,7 @@ namespace Signal.Core.Tests
             Assert.That(container.TryInitializeSearchOrder(new[] { first, second }), Is.False);
             Assert.That(container.DiscoveredCount, Is.Zero);
             Assert.That(container.TryStartSearch(), Is.True);
+            Assert.That(container.TryStartSearch(), Is.False);
             Assert.That(container.TryRevealNext(out Guid revealed), Is.True);
             Assert.That(revealed, Is.EqualTo(second));
             Assert.That(container.Inventory.TryGetItemInstance(revealed, out _), Is.True);
