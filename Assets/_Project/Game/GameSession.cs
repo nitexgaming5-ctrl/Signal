@@ -295,9 +295,9 @@ namespace Signal.Game
                     Say("Location: " + _city.CurrentPlace);
             }
 
-            if (!retailOpen && !containerOpen)
+            if (!retailOpen)
             {
-                if (keyboard.f6Key.wasPressedThisFrame) Sleep();
+                if (!containerOpen && keyboard.f6Key.wasPressedThisFrame) Sleep();
                 if (keyboard.f5Key.wasPressedThisFrame) SaveGame();
                 if (keyboard.f9Key.wasPressedThisFrame) LoadGame();
             }

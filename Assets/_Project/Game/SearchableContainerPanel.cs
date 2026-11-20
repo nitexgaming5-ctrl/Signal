@@ -104,6 +104,8 @@ namespace Signal.Game
             CancelDrag();
             _container = container;
             _playerInventory = playerInventory;
+            _lastClickId = Guid.Empty;
+            _lastClickTime = -10f;
             _container.Inventory.Changed += OnInventoryChanged;
             _playerInventory.Changed += OnInventoryChanged;
             _open = true;
@@ -116,6 +118,8 @@ namespace Signal.Game
         public void Close()
         {
             _searching = false;
+            _lastClickId = Guid.Empty;
+            _lastClickTime = -10f;
             _open = false;
             CancelDrag();
             Unsubscribe();
