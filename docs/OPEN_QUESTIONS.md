@@ -150,3 +150,21 @@ These are initial editable playtest values, not final balance. Still open:
 - Recommended next vertical slice: Slice B (one authored dirty-money illicit exchange plus one contact-specific cleaning offer), because it connects the now-tested crime/ownership foundation to physical dirty money and clean CARD. This is a recommendation, not an implementation approval. Denomination, item definition, first contact, accepted exchange outcome and cleaning terms still require user decisions. Slice C production remains a strong later alternative once a concrete workspace/recipe has a clear player loop.
 
 Implementation details and the Unity acceptance checklist: `docs/tasks/CRIME-THEFT-001-RESIDENT-CONTAINER-THEFT.md`.
+
+
+## Crime economy — Slice B decisions (2026-11-20)
+
+**ANSWER: Slice B approved.** The user confirmed one new discreet shared-city contact with a blank visible name and internal NPC ID `Clean_Dirtycash`. Dirty Cash is a physical inventory item with denomination 10 per unit. The contact's cleaning offer retains 20%, so each unit converts to 8 clean CARD, paid immediately.
+
+Approved boundaries:
+- One authored fence offer accepts one specific stolen item and pays a fixed whole-number quantity of Dirty Cash.
+- The accepted item must be Stolen and player-owned; a legitimate copy is not accepted.
+- Dirty Cash remains physical inventory, cannot pay for legitimate retail and cannot be deposited directly.
+- Cleaning consumes physical Dirty Cash and credits the existing clean CARD account.
+- The contact is a normal resident in the shared city; no separate underground vendor/map.
+- No heat, witness, police, delay or cleaning-risk consequence in this first slice.
+- Both operations are explicit, player-confirmed, atomic transactions with persistence and dedicated transaction history.
+
+**One content question remains:** which exact stolen ItemDefinition does the first fence offer accept, and how many Dirty Cash units does it pay? Recommendation: use one of the already-authored theft fixture items for the first test offer, keeping the offer replaceable as authored content. Do not treat a placeholder as final item content without the user's selection.
+
+Specification and acceptance criteria: `docs/tasks/CRIME-ECONOMY-SLICE-B-DIRTY-CASH.md`.
