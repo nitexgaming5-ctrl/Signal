@@ -1,6 +1,6 @@
 # SCAVENGE-001 — Physical containers and progressive scavenging
 
-**Status:** implementation committed; user reports 368/368 EditMode tests passed; interaction polish follow-up committed and awaiting re-verification.  
+**Status:** complete; user verified 368/368 EditMode tests and final Play Mode interaction polish.  
 **Approved:** 2026-11-20
 
 ## Player outcome
@@ -65,7 +65,7 @@ Excluded: Tarkov skill progression, raid/extraction rules, timed respawn, secure
 - [x] Register acquired items to player without losing identity/state.
 - [x] GameSession capture/load integration and safe v10/v11 migration.
 - [x] Tests for generation idempotency, search order, interruption, transfers, capacity rejection, state/identity preservation and save/load.
-- [ ] User verifies Unity compilation, full EditMode suite and Play Mode.
+- [x] User confirmed Unity compilation, the latest full EditMode suite (368/368), and Play Mode checks for empty-bin carried-inventory management and grid snapping.
 
 ## Acceptance criteria
 - Reopening never changes generated contents.
@@ -83,10 +83,13 @@ Excluded: Tarkov skill progression, raid/extraction rules, timed respawn, secure
 - No respawn or timed reset.
 
 ## Current implementation status
-The full code/content integration is committed. Main files:
-- Core: SearchableContainer.cs, SearchableContainerSaveMapper.cs, SaveData.cs (save v12), GridInventory.cs, InventoryTransfer.cs, AssetTransferService.cs, EconomicTransaction.cs
-- Game: ContainerLootProfile.cs, SearchableContainerPanel.cs, GameSession.cs, CityBlockBootstrap.cs
-- Content: LootProfile_A/B/C assets and HideoutSlice scene references
-- Tests: SearchableContainerTests.cs, AssetTransferServiceTests.cs, ContainerLootProfileTests.cs, CityBlockBootstrapTests.cs
 
-The user reports **368/368 EditMode tests passed** on the pre-polish implementation. The carried-inventory interaction and drag-ghost alignment corrections are now committed; rerun Unity compilation/EditMode tests and Play Mode checks for empty-bin inventory management and grid snapping. The assistant has not run Unity and does not claim the follow-up is verified.
+The complete code/content integration and interaction polish are committed. The user confirmed the latest full Unity EditMode suite **368/368 passed** and confirmed in Play Mode that carried inventory remains manageable while an empty bin is open and that item snapping/drag feedback works correctly. SCAVENGE-001 is complete and user-verified; no assistant-side Unity execution is claimed.
+
+Main implementation areas:
+- Core: SearchableContainer, SearchableContainerSaveMapper, SaveData (save v12), GridInventory, InventoryTransfer, AssetTransferService, EconomicTransaction.
+- Game: ContainerLootProfile, SearchableContainerPanel, GameSession, CityBlockBootstrap.
+- Content: LootProfile_A/B/C assets and HideoutSlice scene references.
+- Tests: SearchableContainerTests, AssetTransferServiceTests, ContainerLootProfileTests, CityBlockBootstrapTests.
+
+No further SCAVENGE-001 verification is currently outstanding. Future loot balancing, respawn, broader loot-table tooling or new scavenging mechanics remain separate design decisions and are not implied by completion of this test-content slice.
