@@ -34,7 +34,7 @@ The game is a hybrid of a deep management/simulation RPG and a narrative-driven 
 3. **No string item or recipe IDs in gameplay code.** Reference definitions and stable asset IDs as specified in `docs/DATA_MODEL.md`.
 4. **No `FindObjectOfType`, `GameObject.Find`, or new singletons.** Pass dependencies through serialized fields or constructors.
 5. **Preserve Unity asset identity.** Do not casually move, rename, or delete Unity assets; preserve their `.meta` GUIDs and scene references.
-6. **No new Unity packages, Asset Store packs, external resource packs, or third-party code without asking.** Respect the accepted no-resource-packs decision.
+6. **No new Unity packages, Asset Store packs, external resource packs, or third-party code without asking.** Temporary third-party art packs are allowed only as test content under decision 0004; every pack must be listed with its licence in `docs/ART_TODO.md`, and no pack is final art.
 7. **Comments explain why, not what.** Keep public APIs focused and avoid unnecessary abstractions.
 8. **Avoid unrelated refactors.** Refactor when required by the initiative or when a concrete defect/risk justifies it; document material scope changes.
 

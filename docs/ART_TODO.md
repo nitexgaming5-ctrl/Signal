@@ -12,3 +12,12 @@
 | Door | Flat gold tile, solid | Door sprite with open/closed states |
 | Player | Cyan rectangle, 24×29 px, no animation | Walk-cycle sprites in 4 directions |
 | HUD | Plain UGUI text lines | Pixel-art HUD with icons |
+
+## Third-party test packs in the repo (test-only, decision 0004)
+| Location | Licence file | Status |
+|---|---|---|
+| `ArtSource/RoguelikeModernCity/` | `License.txt` | test-only; replace before release |
+| `Assets/_Project/Art/City/LoBitCity/` | `LICENSE.txt` | test-only; replace before release |
+| `Assets/_Project/Art/City/CP/` | `LICENSE.txt` | test-only; replace before release |
+
+The Tarkov-style test bins and ITEM_A/B/C are also test content, not final art or narrative commitments.

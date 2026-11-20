@@ -120,4 +120,4 @@ The approved offer and contact values are implemented in content and wired throu
 
 The initial panel was rejected by the user as confusing and incomplete. The replacement is a dual-inventory workspace with a read-only contact inventory and selectable carried inventory. Fence and cleaning are separate modes; review does not execute; confirm controls are distinct and spatially separated. The fence callback now requires the exact selected stack ID and GameSession validates its accepted type, exact quantity, Stolen state and Player ownership.
 
-The 392/392 result was reported before this UI correction. No economy rule or serialized field changed. Unity compile and Play Mode verification of the replacement UI remain outstanding.
+The user reported **392/392 EditMode tests passed after this UI correction** on 2026-11-20. No economy rule or serialized field changed. SLICE-B-HARDENING-001 subsequently adds four regression tests, so the current branch suite is expected to contain 396 tests and must be rerun. Unity compilation and Play Mode verification of the full exchange → cleaning → save/reload loop remain outstanding.

@@ -41,6 +41,7 @@ Build connected player experiences, not isolated subsystem checklists.
 A system is not "done" merely because its C# class exists. It is done when it contributes to a working player experience and its exit criteria are verified.
 
 ## Initiative lifecycle
+0. **Check what exists:** read `docs/PROGRESS.md` sections 2–3 and search the code. Reuse what is implemented; never re-propose or rebuild it; do not start anything listed as not approved.
 1. **Choose:** state the player-facing outcome and why it is the best next step.
 2. **Scope:** write the smallest end-to-end acceptance criteria; identify risks and dependencies.
 3. **Protect:** inspect current behavior and relevant tests before changing existing foundations.

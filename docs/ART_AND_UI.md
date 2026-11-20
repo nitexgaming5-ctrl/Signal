@@ -1,7 +1,7 @@
 # Art and UI
 
-## Decision: no resource packs
-Art is made from scratch or from placeholders. Packs stay out of the project, so no asset is a licence risk and the look stays ours.
+## Decision: no resource packs in the final game (test-only packs allowed; see decisions/0004)
+Final art is made from scratch or from approved assets. Third-party packs may be used only as temporary test content, logged in `docs/ART_TODO.md`; no pack is final art.
 
 ## Placeholder phase (now)
 - Floors, walls, items: solid colored squares or simple shapes
@@ -33,5 +33,5 @@ Neon only for signs, UI highlights, and dark-humour moments. Never for large are
 
 ## Rules for agents
 - Use placeholders unless the card says "art pass".
-- Never add an external asset file without asking.
+- Never add a new pack without asking. Test-only packs must be listed in `docs/ART_TODO.md` with their licence file.
 - Never change the palette without an OPEN_QUESTIONS entry.
