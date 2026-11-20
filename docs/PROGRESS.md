@@ -6,7 +6,7 @@ Reconciled 2026-11-20 from the append-only project log and the current code on `
 - Unity 6000.6.9f1, 2D URP. Active architecture: `Signal.Core` (plain C#, no UnityEngine) + `Signal.Game` (Unity layer). `Assets/_Project/_Prototype/` and `Main.unity` are legacy reference only.
 - Save schema **v14** (v12/v13 saves migrate).
 - User reported **392/392 EditMode tests passed on 2026-11-20 after the rebuilt Slice B contact UI**. Four further regression tests have since been added; the current branch is expected to contain **396 tests**, not yet rerun by the user.
-- **Active initiative: SLICE-B-HARDENING-001** — replay/retail/shop regression tests, GameSession constants and neutral item-name fallback. Changes are committed; Unity verification is pending.
+- **Active initiative: [SLICE-B-HARDENING-001](tasks/SLICE-B-HARDENING-001.md)** — replay/retail/shop regression tests, GameSession constants and neutral item-name fallback. Changes are committed; Unity verification is pending.
 - **Slice B Play Mode verification remains pending:** Unity compile and full contact exchange → cleaning → save/reload loop.
 - Test content, not final: street bins A/B/C, ITEM_A/B/C, loot profiles A/B/C, Bread + Milo parcel, CornerShop prices, Rhea's wardrobe contents, unnamed contact and offer values. Third-party packs are test-only under decision 0004.
 
