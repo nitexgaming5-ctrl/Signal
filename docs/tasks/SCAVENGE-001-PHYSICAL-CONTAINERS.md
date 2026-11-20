@@ -18,7 +18,7 @@ The player approaches physical bins in the shared city, searches them item by it
 9. Closing during the sequence stops presentation but preserves contents, order and discovered count. Reopening resumes at the next undiscovered item.
 10. Empty bins stay empty. No respawn or replenishment.
 11. The carried inventory remains fully manageable while the container panel is open, even when the bin is empty: player stacks can be repositioned, rotated and inspected without requiring a container item.
-12. Drag feedback keeps the grabbed cell under the pointer and aligns the ghost with the snapped target/drop preview.\n11. The carried inventory remains fully manageable while the container panel is open, even when the bin is empty: player stacks can be repositioned, rotated and inspected without requiring a container item.\n12. Drag feedback keeps the grabbed cell under the pointer and aligns the ghost with the snapped target/drop preview.
+12. Drag feedback keeps the grabbed cell under the pointer and aligns the ghost with the snapped target/drop preview.
 
 ## First content slice
 - Three authored loot profiles A/B/C using existing ItemDefinitions, initially ITEM_A, ITEM_B and ITEM_C.
