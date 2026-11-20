@@ -10,7 +10,7 @@
 4. Remove stray metadata files outside `Assets/`: `docs/NPC_FRAMEWORK.md.meta` and `docs/tasks/SCAVENGE-001-PHYSICAL-CONTAINERS.md.meta`.
 5. Remove orphan metadata files only after confirming their folders are absent: `Assets/Editor.meta`, `Assets/Tests.meta`, `Assets/_Project/ScriptableObjects.meta`, `Assets/_Project/Scripts.meta`, `Assets/_Project/Audio.meta`, `Assets/_Project/Settings.meta`, `Assets/_Project/Prefabs.meta`.
 6. Add `*.slnx` to `.gitignore` and stop tracking generated `Signal.slnx`.
-7. Archive finished/superseded task cards under `docs/tasks/archive/`: `M0-01.md`, `M0-01-FIX.md`, `M0-01a-prototype-move.md`, `M0-01b-asmdefs.md`, `M0-01c-first-test.md`, `M1-01.md`, and `ECONOMY-PHASE-3-ILLICIT-EXCHANGE.md`. Extract the 11 old M2 cards from `signal-docs-M2-cards.zip` into the archive and remove the zip. Repair links before moving.
+7. Archive finished/superseded task cards under `docs/tasks/archive/`: `M0-01.md`, `M0-01-FIX.md`, `M0-01a-prototype-move.md`, `M0-01b-asmdefs.md`, `M0-01c-first-test.md`, `M1-01.md`, and `ECONOMY-PHASE-3-ILLICIT-EXCHANGE.md`. The source zip was inspected and contains seven M2 task files (M2-01 through M2-07), plus legacy `docs/OPEN_QUESTIONS.md` and `docs/PROGRESS.md` entries—not eleven M2 cards. The zip has been preserved at `docs/tasks/archive/signal-docs-M2-cards-source.zip`; do not delete it until the discrepancy is reconciled. Repair links before moving.
 
 ## Tier 2 — do NOT do; report and ask the user
 - `Assets/_Project/Content/items/` and `Content/Items/` differ only by case. Merge inside Unity Editor so GUIDs survive.

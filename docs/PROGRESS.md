@@ -49,6 +49,7 @@ Propose first; wait for explicit user approval.
 - **Slice B:** Unity compilation and Play Mode check of the rebuilt contact panel; test exact selected fence stack, reject legitimate item/no capacity, clean exact stack, verify 24/6 split, save/reload contact stash, ownership, accounts and ledgers.
 - **Theft:** witnessed vs unwitnessed Play Mode retest after the heat correction.
 - Game-layer `GameSession.ExchangeWithContact/CleanDirtyCash` and the contact panel do not yet have automated Game-layer tests.
+- Repository cleanup: Tier 1 steps 1–7 are applied except M2-card extraction. The source archive contains seven M2 cards (M2-01–M2-07), not eleven; it is preserved at `docs/tasks/archive/signal-docs-M2-cards-source.zip` pending reconciliation.
 - Parked: locker capacity edge cases, actual v1-save migration, automated city-transition tests, platform save replacement.
 
 ## 6. Next action
