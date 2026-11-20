@@ -450,12 +450,12 @@ Implementation sequence:
 6. [x] Reuse GridInventory, stable ItemInstanceId/ItemInstanceState and safe whole-stack transfer; failed capacity/placement leaves the item in the bin.
 7. [x] Wire container state into GameSession save/load; v10/v11 saves migrate safely to v12.
 8. [x] Add tests for generation idempotency, interruption, discovery visibility, transfer identity/state, capacity rejection and save/load.
-9. [x] User confirmed **368/368 EditMode tests passed** on the pre-polish implementation.
-10. [ ] User rechecks empty-bin carried-inventory management and grid snapping in Play Mode after the UI correction.
+9. [x] User confirmed the latest full Unity EditMode suite **368/368 passed**, after the UI polish.
+10. [x] User confirmed Play Mode: carried inventory remains manageable while an empty bin is open, and grid snapping/drag feedback works correctly.
 
 Tarkov is inspiration for container-specific loot identity, progressive search, concurrent inventory management and separate examination. Signal excludes Tarkov skills, raid rules, timed respawn, loot timers and external code/packages. No third-party dependency or Asset Store package is required.
 
 The player-facing SELL milestone is complete and user-verified; the user's 2026-11-20 confirmation supersedes older pending notes.
 
 
-**Implementation note (2026-11-20):** runtime/content/save integration is committed, and the user reports 368/368 EditMode tests passed on the baseline. Follow-up UI corrections now allow carried-inventory rearrangement/rotation/inspection with an empty bin and align drag-ghost snapping; these corrections still need a fresh Unity compile/test run and Play Mode confirmation. See docs/PROGRESS.md and docs/tasks/SCAVENGE-001-PHYSICAL-CONTAINERS.md.
+**Completion note (2026-11-20):** SCAVENGE-001 is complete and user-verified. The user confirmed 368/368 EditMode tests after the UI corrections and confirmed in Play Mode that empty-bin carried-inventory management and grid snapping work. See docs/PROGRESS.md and docs/tasks/SCAVENGE-001-PHYSICAL-CONTAINERS.md.
