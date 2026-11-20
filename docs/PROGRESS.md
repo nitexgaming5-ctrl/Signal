@@ -1,12 +1,13 @@
 # Progress
 
-## Current initiative — CRIME-ECONOMY-001 / Slice B implementation in progress (2026-11-20)
+## Current initiative — CRIME-ECONOMY-001 / Slice B verification follow-up (2026-11-20)
 
 - The user approved the complete Slice B content: one discreet unnamed contact (internal ID `Clean_Dirtycash`, blank visible name); physical Dirty Cash at 10 face value per unit; exactly 2 stolen, player-owned ITEM_A items exchanged for 3 Dirty Cash units; contact-specific 20% cleaning fee.
 - Cleaning 3 units credits 24 clean CARD to the player and 6 CARD to the contact's existing resident account. The retained fee is not destroyed and no universal cleaning rate is introduced.
 - Implementation is committed on `chore/collaboration-workflow-and-audit` at `12b62e82196b18603f20f039a3f122221726b757`: separate contact inventory, atomic illicit-exchange and cleaning services, explicit player-facing panel, dedicated transaction histories and save schema v14.
-- No Unity compilation, EditMode tests or Play Mode verification have been performed for Slice B. Do not mark it complete until the user runs the expected 392-case suite and the full contact/save-load loop.
-- Expected EditMode suite count after the 10 new test cases: 392 (the prior 382-case baseline plus 10). This is an expected count, not a reported test result.
+- User ran the full 392-case EditMode suite: **391/392 passed**. All 334 `Signal.Core.Tests` passed; 49/50 `Signal.Game.Tests` passed. The only failure is `CityBlockBootstrapTests.BlankNameContactCanJoinTheSharedCityWithoutLeakingItsInternalId`: its fixture omitted `SocialDialogue`, so the ScriptableObject's default greeting was returned instead of the test's expected contact line. The production NPC behaviour is correct; the test fixture is being corrected to author the dialogue it asserts.
+- Both Dirty Cash save tests passed, including the v13 migration and v14 round-trip. This failure is unrelated to save identity or save migration. The save schema currently reports v14; clarify separately whether the user's request to preserve the save version refers to the numeric schema version or the save slot/file name before changing it.
+- The only code change for the 391/392 result is a test-fixture correction. Rerun the full 392-case suite; do not mark Slice B complete until that and the contact/save-load Play Mode loop are confirmed.
 
 ## Completed earlier slice — CRIME-ECONOMY-001 / Slice A (2026-11-20)
 
