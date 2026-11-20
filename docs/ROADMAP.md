@@ -443,7 +443,7 @@ Approved rules:
 
 Implementation sequence:
 1. [x] Core SearchableContainer model with stable ID, one-time reveal-order initialization and progressive discovery.
-2. [x] Save v11 DTO and mapper foundation for container contents, reveal order and progress.
+2. [x] Save v12 DTO and mapper foundation for container contents, reveal order and progress.
 3. [x] Authored container loot profiles A/B/C using existing ItemDefinitions.
 4. [x] Place three physical searchable bins in Street and expose E interaction.
 5. [x] Build side-by-side container/player inventory UI with concealed undiscovered contents, automatic reveal sequence, double-click transfer and cross-panel drag/drop.
