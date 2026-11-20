@@ -674,3 +674,14 @@ The user approved Slice B and confirmed the first illicit contact convention and
 Created `docs/tasks/CRIME-ECONOMY-SLICE-B-DIRTY-CASH.md` with Core/Game/content/persistence design, acceptance criteria and verification plan. Updated DESIGN, DATA_MODEL, ROADMAP and OPEN_QUESTIONS.
 
 **Implementation has not started.** One authored content value remains: the exact stolen ItemDefinition accepted by the first fence offer and the fixed Dirty Cash unit payout. The user should choose or approve the recommended fixture offer before implementation. No Unity compilation or tests were run for this documentation-only step.
+
+
+## 2026-11-20 — CRIME-ECONOMY-SLICE-B EditMode verified; contact UI correction
+
+- User confirmed the full Unity EditMode suite now passes **392/392**. The earlier 391/392 failure was the blank-name contact test fixture missing its authored social dialogue; the fixture correction resolved it. The save-version naming concern is deferred: no special release/version naming policy is needed at this prototype stage.
+- User then reported three concrete Slice B UI defects: fence exchange appeared available without the required ITEM_A ×2 stack, the review/confirmation controls were confusing and could trigger the wrong action, and the player could not manage/see carried inventory beside the contact inventory.
+- Rebuilt `DirtyCashContactPanel` as a side-by-side workspace: contact inventory is visible/read-only on the left, carried inventory is visible/selectable on the right, and separate Fence / Clean Dirty Cash modes control the action area. All transaction buttons occupy distinct positions; reviewing a fence offer only enters a review state and never invokes a transaction.
+- Fence exchange now receives the exact selected ItemInstanceId from the UI and revalidates that same stack in GameSession: accepted ItemDefinition, exact configured quantity, Stolen state and Player ownership are all required before the Core exchange service is called. It no longer scans for and silently chooses any qualifying stack.
+- Cleaning requires selection of a player-owned Dirty Cash stack, shows the exact fee and payout, and has its own dedicated Confirm Cleaning action. The contact inventory remains read-only so sold goods cannot be casually withdrawn through this UI.
+- This is a presentation/interaction correction; no economy rules, transaction formula, content values or save fields changed. No new tests were added and the existing 392/392 result remains the last user-reported test result; Unity compilation and Play Mode verification of this UI correction are still pending.
+- Current branch includes the UI correction commits through `9015214717a594b39f163266c49f83be6b806f3d`. Pull the branch, let Unity compile, then test both negative fence selection and the complete fence → Dirty Cash → cleaning flow before we close Slice B.
