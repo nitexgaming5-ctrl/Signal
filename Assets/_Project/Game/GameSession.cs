@@ -150,7 +150,7 @@ namespace Signal.Game
             else if (!dirtyCashContactOffer.TryValidate(out string offerError))
                 Debug.LogError("GameSession: invalid Dirty Cash contact offer: " + offerError);
             else if (!_city.TryAddResident(dirtyCashContactOffer.Contact))
-                Debug.LogError("GameSession: the Clean_Dirtycash resident could not be added to the city.");
+                Debug.LogError("GameSession: the " + DirtyCashContactNpcId + " resident could not be added to the city.");
             CreateSearchableContainers();
             foreach (NpcPresenter resident in _city.DebugResidents)
             {
