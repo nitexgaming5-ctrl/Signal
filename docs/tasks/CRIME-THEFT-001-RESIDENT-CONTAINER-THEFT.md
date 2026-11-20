@@ -1,6 +1,6 @@
 # CRIME-THEFT-001 — Resident-owned apartment container theft
 
-**Status:** implementation committed; Unity compilation, EditMode and Play Mode verification pending  
+**Status:** gameplay user-tested; unwitnessed-heat correction committed, post-fix Unity verification pending  
 **Date:** 2026-11-20  
 **Parent design:** [CRIME-ECONOMY-001](CRIME-ECONOMY-001-SHARED-CITY-DESIGN.md)
 
@@ -27,7 +27,7 @@ This is the first crime action only. Pickpocketing, torn references, NPC theft, 
 3. The Core `AssetTransferService` applies `ItemOwnershipStatus.Stolen` as part of the same rollback-safe transfer operation. Other item-state fields and ItemInstanceId are preserved.
 4. The existing economic transaction ledger records the exact stack, owner change, reason and in-game timestamp.
 5. Only after a successful transfer does GameSession record one semantic `CrimeOutcome` with the player actor identity. A failed capacity/placement attempt produces no theft outcome, heat, progression or witness event.
-6. The prototype's authored outcome awards **+2 heat** and **+1 global criminal-progression point** per successfully stolen stack. These are deliberately small, data-authored prototype tuning values, not final balancing.
+6. The prototype awards **+1 global criminal-progression point** per successfully stolen stack. It awards **+2 heat only when a local witness is selected**; an unwitnessed theft awards zero heat. These are deliberately small, data-authored prototype tuning values, not final balancing.
 7. Heat continues to use the existing HeatMeter and its current daily cooling placeholder. Criminal progression is a separate global total and does not decay with heat. No progression unlocks or heat-band consequences are introduced here.
 
 ## Exposure and witnesses
@@ -35,7 +35,7 @@ This is the first crime action only. Pickpocketing, torn references, NPC theft, 
 - At most one local witness is selected: the nearest registered resident who is physically in the property's authored location and within both the property's witness radius and the NPC's own awareness radius.
 - The first wardrobe uses an 8-unit witness radius to match the existing resident awareness range and apartment layout. Rhea can witness while at home; being the owner does not make her omniscient.
 - The selected NPC receives one character-scoped direct-observation event with an anonymous observable description. Other residents do not receive the event merely because they exist in the city.
-- If nobody is in range, the theft still receives its authored heat/progression awards but creates no witness knowledge.
+- If nobody is in range, the theft still succeeds, marks the item stolen, records the crime outcome and awards global progression, but awards **zero heat** and creates no witness knowledge.
 - The existing ambient social-encounter exchange deliberately skips `crime-observed` events. Witness sharing/reporting is not enabled until its rules are designed and approved.
 - There is no automatic report, police response, relationship penalty or suspicion merely because the theft occurred. Later NPC sharing or authored consequences must use valid social/context gates.
 - The selected witness identity and observation event are persisted with the crime outcome and restored to that NPC after loading.
@@ -57,12 +57,12 @@ This is the first crime action only. Pickpocketing, torn references, NPC theft, 
 3. Confirm all three street bins still use `Scavenging`, retain their existing contents and do not award crime outcomes/heat/progression.
 4. Enter the apartment, approach Rhea's wardrobe and press E. Confirm the fixed ITEM_A ×2 / ITEM_C ×1 contents appear once and do not reroll after closing/reopening.
 5. Search and take a discovered item using both double-click and drag/drop. Confirm its ItemInstanceId is unchanged, ItemOwnershipStatus becomes Stolen, ownership changes from `resident:rhea` to Player, and the economic transaction reason is Theft.
-6. Confirm a successful stolen stack adds one CrimeOutcome, +2 heat and +1 progression. A failed destination placement must leave the item in the wardrobe and change none of those values.
+6. Confirm a witnessed successful stolen stack adds one CrimeOutcome, +2 heat and +1 progression. An unwitnessed successful theft adds one CrimeOutcome, **0 heat** and +1 progression. A failed destination placement must leave the item in the wardrobe and change none of those values.
 7. Use F1 → “Force Rhea: Home + focus”, move to the wardrobe and steal an item. Confirm Rhea alone receives the `theft-observed` knowledge event. Use “Return Rhea to authored schedule” afterwards.
-8. Repeat while no resident is in the authored witness radius. Confirm no NPC learns the event, while the authored heat/progression still apply.
+8. Repeat while no resident is in the authored witness radius. Confirm no NPC learns the event, heat remains unchanged, and the +1 progression point is still awarded.
 9. Confirm there is no police/reporting response and no automatic relationship change.
 10. Save with F5, load with F9, and verify wardrobe contents/search progress, stolen item state, ownership, economic transaction, heat, progression, crime outcome and the selected witness's knowledge all survive. Loading the same save again must not duplicate the witness event.
-11. Re-run the full EditMode suite after any fixes.
+11. Re-run the full EditMode suite after the unwitnessed-heat correction (expected 382 cases; the new assertion is added to an existing test).
 
 ## Exclusions and open follow-up
 
