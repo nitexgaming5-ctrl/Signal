@@ -132,3 +132,18 @@ The user chose theft from a physical container inside an apartment as the first 
 - These values are testable prototype tuning, not final balance. Dirty-money exchange/cleaning and production are not part of this first theft slice.
 
 Implementation and acceptance criteria: `docs/tasks/CRIME-THEFT-001-RESIDENT-CONTAINER-THEFT.md`. Unity verification remains pending.
+
+
+## Crime economy — Slice B: physical Dirty Cash and contact-specific cleaning (approved 2026-11-20)
+
+- Add one discreet contact to the existing shared city. The stable internal NPC ID is `Clean_Dirtycash`; the visible display name is intentionally blank. The internal ID must never appear in player-facing text.
+- Dirty Cash is a physical inventory item, not an account balance. One unit has face value 10.
+- The contact offers one fixed fence purchase for one specifically authored stolen item. The item must be marked Stolen and owned by the player; a legitimate copy is not accepted. The fixed Dirty Cash payout and accepted ItemDefinition remain to be selected.
+- The same contact offers a separate cleaning action. The contact retains 20%; each Dirty Cash unit therefore credits 8 clean CARD immediately.
+- The player sees the exact accepted item, Dirty Cash reward, fee and clean payout before confirming.
+- Fence and cleaning transactions are atomic and separately recorded. Failed capacity, ownership, validation or account operations leave the original items and balances unchanged.
+- Dirty Cash cannot be used for legal retail or credited directly to CARD. Existing legal retail and buyback rules do not change.
+- The first slice has no cleaning delay, risk, heat, witness, police or progression effect. Additional contacts/offers/rates and consequences require separate design approval.
+- No black-market stock simulation, dynamic prices, bargaining, passive laundering or separate underground city.
+
+Detailed implementation and test specification: `docs/tasks/CRIME-ECONOMY-SLICE-B-DIRTY-CASH.md`.
