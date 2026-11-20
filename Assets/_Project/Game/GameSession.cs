@@ -221,14 +221,14 @@ namespace Signal.Game
                     : nearbyBusiness.DisplayName + "  —  Closed";
             if (nearSearchableContainer)
                 cityPrompt = "E  Search " + nearbyContainerLabel;
-            if (containerOpen)
+            if (itemViewerOpen)
+                _hud.SetPrompt("ESC  Close item inspection");
+            else if (containerOpen)
                 _hud.SetPrompt("ESC  Close container");
             else if (retailOpen)
                 _hud.SetPrompt("ESC  Close shop");
             else if (workspaceOpen)
                 _hud.SetPrompt("ESC  Back to room");
-            else if (itemViewerOpen)
-                _hud.SetPrompt("ESC  Close item inspection");
             else if (storageOpen)
                 _hud.SetPrompt("ESC  Close storage");
             else if (inventoryOpen)

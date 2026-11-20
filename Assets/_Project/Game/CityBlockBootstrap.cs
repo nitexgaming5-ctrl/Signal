@@ -21,7 +21,7 @@ namespace Signal.Game
         private static readonly string[] SearchableBinLabels = { "Street bin A", "Street bin B", "Street bin C" };
         private static readonly Vector2[] SearchableBinPositions =
         {
-            new Vector2(5.0f, -8.2f), new Vector2(15.8f, -17.2f), new Vector2(5.0f, -22.3f)
+            new Vector2(2.5f, -8.2f), new Vector2(17.5f, -17.2f), new Vector2(2.5f, -22.3f)
         };
 
         private Transform _player;
