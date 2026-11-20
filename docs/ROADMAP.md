@@ -480,3 +480,20 @@ Implementation:
 10. [ ] Verify Play Mode theft, failed-transfer safety, witness/no-witness behavior, no automatic report, and F5/F9 persistence. See [CRIME-THEFT-001 acceptance checklist](tasks/CRIME-THEFT-001-RESIDENT-CONTAINER-THEFT.md).
 
 **Current status:** implementation and documentation committed; Unity verification pending. The current prototype heat/progression/witness values are editable test tuning and must be revisited after Play Mode.
+
+
+## Approved next initiative — CRIME-ECONOMY-SLICE-B physical Dirty Cash and cleaning
+
+**Status:** design specification written; implementation waiting on one authored fence-offer content value.
+
+Player outcome: exchange one specifically accepted stolen item with an unnamed neighbourhood contact for physical Dirty Cash, then clean it through that same contact into clean CARD.
+
+Confirmed:
+- Contact internal NPC ID `Clean_Dirtycash`, blank visible name, integrated into the shared city/NPC framework.
+- Dirty Cash is physical inventory, denomination 10 per unit.
+- Cleaning fee 20%; each unit credits 8 clean CARD immediately.
+- One fixed stolen-item fence offer and one separate cleaning offer.
+- Atomic transactions, ownership/state validation, dedicated histories and save/load persistence.
+- No legal retail use for Dirty Cash, no dynamic pricing, passive laundering, risk/heat/police, delay or separate underground city.
+
+Implementation is blocked only on selecting the exact accepted stolen ItemDefinition and the fixed Dirty Cash payout quantity. See [Slice B specification](tasks/CRIME-ECONOMY-SLICE-B-DIRTY-CASH.md). Do not begin implementation by inventing this offer.
