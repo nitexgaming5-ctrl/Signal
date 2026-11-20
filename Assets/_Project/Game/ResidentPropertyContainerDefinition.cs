@@ -35,6 +35,7 @@ namespace Signal.Game
         public Vector2 InteractionPosition => interactionPosition;
         public float WitnessRadius => witnessRadius;
         public int HeatAward => heatAward;
+        public int GetHeatAward(bool witnessed) => witnessed ? heatAward : 0;
         public int ProgressionAward => progressionAward;
         public string ActionId => actionId;
         public string WitnessDescription => witnessDescription;
