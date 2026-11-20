@@ -1,9 +1,9 @@
 # CRIME-ECONOMY-SLICE-B — Dirty Cash, illicit exchange and contact-specific cleaning
 
-**Status:** design specification; implementation not started  
+**Status:** implementation in progress; Unity verification pending  
 **Parent:** [CRIME-ECONOMY-001 shared-city design](CRIME-ECONOMY-001-SHARED-CITY-DESIGN.md)  
 **Prerequisite:** CRIME-THEFT-001 resident-owned container theft  
-**User approval:** Slice B approved; contact identity convention, Dirty Cash denomination and cleaning fee confirmed on 2026-11-20.
+**User approval:** Slice B and the first fence offer approved on 2026-11-20.
 
 ## Player outcome
 
@@ -18,8 +18,8 @@ This is one authored vertical slice, not a general black market, vendor framewor
 - Visible `DisplayName`: empty string. Do not replace the blank name with the internal ID in player-facing UI.
 - Dirty Cash is a physical inventory item, not an account balance.
 - One Dirty Cash unit has a face value of 10 clean-money units.
-- Cleaning retains 20% as the contact's fee. One Dirty Cash unit therefore credits 8 clean CARD.
-- Cleaning credits the player's existing clean CARD account immediately.
+- The contact-specific cleaning fee is 20%, authored on the offer asset. One Dirty Cash unit credits 8 clean CARD to the player and 2 CARD to the contact's existing NPC account.
+- Cleaning credits the player's existing clean CARD account immediately and credits the retained fee to the contact's existing resident account.
 - Legal retail and clean CARD purchasing remain unchanged. Dirty Cash cannot be used in legal retail or deposited directly.
 - One fixed, authored fence offer and one fixed, contact-specific cleaning offer.
 - No dynamic pricing, bargaining, stock simulation, passive laundering, automatic cleaning, or separate underground city.
@@ -27,18 +27,18 @@ This is one authored vertical slice, not a general black market, vendor framewor
 
 ## First authored illicit exchange — one remaining content value
 
-The first fence offer must accept exactly one explicitly authored stolen item definition and pay a fixed whole number of Dirty Cash units. The target item and payout have **not** been approved yet. Do not silently reuse a generic placeholder as final content or invent a payout. The recommended implementation fixture is one item already present in the theft test content, with the offer isolated in a ScriptableObject so it can be replaced without changing Core rules.
+The approved first fence offer accepts exactly 2 stolen, player-owned ITEM_A items and pays 3 Dirty Cash units. ITEM_A is an existing theft fixture and is intentionally replaceable content, not a final narrative item. The offer is isolated in a ScriptableObject so it can be replaced without changing Core rules.
 
 The offer must require `ItemOwnershipStatus.Stolen`; a legitimate copy of the same ItemDefinition is not accepted. The initial transaction consumes the exact whole stack (matching the current whole-stack transfer foundation), transfers ownership of the sold asset to the contact, and creates the authored Dirty Cash quantity in the player's carried inventory. If the player cannot fit the Dirty Cash reward, the entire exchange is rejected with no item loss, reward, ownership change or ledger entry.
 
-**Open user decision:** select the first accepted stolen ItemDefinition and its fixed Dirty Cash payout. The denomination is 10 per unit; the payout is expressed as a number of those units.
+**Decision closed:** ITEM_A ×2 → 3 Dirty Cash units is approved.
 
 ## Cleaning offer
 
 - Accept only Dirty Cash item stacks.
 - Show the exact clean CARD payout before confirmation.
 - Consume the selected whole Dirty Cash stack and credit CARD immediately.
-- Formula: `clean payout = dirty units × 10 × 80%`. Thus each unit pays 8 CARD.
+- Formula: `player clean payout = dirty units × 10 × 80%`; `contact fee = dirty units × 10 × 20%`. For 3 units, 24 CARD goes to the player and 6 CARD to the contact.
 - Use integer arithmetic with overflow/invalid-quantity checks. No partial/fractional unit conversion.
 - If the clean account cannot accept the result, or any precondition fails, leave the Dirty Cash stack and CARD balance unchanged.
 - Cleaning is a separate operation from the fence purchase and from legitimate retail.
@@ -55,7 +55,7 @@ The offer must require `ItemOwnershipStatus.Stolen`; a legitimate copy of the sa
 ## Technical implementation specification
 
 ### Core
-- Add a small Dirty Cash denomination/value rule that cannot be confused with clean account balance.
+- Add a small Dirty Cash denomination/value rule that cannot be confused with clean account balance; supply the contact-specific cleaning fee from the authored offer definition.
 - Add dedicated illicit-exchange and cleaning transaction result/ledger models; do not overload `ShopSaleTransaction`, `RetailTransaction` or clean-money retail services.
 - Add services for the exact fence exchange and exact Dirty Cash cleaning operation.
 - Snapshot and rollback all affected inventories, ownership records and clean account balance on any failed step.
@@ -72,7 +72,7 @@ The offer must require `ItemOwnershipStatus.Stolen`; a legitimate copy of the sa
 
 ### Persistence
 - Dirty Cash itself persists through the existing normal inventory item save path and stable item IDs.
-- Persist transaction history for both exchange and cleaning in a dedicated save representation, with current-format round-trip coverage.
+- Persist the contact's physical inventory, ownership, both transaction histories and the contact's clean account in save v14, with current-format round-trip coverage.
 - Increment save schema only if new serialized fields are added; migrate v13 saves to empty new transaction histories without changing existing inventory, account, crime or searchable-container state.
 - Rebuild ownership/custody registrations consistently on load.
 
@@ -111,6 +111,6 @@ The offer must require `ItemOwnershipStatus.Stolen`; a legitimate copy of the sa
 - Negative Play Mode checks: legitimate item rejection, no room for reward, empty/invalid cleaning selection, insufficient or invalid state, repeated confirmation.
 - Regression checks: legal shop BUY/SELL, street-bin scavenging and apartment theft/witness heat.
 
-## Remaining approval
+## Implementation and verification status
 
-Only the first fence offer's accepted ItemDefinition and fixed Dirty Cash unit payout remain unselected. All other Slice B boundaries above reflect the user's approval.
+The approved offer and contact values are implemented in content and wired through the Core/Game integration. Expected EditMode suite: 392 tests (382 baseline + 10 new cases); this is not yet a reported Unity result. Unity compilation, EditMode execution and the full Play Mode/save-load loop remain pending.

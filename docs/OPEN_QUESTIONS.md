@@ -1,5 +1,18 @@
 # Open questions
 
+## CRIME-ECONOMY-001 — Slice B decisions (approved 2026-11-20)
+
+- Contact: new ordinary shared-city resident, internal ID `Clean_Dirtycash`, visible display name intentionally blank.
+- Physical Dirty Cash denomination: 10 face value per unit.
+- First fence offer: exactly 2 stolen, player-owned ITEM_A items for 3 Dirty Cash units. ITEM_A is a replaceable prototype content fixture, not a final narrative item.
+- Cleaning fee: 20%, authored on this contact's offer. For 3 units (face value 30), 24 clean CARD is credited to the player and 6 CARD to the contact's existing NPC account.
+- Fence transfers the sold item into the contact's persistent physical inventory. Cleaning consumes the selected Dirty Cash stack and credits both accounts atomically.
+- Legal retail remains clean-CARD-only. No automatic laundering, dynamic pricing, risk, delay, heat, witnesses or progression effects in Slice B.
+- Save schema v14 persists contact inventory, ownership and both dedicated histories; v13 migration initializes the new collections empty.
+- Implementation status: in progress; Unity verification pending.
+
+Still open after Slice B: the first authored production workspace, recipe inputs/outputs and timing for Slice C.
+
 Agents: add questions here with two options and your recommendation. Do not decide them yourself.
 User: answer inline with `ANSWER:`. Agents read answers before the next session.
 Decisions made in the chat with Claude are copied here so every agent sees them.
@@ -90,7 +103,7 @@ The first implementation is Milo, a neighbourhood baker with Work, Rest, Sociali
 ## Economic details still undecided
 - Currency name/symbol and how integer balance units are displayed.
 - Starting clean bank/card balance for the player and authored starting balances for named residents.
-- Cleaning rate, prerequisites, risks and presentation.
+- Further cleaning prerequisites, risk, delay and presentation beyond Slice B's first immediate, no-risk contact offer.
 - Which specific illegal goods require finite stock in the first neighbourhood.
 
 

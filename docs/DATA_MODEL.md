@@ -193,11 +193,11 @@ When a save shape changes, keep the current format reliable and add round-trip c
 ## Dirty Cash and Slice B illicit transactions — approved design
 
 - Dirty Cash is a normal physical item stack with stable ItemInstanceId and ItemInstanceState, not a clean-money account balance.
-- Denomination is 10 per unit. The first contact's cleaning fee is 20%; each unit immediately credits 8 clean CARD.
-- A fence exchange consumes one exact player-owned, Stolen item stack and creates the authored quantity of Dirty Cash as a new player-owned item stack. The sold item transfers to the contact. The exact accepted ItemDefinition and reward quantity remain a content decision.
-- Cleaning consumes an exact player-owned Dirty Cash stack and credits the player's existing clean CARD account. Both paths are atomic across inventory, ownership and account state.
+- Denomination is 10 per unit. This contact's offer asset authors a 20% cleaning fee; each unit credits 8 clean CARD to the player and the retained 2 CARD is credited to the contact's NPC account.
+- The first fence exchange consumes exactly 2 player-owned, Stolen ITEM_A items and creates 3 Dirty Cash units as a new player-owned physical stack. The sold item transfers to the contact. These fixture values are authored in `DirtyCashContactOffer_SliceB.asset`.
+- Cleaning consumes an exact player-owned Dirty Cash stack, credits 80% as clean CARD to the player and credits the retained 20% fee to the contact's existing NPC account. Both account credits, inventory consumption and ownership removal are atomic.
 - Illicit exchange and cleaning histories are distinct from legitimate retail purchase and shop-sale histories.
 - The contact is an ordinary shared-city resident with internal NPC ID `Clean_Dirtycash` and an intentionally blank visible display name.
 - Dirty Cash cannot pay for legal retail or be deposited directly. No passive conversion, automatic cleaning, dynamic rate or global laundering simulation.
-- Save/load must preserve Dirty Cash through the normal item path, clean CARD through the existing account path, and the new transaction histories through dedicated save records. v13 migration initializes those histories empty.
+- Save v14 preserves the contact's physical inventory, item ownership, resident clean-money accounts and both dedicated transaction histories. v13 migration initializes the new collections empty while preserving existing inventory, crime and searchable-container data.
 - Full specification: `docs/tasks/CRIME-ECONOMY-SLICE-B-DIRTY-CASH.md`.

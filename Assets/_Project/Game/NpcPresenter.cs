@@ -104,14 +104,17 @@ namespace Signal.Game
             if (!CanTalkFrom(playerPosition))
                 return false;
 
-            dialogue = DisplayName + ": " + _definition.DialogueFor(_activity);
+            string authoredDialogue = _definition.DialogueFor(_activity);
+            dialogue = string.IsNullOrWhiteSpace(DisplayName) ? authoredDialogue : DisplayName + ": " + authoredDialogue;
             if (_socialWorld != null)
             {
                 _conversationSequence++;
                 _socialWorld.PublishEvent(new NpcWorldEvent(
                     NpcId + "-conversation-" + _conversationSequence,
                     "Conversation",
-                    DisplayName + " spoke with someone nearby.",
+                    string.IsNullOrWhiteSpace(DisplayName)
+                        ? "An unnamed neighbour spoke with someone nearby."
+                        : DisplayName + " spoke with someone nearby.",
                     NpcId,
                     _currentPlace,
                     playerPosition.x,

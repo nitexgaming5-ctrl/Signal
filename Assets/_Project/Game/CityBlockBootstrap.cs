@@ -91,6 +91,39 @@ namespace Signal.Game
             return FindResident(npcId) != null;
         }
 
+        public string GetResidentDisplayName(string npcId)
+        {
+            NpcPresenter resident = FindResident(npcId);
+            return resident != null ? resident.DisplayName : string.Empty;
+        }
+
+        public bool IsResidentWithin(string npcId, Vector2 position, float radius)
+        {
+            if (radius < 0f) return false;
+            NpcPresenter resident = FindResident(npcId);
+            return resident != null && resident.CurrentPlace == _place.ToString() &&
+                (resident.Position - position).sqrMagnitude <= radius * radius;
+        }
+
+        public bool TryAddResident(NpcCharacterDefinition definition)
+        {
+            if (definition == null || _clock == null || _socialWorld == null ||
+                string.IsNullOrWhiteSpace(definition.NpcId) || HasResident(definition.NpcId))
+                return false;
+            if (!characterDefinitions.Contains(definition))
+                characterDefinitions.Add(definition);
+            string objectName = string.IsNullOrWhiteSpace(definition.DisplayName)
+                ? "Unnamed Neighbour"
+                : definition.DisplayName + " - " + definition.PublicRole;
+            var residentObject = new GameObject(objectName);
+            residentObject.transform.SetParent(transform, false);
+            NpcPresenter presenter = residentObject.AddComponent<NpcPresenter>();
+            presenter.Bind(definition, _clock, _socialWorld, this);
+            presenter.SetActivePlace(_place.ToString());
+            _residents.Add(presenter);
+            return true;
+        }
+
         public bool IsAnyResidentWithin(Vector2 position, float radius, string excludeNpcId = null)
         {
             if (radius < 0f)
@@ -472,7 +505,9 @@ namespace Signal.Game
         {
             for (int i = 0; i < _residents.Count; i++)
                 if (_residents[i].CanTalkFrom(playerPosition))
-                    return "E  Talk to " + _residents[i].DisplayName;
+                    return string.IsNullOrWhiteSpace(_residents[i].DisplayName)
+                        ? "E  Talk"
+                        : "E  Talk to " + _residents[i].DisplayName;
 
             if (TryGetNearbySearchableContainer(playerPosition, out _, out string binName))
                 return "E  Search " + binName;

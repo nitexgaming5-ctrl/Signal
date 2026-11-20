@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d10f5b5d1ad49b3a4d7d0c8c9a11006, type: 3}
+  m_Name: DirtyCashContactOffer_SliceB
+  m_EditorClassIdentifier: Signal.Game::Signal.Game.DirtyCashContactOfferDefinition
+  contact: {fileID: 11400000, guid: 8d10f5b5d1ad49b3a4d7d0c8c9a11005, type: 2}
+  dirtyCashItem: {fileID: 11400000, guid: d17a5a114c3149ac9b710e4d3f8a6201, type: 2}
+  acceptedItem: {fileID: 11400000, guid: 39a634896790a6f42aa67446e05bb8de, type: 2}
+  acceptedQuantity: 2
+  dirtyCashUnits: 3
+  cleaningFeePercent: 20

@@ -15,6 +15,7 @@ namespace Signal.Game
         [Header("Content")]
         [SerializeField] private ItemDefinition[] items;
         [SerializeField] private ItemDefinition parcelItem;
+        [SerializeField] private DirtyCashContactOfferDefinition dirtyCashContactOffer;
         [SerializeField] private NpcCharacterDefinition[] npcDefinitions;
         [SerializeField] private BusinessDefinition[] businesses;
         [SerializeField] private ContainerLootProfile[] searchableLootProfiles;
@@ -43,6 +44,9 @@ namespace Signal.Game
         private RetailTransactionLedger _retailTransactions;
         private RetailService _retailService;
         private ShopSaleTransactionLedger _shopSaleTransactions;
+        private IllicitExchangeTransactionLedger _illicitExchanges;
+        private DirtyCashCleaningTransactionLedger _dirtyCashCleanings;
+        private GridInventory _contactInventory;
         private GridInventory _inventory;
         private GridInventory _storage;
         private ItemKnowledgeBook _itemKnowledge;
@@ -62,6 +66,7 @@ namespace Signal.Game
         private StoragePanel _storagePanel;
         private HudPanel _hud;
         private RetailPanel _retailPanel;
+        private DirtyCashContactPanel _dirtyCashPanel;
         private SearchableContainerPanel _containerPanel;
         private SearchableContainer _activeSearchableContainer;
         private WorkbenchWorkspace _workspace;
@@ -84,6 +89,8 @@ namespace Signal.Game
         public RetailTransactionLedger RetailTransactions => _retailTransactions;
         public RetailService Retail => _retailService;
         public ShopSaleTransactionLedger ShopSaleTransactions => _shopSaleTransactions;
+        public IllicitExchangeTransactionLedger IllicitExchanges => _illicitExchanges;
+        public DirtyCashCleaningTransactionLedger DirtyCashCleanings => _dirtyCashCleanings;
         public CriminalProgressionTrack CriminalProgression => _criminalProgression;
         public CrimeOutcomeLedger CrimeOutcomes => _crimeOutcomes;
 
@@ -103,6 +110,10 @@ namespace Signal.Game
             _retailTransactions = new RetailTransactionLedger();
             _retailService = new RetailService(_economicAccounts, _assetOwnership, _retailTransactions);
             _shopSaleTransactions = new ShopSaleTransactionLedger();
+            _illicitExchanges = new IllicitExchangeTransactionLedger();
+            _dirtyCashCleanings = new DirtyCashCleaningTransactionLedger();
+            _contactInventory = new GridInventory(8, 6);
+            _economicContainers.TryRegister(_contactInventory, new EconomicActorId("resident:Clean_Dirtycash"));
             _itemKnowledge = new ItemKnowledgeBook();
             _playerDiscoveries = new PlayerDiscoveryLedger();
             _miloOpportunity = new OpportunityState("milo-parcel");
@@ -130,6 +141,12 @@ namespace Signal.Game
 
             _city = gameObject.AddComponent<CityBlockBootstrap>();
             _city.Build(_room.Player, _room.PlayerBody, camera, _clock, npcDefinitions);
+            if (dirtyCashContactOffer == null)
+                Debug.LogError("GameSession: assign the Slice B Dirty Cash contact offer.");
+            else if (!dirtyCashContactOffer.TryValidate(out string offerError))
+                Debug.LogError("GameSession: invalid Dirty Cash contact offer: " + offerError);
+            else if (!_city.TryAddResident(dirtyCashContactOffer.Contact))
+                Debug.LogError("GameSession: the Clean_Dirtycash resident could not be added to the city.");
             CreateSearchableContainers();
             foreach (NpcPresenter resident in _city.DebugResidents)
             {
@@ -153,6 +170,18 @@ namespace Signal.Game
             _retailPanel = gameObject.AddComponent<RetailPanel>();
             _retailPanel.Bind(PurchaseFromBusiness, SellToBusiness, _inventory, _allItemDefinitions,
                 _assetOwnership, () => { });
+            if (dirtyCashContactOffer != null && dirtyCashContactOffer.TryValidate(out _))
+            {
+                _dirtyCashPanel = gameObject.AddComponent<DirtyCashContactPanel>();
+                _dirtyCashPanel.Bind(_inventory, _assetOwnership, dirtyCashContactOffer.DirtyCashItem,
+                    dirtyCashContactOffer.AcceptedItem, dirtyCashContactOffer.AcceptedQuantity,
+                    dirtyCashContactOffer.DirtyCashUnits, dirtyCashContactOffer.CleaningFeePercent,
+                    ExchangeWithContact, CleanDirtyCash);
+            }
+            else
+            {
+                Debug.LogError("GameSession: the Dirty Cash contact panel cannot be created without a valid offer.");
+            }
 
             if (parcelItem != null)
             {
@@ -188,21 +217,29 @@ namespace Signal.Game
             bool itemViewerOpen = _itemViewer != null && _itemViewer.IsOpen;
             bool retailOpen = _retailPanel != null && _retailPanel.IsOpen;
             bool containerOpen = _containerPanel != null && _containerPanel.IsOpen;
+            bool dirtyCashOpen = _dirtyCashPanel != null && _dirtyCashPanel.IsOpen;
             if (_panel != null)
-                _panel.enabled = !_debugMenuOpen && !workspaceOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen;
+                _panel.enabled = !_debugMenuOpen && !workspaceOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen;
             if (_storagePanel != null)
-                _storagePanel.enabled = !_debugMenuOpen && !itemViewerOpen && !retailOpen && !containerOpen;
+                _storagePanel.enabled = !_debugMenuOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen;
             if (_containerPanel != null)
-                _containerPanel.enabled = !_debugMenuOpen && !itemViewerOpen;
+                _containerPanel.enabled = !_debugMenuOpen && !itemViewerOpen && !dirtyCashOpen;
+            if (_dirtyCashPanel != null)
+                _dirtyCashPanel.enabled = !_debugMenuOpen;
             if (_debugMenuOpen && retailOpen)
             {
                 _retailPanel.Close();
                 retailOpen = false;
             }
+            if (_debugMenuOpen && dirtyCashOpen)
+            {
+                _dirtyCashPanel.Close();
+                dirtyCashOpen = false;
+            }
 
             bool scenarioChoiceOpen = _miloScenario != null && _miloScenario.HasPendingChoice;
             _motor.enabled = !inventoryOpen && !workspaceOpen && !storageOpen && !itemViewerOpen &&
-                !scenarioChoiceOpen && !retailOpen && !containerOpen && !_debugMenuOpen;
+                !scenarioChoiceOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !_debugMenuOpen;
 
             Vector2 playerPosition = _room.Player.position;
             bool nearWorkbench = _room.Workbench != null &&
@@ -210,6 +247,7 @@ namespace Signal.Game
             bool nearStorage = _city.IsAtHome && _room.Storage != null &&
                 Vector2.Distance(playerPosition, _room.Storage.position) <= 2.15f;
             BusinessDefinition nearbyBusiness = FindNearbyBusiness(playerPosition);
+            bool nearDirtyCashContact = _city.IsResidentWithin("Clean_Dirtycash", playerPosition, 1.85f);
             bool nearSearchableContainer = _city.TryGetNearbySearchableContainer(playerPosition,
                 out string nearbyContainerId, out string nearbyContainerLabel);
             ResidentPropertyContainerDefinition nearbyProperty = FindNearbyResidentProperty(playerPosition);
@@ -222,9 +260,11 @@ namespace Signal.Game
             string cityPrompt = _city.GetPrompt(playerPosition);
             if (nearSearchableContainer)
                 cityPrompt = "E  Search " + nearbyContainerLabel;
+            if (nearDirtyCashContact)
+                cityPrompt = "E  Talk";
             if (_miloScenario != null)
             {
-                if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen)
+                if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen)
                     _miloScenario.Tick(playerPosition, _city.CurrentPlace);
                 string scenarioPrompt = _miloScenario.GetPrompt(playerPosition, _city.CurrentPlace);
                 if (!string.IsNullOrEmpty(scenarioPrompt))
@@ -237,7 +277,11 @@ namespace Signal.Game
                     : nearbyBusiness.DisplayName + "  —  Closed";
             if (nearSearchableContainer)
                 cityPrompt = "E  Search " + nearbyContainerLabel;
-            if (itemViewerOpen)
+            if (nearDirtyCashContact)
+                cityPrompt = "E  Talk";
+            if (dirtyCashOpen)
+                _hud.SetPrompt("ESC  Close contact");
+            else if (itemViewerOpen)
                 _hud.SetPrompt("ESC  Close item inspection");
             else if (containerOpen)
                 _hud.SetPrompt("ESC  Close container");
@@ -261,7 +305,7 @@ namespace Signal.Game
             if (_debugMenuOpen || keyboard == null)
                 return;
 
-            if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
+            if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen &&
                 _miloScenario != null && _miloScenario.HasPendingChoice)
             {
                 int choice = keyboard.digit1Key.wasPressedThisFrame ? 1 :
@@ -277,11 +321,16 @@ namespace Signal.Game
             }
 
             if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
-                nearSearchableContainer && keyboard.eKey.wasPressedThisFrame)
+                !dirtyCashOpen && nearDirtyCashContact && keyboard.eKey.wasPressedThisFrame)
+            {
+                if (_dirtyCashPanel != null) _dirtyCashPanel.Open();
+            }
+            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
+                !dirtyCashOpen && nearSearchableContainer && keyboard.eKey.wasPressedThisFrame)
             {
                 OpenSearchableContainer(nearbyContainerId);
             }
-            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
+            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen &&
                 nearbyBusiness != null && keyboard.eKey.wasPressedThisFrame)
             {
                 if (!nearbyBusiness.TryValidate(out string businessError))
@@ -291,12 +340,12 @@ namespace Signal.Game
                 else
                     _retailPanel.Open(nearbyBusiness);
             }
-            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && nearWorkbench && keyboard.eKey.wasPressedThisFrame)
+            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && nearWorkbench && keyboard.eKey.wasPressedThisFrame)
                 _workspace.Open();
-            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && nearStorage && keyboard.eKey.wasPressedThisFrame)
+            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && nearStorage && keyboard.eKey.wasPressedThisFrame)
                 _storagePanel.SetOpen(true);
             else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
-                     !nearSearchableContainer && nearbyBusiness == null && !nearWorkbench && !nearStorage &&
+                     !dirtyCashOpen && !nearDirtyCashContact && !nearSearchableContainer && nearbyBusiness == null && !nearWorkbench && !nearStorage &&
                      cityPrompt.Length > 0 && keyboard.eKey.wasPressedThisFrame)
             {
                 if (_miloScenario != null &&
@@ -311,7 +360,7 @@ namespace Signal.Game
                     Say("Location: " + _city.CurrentPlace);
             }
 
-            if (!retailOpen)
+            if (!retailOpen && !dirtyCashOpen)
             {
                 if (!containerOpen && keyboard.f6Key.wasPressedThisFrame) Sleep();
                 if (keyboard.f5Key.wasPressedThisFrame) SaveGame();
@@ -532,7 +581,8 @@ namespace Signal.Game
                                                _city.CurrentPlace, position.x, position.y, _itemKnowledge,
                                                _playerDiscoveries, _miloOpportunity, _playerRelationships,
                                                _assetOwnership, _economicTransactions, _economicAccounts, _retailTransactions,
-                                               _shopSaleTransactions, _criminalProgression, _crimeOutcomes);
+                                               _shopSaleTransactions, _criminalProgression, _crimeOutcomes,
+                                               _contactInventory, _illicitExchanges, _dirtyCashCleanings);
             SearchableContainerSaveMapper.Capture(_searchableContainers, data);
 
             try
@@ -556,10 +606,12 @@ namespace Signal.Game
             }
 
             if (_containerPanel != null) _containerPanel.Close();
+            if (_dirtyCashPanel != null) _dirtyCashPanel.Close();
             _activeSearchableContainer = null;
             LoadReport report = SaveMapper.Apply(data, _stats, _inventory, _storage, _clock, _heat, _rent,
                 ResolveType, _itemKnowledge, _playerDiscoveries, _playerRelationships, _assetOwnership, _economicTransactions,
-                _economicAccounts, _retailTransactions, _shopSaleTransactions, _criminalProgression, _crimeOutcomes);
+                _economicAccounts, _retailTransactions, _shopSaleTransactions, _criminalProgression, _crimeOutcomes,
+                _contactInventory, _illicitExchanges, _dirtyCashCleanings);
             if (!report.Success)
             {
                 Say("Load failed: " + report.Error);
@@ -589,9 +641,93 @@ namespace Signal.Game
                 report.SkippedDiscoverySignals + report.SkippedPlayerRelationships +
                 report.SkippedAssetOwners + report.SkippedEconomicTransactions +
                 report.SkippedResidentAccounts + report.SkippedRetailTransactions + report.SkippedShopSaleTransactions +
-                report.SkippedCrimeOutcomes + skippedContainers > 0
+                report.SkippedCrimeOutcomes + report.SkippedContactItems +
+                report.SkippedIllicitExchangeTransactions + report.SkippedDirtyCashCleaningTransactions +
+                skippedContainers > 0
                 ? "Loaded at " + data.worldPlace + ". Some saved item or discovery details could not be restored."
                 : "Loaded at " + data.worldPlace + ".");
+        }
+
+        private bool IsNearDirtyCashContact()
+        {
+            return _city != null && _city.IsResidentWithin("Clean_Dirtycash", _room.PlayerBody.position, 1.85f);
+        }
+
+        private string ExchangeWithContact()
+        {
+            if (!IsNearDirtyCashContact())
+                return "Move closer to the contact.";
+            if (dirtyCashContactOffer == null || !dirtyCashContactOffer.TryValidate(out _))
+                return "The offer is unavailable.";
+
+            ItemDefinition acceptedItem = dirtyCashContactOffer.AcceptedItem;
+            ItemDefinition cashItem = dirtyCashContactOffer.DirtyCashItem;
+            int acceptedQuantity = dirtyCashContactOffer.AcceptedQuantity;
+            int dirtyCashUnits = dirtyCashContactOffer.DirtyCashUnits;
+            ItemType acceptedType = acceptedItem.ToItemType();
+            PlacedItem selected = default;
+            bool found = false;
+            foreach (PlacedItem stack in _inventory.Items)
+            {
+                if (stack.Type != acceptedType || stack.Count != acceptedQuantity ||
+                    stack.State.Ownership != ItemOwnershipStatus.Stolen ||
+                    !_assetOwnership.TryGetOwner(stack.ItemInstanceId, out EconomicActorId owner) ||
+                    owner != EconomicActorId.Player)
+                    continue;
+                selected = stack;
+                found = true;
+                break;
+            }
+            if (!found)
+                return "Bring one player-owned stolen stack of " + acceptedQuantity + " " +
+                    acceptedItem.DisplayName + " items.";
+
+            IllicitExchangeResult result = IllicitExchangeService.TryExchange(_inventory, _contactInventory,
+                selected.ItemInstanceId, acceptedType, acceptedQuantity, cashItem.ToItemType(),
+                dirtyCashUnits, new EconomicActorId("resident:Clean_Dirtycash"),
+                _assetOwnership, _economicTransactions, _illicitExchanges, _clock.Day, _clock.MinuteOfDay);
+            if (result.Success)
+                return "Exchange complete. Received " + dirtyCashUnits + " Dirty Cash units.";
+            switch (result.Status)
+            {
+                case IllicitExchangeStatus.ContactStorageFull:
+                    return "The contact has no room for that item.";
+                case IllicitExchangeStatus.RewardInventoryFull:
+                    return "Make room in your carried inventory for the Dirty Cash. Nothing was exchanged.";
+                case IllicitExchangeStatus.ItemNotStolen:
+                    return "The contact only accepts the exact stolen item stack.";
+                case IllicitExchangeStatus.OwnershipMismatch:
+                    return "You must carry an item stack that you own.";
+                default:
+                    return "The exchange could not be completed. Nothing was changed.";
+            }
+        }
+
+        private string CleanDirtyCash(Guid cashInstanceId)
+        {
+            if (!IsNearDirtyCashContact())
+                return "Move closer to the contact.";
+            if (dirtyCashContactOffer == null || !dirtyCashContactOffer.TryValidate(out _))
+                return "The cleaning offer is unavailable.";
+
+            var contactActor = new EconomicActorId("resident:Clean_Dirtycash");
+            if (!_economicAccounts.TryGetAccount(contactActor, out CleanMoneyAccount contactAccount))
+                return "The contact's account is unavailable.";
+
+            DirtyCashCleaningResult result = DirtyCashCleaningService.TryClean(_inventory, cashInstanceId,
+                dirtyCashContactOffer.DirtyCashItem.ToItemType(), EconomicActorId.Player, _assetOwnership,
+                _stats.CleanMoney, contactAccount, contactActor, dirtyCashContactOffer.CleaningFeePercent,
+                _dirtyCashCleanings,
+                _clock.Day, _clock.MinuteOfDay);
+            if (result.Success)
+                return "Cleaned " + result.Transaction.DirtyUnits + " Dirty Cash units. $" +
+                    result.Transaction.CleanPayout + " added to CARD.";
+            switch (result.Status)
+            {
+                case DirtyCashCleaningStatus.AccountOverflow: return "The transaction accounts cannot accept that amount. Nothing was changed.";
+                case DirtyCashCleaningStatus.OwnershipMismatch: return "You do not own that Dirty Cash stack.";
+                default: return "Cleaning failed (" + result.Status + "). Nothing was changed.";
+            }
         }
 
         private BusinessDefinition FindNearbyBusiness(Vector2 playerPosition)
@@ -772,6 +908,18 @@ namespace Signal.Game
                         if (!_allItemDefinitions.Contains(propertyItem)) _allItemDefinitions.Add(propertyItem);
                     }
                 }
+            }
+
+            if (dirtyCashContactOffer != null && dirtyCashContactOffer.TryValidate(out _))
+            {
+                ItemDefinition cashItem = dirtyCashContactOffer.DirtyCashItem;
+                ItemDefinition acceptedItem = dirtyCashContactOffer.AcceptedItem;
+                ItemType cashType = cashItem.ToItemType();
+                ItemType acceptedType = acceptedItem.ToItemType();
+                _catalog[cashType.Id] = cashType;
+                _catalog[acceptedType.Id] = acceptedType;
+                if (!_allItemDefinitions.Contains(cashItem)) _allItemDefinitions.Add(cashItem);
+                if (!_allItemDefinitions.Contains(acceptedItem)) _allItemDefinitions.Add(acceptedItem);
             }
 
             if (parcelItem != null)

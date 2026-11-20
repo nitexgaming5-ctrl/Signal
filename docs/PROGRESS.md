@@ -1,6 +1,16 @@
 # Progress
 
-## Current crime/economy initiative — CRIME-ECONOMY-001 / Slice A (2026-11-20)
+## Current initiative — CRIME-ECONOMY-001 / Slice B implementation in progress (2026-11-20)
+
+- The user approved the complete Slice B content: one discreet unnamed contact (internal ID `Clean_Dirtycash`, blank visible name); physical Dirty Cash at 10 face value per unit; exactly 2 stolen, player-owned ITEM_A items exchanged for 3 Dirty Cash units; contact-specific 20% cleaning fee.
+- Cleaning 3 units credits 24 clean CARD to the player and 6 CARD to the contact's existing resident account. The retained fee is not destroyed and no universal cleaning rate is introduced.
+- Implementation is being integrated into the existing Core/Game architecture: a separate contact inventory, atomic illicit-exchange and cleaning services, explicit player-facing panel, dedicated transaction histories and save schema v14.
+- The previous implementation pass had created uncommitted Git blobs. The current pass is reconciling and completing those changes; no Unity verification has yet been performed. Do not mark Slice B complete until the user runs compilation, EditMode tests and the Play Mode/save-load loop.
+- Expected EditMode suite count after the 10 new test cases: 392 (the prior 382-case baseline plus 10). This is an expected count, not a reported test result.
+
+## Completed earlier slice — CRIME-ECONOMY-001 / Slice A (2026-11-20)
+
+## Completed earlier slice — CRIME-ECONOMY-001 / Slice A (2026-11-20)
 
 - User approved the broad shared-city boundaries: gradual/authored heat consequences with exposure distinct from heat; contact-specific dirty-money cleaning offers with no universal conversion rate; production only for explicitly authored businesses/workspaces, with no city-wide supply/demand simulation.
 - The user green-lit multi-slice implementation and selected theft from a physical container inside an apartment as the first crime action. NPC theft/pickpocketing, torn references, aggression, weapons and stealth remain deferred until their interaction foundations exist.
@@ -8,7 +18,7 @@
 - User confirmed **382/382 EditMode tests** and reported the full theft Play Mode flow works except one issue: unwitnessed theft incorrectly raised heat. The correction is committed: this apartment-theft fixture now awards heat only when a local witness is selected; successful unwitnessed theft still records the crime and awards global progression. The regression assertion is added to the existing property-definition test. The post-fix 382-test rerun and quick Play Mode retest are pending.
 - Prototype fixture: fixed ITEM_A ×2 / ITEM_C ×1 contents, +2 heat when witnessed, +1 global progression point per successful stolen stack, and an 8-unit witness radius. These remain editable playtest tuning, not final balance.
 - One nearest resident physically present and within witness/awareness range receives an anonymous character-scoped event. Ambient social encounters do not share crime observations while witness-sharing/reporting rules remain open. No automatic report, police response, suspicion or relationship penalty. Outcomes, progression and the selected witness event persist in save v13.
-- Dirty-money exchange/cleaning and authored production remain later slices; their offer, denomination and recipe rules are still open.
+- Slice B's dirty-money exchange and cleaning content is now approved and in implementation. Authored production remains the next later slice; its first workspace, recipe inputs/outputs and timing still need design.
 
 ## Current status: SCAVENGE-001 complete and user-verified; CRIME-THEFT-001 functionally verified by user, with one correction awaiting rerun
 
@@ -18,7 +28,7 @@ The player-facing sell-to-shop initiative is also complete and user-verified: BU
 
 The working branch is `chore/collaboration-workflow-and-audit`; `main` remains untouched. The active architecture is Signal.Core + Signal.Game. The hideout, connected city, inventory/storage, item identity/state/knowledge, NPC framework, Milo parcel opportunity, NPC navigation, economy and physical-container scavenging foundations remain in place.
 
-The economy currently supports explicit asset ownership, safe owner-to-owner transfers, clean CARD accounts, resident personal accounts, fixed-price authored retail, business-owner revenue credit and separate exact-stack player sales with persistent transaction history. Dirty money remains excluded from CARD and is reserved for a future physical-item/illicit-use design. The Corner Bakery's CARD $5 Bread catalogue price remains temporary test content, not final balancing; no final bakery buyback offer or price is approved.
+The economy currently supports explicit asset ownership, safe owner-to-owner transfers, clean CARD accounts, resident personal accounts, fixed-price authored retail, business-owner revenue credit and separate exact-stack player sales with persistent transaction history. Slice B adds physical Dirty Cash as a separate item path; it remains excluded from legal retail and direct CARD deposits. The Corner Bakery's CARD $5 Bread catalogue price remains temporary test content, not final balancing; no final bakery buyback offer or price is approved.
 
 ## Approved project direction
 Signal is an immersive top-down 2D urban RPG about making a living in one layered city: meeting people, doing activities for money and resources, trading goods, taking risks, sometimes losing things, discovering secrets and returning to a personal hideout.

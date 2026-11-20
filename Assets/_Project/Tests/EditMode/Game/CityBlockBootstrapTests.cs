@@ -181,6 +181,60 @@ namespace Signal.Game.Tests
 
 
         [Test]
+        public void BlankNameContactCanJoinTheSharedCityWithoutLeakingItsInternalId()
+        {
+            var host = new GameObject("CityHost");
+            var player = new GameObject("Player");
+            var cameraObject = new GameObject("MainCamera");
+            Rigidbody2D body = player.AddComponent<Rigidbody2D>();
+            Camera camera = cameraObject.AddComponent<Camera>();
+            var clock = new GameClock(1, 8 * 60);
+            CityBlockBootstrap city = host.AddComponent<CityBlockBootstrap>();
+            NpcCharacterDefinition contact = ScriptableObject.CreateInstance<NpcCharacterDefinition>();
+            contact.NpcId = "Clean_Dirtycash";
+            contact.DisplayName = string.Empty;
+            contact.PublicRole = "Neighbour";
+            contact.UtilityProfile = NpcUtilityProfile.CreateDefault();
+            contact.UtilityProfile.WorkStartMinute = 420;
+            contact.UtilityProfile.WorkEndMinute = 420;
+            contact.UtilityProfile.WorkBaseScore = 5f;
+            contact.UtilityProfile.WorkEnergyWeight = 15f;
+            contact.UtilityProfile.SocializeStartMinute = 420;
+            contact.UtilityProfile.SocializeEndMinute = 1260;
+            contact.UtilityProfile.SocialWindowBonus = 70f;
+            contact.WorkPosition = new Vector2(1000.2f, 1001.8f);
+            contact.RestPosition = new Vector2(6.8f, -17.4f);
+            contact.SocialPosition = new Vector2(7.8f, -17.4f);
+            contact.HomePosition = new Vector2(1014.5f, 997.5f);
+
+            try
+            {
+                city.Build(player.transform, body, camera, clock);
+                Assert.That(city.TryAddResident(contact), Is.True);
+                Assert.That(city.TryAddResident(contact), Is.False);
+                Assert.That(city.HasResident("Clean_Dirtycash"), Is.True);
+                Assert.That(city.SocialWorld.TryGetNpc("Clean_Dirtycash", out NpcAgentState state), Is.True);
+                Assert.That(state.LocationId, Is.EqualTo("Street"));
+                Assert.That(city.GetResidentDisplayName("Clean_Dirtycash"), Is.Empty);
+                Vector2 position = city.GetResidentPosition("Clean_Dirtycash");
+                Assert.That(city.TryRestorePlace("Street", position), Is.True);
+                Assert.That(city.IsResidentWithin("Clean_Dirtycash", position, 1.85f), Is.True);
+                Assert.That(city.IsResidentWithin("Clean_Dirtycash", position + Vector2.right * 5f, 1.85f), Is.False);
+                Assert.That(city.GetPrompt(position), Is.EqualTo("E  Talk"));
+                Assert.That(city.TryInteractNpc(position, out string dialogue), Is.True);
+                StringAssert.DoesNotContain("Clean_Dirtycash", dialogue);
+                StringAssert.Contains("Keep your voice down", dialogue);
+            }
+            finally
+            {
+                Object.DestroyImmediate(host);
+                Object.DestroyImmediate(player);
+                Object.DestroyImmediate(cameraObject);
+                Object.DestroyImmediate(contact);
+            }
+        }
+
+        [Test]
         public void ResidentWalksThroughStreetWhenRoutineChangesLocation()
         {
             var host = new GameObject("CityHost");

@@ -8,7 +8,12 @@
 - Opportunity 001: Milo's Parcel is user-verified: 284/284 EditMode tests and successful end-to-end Play Mode completion were confirmed by the user. Any older pending-verification wording in historical notes is superseded.
 - Player-facing sell-to-shop is user-verified: 355/355 EditMode tests and the BUY/partial SELL/full SELL/save-reload Play Mode path were confirmed; the user also observed Milo receiving business revenue.
 - CRIME-THEFT-001 resident-owned apartment container theft is implemented and user-tested. The user confirmed 382/382 EditMode tests and that Play Mode works except unwitnessed theft incorrectly raised heat. A follow-up correction is committed: the apartment theft fixture awards +2 heat only when a local witness is selected; unwitnessed theft still awards +1 global progression and records the crime, but adds zero heat. The regression assertion is added to an existing test, so the expected suite remains 382. Post-fix Unity compilation/test rerun and quick witnessed/unwitnessed Play Mode retest are pending.
+- Slice B is in implementation on the collaboration branch: the approved blank-name `Clean_Dirtycash` contact, ITEM_A ×2 → Dirty Cash ×3 fence offer, contact-specific 20% cleaning fee (24 CARD to player, 6 CARD to contact), contact stash, dedicated ledgers and save v14 are being integrated. No Slice B Unity compilation, EditMode or Play Mode verification has been performed yet; the expected suite is 392 after 10 added tests.
 - Verification is based on user reports. The assistant has not run the local Unity Editor.
+
+## Current next action — Slice B
+
+Finish/review the in-progress source integration, commit the coherent vertical slice, then ask the user to pull the collaboration branch and run Unity compilation plus the full expected 392-case EditMode suite. Play Mode must verify the exact fence exchange, 24/6 cleaning split and save/reload of the contact stash, ownership, accounts and transaction histories. The assistant must not claim this slice complete before those checks are reported.
 
 ## 1. What Signal is
 

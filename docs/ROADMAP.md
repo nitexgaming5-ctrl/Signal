@@ -1,5 +1,20 @@
 # Roadmap — build the place before the systems that fill it
 
+## Active crime/economy vertical slice — CRIME-ECONOMY-001 / Slice B
+
+**Player outcome:** exchange the exact stolen ITEM_A stack for physical Dirty Cash with one unnamed neighbourhood contact, then clean that cash into clean CARD through the same contact.
+
+- [x] Approve contact identity: internal ID `Clean_Dirtycash`, blank visible name.
+- [x] Approve denomination: 10 face value per physical Dirty Cash unit.
+- [x] Approve first fence offer: 2 stolen, player-owned ITEM_A items for 3 Dirty Cash units.
+- [x] Approve contact-specific 20% cleaning fee: 24 CARD to the player and 6 CARD to the contact for the 3-unit stack.
+- [ ] Complete Core atomic exchange/cleaning services, ownership transfer and separate ledgers.
+- [ ] Complete shared-city contact, physical contact inventory and player-facing interaction panel.
+- [ ] Complete save v14 contact inventory, ownership, accounts and transaction histories; preserve v13 migration.
+- [ ] User runs Unity compilation, full EditMode suite (392 expected), and Play Mode/save-load regression checks.
+
+Slice C production design remains parked until Slice B verification is complete.
+
 Milestones are dependency notes, not a mandate to build isolated systems in order. Keep one active gameplay initiative at a time. Prefer a complete, player-facing vertical slice over a collection of disconnected subsystems. See `docs/DEVELOPMENT_WORKFLOW.md`, `docs/ARCHITECTURE.md` and `docs/PROJECT_HANDOFF.md`.
 
 ## Current foundation — hideout, connected block and first persistent loop
@@ -484,7 +499,7 @@ Implementation:
 
 ## Approved next initiative — CRIME-ECONOMY-SLICE-B physical Dirty Cash and cleaning
 
-**Status:** design specification written; implementation waiting on one authored fence-offer content value.
+**Status:** implementation in progress; approved fence-offer content is now locked; Unity verification pending.
 
 Player outcome: exchange one specifically accepted stolen item with an unnamed neighbourhood contact for physical Dirty Cash, then clean it through that same contact into clean CARD.
 

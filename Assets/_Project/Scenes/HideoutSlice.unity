@@ -245,6 +245,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 75b48d016f3192c4291650c7100322ae, type: 2}
   - {fileID: 11400000, guid: 93ce0b046196ab54ea7ba4defbc4c608, type: 2}
   parcelItem: {fileID: 11400000, guid: 6a9c2f1d8b4e47a0a3d5c7e9f102468c, type: 2}
+  dirtyCashContactOffer: {fileID: 11400000, guid: 8d10f5b5d1ad49b3a4d7d0c8c9a11007, type: 2}
   businesses:
   - {fileID: 11400000, guid: 07e1d5f4a9b36c8d2f0e7a1b5c4d9e63, type: 2}
   searchableLootProfiles:

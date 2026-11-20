@@ -68,7 +68,7 @@ namespace Signal.Core.Tests
             };
 
             Assert.That(SaveMigrator.TryMigrate(data, out _), Is.True);
-            Assert.That(data.version, Is.EqualTo(13));
+            Assert.That(data.version, Is.EqualTo(SaveMigrator.CurrentVersion));
             Assert.That(data.crimeOutcomes, Is.Not.Null);
             Assert.That(data.crimeOutcomes, Is.Empty);
             Assert.That(data.criminalProgressionPoints, Is.Zero);

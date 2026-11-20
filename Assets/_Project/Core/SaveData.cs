@@ -166,6 +166,36 @@ namespace Signal.Core
     }
 
     [Serializable]
+    public sealed class SavedIllicitExchangeTransaction
+    {
+        public string transactionId;
+        public string itemInstanceId;
+        public string itemDefinitionId;
+        public int quantity;
+        public string sellerActorId;
+        public string buyerActorId;
+        public int dirtyCashUnits;
+        public int day;
+        public int minuteOfDay;
+    }
+
+    [Serializable]
+    public sealed class SavedDirtyCashCleaningTransaction
+    {
+        public string transactionId;
+        public string cashInstanceId;
+        public int dirtyUnits;
+        public int faceValuePerUnit;
+        public int feePercent;
+        public int cleanPayout;
+        public int feeAmount;
+        public string cleanerActorId;
+        public string feeRecipientActorId;
+        public int day;
+        public int minuteOfDay;
+    }
+
+    [Serializable]
     public sealed class SaveData
     {
         public int version = SaveMigrator.CurrentVersion;
@@ -196,6 +226,9 @@ namespace Signal.Core
         public List<SavedSearchableContainer> searchableContainers = new List<SavedSearchableContainer>();
         public int criminalProgressionPoints;
         public List<SavedCrimeOutcome> crimeOutcomes = new List<SavedCrimeOutcome>();
+        public List<SavedItem> contactItems = new List<SavedItem>();
+        public List<SavedIllicitExchangeTransaction> illicitExchangeTransactions = new List<SavedIllicitExchangeTransaction>();
+        public List<SavedDirtyCashCleaningTransaction> dirtyCashCleaningTransactions = new List<SavedDirtyCashCleaningTransaction>();
     }
 
     public sealed class LoadReport
@@ -213,6 +246,9 @@ namespace Signal.Core
         public int SkippedRetailTransactions { get; set; }
         public int SkippedShopSaleTransactions { get; set; }
         public int SkippedCrimeOutcomes { get; set; }
+        public int SkippedContactItems { get; set; }
+        public int SkippedIllicitExchangeTransactions { get; set; }
+        public int SkippedDirtyCashCleaningTransactions { get; set; }
         public OpportunityState RestoredOpportunity { get; set; }
     }
 
@@ -220,7 +256,7 @@ namespace Signal.Core
     {
         // Increment only when the serialized save schema changes. Runtime/UI/gameplay-only changes do not require a new save version.
         // Migration tests for historical inputs should assert this constant for their migrated result.
-        public const int CurrentVersion = 13;
+        public const int CurrentVersion = 14;
 
         /// <summary>Accepts supported save formats and migrates them to the current inventory, social and economic format.</summary>
         public static bool TryMigrate(SaveData data, out string error)
@@ -314,6 +350,14 @@ namespace Signal.Core
             if (data.crimeOutcomes == null)
                 data.crimeOutcomes = new List<SavedCrimeOutcome>();
 
+            // Version 14 persists the fence contact's physical inventory and separate illicit ledgers.
+            if (data.contactItems == null) data.contactItems = new List<SavedItem>();
+            EnsureInstanceIds(data.contactItems, usedIds);
+            if (data.illicitExchangeTransactions == null)
+                data.illicitExchangeTransactions = new List<SavedIllicitExchangeTransaction>();
+            if (data.dirtyCashCleaningTransactions == null)
+                data.dirtyCashCleaningTransactions = new List<SavedDirtyCashCleaningTransaction>();
+
             data.version = CurrentVersion;
 
             return true;
@@ -359,7 +403,10 @@ namespace Signal.Core
                                        RetailTransactionLedger retailTransactions = null,
                                        ShopSaleTransactionLedger shopSaleTransactions = null,
                                        CriminalProgressionTrack criminalProgression = null,
-                                       CrimeOutcomeLedger crimeOutcomes = null)
+                                       CrimeOutcomeLedger crimeOutcomes = null,
+                                       GridInventory contactInventory = null,
+                                       IllicitExchangeTransactionLedger illicitExchanges = null,
+                                       DirtyCashCleaningTransactionLedger dirtyCashCleanings = null)
         {
             if (stats == null) throw new ArgumentNullException(nameof(stats));
             if (inventory == null) throw new ArgumentNullException(nameof(inventory));
@@ -391,11 +438,14 @@ namespace Signal.Core
             CaptureDiscoveries(discoveries, data.playerDiscoveries);
             data.opportunity = CaptureOpportunity(opportunity);
             CapturePlayerRelationships(relationships, data.playerRelationships);
-            CaptureEconomicState(inventory, storage, assetOwnership, economicTransactions, data);
+            if (contactInventory != null) CaptureItems(contactInventory, data.contactItems);
+            CaptureEconomicState(inventory, storage, contactInventory, assetOwnership, economicTransactions, data);
             CaptureResidentAccounts(economicAccounts, data.residentAccounts);
             CaptureRetailTransactions(retailTransactions, data.retailTransactions);
             CaptureShopSaleTransactions(shopSaleTransactions, data.shopSaleTransactions);
             CaptureCrimeOutcomes(crimeOutcomes, data.crimeOutcomes);
+            CaptureIllicitExchanges(illicitExchanges, data.illicitExchangeTransactions);
+            CaptureDirtyCashCleanings(dirtyCashCleanings, data.dirtyCashCleaningTransactions);
 
             return data;
         }
@@ -417,7 +467,10 @@ namespace Signal.Core
                                        RetailTransactionLedger retailTransactions = null,
                                        ShopSaleTransactionLedger shopSaleTransactions = null,
                                        CriminalProgressionTrack criminalProgression = null,
-                                       CrimeOutcomeLedger crimeOutcomes = null)
+                                       CrimeOutcomeLedger crimeOutcomes = null,
+                                       GridInventory contactInventory = null,
+                                       IllicitExchangeTransactionLedger illicitExchanges = null,
+                                       DirtyCashCleaningTransactionLedger dirtyCashCleanings = null)
         {
             if (stats == null) throw new ArgumentNullException(nameof(stats));
             if (inventory == null) throw new ArgumentNullException(nameof(inventory));
@@ -445,16 +498,24 @@ namespace Signal.Core
                 storage.Clear();
                 skippedStorage = RestoreItems(data.storageItems, storage, resolve);
             }
+            int skippedContact = 0;
+            if (contactInventory != null)
+            {
+                contactInventory.Clear();
+                skippedContact = RestoreItems(data.contactItems, contactInventory, resolve);
+            }
 
             int skippedKnowledge = RestoreKnowledge(data.itemKnowledge, itemKnowledge);
             int skippedDiscoveries = RestoreDiscoveries(data.playerDiscoveries, discoveries);
             int skippedRelationships = RestorePlayerRelationships(data.playerRelationships, relationships);
-            int skippedOwners = RestoreAssetOwners(data.assetOwners, inventory, storage, assetOwnership);
+            int skippedOwners = RestoreAssetOwners(data.assetOwners, inventory, storage, contactInventory, assetOwnership);
             int skippedTransactions = RestoreEconomicTransactions(data.economicTransactions, economicTransactions);
             int skippedAccounts = RestoreResidentAccounts(data.residentAccounts, economicAccounts);
             int skippedRetail = RestoreRetailTransactions(data.retailTransactions, retailTransactions);
             int skippedShopSales = RestoreShopSaleTransactions(data.shopSaleTransactions, shopSaleTransactions);
             int skippedCrimeOutcomes = RestoreCrimeOutcomes(data.crimeOutcomes, crimeOutcomes);
+            int skippedIllicitExchanges = RestoreIllicitExchanges(data.illicitExchangeTransactions, illicitExchanges);
+            int skippedDirtyCashCleanings = RestoreDirtyCashCleanings(data.dirtyCashCleaningTransactions, dirtyCashCleanings);
             OpportunityState restoredOpportunity = RestoreOpportunity(data.opportunity);
 
             return new LoadReport
@@ -471,10 +532,106 @@ namespace Signal.Core
                 SkippedRetailTransactions = skippedRetail,
                 SkippedShopSaleTransactions = skippedShopSales,
                 SkippedCrimeOutcomes = skippedCrimeOutcomes,
+                SkippedContactItems = skippedContact,
+                SkippedIllicitExchangeTransactions = skippedIllicitExchanges,
+                SkippedDirtyCashCleaningTransactions = skippedDirtyCashCleanings,
                 RestoredOpportunity = restoredOpportunity
             };
         }
 
+
+        private static void CaptureIllicitExchanges(IllicitExchangeTransactionLedger ledger,
+            List<SavedIllicitExchangeTransaction> destination)
+        {
+            if (ledger == null) return;
+            foreach (IllicitExchangeTransaction transaction in ledger.Transactions)
+                destination.Add(new SavedIllicitExchangeTransaction
+                {
+                    transactionId = transaction.TransactionId.ToString(),
+                    itemInstanceId = transaction.ItemInstanceId.ToString(),
+                    itemDefinitionId = transaction.ItemDefinitionId.ToString(),
+                    quantity = transaction.Quantity,
+                    sellerActorId = transaction.Seller.Value,
+                    buyerActorId = transaction.Buyer.Value,
+                    dirtyCashUnits = transaction.DirtyCashUnits,
+                    day = transaction.Day,
+                    minuteOfDay = transaction.MinuteOfDay
+                });
+        }
+
+        private static int RestoreIllicitExchanges(List<SavedIllicitExchangeTransaction> saved,
+            IllicitExchangeTransactionLedger destination)
+        {
+            if (destination == null) return 0;
+            destination.Clear();
+            int skipped = 0;
+            if (saved == null) return skipped;
+            foreach (SavedIllicitExchangeTransaction entry in saved)
+            {
+                if (entry == null || !Guid.TryParse(entry.transactionId, out Guid transactionId) ||
+                    !Guid.TryParse(entry.itemInstanceId, out Guid itemId) ||
+                    !Guid.TryParse(entry.itemDefinitionId, out Guid definitionId) ||
+                    string.IsNullOrWhiteSpace(entry.sellerActorId) || string.IsNullOrWhiteSpace(entry.buyerActorId))
+                { skipped++; continue; }
+                try
+                {
+                    var transaction = new IllicitExchangeTransaction(transactionId, itemId, definitionId,
+                        entry.quantity, new EconomicActorId(entry.sellerActorId), new EconomicActorId(entry.buyerActorId),
+                        entry.dirtyCashUnits, entry.day, entry.minuteOfDay);
+                    if (!destination.TryRecord(transaction)) skipped++;
+                }
+                catch (ArgumentException) { skipped++; }
+            }
+            return skipped;
+        }
+
+        private static void CaptureDirtyCashCleanings(DirtyCashCleaningTransactionLedger ledger,
+            List<SavedDirtyCashCleaningTransaction> destination)
+        {
+            if (ledger == null) return;
+            foreach (DirtyCashCleaningTransaction transaction in ledger.Transactions)
+                destination.Add(new SavedDirtyCashCleaningTransaction
+                {
+                    transactionId = transaction.TransactionId.ToString(),
+                    cashInstanceId = transaction.CashInstanceId.ToString(),
+                    dirtyUnits = transaction.DirtyUnits,
+                    faceValuePerUnit = transaction.FaceValuePerUnit,
+                    feePercent = transaction.FeePercent,
+                    cleanPayout = transaction.CleanPayout,
+                    feeAmount = transaction.FeeAmount,
+                    cleanerActorId = transaction.Cleaner.Value,
+                    feeRecipientActorId = transaction.FeeRecipient.Value,
+                    day = transaction.Day,
+                    minuteOfDay = transaction.MinuteOfDay
+                });
+        }
+
+        private static int RestoreDirtyCashCleanings(List<SavedDirtyCashCleaningTransaction> saved,
+            DirtyCashCleaningTransactionLedger destination)
+        {
+            if (destination == null) return 0;
+            destination.Clear();
+            int skipped = 0;
+            if (saved == null) return skipped;
+            foreach (SavedDirtyCashCleaningTransaction entry in saved)
+            {
+                if (entry == null || !Guid.TryParse(entry.transactionId, out Guid transactionId) ||
+                    !Guid.TryParse(entry.cashInstanceId, out Guid cashId) ||
+                    string.IsNullOrWhiteSpace(entry.cleanerActorId) ||
+                    string.IsNullOrWhiteSpace(entry.feeRecipientActorId))
+                { skipped++; continue; }
+                try
+                {
+                    var transaction = new DirtyCashCleaningTransaction(transactionId, cashId, entry.dirtyUnits,
+                        entry.faceValuePerUnit, entry.feePercent, entry.cleanPayout, entry.feeAmount,
+                        new EconomicActorId(entry.cleanerActorId), new EconomicActorId(entry.feeRecipientActorId),
+                        entry.day, entry.minuteOfDay);
+                    if (!destination.TryRecord(transaction)) skipped++;
+                }
+                catch (ArgumentException) { skipped++; }
+            }
+            return skipped;
+        }
 
         private static void CaptureCrimeOutcomes(CrimeOutcomeLedger ledger, List<SavedCrimeOutcome> destination)
         {
@@ -663,13 +820,16 @@ namespace Signal.Core
             return skipped;
         }
 
-        private static void CaptureEconomicState(GridInventory inventory, GridInventory storage,
+        private static void CaptureEconomicState(GridInventory inventory, GridInventory storage, GridInventory contactInventory,
             AssetOwnershipBook ownership, EconomicTransactionLedger ledger, SaveData destination)
         {
             if (ownership != null)
             {
-                CaptureAssetOwners(inventory, ownership, destination.assetOwners);
-                if (storage != null) CaptureAssetOwners(storage, ownership, destination.assetOwners);
+                CaptureAssetOwners(inventory, ownership, destination.assetOwners, EconomicActorId.Player);
+                if (storage != null) CaptureAssetOwners(storage, ownership, destination.assetOwners, EconomicActorId.Player);
+                if (contactInventory != null)
+                    CaptureAssetOwners(contactInventory, ownership, destination.assetOwners,
+                        new EconomicActorId("resident:Clean_Dirtycash"));
             }
             if (ledger == null) return;
             foreach (EconomicTransaction transaction in ledger.Transactions)
@@ -688,18 +848,18 @@ namespace Signal.Core
         }
 
         private static void CaptureAssetOwners(GridInventory inventory, AssetOwnershipBook ownership,
-            List<SavedAssetOwner> destination)
+            List<SavedAssetOwner> destination, EconomicActorId fallbackOwner)
         {
             foreach (PlacedItem item in inventory.Items)
             {
                 EconomicActorId owner = ownership.TryGetOwner(item.ItemInstanceId, out EconomicActorId registered)
-                    ? registered : EconomicActorId.Player;
+                    ? registered : fallbackOwner;
                 destination.Add(new SavedAssetOwner { instanceId = item.ItemInstanceId.ToString(), actorId = owner.Value });
             }
         }
 
         private static int RestoreAssetOwners(List<SavedAssetOwner> savedOwners, GridInventory inventory,
-            GridInventory storage, AssetOwnershipBook destination)
+            GridInventory storage, GridInventory contactInventory, AssetOwnershipBook destination)
         {
             if (destination == null) return 0;
             destination.Clear();
@@ -716,16 +876,19 @@ namespace Signal.Core
                     }
                     catch (ArgumentException) { skipped++; }
                 }
-            RegisterMissingPlayerOwners(inventory, destination);
-            if (storage != null) RegisterMissingPlayerOwners(storage, destination);
+            RegisterMissingOwners(inventory, destination, EconomicActorId.Player);
+            if (storage != null) RegisterMissingOwners(storage, destination, EconomicActorId.Player);
+            if (contactInventory != null)
+                RegisterMissingOwners(contactInventory, destination, new EconomicActorId("resident:Clean_Dirtycash"));
             return skipped;
         }
 
-        private static void RegisterMissingPlayerOwners(GridInventory inventory, AssetOwnershipBook ownership)
+        private static void RegisterMissingOwners(GridInventory inventory, AssetOwnershipBook ownership,
+            EconomicActorId fallbackOwner)
         {
             foreach (PlacedItem item in inventory.Items)
                 if (!ownership.TryGetOwner(item.ItemInstanceId, out _))
-                    ownership.TryRegister(item.ItemInstanceId, EconomicActorId.Player);
+                    ownership.TryRegister(item.ItemInstanceId, fallbackOwner);
         }
 
         private static int RestoreEconomicTransactions(List<SavedEconomicTransaction> savedTransactions,

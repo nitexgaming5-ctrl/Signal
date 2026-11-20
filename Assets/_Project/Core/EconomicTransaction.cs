@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 namespace Signal.Core
 {
-    public enum AssetTransferReason { Gift = 0, Purchase = 1, Theft = 2, ServicePayment = 3, SupplierDelivery = 4, Other = 5, Scavenging = 6 }
+    public enum AssetTransferReason { Gift = 0, Purchase = 1, Theft = 2, ServicePayment = 3, SupplierDelivery = 4, Other = 5, Scavenging = 6, IllicitExchange = 7 }
 
     public sealed class EconomicTransaction
     {
@@ -32,6 +32,18 @@ namespace Signal.Core
         public IReadOnlyList<EconomicTransaction> Transactions => _readOnlyTransactions;
         public int Count => _transactions.Count;
         public bool Contains(Guid transactionId) => _transactionIds.Contains(transactionId);
+        public bool TryRemove(Guid transactionId)
+        {
+            if (transactionId == Guid.Empty || !_transactionIds.Contains(transactionId)) return false;
+            for (int i = 0; i < _transactions.Count; i++)
+            {
+                if (_transactions[i].TransactionId != transactionId) continue;
+                _transactions.RemoveAt(i);
+                _transactionIds.Remove(transactionId);
+                return true;
+            }
+            return false;
+        }
         public void Clear() { _transactions.Clear(); _transactionIds.Clear(); }
         public bool TryRecord(EconomicTransaction transaction)
         {
