@@ -416,6 +416,7 @@ namespace Signal.Game
             Stretch(_playerItems);
 
             _dragGhost = NewImage("DragGhost", _root, Color.white);
+            Center(_dragGhost.rectTransform, Vector2.zero, new Vector2(CellSize, CellSize));
             _dragGhostText = NewText("Label", _dragGhost.transform, string.Empty, 12, TextAnchor.MiddleCenter, InkColor);
             Stretch(_dragGhostText.rectTransform);
             _dragGhost.gameObject.SetActive(false);
