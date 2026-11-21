@@ -519,9 +519,9 @@ Implementation:
 **Current status:** implementation and documentation committed; Unity verification pending. The current prototype heat/progression/witness values are editable test tuning and must be revisited after Play Mode.
 
 
-## Approved next initiative — CRIME-ECONOMY-SLICE-B physical Dirty Cash and cleaning
+## Historical initiative snapshot — CRIME-ECONOMY-SLICE-B physical Dirty Cash and cleaning (superseded 2026-11-21)
 
-**Status:** implementation in progress; approved fence-offer content is now locked; Unity verification pending.
+**Historical status at the time of this entry:** implementation was in progress. This snapshot is superseded by the completed status recorded at the top of this roadmap and in docs/PROGRESS.md.
 
 Player outcome: exchange one specifically accepted stolen item with an unnamed neighbourhood contact for physical Dirty Cash, then clean it through that same contact into clean CARD.
 
@@ -533,4 +533,4 @@ Confirmed:
 - Atomic transactions, ownership/state validation, dedicated histories and save/load persistence.
 - No legal retail use for Dirty Cash, no dynamic pricing, passive laundering, risk/heat/police, delay or separate underground city.
 
-Implementation is blocked only on selecting the exact accepted stolen ItemDefinition and the fixed Dirty Cash payout quantity. See [Slice B specification](tasks/CRIME-ECONOMY-SLICE-B-DIRTY-CASH.md). Do not begin implementation by inventing this offer.
+The user later approved the ITEM_A ×2 → 3 Dirty Cash offer, and reported 396/396 EditMode tests plus a passing gameplay test. See the current status at the top of this roadmap.
