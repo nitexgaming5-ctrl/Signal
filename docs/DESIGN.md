@@ -147,3 +147,30 @@ Implementation and acceptance criteria: `docs/tasks/CRIME-THEFT-001-RESIDENT-CON
 - No black-market stock simulation, dynamic prices, bargaining, passive laundering or separate underground city.
 
 Detailed implementation and test specification: `docs/tasks/CRIME-ECONOMY-SLICE-B-DIRTY-CASH.md`.
+
+
+## Direction B — meaningful everyday livelihood (approved 2026-11-21)
+
+**Strategic direction:** make the player's everyday life meaningful through production, customer contracts, practical hideout development, relationships and services. Legal livelihood is a satisfying path alongside crime, not a replacement for the shared-city crime pillar.
+
+### B1-B3 first workshop decisions
+
+- **Workshop model:** both player-operated and NPC-owned production are part of the intended model. Start with a player-operated workshop in the hideout; keep the technical model compatible with explicitly authored NPC-owned production businesses later.
+- **Contracts:** one accepted/active customer contract at a time in the first implementation.
+- **First hideout upgrade:** a practical upgrade whose first gameplay effect is unlocking one additional authored recipe/capability.
+- **Production output:** physical inventory goods created through authored recipes, not abstract currency or a progress counter.
+- **Production economy:** authored recipes and fixed authored contract rewards; reuse existing clean CARD accounts and transaction boundaries.
+- **No universal economy simulation:** no supply/demand, automatic NPC shopping, passive sales/revenue, finite stock simulation or dynamic pricing is introduced by this direction.
+
+### Design boundaries still requiring answers
+
+- First product, recipe ingredients, output quantities and item definitions.
+- Whether production has any duration in the first slice. Current recommendation: immediate, with no queue/timer until a demonstrated gameplay need.
+- First contract issuer, required goods, quantity and fixed reward.
+- Issuer account funding and whether the issuer is a resident or authored business owner.
+- Whether contracts accept only legitimate goods or any player-owned goods.
+- Whole-stack versus partial-stack contract delivery and the receiving/consumption destination.
+- Upgrade acquisition condition, cost, exact physical change and second recipe.
+- Whether a dedicated production or contract ledger is needed after auditing existing transaction records.
+
+No detailed recipe, contract content, cost, item-provenance acceptance or deadline/penalty rule is approved until the user answers these questions. See **docs/tasks/LIVELIHOOD-B1-B3-FIRST-WORKSHOP.md** and **docs/OPEN_QUESTIONS.md**.
