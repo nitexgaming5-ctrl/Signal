@@ -218,8 +218,8 @@ Specification and implementation breakdown:
 
 **L3 — First contract issuer and goods receiver**
 - Option A: an existing resident with a registered personal clean CARD account.
-- Option B: an explicitly authored business whose owner account funds the reward.
-- Recommendation: choose the actor whose identity makes the first contract feel natural; the payer must have a real registered account and sufficient funds.
+- Option B: an explicitly authored business whose resident owner's personal account funds the reward (businesses do not have separate accounts).
+- Recommendation: choose the actor whose identity makes the first contract feel natural; the payer must be a real registered resident account with sufficient funds. For a business issuer, the payer is the resident owner.
 - Status: open. Do not mint rewards or invent a new business account model.
 
 **L4 — Contract goods eligibility**
