@@ -1,21 +1,43 @@
 # Roadmap — build the place before the systems that fill it
 
-## Active crime/economy vertical slice — CRIME-ECONOMY-001 / Slice B
+## Completed crime/economy vertical slice — CRIME-ECONOMY-001 / Slice B
 
-**Player outcome:** exchange the exact stolen ITEM_A stack for physical Dirty Cash with one unnamed neighbourhood contact, then clean that cash into clean CARD through the same contact.
+**Player outcome:** exchange a specifically stolen item for physical Dirty Cash with one unnamed neighbourhood contact, then clean it into clean CARD through that contact.
 
-- [x] Approve contact identity: internal ID `Clean_Dirtycash`, blank visible name.
-- [x] Approve denomination: 10 face value per physical Dirty Cash unit.
-- [x] Approve first fence offer: 2 stolen, player-owned ITEM_A items for 3 Dirty Cash units.
-- [x] Approve contact-specific 20% cleaning fee: 24 CARD to the player and 6 CARD to the contact for the 3-unit stack.
-- [x] Complete Core atomic exchange/cleaning services, ownership transfer and separate ledgers.
-- [x] Complete shared-city contact, physical contact inventory and player-facing interaction panel.
-- [x] Complete save v14 contact inventory, ownership, accounts and transaction histories; preserve v13 migration.
-- [ ] User runs Unity compilation, full EditMode suite (392 expected), and Play Mode/save-load regression checks.
+- [x] Contact identity, denomination, fixed fence offer and contact-specific cleaning fee authored.
+- [x] Core atomic exchange/cleaning services, ownership transfer and separate ledgers implemented.
+- [x] Shared-city contact, physical contact inventory and player-facing interaction panel implemented.
+- [x] Save v14 contact inventory, ownership, accounts and transaction histories; v13 migration retained.
+- [x] User reported **396/396 EditMode tests passed** and subsequently reported the gameplay test passed on 2026-11-20.
+- [x] SLICE-B-HARDENING-001 closed at the level of the user's reported verification. Do not infer unreported individual test scenarios.
 
-Slice C production design remains parked until Slice B verification is complete.
+The witnessed/unwitnessed theft Play Mode retest remains a separate verification item.
 
-Milestones are dependency notes, not a mandate to build isolated systems in order. Keep one active gameplay initiative at a time. Prefer a complete, player-facing vertical slice over a collection of disconnected subsystems. See `docs/DEVELOPMENT_WORKFLOW.md`, `docs/ARCHITECTURE.md` and `docs/PROJECT_HANDOFF.md`.
+## Active design initiative — Direction B: meaningful everyday livelihood
+
+**Player outcome:** build a modest legal livelihood through authored production, customer contracts and practical hideout development, while retaining the ability to combine legal and illegal activities in the same city.
+
+**Specification:** [LIVELIHOOD-B1-B3 — First Workshop](tasks/LIVELIHOOD-B1-B3-FIRST-WORKSHOP.md)
+
+Approved choices:
+- Workshop model supports both player-operated and NPC-owned production; begin with the player's hideout workshop.
+- One accepted/active customer contract at a time.
+- The first practical hideout upgrade unlocks one additional authored recipe/capability.
+
+Implementation task order:
+1. [B-01 — Production foundation and player workshop](tasks/LIVELIHOOD-B-01-PRODUCTION-WORKSHOP.md)
+2. [B-02 — Single active customer contract](tasks/LIVELIHOOD-B-02-CUSTOMER-CONTRACTS.md)
+3. [B-03 — Practical workshop upgrade](tasks/LIVELIHOOD-B-03-PRACTICAL-WORKSHOP-UPGRADE.md)
+
+Future design placeholders:
+- [B-04 — Repair and restoration](tasks/LIVELIHOOD-B-04-REPAIR-RESTORATION.md)
+- [B-05 — Social life and recurring customers](tasks/LIVELIHOOD-B-05-SOCIAL-LIFE-CUSTOMERS.md)
+- [B-06 — Livelihood expansion](tasks/LIVELIHOOD-B-06-LIVELIHOOD-EXPANSION.md)
+- [B-07 — Neighbourhood expansion](tasks/LIVELIHOOD-B-07-NEIGHBOURHOOD-EXPANSION.md)
+
+B-01 through B-03 are a single connected vertical-slice initiative, implemented in dependency order. B-04 through B-07 are placeholders only; each needs its own design and explicit approval before implementation. See DESIGN.md, OPEN_QUESTIONS.md and DEVELOPMENT_WORKFLOW.md.
+
+Milestones are dependency notes, not a mandate to build isolated systems in order. Keep one active gameplay initiative at a time. Prefer a complete, player-facing vertical slice over disconnected subsystems. See DEVELOPMENT_WORKFLOW.md, ARCHITECTURE.md and PROJECT_HANDOFF.md.
 
 ## Current foundation — hideout, connected block and first persistent loop
 
@@ -102,15 +124,15 @@ Milestones are dependency notes, not a mandate to build isolated systems in orde
 
 ## Short-term goals — next design and playable outcome
 
-1. **[x] Verify Opportunity 001: Milo's Parcel.** The user confirmed 284/284 EditMode tests and successfully completed the scenario in Play Mode, including the parcel inventory/save/load/drop-off loop and a nearby-resident witness.
-2. **[x] Establish the first event-driven economy and retail loop.** Asset ownership/transfers, clean CARD accounts, resident-owner revenue, fixed-price retail and player-facing exact-stack selling are implemented and user-verified.
-3. **[x] Complete SCAVENGE-001.** Physical bins, one-time generated contents, progressive discovery, transactional item transfer and save/load are implemented; the user confirmed 368/368 EditMode tests and final Play Mode interaction polish.
-4. **[user-tested; correction awaiting rerun] CRIME-THEFT-001 — resident-owned apartment container theft.** The user confirmed 382/382 EditMode tests and that the gameplay works except unwitnessed theft incorrectly raised heat. The fix is committed: this fixture now awards heat only when witnessed, while unwitnessed theft still awards progression. Re-run the same 382 tests and retest the two witness cases. See `docs/tasks/CRIME-THEFT-001-RESIDENT-CONTAINER-THEFT.md`.
-5. **Next recommended design — Slice B, dirty-money exchange and cleaning.** Prefer one concrete illicit contact/offer and one contact-specific cleaning offer to connect crime, physical dirty money and clean CARD. This is the recommended direction, not approved detailed content; denomination, contact, exchange outcome and cleaning terms must be decided before implementation. Production Slice C remains later unless a concrete workspace/recipe makes a stronger player-facing loop.
-6. **Validate authored NPC content in Unity** when convenient: replace fallback Milo/Rhea with real `NpcCharacterDefinition` assets and verify schedules, destinations, appearance and activity dialogue without character-specific scripts.
+1. **[x] Verify Opportunity 001: Milo's Parcel.** User confirmed 284/284 EditMode tests and successful Play Mode completion.
+2. **[x] Establish the first event-driven economy and retail loop.** Ownership/transfers, clean CARD accounts, resident-owner revenue, fixed-price retail and exact-stack selling are implemented and user-verified.
+3. **[x] Complete SCAVENGE-001.** Physical bins, one-time contents, progressive discovery, transactional transfer and persistence are user-verified (368/368 + Play Mode).
+4. **[x] Complete CRIME-ECONOMY-001 / Slice B hardening.** User reported 396/396 EditMode tests and a passing gameplay test on 2026-11-20. The exact detailed playtest checklist was not enumerated; witnessed/unwitnessed theft retest remains separately open.
+5. **[active design] Direction B — LIVELIHOOD-B1-B3.** Specification and task cards are prepared. Resolve the first authored recipe, customer/issuer, contract terms, item eligibility and upgrade acquisition/content questions, then implement B-01 production before B-02 contracts and B-03 upgrade.
+6. **Validate authored NPC content in Unity** when convenient: replace fallback Milo/Rhea with authored NpcCharacterDefinition assets and verify schedules, destinations, appearance and activity dialogue without character-specific scripts.
 7. **Close parked reliability checks** when convenient: storage capacity/rollback, actual v1 migration, automated city-transition tests and target-platform save replacement.
 
-Milo's parcel scenario and save v7 are user-verified (284/284 EditMode tests). Obstacle-aware NPC navigation v1 is user-verified (289/289 EditMode tests and Play Mode inspection); NPC interruption/recovery and game-clock pause correction are user-verified (293/293 and Play Mode). Opportunity 001 fulfils the first-scenario validation requirement; a second opportunity is optional, not a framework prerequisite.
+Milo's parcel, scavenging, economy and Dirty Cash milestones retain their historical verification provenance in the progress log. A second opportunity remains optional, not a framework prerequisite.
 
 ## Medium-term goals — deepen the shared-city loop
 
