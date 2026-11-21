@@ -1,5 +1,7 @@
 # SLICE-B-HARDENING-001 — close review gaps in the Dirty Cash slice
 
+**Status: completed (user-reported verification, 2026-11-20).** The user reported 396/396 EditMode tests passed and subsequently reported the gameplay test passed. The exact individual Play Mode subcases were not enumerated; this card is closed at the level of that report, without claiming unreported steps.
+
 **Parent:** `CRIME-ECONOMY-SLICE-B-DIRTY-CASH.md`. **Origin:** 2026-11-20 code review of save schema v14.
 **Scope:** no change to economy rules, content values, save fields or UI behaviour. If a test exposes a real bug, stop and report it before fixing.
 
@@ -24,5 +26,8 @@ The contact panel must use neutral `Unknown item` when an item's display name is
 ## Out of scope / not approved
 Splitting `GameSession`, any new contact/offer/rate, cleaning risk/heat/delay, or UI redesign.
 
-## Verification (user)
-Compile in Unity, run the full EditMode suite (expected 396 tests after the four additions), then the Slice B Play Mode loop from the parent card.
+## Verification (user) — completed 2026-11-20
+- User reported the full EditMode suite passed **396/396**.
+- User subsequently reported the gameplay test passed.
+- No Unity test execution was performed by the assistant. The user's report is the verification authority for this closure.
+- The user did not enumerate every negative-case or save/reload step; do not claim those individual cases were tested unless separately confirmed.
