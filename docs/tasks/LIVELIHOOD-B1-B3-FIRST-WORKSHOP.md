@@ -64,7 +64,7 @@ B-01 must be playable before B-02 is integrated. B-02 must be playable before B-
 - A contract is authored content with stable identity, issuer/customer identity, required ItemDefinition and quantity, fixed clean CARD reward and a clear lifecycle.
 - The first implementation supports one accepted/active contract at a time. It does not imply an unlimited procedural contract generator.
 - Contract fulfilment is a physical handover from the player's carried inventory, not a counter increment. It validates exact required goods and player ownership, then transfers/consumes the goods and pays clean CARD.
-- Use existing resident/business clean-money accounts and economic transaction patterns. Never mint money or bypass the payer's account. The first issuer must have a registered account and sufficient funds; define the first authored payer and balance only after the user approves the content.
+- Use existing resident clean-money accounts and economic transaction patterns. Never mint money or bypass the payer's account. A resident issuer pays from that resident's account; if a business issues the contract, payment comes from its resident owner account, consistent with the approved rule that business revenue belongs to the owner. Do not create a separate business account. The payer must have sufficient funds; define the first authored payer and balance only after the user approves the content.
 - Item provenance/state acceptance, partial stack delivery, cancellation, expiry and contract penalties remain open design questions. Do not silently add them.
 - A successful fulfilment is atomic: if goods cannot be accepted, the payer cannot pay, or any ledger step fails, inventory, ownership, balances, contract state and history roll back together.
 
