@@ -81,3 +81,15 @@ Reference reviewed: Unity Asset Store's Economy Engine 1.4. These are design ins
   - Status: parked / needs design.
 
 **Guardrails:** these ideas do not approve universal supply/demand, dynamic pricing, automatic currency conversion, continuous economy simulation, NPC shopping AI, finite stock/restocking, or a wholesale replacement of Signal's existing transaction systems. Build only the smallest player-facing vertical slice that proves a need.
+
+
+## Direction B — approved livelihood initiative (2026-11-21)
+
+- **Idea:** make the player's everyday life meaningful through authored production, customer contracts, practical hideout development, relationships and services.
+  - **Player fantasy:** build a modest livelihood in the neighbourhood: obtain materials, make useful goods, fulfil customer requests, earn clean CARD and gradually improve a practical home workshop.
+  - **Why it matters:** gives the player a satisfying legal path alongside crime; connects inventory, crafting, economy, NPCs and hideout progression into one daily loop.
+  - **Approved choices:** both player-operated and NPC-owned workshops belong in the long-term model; start with the player's hideout workshop. One active customer contract at a time. The first practical hideout upgrade unlocks another authored recipe/capability.
+  - **Implementation order:** B-01 production/workshop, B-02 contracts, B-03 practical recipe-unlocking upgrade.
+  - **Future design placeholders:** B-04 repair/restoration; B-05 social life and recurring customers; B-06 additional livelihoods; B-07 neighbourhood expansion.
+  - **Guardrails:** authored recipes and fixed contract rewards; physical goods; existing clean CARD accounts; no supply/demand, automatic NPC shopping, passive revenue, dynamic pricing or generic business simulator.
+  - **Status:** approved strategic direction; detailed B1-B3 specification prepared; implementation not started. Exact product/recipe, issuer/reward, provenance policy, delivery semantics and upgrade cost/content remain open in OPEN_QUESTIONS.md.
