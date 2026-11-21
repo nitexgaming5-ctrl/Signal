@@ -11,7 +11,7 @@
 - Save schema v14 persists contact inventory, ownership and both dedicated histories; v13 migration initializes the new collections empty.
 - Implementation status: committed at `12b62e82196b18603f20f039a3f122221726b757`; Unity verification pending.
 
-Still open after Slice B: the first authored production workspace, recipe inputs/outputs and timing for Slice C.
+Superseded 2026-11-21: Direction B production is now the active design initiative. See the LIVELIHOOD-B1-B3 section below.
 
 Agents: add questions here with two options and your recommendation. Do not decide them yourself.
 User: answer inline with `ANSWER:`. Agents read answers before the next session.
@@ -181,3 +181,74 @@ Approved boundaries:
 **One content question remains:** which exact stolen ItemDefinition does the first fence offer accept, and how many Dirty Cash units does it pay? Recommendation: use one of the already-authored theft fixture items for the first test offer, keeping the offer replaceable as authored content. Do not treat a placeholder as final item content without the user's selection.
 
 Specification and acceptance criteria: `docs/tasks/CRIME-ECONOMY-SLICE-B-DIRTY-CASH.md`.
+
+
+## LIVELIHOOD-B1-B3 — First Workshop (strategic choices approved 2026-11-21)
+
+**ANSWER: Direction B selected.** Make everyday life meaningful through production, customer contracts, practical hideout development, relationships and services.
+
+Approved:
+- Workshop model supports both player-operated and NPC-owned production businesses over the long term. Start with a player-operated production workshop in the existing hideout; NPC-owned production is a later content/integration milestone.
+- The first contract system allows exactly one accepted/active customer contract at a time.
+- The first practical hideout upgrade unlocks one additional authored recipe/capability.
+- Production outputs are physical inventory goods created through authored recipes.
+- Reuse the existing Core crafting, item, inventory, ownership, account and save foundations. Do not create a second crafting/economy architecture.
+- Preserve authored/event-driven economy rules: no universal supply/demand, automatic NPC shopping, passive sales/revenue, dynamic pricing or finite-stock simulation.
+
+Specification and implementation breakdown:
+- Parent: docs/tasks/LIVELIHOOD-B1-B3-FIRST-WORKSHOP.md
+- B-01: docs/tasks/LIVELIHOOD-B-01-PRODUCTION-WORKSHOP.md
+- B-02: docs/tasks/LIVELIHOOD-B-02-CUSTOMER-CONTRACTS.md
+- B-03: docs/tasks/LIVELIHOOD-B-03-PRACTICAL-WORKSHOP-UPGRADE.md
+- Future placeholders B-04 through B-07 cover repair/restoration, social life/customers, livelihood expansion and neighbourhood expansion. They are not implementation approval.
+
+### Questions required before B-01/B-02/B-03 content is implemented
+
+**L1 — First production product and recipe**
+- Option A: choose a simple everyday product with a small number of existing or newly authored ingredients.
+- Option B: choose a product that naturally demonstrates Signal's quality/condition/provenance systems.
+- Recommendation: A for the first loop; demonstrate transactional production first, then deepen goods later.
+- Status: open. Do not invent the product, item definitions, ingredient quantities or output quantity.
+
+**L2 — Production timing**
+- Option A: immediate, atomic production.
+- Option B: in-game duration with a waiting/return loop.
+- Recommendation: A for the first slice. Add duration only when it creates a meaningful decision and the clock/pacing consequences are designed.
+- Status: open; no timers, queues or offline production are approved.
+
+**L3 — First contract issuer and goods receiver**
+- Option A: an existing resident with a registered personal clean CARD account.
+- Option B: an explicitly authored business whose owner account funds the reward.
+- Recommendation: choose the actor whose identity makes the first contract feel natural; the payer must have a real registered account and sufficient funds.
+- Status: open. Do not mint rewards or invent a new business account model.
+
+**L4 — Contract goods eligibility**
+- Option A: only legitimate/player-owned goods.
+- Option B: any player-owned goods, including stolen goods, with possible narrative consequences designed separately.
+- Recommendation: A for the first legal livelihood slice, but wait for the user's answer.
+- Status: open. Do not assume provenance acceptance.
+
+**L5 — Contract quantity and delivery**
+- Option A: exact whole-stack delivery only.
+- Option B: partial delivery and stack splitting.
+- Recommendation: A for the first slice because GridInventory currently has no split-stack operation; avoid adding that broader feature just to support one contract.
+- Status: open. The task card assumes whole-stack handover until this is answered.
+- Also decide whether submitted goods are transferred to an issuer-owned receiving inventory or consumed by an explicitly defined use. Never silently delete goods.
+
+**L6 — Fixed contract reward**
+- Decide exact integer clean CARD reward and whether it is paid by the resident/business account at fulfilment.
+- Recommendation: fixed authored reward funded by the issuer account, using existing atomic account transfer semantics.
+- Status: open. No amount or overdraft is approved.
+
+**L7 — First hideout upgrade**
+- Approved effect: unlock one additional authored recipe/capability.
+- Still open: physical upgrade identity/appearance, prerequisite, acquisition source, exact cost and the second recipe it unlocks.
+- Recommendation: a tangible workshop equipment improvement, acquired once, with an authored clean-CARD cost only if the issuer/player account rules and amount are approved.
+- Status: open. Do not invent the cost or content.
+
+**L8 — Transaction history and persistence shape**
+- Audit whether existing economic ledgers fully represent production and contract fulfilment before adding new ledgers.
+- Persist contract lifecycle and workshop recipe unlock/upgrade state if they are durable player progress.
+- Bump save schema only after inspecting the exact serialized fields; current schema is v14.
+- Status: technical investigation required during implementation planning; no schema number pre-approved.
+
