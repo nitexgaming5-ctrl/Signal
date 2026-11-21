@@ -63,3 +63,8 @@ Top-down 2D with the readability and warmth of a game like Stardew Valley, adapt
 
 ## Not the first slice
 A full drug economy, complex police simulation, exhaustive NPC simulation, faction warfare, multiple districts, a large quest structure, or a complete progression/equipment economy. These may become part of Signal later, but they do not block making the first house and city block feel good.
+
+
+## Direction B emphasis — everyday livelihood (approved 2026-11-21)
+
+A major player fantasy is building a modest, practical livelihood in the neighbourhood. The player can operate a production workshop from the hideout, make authored physical goods, fulfil a limited number of authored customer contracts, earn clean CARD and invest in practical workspace improvements. Legal work and crime remain parallel activities in the same shared city; neither path locks the player out of the other. The first production milestone is a player-operated hideout workshop, while the long-term content model remains compatible with NPC-owned production businesses. Detailed recipes, products, contract terms and upgrade costs require separate approval.
