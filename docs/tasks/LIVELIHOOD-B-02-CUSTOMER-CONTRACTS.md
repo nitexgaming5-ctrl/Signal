@@ -30,7 +30,7 @@ Only one contract may be Active at a time. The first slice contains one authored
 - Keep authored definitions separate from mutable runtime state.
 
 ### B02.2 — Issuer and payment authority
-- Resolve the issuer to an existing resident/business economic actor and registered clean account.
+- Resolve the issuer to an existing resident actor and registered clean account. If a business is the visible issuer, resolve payment to its resident owner account; businesses do not receive separate accounts under the approved economy model.
 - Contract reward is a fixed clean CARD amount.
 - Do not mint funds or create implicit overdraft. The issuer must have sufficient balance at fulfilment.
 - Credit player and debit issuer atomically with the goods handover.
