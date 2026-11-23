@@ -5,6 +5,7 @@ Reconciled 2026-11-23 from the append-only project log, user verification report
 ## 1. Where we are
 - Unity 6000.6.9f1, 2D URP. Active architecture: Signal.Core (plain C#, no UnityEngine) + Signal.Game (Unity layer). Assets/_Project/_Prototype/ and Main.unity are legacy reference only.
 - Save schema v15. Version 15 adds production history, customer contract state, workshop upgrade IDs and the issuer's physical receiving inventory; v14 saves migrate with empty new collections.
+- **2026-11-23 Editor test report:** user ran 415 EditMode tests: 413 passed, 2 failed. Both failures are stale test expectations/fixtures (v13 migration asserts v14 instead of current v15; RecipeDefinition test fixture omits required display name and Immediate timing). Fixes are prepared in the test files; no runtime defect is indicated by these two failure messages.
 - User reported **396/396 EditMode tests passed on 2026-11-20** and subsequently reported the gameplay test passed. The report did not enumerate every individual negative/save-load scenario; do not infer a more detailed checklist than the user confirmed.
 - **Most recent completed initiative: SLICE-B-HARDENING-001.** The user-confirmed test and gameplay report closes the hardening follow-up at the reported level.
 - **Current implementation initiative: LIVELIHOOD-B1-B3 — First Workshop.** The B-01..B-03 Core/Game foundations are committed, including production, contracts, workshop progression and v15 persistence. No first recipe/customer/upgrade content has been assigned, and this commit has not been compiled or tested in Unity.
@@ -62,7 +63,7 @@ Detailed task cards are under docs/tasks/LIVELIHOOD-B-*.md. B-04 through B-07 ar
 ## 5. Verification and known gaps
 - Slice B hardening: user reported 396/396 EditMode tests and a passing gameplay test on 2026-11-20. No exact sub-checklist beyond that report is inferred.
 - Theft: witnessed vs unwitnessed Play Mode retest after the heat correction remains outstanding unless separately reported.
-- The new Core production/contract/upgrade and save round-trip tests are committed but have not yet been run in Unity. Game-layer automated coverage for some GameSession transaction/panel paths remains limited.
+- The user's 2026-11-23 report `TestResults_20261123_215514.xml` records 413/415 EditMode tests. The two failures are in `DirtyCashSaveTests.VersionThirteenMigratesWithEmptyDirtyCashState` (expects version 14, actual current version 15) and `RecipeDefinitionTests.ToRecipeBuildsTheInputsAndOutput` (fixture omits required display name; after adding it, Immediate timing must also be configured). Test-only corrections are being applied; rerun the full suite to verify.
 - The user's 396/396 result dated 2026-11-20 is the previous Slice B baseline; it does not verify this new B-01..B-03 code.
 - Repository cleanup: Tier 1 steps 1–7 are applied except M2-card extraction. The source ZIP contains seven M2 cards (M2-01–M2-07), not eleven; preserved at docs/tasks/archive/signal-docs-M2-cards-source.zip pending reconciliation.
 - Parked reliability checks: locker capacity edge cases, actual v1-save migration, automated city-transition tests and target-platform save replacement.

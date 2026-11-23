@@ -30,6 +30,8 @@ namespace Signal.Game.Tests
         {
             var recipe = ScriptableObject.CreateInstance<RecipeDefinition>();
             _created.Add(recipe);
+            SetField(recipe, "displayName", "Test Recipe");
+            SetField(recipe, "timingMode", ProductionTimingMode.Immediate);
             SetField(recipe, "inputs", inputs);
             SetField(recipe, "output", output);
             return recipe;
