@@ -83,6 +83,7 @@ namespace Signal.Game
         private RetailPanel _retailPanel;
         private DirtyCashContactPanel _dirtyCashPanel;
         private CustomerContractPanel _customerContractPanel;
+        private WorkshopUpgradePanel _workshopUpgradePanel;
         private GameObject _installedUpgradeVisual;
         private SearchableContainerPanel _containerPanel;
         private SearchableContainer _activeSearchableContainer;
@@ -215,6 +216,15 @@ namespace Signal.Game
                     GetCustomerContractPhase);
             }
 
+            if (firstWorkshopUpgrade != null)
+            {
+                _workshopUpgradePanel = gameObject.AddComponent<WorkshopUpgradePanel>();
+                _workshopUpgradePanel.Bind(firstWorkshopUpgrade,
+                    _city.GetResidentDisplayName(firstWorkshopUpgrade.PayeeNpcId),
+                    GetFirstUpgradeAvailabilityMessage, IsFirstUpgradeAcquired,
+                    CanAcquireFirstUpgrade, AcquireFirstUpgrade);
+            }
+
             if (parcelItem != null)
             {
                 _miloScenario = gameObject.AddComponent<MiloParcelOpportunityController>();
@@ -225,8 +235,7 @@ namespace Signal.Game
 
             _workspace = gameObject.AddComponent<WorkbenchWorkspace>();
             _workspace.Bind(_motor, _inventory, _assetOwnership, _workshopRecipes,
-                IsRecipeUnlocked, ProduceRecipe, firstWorkshopUpgrade,
-                IsFirstUpgradeAcquired, CanAcquireFirstUpgrade, AcquireFirstUpgrade);
+                IsRecipeUnlocked, ProduceRecipe);
             RefreshWorkshopUpgradeVisual();
             _hud.ShowMessage("Your hideout is ready. The street is just outside.", 5f);
         }
@@ -392,9 +401,8 @@ namespace Signal.Game
         private bool CanAcquireFirstUpgrade()
         {
             if (firstWorkshopUpgrade == null || !firstWorkshopUpgrade.TryValidate(out _) ||
-                !_city.IsAtHome || _room.Workbench == null ||
-                Vector2.Distance(_room.PlayerBody.position, _room.Workbench.position) > 2.15f ||
-                IsFirstUpgradeAcquired())
+                _room == null || _room.PlayerBody == null ||
+                !IsNearFirstUpgradeSupplier(_room.PlayerBody.position) || IsFirstUpgradeAcquired())
                 return false;
             if (firstWorkshopUpgrade.PrerequisiteMode == WorkshopUpgradePrerequisiteMode.CompletedContract &&
                 (firstWorkshopUpgrade.PrerequisiteContract == null ||
@@ -406,14 +414,44 @@ namespace Signal.Game
                 payee.Balance <= int.MaxValue - firstWorkshopUpgrade.CleanCardCost;
         }
 
+        private bool IsNearFirstUpgradeSupplier(Vector2 playerPosition)
+        {
+            return firstWorkshopUpgrade != null && _city != null &&
+                _city.IsResidentWithin(firstWorkshopUpgrade.PayeeNpcId, playerPosition, InteractionDistance);
+        }
+
+        private string GetFirstUpgradeAvailabilityMessage()
+        {
+            if (firstWorkshopUpgrade == null)
+                return "Rhea has no workshop offer available.";
+            if (!firstWorkshopUpgrade.TryValidate(out string error))
+                return "Offer configuration error: " + error;
+            if (IsFirstUpgradeAcquired())
+                return "Purchased. The machine is installed at your hideout workbench and the Reinforced Patch Kit recipe is unlocked.";
+            if (firstWorkshopUpgrade.PrerequisiteMode == WorkshopUpgradePrerequisiteMode.CompletedContract &&
+                (firstWorkshopUpgrade.PrerequisiteContract == null ||
+                 !_customerContracts.TryGetState(firstWorkshopUpgrade.PrerequisiteContract.Id,
+                     out CustomerContractState contract) ||
+                 contract.Phase != CustomerContractPhase.Completed))
+                return "Not available yet. Complete Milo's customer request first.";
+            if (!_economicAccounts.TryGetAccount(firstWorkshopUpgrade.PayeeActor, out CleanMoneyAccount payee))
+                return "Rhea's CARD account is unavailable.";
+            if (_stats.CleanMoney.Balance < firstWorkshopUpgrade.CleanCardCost)
+                return "You need " + firstWorkshopUpgrade.CleanCardCost + " CARD. You currently have " +
+                    _stats.CleanMoney.Balance + " CARD.";
+            if (payee.Balance > int.MaxValue - firstWorkshopUpgrade.CleanCardCost)
+                return "Rhea cannot receive this payment right now.";
+            return "Available now. You have " + _stats.CleanMoney.Balance + " CARD.";
+        }
+
         private string AcquireFirstUpgrade()
         {
             string error = firstWorkshopUpgrade == null ? "No upgrade asset is assigned." : null;
             if (firstWorkshopUpgrade == null || !firstWorkshopUpgrade.TryValidate(out error))
                 return "The workshop upgrade is not configured: " + error;
-            if (!_city.IsAtHome || _room.Workbench == null ||
-                Vector2.Distance(_room.PlayerBody.position, _room.Workbench.position) > 2.15f)
-                return "Use the practical upgrade while standing at your hideout workbench.";
+            if (!IsNearFirstUpgradeSupplier(_room.PlayerBody.position))
+                return "Talk to " + _city.GetResidentDisplayName(firstWorkshopUpgrade.PayeeNpcId) +
+                    " to purchase this workshop upgrade.";
             if (!CanAcquireFirstUpgrade())
                 return "The upgrade is already installed, its prerequisite is incomplete, or the required CARD is unavailable.";
             if (!_economicAccounts.TryGetAccount(firstWorkshopUpgrade.PayeeActor, out CleanMoneyAccount payee))
@@ -460,6 +498,7 @@ namespace Signal.Game
             bool containerOpen = _containerPanel != null && _containerPanel.IsOpen;
             bool dirtyCashOpen = _dirtyCashPanel != null && _dirtyCashPanel.IsOpen;
             bool contractOpen = _customerContractPanel != null && _customerContractPanel.IsOpen;
+            bool upgradeOpen = _workshopUpgradePanel != null && _workshopUpgradePanel.IsOpen;
             if (_panel != null)
                 _panel.enabled = !_debugMenuOpen && !workspaceOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen;
             if (_storagePanel != null)
@@ -478,10 +517,15 @@ namespace Signal.Game
                 _dirtyCashPanel.Close();
                 dirtyCashOpen = false;
             }
+            if (_debugMenuOpen && upgradeOpen)
+            {
+                _workshopUpgradePanel.Close();
+                upgradeOpen = false;
+            }
 
             bool scenarioChoiceOpen = _miloScenario != null && _miloScenario.HasPendingChoice;
             _motor.enabled = !inventoryOpen && !workspaceOpen && !storageOpen && !itemViewerOpen &&
-                !scenarioChoiceOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !_debugMenuOpen;
+                !scenarioChoiceOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen && !_debugMenuOpen;
 
             Vector2 playerPosition = _room.Player.position;
             bool nearWorkbench = _room.Workbench != null &&
@@ -491,6 +535,7 @@ namespace Signal.Game
             BusinessDefinition nearbyBusiness = FindNearbyBusiness(playerPosition);
             bool nearDirtyCashContact = _city.IsResidentWithin(DirtyCashContactNpcId, playerPosition, InteractionDistance);
             bool nearContractCustomer = IsNearContractCustomer(playerPosition);
+            bool nearUpgradeSupplier = IsNearFirstUpgradeSupplier(playerPosition);
             bool nearSearchableContainer = _city.TryGetNearbySearchableContainer(playerPosition,
                 out string nearbyContainerId, out string nearbyContainerLabel);
             ResidentPropertyContainerDefinition nearbyProperty = FindNearbyResidentProperty(playerPosition);
@@ -507,6 +552,8 @@ namespace Signal.Game
                 cityPrompt = "E  Talk";
             if (nearContractCustomer)
                 cityPrompt = "E  Customer request";
+            if (nearUpgradeSupplier)
+                cityPrompt = "E  Workshop offer";
             if (_miloScenario != null)
             {
                 if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen)
@@ -526,8 +573,12 @@ namespace Signal.Game
                 cityPrompt = "E  Talk";
             if (nearContractCustomer)
                 cityPrompt = "E  Customer request";
+            if (nearUpgradeSupplier)
+                cityPrompt = "E  Workshop offer";
             if (contractOpen)
                 _hud.SetPrompt("ESC  Close customer request");
+            else if (upgradeOpen)
+                _hud.SetPrompt("ESC  Close workshop offer");
             else if (dirtyCashOpen)
                 _hud.SetPrompt("ESC  Close contact");
             else if (itemViewerOpen)
@@ -554,7 +605,7 @@ namespace Signal.Game
             if (_debugMenuOpen || keyboard == null)
                 return;
 
-            if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen &&
+            if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen &&
                 _miloScenario != null && _miloScenario.HasPendingChoice)
             {
                 int choice = keyboard.digit1Key.wasPressedThisFrame ? 1 :
@@ -570,21 +621,26 @@ namespace Signal.Game
             }
 
             if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
-                !dirtyCashOpen && !contractOpen && nearContractCustomer && keyboard.eKey.wasPressedThisFrame)
+                !dirtyCashOpen && !contractOpen && !upgradeOpen && nearContractCustomer && keyboard.eKey.wasPressedThisFrame)
             {
                 _customerContractPanel.Open();
             }
             else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
-                !dirtyCashOpen && !contractOpen && nearDirtyCashContact && keyboard.eKey.wasPressedThisFrame)
+                !dirtyCashOpen && !contractOpen && !upgradeOpen && nearUpgradeSupplier && keyboard.eKey.wasPressedThisFrame)
+            {
+                if (_workshopUpgradePanel != null) _workshopUpgradePanel.Open();
+            }
+            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
+                !dirtyCashOpen && !contractOpen && !upgradeOpen && nearDirtyCashContact && keyboard.eKey.wasPressedThisFrame)
             {
                 if (_dirtyCashPanel != null) _dirtyCashPanel.Open();
             }
             else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
-                !dirtyCashOpen && !contractOpen && nearSearchableContainer && keyboard.eKey.wasPressedThisFrame)
+                !dirtyCashOpen && !contractOpen && !upgradeOpen && nearSearchableContainer && keyboard.eKey.wasPressedThisFrame)
             {
                 OpenSearchableContainer(nearbyContainerId);
             }
-            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen &&
+            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen &&
                 nearbyBusiness != null && keyboard.eKey.wasPressedThisFrame)
             {
                 if (!nearbyBusiness.TryValidate(out string businessError))
@@ -594,12 +650,12 @@ namespace Signal.Game
                 else
                     _retailPanel.Open(nearbyBusiness);
             }
-            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && nearWorkbench && keyboard.eKey.wasPressedThisFrame)
+            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen && nearWorkbench && keyboard.eKey.wasPressedThisFrame)
                 _workspace.Open();
-            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && nearStorage && keyboard.eKey.wasPressedThisFrame)
+            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen && nearStorage && keyboard.eKey.wasPressedThisFrame)
                 _storagePanel.SetOpen(true);
             else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
-                     !dirtyCashOpen && !contractOpen && !nearDirtyCashContact && !nearContractCustomer && !nearSearchableContainer && nearbyBusiness == null && !nearWorkbench && !nearStorage &&
+                     !dirtyCashOpen && !contractOpen && !upgradeOpen && !nearDirtyCashContact && !nearContractCustomer && !nearUpgradeSupplier && !nearSearchableContainer && nearbyBusiness == null && !nearWorkbench && !nearStorage &&
                      cityPrompt.Length > 0 && keyboard.eKey.wasPressedThisFrame)
             {
                 if (_miloScenario != null &&
@@ -614,7 +670,7 @@ namespace Signal.Game
                     Say("Location: " + _city.CurrentPlace);
             }
 
-            if (!retailOpen && !dirtyCashOpen)
+            if (!retailOpen && !dirtyCashOpen && !upgradeOpen)
             {
                 if (!containerOpen && keyboard.f6Key.wasPressedThisFrame) Sleep();
                 if (keyboard.f5Key.wasPressedThisFrame) SaveGame();
@@ -864,6 +920,7 @@ namespace Signal.Game
             if (_containerPanel != null) _containerPanel.Close();
             if (_dirtyCashPanel != null) _dirtyCashPanel.Close();
             if (_customerContractPanel != null) _customerContractPanel.Close();
+            if (_workshopUpgradePanel != null) _workshopUpgradePanel.Close();
             _activeSearchableContainer = null;
             LoadReport report = SaveMapper.Apply(data, _stats, _inventory, _storage, _clock, _heat, _rent,
                 ResolveType, _itemKnowledge, _playerDiscoveries, _playerRelationships, _assetOwnership, _economicTransactions,
