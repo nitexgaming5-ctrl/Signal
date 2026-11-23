@@ -32,15 +32,9 @@ namespace Signal.Game
         private IReadOnlyList<RecipeDefinition> _recipes;
         private Func<RecipeDefinition, bool> _isRecipeUnlocked;
         private Func<Guid, string> _produce;
-        private WorkshopUpgradeDefinition _upgrade;
-        private Func<bool> _isUpgradeAcquired;
-        private Func<bool> _canAcquireUpgrade;
-        private Func<string> _acquireUpgrade;
         private RectTransform _recipeList;
         private Text _recipeDetails;
-        private Text _upgradeDetails;
         private Button _produceButton;
-        private Button _upgradeButton;
         private RecipeDefinition _selectedRecipe;
 
         public bool IsOpen { get; private set; }
@@ -52,8 +46,7 @@ namespace Signal.Game
 
         public void Bind(PlayerMotor2D motor, GridInventory inventory, AssetOwnershipBook ownership,
             IReadOnlyList<RecipeDefinition> recipes, Func<RecipeDefinition, bool> isRecipeUnlocked,
-            Func<Guid, string> produce, WorkshopUpgradeDefinition upgrade, Func<bool> isUpgradeAcquired,
-            Func<bool> canAcquireUpgrade, Func<string> acquireUpgrade)
+            Func<Guid, string> produce)
         {
             if (inventory == null) throw new ArgumentNullException(nameof(inventory));
             if (ownership == null) throw new ArgumentNullException(nameof(ownership));
@@ -63,10 +56,6 @@ namespace Signal.Game
             _recipes = recipes ?? Array.Empty<RecipeDefinition>();
             _isRecipeUnlocked = isRecipeUnlocked ?? throw new ArgumentNullException(nameof(isRecipeUnlocked));
             _produce = produce ?? throw new ArgumentNullException(nameof(produce));
-            _upgrade = upgrade;
-            _isUpgradeAcquired = isUpgradeAcquired;
-            _canAcquireUpgrade = canAcquireUpgrade;
-            _acquireUpgrade = acquireUpgrade;
         }
 
         public void Open()
@@ -192,17 +181,6 @@ namespace Signal.Game
                 RefreshProduction();
             });
 
-            _upgradeDetails = CreateText(panel, "No practical upgrade assigned.", 13, MutedColor, TextAnchor.UpperLeft);
-            Anchor(_upgradeDetails.rectTransform, new Vector2(14f, -462f), new Vector2(300f, 52f));
-
-            _upgradeButton = CreateButton(panel, "WORKSHOP UPGRADE", new Vector2(300f, 36f));
-            Anchor(_upgradeButton.GetComponent<RectTransform>(), new Vector2(14f, -520f), new Vector2(300f, 36f));
-            _upgradeButton.onClick.AddListener(() =>
-            {
-                if (_acquireUpgrade == null) return;
-                SelectStatus(_acquireUpgrade());
-                RefreshProduction();
-            });
             RefreshProduction();
         }
 
@@ -263,20 +241,6 @@ namespace Signal.Game
                 }
             }
 
-            string upgradeError = null;
-            if (_upgrade == null || !_upgrade.TryValidate(out upgradeError))
-            {
-                _upgradeDetails.text = _upgrade == null ? "No practical upgrade assigned." : "UPGRADE CONFIGURATION ERROR\n" + upgradeError;
-                _upgradeButton.interactable = false;
-            }
-            else
-            {
-                bool acquired = _isUpgradeAcquired != null && _isUpgradeAcquired();
-                _upgradeDetails.text = _upgrade.DisplayName + "  ·  " + _upgrade.CleanCardCost +
-                    " CARD\n" + (acquired ? "Already installed." : _upgrade.Description);
-                _upgradeButton.interactable = !acquired && _canAcquireUpgrade != null && _canAcquireUpgrade();
-                _upgradeButton.GetComponentInChildren<Text>().text = acquired ? "UPGRADE INSTALLED" : "INSTALL UPGRADE";
-            }
         }
 
         private bool HasOwnedInputs(RecipeDefinition recipe)
