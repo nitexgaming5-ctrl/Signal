@@ -1,37 +1,37 @@
-# Art and UI
+# Art and UI — approved working conventions
 
-## Decision: no resource packs in the final game (test-only packs allowed; see decisions/0004)
-Final art is made from scratch or from approved assets. Third-party packs may be used only as temporary test content, logged in `docs/ART_TODO.md`; no pack is final art.
+## Visual identity
 
-## Placeholder phase (now)
-- Floors, walls, items: solid colored squares or simple shapes
-- Every placeholder logged in `docs/ART_TODO.md` with: asset name, purpose, size
-- Colors used for placeholders come from the palette below, so the final pass doesn't shift the look
+Signal uses readable top-down 2D pixel-art presentation with a contemporary, worn urban atmosphere. The hideout should feel modest, personal and inhabited; the city should be readable and layered. Warm interiors and restrained neon accents can contrast with concrete, steel and dark streets. Reference games inform interaction quality, not literal asset/style copying.
 
-## Pixel and grid (decision needed, see OPEN_QUESTIONS)
-- Recommended: **32×32 pixel tiles**, characters about 24–28 px tall, UI at native resolution or 2× integer scale
-- Set Unity's Pixels Per Unit to 32 and Filter Mode to Point (no filter) on all pixel sprites
-- Camera: orthographic, size set so the room fills about 60% of the screen height
+## Pixel and grid decisions
 
-## Palette (draft, to validate)
-Keep each scene to ≤ 24 colors plus neon accents.
-- Base: near-black blue `#0E1116`, concrete grey `#3A3F47`, mid grey `#6B7280`, light grey `#C9CED6`
-- Warm: rust `#8B4A2B`, dull yellow `#C8A24A`
-- Accent (neon, sparingly): cyan `#3EE6D2`, magenta `#E24FB5`
+- Tile / reference pixel size: **32×32** (approved Q2).
+- Unity Pixels Per Unit and point filtering should remain consistent with the authored sprite scale. Existing placeholder sprites may use different import settings; inspect before changing.
+- Inventory: starting grid is **6×4 cells** (approved Q4). Current presentation sizing is provisional and should be checked at the target resolution.
+- Characters and props need clear silhouettes and readable interaction points.
 
-Neon only for signs, UI highlights, and dark-humour moments. Never for large areas.
+## Palette and presentation
 
-## Tools
-- **Aseprite** (paid) or **LibreSprite** (free fork) or **Piskel** (free, browser). Pick one and stay with it.
-- Unity 6000.6.9f1 includes `com.unity.2d.aseprite`. Save source art as `.aseprite` in `Art/` and Unity imports it directly. Keep the `.aseprite` file as the master.
+The current palette is a draft implementation guide, not a locked final art bible:
+- near-black blue `#0E1116`, concrete `#3A3F47`, mid-grey `#6B7280`, light grey `#C9CED6`;
+- rust `#8B4A2B`, dull yellow `#C8A24A`;
+- cyan `#3EE6D2` and magenta `#E24FB5` reserved for sparse accents and feedback.
+
+No gradients, blur or smooth-vector drop shadows in pixel-art scenes. Preserve point filtering and integer scaling where appropriate.
 
 ## UI
-- Use UGUI (already installed). Build panels from Canvas + Image + TextMeshPro.
-- Inventory grid: each cell is 32×32 display pixels at scale 1 (or 2× integer scale). Item rectangles fit their grid footprint.
-- Fonts: pixel font, one family only. Decision needed, see OPEN_QUESTIONS.
-- No gradients, no blur, no drop shadows that look like smooth vector art.
 
-## Rules for agents
-- Use placeholders unless the card says "art pass".
-- Never add a new pack without asking. Test-only packs must be listed in `docs/ART_TODO.md` with their licence file.
-- Never change the palette without an OPEN_QUESTIONS entry.
+- UI framework: **UGUI** (approved Q3).
+- Text: UGUI `Text` using the built-in font for now (approved Q10). Do not silently migrate to TextMeshPro. A pixel-font pass can select a font and rendering approach later.
+- Inventory key: Tab. Drag with left mouse; R rotates while dragging; Esc cancels; invalid drops leave the item in place.
+- Keep UI direct, readable and contextual. Important transactions require explicit review/confirmation and clear results.
+- The current WorkbenchWorkspace is a close-up workspace with draggable placeholder objects and a recipe-book/production panel. Treat it as the existing interaction surface, not a disposable mock-up.
+
+## Assets and licences
+
+Final art must be original or explicitly approved. Third-party art packs may be used only as temporary test content (decision 0004); record each pack and licence in ART_TODO. Do not add a new pack without approval. Keep source files and Unity importer metadata intact.
+
+## Tools
+
+Aseprite, LibreSprite or Piskel are acceptable art-authoring choices. The project uses Unity 6000.6.9f1. Keep source art and any generated placeholder assets identifiable and replaceable.

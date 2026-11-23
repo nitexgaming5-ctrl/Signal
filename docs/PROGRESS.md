@@ -1,75 +1,73 @@
-# Progress — read this first
+# Progress — current repository truth
 
-Reconciled 2026-11-23 from the append-only project log, user verification reports and the current working-branch documentation. Historical detail remains in docs/progress/LOG-2026-11.md.
+Last reconciled: **2026-11-23**. Historical detail is preserved in `docs/progress/LOG-2026-11.md`. This file is the concise status board, not an implementation diary.
 
-## 1. Where we are
-- Unity 6000.6.9f1, 2D URP. Active architecture: Signal.Core (plain C#, no UnityEngine) + Signal.Game (Unity layer). Assets/_Project/_Prototype/ and Main.unity are legacy reference only.
-- Save schema v15. Version 15 adds production history, customer contract state, workshop upgrade IDs and the issuer's physical receiving inventory; v14 saves migrate with empty new collections.
-- **2026-11-23 Editor test report:** user ran 415 EditMode tests: 413 passed, 2 failed. Both failures are stale test expectations/fixtures (v13 migration asserts v14 instead of current v15; RecipeDefinition test fixture omits required display name and Immediate timing). Fixes are prepared in the test files; no runtime defect is indicated by these two failure messages.
-- User reported **396/396 EditMode tests passed on 2026-11-20** and subsequently reported the gameplay test passed. The report did not enumerate every individual negative/save-load scenario; do not infer a more detailed checklist than the user confirmed.
-- **Most recent completed initiative: SLICE-B-HARDENING-001.** The user-confirmed test and gameplay report closes the hardening follow-up at the reported level.
-- **Current implementation initiative: LIVELIHOOD-B1-B3 — First Workshop.** The B-01..B-03 Core/Game foundations are committed, including production, contracts, workshop progression and v15 persistence. No first recipe/customer/upgrade content has been assigned, and this commit has not been compiled or tested in Unity.
-- Working branch: chore/collaboration-workflow-and-audit. Keep main untouched.
+## Current state
 
-## 2. ALREADY IMPLEMENTED — do not rebuild, duplicate or re-propose
-Extend only when a task card names a concrete gap. Search the code before claiming something is missing.
+- Unity 6000.6.9f1, 2D URP. Active architecture: `Signal.Core` (plain C#) + `Signal.Game` (Unity layer). Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
+- Working branch: `chore/collaboration-workflow-and-audit`. Keep `main` untouched.
+- Save schema: **v15**. It persists production history, contract lifecycle, workshop upgrade IDs, contract receiver inventory and receiver actor identity in addition to previous player/world/economy state.
+- Latest user-validated EditMode result: **415/415 passed (2026-11-23)**. The earlier 413/415 report had two stale test defects; both fixtures/assertions were corrected in commit `b6bd50a`, and the user confirmed the subsequent full run passed.
+- The 415/415 result verifies the code/test state at that run. Play Mode verification of the new First Workshop content remains a separate check.
+- Active gameplay initiative: **LIVELIHOOD-B1-B3 — First Workshop**, following approved Direction B.
 
-| Area | What exists | Where | Status |
-|---|---|---|---|
-| Hideout, city, save | Walkable hideout/workbench, connected city block, home storage, JSON save F5/F9 | Game: RoomBootstrap, CityBlockBootstrap, StoragePanel, SaveFileStore; Core: SaveData | user-verified |
-| Grid inventory | Placement, rotation, whole-stack transfers, snapshots, drag math | Core: GridInventory, InventoryTransfer, InventoryDragMath | user-verified |
-| Item identity/state/knowledge | Stable stack IDs; quality, condition, authenticity, ownership incl. Stolen; knowledge book/viewer | Core: ItemInstanceState, ItemKnowledgeBook; Game: ItemViewerPanel | user-verified |
-| Time, rent, heat, stats | Pausable clock, rent ledger, HeatMeter 0–100, stats | Core: GameClock, RentLedger, HeatMeter, PlayerStats | tested; heat awarded by witnessed theft only |
-| Crafting + production | Existing Crafting.TryCraft retained; actor-aware ProductionService, production history, authored RecipeDefinition and recipe-book workbench controls | Core: Crafting, ProductionService, ProductionTransaction; Game: RecipeDefinition, WorkbenchWorkspace, GameSession | implementation committed; Unity verification/content pending |
-| NPC framework | Shared social world, perception, knowledge/rumours, directed relationships, utility brain, routines, encounters and A* navigation | Core: NpcSocialWorld, NpcPerception, NpcUtilityBrain; Game: NpcPresenter, CityNavigation* | user-verified |
-| World pacing | Permission gate for consequential developments; Core only, not wired/tuned | Core: WorldPacingDirector | tested |
-| Discovery/opportunities | Discovery ledger, relationship book, interaction conditions, opportunity lifecycle and Milo's Parcel | Core: PlayerDiscoveryLedger, PlayerRelationshipBook, Opportunity*; Game: MiloParcelOpportunityController | user-verified |
-| Economy foundation | Ownership independent of container, atomic transfer, append-only ledgers, clean CARD accounts incl. residents | Core: AssetOwnershipBook, AssetTransferService, EconomicTransactionLedger, CleanMoneyAccount, EconomicAccountBook | user-verified |
-| Retail + sell | Fixed-price BUY catalogue, per-business buyback, BUY/SELL panel, revenue to owner | Core: RetailService, Shop; Game: BusinessDefinition, RetailPanel | user-verified |
-| Scavenging | Stable-ID containers, one-time generation, progressive reveal, persistence, transactional transfer, dual inventory UI | Core: SearchableContainer; Game: ContainerLootProfile, SearchableContainerPanel | user-verified (368/368 + Play Mode) |
-| Theft | Reusable resident-owned container; Stolen state; crime ledger and global progression; nearest witness gets character-scoped event | Core: CrimeOutcome, CriminalProgressionTrack; Game: ResidentPropertyContainerDefinition, GameSession.RecordTheft | user-verified; witnessed/unwitnessed Play Mode retest after heat fix remains a separate gap |
-| Dirty Cash / Slice B | Physical Dirty Cash (10/unit); unnamed Clean_Dirtycash contact; ITEM_A ×2 → 3 units; 20% cleaning fee; atomic services, separate ledgers, persistent contact stash; dual-inventory UI | Core: DirtyCashTransactions.cs; Game: DirtyCashContactOfferDefinition, DirtyCashContactPanel, GameSession | user-reported 396/396 and gameplay test passed |
-| Customer contracts | Single-active contract book; whole-stack physical delivery to issuer inventory; issuer-funded clean CARD payment; customer panel | Core: CustomerContracts; Game: CustomerContractDefinition, CustomerContractPanel, GameSession | implementation committed; content/Unity verification pending |
-| Workshop progression | One-time clean-CARD upgrade purchase, persisted acquisition and second-recipe unlock with visible prop hook | Core: WorkshopProgression; Game: WorkshopUpgradeDefinition, WorkbenchWorkspace, GameSession | implementation committed; content/Unity verification pending |
-| Dev tooling | Debug menu, navigation overlay, F1 theft test controls | CityBlockBootstrap, GameSession, NpcPresenter | in use |
+## Active player-facing initiative
 
-## 3. Current initiative — Direction B livelihood
-**Parent specification:** docs/tasks/LIVELIHOOD-B1-B3-FIRST-WORKSHOP.md
+**Outcome:** the player uses the hideout workbench to produce physical goods, accepts one authored customer request, hands over the requested goods for clean CARD, and improves the workbench to unlock another recipe.
 
-Approved decisions:
-- Workshop model supports both player-operated and NPC-owned production; begin with the player's hideout workshop.
+Approved structure:
+- Player-operated hideout workshop first; Core remains compatible with NPC-owned production later.
+- Authored recipes and physical inventory outputs.
+- Immediate production for the first slice.
 - One accepted/active customer contract at a time.
-- First practical hideout upgrade unlocks one additional authored recipe/capability.
-- Production creates physical goods through authored recipes and reuses existing Core/Game foundations.
+- Whole-stack physical delivery to the issuer's receiving inventory.
+- Fixed clean CARD payment from the issuer's existing resident account.
+- One practical upgrade unlocks one additional authored recipe/capability.
 
-Task breakdown:
-- B-01 Production foundation and player workshop.
-- B-02 Single active customer contract and physical fulfilment.
-- B-03 Practical hideout upgrade and recipe unlock.
-- B-04 Repair/restoration (future design placeholder).
-- B-05 Social life and recurring customers (future design placeholder).
-- B-06 Livelihood expansion (future design placeholder).
-- B-07 Neighbourhood expansion (future design placeholder).
+Implementation foundation already exists:
+- Core actor-aware `ProductionService` and production history.
+- Existing `WorkbenchWorkspace` extended with recipe book, production feedback and upgrade panel.
+- `CustomerContractBook`, atomic fulfilment and customer interaction panel.
+- `WorkshopProgressionBook`, one-time upgrade acquisition and visible installed-prop hook.
+- Save v15 persistence, v14 migration and focused Core/EditMode coverage.
 
-Detailed task cards are under docs/tasks/LIVELIHOOD-B-*.md. B-04 through B-07 are roadmap placeholders, not approved mechanics or implementation permission.
+The current content-authoring pass supplies the first real item/recipe/customer/upgrade content. Do not rebuild the systems above unless source inspection shows a concrete defect.
 
-## 4. NOT implemented / not approved
-- The recipe-book production UI and Core transaction path now exist, but no recipe/customer/upgrade ScriptableObject content is assigned in HideoutSlice. The first playable livelihood loop is therefore not content-complete.
-- Exact first product, recipes, inputs/outputs, customer/issuer, contract reward, upgrade appearance/cost/payee/prerequisite, provenance acceptance and partial-delivery policy remain open. Definitions deliberately require authored values rather than inventing them.
-- Production timing/queues, quality rolls, staffing, spoilage, NPC production execution and procedural contracts are not approved.
-- Repair/restoration, social/favour rewards, additional professions and a second district remain future design work.
-- Police response, broader crime catalogue, cleaning risk/delay/heat, dynamic pricing, supply/demand, NPC shopping, finite stock/restocking, passive revenue and new packages remain outside the active initiative.
+## Implemented foundations — reuse them
 
-## 5. Verification and known gaps
-- Slice B hardening: user reported 396/396 EditMode tests and a passing gameplay test on 2026-11-20. No exact sub-checklist beyond that report is inferred.
-- Theft: witnessed vs unwitnessed Play Mode retest after the heat correction remains outstanding unless separately reported.
-- The user's 2026-11-23 report `TestResults_20261123_215514.xml` records 413/415 EditMode tests. The two failures are in `DirtyCashSaveTests.VersionThirteenMigratesWithEmptyDirtyCashState` (expects version 14, actual current version 15) and `RecipeDefinitionTests.ToRecipeBuildsTheInputsAndOutput` (fixture omits required display name; after adding it, Immediate timing must also be configured). Test-only corrections are being applied; rerun the full suite to verify.
-- The user's 396/396 result dated 2026-11-20 is the previous Slice B baseline; it does not verify this new B-01..B-03 code.
-- Repository cleanup: Tier 1 steps 1–7 are applied except M2-card extraction. The source ZIP contains seven M2 cards (M2-01–M2-07), not eleven; preserved at docs/tasks/archive/signal-docs-M2-cards-source.zip pending reconciliation.
-- Parked reliability checks: locker capacity edge cases, actual v1-save migration, automated city-transition tests and target-platform save replacement.
+| Area | Existing foundation | Status |
+|---|---|---|
+| Hideout / city | Walkable hideout, Street, CornerShop, Apartment, same player/session across transitions | user-tested foundation |
+| Inventory | Spatial grid, rotation, stack movement, home storage, dual-panel container interaction | user-tested foundation |
+| Item state | Stable stack GUIDs; quality, condition, authenticity, ownership; partial player knowledge and item viewer | implemented |
+| Time / rent / heat | GameClock, RentLedger, HeatMeter, PlayerStats / clean money account | implemented; some tuning/consequences remain provisional |
+| NPCs | Shared social world, authored routine profiles, deterministic utility brain, generic presenter, navigation and scoped knowledge | implemented foundation; scenario depth remains future |
+| Discovery / narrative | Player discovery ledger, relationships, interaction conditions, Milo parcel opportunity | implemented foundation |
+| Economy | Asset ownership, container custody, atomic transfer, resident accounts, retail BUY and fixed SELL offers | user-tested foundations |
+| Scavenging | Stable physical bins, authored loot profiles, progressive reveal, save/load and transfer UI | user-tested (368/368 milestone) |
+| Theft | Resident-owned physical container, Stolen state, crime outcomes, witness-scoped knowledge | implemented; post-fix witness/heat Play Mode retest is a parked verification item |
+| Dirty Cash | Physical currency item, unnamed contact, fixed exchange and cleaning, separate histories and persistent contact inventory | user-tested (396/396 milestone) |
+| First Workshop | Production, one-active contract, physical delivery, issuer-paid reward, practical upgrade and recipe unlock | code foundation + 415/415 EditMode baseline; content/Play Mode completion tracked separately |
 
-## 6. Next action
-Open HideoutSlice in Unity, compile, run the full EditMode suite, and exercise the new workbench/contract/upgrade paths after assigning temporary approved test content. Resolve the remaining authored-content questions in docs/OPEN_QUESTIONS.md before assigning final assets. Do not start strategic B-04+ work yet.
+## Current verification
 
-## 7. Maintaining this file
-Rewrite this summary when reality changes; keep it short and cite code paths. Append one dated entry per session to docs/progress/LOG-YYYY-MM.md. Never claim tests or gameplay verified without the user's report; move unapproved ideas to section 4.
+- **EditMode:** 415/415 passed, user-validated 2026-11-23 after commit `b6bd50a`.
+- **Unity compilation:** user ran the test suite successfully after the corrections; no compile blocker was reported.
+- **First Workshop Play Mode:** still needs direct end-to-end exercise with the authored assets: craft, accept, fulfil, acquire upgrade, observe second recipe, save/reload.
+- **Theft witness correction:** witnessed and unwitnessed heat behavior should be retested in Play Mode after the prior heat fix if not already covered.
+- Do not claim a Play Mode verification that the user has not reported.
+
+## Current next action
+
+Complete the authored First Workshop content and scene wiring, then have the user run the complete Play Mode loop and confirm persistence. Keep the full 415/415 EditMode result recorded as the last validated baseline; rerun after future code changes.
+
+## Not included / deliberately deferred
+
+No automatic NPC shopping, supplier simulation, finite universal stock, dynamic prices, supply/demand, passive income, production timers/queues, quality rolls, procedural contracts, multiple active contracts, partial-stack delivery, repair system, relationship/favour rewards, police response, global rumour cascades or new districts are part of the current initiative.
+
+## Documentation maintenance
+
+- Update this summary when implementation or verification state changes.
+- Append dated session notes to `docs/progress/LOG-2026-11.md`.
+- Keep Open Questions genuinely open; move answered decisions to `docs/decisions/` or the historical archive.
+- Read `docs/INDEX.md` for the full game scope and documentation map.

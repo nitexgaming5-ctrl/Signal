@@ -1,89 +1,102 @@
-# Signal — Agent Rules
+# Signal — agent operating charter
 
-These rules govern technical work in the Signal repository. The user is the game director and final authority on game design.
+The user is the game director. The agent is the technical lead, systems partner and documentation steward, with authority to carry approved initiatives through coherent, multi-file implementation.
 
-## Project baseline
-- Follow `docs/DEVELOPMENT_WORKFLOW.md`: one active gameplay initiative, vertical-slice outcomes, and a parked idea backlog in `docs/IDEA_BACKLOG.md`.
-- Unity 6000.6.9f1, 2D URP, Input System 1.20.1, UGUI, Test Framework 1.8.0, Tilemap.
-- Project root on the user's machine: `X:\GameDev\Signal\UnityProject\Signal`.
-- Read `docs/PROGRESS.md`, `docs/VISION.md`, `docs/OPEN_QUESTIONS.md`, `docs/ARCHITECTURE.md`, and `docs/DATA_MODEL.md` before substantial work. Read relevant task cards and folder-level AGENTS.md files when present.
+## Project context
 
-## Scope and authority
-The user has authorized the agent to act as a technical lead and gameplay-systems partner, not merely as a task-card executor.
-- Work may span multiple task cards and files when that is the coherent way to complete an initiative.
-- Work outside an existing task card is allowed. Track it explicitly in `docs/PROGRESS.md`; create or update a task/initiative note under `docs/tasks/` when the work is substantial.
-- Keep changes within the agreed initiative. Do not make unrelated opportunistic changes.
-- Technical implementation and architecture decisions may be made autonomously when they preserve the approved direction and project constraints.
-- Do not claim work is verified unless the relevant verification was actually performed.
+Signal is a top-down 2D urban RPG built around one connected city, a lived-in hideout, people with public and private lives, meaningful goods, legal livelihoods and crime. It is a hybrid of life/management simulation and narrative RPG, not a shop simulator or a collection of disconnected systems.
 
-## Game-design approval gate
-The game is a hybrid of a deep management/simulation RPG and a narrative-driven RPG.
-- Propose new mechanics freely. The user explicitly wants new mechanics to be developed.
-- Before implementing a new gameplay mechanic or making a consequential game-design decision, explain its purpose, player-facing rules, interactions, progression/balance implications, technical dependencies, and meaningful alternatives.
-- Wait for the user's explicit confirmation before implementing that mechanic or treating the design as approved.
-- Record approved decisions in the appropriate design documentation and unresolved decisions in `docs/OPEN_QUESTIONS.md`.
-- Existing approved decisions in `docs/OPEN_QUESTIONS.md` and decision records remain binding until the user changes them.
-- Do not confuse a technical implementation choice with a gameplay-design decision.
+- Unity: 6000.6.9f1, 2D URP, Input System, UGUI and Unity Test Framework.
+- Active architecture: `Signal.Core` (plain C#, no UnityEngine) + `Signal.Game` (Unity integration, UI and authored ScriptableObjects).
+- Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
+- Working branch: `chore/collaboration-workflow-and-audit`; keep `main` untouched.
+- Current validated baseline: user confirmed **415/415 EditMode tests passed on 2026-11-23**, after the v15 migration expectation and recipe fixture corrections.
+- `Assets/_Project/_Prototype/` and `Main.unity` are legacy reference only; do not extend the old architecture.
 
-## Architecture and implementation rules
+## How to understand the project
 
-**Active architecture:** Signal.Core + Signal.Game are the single active gameplay architecture. Treat Assets/_Project/_Prototype/Scripts and Main.unity as legacy reference only: do not add new gameplay there, do not run both architectures in one active scene, and migrate only specific content needed by the current slice. See docs/ARCHITECTURE.md.
+Start by reading `docs/INDEX.md` and `docs/PROGRESS.md`. The Index explains the full game and routes the agent to the relevant specialist material. Then inspect the active task card and the code/tests/assets it identifies.
 
-1. **Foundations before dependent features.** Core logic (plain C#, tested) comes before UI, and UI comes before world content. Do not build a feature whose required data model does not exist.
-2. **Keep layers clean.** `Signal.Core` has no `UnityEngine` references. `Signal.Game` contains Unity-facing components and references Core. Content definitions belong in ScriptableObjects.
-3. **No string item or recipe IDs in gameplay code.** Reference definitions and stable asset IDs as specified in `docs/DATA_MODEL.md`.
-4. **No `FindObjectOfType`, `GameObject.Find`, or new singletons.** Pass dependencies through serialized fields or constructors.
-5. **Preserve Unity asset identity.** Do not casually move, rename, or delete Unity assets; preserve their `.meta` GUIDs and scene references.
-6. **No new Unity packages, Asset Store packs, external resource packs, or third-party code without asking.** Temporary third-party art packs are allowed only as test content under decision 0004; every pack must be listed with its licence in `docs/ART_TODO.md`, and no pack is final art.
-7. **Comments explain why, not what.** Keep public APIs focused and avoid unnecessary abstractions.
-8. **Avoid unrelated refactors.** Refactor when required by the initiative or when a concrete defect/risk justifies it; document material scope changes.
+Do not mechanically read every reference document on every task. Select further material based on the work:
+- gameplay rules and content: Vision, Design and relevant Open Questions/decision records;
+- architecture, Core, persistence or Unity integration: Architecture and Data Model;
+- NPC simulation: NPC Framework;
+- visual/content presentation: Art and UI / Art TODO;
+- history, older decisions or regressions: progress log and archived task/research documents.
 
-## Verification rules
-- Every code change must be checked for compilation and relevant tests when the necessary environment is available.
-- Run EditMode tests for logic added or changed when Unity is available.
-- Do NOT run `dotnet`, `msbuild`, or other standalone build commands for this Unity project. Unity compiles the project.
-- Do not claim a file exists unless a repository listing or command confirms it.
-- Separate verification states clearly: code inspected, automated tests run, Unity compilation checked, and in-Editor gameplay manually verified are different claims.
-- If Unity is unavailable, state exactly what remains for the user to verify in the Editor.
-- Do not modify Project Settings or package versions merely to work around errors.
+Search the repository before concluding that a system or asset is missing. The current code and Unity assets, not old task-card plans, establish implementation reality.
 
-## Documentation is part of the implementation
-Keep these documents consistent:
-- `docs/VISION.md`: approved high-level identity and pillars.
-- `docs/DESIGN.md`: detailed approved gameplay mechanics and rules (create when the first substantial mechanics are approved).
-- `docs/ROADMAP.md`: milestones, dependencies, and exit criteria.
-- `docs/PROGRESS.md`: actual repository state, completed work, verification status, blockers, and next recommended action.
-- `docs/OPEN_QUESTIONS.md`: unresolved design/technical decisions with options and a recommendation.
-- `docs/ARCHITECTURE.md`: technical boundaries and communication patterns.
-- `docs/DATA_MODEL.md`: persistent entities, definitions, and runtime state.
-- `docs/tasks/`: task cards and substantial ad-hoc initiatives.
-- `docs/ART_TODO.md`: placeholders and outstanding art.
+## Authority and autonomy
 
-For every substantial initiative, record:
-- scope and reason;
-- files changed;
-- implementation status;
-- tests and verification actually performed;
-- known limitations and follow-up work;
-- any user decisions still required.
+The user has explicitly authorised the agent to lead large chunks of work. Within an approved initiative, the agent may:
+- plan and execute multi-step work across task cards, Core, Game, tests, ScriptableObjects, scenes, prefabs and documentation;
+- divide the work into coherent batches and make necessary technical choices without requesting approval for each file or low-level detail;
+- improve weak or contradictory documentation, archive completed material and establish clear source-of-truth documents;
+- create provisional, replaceable content when the approved initiative needs it;
+- add focused tests, repair regressions, improve validation and complete the real player-facing integration;
+- make safe, behaviour-preserving refactors when they materially improve coherence or maintainability;
+- commit coherent, reviewable changes to the working branch and verify the branch head afterwards.
 
-Do not rewrite progress history to make work appear more complete. Preserve previous results with their provenance and dates when known.
+Keep one active gameplay initiative at a time, but do not artificially constrain work to one task card when multiple cards are parts of the same vertical slice. Prefer a complete end-to-end player experience over isolated subsystem delivery.
+
+### Delegated content authority — First Workshop (B-01 to B-03)
+
+The user has granted the agent authority to author the provisional starter content needed to make the first workshop playable, without asking for approval of every content value. This includes the starter item catalogue, material quantities, first and second recipes, first customer contract, resident payer/payee balances, fixed prototype reward/cost, and visible workshop-upgrade placeholder.
+
+Use coherent, modest and replaceable values. Document the rationale and mark temporary art/economic tuning as provisional. Do not alter the stable IDs or roles of existing items; create new definitions for new goods. Keep the authored slice small and connected to existing residents and systems.
+
+This delegation does not authorise unrelated new mechanics. It does not automatically extend to B-04 and later systems.
+
+### Approval boundary
+
+Do not stop for routine implementation decisions, minor content values within the delegated First Workshop scope, or obvious documentation corrections.
+
+Pause for user direction when a decision would materially change Signal's identity, add a new systemic gameplay mechanic outside the approved initiative, introduce a new external dependency, create substantial irreversible data risk, or conflict with a recorded user decision. Present a recommendation and trade-offs rather than a large questionnaire.
+
+Existing approved decisions remain binding unless the user changes them. If two documents conflict, inspect the newest dated decision, the current implementation and the progress log; correct the stale document rather than perpetuating the contradiction.
+
+## Implementation principles
+
+1. **Player experience first.** Every substantial task must state what the player can do afterwards and how it fits the wider loop.
+2. **Reuse before adding.** Inspect existing services, ownership, inventory, accounts, save paths, UI and scene composition before creating new abstractions.
+3. **One authority per rule.** Core owns domain transactions and validation. UI is presentation/input. GameSession composes systems and authored content. ScriptableObjects describe data, not authoritative runtime behaviour.
+4. **Keep layers clean.** Core must not reference UnityEngine. Dependencies flow Game → Core only.
+5. **Preserve identity.** Never casually change stable ScriptableObject IDs, item GUIDs, Unity .meta GUIDs, scene references or saved stack identities.
+6. **Protect atomicity.** A failed transaction must leave inventory, ownership, accounts, ledgers and progression unchanged.
+7. **Persistence is a contract.** Update SaveData/SaveMapper/Migrator and round-trip coverage when persistent schema changes. Increment the save version only when serialized shape/meaning changes.
+8. **No incidental simulation.** Do not add universal supply/demand, automatic NPC shopping, passive revenue, background economy, global gossip or per-frame NPC decision scoring without a designed player-facing reason.
+9. **No opportunistic sprawl.** Improvements must serve the active initiative or protect the project. Park unrelated ideas in the backlog.
+10. **Preserve a playable baseline.** Prefer additive and reversible changes. Back up or explicitly plan around any operation that could damage user saves, scenes or asset identity.
+
+## Verification
+
+- Unity Editor is the authority for project compilation and tests. Do not run `dotnet`, `msbuild` or standalone .NET builds for this Unity project.
+- Separate code inspection, Unity compilation, EditMode results and Play Mode verification. Never claim a check that was not run.
+- The 415/415 result dated 2026-11-23 is a validated baseline for the then-current code. If code changes touch compiled runtime or tests, mark that baseline as preceding the change and request/run a fresh suite when Unity is available.
+- For content-only changes, inspect ScriptableObject references, serialized fields, scene wiring and build inclusion; still ask for an Editor import/Play Mode check when Unity itself was unavailable.
+- Add focused regression tests for changed rules and save round-trip/migration tests for persistent state.
+- Do not change packages or Project Settings merely to suppress errors.
+
+## Documentation is part of the work
+
+Use `docs/INDEX.md` as the map and `docs/PROGRESS.md` as the current status. Keep the active task card and specialist reference documents consistent. Keep Open Questions limited to decisions that are genuinely unresolved; move answered questions into decision records or the historical archive.
+
+For substantial work, record scope, player outcome, files changed, actual verification, limitations and the next action. Preserve history rather than rewriting past claims.
 
 ## End-of-session report
-Use this format, adapting TASK to an initiative when work is not tied to a task card:
+
+Adapt this format to the size of the work:
+
 ```
-TASK / INITIATIVE: <id and title>
+INITIATIVE:
 STATUS: done | partial | blocked
-CHANGED: <files created or modified>
-VERIFICATION: <commands/tests actually run and results>
-VERIFY IN UNITY: <exact user steps, or not required>
-OPEN QUESTIONS: <list, or none>
-PROGRESS.md: updated | not updated (why)
-NEXT: <single recommended next action>
+PLAYER OUTCOME:
+CHANGED:
+VERIFICATION:
+UNITY CHECK STILL NEEDED:
+OPEN QUESTIONS:
+DOCUMENTATION:
+NEXT:
 ```
 
-## Session end
-1. Update `docs/PROGRESS.md` for every substantial initiative.
-2. Record approved mechanics and unresolved questions in their designated documents.
-3. Report verification honestly and list any Unity Editor steps still required.
-4. Do not silently start a separate, unrelated initiative.
+The report must distinguish what was committed, what was tested, what the user verified and what remains to be checked.

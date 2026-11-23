@@ -1,259 +1,50 @@
-# Open questions
+# Open questions — current design queue
 
-## CRIME-ECONOMY-001 — Slice B decisions (approved 2026-11-20)
+This file contains only decisions that are still genuinely open. Answered setup questions and completed initiative decisions are preserved in `decisions/` and the historical archive. Do not reopen an approved decision without new evidence or a user request.
 
-- Contact: new ordinary shared-city resident, internal ID `Clean_Dirtycash`, visible display name intentionally blank.
-- Physical Dirty Cash denomination: 10 face value per unit.
-- First fence offer: exactly 2 stolen, player-owned ITEM_A items for 3 Dirty Cash units. ITEM_A is a replaceable prototype content fixture, not a final narrative item.
-- Cleaning fee: 20%, authored on this contact's offer. For 3 units (face value 30), 24 clean CARD is credited to the player and 6 CARD to the contact's existing NPC account.
-- Fence transfers the sold item into the contact's persistent physical inventory. Cleaning consumes the selected Dirty Cash stack and credits both accounts atomically.
-- Legal retail remains clean-CARD-only. No automatic laundering, dynamic pricing, risk, delay, heat, witnesses or progression effects in Slice B.
-- Save schema v14 persists contact inventory, ownership and both dedicated histories; v13 migration initializes the new collections empty.
-- Implementation status: committed at `12b62e82196b18603f20f039a3f122221726b757`; Unity verification pending.
+## Active First Workshop
 
-Superseded 2026-11-21: Direction B production is now the active design initiative. See the LIVELIHOOD-B1-B3 section below.
+The user delegated authority to the agent to author the provisional B-01 to B-03 starter catalogue and content. The agent may choose replaceable item names, quantities, recipes, contract terms, prototype reward/cost and upgrade visuals within the approved model. These are no longer blockers that require a user response.
 
-Agents: add questions here with two options and your recommendation. Do not decide them yourself.
-User: answer inline with `ANSWER:`. Agents read answers before the next session.
-Decisions made in the chat with Claude are copied here so every agent sees them.
+The following are implementation/verification checks, not open design questions:
+- Confirm the active scene references the authored recipe, customer contract, upgrade and resident definitions.
+- Exercise the workbench → production → contract → upgrade → second recipe → save/load loop in Play Mode.
+- Confirm the existing resident accounts fund the contract and upgrade transactions.
 
-## Q1 — Player stats
-ANSWER: a (Money and Health only)
+## Future design — deliberately not blocking B-01 to B-03
 
-## Q2 — Tile and pixel size
-ANSWER: b (32×32)
+### Repair/restoration (B-04)
+- Which item categories can be repaired, and what does a repair change?
+- Are repair materials consumed, and does the player need a specific tool/workspace?
+- Can customers entrust their own goods, or are repairs limited to player-owned items?
+- What are the failure, cost and presentation rules?
 
-## Q3 — UI framework
-ANSWER: a (UGUI)
+### Social life and recurring customers (B-05)
+- Which player actions change familiarity, trust or affinity?
+- How do recurring customer requests arise without procedural demand simulation?
+- Which rewards can relationships provide: information, access, introductions, services or other authored outcomes?
+- How do residents explicitly share observations and rumours without omniscient gossip?
 
-## Q4 — Grid inventory size for the starting character
-ANSWER: a (6×4 cells)
+### Broader crime design
+- Which crime actions follow physical-container theft, and how are their risk/exposure rules different?
+- What triggers heat, how does it cool, and what are the meaningful consequence bands?
+- When/how can witnesses report or share observations, and what evidence/confidence is retained?
+- What is the long-term global criminal progression threshold/unlock model?
+- What failure and recovery rules are harsh but not arbitrary save deletion?
 
-## Q5 — Starting items
-ANSWER: a (placeholders ITEM_A, ITEM_B, ITEM_C)
+### Economy and city expansion
+- What currency display/symbol and HUD format should be used for clean CARD?
+- Which goods, if any, need selective finite stock and authored restocking?
+- Which additional lawful or illicit activities justify another economy service?
+- What resident cast, services and geography justify a second neighbourhood block?
 
-## Q6 — Fonts
-ANSWER: a (a free pixel font, not chosen yet). Until then the built-in UGUI font is used (see Q10).
+### Art and presentation
+- Which final pixel font and screen scaling should replace the built-in UGUI placeholder?
+- What is the final authored palette/lighting treatment and item-icon direction?
+- Which temporary city art packs/placeholders should be replaced first?
 
-## Q7 — Sizes and stack limits for the placeholder items
-ANSWER: a (default, change if you want)
-- ITEM_A: 1×1, max stack 5
-- ITEM_B: 1×2, max stack 1
-- ITEM_C: 2×2, max stack 3
+## Parked, not missing
 
-## Q8 — Inventory key
-ANSWER: Tab (default; the old prototype used I)
+The following are deliberately outside the active slice: production timers/queues, quality rolls, tool durability, procedural contracts, multiple active contracts, partial-stack contract delivery, relationship/favour rewards, automatic NPC shopping, universal supply/demand, dynamic prices, police response, global rumour cascades and additional districts.
 
-## Q9 — Drag controls
-ANSWER: left mouse drags an item, R turns it while dragging, Esc cancels the drag. An invalid drop leaves the item where it was.
-
-## Q10 — M3 text rendering
-ANSWER: UGUI `Text` with the built-in font for now. TextMeshPro needs an extra import step; switch in the pixel-font pass.
-
-## Q11 — Where the inventory UI is tested
-ANSWER: a new scene `Assets/_Project/Scenes/InventoryDemo.unity`, not the old prototype scene.
-
-## Q12 — Slice scene
-ANSWER: a new scene `Assets/_Project/Scenes/Slice.unity` holding one empty GameObject with the `GameSession` component (default, change if you want).
-
-## Q13 — Slice controls
-ANSWER: WASD or arrows move, Tab inventory, F6 sleep, F5 save, F9 load, F7 debug sell, F8 debug craft. Function keys are used for actions because letter keys sit in different places on AZERTY keyboards (default).
-
-## Q14 — Clock
-ANSWER: starts Day 1 at 08:00, one game minute per real second, sleeping wakes you at the next 06:00. If you sleep after midnight you wake the same calendar day (default, tunable).
-
-## Q15 — Rent
-ANSWER: placeholder 50 every 7 days. A missed payment is only counted for now. What it causes (warnings, eviction, a racket) is a design decision still to make.
-
-## Q16 — Heat
-ANSWER: 0 to 100, drops 10 per day. Nothing raises or reads heat yet. Decide what raises it and what it changes.
-
-## Q17 — Room
-ANSWER: one room, 20×12 tiles, walls around it, a gold door tile in the bottom wall that is solid for now (default).
-
-## Q18 — Debug shop and crafting
-ANSWER: F7 sells 1 of the first assigned item for 10. F8 crafts using an optional `RecipeDefinition` you create (Create > Signal > Recipe Definition). No recipe content is invented.
-
-## Q19 — Save file
-ANSWER: `SignalSave/signal-save.json` beside the project in the editor (git ignores it), the persistent data path in a build.
-
-## Still undecided (needs your design)
-- What items, recipes, customers and prices really exist
-- Factions and reputation, relationships, quests
-- What heat and missed rent actually cause
-- The mixing/chemistry interaction (drag, heat, contamination, quality)
-
-
-## Q20 — NPC life simulation approach
-ANSWER: B — Lightweight utility simulation, paired with authored routines.
-
-Approved approach:
-- NPCs have authored identities, public roles, routines and private lives.
-- A small deterministic utility brain chooses between a limited set of activities based on time and simple needs.
-- The first prototype evaluates decisions every 15 in-game minutes and tracks only energy and social needs.
-- Nearby NPC presentation uses ordinary Unity updates; world-clock progression drives the actual decision simulation.
-- Core decision logic remains plain C# with no Unity dependency, random inference, background workers or language model.
-- Start with one neighbourhood character, then expand only when a playable scenario needs more depth.
-- Dialogue is authored and can respond to the NPC's current activity.
-- This is a foundation, not a requirement to simulate every citizen in equal detail.
-
-The first implementation is Milo, a neighbourhood baker with Work, Rest, Socialize and Home activities. His evening dialogue hints that his public occupation is not his entire life. Persistent relationships, discovered secrets and a concrete side activity remain future work and must be designed as part of a connected scenario.
-
-
-## Economic details still undecided
-- Currency name/symbol and how integer balance units are displayed.
-- Starting clean bank/card balance for the player and authored starting balances for named residents.
-- Further cleaning prerequisites, risk, delay and presentation beyond Slice B's first immediate, no-risk contact offer.
-- Which specific illegal goods require finite stock in the first neighbourhood.
-
-
-## Economy — Phase 3 Business & Retail
-
-**Status: approved; first implementation pass added (2026-11-19).** Full scope and acceptance criteria: `docs/tasks/ECONOMY-PHASE-3-BUSINESSES-RETAIL.md`.
-
-Confirmed decisions:
-- Every resident has a personal clean-money account.
-- A business has authored merchandise and fixed authored prices; merchandise is unlimited and available whenever the business is open.
-- Business sales credit the owner's personal account directly. No separate business revenue account.
-- Existing player-to-shop selling behaviour is retained without new valuation/acceptance rules.
-- No NPC shopping/spending AI, supplier or production simulation, finite stock/restocking, automatic sales, passive revenue or continuous/hourly economy simulation.
-- Dirty money remains physical inventory items, excluded from clean accounts and legitimate retail.
-
-Implementation now includes resident account/persistence support, authored business definitions, atomic retail purchases and the first CornerShop runtime integration. Save v9 stores resident balances and retail history. Remaining content input: choose the first Corner Bakery ItemDefinition(s) and fixed clean-money price(s); the assigned business asset currently has an empty catalogue rather than invented prices.
-
-
-## Economy — player-facing sell-to-shop
-
-**Q21 — Buyback acceptance and pricing model**
-
-ANSWER: Each `BusinessDefinition` has its own separate authored buyback-offer list. Each offer references an `ItemDefinition` and a positive fixed clean-CARD unit price.
-
-Approved rules:
-- Each business buys only items explicitly listed in its own buyback offers.
-- Buyback offers are separate from the business's player-facing merchandise catalogue. Selling an item does not imply the business buys it.
-- Prices are fixed authored values; no dynamic valuation, `ItemValueCalculator` formula, condition/quality/authenticity/ownership modifiers, reputation or bargaining.
-- No business budget/account debit, finite stock, restocking or NPC economy simulation.
-- Only clean CARD is paid; dirty money remains physical inventory and is not part of legitimate retail.
-- No item or price entries are implied by this approval; content offers require their own authored values.
-
-Implementation specification: `docs/tasks/ECONOMY-PLAYER-SELLING-DESIGN.md`. The approved model is implemented and user-verified: the full EditMode suite passed 355/355, and the BUY → partial SELL → full SELL → save/reload Play Mode sequence works. The temporary Bread buyback offer at CARD $3 was used only for testing and has been removed from `Business_CornerShop.asset`. No final bakery buyback item or price has been approved. The existing Bread merchandise price of CARD $5 remains temporary test content, not final balancing.
-
-
-## Crime, dirty money and production — Slice A implementation underway (2026-11-20)
-
-The user approved the high-level boundaries in `docs/tasks/CRIME-ECONOMY-001-SHARED-CITY-DESIGN.md`, green-lit multi-slice implementation, and selected theft from a physical container inside an apartment as the first crime action. NPC theft/pickpocketing (including torn references), aggression, weapons and stealth remain deferred until their interaction foundations exist.
-
-The first implementation uses Rhea's wardrobe as a content fixture, not a Rhea-specific crime system. The reusable `ResidentPropertyContainerDefinition` references an owner NPC and location through authored data, and the Core crime/transfer systems are reusable for future `StealingHouse_NPC` content.
-
-Current prototype fixture:
-- Fixed contents: ITEM_A ×2 and ITEM_C ×1; no loot roll or respawn.
-- Successful theft uses `AssetTransferReason.Theft`, marks the item `Stolen` inside the atomic transfer, preserves its stable identity and records ownership history.
-- One successful stolen stack awards +1 global criminal-progression point. The first apartment-theft fixture awards +2 heat only if a local witness is selected; an unwitnessed theft adds zero heat.
-- At most one nearest resident physically present in the property location and within the 8-unit witness radius/awareness range receives the anonymous observation. No automatic report, police response or relationship penalty.
-- Crime outcomes, progression points and the selected witness event are saved in schema v13.
-
-These are initial editable playtest values, not final balance. Still open:
-- Final heat awards, daily cooling, heat bands and gradual consequences.
-- Rules for future crime categories/actions and progression awards/unlocks.
-- How witnesses later share or report information, recipients, timing and confidence.
-- Dirty-money denomination/value and first item.
-- First illicit contact and accepted payment/outcome.
-- Cleaning fee/retention, rate, prerequisites, delay and exposure.
-- First production-capable business/workspace, recipe inputs/outputs and timing.
-- Recommended next vertical slice: Slice B (one authored dirty-money illicit exchange plus one contact-specific cleaning offer), because it connects the now-tested crime/ownership foundation to physical dirty money and clean CARD. This is a recommendation, not an implementation approval. Denomination, item definition, first contact, accepted exchange outcome and cleaning terms still require user decisions. Slice C production remains a strong later alternative once a concrete workspace/recipe has a clear player loop.
-
-Implementation details and the Unity acceptance checklist: `docs/tasks/CRIME-THEFT-001-RESIDENT-CONTAINER-THEFT.md`.
-
-
-## Crime economy — Slice B decisions (2026-11-20)
-
-**ANSWER: Slice B approved.** The user confirmed one new discreet shared-city contact with a blank visible name and internal NPC ID `Clean_Dirtycash`. Dirty Cash is a physical inventory item with denomination 10 per unit. The contact's cleaning offer retains 20%, so each unit converts to 8 clean CARD, paid immediately.
-
-Approved boundaries:
-- One authored fence offer accepts one specific stolen item and pays a fixed whole-number quantity of Dirty Cash.
-- The accepted item must be Stolen and player-owned; a legitimate copy is not accepted.
-- Dirty Cash remains physical inventory, cannot pay for legitimate retail and cannot be deposited directly.
-- Cleaning consumes physical Dirty Cash and credits the existing clean CARD account.
-- The contact is a normal resident in the shared city; no separate underground vendor/map.
-- No heat, witness, police, delay or cleaning-risk consequence in this first slice.
-- Both operations are explicit, player-confirmed, atomic transactions with persistence and dedicated transaction history.
-
-**One content question remains:** which exact stolen ItemDefinition does the first fence offer accept, and how many Dirty Cash units does it pay? Recommendation: use one of the already-authored theft fixture items for the first test offer, keeping the offer replaceable as authored content. Do not treat a placeholder as final item content without the user's selection.
-
-Specification and acceptance criteria: `docs/tasks/CRIME-ECONOMY-SLICE-B-DIRTY-CASH.md`.
-
-
-## LIVELIHOOD-B1-B3 — First Workshop (strategic choices approved 2026-11-21)
-
-**ANSWER: Direction B selected.** Make everyday life meaningful through production, customer contracts, practical hideout development, relationships and services.
-
-Approved:
-- Workshop model supports both player-operated and NPC-owned production businesses over the long term. Start with a player-operated production workshop in the existing hideout; NPC-owned production is a later content/integration milestone.
-- The first contract system allows exactly one accepted/active customer contract at a time.
-- The first practical hideout upgrade unlocks one additional authored recipe/capability.
-- Production outputs are physical inventory goods created through authored recipes.
-- Reuse the existing Core crafting, item, inventory, ownership, account and save foundations. Do not create a second crafting/economy architecture.
-- Preserve authored/event-driven economy rules: no universal supply/demand, automatic NPC shopping, passive sales/revenue, dynamic pricing or finite-stock simulation.
-
-Specification and implementation breakdown:
-- Parent: docs/tasks/LIVELIHOOD-B1-B3-FIRST-WORKSHOP.md
-- B-01: docs/tasks/LIVELIHOOD-B-01-PRODUCTION-WORKSHOP.md
-- B-02: docs/tasks/LIVELIHOOD-B-02-CUSTOMER-CONTRACTS.md
-- B-03: docs/tasks/LIVELIHOOD-B-03-PRACTICAL-WORKSHOP-UPGRADE.md
-- Future placeholders B-04 through B-07 cover repair/restoration, social life/customers, livelihood expansion and neighbourhood expansion. They are not implementation approval.
-
-### Questions required before B-01/B-02/B-03 content is implemented
-
-**L1 — First production product and recipe**
-- Option A: choose a simple everyday product with a small number of existing or newly authored ingredients.
-- Option B: choose a product that naturally demonstrates Signal's quality/condition/provenance systems.
-- Recommendation: A for the first loop; demonstrate transactional production first, then deepen goods later.
-- Status: open. Do not invent the product, item definitions, ingredient quantities or output quantity.
-
-**L2 — Production timing**
-- Option A: immediate, atomic production.
-- Option B: in-game duration with a waiting/return loop.
-- Recommendation: A for the first slice. Add duration only when it creates a meaningful decision and the clock/pacing consequences are designed.
-- Status: open; no timers, queues or offline production are approved.
-
-**L3 — First contract issuer and goods receiver**
-- Option A: an existing resident with a registered personal clean CARD account.
-- Option B: an explicitly authored business whose resident owner's personal account funds the reward (businesses do not have separate accounts).
-- Recommendation: choose the actor whose identity makes the first contract feel natural; the payer must be a real registered resident account with sufficient funds. For a business issuer, the payer is the resident owner.
-- Status: open. Do not mint rewards or invent a new business account model.
-
-**L4 — Contract goods eligibility**
-- Option A: only legitimate/player-owned goods.
-- Option B: any player-owned goods, including stolen goods, with possible narrative consequences designed separately.
-- Recommendation: A for the first legal livelihood slice, but wait for the user's answer.
-- Status: open. Do not assume provenance acceptance.
-
-**L5 — Contract quantity and delivery**
-- Option A: exact whole-stack delivery only.
-- Option B: partial delivery and stack splitting.
-- Recommendation: A for the first slice because GridInventory currently has no split-stack operation; avoid adding that broader feature just to support one contract.
-- Status: open. The task card assumes whole-stack handover until this is answered.
-- Also decide whether submitted goods are transferred to an issuer-owned receiving inventory or consumed by an explicitly defined use. Never silently delete goods.
-
-**L6 — Fixed contract reward**
-- Decide exact integer clean CARD reward and whether it is paid by the resident/business account at fulfilment.
-- Recommendation: fixed authored reward funded by the issuer account, using existing atomic account transfer semantics.
-- Status: open. No amount or overdraft is approved.
-
-**L7 — First hideout upgrade**
-- Approved effect: unlock one additional authored recipe/capability.
-- Still open: physical upgrade identity/appearance, prerequisite, acquisition source, exact cost and the second recipe it unlocks.
-- Recommendation: a tangible workshop equipment improvement, acquired once, with an authored clean-CARD cost only if the issuer/player account rules and amount are approved.
-- Status: open. Do not invent the cost or content.
-
-**L8 — Transaction history and persistence shape**
-- Audit whether existing economic ledgers fully represent production and contract fulfilment before adding new ledgers.
-- Persist contract lifecycle and workshop recipe unlock/upgrade state if they are durable player progress.
-- Save schema v15 is now implemented for production history/operator, contract lifecycle, acquired upgrades and issuer receiving inventory/actor identity. v14 migration initializes these fields empty and round-trip/migration tests are added.
-- Status: code decision made to use v15 because persistent runtime state is added; Unity migration/test execution pending.
-
-
-
-### First Workshop implementation note — 2026-11-23
-
-The reusable B-01..B-03 code foundation is committed, but no first product, issuer, contract reward or upgrade content has been authored. The open decisions above remain binding. Recipe/customer/upgrade ScriptableObjects should be created and assigned only after the corresponding content decisions are made. The technical implementation supports explicit legitimate-only vs player-owned-including-stolen contract eligibility and whole-stack delivery to the issuer's physical inventory; it does not settle the unresolved authored values or add partial-stack handling.
+Do not turn these into implementation tasks until a player-facing scenario demonstrates the need.

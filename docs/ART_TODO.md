@@ -1,23 +1,27 @@
-# Art TODO (placeholders to replace in the art pass)
+# Art TODO — replaceable placeholders and art-pass scope
 
-| Asset | Placeholder now | Needed later |
+This is the current art checklist, not an approval to add new packs.
+
+| Asset / area | Current state | Art-pass need |
 |---|---|---|
-| Inventory item icons | Flat palette-coloured rectangles with a text label (colour picked by order in the item list) | 32×32 pixel icons per item |
-| Inventory panel and cells | Dark flat rectangles (#0E1116 panel, #232830 cells) | Pixel-art frame, cell texture |
-| Drop highlight | Translucent cyan (valid) / magenta (invalid) rectangle | Final highlight style |
-| Font | Unity built-in UGUI font | Free pixel font (Q6), then TextMeshPro or a pixel font asset |
-| Inventory cell size | 64 px on screen (2× of 32) | Confirm after the first full-screen layout |
-| Room floor | Two flat greys in a checker pattern, 32×32 solid sprites made at runtime | Tileset for the room interior |
-| Room walls | Flat mid-grey tile | Wall tiles, corners, trim |
-| Door | Flat gold tile, solid | Door sprite with open/closed states |
-| Player | Cyan rectangle, 24×29 px, no animation | Walk-cycle sprites in 4 directions |
-| HUD | Plain UGUI text lines | Pixel-art HUD with icons |
+| Player | Simple coloured placeholder | 4-direction walk cycle, readable silhouette |
+| Residents | Runtime placeholder shapes/colours | Cohesive resident sprites and readable roles |
+| Hideout floor/walls/door | Generated flat/placeholder geometry | Tile set, corners, trims, open/closed door |
+| Workbench | Close-up tabletop with coloured draggable placeholder props | Consistent pixel-art tools, containers and workspace detail |
+| Workshop upgrade | Simple replaceable sewing-machine placeholder prop | Final compact sewing-machine sprite and installation animation/feedback |
+| Search bins / apartment wardrobe | Placeholder city/property art | Cohesive props with readable interactions |
+| Item icons | Placeholder blocks/text | 32×32 authored icons for current item catalogue |
+| UI panels / inventory cells | Flat UGUI panels and highlights | Pixel-art frames, grid cells, selected/invalid feedback |
+| Font | Built-in UGUI font | Select one free pixel font and test legibility at target resolution |
+| HUD | Plain UGUI text | Compact pixel-art HUD with clear CARD/time/health hierarchy |
+| City | Temporary test packs and placeholder geometry | Cohesive authored storefronts, streets and interiors |
 
-## Third-party test packs in the repo (test-only, decision 0004)
+## Temporary third-party test packs
+
 | Location | Licence file | Status |
 |---|---|---|
 | `ArtSource/RoguelikeModernCity/` | `License.txt` | test-only; replace before release |
 | `Assets/_Project/Art/City/LoBitCity/` | `LICENSE.txt` | test-only; replace before release |
 | `Assets/_Project/Art/City/CP/` | `LICENSE.txt` | test-only; replace before release |
 
-The Tarkov-style test bins and ITEM_A/B/C are also test content, not final art or narrative commitments.
+The Tarkov-style bins and ITEM_A/B/C are test fixtures, not final art or narrative commitments. Any new pack requires explicit approval and a licence record.
