@@ -1,6 +1,6 @@
 # LIVELIHOOD-B-01 — Production foundation and player workshop
 
-**Status:** Core/Game implementation committed; authored recipe content and Unity verification pending  
+**Status:** Core/Game and starter recipe content committed; 415/415 EditMode baseline validated; Play Mode verification pending  
 **Parent:** LIVELIHOOD-B1-B3-FIRST-WORKSHOP.md
 
 ## Player outcome
@@ -40,10 +40,10 @@ The player interacts with the existing hideout workbench, inspects an authored r
 - Keep UI state non-authoritative.
 
 ### B01.5 — First authored production content
-- Add a small, coherent starter recipe and item content only after the exact product and inputs are approved in OPEN_QUESTIONS.
-- Use existing placeholder/test items only if the user explicitly approves them as temporary fixture content.
-- Add a second recipe definition as locked content for B-03 to unlock; exact content awaits approval.
-- Do not add a large recipe catalogue.
+- Author a deliberately small starter catalogue: Fabric Roll, Thread Spool, Adhesive Tube, Fastener Pack, Basic Patch Kit and Reinforced Patch Kit.
+- Keep new item definitions separate from ITEM_A/B/C and existing Bread, Dirty Cash and story parcel items.
+- Author Basic Patch Kit as the starting recipe and Reinforced Patch Kit as the locked B-03 recipe. Both are immediate and create physical items.
+- Keep the first content set small; the starter quantities are a guaranteed test kit rather than an automatic sourcing/supply simulation.
 
 ## Implementation status — 2026-11-23
 
@@ -51,8 +51,10 @@ The player interacts with the existing hideout workbench, inspects an authored r
 - Added stable-ID, validated `RecipeDefinition` authoring and integrated recipe selection/production controls into the existing WorkbenchWorkspace and GameSession.
 - Retained the existing `Crafting.TryCraft` API unchanged.
 - Added Core EditMode coverage for successful production, missing inputs, ownership mismatch, output-capacity rollback, NPC-owned production and duplicate ingredient lines.
-- No concrete recipe or output assets have been authored or assigned. The workbench will display an empty recipe book until the user-approved content is created and assigned.
-- These tests have not yet been run in Unity; scene/Play Mode verification remains pending.
+- Added Fabric Roll, Thread Spool, Adhesive Tube and Fastener Pack as starter materials; added Basic Patch Kit and Reinforced Patch Kit as physical products.
+- Authored Recipe_Workshop_BasicPatch and Recipe_Workshop_ReinforcedPatch. The second recipe is assigned through the workshop upgrade and remains locked until acquisition.
+- Added the four material definitions to HideoutSlice's existing starting-item list. Their stack limits provide 3 Fabric Rolls, 2 Thread Spools, 2 Adhesive Tubes and 1 Fastener Pack: enough for two Basic Patch Kits and one Reinforced Patch Kit after one kit is delivered.
+- The latest user-validated EditMode suite is 415/415. The content/scene import and production Play Mode flow still require Editor verification.
 
 ## Acceptance criteria
 

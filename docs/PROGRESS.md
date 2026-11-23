@@ -8,7 +8,7 @@ Last reconciled: **2026-11-23**. Historical detail is preserved in `docs/progres
 - Working branch: `chore/collaboration-workflow-and-audit`. Keep `main` untouched.
 - Save schema: **v15**. It persists production history, contract lifecycle, workshop upgrade IDs, contract receiver inventory and receiver actor identity in addition to previous player/world/economy state.
 - Latest user-validated EditMode result: **415/415 passed (2026-11-23)**. The earlier 413/415 report had two stale test defects; both fixtures/assertions were corrected in commit `b6bd50a`, and the user confirmed the subsequent full run passed.
-- The 415/415 result verifies the code/test state at that run. Play Mode verification of the new First Workshop content remains a separate check.
+- The 415/415 result verifies the code/test state at that run. The subsequent First Workshop assets and scene wiring do not alter C# code, but Unity import and Play Mode verification of those new references/content remain a separate check.
 - Active gameplay initiative: **LIVELIHOOD-B1-B3 — First Workshop**, following approved Direction B.
 
 ## Active player-facing initiative
@@ -31,7 +31,7 @@ Implementation foundation already exists:
 - `WorkshopProgressionBook`, one-time upgrade acquisition and visible installed-prop hook.
 - Save v15 persistence, v14 migration and focused Core/EditMode coverage.
 
-The current content-authoring pass supplies the first real item/recipe/customer/upgrade content. Do not rebuild the systems above unless source inspection shows a concrete defect.
+Starter content is now authored and wired into HideoutSlice: four workshop materials, two patch-kit products, two recipes, Milo's single customer contract, Milo/Rhea resident definitions and the Compact Sewing Machine upgrade. The assets and scene references are committed; do not rebuild the systems above unless source inspection shows a concrete defect.
 
 ## Implemented foundations — reuse them
 
@@ -59,7 +59,7 @@ The current content-authoring pass supplies the first real item/recipe/customer/
 
 ## Current next action
 
-Complete the authored First Workshop content and scene wiring, then have the user run the complete Play Mode loop and confirm persistence. Keep the full 415/415 EditMode result recorded as the last validated baseline; rerun after future code changes.
+Open the updated project in Unity, allow all new ScriptableObjects/prefab references to import, run the full EditMode suite, then exercise craft twice → deliver one kit to Milo → buy the sewing machine from Rhea → craft the reinforced kit → save/reload. Keep the user-validated 415/415 result recorded as the last full suite; rerun after any future code changes.
 
 ## Not included / deliberately deferred
 

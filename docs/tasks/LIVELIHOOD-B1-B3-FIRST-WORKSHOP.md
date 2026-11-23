@@ -1,6 +1,6 @@
 # LIVELIHOOD-B1-B3 — First Workshop vertical slice
 
-**Status:** B-01..B-03 Core/Game foundation committed 2026-11-23; authored content and Unity verification pending  
+**Status:** Core/Game foundation and starter content committed 2026-11-23; 415/415 EditMode tests user-validated; Play Mode verification pending  
 **Direction:** approved Direction B — meaningful everyday livelihood  
 **User decisions:** workshop model = both (player-operated first, NPC-owned compatible later); one active contract; first practical hideout upgrade unlocks another recipe/capability.
 
@@ -80,7 +80,7 @@ B-01 must be playable before B-02 is integrated. B-02 must be playable before B-
 
 The code foundation now includes actor-aware production and production history, the existing workbench extended into a recipe-book UI, one-active customer contracts with physical issuer-inventory delivery and clean CARD payment, a practical one-time upgrade/recipe unlock, and Save v15 persistence/migration.
 
-No concrete recipe, customer, price/reward, upgrade appearance, payee or prerequisite asset has been authored or assigned. This avoids inventing the unresolved L1 and L3-L7 content. The new EditMode tests are committed but have not yet been run in Unity. Do not mark the vertical slice complete until approved content is assigned, the active scene is wired, all tests pass, and the Play Mode verification script below is completed.
+Authored starter content is now assigned in HideoutSlice: Fabric Roll, Thread Spool, Adhesive Tube and Fastener Pack; Basic Patch Kit and Reinforced Patch Kit; Milo's Basic Patch Kit request (40 CARD, legitimate goods only); and Rhea's Compact Sewing Machine (90 CARD, after Milo's contract, unlocks the second recipe). Milo starts with 150 CARD, Rhea with 250 CARD and the player with 70 CARD. The starter inventory includes exactly enough workshop materials to craft two Basic Patch Kits, hand over one and retain one for the upgrade recipe. The sewing-machine prop is a simple replaceable placeholder. The user validated 415/415 EditMode tests after the test corrections in commit b6bd50a. No Play Mode verification of these newly authored assets/scene references is claimed yet.
 
 ## Explicitly out of scope
 
@@ -94,7 +94,7 @@ No concrete recipe, customer, price/reward, upgrade appearance, payee or prerequ
 
 ## Acceptance criteria across B1-B3
 
-1. The player can use the existing hideout workshop interaction to view and perform an available authored recipe.
+1. The player can use the existing hideout workshop interaction to view and perform the Basic Patch Kit recipe.
 2. Inputs are validated and consumed exactly once; outputs are physical inventory items.
 3. Missing inputs and insufficient output space fail without mutation.
 4. Production cannot duplicate output through repeated confirmation.
@@ -125,4 +125,4 @@ No concrete recipe, customer, price/reward, upgrade appearance, payee or prerequ
 
 ## Open decisions before implementation
 
-See OPEN_QUESTIONS.md section **LIVELIHOOD-B1-B3**. Do not invent the first product, recipe ingredients, customer/issuer, reward, upgrade cost, item-state eligibility or partial-delivery policy.
+Starter content and prototype values are recorded in decisions/0005-first-workshop-content.md. Remaining work is Editor import/validation and the full Play Mode acceptance script; later balancing may replace these fixture values.

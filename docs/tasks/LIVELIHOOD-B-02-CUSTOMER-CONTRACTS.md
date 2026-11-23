@@ -1,6 +1,6 @@
 # LIVELIHOOD-B-02 — Single active customer contract
 
-**Status:** Core/Game implementation committed; authored contract content and Unity verification pending  
+**Status:** Core/Game and Milo contract content committed; 415/415 EditMode baseline validated; Play Mode verification pending  
 **Parent:** LIVELIHOOD-B1-B3-FIRST-WORKSHOP.md  
 **Depends on:** B-01 production loop; NPC identities, inventories, clean accounts, ownership and transaction ledgers.
 
@@ -63,8 +63,10 @@ Only one contract may be Active at a time. The first slice contains one authored
 - Added atomic fulfilment using the existing AssetTransferService: one exact player-owned stack is transferred into the issuer's registered physical inventory, the issuer's existing clean CARD account is debited, and the player's account is credited. The economic ledger records `ContractDelivery`; contract completion stores the transfer transaction ID.
 - Added a validated CustomerContractDefinition and a player-facing panel for review, acceptance and selecting the physical stack to hand over.
 - Added Core EditMode tests for active-contract exclusivity, successful delivery/payment/replay protection, wrong quantity, insufficient payer funds and stolen-goods eligibility.
-- No issuer, requested item, quantity, eligibility choice or reward content has been authored or assigned. Whole-stack delivery is the implemented first-slice transfer path; partial stack support is not included.
-- These tests and the GameSession interaction have not yet been run in Unity.
+- Authored one request from Milo: one Basic Patch Kit for his bakery apron, reward 40 clean CARD from Milo's resident account (starting balance 150).
+- Contract eligibility is LegitimateOnly; delivery is one exact whole stack to Milo's physical receiving inventory. The request is not procedural or recurring.
+- Rhea and Milo are now explicit scene-assigned NpcCharacterDefinition assets; their resident accounts are created from authored starting balances.
+- The user validated the full 415/415 EditMode suite. The customer interaction and physical handover still require Play Mode verification in the active scene.
 
 ## Acceptance criteria
 

@@ -57,9 +57,9 @@ The current implementation status, branch head, verification and next action liv
 
 - The connected hideout, street, corner bakery and apartment foundations exist.
 - Inventory, item identity/state, knowledge, save/load, ownership transfers, clean accounts, retail, scavenging, theft, Dirty Cash, NPC routines and contextual narrative opportunity foundations exist.
-- The First Workshop B-01 to B-03 foundation adds actor-aware production, a single-active customer contract, physical fulfilment and a practical recipe-unlocking upgrade.
+- The First Workshop B-01 to B-03 foundation and starter content are committed: Fabric Roll/Thread Spool/Adhesive Tube/Fastener Pack → Basic Patch Kit; Milo requests one kit for 40 CARD; Rhea sells the Compact Sewing Machine for 90 CARD after contract completion; the upgrade unlocks Reinforced Patch Kit.
 - The latest full EditMode result was **415/415 passed**, user-validated on 2026-11-23 after the two test maintenance corrections. This is a baseline; any subsequent code change requires a fresh run.
-- The active work is making the first workshop a coherent, authored, playable loop without building unnecessary general-purpose systems.
+- The active work is validating the authored First Workshop loop in the Unity Editor without building unnecessary general-purpose systems.
 
 ### Current and future strategic direction
 

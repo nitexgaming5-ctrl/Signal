@@ -1,6 +1,6 @@
 # LIVELIHOOD-B-03 — Practical hideout workshop upgrade
 
-**Status:** Core/Game implementation committed; authored upgrade content and Unity verification pending  
+**Status:** Core/Game and Compact Sewing Machine upgrade content committed; 415/415 EditMode baseline validated; Play Mode verification pending  
 **Parent:** LIVELIHOOD-B1-B3-FIRST-WORKSHOP.md  
 **Depends on:** B-01 production and B-02 customer contract loop.
 
@@ -43,8 +43,10 @@ The first practical hideout upgrade unlocks another production recipe/capability
 - Added a validated WorkshopUpgradeDefinition with an unlocked recipe, authored cost/payee/prerequisite, and visible installed-prop prefab hook.
 - Integrated purchase feedback and recipe unlock into the workbench. The installed prop is instantiated at the workbench after acquisition.
 - Added Core EditMode tests for contract prerequisite, no-prerequisite mode, duplicate purchase and insufficient funds.
-- No concrete upgrade appearance, cost, payee, prerequisite or second recipe asset has been authored or assigned. These remain user-controlled content decisions.
-- Tests and Play Mode upgrade flow have not yet been run in Unity.
+- Authored the Compact Sewing Machine upgrade. It costs 90 clean CARD, is sold by Rhea (resident account starts at 250 CARD), requires Milo's first contract to be completed and unlocks Reinforced Patch Kit.
+- The installed prop is a replaceable SpriteRenderer placeholder built from the existing PlayerSquare sprite; final art is tracked in ART_TODO.
+- The player starts with 70 CARD; Milo's 40 CARD reward makes the upgrade affordable after fulfilling the request. Rent remains zero for this slice.
+- The user validated 415/415 EditMode tests. The purchase, visual installation, unlock and save/reload path still require Play Mode verification.
 
 ## Acceptance criteria
 

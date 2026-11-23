@@ -4,12 +4,12 @@ This file contains only decisions that are still genuinely open. Answered setup 
 
 ## Active First Workshop
 
-The user delegated authority to the agent to author the provisional B-01 to B-03 starter catalogue and content. The agent may choose replaceable item names, quantities, recipes, contract terms, prototype reward/cost and upgrade visuals within the approved model. These are no longer blockers that require a user response.
+The user delegated authority to the agent to author provisional B-01 to B-03 content. This authority has been exercised and recorded in decisions/0005-first-workshop-content.md. The starter catalogue, two recipes, Milo contract and Rhea upgrade are authored and wired; no further content choice is blocking the active slice.
 
 The following are implementation/verification checks, not open design questions:
-- Confirm the active scene references the authored recipe, customer contract, upgrade and resident definitions.
-- Exercise the workbench → production → contract → upgrade → second recipe → save/load loop in Play Mode.
-- Confirm the existing resident accounts fund the contract and upgrade transactions.
+- Open the updated assets/scene in Unity and confirm there are no import/reference/validation errors.
+- Exercise two productions, contract acceptance/fulfilment, CARD payment, upgrade purchase, visual installation, recipe unlock and save/load in Play Mode.
+- Confirm Milo's account funds the 40 CARD reward and Rhea's account receives the 90 CARD upgrade payment.
 
 ## Future design — deliberately not blocking B-01 to B-03
 

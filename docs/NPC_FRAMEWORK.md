@@ -4,7 +4,7 @@
 
 NPCs are individuals living inside one shared simulation. Each character has their own needs, routines, relationships, memories and incomplete understanding of the city, but they do not inhabit a private simulation bubble. They share locations, time, world events, objects, activities and a social network.
 
-The first Milo implementation is a disposable test character. Its purpose is to exercise the framework; his identity, schedule, dialogue, appearance and role are not production commitments.
+Milo and Rhea began as fallback framework fixtures. They are now also represented by explicit authored NpcCharacterDefinition assets in the First Workshop scene composition; their current roles/routines are still small-slice content, not a locked final cast.
 
 ## Core principles
 
@@ -45,7 +45,7 @@ The first Milo implementation is a disposable test character. Its purpose is to 
 - Movement is real-time and uses the shared city navigation map: local A* routes account for static collider obstacles and character clearance, while a doorway graph connects coordinate-space locations. NpcPresenter executes the planned waypoints at authored walking speed. Dynamic obstacle updates and moving-agent avoidance are not implemented.
 - CityBlockBootstrap runs NpcSocialEncounterSystem after residents have processed a clock change, so encounter eligibility reflects their updated authored activities. The system does not run per frame and does not make NPCs seek one another outside their schedules.
 - CityBlockBootstrap supports any number of definitions and routes prompts/interactions to the matching presenter. It does not contain per-character behaviour branches.
-- When no definitions are assigned, the bootstrap creates two temporary fallback definitions (Milo and Rhea) to exercise different routines and the shared interaction path. They are test fixtures, not final narrative characters.
+- When no definitions are assigned, the bootstrap creates two temporary fallback definitions (Milo and Rhea). The active HideoutSlice now assigns authored Milo and Rhea definitions with resident starting balances, so the fallback path is not used in the main scene.
 - CityBlockBootstrap.PublishWorldEvent publishes at the player's current location; PublishWorldEventAt can publish an event at another city location, allowing off-screen events to affect NPCs there.
 
 ## Important boundaries
@@ -55,7 +55,7 @@ The first Milo implementation is a disposable test character. Its purpose is to 
 - The current utility brain consumes the NPC's own NpcPerception snapshot for social decision scoring. Event-specific reactions and goals are not yet implemented; known information currently acts only as a modest reason to seek social contact.
 - Ambient scheduled encounters currently increase familiarity only. Trust and affinity do not drift from proximity or routine conversation; those values are reserved for explicit player actions and authored scenario events. No friendship, loyalty, intimidation, romance, reputation or betrayal rules are being invented here.
 - Ambient information exchange is deliberately capped at one known event per pair encounter, with the existing trust-based confidence calculation. This is not a free-running rumour cascade.
-- NPC knowledge and relationships are not yet part of the save format. Persistence must be designed with stable IDs and explicit migration before it is required by a playable scenario.
+- General NPC-to-NPC social relationships and ordinary personal knowledge are not broadly serialized. The player-to-NPC relationship book is persisted, and the resident-theft crime outcome restores its specifically selected witness observation. Extend persistence only for a concrete scenario and stable-ID requirement.
 - The utility brain is profile-driven at the Core level. Game character assets now serialize their own NpcUtilityProfile; the fallback Rhea profile intentionally starts work later than Milo to prove that schedules are data, not class-specific code.
 - The former NeighbourNpc component has been removed. All residents use NpcPresenter; Milo is identified only by his temporary data definition and stable ID.
 

@@ -29,11 +29,11 @@ Approved model:
 2. **B-02 — Customer contract:** author one existing resident as the customer, show terms before acceptance and fulfil by physical handover.
 3. **B-03 — Practical upgrade:** install one visible improvement, transfer its fixed CARD cost to an existing resident and unlock the second recipe.
 
-The implementation foundation for all three packages is committed. The starter catalogue and content assets are part of completing this initiative, not a reason to build another system. The active task cards provide file-level acceptance criteria.
+The implementation foundation and starter content for all three packages are committed. The active scene references the catalogue, two recipes, contract, upgrade prefab and resident definitions. The active task cards provide file-level acceptance criteria.
 
 ### Exit criteria
 
-- The starter materials and recipe assets are assigned to the active scene.
+- The starter materials, recipes, contract, upgrade and authored residents are assigned to the active scene.
 - Workbench shows the available recipe, exact ingredients/output and current availability.
 - Production consumes the correct player-owned materials exactly once and creates physical output.
 - The first contract can be reviewed/accepted; only one active contract is possible.
