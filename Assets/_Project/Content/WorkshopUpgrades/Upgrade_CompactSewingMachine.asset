@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Compact Sewing Machine
   description: A second-hand manual sewing machine from Rhea. Complete Milo's first request, then install it at the workbench to make reinforced patch kits.
   unlockedRecipe: {fileID: 11400000, guid: cc000000000000000000000000000002, type: 2}
-  installedPropPrefab: {fileID: 100100000, guid: ff000000000000000000000000000001, type: 3}
+  installedPropPrefab: {fileID: 100000, guid: ff000000000000000000000000000001, type: 3}
   installedPropLocalOffset: {x: 0, y: 0.35, z: 0}
   acquisitionMode: 1
   prerequisiteMode: 2
