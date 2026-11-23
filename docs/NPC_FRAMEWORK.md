@@ -57,7 +57,7 @@ Milo and Rhea began as fallback framework fixtures. They are now also represente
 - Ambient information exchange is deliberately capped at one known event per pair encounter, with the existing trust-based confidence calculation. This is not a free-running rumour cascade.
 - General NPC-to-NPC social relationships and ordinary personal knowledge are not broadly serialized. The player-to-NPC relationship book is persisted, and the resident-theft crime outcome restores its specifically selected witness observation. Extend persistence only for a concrete scenario and stable-ID requirement.
 - The utility brain is profile-driven at the Core level. Game character assets now serialize their own NpcUtilityProfile; the fallback Rhea profile intentionally starts work later than Milo to prove that schedules are data, not class-specific code.
-- The former NeighbourNpc component has been removed. All residents use NpcPresenter; Milo is identified only by his temporary data definition and stable ID.
+- The former NeighbourNpc component has been removed. All residents use NpcPresenter; Milo and Rhea are identified by stable IDs and authored NpcCharacterDefinition assets in HideoutSlice, not character-specific runtime classes. Their current First Workshop roles are replaceable scenario content, not a lock on the final cast.
 
 ## Planned development sequence
 
