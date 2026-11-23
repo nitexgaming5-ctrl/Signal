@@ -1,6 +1,6 @@
 # Progress — current repository truth
 
-Last reconciled: **2026-11-23**. Historical detail is preserved in `docs/progress/LOG-2026-11.md`. This file is the concise status board, not an implementation diary.
+Last reconciled: **2026-11-24**. Historical detail is preserved in `docs/progress/LOG-2026-11.md`. This file is the concise status board, not an implementation diary.
 
 ## Current state
 
