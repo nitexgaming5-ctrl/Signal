@@ -1,6 +1,6 @@
 # LIVELIHOOD-B1-B3 — First Workshop vertical slice
 
-**Status:** Core/Game foundation and starter content committed 2026-11-23; 415/415 EditMode tests reconfirmed; user-confirmed Play Mode workbench/selling/customer-request flow; upgrade and save/load acceptance checks remain  
+**Status:** Core/Game foundation and starter content committed; user-confirmed Play Mode workbench/selling/customer-request flow; Rhea supplier-menu correction now committed; the 415/415 test result predates that correction, so current-branch compilation/full suite and upgrade/save acceptance remain  
 **Direction:** approved Direction B — meaningful everyday livelihood  
 **User decisions:** workshop model = both (player-operated first, NPC-owned compatible later); one active contract; first practical hideout upgrade unlocks another recipe/capability.
 
