@@ -26,7 +26,7 @@ Approved structure:
 
 Implementation foundation already exists:
 - Core actor-aware `ProductionService` and production history.
-- Existing `WorkbenchWorkspace` extended with recipe book, production feedback and upgrade panel.
+- Existing `WorkbenchWorkspace` extended with recipe book and production feedback; separate Rhea-facing supplier offer panel handles upgrade purchase.
 - `CustomerContractBook`, atomic fulfilment and customer interaction panel.
 - `WorkshopProgressionBook`, one-time upgrade acquisition and visible installed-prop hook.
 - Save v15 persistence, v14 migration and focused Core/EditMode coverage.
@@ -64,7 +64,7 @@ Starter content is now authored and wired into HideoutSlice: four workshop mater
 
 ## Current next action
 
-Finish the First Workshop acceptance pass in Play Mode: verify Rhea's upgrade purchase/visual installation, the Reinforced Patch Kit unlock and production, and F5/F9 persistence. The user has reconfirmed 415/415 and the core workbench/selling/request loop. Once the upgrade/save path is confirmed, close B-01 to B-03 and begin B-04 Repair & Restoration design; do not implement that new mechanic before its rules are approved.
+First complete the corrected supplier route in Play Mode: approach Rhea until the prompt reads `E Workshop offer`, open her offer, and verify the Compact Sewing Machine purchase/installation, Reinforced Patch Kit unlock/production and F5/F9 persistence. The previous workbench-side purchase button was the wrong interaction route and has been removed. The user has reconfirmed 415/415 and the core workbench/selling/request loop. Once the upgrade/save path is confirmed, close B-01 to B-03 and begin B-04 Repair & Restoration design; do not implement that new mechanic before its rules are approved.
 
 ## Known repository layout caveat
 
