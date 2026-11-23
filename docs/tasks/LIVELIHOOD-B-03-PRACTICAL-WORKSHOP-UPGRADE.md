@@ -65,6 +65,6 @@ The first practical hideout upgrade unlocks another production recipe/capability
 Multiple upgrade tiers, branching upgrade trees, furniture decoration systems, room expansion, passive bonuses, generic progression menus or NPC business upgrades.
 
 
-## Supplier interaction correction — 2026-11-23
+## Supplier interaction correction — 2026-11-24
 
 The user found that no menu opened when attempting to buy the machine from Rhea. Source inspection showed the offer had been incorrectly wired only to the workbench UI, while Rhea remained on generic NPC dialogue. The upgrade acquisition is now routed through a dedicated panel opened by approaching Rhea and pressing E. The workbench remains the production station; it no longer contains the purchase button. Because Milo and Rhea's CornerShop work positions are close together, E is routed to the nearest of the two residents when both are in range. Purchase still uses the existing atomic WorkshopUpgradeService and then installs the prop at the hideout workbench. Added a focused UI callback test; Unity must compile and run it before the change is considered verified.
