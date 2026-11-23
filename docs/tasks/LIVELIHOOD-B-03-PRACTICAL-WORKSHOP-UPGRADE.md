@@ -46,7 +46,7 @@ The first practical hideout upgrade unlocks another production recipe/capability
 - Authored the Compact Sewing Machine upgrade. It costs 90 clean CARD, is sold by Rhea (resident account starts at 250 CARD), requires Milo's first contract to be completed and unlocks Reinforced Patch Kit.
 - The installed prop is a replaceable SpriteRenderer placeholder built from the existing PlayerSquare sprite; final art is tracked in ART_TODO.
 - The player starts with 70 CARD; Milo's 40 CARD reward makes the upgrade affordable after fulfilling the request. Rent remains zero for this slice.
-- The user reconfirmed 415/415 EditMode tests and confirmed workbench production, selling and Milo's customer request in Play Mode. The first supplier menu was missing because purchase had incorrectly been exposed only inside WorkbenchWorkspace; this has been replaced by the Rhea-facing panel. Unity compilation and the supplier purchase/installation, unlock and save/reload path still require Play Mode verification.
+- The user reconfirmed 415/415 EditMode tests before this supplier-menu correction and confirmed workbench production, selling and Milo's customer request in Play Mode. The first supplier menu was missing because purchase had incorrectly been exposed only inside WorkbenchWorkspace; this has been replaced by the Rhea-facing panel. The new UI test and GameSession changes still require Unity compilation and a fresh full EditMode run, followed by supplier purchase/installation, unlock and save/reload Play Mode verification.
 
 ## Acceptance criteria
 
