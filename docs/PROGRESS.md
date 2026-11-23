@@ -57,8 +57,8 @@ Starter content is now authored and wired into HideoutSlice: four workshop mater
 ## Current verification
 
 - **EditMode:** 415/415 passed, user-validated 2026-11-23 after commit `b6bd50a`.
-- **Unity compilation:** user ran the test suite successfully after the corrections; no compile blocker was reported.
-- **First Workshop Play Mode:** still needs direct end-to-end exercise with the authored assets: craft, accept, fulfil, acquire upgrade, observe second recipe, save/reload.
+- **Unity compilation / asset import:** the user reported a prefab import error in the new sewing-machine placeholder. The root GameObject used Unity-reserved `fileID 100100000`; this is corrected to `100000`, including its Transform/SpriteRenderer back-references and the upgrade asset's `installedPropPrefab` reference. The prefab GUID is unchanged. Unity must reimport the corrected files to confirm the error is gone.
+- **First Workshop Editor/Play Mode:** reimport the corrected sewing-machine prefab and upgrade asset first; confirm no prefab deserialization error, then exercise craft, accept, fulfil, acquire upgrade, observe second recipe, save/reload.
 - **Theft witness correction:** witnessed and unwitnessed heat behavior should be retested in Play Mode after the prior heat fix if not already covered.
 - Do not claim a Play Mode verification that the user has not reported.
 
