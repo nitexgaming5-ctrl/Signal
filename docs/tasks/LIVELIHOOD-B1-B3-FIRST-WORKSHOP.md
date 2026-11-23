@@ -4,6 +4,8 @@
 **Direction:** approved Direction B — meaningful everyday livelihood  
 **User decisions:** workshop model = both (player-operated first, NPC-owned compatible later); one active contract; first practical hideout upgrade unlocks another recipe/capability.
 
+**Content catalogue:** [First Workshop starter catalogue and workbench usage](../content/STARTER_CATALOGUE.md). Durable authored values are recorded in [Decision 0005](../decisions/0005-first-workshop-content.md).
+
 ## Player outcome
 
 The player operates a modest production workshop from the hideout, obtains materials, makes authored goods, accepts one customer contract, physically hands over the required goods, receives clean CARD, and invests in a practical workshop upgrade that unlocks another recipe. The architecture must not prevent an authored NPC-owned business from operating a production workspace later.

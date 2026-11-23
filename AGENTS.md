@@ -39,6 +39,17 @@ The user has explicitly authorised the agent to lead large chunks of work. Withi
 
 Keep one active gameplay initiative at a time, but do not artificially constrain work to one task card when multiple cards are parts of the same vertical slice. Prefer a complete end-to-end player experience over isolated subsystem delivery.
 
+### Large-work execution mandate
+
+When the user authorises a substantial job, treat that authorisation as permission to carry the whole coherent scope through to a finished, reviewable state. Do not stop after an audit, proposal or plan when the user has asked for the work itself.
+- Own the initiative from repository inspection and planning through implementation, content integration, testing, documentation, archive/cleanup work and a final handoff.
+- Break large work into internally managed batches with coherent commits. Continue across batches without asking the user to approve each ordinary step.
+- Re-plan when source inspection exposes a better or safer route; preserve the user's intended outcome and explain material scope changes in the report.
+- Prefer the smallest complete implementation, but do not artificially limit a broad authorised task to a tiny patch or one file.
+- Resolve straightforward inconsistencies and defects encountered inside scope rather than merely listing them for someone else.
+- If Unity or another required local environment is unavailable, complete the repository-side work that can be done safely and leave an exact, concise verification procedure. Do not represent environment-dependent checks as complete.
+- Ask for user input only at the approval boundary above or when an actual external dependency/access limitation prevents progress. A recommendation is not a blocker when the user has already delegated the decision.
+
 ### Delegated content authority — First Workshop (B-01 to B-03)
 
 The user has granted the agent authority to author the provisional starter content needed to make the first workshop playable, without asking for approval of every content value. This includes the starter item catalogue, material quantities, first and second recipes, first customer contract, resident payer/payee balances, fixed prototype reward/cost, and visible workshop-upgrade placeholder.

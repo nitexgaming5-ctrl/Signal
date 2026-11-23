@@ -11,7 +11,7 @@ The game combines:
 - **Legal and illegal livelihoods in one world:** lawful work, trade, services and production coexist with theft and other fictional crime. They are parallel options, not separate city maps or mutually exclusive character classes.
 - **Narrative RPG:** authored residents, relationships, secrets, requests, rumours and opportunities make the simulation matter.
 - **Hands-on interaction:** places, people, containers, furniture, tools and physical goods should matter. Menus support the world rather than replace it.
-- **Visible personal progression:** the hideout, equipment, relationships, skills/knowledge and possessions can reflect the player's choices.
+- **Visible personal progression:** the hideout, equipment, discoveries, relationships and possessions can reflect the player's choices.
 
 The player is not primarily running a shop. Shopping and selling are only two activities in a larger cycle of going out, meeting people, gathering or acquiring goods, making decisions, taking opportunities and returning home.
 
@@ -89,6 +89,7 @@ The agent should use the task and the nature of the change to select relevant re
 | NPC simulation, perception, routines, knowledge and social boundaries | `NPC_FRAMEWORK.md` |
 | Visual style, UI conventions and asset constraints | `ART_AND_UI.md`, `ART_TODO.md` |
 | Parked ideas only | `IDEA_BACKLOG.md` |
+| Authored First Workshop item/recipe/contract/upgrade catalogue and playtest steps | `content/STARTER_CATALOGUE.md` |
 | Current initiative implementation checklist | `tasks/` (active cards are linked from Progress/Roadmap) |
 | Durable user decisions | `decisions/` |
 | Historical milestones and prior handoffs | `progress/` and `tasks/archive/` |
@@ -109,6 +110,7 @@ The agent should use the task and the nature of the change to select relevant re
 - `Assets/_Project/Scenes/`: active Unity scenes; HideoutSlice is the current playable slice.
 - `Assets/_Project/Tests/EditMode/`: Core and Game EditMode tests.
 - `docs/tasks/`: active task cards and future design placeholders.
+- `docs/content/`: concise human-readable catalogue of authored gameplay content.
 - `docs/tasks/archive/`: completed/superseded task cards.
 - `docs/progress/`: append-only log and archived handoff snapshots.
 - `docs/decisions/`: durable approved decisions.

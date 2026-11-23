@@ -9,13 +9,17 @@ Make the existing First Workshop code foundation into one small, connected, play
 
 ## Starter catalogue and production
 
-- Materials: Fabric Roll, Thread Spool, Adhesive Tube and Fastener Pack.
-- First product: Basic Patch Kit.
-- Second product: Reinforced Patch Kit.
+- Content paths: item assets in `Assets/_Project/Content/WorkshopItems/`; recipe, contract, upgrade and resident definitions live in their matching `Recipes/`, `Contracts/`, `WorkshopUpgrades/` and `NPCs/` folders.
+- Materials and authored starting kit: Fabric Roll (1×2, max stack 3, start 3), Thread Spool (1×1, max stack 2, start 2), Adhesive Tube (1×1, max stack 2, start 2) and Fastener Pack (1×1, max stack 1, start 1).
+- First product: Basic Patch Kit (1×1, max stack 1).
+- Second product: Reinforced Patch Kit (1×1, max stack 1).
+- Item base reference values are 5/3/3/3 for the four materials and 18/30 for the two products. These values are not shop prices, buyback offers or an implied economy catalogue.
 - First recipe: Fabric Roll ×1 + Thread Spool ×1 + Adhesive Tube ×1 → Basic Patch Kit ×1.
 - Second recipe, initially locked: Basic Patch Kit ×1 + Fabric Roll ×1 + Fastener Pack ×1 → Reinforced Patch Kit ×1.
 - Both recipes use immediate production and create physical item stacks. Basic Patch Kits have max stack 1 so two individual kits can be made, one handed to a customer and one retained for the upgrade recipe.
-- Hideout starter materials provide exactly enough supplies to make two Basic Patch Kits and then one Reinforced Patch Kit. This avoids a random scavenging roll soft-locking the first contract/upgrade demonstration.
+- Hideout starter materials provide exactly enough supplies to make two separate Basic Patch Kits and then one Reinforced Patch Kit. Two separate stacks exist because product max stack is 1. The first is handed to Milo, the second is retained for the Reinforced recipe. This avoids a random scavenging roll soft-locking the first contract/upgrade demonstration.
+
+The complete item table, exact recipe inputs/outputs, scene wiring and numbered playtest procedure live in `docs/content/STARTER_CATALOGUE.md`.
 
 ## First customer contract
 

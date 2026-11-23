@@ -49,6 +49,11 @@ Starter content is now authored and wired into HideoutSlice: four workshop mater
 | Dirty Cash | Physical currency item, unnamed contact, fixed exchange and cleaning, separate histories and persistent contact inventory | user-tested (396/396 milestone) |
 | First Workshop | Production, one-active contract, physical delivery, issuer-paid reward, practical upgrade and recipe unlock | code foundation + 415/415 EditMode baseline; content/Play Mode completion tracked separately |
 
+## Current content reference
+
+- Starter catalogue, exact recipes, contract/upgrade details and workbench playtest: `docs/content/STARTER_CATALOGUE.md`.
+- Durable content decisions and replaceability rationale: `docs/decisions/0005-first-workshop-content.md`.
+
 ## Current verification
 
 - **EditMode:** 415/415 passed, user-validated 2026-11-23 after commit `b6bd50a`.
