@@ -7,7 +7,7 @@ Last reconciled: **2026-11-23**. Historical detail is preserved in `docs/progres
 - Unity 6000.6.9f1, 2D URP. Active architecture: `Signal.Core` (plain C#) + `Signal.Game` (Unity layer). Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
 - Working branch: `chore/collaboration-workflow-and-audit`. Keep `main` untouched.
 - Save schema: **v15**. It persists production history, contract lifecycle, workshop upgrade IDs, contract receiver inventory and receiver actor identity in addition to previous player/world/economy state.
-- Latest user-validated EditMode result: **415/415 passed (2026-11-23)**. The earlier 413/415 report had two stale test defects; both fixtures/assertions were corrected in commit `b6bd50a`, and the user confirmed the subsequent full run passed.
+- Latest completed full EditMode result reported by the user: **415/415 passed (2026-11-23)**. That run predates the Rhea supplier-panel integration now on this branch; rerun the full suite after importing the current patch. The earlier 413/415 report had two stale test defects corrected in `b6bd50a`.
 - The user has reconfirmed **415/415 passed** and reports that the project is running, with the workbench, selling and customer-request flow working in Play Mode. The First Workshop is now beyond a code-only milestone; the remaining acceptance pass is to explicitly confirm the visible upgrade, Reinforced Patch Kit unlock/production and save/reload persistence before calling B-01 to B-03 complete.
 - Active gameplay initiative: **LIVELIHOOD-B1-B3 — First Workshop**, following approved Direction B.
 
@@ -56,9 +56,9 @@ Starter content is now authored and wired into HideoutSlice: four workshop mater
 
 ## Current verification
 
-- **EditMode:** 415/415 passed, user-validated 2026-11-23 after commit `b6bd50a`.
+- **EditMode:** 415/415 was user-validated before the Rhea supplier-panel code/test additions. The current branch adds `WorkshopUpgradePanelTests`; a fresh compile and full EditMode run are required.
 - **Unity compilation / asset import:** the sewing-machine placeholder's reserved root `fileID 100100000` was corrected to `100000`, including Transform/SpriteRenderer back-references and the upgrade asset reference. The prefab GUID is unchanged. The user subsequently reported the project running and the core workshop/customer loop working; no further prefab import blocker has been reported.
-- **First Workshop Play Mode:** user-confirmed workbench, selling and customer-request flow. Complete the remaining explicit checks: acquire/install the Compact Sewing Machine, unlock and craft the Reinforced Patch Kit, then F5/F9 save/reload and confirm balances, inventory, contract, installed upgrade and recipe unlock.
+- **First Workshop Play Mode:** user-confirmed workbench, selling and customer-request flow. The Rhea-facing upgrade menu/purchase route has now been implemented but not yet user-tested. Confirm `E Workshop offer` at Rhea, purchase/install the Compact Sewing Machine, unlock and craft the Reinforced Patch Kit, then F5/F9 save/reload and confirm balances, inventory, contract, installed upgrade and recipe unlock.
 - **Theft witness correction:** witnessed and unwitnessed heat behavior should be retested in Play Mode after the prior heat fix if not already covered.
 - Do not claim a Play Mode verification that the user has not reported.
 
