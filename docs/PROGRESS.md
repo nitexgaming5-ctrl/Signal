@@ -8,7 +8,7 @@ Last reconciled: **2026-11-23**. Historical detail is preserved in `docs/progres
 - Working branch: `chore/collaboration-workflow-and-audit`. Keep `main` untouched.
 - Save schema: **v15**. It persists production history, contract lifecycle, workshop upgrade IDs, contract receiver inventory and receiver actor identity in addition to previous player/world/economy state.
 - Latest user-validated EditMode result: **415/415 passed (2026-11-23)**. The earlier 413/415 report had two stale test defects; both fixtures/assertions were corrected in commit `b6bd50a`, and the user confirmed the subsequent full run passed.
-- The 415/415 result verifies the code/test state at that run. The subsequent First Workshop assets and scene wiring do not alter C# code, but Unity import and Play Mode verification of those new references/content remain a separate check.
+- The user has reconfirmed **415/415 passed** and reports that the project is running, with the workbench, selling and customer-request flow working in Play Mode. The First Workshop is now beyond a code-only milestone; the remaining acceptance pass is to explicitly confirm the visible upgrade, Reinforced Patch Kit unlock/production and save/reload persistence before calling B-01 to B-03 complete.
 - Active gameplay initiative: **LIVELIHOOD-B1-B3 — First Workshop**, following approved Direction B.
 
 ## Active player-facing initiative
@@ -57,14 +57,14 @@ Starter content is now authored and wired into HideoutSlice: four workshop mater
 ## Current verification
 
 - **EditMode:** 415/415 passed, user-validated 2026-11-23 after commit `b6bd50a`.
-- **Unity compilation / asset import:** the user reported a prefab import error in the new sewing-machine placeholder. The root GameObject used Unity-reserved `fileID 100100000`; this is corrected to `100000`, including its Transform/SpriteRenderer back-references and the upgrade asset's `installedPropPrefab` reference. The prefab GUID is unchanged. Unity must reimport the corrected files to confirm the error is gone.
-- **First Workshop Editor/Play Mode:** reimport the corrected sewing-machine prefab and upgrade asset first; confirm no prefab deserialization error, then exercise craft, accept, fulfil, acquire upgrade, observe second recipe, save/reload.
+- **Unity compilation / asset import:** the sewing-machine placeholder's reserved root `fileID 100100000` was corrected to `100000`, including Transform/SpriteRenderer back-references and the upgrade asset reference. The prefab GUID is unchanged. The user subsequently reported the project running and the core workshop/customer loop working; no further prefab import blocker has been reported.
+- **First Workshop Play Mode:** user-confirmed workbench, selling and customer-request flow. Complete the remaining explicit checks: acquire/install the Compact Sewing Machine, unlock and craft the Reinforced Patch Kit, then F5/F9 save/reload and confirm balances, inventory, contract, installed upgrade and recipe unlock.
 - **Theft witness correction:** witnessed and unwitnessed heat behavior should be retested in Play Mode after the prior heat fix if not already covered.
 - Do not claim a Play Mode verification that the user has not reported.
 
 ## Current next action
 
-Open the updated project in Unity, allow all new ScriptableObjects/prefab references to import, run the full EditMode suite, then exercise craft twice → deliver one kit to Milo → buy the sewing machine from Rhea → craft the reinforced kit → save/reload. Keep the user-validated 415/415 result recorded as the last full suite; rerun after any future code changes.
+Finish the First Workshop acceptance pass in Play Mode: verify Rhea's upgrade purchase/visual installation, the Reinforced Patch Kit unlock and production, and F5/F9 persistence. The user has reconfirmed 415/415 and the core workbench/selling/request loop. Once the upgrade/save path is confirmed, close B-01 to B-03 and begin B-04 Repair & Restoration design; do not implement that new mechanic before its rules are approved.
 
 ## Known repository layout caveat
 
