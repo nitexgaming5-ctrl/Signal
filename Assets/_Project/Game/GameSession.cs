@@ -536,6 +536,18 @@ namespace Signal.Game
             bool nearDirtyCashContact = _city.IsResidentWithin(DirtyCashContactNpcId, playerPosition, InteractionDistance);
             bool nearContractCustomer = IsNearContractCustomer(playerPosition);
             bool nearUpgradeSupplier = IsNearFirstUpgradeSupplier(playerPosition);
+            if (nearContractCustomer && nearUpgradeSupplier)
+            {
+                // Milo and Rhea can share the CornerShop work area; route E to the closest resident.
+                Vector2 customerPosition = _city.GetResidentPosition(firstCustomerContract.IssuerNpcId);
+                Vector2 supplierPosition = _city.GetResidentPosition(firstWorkshopUpgrade.PayeeNpcId);
+                float customerDistance = (playerPosition - customerPosition).sqrMagnitude;
+                float supplierDistance = (playerPosition - supplierPosition).sqrMagnitude;
+                if (supplierDistance <= customerDistance)
+                    nearContractCustomer = false;
+                else
+                    nearUpgradeSupplier = false;
+            }
             bool nearSearchableContainer = _city.TryGetNearbySearchableContainer(playerPosition,
                 out string nearbyContainerId, out string nearbyContainerLabel);
             ResidentPropertyContainerDefinition nearbyProperty = FindNearbyResidentProperty(playerPosition);
