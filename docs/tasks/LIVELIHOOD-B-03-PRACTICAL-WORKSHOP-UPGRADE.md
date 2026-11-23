@@ -1,6 +1,6 @@
 # LIVELIHOOD-B-03 — Practical hideout workshop upgrade
 
-**Status:** specified; not started  
+**Status:** Core/Game implementation committed; authored upgrade content and Unity verification pending  
 **Parent:** LIVELIHOOD-B1-B3-FIRST-WORKSHOP.md  
 **Depends on:** B-01 production and B-02 customer contract loop.
 
@@ -36,6 +36,15 @@ The first practical hideout upgrade unlocks another production recipe/capability
 - Persist acquired upgrade and unlocked recipe identity.
 - Test prerequisite failure, insufficient funds if applicable, duplicate acquisition, correct unlock and save/load.
 - Keep the authored NPC-owned workshop path compatible; this first upgrade belongs to the player hideout.
+
+## Implementation status — 2026-11-23
+
+- Added a persistent Core WorkshopProgressionBook and one-time acquisition service. A successful clean-CARD purchase debits the player, credits the authored resident payee and records the upgrade ID; failed/repeated acquisition does not charge twice.
+- Added a validated WorkshopUpgradeDefinition with an unlocked recipe, authored cost/payee/prerequisite, and visible installed-prop prefab hook.
+- Integrated purchase feedback and recipe unlock into the workbench. The installed prop is instantiated at the workbench after acquisition.
+- Added Core EditMode tests for contract prerequisite, no-prerequisite mode, duplicate purchase and insufficient funds.
+- No concrete upgrade appearance, cost, payee, prerequisite or second recipe asset has been authored or assigned. These remain user-controlled content decisions.
+- Tests and Play Mode upgrade flow have not yet been run in Unity.
 
 ## Acceptance criteria
 

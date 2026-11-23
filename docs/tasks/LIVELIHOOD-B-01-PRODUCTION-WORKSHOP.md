@@ -1,6 +1,6 @@
 # LIVELIHOOD-B-01 — Production foundation and player workshop
 
-**Status:** specified; not started  
+**Status:** Core/Game implementation committed; authored recipe content and Unity verification pending  
 **Parent:** LIVELIHOOD-B1-B3-FIRST-WORKSHOP.md
 
 ## Player outcome
@@ -44,6 +44,15 @@ The player interacts with the existing hideout workbench, inspects an authored r
 - Use existing placeholder/test items only if the user explicitly approves them as temporary fixture content.
 - Add a second recipe definition as locked content for B-03 to unlock; exact content awaits approval.
 - Do not add a large recipe catalogue.
+
+## Implementation status — 2026-11-23
+
+- Added `ProductionService` and `ProductionTransactionLedger` in Signal.Core. Production validates operator/container custody and ownership of inputs, aggregates duplicate ingredient lines, creates physical output, records actor/time history, and rolls inventory/ownership back on failure.
+- Added stable-ID, validated `RecipeDefinition` authoring and integrated recipe selection/production controls into the existing WorkbenchWorkspace and GameSession.
+- Retained the existing `Crafting.TryCraft` API unchanged.
+- Added Core EditMode coverage for successful production, missing inputs, ownership mismatch, output-capacity rollback, NPC-owned production and duplicate ingredient lines.
+- No concrete recipe or output assets have been authored or assigned. The workbench will display an empty recipe book until the user-approved content is created and assigned.
+- These tests have not yet been run in Unity; scene/Play Mode verification remains pending.
 
 ## Acceptance criteria
 

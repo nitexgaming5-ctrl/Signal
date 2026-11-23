@@ -201,3 +201,15 @@ When a save shape changes, keep the current format reliable and add round-trip c
 - Dirty Cash cannot pay for legal retail or be deposited directly. No passive conversion, automatic cleaning, dynamic rate or global laundering simulation.
 - Save v14 preserves the contact's physical inventory, item ownership, resident clean-money accounts and both dedicated transaction histories. v13 migration initializes the new collections empty while preserving existing inventory, crime and searchable-container data.
 - Full specification: `docs/tasks/CRIME-ECONOMY-SLICE-B-DIRTY-CASH.md`.
+
+
+## First Workshop livelihood state — save v15
+
+- `RecipeDefinition` is authored Game content with a stable Guid, ItemDefinition inputs/output, positive quantities and explicit immediate-production configuration. Runtime execution is owned by Core `ProductionService`, not the ScriptableObject or UI.
+- `ProductionTransaction` records the stable recipe and output definition IDs, quantity, operator actor and in-game day/minute. `ProductionTransactionLedger` prevents duplicate transaction identities.
+- Production operates on an `EconomicActorId`-owned inventory registered in `EconomicContainerRegistry`. Inputs must belong to the operator. Outputs become physical inventory stacks owned by that same actor. The implementation is compatible with player- and NPC-owned workshop inventories; only the player hideout is integrated in this slice.
+- `CustomerContractBook` stores one active authored contract lifecycle (Offered, Active, Completed). Authored content lives in `CustomerContractDefinition`; fulfilment uses an exact player-owned whole stack and transfers it to an issuer-owned receiving inventory through `AssetTransferService` with reason `ContractDelivery`.
+- Contract payment is a clean CARD transfer from the issuer's existing resident account to the player's existing account. Completion stores the delivery transaction ID, reward and payer identity; no separate business account is introduced.
+- `WorkshopProgressionBook` stores acquired upgrade IDs. `WorkshopUpgradeDefinition` describes its unlocked recipe, acquisition mode, prerequisite, resident payee, CARD cost and visible prop. The definition is authored content; the acquired ID is runtime save state.
+- Save v15 adds production transactions, customer contract state, acquired workshop upgrade IDs, issuer receiving inventory items and issuer actor ID. v14 migration initializes these collections empty and ensures unique stable IDs for receiver items. Runtime ScriptableObject/prefab references are reconstructed from scene content, never serialized.
+- Round-trip tests cover production operator/history, active contract state, acquired upgrade IDs, receiving inventory contents and issuer ownership. Unity execution remains pending.

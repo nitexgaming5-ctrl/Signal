@@ -249,6 +249,11 @@ Specification and implementation breakdown:
 **L8 — Transaction history and persistence shape**
 - Audit whether existing economic ledgers fully represent production and contract fulfilment before adding new ledgers.
 - Persist contract lifecycle and workshop recipe unlock/upgrade state if they are durable player progress.
-- Bump save schema only after inspecting the exact serialized fields; current schema is v14.
-- Status: technical investigation required during implementation planning; no schema number pre-approved.
+- Save schema v15 is now implemented for production history/operator, contract lifecycle, acquired upgrades and issuer receiving inventory/actor identity. v14 migration initializes these fields empty and round-trip/migration tests are added.
+- Status: code decision made to use v15 because persistent runtime state is added; Unity migration/test execution pending.
 
+
+
+### First Workshop implementation note — 2026-11-23
+
+The reusable B-01..B-03 code foundation is committed, but no first product, issuer, contract reward or upgrade content has been authored. The open decisions above remain binding. Recipe/customer/upgrade ScriptableObjects should be created and assigned only after the corresponding content decisions are made. The technical implementation supports explicit legitimate-only vs player-owned-including-stolen contract eligibility and whole-stack delivery to the issuer's physical inventory; it does not settle the unresolved authored values or add partial-stack handling.

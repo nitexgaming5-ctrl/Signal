@@ -651,5 +651,96 @@ namespace Signal.Core.Tests
             Assert.That(report.SkippedShopSaleTransactions, Is.EqualTo(1));
             Assert.That(sales.Count, Is.Zero);
         }
+
+        [Test]
+        public void VersionFourteenSaveMigratesWithEmptyLivelihoodState()
+        {
+            var data = new SaveData
+            {
+                version = 14,
+                productionTransactions = null,
+                customerContracts = null,
+                acquiredWorkshopUpgradeIds = null,
+                contractReceiverItems = null
+            };
+
+            Assert.That(SaveMigrator.TryMigrate(data, out _), Is.True);
+            Assert.That(data.version, Is.EqualTo(15));
+            Assert.That(data.productionTransactions, Is.Empty);
+            Assert.That(data.customerContracts, Is.Empty);
+            Assert.That(data.acquiredWorkshopUpgradeIds, Is.Empty);
+            Assert.That(data.contractReceiverItems, Is.Empty);
+        }
+
+        [Test]
+        public void CaptureAndApplyRoundTripProductionContractsWorkshopUpgradeAndCustomerInventory()
+        {
+            var playerStats = new PlayerStats(50);
+            var playerInventory = new GridInventory();
+            var playerOwnership = new AssetOwnershipBook();
+            var productionHistory = new ProductionTransactionLedger();
+            var contracts = new CustomerContractBook();
+            var workshop = new WorkshopProgressionBook();
+            var receiverInventory = new GridInventory(4, 4);
+            var input = Item(1, 1, 10);
+            var received = Item(1, 1, 10);
+            playerInventory.Place(input, 0, 0, count: 2);
+            Guid receiverStackId = Guid.NewGuid();
+            receiverInventory.Place(received, 0, 0, count: 3, itemInstanceId: receiverStackId);
+            playerOwnership.TryRegister(playerInventory.Items[0].ItemInstanceId, EconomicActorId.Player);
+            var customerActor = new EconomicActorId("resident:test-customer");
+            playerOwnership.TryRegister(receiverStackId, customerActor);
+
+            Guid recipeId = Guid.NewGuid();
+            productionHistory.TryRecord(new ProductionTransaction(Guid.NewGuid(), recipeId,
+                received.Id, 2, EconomicActorId.Player, 2, 500));
+            Guid contractId = Guid.NewGuid();
+            contracts.TryRegisterOffer(contractId);
+            contracts.TryAccept(contractId, 2, 450);
+            Guid upgradeId = Guid.NewGuid();
+            workshop.TryAcquire(upgradeId);
+
+            var clock = new GameClock();
+            clock.Restore(2, 500);
+            var data = SaveMapper.Capture(playerStats, playerInventory, null, clock,
+                new HeatMeter(), new RentLedger(50, 7), "Hideout", 0f, 0f,
+                assetOwnership: playerOwnership,
+                productionTransactions: productionHistory,
+                customerContracts: contracts,
+                workshopProgression: workshop,
+                contractReceiverInventory: receiverInventory,
+                contractReceiverActorId: customerActor.Value);
+
+            var targetStats = new PlayerStats();
+            var targetInventory = new GridInventory();
+            var targetOwnership = new AssetOwnershipBook();
+            var targetProduction = new ProductionTransactionLedger();
+            var targetContracts = new CustomerContractBook();
+            targetContracts.TryRegisterOffer(contractId);
+            var targetWorkshop = new WorkshopProgressionBook();
+            var targetReceiver = new GridInventory(4, 4);
+
+            LoadReport report = SaveMapper.Apply(data, targetStats, targetInventory, null,
+                new GameClock(), new HeatMeter(), new RentLedger(50, 7), Resolver(input, received),
+                assetOwnership: targetOwnership,
+                productionTransactions: targetProduction,
+                customerContracts: targetContracts,
+                workshopProgression: targetWorkshop,
+                contractReceiverInventory: targetReceiver);
+
+            Assert.That(report.Success, Is.True);
+            Assert.That(report.SkippedProductionTransactions, Is.Zero);
+            Assert.That(report.SkippedCustomerContracts, Is.Zero);
+            Assert.That(report.SkippedWorkshopUpgradeIds, Is.Zero);
+            Assert.That(report.SkippedContractReceiverItems, Is.Zero);
+            Assert.That(targetProduction.Count, Is.EqualTo(1));
+            Assert.That(targetProduction.Transactions[0].OperatorActor, Is.EqualTo(EconomicActorId.Player));
+            Assert.That(targetContracts.ActiveContractId, Is.EqualTo(contractId));
+            Assert.That(targetWorkshop.HasAcquired(upgradeId), Is.True);
+            Assert.That(targetReceiver.CountOf(received), Is.EqualTo(3));
+            Assert.That(targetOwnership.TryGetOwner(receiverStackId, out EconomicActorId restoredOwner), Is.True);
+            Assert.That(restoredOwner, Is.EqualTo(customerActor));
+            Assert.That(targetInventory.CountOf(input), Is.EqualTo(2));
+        }
     }
 }

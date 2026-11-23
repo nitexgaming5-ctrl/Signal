@@ -3,6 +3,9 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
+using System;
+using System.Collections.Generic;
+using Signal.Core;
 
 namespace Signal.Game
 {
@@ -24,12 +27,46 @@ namespace Signal.Game
         private Text _status;
         private RectTransform _surface;
         private bool _built;
+        private GridInventory _inventory;
+        private AssetOwnershipBook _ownership;
+        private IReadOnlyList<RecipeDefinition> _recipes;
+        private Func<RecipeDefinition, bool> _isRecipeUnlocked;
+        private Func<Guid, string> _produce;
+        private WorkshopUpgradeDefinition _upgrade;
+        private Func<bool> _isUpgradeAcquired;
+        private Func<bool> _canAcquireUpgrade;
+        private Func<string> _acquireUpgrade;
+        private RectTransform _recipeList;
+        private Text _recipeDetails;
+        private Text _upgradeDetails;
+        private Button _produceButton;
+        private Button _upgradeButton;
+        private RecipeDefinition _selectedRecipe;
 
         public bool IsOpen { get; private set; }
 
         public void Bind(PlayerMotor2D motor)
         {
             _motor = motor;
+        }
+
+        public void Bind(PlayerMotor2D motor, GridInventory inventory, AssetOwnershipBook ownership,
+            IReadOnlyList<RecipeDefinition> recipes, Func<RecipeDefinition, bool> isRecipeUnlocked,
+            Func<Guid, string> produce, WorkshopUpgradeDefinition upgrade, Func<bool> isUpgradeAcquired,
+            Func<bool> canAcquireUpgrade, Func<string> acquireUpgrade)
+        {
+            if (inventory == null) throw new ArgumentNullException(nameof(inventory));
+            if (ownership == null) throw new ArgumentNullException(nameof(ownership));
+            _motor = motor;
+            _inventory = inventory;
+            _ownership = ownership;
+            _recipes = recipes ?? Array.Empty<RecipeDefinition>();
+            _isRecipeUnlocked = isRecipeUnlocked ?? throw new ArgumentNullException(nameof(isRecipeUnlocked));
+            _produce = produce ?? throw new ArgumentNullException(nameof(produce));
+            _upgrade = upgrade;
+            _isUpgradeAcquired = isUpgradeAcquired;
+            _canAcquireUpgrade = canAcquireUpgrade;
+            _acquireUpgrade = acquireUpgrade;
         }
 
         public void Open()
@@ -42,6 +79,7 @@ namespace Signal.Game
 
             _canvasObject.SetActive(true);
             IsOpen = true;
+            RefreshProduction();
             if (_motor != null)
                 _motor.enabled = false;
         }
@@ -121,12 +159,175 @@ namespace Signal.Game
             AddDraggable("TOOLS", "Small tools. Some are useful. Some are just old.", new Color32(99, 105, 112, 255), new Vector2(-80f, -135f), new Vector2(210f, 72f));
             AddDraggable("TRAY", "A shallow metal tray with a dent in one corner.", new Color32(111, 111, 105, 255), new Vector2(-350f, -135f), new Vector2(170f, 92f));
 
+            BuildProductionControls(frame);
+
             _status = CreateText(frame, "Drag objects to rearrange the table. Click one to inspect it.", 17, InkColor, TextAnchor.MiddleLeft);
             Anchor(_status.rectTransform, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(34f, 18f), new Vector2(1050f, 34f));
             closeRect.SetAsLastSibling();
 
             _canvasObject.SetActive(false);
             _built = true;
+        }
+
+        private void BuildProductionControls(Transform frame)
+        {
+            RectTransform panel = CreatePanel(frame, "ProductionPanel", new Color32(20, 25, 30, 248));
+            Anchor(panel, Vector2.one, Vector2.one, new Vector2(-24f, -124f), new Vector2(330f, 560f));
+
+            Text title = CreateText(panel, "PRODUCTION  /  RECIPE BOOK", 18, InkColor, TextAnchor.MiddleLeft);
+            Anchor(title.rectTransform, new Vector2(14f, -12f), new Vector2(300f, 30f));
+
+            _recipeList = CreatePanel(panel, "RecipeList", new Color32(27, 33, 39, 255));
+            Anchor(_recipeList, new Vector2(12f, -52f), new Vector2(306f, 190f));
+
+            _recipeDetails = CreateText(panel, "Select an authored recipe.", 14, MutedColor, TextAnchor.UpperLeft);
+            Anchor(_recipeDetails.rectTransform, new Vector2(14f, -250f), new Vector2(300f, 150f));
+
+            _produceButton = CreateButton(panel, "PRODUCE", new Vector2(300f, 42f));
+            Anchor(_produceButton.GetComponent<RectTransform>(), new Vector2(14f, -408f), new Vector2(300f, 42f));
+            _produceButton.onClick.AddListener(() =>
+            {
+                if (_selectedRecipe == null || _produce == null) return;
+                SelectStatus(_produce(_selectedRecipe.Id));
+                RefreshProduction();
+            });
+
+            _upgradeDetails = CreateText(panel, "No practical upgrade assigned.", 13, MutedColor, TextAnchor.UpperLeft);
+            Anchor(_upgradeDetails.rectTransform, new Vector2(14f, -462f), new Vector2(300f, 52f));
+
+            _upgradeButton = CreateButton(panel, "WORKSHOP UPGRADE", new Vector2(300f, 36f));
+            Anchor(_upgradeButton.GetComponent<RectTransform>(), new Vector2(14f, -520f), new Vector2(300f, 36f));
+            _upgradeButton.onClick.AddListener(() =>
+            {
+                if (_acquireUpgrade == null) return;
+                SelectStatus(_acquireUpgrade());
+                RefreshProduction();
+            });
+            RefreshProduction();
+        }
+
+        private void RefreshProduction()
+        {
+            if (_recipeList == null) return;
+            for (int i = _recipeList.childCount - 1; i >= 0; i--)
+                Destroy(_recipeList.GetChild(i).gameObject);
+
+            if (_recipes == null || _recipes.Count == 0)
+            {
+                _recipeDetails.text = "No authored recipes assigned yet. Recipe content must be approved and added to GameSession.";
+                _produceButton.interactable = false;
+            }
+            else
+            {
+                int index = 0;
+                bool selectedStillValid = false;
+                foreach (RecipeDefinition recipe in _recipes)
+                {
+                    if (recipe == null) continue;
+                    if (recipe == _selectedRecipe) selectedStillValid = true;
+                    bool unlocked = _isRecipeUnlocked != null && _isRecipeUnlocked(recipe);
+                    string label = recipe.DisplayName + (unlocked ? string.Empty : "  [LOCKED]");
+                    Button button = CreateButton(_recipeList, label, new Vector2(288f, 34f));
+                    Anchor(button.GetComponent<RectTransform>(), new Vector2(8f, -6f - index * 38f), new Vector2(288f, 34f));
+                    button.onClick.AddListener(() => { _selectedRecipe = recipe; RefreshProduction(); });
+                    index++;
+                }
+
+                if (!selectedStillValid) _selectedRecipe = null;
+                if (_selectedRecipe == null)
+                {
+                    foreach (RecipeDefinition recipe in _recipes)
+                    {
+                        if (recipe != null && _isRecipeUnlocked != null && _isRecipeUnlocked(recipe))
+                        {
+                            _selectedRecipe = recipe;
+                            break;
+                        }
+                    }
+                }
+
+                if (_selectedRecipe == null)
+                {
+                    _recipeDetails.text = "No recipe is currently unlocked.";
+                    _produceButton.interactable = false;
+                }
+                else if (!_selectedRecipe.TryValidate(out string definitionError))
+                {
+                    _recipeDetails.text = "RECIPE CONFIGURATION ERROR\n" + definitionError;
+                    _produceButton.interactable = false;
+                }
+                else
+                {
+                    _recipeDetails.text = RecipeDescription(_selectedRecipe);
+                    _produceButton.interactable = _isRecipeUnlocked(_selectedRecipe) && HasOwnedInputs(_selectedRecipe);
+                }
+            }
+
+            if (_upgrade == null || !_upgrade.TryValidate(out string upgradeError))
+            {
+                _upgradeDetails.text = _upgrade == null ? "No practical upgrade assigned." : "UPGRADE CONFIGURATION ERROR\n" + upgradeError;
+                _upgradeButton.interactable = false;
+            }
+            else
+            {
+                bool acquired = _isUpgradeAcquired != null && _isUpgradeAcquired();
+                _upgradeDetails.text = _upgrade.DisplayName + "  ·  " + _upgrade.CleanCardCost +
+                    " CARD\n" + (acquired ? "Already installed." : _upgrade.Description);
+                _upgradeButton.interactable = !acquired && _canAcquireUpgrade != null && _canAcquireUpgrade();
+                _upgradeButton.GetComponentInChildren<Text>().text = acquired ? "UPGRADE INSTALLED" : "INSTALL UPGRADE";
+            }
+        }
+
+        private bool HasOwnedInputs(RecipeDefinition recipe)
+        {
+            if (_inventory == null || _ownership == null || recipe == null) return false;
+            var required = new Dictionary<ItemType, int>();
+            try
+            {
+                foreach (RecipeDefinition.IngredientEntry input in recipe.Inputs)
+                {
+                    if (input == null || input.item == null || input.count < 1) return false;
+                    ItemType type;
+                    try { type = input.item.ToItemType(); }
+                    catch (InvalidOperationException) { return false; }
+                    required.TryGetValue(type, out int current);
+                    required[type] = checked(current + input.count);
+                }
+            }
+            catch (OverflowException)
+            {
+                return false;
+            }
+
+            foreach (KeyValuePair<ItemType, int> requirement in required)
+            {
+                long total = 0;
+                foreach (PlacedItem item in _inventory.Items)
+                    if (item.Type == requirement.Key &&
+                        _ownership.TryGetOwner(item.ItemInstanceId, out EconomicActorId owner) &&
+                        owner == EconomicActorId.Player)
+                        total += item.Count;
+                if (total < requirement.Value) return false;
+            }
+            return true;
+        }
+
+        private string RecipeDescription(RecipeDefinition recipe)
+        {
+            var lines = new System.Collections.Generic.List<string>();
+            lines.Add(recipe.Description);
+            lines.Add("INPUTS");
+            foreach (RecipeDefinition.IngredientEntry input in recipe.Inputs)
+                lines.Add((input.item != null ? input.item.DisplayName : "Unknown item") + " × " + input.count);
+            lines.Add("OUTPUT");
+            lines.Add((recipe.Output.item != null ? recipe.Output.item.DisplayName : "Unknown item") + " × " + recipe.Output.count);
+            lines.Add(HasOwnedInputs(recipe) ? "Materials available." : "Missing player-owned materials.");
+            return string.Join("\n", lines);
+        }
+
+        private void SelectStatus(string message)
+        {
+            if (_status != null) _status.text = message;
         }
 
         private void AddDraggable(string label, string description, Color color, Vector2 position, Vector2 size)
@@ -232,6 +433,11 @@ namespace Signal.Game
             rect.pivot = min;
             rect.anchoredPosition = position;
             rect.sizeDelta = size;
+        }
+
+        private static void Anchor(RectTransform rect, Vector2 position, Vector2 size)
+        {
+            Anchor(rect, new Vector2(0f, 1f), new Vector2(0f, 1f), position, size);
         }
     }
 }

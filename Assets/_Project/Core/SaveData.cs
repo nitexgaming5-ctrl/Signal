@@ -180,6 +180,32 @@ namespace Signal.Core
     }
 
     [Serializable]
+    public sealed class SavedProductionTransaction
+    {
+        public string transactionId;
+        public string recipeId;
+        public string outputDefinitionId;
+        public string operatorActorId;
+        public int quantity;
+        public int day;
+        public int minuteOfDay;
+    }
+
+    [Serializable]
+    public sealed class SavedCustomerContract
+    {
+        public string contractId;
+        public int phase;
+        public int acceptedDay;
+        public int acceptedMinuteOfDay;
+        public int completedDay;
+        public int completedMinuteOfDay;
+        public string deliveryTransactionId;
+        public int reward;
+        public string payerActorId;
+    }
+
+    [Serializable]
     public sealed class SavedDirtyCashCleaningTransaction
     {
         public string transactionId;
@@ -229,6 +255,11 @@ namespace Signal.Core
         public List<SavedItem> contactItems = new List<SavedItem>();
         public List<SavedIllicitExchangeTransaction> illicitExchangeTransactions = new List<SavedIllicitExchangeTransaction>();
         public List<SavedDirtyCashCleaningTransaction> dirtyCashCleaningTransactions = new List<SavedDirtyCashCleaningTransaction>();
+        public List<SavedProductionTransaction> productionTransactions = new List<SavedProductionTransaction>();
+        public List<SavedCustomerContract> customerContracts = new List<SavedCustomerContract>();
+        public List<string> acquiredWorkshopUpgradeIds = new List<string>();
+        public List<SavedItem> contractReceiverItems = new List<SavedItem>();
+        public string contractReceiverActorId;
     }
 
     public sealed class LoadReport
@@ -249,6 +280,10 @@ namespace Signal.Core
         public int SkippedContactItems { get; set; }
         public int SkippedIllicitExchangeTransactions { get; set; }
         public int SkippedDirtyCashCleaningTransactions { get; set; }
+        public int SkippedProductionTransactions { get; set; }
+        public int SkippedCustomerContracts { get; set; }
+        public int SkippedWorkshopUpgradeIds { get; set; }
+        public int SkippedContractReceiverItems { get; set; }
         public OpportunityState RestoredOpportunity { get; set; }
     }
 
@@ -256,7 +291,7 @@ namespace Signal.Core
     {
         // Increment only when the serialized save schema changes. Runtime/UI/gameplay-only changes do not require a new save version.
         // Migration tests for historical inputs should assert this constant for their migrated result.
-        public const int CurrentVersion = 14;
+        public const int CurrentVersion = 15;
 
         /// <summary>Accepts supported save formats and migrates them to the current inventory, social and economic format.</summary>
         public static bool TryMigrate(SaveData data, out string error)
@@ -358,6 +393,18 @@ namespace Signal.Core
             if (data.dirtyCashCleaningTransactions == null)
                 data.dirtyCashCleaningTransactions = new List<SavedDirtyCashCleaningTransaction>();
 
+            // Version 15 adds production history, customer contract state, workshop upgrades
+            // and the customer's physical receiving inventory.
+            if (data.productionTransactions == null)
+                data.productionTransactions = new List<SavedProductionTransaction>();
+            if (data.customerContracts == null)
+                data.customerContracts = new List<SavedCustomerContract>();
+            if (data.acquiredWorkshopUpgradeIds == null)
+                data.acquiredWorkshopUpgradeIds = new List<string>();
+            if (data.contractReceiverItems == null)
+                data.contractReceiverItems = new List<SavedItem>();
+            EnsureInstanceIds(data.contractReceiverItems, usedIds);
+
             data.version = CurrentVersion;
 
             return true;
@@ -406,7 +453,12 @@ namespace Signal.Core
                                        CrimeOutcomeLedger crimeOutcomes = null,
                                        GridInventory contactInventory = null,
                                        IllicitExchangeTransactionLedger illicitExchanges = null,
-                                       DirtyCashCleaningTransactionLedger dirtyCashCleanings = null)
+                                       DirtyCashCleaningTransactionLedger dirtyCashCleanings = null,
+                                       ProductionTransactionLedger productionTransactions = null,
+                                       CustomerContractBook customerContracts = null,
+                                       WorkshopProgressionBook workshopProgression = null,
+                                       GridInventory contractReceiverInventory = null,
+                                       string contractReceiverActorId = null)
         {
             if (stats == null) throw new ArgumentNullException(nameof(stats));
             if (inventory == null) throw new ArgumentNullException(nameof(inventory));
@@ -428,7 +480,8 @@ namespace Signal.Core
                 worldPlace = string.IsNullOrWhiteSpace(worldPlace) ? "Hideout" : worldPlace,
                 playerX = playerX,
                 playerY = playerY,
-                criminalProgressionPoints = criminalProgression != null ? criminalProgression.Points : 0
+                criminalProgressionPoints = criminalProgression != null ? criminalProgression.Points : 0,
+                contractReceiverActorId = contractReceiverActorId
             };
 
             CaptureItems(inventory, data.items);
@@ -439,13 +492,18 @@ namespace Signal.Core
             data.opportunity = CaptureOpportunity(opportunity);
             CapturePlayerRelationships(relationships, data.playerRelationships);
             if (contactInventory != null) CaptureItems(contactInventory, data.contactItems);
-            CaptureEconomicState(inventory, storage, contactInventory, assetOwnership, economicTransactions, data);
+            if (contractReceiverInventory != null) CaptureItems(contractReceiverInventory, data.contractReceiverItems);
+            CaptureEconomicState(inventory, storage, contactInventory, contractReceiverInventory,
+                contractReceiverActorId, assetOwnership, economicTransactions, data);
             CaptureResidentAccounts(economicAccounts, data.residentAccounts);
             CaptureRetailTransactions(retailTransactions, data.retailTransactions);
             CaptureShopSaleTransactions(shopSaleTransactions, data.shopSaleTransactions);
             CaptureCrimeOutcomes(crimeOutcomes, data.crimeOutcomes);
             CaptureIllicitExchanges(illicitExchanges, data.illicitExchangeTransactions);
             CaptureDirtyCashCleanings(dirtyCashCleanings, data.dirtyCashCleaningTransactions);
+            CaptureProductionTransactions(productionTransactions, data.productionTransactions);
+            CaptureCustomerContracts(customerContracts, data.customerContracts);
+            CaptureWorkshopProgression(workshopProgression, data.acquiredWorkshopUpgradeIds);
 
             return data;
         }
@@ -470,7 +528,11 @@ namespace Signal.Core
                                        CrimeOutcomeLedger crimeOutcomes = null,
                                        GridInventory contactInventory = null,
                                        IllicitExchangeTransactionLedger illicitExchanges = null,
-                                       DirtyCashCleaningTransactionLedger dirtyCashCleanings = null)
+                                       DirtyCashCleaningTransactionLedger dirtyCashCleanings = null,
+                                       ProductionTransactionLedger productionTransactions = null,
+                                       CustomerContractBook customerContracts = null,
+                                       WorkshopProgressionBook workshopProgression = null,
+                                       GridInventory contractReceiverInventory = null)
         {
             if (stats == null) throw new ArgumentNullException(nameof(stats));
             if (inventory == null) throw new ArgumentNullException(nameof(inventory));
@@ -504,11 +566,18 @@ namespace Signal.Core
                 contactInventory.Clear();
                 skippedContact = RestoreItems(data.contactItems, contactInventory, resolve);
             }
+            int skippedContractReceiver = 0;
+            if (contractReceiverInventory != null)
+            {
+                contractReceiverInventory.Clear();
+                skippedContractReceiver = RestoreItems(data.contractReceiverItems, contractReceiverInventory, resolve);
+            }
 
             int skippedKnowledge = RestoreKnowledge(data.itemKnowledge, itemKnowledge);
             int skippedDiscoveries = RestoreDiscoveries(data.playerDiscoveries, discoveries);
             int skippedRelationships = RestorePlayerRelationships(data.playerRelationships, relationships);
-            int skippedOwners = RestoreAssetOwners(data.assetOwners, inventory, storage, contactInventory, assetOwnership);
+            int skippedOwners = RestoreAssetOwners(data.assetOwners, inventory, storage, contactInventory,
+                contractReceiverInventory, data.contractReceiverActorId, assetOwnership);
             int skippedTransactions = RestoreEconomicTransactions(data.economicTransactions, economicTransactions);
             int skippedAccounts = RestoreResidentAccounts(data.residentAccounts, economicAccounts);
             int skippedRetail = RestoreRetailTransactions(data.retailTransactions, retailTransactions);
@@ -516,6 +585,9 @@ namespace Signal.Core
             int skippedCrimeOutcomes = RestoreCrimeOutcomes(data.crimeOutcomes, crimeOutcomes);
             int skippedIllicitExchanges = RestoreIllicitExchanges(data.illicitExchangeTransactions, illicitExchanges);
             int skippedDirtyCashCleanings = RestoreDirtyCashCleanings(data.dirtyCashCleaningTransactions, dirtyCashCleanings);
+            int skippedProduction = RestoreProductionTransactions(data.productionTransactions, productionTransactions);
+            int skippedContracts = RestoreCustomerContracts(data.customerContracts, customerContracts);
+            int skippedUpgrades = RestoreWorkshopProgression(data.acquiredWorkshopUpgradeIds, workshopProgression);
             OpportunityState restoredOpportunity = RestoreOpportunity(data.opportunity);
 
             return new LoadReport
@@ -535,6 +607,10 @@ namespace Signal.Core
                 SkippedContactItems = skippedContact,
                 SkippedIllicitExchangeTransactions = skippedIllicitExchanges,
                 SkippedDirtyCashCleaningTransactions = skippedDirtyCashCleanings,
+                SkippedProductionTransactions = skippedProduction,
+                SkippedCustomerContracts = skippedContracts,
+                SkippedWorkshopUpgradeIds = skippedUpgrades,
+                SkippedContractReceiverItems = skippedContractReceiver,
                 RestoredOpportunity = restoredOpportunity
             };
         }
@@ -820,7 +896,112 @@ namespace Signal.Core
             return skipped;
         }
 
+        private static void CaptureProductionTransactions(ProductionTransactionLedger ledger,
+            List<SavedProductionTransaction> destination)
+        {
+            if (ledger == null) return;
+            foreach (ProductionTransaction transaction in ledger.Transactions)
+                destination.Add(new SavedProductionTransaction
+                {
+                    transactionId = transaction.TransactionId.ToString(),
+                    recipeId = transaction.RecipeId.ToString(),
+                    outputDefinitionId = transaction.OutputDefinitionId.ToString(),
+                    operatorActorId = transaction.OperatorActor.Value,
+                    quantity = transaction.Quantity,
+                    day = transaction.Day,
+                    minuteOfDay = transaction.MinuteOfDay
+                });
+        }
+
+        private static int RestoreProductionTransactions(List<SavedProductionTransaction> saved,
+            ProductionTransactionLedger destination)
+        {
+            if (destination == null) return 0;
+            destination.Clear();
+            int skipped = 0;
+            if (saved == null) return skipped;
+            foreach (SavedProductionTransaction entry in saved)
+            {
+                if (entry == null || !Guid.TryParse(entry.transactionId, out Guid transactionId) ||
+                    !Guid.TryParse(entry.recipeId, out Guid recipeId) ||
+                    !Guid.TryParse(entry.outputDefinitionId, out Guid outputId) ||
+                    string.IsNullOrWhiteSpace(entry.operatorActorId))
+                { skipped++; continue; }
+                try
+                {
+                    if (!destination.TryRecord(new ProductionTransaction(transactionId, recipeId,
+                        outputId, entry.quantity, new EconomicActorId(entry.operatorActorId),
+                        entry.day, entry.minuteOfDay))) skipped++;
+                }
+                catch (ArgumentException) { skipped++; }
+            }
+            return skipped;
+        }
+
+        private static void CaptureCustomerContracts(CustomerContractBook contracts,
+            List<SavedCustomerContract> destination)
+        {
+            if (contracts == null) return;
+            foreach (CustomerContractState state in contracts.States)
+                destination.Add(new SavedCustomerContract
+                {
+                    contractId = state.ContractId.ToString(),
+                    phase = (int)state.Phase,
+                    acceptedDay = state.AcceptedDay,
+                    acceptedMinuteOfDay = state.AcceptedMinuteOfDay,
+                    completedDay = state.CompletedDay,
+                    completedMinuteOfDay = state.CompletedMinuteOfDay,
+                    deliveryTransactionId = state.DeliveryTransactionId.ToString(),
+                    reward = state.Reward,
+                    payerActorId = state.Payer.Value
+                });
+        }
+
+        private static int RestoreCustomerContracts(List<SavedCustomerContract> saved,
+            CustomerContractBook destination)
+        {
+            if (destination == null) return 0;
+            destination.ResetToOffers();
+            int skipped = 0;
+            if (saved == null) return skipped;
+            foreach (SavedCustomerContract entry in saved)
+            {
+                if (entry == null || !Guid.TryParse(entry.contractId, out Guid contractId))
+                { skipped++; continue; }
+                Guid.TryParse(entry.deliveryTransactionId, out Guid deliveryId);
+                EconomicActorId payer = string.IsNullOrWhiteSpace(entry.payerActorId)
+                    ? default : new EconomicActorId(entry.payerActorId);
+                if (!destination.RestoreState(contractId, (CustomerContractPhase)entry.phase,
+                    entry.acceptedDay, entry.acceptedMinuteOfDay, entry.completedDay,
+                    entry.completedMinuteOfDay, deliveryId, entry.reward, payer)) skipped++;
+            }
+            return skipped;
+        }
+
+        private static void CaptureWorkshopProgression(WorkshopProgressionBook progression,
+            List<string> destination)
+        {
+            if (progression == null) return;
+            foreach (Guid id in progression.AcquiredUpgradeIds)
+                destination.Add(id.ToString());
+        }
+
+        private static int RestoreWorkshopProgression(List<string> saved, WorkshopProgressionBook destination)
+        {
+            if (destination == null) return 0;
+            destination.Clear();
+            int skipped = 0;
+            if (saved == null) return skipped;
+            foreach (string value in saved)
+            {
+                if (!Guid.TryParse(value, out Guid id) || id == Guid.Empty || !destination.TryAcquire(id))
+                    skipped++;
+            }
+            return skipped;
+        }
+
         private static void CaptureEconomicState(GridInventory inventory, GridInventory storage, GridInventory contactInventory,
+            GridInventory contractReceiverInventory, string contractReceiverActorId,
             AssetOwnershipBook ownership, EconomicTransactionLedger ledger, SaveData destination)
         {
             if (ownership != null)
@@ -830,6 +1011,9 @@ namespace Signal.Core
                 if (contactInventory != null)
                     CaptureAssetOwners(contactInventory, ownership, destination.assetOwners,
                         new EconomicActorId("resident:Clean_Dirtycash"));
+                if (contractReceiverInventory != null && !string.IsNullOrWhiteSpace(contractReceiverActorId))
+                    CaptureAssetOwners(contractReceiverInventory, ownership, destination.assetOwners,
+                        new EconomicActorId(contractReceiverActorId));
             }
             if (ledger == null) return;
             foreach (EconomicTransaction transaction in ledger.Transactions)
@@ -859,7 +1043,8 @@ namespace Signal.Core
         }
 
         private static int RestoreAssetOwners(List<SavedAssetOwner> savedOwners, GridInventory inventory,
-            GridInventory storage, GridInventory contactInventory, AssetOwnershipBook destination)
+            GridInventory storage, GridInventory contactInventory, GridInventory contractReceiverInventory,
+            string contractReceiverActorId, AssetOwnershipBook destination)
         {
             if (destination == null) return 0;
             destination.Clear();
@@ -880,6 +1065,8 @@ namespace Signal.Core
             if (storage != null) RegisterMissingOwners(storage, destination, EconomicActorId.Player);
             if (contactInventory != null)
                 RegisterMissingOwners(contactInventory, destination, new EconomicActorId("resident:Clean_Dirtycash"));
+            if (contractReceiverInventory != null && !string.IsNullOrWhiteSpace(contractReceiverActorId))
+                RegisterMissingOwners(contractReceiverInventory, destination, new EconomicActorId(contractReceiverActorId));
             return skipped;
         }
 

@@ -7,6 +7,14 @@
 
 Dependencies go one way: Game → Core. Core never references Game.
 
+## First Workshop implementation
+- Core production is handled by `ProductionService` and `ProductionTransactionLedger`; it operates against an actor-owned registered inventory and contains no Unity dependency.
+- Core customer contract and upgrade progression rules live in `CustomerContracts` and `WorkshopProgression`.
+- Game ScriptableObjects (`RecipeDefinition`, `CustomerContractDefinition`, `WorkshopUpgradeDefinition`) contain authored content only. `GameSession` composes definitions with Core services.
+- `WorkbenchWorkspace` and `CustomerContractPanel` are presentation layers; every action is revalidated by GameSession/Core before state changes.
+- NPC-owned production remains a supported Core operator model, but this slice only integrates the player's hideout workstation.
+
+
 ## Folder layout
 ```
 Assets/_Project/

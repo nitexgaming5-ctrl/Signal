@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 namespace Signal.Core
 {
-    public enum AssetTransferReason { Gift = 0, Purchase = 1, Theft = 2, ServicePayment = 3, SupplierDelivery = 4, Other = 5, Scavenging = 6, IllicitExchange = 7 }
+    public enum AssetTransferReason { Gift = 0, Purchase = 1, Theft = 2, ServicePayment = 3, SupplierDelivery = 4, Other = 5, Scavenging = 6, IllicitExchange = 7, ContractDelivery = 8 }
 
     public sealed class EconomicTransaction
     {

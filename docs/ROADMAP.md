@@ -13,7 +13,7 @@
 
 The witnessed/unwitnessed theft Play Mode retest remains a separate verification item.
 
-## Active design initiative — Direction B: meaningful everyday livelihood
+## Active implementation initiative — Direction B: meaningful everyday livelihood
 
 **Player outcome:** build a modest legal livelihood through authored production, customer contracts and practical hideout development, while retaining the ability to combine legal and illegal activities in the same city.
 
@@ -23,6 +23,19 @@ Approved choices:
 - Workshop model supports both player-operated and NPC-owned production; begin with the player's hideout workshop.
 - One accepted/active customer contract at a time.
 - The first practical hideout upgrade unlocks one additional authored recipe/capability.
+
+
+**Implementation foundation committed 2026-11-23 (not yet Unity-verified):**
+- [x] Add actor-aware, atomic Core production with owned-input validation, rollback, production history and support for both player and NPC operators.
+- [x] Extend the authored recipe definition and existing hideout workbench with recipe selection, availability feedback and an authoritative Produce action.
+- [x] Add the one-active-contract Core lifecycle, exact whole-stack physical handover to an issuer-owned receiving inventory, and issuer-account-funded clean CARD payment.
+- [x] Add a customer interaction panel with explicit review, accept and fulfil actions.
+- [x] Add one-time practical upgrade acquisition, persistent unlocked-recipe state and a visible installed-prop hook.
+- [x] Add Save v15 fields, v14 migration defaults, and save round-trip tests for production, contract, upgrade and receiver-inventory state.
+- [ ] Assign approved authored recipe, customer contract and upgrade assets to HideoutSlice; no content values have been invented.
+- [ ] Compile in Unity, run all EditMode tests and verify the full Play Mode loop. The previous 396/396 Slice B result is not verification of this commit.
+
+The implementation is a reusable foundation, not yet a content-complete livelihood loop. L1 and L3-L7 in OPEN_QUESTIONS still govern the first concrete authored content; do not fill these values by guesswork.
 
 Implementation task order:
 1. [B-01 — Production foundation and player workshop](tasks/LIVELIHOOD-B-01-PRODUCTION-WORKSHOP.md)

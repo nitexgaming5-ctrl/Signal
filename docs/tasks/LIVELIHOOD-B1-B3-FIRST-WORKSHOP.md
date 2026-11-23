@@ -1,6 +1,6 @@
 # LIVELIHOOD-B1-B3 — First Workshop vertical slice
 
-**Status:** design specification prepared; implementation not started  
+**Status:** B-01..B-03 Core/Game foundation committed 2026-11-23; authored content and Unity verification pending  
 **Direction:** approved Direction B — meaningful everyday livelihood  
 **User decisions:** workshop model = both (player-operated first, NPC-owned compatible later); one active contract; first practical hideout upgrade unlocks another recipe/capability.
 
@@ -73,8 +73,14 @@ B-01 must be playable before B-02 is integrated. B-02 must be playable before B-
 - Persist recipe unlocks and workshop upgrade state.
 - Persist production and contract transaction histories if new histories are introduced.
 - Rebuild runtime workspace/container references from authored scene definitions; never serialize Unity object references.
-- Determine the actual save-schema increment after identifying the minimum new serialized fields. If new fields are required, bump the current v14 schema and add round-trip/migration tests. Do not predeclare a version number in code or docs before inspecting SaveMapper.
-- Preserve current-format save integrity and test the existing v14 migration path.
+- Save v15 now persists production history/operator, contract lifecycle, acquired upgrade IDs, issuer receiving inventory and receiver actor identity. v14 migration initializes the new collections and assigns stable IDs to receiver items. Round-trip and migration tests have been added; Unity execution remains pending.
+- Preserve current-format save integrity and test v14 → v15 migration in Unity.
+
+## Implementation status — 2026-11-23
+
+The code foundation now includes actor-aware production and production history, the existing workbench extended into a recipe-book UI, one-active customer contracts with physical issuer-inventory delivery and clean CARD payment, a practical one-time upgrade/recipe unlock, and Save v15 persistence/migration.
+
+No concrete recipe, customer, price/reward, upgrade appearance, payee or prerequisite asset has been authored or assigned. This avoids inventing the unresolved L1 and L3-L7 content. The new EditMode tests are committed but have not yet been run in Unity. Do not mark the vertical slice complete until approved content is assigned, the active scene is wired, all tests pass, and the Play Mode verification script below is completed.
 
 ## Explicitly out of scope
 

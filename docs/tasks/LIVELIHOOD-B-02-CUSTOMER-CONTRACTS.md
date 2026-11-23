@@ -1,6 +1,6 @@
 # LIVELIHOOD-B-02 — Single active customer contract
 
-**Status:** specified; not started  
+**Status:** Core/Game implementation committed; authored contract content and Unity verification pending  
 **Parent:** LIVELIHOOD-B1-B3-FIRST-WORKSHOP.md  
 **Depends on:** B-01 production loop; NPC identities, inventories, clean accounts, ownership and transaction ledgers.
 
@@ -56,6 +56,15 @@ Only one contract may be Active at a time. The first slice contains one authored
 - Persist active/completed contract state and transaction identity as required.
 - Add round-trip and migration tests for the actual serialized shape.
 - Test second active contract rejection, repeated acceptance, wrong/insufficient goods, wrong ownership, insufficient issuer funds, success, duplicate fulfilment and rollback.
+
+## Implementation status — 2026-11-23
+
+- Added a Core contract book with Offered/Active/Completed lifecycle and a global single-active constraint.
+- Added atomic fulfilment using the existing AssetTransferService: one exact player-owned stack is transferred into the issuer's registered physical inventory, the issuer's existing clean CARD account is debited, and the player's account is credited. The economic ledger records `ContractDelivery`; contract completion stores the transfer transaction ID.
+- Added a validated CustomerContractDefinition and a player-facing panel for review, acceptance and selecting the physical stack to hand over.
+- Added Core EditMode tests for active-contract exclusivity, successful delivery/payment/replay protection, wrong quantity, insufficient payer funds and stolen-goods eligibility.
+- No issuer, requested item, quantity, eligibility choice or reward content has been authored or assigned. Whole-stack delivery is the implemented first-slice transfer path; partial stack support is not included.
+- These tests and the GameSession interaction have not yet been run in Unity.
 
 ## Acceptance criteria
 

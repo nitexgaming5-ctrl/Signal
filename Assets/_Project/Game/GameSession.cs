@@ -25,6 +25,11 @@ namespace Signal.Game
         [SerializeField] private ContainerLootProfile[] searchableLootProfiles;
         [SerializeField] private ResidentPropertyContainerDefinition[] residentPropertyContainers;
 
+        [Header("Livelihood — first workshop slice")]
+        [SerializeField] private RecipeDefinition[] startingWorkshopRecipes;
+        [SerializeField] private CustomerContractDefinition firstCustomerContract;
+        [SerializeField] private WorkshopUpgradeDefinition firstWorkshopUpgrade;
+
         [Header("Placeholder tuning (not final design)")]
         [SerializeField] private int startingMoney;
         [SerializeField] private int rentAmount = 50;
@@ -50,6 +55,12 @@ namespace Signal.Game
         private ShopSaleTransactionLedger _shopSaleTransactions;
         private IllicitExchangeTransactionLedger _illicitExchanges;
         private DirtyCashCleaningTransactionLedger _dirtyCashCleanings;
+        private ProductionTransactionLedger _productionTransactions;
+        private CustomerContractBook _customerContracts;
+        private WorkshopProgressionBook _workshopProgression;
+        private GridInventory _contractReceiverInventory;
+        private EconomicActorId _contractReceiverActor;
+        private readonly List<RecipeDefinition> _workshopRecipes = new List<RecipeDefinition>();
         private GridInventory _contactInventory;
         private GridInventory _inventory;
         private GridInventory _storage;
@@ -71,6 +82,8 @@ namespace Signal.Game
         private HudPanel _hud;
         private RetailPanel _retailPanel;
         private DirtyCashContactPanel _dirtyCashPanel;
+        private CustomerContractPanel _customerContractPanel;
+        private GameObject _installedUpgradeVisual;
         private SearchableContainerPanel _containerPanel;
         private SearchableContainer _activeSearchableContainer;
         private WorkbenchWorkspace _workspace;
@@ -95,6 +108,9 @@ namespace Signal.Game
         public ShopSaleTransactionLedger ShopSaleTransactions => _shopSaleTransactions;
         public IllicitExchangeTransactionLedger IllicitExchanges => _illicitExchanges;
         public DirtyCashCleaningTransactionLedger DirtyCashCleanings => _dirtyCashCleanings;
+        public ProductionTransactionLedger ProductionTransactions => _productionTransactions;
+        public CustomerContractBook CustomerContracts => _customerContracts;
+        public WorkshopProgressionBook WorkshopProgression => _workshopProgression;
         public CriminalProgressionTrack CriminalProgression => _criminalProgression;
         public CrimeOutcomeLedger CrimeOutcomes => _crimeOutcomes;
 
@@ -116,6 +132,9 @@ namespace Signal.Game
             _shopSaleTransactions = new ShopSaleTransactionLedger();
             _illicitExchanges = new IllicitExchangeTransactionLedger();
             _dirtyCashCleanings = new DirtyCashCleaningTransactionLedger();
+            _productionTransactions = new ProductionTransactionLedger();
+            _customerContracts = new CustomerContractBook();
+            _workshopProgression = new WorkshopProgressionBook();
             _contactInventory = new GridInventory(8, 6);
             _economicContainers.TryRegister(_contactInventory, DirtyCashContactActorId);
             _itemKnowledge = new ItemKnowledgeBook();
@@ -152,6 +171,7 @@ namespace Signal.Game
             else if (!_city.TryAddResident(dirtyCashContactOffer.Contact))
                 Debug.LogError("GameSession: the " + DirtyCashContactNpcId + " resident could not be added to the city.");
             CreateSearchableContainers();
+            InitializeLivelihoodWorld();
             foreach (NpcPresenter resident in _city.DebugResidents)
             {
                 if (resident == null || string.IsNullOrWhiteSpace(resident.NpcId))
@@ -187,6 +207,14 @@ namespace Signal.Game
                 Debug.LogError("GameSession: the Dirty Cash contact panel cannot be created without a valid offer.");
             }
 
+            if (firstCustomerContract != null && _contractReceiverInventory != null)
+            {
+                _customerContractPanel = gameObject.AddComponent<CustomerContractPanel>();
+                _customerContractPanel.Bind(firstCustomerContract, _inventory, _assetOwnership,
+                    _allItemDefinitions, GetCustomerDisplayName(), AcceptCustomerContract, FulfilCustomerContract,
+                    GetCustomerContractPhase);
+            }
+
             if (parcelItem != null)
             {
                 _miloScenario = gameObject.AddComponent<MiloParcelOpportunityController>();
@@ -196,8 +224,216 @@ namespace Signal.Game
             }
 
             _workspace = gameObject.AddComponent<WorkbenchWorkspace>();
-            _workspace.Bind(_motor);
+            _workspace.Bind(_motor, _inventory, _assetOwnership, _workshopRecipes,
+                IsRecipeUnlocked, ProduceRecipe, firstWorkshopUpgrade,
+                IsFirstUpgradeAcquired, CanAcquireFirstUpgrade, AcquireFirstUpgrade);
+            RefreshWorkshopUpgradeVisual();
             _hud.ShowMessage("Your hideout is ready. The street is just outside.", 5f);
+        }
+
+        private void InitializeLivelihoodWorld()
+        {
+            if (firstCustomerContract == null)
+                return;
+            if (!firstCustomerContract.TryValidate(out string error))
+            {
+                Debug.LogError("GameSession: invalid first customer contract: " + error);
+                return;
+            }
+            if (!_city.HasResident(firstCustomerContract.IssuerNpcId))
+            {
+                Debug.LogError("GameSession: contract issuer '" + firstCustomerContract.IssuerNpcId +
+                    "' is not present in the shared city.");
+                return;
+            }
+
+            _contractReceiverActor = firstCustomerContract.IssuerActor;
+            _contractReceiverInventory = new GridInventory(8, 6);
+            if (!_economicContainers.TryRegister(_contractReceiverInventory, _contractReceiverActor))
+            {
+                Debug.LogError("GameSession: could not register the contract receiver inventory.");
+                _contractReceiverInventory = null;
+                return;
+            }
+            if (!_customerContracts.TryRegisterOffer(firstCustomerContract.Id))
+                Debug.LogError("GameSession: the first customer contract could not be registered.");
+        }
+
+        private string GetCustomerDisplayName()
+        {
+            if (_city != null && firstCustomerContract != null)
+                foreach (NpcPresenter resident in _city.DebugResidents)
+                    if (resident != null && resident.NpcId == firstCustomerContract.IssuerNpcId)
+                        return resident.DisplayName;
+            return firstCustomerContract != null ? firstCustomerContract.DisplayName : "Customer";
+        }
+
+        private bool IsNearContractCustomer(Vector2 playerPosition)
+        {
+            return firstCustomerContract != null && _contractReceiverInventory != null && _city != null &&
+                _city.IsResidentWithin(firstCustomerContract.IssuerNpcId, playerPosition, InteractionDistance);
+        }
+
+        private CustomerContractPhase GetCustomerContractPhase()
+        {
+            if (firstCustomerContract != null &&
+                _customerContracts.TryGetState(firstCustomerContract.Id, out CustomerContractState state))
+                return state.Phase;
+            return CustomerContractPhase.Offered;
+        }
+
+        private string AcceptCustomerContract()
+        {
+            if (!IsNearContractCustomer(_room.PlayerBody.position))
+                return "Move closer to the customer.";
+            if (firstCustomerContract == null ||
+                !_customerContracts.TryAccept(firstCustomerContract.Id, _clock.Day, _clock.MinuteOfDay))
+                return "You already have an active request, or this offer is no longer available.";
+            return "Request accepted. Bring the exact goods to the customer.";
+        }
+
+        private string FulfilCustomerContract(Guid itemInstanceId)
+        {
+            if (!IsNearContractCustomer(_room.PlayerBody.position))
+                return "Move closer to the customer before handing over goods.";
+            if (firstCustomerContract == null || _contractReceiverInventory == null)
+                return "The customer request is unavailable.";
+            if (!_economicAccounts.TryGetAccount(firstCustomerContract.IssuerActor, out CleanMoneyAccount payer))
+                return "The customer's CARD account is unavailable.";
+
+            CustomerContractFulfilmentResult result = CustomerContractService.TryFulfil(
+                firstCustomerContract.Id, itemInstanceId, firstCustomerContract.RequiredItem.ToItemType(),
+                firstCustomerContract.RequiredQuantity, firstCustomerContract.AcceptStolenGoods,
+                firstCustomerContract.CleanCardReward, _contractReceiverActor, firstCustomerContract.IssuerActor,
+                _inventory, _contractReceiverInventory, _assetOwnership, _assetTransfers,
+                _economicTransactions, _stats.CleanMoney, payer, _customerContracts,
+                _clock.Day, _clock.MinuteOfDay);
+
+            if (result.Success)
+                return "Goods handed over. Received " + result.Reward + " clean CARD.";
+            switch (result.Status)
+            {
+                case CustomerContractFulfilmentStatus.ContractNotActive: return "Accept this request before handing over goods.";
+                case CustomerContractFulfilmentStatus.ItemNotFound: return "That stack is no longer available.";
+                case CustomerContractFulfilmentStatus.WrongItem: return "The customer needs " + firstCustomerContract.RequiredItem.DisplayName + ".";
+                case CustomerContractFulfilmentStatus.WrongQuantity: return "The customer requires one complete stack of exactly " + firstCustomerContract.RequiredQuantity + ".";
+                case CustomerContractFulfilmentStatus.OwnershipMismatch: return "You must hand over goods that you own.";
+                case CustomerContractFulfilmentStatus.StolenGoodsNotAccepted: return "This customer will not accept stolen goods.";
+                case CustomerContractFulfilmentStatus.InsufficientFunds: return "The customer does not have enough CARD to pay the agreed reward.";
+                case CustomerContractFulfilmentStatus.ReceiverFull: return "The customer has no room to receive those goods.";
+                default: return "Handover failed. Your goods and balances were left unchanged.";
+            }
+        }
+
+        private string ProduceRecipe(Guid recipeId)
+        {
+            if (!_city.IsAtHome || _room.Workbench == null ||
+                Vector2.Distance(_room.PlayerBody.position, _room.Workbench.position) > 2.15f)
+                return "Use the production station in your hideout.";
+            RecipeDefinition definition = FindRecipeDefinition(recipeId);
+            if (definition == null || !IsRecipeUnlocked(definition) || !definition.TryValidate(out _))
+                return "That recipe is unavailable.";
+            ProductionResult result = ProductionService.TryProduce(recipeId, definition.ToRecipe(),
+                _inventory, EconomicActorId.Player, _economicContainers, _assetOwnership, _productionTransactions,
+                _clock.Day, _clock.MinuteOfDay, definition.Output.item.DefaultInstanceState);
+            if (result.Success)
+                return "Produced " + definition.Output.count + " " + definition.Output.item.DisplayName + ".";
+            switch (result.Status)
+            {
+                case ProductionStatus.MissingInputs: return "You do not carry enough ingredients.";
+                case ProductionStatus.OwnershipMismatch: return "Production only uses ingredients you own.";
+                case ProductionStatus.NoSpaceForOutput: return "Not enough room for the produced goods. Ingredients were returned.";
+                default: return "Production failed. Your inventory was left unchanged.";
+            }
+        }
+
+        private RecipeDefinition FindRecipeDefinition(Guid id)
+        {
+            foreach (RecipeDefinition recipe in _workshopRecipes)
+                if (recipe != null && recipe.Id == id)
+                    return recipe;
+            return null;
+        }
+
+        private bool IsRecipeUnlocked(RecipeDefinition recipe)
+        {
+            if (recipe == null)
+                return false;
+            if (startingWorkshopRecipes != null)
+                foreach (RecipeDefinition starting in startingWorkshopRecipes)
+                    if (starting == recipe)
+                        return true;
+            return firstWorkshopUpgrade != null && firstWorkshopUpgrade.UnlockedRecipe == recipe &&
+                _workshopProgression != null && _workshopProgression.HasAcquired(firstWorkshopUpgrade.Id);
+        }
+
+        private void RefreshWorkshopUpgradeVisual()
+        {
+            if (_installedUpgradeVisual != null)
+            {
+                Destroy(_installedUpgradeVisual);
+                _installedUpgradeVisual = null;
+            }
+            if (!IsFirstUpgradeAcquired() || firstWorkshopUpgrade.InstalledPropPrefab == null ||
+                _room == null || _room.Workbench == null)
+                return;
+
+            _installedUpgradeVisual = Instantiate(firstWorkshopUpgrade.InstalledPropPrefab,
+                _room.Workbench, false);
+            _installedUpgradeVisual.transform.localPosition = firstWorkshopUpgrade.InstalledPropLocalOffset;
+        }
+
+        private bool IsFirstUpgradeAcquired()
+        {
+            return firstWorkshopUpgrade != null && _workshopProgression != null &&
+                _workshopProgression.HasAcquired(firstWorkshopUpgrade.Id);
+        }
+
+        private bool CanAcquireFirstUpgrade()
+        {
+            if (firstWorkshopUpgrade == null || !firstWorkshopUpgrade.TryValidate(out _) ||
+                !_city.IsAtHome || _room.Workbench == null ||
+                Vector2.Distance(_room.PlayerBody.position, _room.Workbench.position) > 2.15f ||
+                IsFirstUpgradeAcquired())
+                return false;
+            if (firstWorkshopUpgrade.PrerequisiteMode == WorkshopUpgradePrerequisiteMode.CompletedContract &&
+                (firstWorkshopUpgrade.PrerequisiteContract == null ||
+                 !_customerContracts.TryGetState(firstWorkshopUpgrade.PrerequisiteContract.Id,
+                    out CustomerContractState contract) || contract.Phase != CustomerContractPhase.Completed))
+                return false;
+            return _economicAccounts.TryGetAccount(firstWorkshopUpgrade.PayeeActor, out CleanMoneyAccount payee) &&
+                _stats.CleanMoney.Balance >= firstWorkshopUpgrade.CleanCardCost &&
+                payee.Balance <= int.MaxValue - firstWorkshopUpgrade.CleanCardCost;
+        }
+
+        private string AcquireFirstUpgrade()
+        {
+            if (firstWorkshopUpgrade == null || !firstWorkshopUpgrade.TryValidate(out string error))
+                return "The workshop upgrade is not configured: " + error;
+            if (!_city.IsAtHome || _room.Workbench == null ||
+                Vector2.Distance(_room.PlayerBody.position, _room.Workbench.position) > 2.15f)
+                return "Use the practical upgrade while standing at your hideout workbench.";
+            if (!CanAcquireFirstUpgrade())
+                return "The upgrade is already installed, its prerequisite is incomplete, or the required CARD is unavailable.";
+            if (!_economicAccounts.TryGetAccount(firstWorkshopUpgrade.PayeeActor, out CleanMoneyAccount payee))
+                return "The upgrade supplier's CARD account is unavailable.";
+            Guid prerequisiteId = firstWorkshopUpgrade.PrerequisiteMode == WorkshopUpgradePrerequisiteMode.CompletedContract
+                ? firstWorkshopUpgrade.PrerequisiteContract.Id : Guid.Empty;
+            WorkshopUpgradeResult result = WorkshopUpgradeService.TryAcquire(
+                firstWorkshopUpgrade.Id, prerequisiteId,
+                firstWorkshopUpgrade.CleanCardCost, firstWorkshopUpgrade.PayeeActor,
+                _stats.CleanMoney, payee, _customerContracts, _workshopProgression);
+            switch (result.Status)
+            {
+                case WorkshopUpgradeStatus.Acquired:
+                    RefreshWorkshopUpgradeVisual();
+                    return firstWorkshopUpgrade.DisplayName + " installed. " +
+                        firstWorkshopUpgrade.UnlockedRecipe.DisplayName + " is now unlocked.";
+                case WorkshopUpgradeStatus.AlreadyAcquired: return "This workshop upgrade is already installed.";
+                case WorkshopUpgradeStatus.ContractPrerequisiteNotMet: return "Complete the customer request first.";
+                case WorkshopUpgradeStatus.InsufficientFunds: return "Not enough CARD to install this upgrade.";
+                default: return "The upgrade could not be installed. No payment was taken.";
+            }
         }
 
         private void OnDestroy()
@@ -222,12 +458,13 @@ namespace Signal.Game
             bool retailOpen = _retailPanel != null && _retailPanel.IsOpen;
             bool containerOpen = _containerPanel != null && _containerPanel.IsOpen;
             bool dirtyCashOpen = _dirtyCashPanel != null && _dirtyCashPanel.IsOpen;
+            bool contractOpen = _customerContractPanel != null && _customerContractPanel.IsOpen;
             if (_panel != null)
-                _panel.enabled = !_debugMenuOpen && !workspaceOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen;
+                _panel.enabled = !_debugMenuOpen && !workspaceOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen;
             if (_storagePanel != null)
-                _storagePanel.enabled = !_debugMenuOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen;
+                _storagePanel.enabled = !_debugMenuOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen;
             if (_containerPanel != null)
-                _containerPanel.enabled = !_debugMenuOpen && !itemViewerOpen && !dirtyCashOpen;
+                _containerPanel.enabled = !_debugMenuOpen && !itemViewerOpen && !dirtyCashOpen && !contractOpen;
             if (_dirtyCashPanel != null)
                 _dirtyCashPanel.enabled = !_debugMenuOpen;
             if (_debugMenuOpen && retailOpen)
@@ -243,7 +480,7 @@ namespace Signal.Game
 
             bool scenarioChoiceOpen = _miloScenario != null && _miloScenario.HasPendingChoice;
             _motor.enabled = !inventoryOpen && !workspaceOpen && !storageOpen && !itemViewerOpen &&
-                !scenarioChoiceOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !_debugMenuOpen;
+                !scenarioChoiceOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !_debugMenuOpen;
 
             Vector2 playerPosition = _room.Player.position;
             bool nearWorkbench = _room.Workbench != null &&
@@ -252,6 +489,7 @@ namespace Signal.Game
                 Vector2.Distance(playerPosition, _room.Storage.position) <= 2.15f;
             BusinessDefinition nearbyBusiness = FindNearbyBusiness(playerPosition);
             bool nearDirtyCashContact = _city.IsResidentWithin(DirtyCashContactNpcId, playerPosition, InteractionDistance);
+            bool nearContractCustomer = IsNearContractCustomer(playerPosition);
             bool nearSearchableContainer = _city.TryGetNearbySearchableContainer(playerPosition,
                 out string nearbyContainerId, out string nearbyContainerLabel);
             ResidentPropertyContainerDefinition nearbyProperty = FindNearbyResidentProperty(playerPosition);
@@ -266,9 +504,11 @@ namespace Signal.Game
                 cityPrompt = "E  Search " + nearbyContainerLabel;
             if (nearDirtyCashContact)
                 cityPrompt = "E  Talk";
+            if (nearContractCustomer)
+                cityPrompt = "E  Customer request";
             if (_miloScenario != null)
             {
-                if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen)
+                if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen)
                     _miloScenario.Tick(playerPosition, _city.CurrentPlace);
                 string scenarioPrompt = _miloScenario.GetPrompt(playerPosition, _city.CurrentPlace);
                 if (!string.IsNullOrEmpty(scenarioPrompt))
@@ -283,7 +523,11 @@ namespace Signal.Game
                 cityPrompt = "E  Search " + nearbyContainerLabel;
             if (nearDirtyCashContact)
                 cityPrompt = "E  Talk";
-            if (dirtyCashOpen)
+            if (nearContractCustomer)
+                cityPrompt = "E  Customer request";
+            if (contractOpen)
+                _hud.SetPrompt("ESC  Close customer request");
+            else if (dirtyCashOpen)
                 _hud.SetPrompt("ESC  Close contact");
             else if (itemViewerOpen)
                 _hud.SetPrompt("ESC  Close item inspection");
@@ -309,7 +553,7 @@ namespace Signal.Game
             if (_debugMenuOpen || keyboard == null)
                 return;
 
-            if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen &&
+            if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen &&
                 _miloScenario != null && _miloScenario.HasPendingChoice)
             {
                 int choice = keyboard.digit1Key.wasPressedThisFrame ? 1 :
@@ -325,16 +569,21 @@ namespace Signal.Game
             }
 
             if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
-                !dirtyCashOpen && nearDirtyCashContact && keyboard.eKey.wasPressedThisFrame)
+                !dirtyCashOpen && !contractOpen && nearContractCustomer && keyboard.eKey.wasPressedThisFrame)
+            {
+                _customerContractPanel.Open();
+            }
+            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
+                !dirtyCashOpen && !contractOpen && nearDirtyCashContact && keyboard.eKey.wasPressedThisFrame)
             {
                 if (_dirtyCashPanel != null) _dirtyCashPanel.Open();
             }
             else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
-                !dirtyCashOpen && nearSearchableContainer && keyboard.eKey.wasPressedThisFrame)
+                !dirtyCashOpen && !contractOpen && nearSearchableContainer && keyboard.eKey.wasPressedThisFrame)
             {
                 OpenSearchableContainer(nearbyContainerId);
             }
-            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen &&
+            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen &&
                 nearbyBusiness != null && keyboard.eKey.wasPressedThisFrame)
             {
                 if (!nearbyBusiness.TryValidate(out string businessError))
@@ -344,12 +593,12 @@ namespace Signal.Game
                 else
                     _retailPanel.Open(nearbyBusiness);
             }
-            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && nearWorkbench && keyboard.eKey.wasPressedThisFrame)
+            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && nearWorkbench && keyboard.eKey.wasPressedThisFrame)
                 _workspace.Open();
-            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && nearStorage && keyboard.eKey.wasPressedThisFrame)
+            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && nearStorage && keyboard.eKey.wasPressedThisFrame)
                 _storagePanel.SetOpen(true);
             else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
-                     !dirtyCashOpen && !nearDirtyCashContact && !nearSearchableContainer && nearbyBusiness == null && !nearWorkbench && !nearStorage &&
+                     !dirtyCashOpen && !contractOpen && !nearDirtyCashContact && !nearContractCustomer && !nearSearchableContainer && nearbyBusiness == null && !nearWorkbench && !nearStorage &&
                      cityPrompt.Length > 0 && keyboard.eKey.wasPressedThisFrame)
             {
                 if (_miloScenario != null &&
@@ -586,7 +835,9 @@ namespace Signal.Game
                                                _playerDiscoveries, _miloOpportunity, _playerRelationships,
                                                _assetOwnership, _economicTransactions, _economicAccounts, _retailTransactions,
                                                _shopSaleTransactions, _criminalProgression, _crimeOutcomes,
-                                               _contactInventory, _illicitExchanges, _dirtyCashCleanings);
+                                               _contactInventory, _illicitExchanges, _dirtyCashCleanings,
+                                               _productionTransactions, _customerContracts, _workshopProgression,
+                                               _contractReceiverInventory, _contractReceiverActor.Value);
             SearchableContainerSaveMapper.Capture(_searchableContainers, data);
 
             try
@@ -611,16 +862,19 @@ namespace Signal.Game
 
             if (_containerPanel != null) _containerPanel.Close();
             if (_dirtyCashPanel != null) _dirtyCashPanel.Close();
+            if (_customerContractPanel != null) _customerContractPanel.Close();
             _activeSearchableContainer = null;
             LoadReport report = SaveMapper.Apply(data, _stats, _inventory, _storage, _clock, _heat, _rent,
                 ResolveType, _itemKnowledge, _playerDiscoveries, _playerRelationships, _assetOwnership, _economicTransactions,
                 _economicAccounts, _retailTransactions, _shopSaleTransactions, _criminalProgression, _crimeOutcomes,
-                _contactInventory, _illicitExchanges, _dirtyCashCleanings);
+                _contactInventory, _illicitExchanges, _dirtyCashCleanings,
+                _productionTransactions, _customerContracts, _workshopProgression, _contractReceiverInventory);
             if (!report.Success)
             {
                 Say("Load failed: " + report.Error);
                 return;
             }
+            RefreshWorkshopUpgradeVisual();
 
             int skippedContainers = SearchableContainerSaveMapper.Apply(data, _searchableContainers, ResolveType);
             RegisterSearchableContainerAssets();
@@ -647,7 +901,8 @@ namespace Signal.Game
                 report.SkippedResidentAccounts + report.SkippedRetailTransactions + report.SkippedShopSaleTransactions +
                 report.SkippedCrimeOutcomes + report.SkippedContactItems +
                 report.SkippedIllicitExchangeTransactions + report.SkippedDirtyCashCleaningTransactions +
-                skippedContainers > 0
+                skippedContainers + report.SkippedProductionTransactions + report.SkippedCustomerContracts +
+                report.SkippedWorkshopUpgradeIds + report.SkippedContractReceiverItems > 0
                 ? "Loaded at " + data.worldPlace + ". Some saved item or discovery details could not be restored."
                 : "Loaded at " + data.worldPlace + ".");
         }
@@ -843,6 +1098,15 @@ namespace Signal.Game
                 }
             }
 
+            _workshopRecipes.Clear();
+            if (startingWorkshopRecipes != null)
+                foreach (RecipeDefinition recipe in startingWorkshopRecipes)
+                    RegisterRecipeCatalog(recipe);
+            if (firstWorkshopUpgrade != null && firstWorkshopUpgrade.UnlockedRecipe != null)
+                RegisterRecipeCatalog(firstWorkshopUpgrade.UnlockedRecipe);
+            if (firstCustomerContract != null && firstCustomerContract.RequiredItem != null)
+                RegisterItemCatalog(firstCustomerContract.RequiredItem);
+
             if (businesses != null)
             {
                 foreach (BusinessDefinition business in businesses)
@@ -930,6 +1194,39 @@ namespace Signal.Game
             }
         }
 
+
+        private void RegisterRecipeCatalog(RecipeDefinition recipe)
+        {
+            if (recipe == null) return;
+            if (!recipe.TryValidate(out string error))
+            {
+                Debug.LogError("GameSession: invalid workshop recipe '" + recipe.name + "': " + error);
+                return;
+            }
+            if (!_workshopRecipes.Contains(recipe))
+                _workshopRecipes.Add(recipe);
+            foreach (RecipeDefinition.IngredientEntry input in recipe.Inputs)
+                if (input != null && input.item != null)
+                    RegisterItemCatalog(input.item);
+            if (recipe.Output != null && recipe.Output.item != null)
+                RegisterItemCatalog(recipe.Output.item);
+        }
+
+        private void RegisterItemCatalog(ItemDefinition definition)
+        {
+            if (definition == null) return;
+            try
+            {
+                ItemType type = definition.ToItemType();
+                _catalog[type.Id] = type;
+                if (!_allItemDefinitions.Contains(definition))
+                    _allItemDefinitions.Add(definition);
+            }
+            catch (InvalidOperationException)
+            {
+                Debug.LogError("GameSession: item '" + definition.name + "' has no valid stable ID.");
+            }
+        }
 
         private void CreateSearchableContainers()
         {
