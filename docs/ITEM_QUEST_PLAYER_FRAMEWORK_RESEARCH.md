@@ -6,4 +6,4 @@ The item-instance foundation described here is now implemented. Keep this as his
 
 [Open the archived document](archive/research/ITEM_QUEST_PLAYER_FRAMEWORK_RESEARCH.md).
 
-For current project status, use [docs/PROGRESS.md](../PROGRESS.md).
+For current project status, use [docs/PROGRESS.md](PROGRESS.md).
