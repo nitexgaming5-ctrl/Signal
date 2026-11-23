@@ -500,13 +500,13 @@ namespace Signal.Game
             bool contractOpen = _customerContractPanel != null && _customerContractPanel.IsOpen;
             bool upgradeOpen = _workshopUpgradePanel != null && _workshopUpgradePanel.IsOpen;
             if (_panel != null)
-                _panel.enabled = !_debugMenuOpen && !workspaceOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen;
+                _panel.enabled = !_debugMenuOpen && !workspaceOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen;
             if (_storagePanel != null)
-                _storagePanel.enabled = !_debugMenuOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen;
+                _storagePanel.enabled = !_debugMenuOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen;
             if (_containerPanel != null)
-                _containerPanel.enabled = !_debugMenuOpen && !itemViewerOpen && !dirtyCashOpen && !contractOpen;
+                _containerPanel.enabled = !_debugMenuOpen && !itemViewerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen;
             if (_dirtyCashPanel != null)
-                _dirtyCashPanel.enabled = !_debugMenuOpen;
+                _dirtyCashPanel.enabled = !_debugMenuOpen && !upgradeOpen;
             if (_debugMenuOpen && retailOpen)
             {
                 _retailPanel.Close();
@@ -556,7 +556,7 @@ namespace Signal.Game
                 cityPrompt = "E  Workshop offer";
             if (_miloScenario != null)
             {
-                if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen)
+                if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen)
                     _miloScenario.Tick(playerPosition, _city.CurrentPlace);
                 string scenarioPrompt = _miloScenario.GetPrompt(playerPosition, _city.CurrentPlace);
                 if (!string.IsNullOrEmpty(scenarioPrompt))
@@ -628,7 +628,11 @@ namespace Signal.Game
             else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
                 !dirtyCashOpen && !contractOpen && !upgradeOpen && nearUpgradeSupplier && keyboard.eKey.wasPressedThisFrame)
             {
-                if (_workshopUpgradePanel != null) _workshopUpgradePanel.Open();
+                if (_workshopUpgradePanel != null)
+                {
+                    _workshopUpgradePanel.Open();
+                    _motor.enabled = false;
+                }
             }
             else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
                 !dirtyCashOpen && !contractOpen && !upgradeOpen && nearDirtyCashContact && keyboard.eKey.wasPressedThisFrame)
