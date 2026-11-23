@@ -138,3 +138,8 @@ Unity reported that the sewing-machine placeholder prefab contained a GameObject
 ### Play Mode progress update — 2026-11-23
 
 The user reconfirmed **415/415 EditMode tests** and reports that the project is running with the workbench, selling and customer-request flow working in Play Mode. The sewing-machine prefab root fileID correction has also been applied. Before marking B-01 to B-03 complete, explicitly verify the Compact Sewing Machine purchase and visual installation, Reinforced Patch Kit recipe unlock/production, and F5/F9 persistence of the completed contract, account balances, inventory and upgrade state.
+
+
+### Rhea supplier interaction correction — 2026-11-23
+
+The user reported that no menu opened when trying to buy the Compact Sewing Machine from Rhea. Inspection showed the purchase button had been placed in WorkbenchWorkspace instead of being attached to Rhea's NPC interaction. A dedicated WorkshopUpgradePanel now opens with E when near Rhea; purchase validation checks supplier proximity, Milo's completed request and account funds. The workbench UI now handles production only. If Milo and Rhea are both in range at the CornerShop work positions, the nearest NPC wins the E interaction. Added a focused panel callback test. The user-reported 415/415 result predates this patch; compile and rerun all EditMode tests, then test supplier purchase, installation, recipe unlock and save/reload in Play Mode.
