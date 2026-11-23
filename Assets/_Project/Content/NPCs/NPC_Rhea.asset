@@ -1,0 +1,65 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c9b8f21a3d54e6e9a2b1c4d5e6f7081, type: 3}
+  m_Name: NPC_Rhea
+  m_EditorClassIdentifier: Signal.Game::Signal.Game.NpcCharacterDefinition
+  NpcId: rhea
+  DisplayName: Rhea
+  PublicRole: Neighbour
+  AwarenessRadius: 8
+  WalkingSpeed: 1.6
+  StartingCleanBalance: 250
+  UtilityProfile:
+    DecisionIntervalMinutes: 15
+    WorkStartMinute: 540
+    WorkEndMinute: 1080
+    RestStartMinute: 690
+    RestEndMinute: 810
+    SocializeStartMinute: 1080
+    SocializeEndMinute: 1260
+    HomeStartMinute: 1260
+    HomeEndMinute: 540
+    WorkBaseScore: 20
+    WorkEnergyWeight: 40
+    WorkOffHoursScore: -10
+    RestEnergyNeedWeight: 70
+    RestWindowBonus: 25
+    SocialNeedWeight: 55
+    SocialWindowBonus: 40
+    HomePriority: 100
+    HomeOffHoursScore: -10
+    ActivityInertiaBonus: 5
+    FamiliaritySocialWeight: 8
+    AffinitySocialWeight: 12
+    KnownInformationSocialWeight: 2.5
+    MaximumKnownTopicsForSocialising: 3
+    EnergyWorkDrain: 0.0012
+    SocialWorkDrain: 0.00045
+    EnergyRestRecovery: 0.003
+    SocialRestRecovery: 0.0001
+    EnergySocialDrain: 0.0004
+    SocialSocialRecovery: 0.002
+    EnergyHomeRecovery: 0.0015
+    SocialHomeRecovery: 0.0007
+  WorkPosition: {x: 1001.2, y: 1000.4}
+  RestPosition: {x: 4.8, y: -17.5}
+  SocialPosition: {x: 17.2, y: -11.6}
+  HomePosition: {x: 1018, y: 1000}
+  CoatColor: {r: 0.3490196, g: 0.28235295, b: 0.35686275, a: 1}
+  ClothingColor: {r: 0.74509805, g: 0.69803923, b: 0.62352941, a: 1}
+  SkinColor: {r: 0.74509805, g: 0.56862745, b: 0.43529412, a: 1}
+  HairColor: {r: 0.22352941, g: 0.19215686, b: 0.16862745, a: 1}
+  DetailColor: {r: 0.85490196, g: 0.83529412, b: 0.76470588, a: 1}
+  WorkDialogue: I still mend things for neighbours now and then. This old sewing machine has seen better days.
+  RestDialogue: Taking a breather before I head back out.
+  SocialDialogue: You hear a lot when you spend time around this block.
+  HomeDialogue: I'm home for the evening.

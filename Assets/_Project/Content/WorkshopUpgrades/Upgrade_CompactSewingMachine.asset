@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91169a83b6804a6cb46ce3a2de980b1a, type: 3}
+  m_Name: Upgrade_CompactSewingMachine
+  m_EditorClassIdentifier: Signal.Game::Signal.Game.WorkshopUpgradeDefinition
+  id: 40000000-0000-4000-8000-000000000001
+  displayName: Compact Sewing Machine
+  description: A second-hand manual sewing machine from Rhea. Complete Milo's first request, then install it at the workbench to make reinforced patch kits.
+  unlockedRecipe: {fileID: 11400000, guid: cc000000000000000000000000000002, type: 2}
+  installedPropPrefab: {fileID: 100100000, guid: ff000000000000000000000000000001, type: 3}
+  installedPropLocalOffset: {x: 0, y: 0.35, z: 0}
+  acquisitionMode: 1
+  prerequisiteMode: 2
+  prerequisiteContract: {fileID: 11400000, guid: dd000000000000000000000000000001, type: 2}
+  cleanCardCost: 90
+  payeeNpcId: rhea
