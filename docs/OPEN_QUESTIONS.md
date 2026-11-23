@@ -8,7 +8,7 @@ The user delegated authority to the agent to author provisional B-01 to B-03 con
 
 The following are implementation/verification checks, not open design questions:
 - Open the updated assets/scene in Unity and confirm there are no import/reference/validation errors.
-- Exercise two productions, contract acceptance/fulfilment, CARD payment, upgrade purchase, visual installation, recipe unlock and save/load in Play Mode.
+- Verify Rhea's `E Workshop offer` interaction opens the supplier panel; exercise purchase, CARD payment to Rhea, visual installation, recipe unlock and save/load in Play Mode.
 - Confirm Milo's account funds the 40 CARD reward and Rhea's account receives the 90 CARD upgrade payment.
 
 ## Future design — deliberately not blocking B-01 to B-03
