@@ -263,7 +263,8 @@ namespace Signal.Game
                 }
             }
 
-            if (_upgrade == null || !_upgrade.TryValidate(out string upgradeError))
+            string upgradeError = null;
+            if (_upgrade == null || !_upgrade.TryValidate(out upgradeError))
             {
                 _upgradeDetails.text = _upgrade == null ? "No practical upgrade assigned." : "UPGRADE CONFIGURATION ERROR\n" + upgradeError;
                 _upgradeButton.interactable = false;

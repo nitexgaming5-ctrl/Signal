@@ -408,7 +408,8 @@ namespace Signal.Game
 
         private string AcquireFirstUpgrade()
         {
-            if (firstWorkshopUpgrade == null || !firstWorkshopUpgrade.TryValidate(out string error))
+            string error = firstWorkshopUpgrade == null ? "No upgrade asset is assigned." : null;
+            if (firstWorkshopUpgrade == null || !firstWorkshopUpgrade.TryValidate(out error))
                 return "The workshop upgrade is not configured: " + error;
             if (!_city.IsAtHome || _room.Workbench == null ||
                 Vector2.Distance(_room.PlayerBody.position, _room.Workbench.position) > 2.15f)
