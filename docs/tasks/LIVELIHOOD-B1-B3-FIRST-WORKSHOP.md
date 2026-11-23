@@ -1,6 +1,6 @@
 # LIVELIHOOD-B1-B3 — First Workshop vertical slice
 
-**Status:** Core/Game foundation and starter content committed 2026-11-23; 415/415 EditMode tests user-validated; Play Mode verification pending  
+**Status:** Core/Game foundation and starter content committed 2026-11-23; 415/415 EditMode tests reconfirmed; user-confirmed Play Mode workbench/selling/customer-request flow; upgrade and save/load acceptance checks remain  
 **Direction:** approved Direction B — meaningful everyday livelihood  
 **User decisions:** workshop model = both (player-operated first, NPC-owned compatible later); one active contract; first practical hideout upgrade unlocks another recipe/capability.
 
@@ -133,3 +133,8 @@ Starter content and prototype values are recorded in decisions/0005-first-worksh
 ### Editor import follow-up — 2026-11-23
 
 Unity reported that the sewing-machine placeholder prefab contained a GameObject using reserved `fileID 100100000`. The root GameObject and its component back-references have been corrected to `100000`; the upgrade asset's external root-object reference was updated accordingly. The prefab GUID and hierarchy are unchanged. Reimport in Unity and confirm the warning is gone before proceeding with the Play Mode acceptance script.
+
+
+### Play Mode progress update — 2026-11-23
+
+The user reconfirmed **415/415 EditMode tests** and reports that the project is running with the workbench, selling and customer-request flow working in Play Mode. The sewing-machine prefab root fileID correction has also been applied. Before marking B-01 to B-03 complete, explicitly verify the Compact Sewing Machine purchase and visual installation, Reinforced Patch Kit recipe unlock/production, and F5/F9 persistence of the completed contract, account balances, inventory and upgrade state.
