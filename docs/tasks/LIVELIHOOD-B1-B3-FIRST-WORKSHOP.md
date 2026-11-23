@@ -128,3 +128,8 @@ Authored starter content is now assigned in HideoutSlice: Fabric Roll, Thread Sp
 ## Open decisions before implementation
 
 Starter content and prototype values are recorded in decisions/0005-first-workshop-content.md. Remaining work is Editor import/validation and the full Play Mode acceptance script; later balancing may replace these fixture values.
+
+
+### Editor import follow-up — 2026-11-23
+
+Unity reported that the sewing-machine placeholder prefab contained a GameObject using reserved `fileID 100100000`. The root GameObject and its component back-references have been corrected to `100000`; the upgrade asset's external root-object reference was updated accordingly. The prefab GUID and hierarchy are unchanged. Reimport in Unity and confirm the warning is gone before proceeding with the Play Mode acceptance script.
