@@ -72,7 +72,7 @@ Existing approved decisions remain binding unless the user changes them. If two 
 2. **Reuse before adding.** Inspect existing services, ownership, inventory, accounts, save paths, UI and scene composition before creating new abstractions.
 3. **One authority per rule.** Core owns domain transactions and validation. UI is presentation/input. GameSession composes systems and authored content. ScriptableObjects describe data, not authoritative runtime behaviour.
 4. **Keep layers clean.** Core must not reference UnityEngine. Dependencies flow Game → Core only.
-5. **Preserve identity.** Never casually change stable ScriptableObject IDs, item GUIDs, Unity .meta GUIDs, scene references or saved stack identities.
+5. **Preserve identity.** Never casually change stable ScriptableObject IDs, item GUIDs, Unity .meta GUIDs, scene references or saved stack identities. Known repository hazard: `Assets/_Project/Content/Items/` and `Assets/_Project/Content/items/` differ only by case and may collide on Windows. Do not add content to either path until they are safely merged inside Unity Editor; use a clearly distinct folder such as `WorkshopItems/` in the meantime.
 6. **Protect atomicity.** A failed transaction must leave inventory, ownership, accounts, ledgers and progression unchanged.
 7. **Persistence is a contract.** Update SaveData/SaveMapper/Migrator and round-trip coverage when persistent schema changes. Increment the save version only when serialized shape/meaning changes.
 8. **No incidental simulation.** Do not add universal supply/demand, automatic NPC shopping, passive revenue, background economy, global gossip or per-frame NPC decision scoring without a designed player-facing reason.

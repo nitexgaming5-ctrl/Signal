@@ -66,6 +66,10 @@ Starter content is now authored and wired into HideoutSlice: four workshop mater
 
 Open the updated project in Unity, allow all new ScriptableObjects/prefab references to import, run the full EditMode suite, then exercise craft twice → deliver one kit to Milo → buy the sewing machine from Rhea → craft the reinforced kit → save/reload. Keep the user-validated 415/415 result recorded as the last full suite; rerun after any future code changes.
 
+## Known repository layout caveat
+
+- Existing `Assets/_Project/Content/Items/` and `Assets/_Project/Content/items/` differ only by case and may collide on Windows. The new First Workshop definitions were deliberately placed in `Content/WorkshopItems/`. Do not merge/rename the existing folders outside Unity Editor; preserving all asset GUIDs and references is mandatory.
+
 ## Not included / deliberately deferred
 
 No automatic NPC shopping, supplier simulation, finite universal stock, dynamic prices, supply/demand, passive income, production timers/queues, quality rolls, procedural contracts, multiple active contracts, partial-stack delivery, repair system, relationship/favour rewards, police response, global rumour cascades or new districts are part of the current initiative.
