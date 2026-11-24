@@ -64,13 +64,13 @@ The current implementation status, branch head, verification and next action liv
 ### Current and future strategic direction
 
 1. **B-01 to B-03 — First Workshop:** make authored physical goods, fulfil one customer request and improve the hideout workshop. This is the active vertical slice.
-2. **B-04 — Repair and restoration:** future design placeholder; build only after the workshop loop is proven.
+2. **B-04 — Repair and restoration:** source-audited design draft only; finalize and approve rules after First Workshop Play Mode acceptance, before implementation.
 3. **B-05 — Social life and recurring customers:** future design placeholder; deepen player-driven relationships and authored requests.
 4. **B-06 — Livelihood expansion:** choose another coherent legitimate activity, not a universal profession simulator.
 5. **B-07 — Neighbourhood expansion:** add connected geography only when existing places have meaningful reasons to revisit.
 6. **Crime depth and long-term progression:** continue as separate, scenario-led design that reuses the shared city, item and economy foundations.
 
-B-04 to B-07 are not implementation approval. They are the current sequencing proposals, not a promise to build every idea.
+B-04 to B-07 are not implementation approval. B-04 has a source-audited design draft at `tasks/LIVELIHOOD-B-04-REPAIR-RESTORATION.md`; its unresolved decisions are listed in `OPEN_QUESTIONS.md`.
 
 ## How to navigate this repository
 
@@ -86,7 +86,9 @@ The agent should use the task and the nature of the change to select relevant re
 | Code boundaries, dependencies and runtime composition | `ARCHITECTURE.md` |
 | ScriptableObject definitions, runtime state and save schema | `DATA_MODEL.md` |
 | Collaboration workflow and vertical-slice standard | `DEVELOPMENT_WORKFLOW.md` |
-| NPC simulation, perception, routines, knowledge and social boundaries | `NPC_FRAMEWORK.md` |
+| NPC architecture overview | `NPC_FRAMEWORK.md` |
+| NPC simulation, perception, routines, knowledge and social boundaries | `NPC_SIMULATION.md` |
+| NPC pacing, navigation and interruption/recovery | `NPC_RUNTIME.md` |
 | Visual style, UI conventions and asset constraints | `ART_AND_UI.md`, `ART_TODO.md` |
 | Parked ideas only | `IDEA_BACKLOG.md` |
 | Authored First Workshop item/recipe/contract/upgrade catalogue and playtest steps | `content/STARTER_CATALOGUE.md` |
@@ -98,7 +100,7 @@ The agent should use the task and the nature of the change to select relevant re
 
 - A production, contract, upgrade or content task should use the First Workshop parent card plus the relevant B-01/B-02/B-03 card, then inspect the corresponding Game/Core code and tests.
 - An inventory, retail, account or save task should start from the relevant classes/tests and consult Architecture/Data Model; older economy cards are historical audit material.
-- An NPC task should use NPC Framework and the specific scenario card, not reread the whole roadmap.
+- An NPC task should use the short NPC Framework overview, then the relevant NPC_SIMULATION or NPC_RUNTIME reference and the specific scenario/agenda card.
 - An art/UI task should use Art and UI and its asset TODO.
 - A documentation task should consult Index, Progress and only the documents being changed. Historical logs are for traceability, not normal planning.
 
