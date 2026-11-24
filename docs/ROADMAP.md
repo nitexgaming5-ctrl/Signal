@@ -51,11 +51,11 @@ These are approved direction placeholders, not implementation permission for un-
 
 ### B-04 — Repair and restoration
 
-**Status: design draft only; not implementation approval.** The source-audited proposal is tracked in [LIVELIHOOD-B-04](tasks/LIVELIHOOD-B-04-REPAIR-RESTORATION.md), with unresolved decisions in [Open Questions](OPEN_QUESTIONS.md).
+**Status: design approved; hybrid buyback framework committed; repair gameplay integration gated on First Workshop Play Mode acceptance.** See [LIVELIHOOD-B-04](tasks/LIVELIHOOD-B-04-REPAIR-RESTORATION.md) and [Decision 0006](decisions/0006-hybrid-buyback-and-textile-business.md).
 
-The candidate loop reuses the existing hideout workbench/Compact Sewing Machine, Basic and Reinforced Patch Kits, per-item condition state, stable stack identity and player item-knowledge book. The first target is one unstackable Worn textile item; repair changes condition only through explicit transitions, preserves quality/authenticity/ownership and stable ID, refreshes the player's condition knowledge as direct inspection, and persists through the current unversioned save round trip.
+The approved first loop uses Rhea as a textile buyer/supplier, a Worn unstackable Work Jacket from an existing scavenging loot profile, fixed-price raw repair materials, and one per-condition buyback schedule for that jacket. The existing hideout workbench/Compact Sewing Machine and Basic/Reinforced Patch Kits provide the repair path. Repairs change Condition only, preserve stable identity and all other state/provenance, refresh the player's Condition knowledge as direct inspection and persist through the current unversioned save round trip.
 
-The current economy is fixed-price: `ItemValueCalculator` changes indicative reference value, but shop buyback payment is authored per item and is not condition-sensitive. Whether B-04 should create direct CARD profit therefore remains an explicit decision; do not silently change global sell-price rules. First confirm the remaining First Workshop Play Mode acceptance, then settle B-04's supply and monetization rules before implementation.
+The catalogue model is hybrid but bounded: merchandise remains fixed-price; each buyback entry is either fixed or explicitly condition-based for one authored item and business. Existing fixed offers remain unchanged. Do not derive CARD payouts from `ItemValueCalculator`, which remains an indicative reference value. This is not demand pricing or a global market simulator. The generic pricing code and focused tests are committed; a fresh Unity run is required. Finish the remaining First Workshop Play Mode acceptance before adding the Work Jacket, textile business asset/scene wiring and repair interaction.
 
 ### B-05 — Social life and recurring customers
 
@@ -95,10 +95,10 @@ Add a compact connected area only when the current neighbourhood has enough mean
 - Ownership separate from container custody.
 - Atomic asset transfer and economic transaction history.
 - Clean CARD accounts for player and residents.
-- Authored fixed-price business merchandise and per-business fixed buyback offers.
+- Authored fixed-price business merchandise and per-business buyback offers that may be fixed or selectively condition-based for explicitly configured physical item states.
 - Dirty Cash is a physical item; illicit exchange and cleaning are explicit, atomic and separately recorded.
 - Theft records a crime outcome and global criminal progression separately from heat.
-- Universal supply/demand, auto-shopping, passive sales and dynamic prices are excluded from the initial economy.
+- Universal supply/demand, auto-shopping, passive sales, finite stock simulation and market-wide/time-/demand-driven prices are excluded from the initial economy. Selective condition-based buyback is an authored, per-entry exception.
 
 ## Other long-term game pillars
 
