@@ -123,12 +123,12 @@ namespace Signal.Core.Tests
         public void ReinforcedKitCannotRepairWornJacketAndFailureConsumesNothing()
         {
             var fixture = new Fixture(ItemCondition.Worn);
-            InventorySnapshot before = fixture.Inventory.CreateSnapshot();
+            int itemCountBefore = fixture.Inventory.Items.Count;
 
             RepairResult result = fixture.Repair(fixture.ReinforcedKitId);
 
             Assert.That(result.Status, Is.EqualTo(RepairStatus.KitCannotRepairCondition));
-            Assert.That(fixture.Inventory.Items.Count, Is.EqualTo(before.Items.Count));
+            Assert.That(fixture.Inventory.Items.Count, Is.EqualTo(itemCountBefore));
             Assert.That(fixture.Inventory.TryGetItemInstance(fixture.JacketId, out PlacedItem jacket), Is.True);
             Assert.That(jacket.State.Condition, Is.EqualTo(ItemCondition.Worn));
             Assert.That(fixture.Inventory.TryGetItemInstance(fixture.ReinforcedKitId, out _), Is.True);
