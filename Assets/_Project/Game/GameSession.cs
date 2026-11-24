@@ -519,11 +519,11 @@ namespace Signal.Game
             if (_panel != null)
                 _panel.enabled = !_debugMenuOpen && !workspaceOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen;
             if (_storagePanel != null)
-                _storagePanel.enabled = !_debugMenuOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen;
+                _storagePanel.enabled = !_debugMenuOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen;
             if (_containerPanel != null)
-                _containerPanel.enabled = !_debugMenuOpen && !itemViewerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen;
+                _containerPanel.enabled = !_debugMenuOpen && !itemViewerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen;
             if (_dirtyCashPanel != null)
-                _dirtyCashPanel.enabled = !_debugMenuOpen && !upgradeOpen;
+                _dirtyCashPanel.enabled = !_debugMenuOpen && !upgradeOpen && !agendaOpen;
             if (_debugMenuOpen && retailOpen)
             {
                 _retailPanel.Close();
@@ -1393,14 +1393,16 @@ namespace Signal.Game
             if (_npcAgendaDirector == null || _city == null ||
                 !_city.TryGetNearestResidentWithin(playerPosition, InteractionDistance, out string npcId))
                 return false;
-            return _npcAgendaDirector.TryGetNextStage(npcId, _city.GetResidentActivity(npcId),
-                out _, out _);
+            return !_city.IsResidentTravelling(npcId) &&
+                _npcAgendaDirector.TryGetNextStage(npcId, _city.GetResidentActivity(npcId),
+                    out _, out _);
         }
 
         private bool TryOpenAgendaConversation(Vector2 playerPosition)
         {
             if (_npcAgendaDirector == null || _npcAgendaPanel == null || _city == null ||
                 !_city.TryGetNearestResidentWithin(playerPosition, InteractionDistance, out string npcId) ||
+                _city.IsResidentTravelling(npcId) ||
                 !_npcAgendaDirector.TryGetNextStage(npcId, _city.GetResidentActivity(npcId),
                     out NpcAgendaThreadDefinition thread, out NpcAgendaStageDefinition stage))
                 return false;
