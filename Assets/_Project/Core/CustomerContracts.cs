@@ -221,7 +221,8 @@ namespace Signal.Core
                 !ValidRelationshipDelta(familiarityDelta) || !ValidRelationshipDelta(trustDelta) ||
                 !ValidRelationshipDelta(affinityDelta) ||
                 ((familiarityDelta != 0f || trustDelta != 0f || affinityDelta != 0f) &&
-                 (relationships == null || string.IsNullOrWhiteSpace(relationshipNpcId))) )
+                 (relationships == null || string.IsNullOrWhiteSpace(relationshipNpcId) ||
+                  payerActor.Value != "resident:" + relationshipNpcId)))
                 return Result(CustomerContractFulfilmentStatus.InvalidRequest);
 
             if (!contracts.TryGetState(contractId, out CustomerContractState contract) ||
