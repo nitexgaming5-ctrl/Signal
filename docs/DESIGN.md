@@ -39,8 +39,8 @@ Specialist implementation and social boundaries: `NPC_FRAMEWORK.md`.
 - Clean money is a resident/player CARD account and funds legitimate purchases/services.
 - Dirty Cash is a physical inventory item. It cannot pay for legitimate retail or be deposited directly.
 - Resident personal accounts own clean balances. Business revenue belongs to the resident owner; no independent business balance is created.
-- Business merchandise and buyback offers are separate, authored, fixed-price lists. Ordinary merchandise has unlimited availability in the initial model.
-- Transactions are explicit, validated and atomic. Do not invent dynamic prices, universal supply/demand, passive revenue or NPC shopping simulation.
+- Business merchandise and buyback offers are separate authored catalogue layers. Merchandise remains fixed-price; each buyback entry is either fixed-price or explicitly condition-priced from the selected physical item's `ItemInstanceState`. Ordinary merchandise has unlimited availability in the initial model.
+- Transactions are explicit, validated and atomic. Selective condition-based buyback is an opt-in authored exception, not a market simulator. Do not add time-, stock- or demand-driven price fluctuations, universal supply/demand, passive revenue or NPC shopping simulation.
 
 ## Scavenging and theft
 
