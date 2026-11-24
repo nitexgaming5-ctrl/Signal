@@ -18,6 +18,39 @@ namespace Signal.Game.Tests
         }
 
         [Test]
+        public void RheaAgendaResourceValidatesAndKeepsItsThreeThreadsIndependent()
+        {
+            NpcAgendaDefinition agenda = Resources.Load<NpcAgendaDefinition>("Agendas/RheaAgenda");
+            Assert.That(agenda, Is.Not.Null);
+            Assert.That(agenda.TryValidate(out string error), Is.True, error);
+            Assert.That(agenda.NpcId, Is.EqualTo("rhea"));
+            Assert.That(agenda.Threads.Length, Is.EqualTo(3));
+
+            NpcAgendaStageDefinition rumour = agenda.Threads[0].Stages[0];
+            Assert.That(rumour.RequireSocializingActivity, Is.True);
+            Assert.That(rumour.RequiredPlace, Is.EqualTo("Street"));
+            Assert.That(rumour.Choices.Length, Is.EqualTo(3));
+            foreach (NpcAgendaChoiceDefinition choice in rumour.Choices)
+            {
+                Assert.That(choice.Action, Is.EqualTo(NpcAgendaChoiceAction.RecordDiscovery));
+                Assert.That(choice.DiscoverySubjectId, Is.EqualTo("milo"));
+                Assert.That(choice.DiscoveryType, Is.EqualTo(DiscoverySignalType.Rumour));
+                Assert.That(choice.DiscoveryConfidence, Is.EqualTo(0.4f));
+            }
+
+            NpcAgendaStageDefinition machine = agenda.Threads[1].Stages[0];
+            Assert.That(machine.RequiredActivity, Is.EqualTo(NpcAgendaActivityRequirement.Work));
+            Assert.That(machine.RequiredPlace, Is.EqualTo("CornerShop"));
+            Assert.That(machine.RequiredContract, Is.Not.Null);
+            Assert.That(machine.RequiredUpgrade, Is.Not.Null);
+            Assert.That(machine.RequireUpgradeNotAcquired, Is.True);
+
+            NpcAgendaStageDefinition mending = agenda.Threads[2].Stages[0];
+            Assert.That(mending.RequiredUpgrade, Is.Not.Null);
+            Assert.That(mending.RequireUpgradeNotAcquired, Is.False);
+        }
+
+        [Test]
         public void DifferentResidentsUseTheSameDirectorAndKeepIndependentProgress()
         {
             NpcAgendaDefinition rhea = CreateAgenda("rhea", "neighbour-tip", "first-talk",
