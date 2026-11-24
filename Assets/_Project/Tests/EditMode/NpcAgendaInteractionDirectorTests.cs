@@ -101,6 +101,94 @@ namespace Signal.Game.Tests
             Object.DestroyImmediate(definition);
         }
 
+
+        [Test]
+        public void PriorityActivityAndLocationConditionsAreGenericAcrossResidents()
+        {
+            var rhea = ScriptableObject.CreateInstance<NpcAgendaDefinition>();
+            rhea.NpcId = "rhea";
+            rhea.Threads = new[]
+            {
+                new NpcAgendaThreadDefinition
+                {
+                    ThreadId = "rumour",
+                    DisplayName = "Rumour",
+                    Priority = 5,
+                    Stages = new[]
+                    {
+                        new NpcAgendaStageDefinition
+                        {
+                            StageId = "street-talk",
+                            Dialogue = "A rumour.",
+                            RequiredActivity = NpcAgendaActivityRequirement.Socialize,
+                            RequiredPlace = "Street",
+                            Choices = new[] { new NpcAgendaChoiceDefinition { ChoiceId = "leave", Label = "Leave", Response = "Fine." } }
+                        }
+                    }
+                },
+                new NpcAgendaThreadDefinition
+                {
+                    ThreadId = "offer",
+                    DisplayName = "Offer",
+                    Priority = 20,
+                    Stages = new[]
+                    {
+                        new NpcAgendaStageDefinition
+                        {
+                            StageId = "machine",
+                            Dialogue = "An offer.",
+                            RequiredCompletedContractId = "contract-one",
+                            RequiredUpgradeId = "upgrade-one",
+                            RequireUpgradeNotAcquired = true,
+                            Choices = new[] { new NpcAgendaChoiceDefinition { ChoiceId = "later", Label = "Later", Response = "Later." } }
+                        }
+                    }
+                }
+            };
+            var milo = ScriptableObject.CreateInstance<NpcAgendaDefinition>();
+            milo.NpcId = "milo";
+            milo.Threads = new[]
+            {
+                new NpcAgendaThreadDefinition
+                {
+                    ThreadId = "everyday",
+                    DisplayName = "Everyday",
+                    Stages = new[]
+                    {
+                        new NpcAgendaStageDefinition
+                        {
+                            StageId = "hello",
+                            Dialogue = "Long day at the bakery.",
+                            Choices = new[] { new NpcAgendaChoiceDefinition { ChoiceId = "goodbye", Label = "Goodbye", Response = "See you." } }
+                        }
+                    }
+                }
+            };
+
+            bool contractCompleted = true;
+            bool upgradeAcquired = false;
+            var director = new NpcAgendaInteractionDirector(new[] { rhea, milo },
+                new NpcAgendaProgressBook(), new PlayerDiscoveryLedger(), new PlayerRelationshipBook(),
+                _ => contractCompleted, _ => upgradeAcquired, _ => true, () => 1, () => 0);
+
+            Assert.That(director.TryGetNextStage("rhea", NpcActivity.Work, "Street", out _, out _), Is.False);
+            Assert.That(director.TryGetNextStage("rhea", NpcActivity.Socialize, "Street",
+                out NpcAgendaThreadDefinition selectedThread, out _), Is.True);
+            Assert.That(selectedThread.ThreadId, Is.EqualTo("offer"));
+            Assert.That(director.TryGetNextStage("milo", NpcActivity.Work, "CornerShop",
+                out NpcAgendaThreadDefinition miloThread, out _), Is.True);
+            Assert.That(miloThread.ThreadId, Is.EqualTo("everyday"));
+
+            contractCompleted = false;
+            upgradeAcquired = true;
+            Assert.That(director.TryGetNextStage("rhea", NpcActivity.Socialize, "Street",
+                out selectedThread, out _), Is.True);
+            Assert.That(selectedThread.ThreadId, Is.EqualTo("rumour"));
+
+            Object.DestroyImmediate(rhea);
+            Object.DestroyImmediate(milo);
+        }
+
         [Test]
         public void RepeatableOfferChoiceDoesNotConsumeStageProgress()
         {
