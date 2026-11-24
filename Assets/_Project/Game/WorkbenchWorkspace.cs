@@ -32,6 +32,15 @@ namespace Signal.Game
         private IReadOnlyList<RecipeDefinition> _recipes;
         private Func<RecipeDefinition, bool> _isRecipeUnlocked;
         private Func<Guid, string> _produce;
+        private ItemType? _repairTargetType;
+        private ItemType? _basicPatchKitType;
+        private ItemType? _reinforcedPatchKitType;
+        private ItemKnowledgeBook _itemKnowledge;
+        private Func<bool> _canRepair;
+        private Func<Guid, Guid, string> _repair;
+        private Text _repairDetails;
+        private Button _basicRepairButton;
+        private Button _reinforcedRepairButton;
         private RectTransform _recipeList;
         private Text _recipeDetails;
         private Button _produceButton;
@@ -46,7 +55,9 @@ namespace Signal.Game
 
         public void Bind(PlayerMotor2D motor, GridInventory inventory, AssetOwnershipBook ownership,
             IReadOnlyList<RecipeDefinition> recipes, Func<RecipeDefinition, bool> isRecipeUnlocked,
-            Func<Guid, string> produce)
+            Func<Guid, string> produce, ItemType? repairTargetType, ItemType? basicPatchKitType,
+            ItemType? reinforcedPatchKitType, ItemKnowledgeBook itemKnowledge,
+            Func<bool> canRepair, Func<Guid, Guid, string> repair)
         {
             if (inventory == null) throw new ArgumentNullException(nameof(inventory));
             if (ownership == null) throw new ArgumentNullException(nameof(ownership));
@@ -56,6 +67,12 @@ namespace Signal.Game
             _recipes = recipes ?? Array.Empty<RecipeDefinition>();
             _isRecipeUnlocked = isRecipeUnlocked ?? throw new ArgumentNullException(nameof(isRecipeUnlocked));
             _produce = produce ?? throw new ArgumentNullException(nameof(produce));
+            _repairTargetType = repairTargetType;
+            _basicPatchKitType = basicPatchKitType;
+            _reinforcedPatchKitType = reinforcedPatchKitType;
+            _itemKnowledge = itemKnowledge ?? throw new ArgumentNullException(nameof(itemKnowledge));
+            _canRepair = canRepair ?? throw new ArgumentNullException(nameof(canRepair));
+            _repair = repair ?? throw new ArgumentNullException(nameof(repair));
         }
 
         public void Open()
@@ -69,6 +86,7 @@ namespace Signal.Game
             _canvasObject.SetActive(true);
             IsOpen = true;
             RefreshProduction();
+            RefreshRepair();
             if (_motor != null)
                 _motor.enabled = false;
         }
@@ -149,6 +167,7 @@ namespace Signal.Game
             AddDraggable("TRAY", "A shallow metal tray with a dent in one corner.", new Color32(111, 111, 105, 255), new Vector2(-350f, -135f), new Vector2(170f, 92f));
 
             BuildProductionControls(frame);
+            BuildRepairControls(frame);
 
             _status = CreateText(frame, "Drag objects to rearrange the table. Click one to inspect it.", 17, InkColor, TextAnchor.MiddleLeft);
             Anchor(_status.rectTransform, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(34f, 18f), new Vector2(1050f, 34f));
@@ -156,6 +175,13 @@ namespace Signal.Game
 
             _canvasObject.SetActive(false);
             _built = true;
+        }
+
+        public void Refresh()
+        {
+            if (!IsOpen) return;
+            RefreshProduction();
+            RefreshRepair();
         }
 
         private void BuildProductionControls(Transform frame)
@@ -179,6 +205,7 @@ namespace Signal.Game
                 if (_selectedRecipe == null || _produce == null) return;
                 SelectStatus(_produce(_selectedRecipe.Id));
                 RefreshProduction();
+                RefreshRepair();
             });
 
             RefreshProduction();
@@ -241,6 +268,111 @@ namespace Signal.Game
                 }
             }
 
+        }
+
+        private void BuildRepairControls(Transform frame)
+        {
+            RectTransform panel = CreatePanel(frame, "RepairPanel", new Color32(20, 25, 30, 248));
+            Anchor(panel, Vector2.zero, Vector2.zero, new Vector2(34f, 62f), new Vector2(630f, 150f));
+
+            Text title = CreateText(panel, "REPAIR  /  TEXTILE RESTORATION", 17, InkColor, TextAnchor.MiddleLeft);
+            Anchor(title.rectTransform, new Vector2(14f, -10f), new Vector2(590f, 26f));
+
+            _repairDetails = CreateText(panel, "Bring a Work Jacket and a physical patch kit to the workbench.",
+                13, MutedColor, TextAnchor.UpperLeft);
+            Anchor(_repairDetails.rectTransform, new Vector2(14f, -41f), new Vector2(590f, 42f));
+
+            _basicRepairButton = CreateButton(panel, "BASIC PATCH KIT  /  REPAIR ONE STEP", new Vector2(292f, 38f));
+            Anchor(_basicRepairButton.GetComponent<RectTransform>(), new Vector2(14f, -94f), new Vector2(292f, 38f));
+            _basicRepairButton.onClick.AddListener(() => RepairWith(_basicPatchKitType));
+
+            _reinforcedRepairButton = CreateButton(panel, "REINFORCED PATCH KIT  /  DAMAGED → GOOD", new Vector2(292f, 38f));
+            Anchor(_reinforcedRepairButton.GetComponent<RectTransform>(), new Vector2(316f, -94f), new Vector2(300f, 38f));
+            _reinforcedRepairButton.onClick.AddListener(() => RepairWith(_reinforcedPatchKitType));
+
+            RefreshRepair();
+        }
+
+        private void RefreshRepair()
+        {
+            if (_repairDetails == null) return;
+            if (!_repairTargetType.HasValue || !_basicPatchKitType.HasValue || !_reinforcedPatchKitType.HasValue)
+            {
+                _repairDetails.text = "Repair content is not configured in this scene.";
+                _basicRepairButton.interactable = false;
+                _reinforcedRepairButton.interactable = false;
+                return;
+            }
+
+            bool hasTarget = TryFindOwnedItem(_repairTargetType, out PlacedItem target);
+            bool hasBasicKit = TryFindOwnedItem(_basicPatchKitType, out PlacedItem basicKit);
+            bool hasReinforcedKit = TryFindOwnedItem(_reinforcedPatchKitType, out PlacedItem reinforcedKit);
+            bool stationReady = _canRepair != null && _canRepair();
+
+            if (!hasTarget)
+            {
+                _repairDetails.text = "TARGET  /  No player-owned Work Jacket in your carried inventory.";
+            }
+            else
+            {
+                string condition = _itemKnowledge.TryGetFact(target.ItemInstanceId, ItemKnowledgeAspect.Condition,
+                    out ItemKnowledgeFact knownCondition)
+                    ? ((ItemCondition)knownCondition.Value).ToString().ToUpperInvariant()
+                    : "NOT INSPECTED";
+                _repairDetails.text = "WORK JACKET  /  " + condition +
+                    (stationReady ? "  /  WORKBENCH READY" : "  /  INSTALL THE COMPACT SEWING MACHINE TO REPAIR") +
+                    "\n" + (hasBasicKit ? "Basic kit ready" : "Basic kit missing") + "  ·  " +
+                    (hasReinforcedKit ? "Reinforced kit ready" : "Reinforced kit missing");
+            }
+
+            _basicRepairButton.interactable = stationReady && hasTarget && hasBasicKit;
+            _reinforcedRepairButton.interactable = stationReady && hasTarget && hasReinforcedKit;
+        }
+
+        private bool TryFindOwnedItem(ItemType? type, out PlacedItem item)
+        {
+            item = default;
+            if (!type.HasValue || _inventory == null || _ownership == null)
+                return false;
+
+            foreach (PlacedItem candidate in _inventory.Items)
+            {
+                if (candidate.Type != type.Value ||
+                    !_ownership.TryGetOwner(candidate.ItemInstanceId, out EconomicActorId owner) ||
+                    owner != EconomicActorId.Player)
+                    continue;
+                item = candidate;
+                return true;
+            }
+            return false;
+        }
+
+        private void RepairWith(ItemType? kitType)
+        {
+            if (!kitType.HasValue || _repair == null)
+                return;
+            if (_canRepair == null || !_canRepair())
+            {
+                SelectStatus("Install the Compact Sewing Machine and use the hideout workbench.");
+                RefreshRepair();
+                return;
+            }
+            if (!TryFindOwnedItem(_repairTargetType, out PlacedItem target))
+            {
+                SelectStatus("Bring a Work Jacket that you own to the workbench.");
+                RefreshRepair();
+                return;
+            }
+            if (!TryFindOwnedItem(kitType, out PlacedItem kit))
+            {
+                SelectStatus("You do not carry that patch kit.");
+                RefreshRepair();
+                return;
+            }
+
+            SelectStatus(_repair(target.ItemInstanceId, kit.ItemInstanceId));
+            RefreshProduction();
+            RefreshRepair();
         }
 
         private bool HasOwnedInputs(RecipeDefinition recipe)
