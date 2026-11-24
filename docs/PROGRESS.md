@@ -1,94 +1,72 @@
 # Progress — current repository truth
 
-Last reconciled: **2026-11-24**. Historical detail is preserved in `docs/progress/LOG-2026-11.md`. This file is the concise status board, not an implementation diary.
+Last reconciled: **2026-11-24**. This is the short status board. Session history is in [the November log](progress/LOG-2026-11.md); approved rules and implementation detail live in the linked decision/task documents.
 
-## Current state
+## Project baseline
 
-- Unity 6000.6.9f1, 2D URP. Active architecture: `Signal.Core` (plain C#) + `Signal.Game` (Unity layer). Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
+- Unity **6000.6.9f1**, 2D URP. Active architecture: `Signal.Core` (plain C#) + `Signal.Game` (Unity integration). Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
 - Working branch: `chore/collaboration-workflow-and-audit`. Keep `main` untouched.
-- Unity application version: **0.01**. Save files are unversioned development snapshots: no schema version field, version gate or automatic migration chain. Older experimental saves are not guaranteed to remain compatible after data-shape changes.
-- Latest completed full EditMode result reported by the user: **417/417 passed (2026-11-24)** after removing the final stale save-version/migration references. This confirms the current branch compiles and the full EditMode suite passes. The earlier 413/415 and 434/435 results are historical.
-- The user reports **417/417 EditMode tests passing** and previously confirmed that the project runs with the workbench, selling and customer-request flow working in Play Mode. The remaining First Workshop acceptance pass is to explicitly confirm the Rhea agenda interactions, visible Compact Sewing Machine purchase/installation, Reinforced Patch Kit unlock/production and save/reload persistence before calling B-01 to B-03 complete.
-- Active gameplay initiative: **LIVELIHOOD-B1-B3 — First Workshop**, following approved Direction B.
+- Application version: **0.01**. Save snapshots are deliberately unversioned; there is no schema-version field, version gate or automatic migration chain. Older experimental saves may be incompatible after data-shape changes.
+- Latest user-reported full EditMode result: **417/417 passed (2026-11-24)**, after the unversioned-save cleanup and NPC agenda changes.
+- The user confirmed the workbench, selling and Milo's customer-request flow working in Play Mode. The supplier purchase/installation, Rhea agenda sequence, second recipe and full F5/F9 acceptance remain to be verified.
 
-## Active player-facing initiative
+## Active initiative — Direction B: First Workshop (B-01 to B-03)
 
-**Outcome:** the player uses the hideout workbench to produce physical goods, accepts one authored customer request, hands over the requested goods for clean CARD, and improves the workbench to unlock another recipe.
+**Player outcome:** make physical goods at the hideout, fulfil one authored customer request for clean CARD, then purchase a practical upgrade that unlocks another recipe.
 
-Approved structure:
-- Player-operated hideout workshop first; Core remains compatible with NPC-owned production later.
-- Authored recipes and physical inventory outputs.
-- Immediate production for the first slice.
-- One accepted/active customer contract at a time.
-- Whole-stack physical delivery to the issuer's receiving inventory.
-- Fixed clean CARD payment from the issuer's existing resident account.
-- One practical upgrade unlocks one additional authored recipe/capability.
+Approved rules:
+- Player-operated hideout workshop first; keep Core compatible with NPC-owned production later.
+- Authored immediate recipes create physical inventory items.
+- Exactly one accepted/active customer contract at a time.
+- Fulfilment transfers one exact whole player-owned stack to the issuer's physical receiving inventory.
+- The issuer pays a fixed clean CARD reward from their existing resident account; no business account or minted money.
+- The Compact Sewing Machine is a one-time practical upgrade and unlocks the Reinforced Patch Kit recipe.
 
-Implementation foundation already exists:
-- Core actor-aware `ProductionService` and production history.
-- Existing `WorkbenchWorkspace` extended with recipe book and production feedback; separate Rhea-facing supplier offer panel handles upgrade purchase.
-- `CustomerContractBook`, atomic fulfilment and customer interaction panel.
-- `WorkshopProgressionBook`, one-time upgrade acquisition and visible installed-prop hook.
-- Current-state save/load persistence for inventory, economy, contracts, workshop progression and NPC agenda progress, with current-build round-trip coverage.
+Implementation and authored content are committed. Do not rebuild these systems without a concrete defect:
+- [B-01 Production/workbench](tasks/LIVELIHOOD-B-01-PRODUCTION-WORKSHOP.md)
+- [B-02 Customer contracts](tasks/LIVELIHOOD-B-02-CUSTOMER-CONTRACTS.md)
+- [B-03 Practical upgrade](tasks/LIVELIHOOD-B-03-PRACTICAL-WORKSHOP-UPGRADE.md)
+- [Starter catalogue and Play Mode script](content/STARTER_CATALOGUE.md)
+- [Shared First Workshop overview](tasks/LIVELIHOOD-B1-B3-FIRST-WORKSHOP.md)
 
-Starter content is now authored and wired into HideoutSlice: four workshop materials, two patch-kit products, two recipes, Milo's single customer contract, Milo/Rhea resident definitions and the Compact Sewing Machine upgrade. The assets and scene references are committed; do not rebuild the systems above unless source inspection shows a concrete defect.
+## Reusable implemented foundations
 
-## Implemented foundations — reuse them
+| Area | Existing foundation |
+|---|---|
+| World | Hideout, Street, CornerShop, Apartment and one persistent session |
+| Inventory/items | Grid inventory, stable stack GUIDs, quality/condition/authenticity/ownership, item knowledge and inspection |
+| Economy | Resident CARD accounts, ownership/custody, atomic transfers, authored fixed-price retail BUY/SELL |
+| Workshop | Actor-aware production, one-active contract, physical fulfilment, issuer-paid reward, upgrade/recipe unlock |
+| Scavenging/crime | One-time searchable physical bins, resident-owned containers, theft outcomes and witness-scoped knowledge |
+| NPCs | Shared social world, local perception, individual knowledge, authored schedules, generic presenter and agenda threads |
+| Dirty Cash | Physical currency, explicit contact exchange/cleaning and separate transaction history |
 
-| Area | Existing foundation | Status |
-|---|---|---|
-| Hideout / city | Walkable hideout, Street, CornerShop, Apartment, same player/session across transitions | user-tested foundation |
-| Inventory | Spatial grid, rotation, stack movement, home storage, dual-panel container interaction | user-tested foundation |
-| Item state | Stable stack GUIDs; quality, condition, authenticity, ownership; partial player knowledge and item viewer | implemented |
-| Time / rent / heat | GameClock, RentLedger, HeatMeter, PlayerStats / clean money account | implemented; some tuning/consequences remain provisional |
-| NPCs | Shared social world, authored routine profiles, deterministic utility brain, generic presenter, navigation and scoped knowledge | implemented foundation; scenario depth remains future |
-| Discovery / narrative | Player discovery ledger, relationships, interaction conditions, Milo parcel opportunity | implemented foundation |
-| Economy | Asset ownership, container custody, atomic transfer, resident accounts, retail BUY and fixed SELL offers | user-tested foundations |
-| Scavenging | Stable physical bins, authored loot profiles, progressive reveal, save/load and transfer UI | user-tested (368/368 milestone) |
-| Theft | Resident-owned physical container, Stolen state, crime outcomes, witness-scoped knowledge | implemented; post-fix witness/heat Play Mode retest is a parked verification item |
-| Dirty Cash | Physical currency item, unnamed contact, fixed exchange and cleaning, separate histories and persistent contact inventory | user-tested (396/396 milestone) |
-| First Workshop | Production, one-active contract, physical delivery, issuer-paid reward, practical upgrade and recipe unlock | code/content committed; 417/417 EditMode passed; final Play Mode acceptance remains |
+Specialist references: [Architecture](ARCHITECTURE.md), [Data Model](DATA_MODEL.md), [NPC framework](NPC_FRAMEWORK.md), [NPC simulation](NPC_SIMULATION.md), [NPC runtime](NPC_RUNTIME.md).
 
-## Current content reference
+## Current verification and next action
 
-- Starter catalogue, exact recipes, contract/upgrade details and workbench playtest: `docs/content/STARTER_CATALOGUE.md`.
-- Durable content decisions and replaceability rationale: `docs/decisions/0005-first-workshop-content.md`.
+**EditMode:** user reports **417/417 passed** on 2026-11-24. This verifies the current branch's compilation and full automated EditMode suite.
 
-## Current verification
+**Play Mode already confirmed:** workbench opens, production/selling works, Milo's request can be completed.
 
-- **EditMode:** the user reports **417/417 passed (2026-11-24)** after the final migration-only references were removed from `ItemInstanceIdentityTests.cs` and `SearchableContainerTests.cs`. Current item identity, current-save round-trip and searchable-container persistence coverage remain. The save-version removal is now compile/test verified; the application version remains 0.01.
-- **Unity compilation / asset import:** the sewing-machine placeholder's reserved root `fileID 100100000` was corrected to `100000`, including Transform/SpriteRenderer back-references and the upgrade asset reference. The prefab GUID is unchanged. The user subsequently reported the project running and the core workshop/customer loop working; no further prefab import blocker has been reported.
-- **First Workshop Play Mode:** user-confirmed workbench, selling and customer-request flow. The Rhea supplier interaction now routes through her agenda conversation before opening the existing offer panel. Confirm `E Talk to Rhea`, choose to inspect the offer, purchase/install the Compact Sewing Machine, then speak to her again for mending advice. Unlock and craft the Reinforced Patch Kit, then F5/F9 save/reload and confirm balances, inventory, contract, agenda progress, installed upgrade and recipe unlock.
-- **Theft witness correction:** witnessed and unwitnessed heat behavior should be retested in Play Mode after the prior heat fix if not already covered.
-- Do not claim a Play Mode verification that the user has not reported.
+**Remaining First Workshop acceptance:**
+1. Talk to Rhea on the Street and exercise the sourced Milo-rumour choices.
+2. Complete Milo's request; talk to Rhea in CornerShop and choose to inspect her Compact Sewing Machine offer.
+3. Buy/install the machine; verify payment, installed prop and Rhea's post-purchase mending advice.
+4. Confirm Reinforced Patch Kit unlock and production.
+5. F5/F9 save/reload; verify balances, inventories, contract, agenda choices, installed upgrade and recipe unlock.
 
-## Newly approved initiative — NPC Agenda & Interaction Threads (2026-11-24)
+The full agenda implementation and acceptance checklist are in [NPC Agenda & Interaction Threads](tasks/NPC-AGENDA-INTERACTION-THREADS.md). No Play Mode result is claimed for steps not reported by the user.
 
-- Approved reusable, data-authored NPC agenda/thread framework with Rhea as the first pilot.
-- Rhea's three independent threads: sourced Milo tip; Compact Sewing Machine offer using the existing supplier/upgrade service; post-sale mending advice that foreshadows B-04 without implementing repairs.
-- Preserve Milo parcel physical lifecycle mechanics. Migrate only Rhea's conversational tip and any conversation presentation that cleanly belongs in the reusable framework.
-- Architecture contract and implementation sequence: `docs/NPC_FRAMEWORK.md`, section **NPC Agenda & Interaction Threads**. A dedicated task card tracks acceptance criteria.
-- Core `NpcAgendaProgressBook`, current-state SaveMapper persistence, GameSession save/load wiring and focused round-trip tests are implemented.
-- Added `NpcAgendaDefinition` authoring assets, deterministic `NpcAgendaInteractionDirector`, reusable `NpcAgendaConversationPanel`, and Rhea's three authored threads under `Resources/Agendas/RheaAgenda.asset`. Stage selection supports priority, activity/place, discovery, relationship thresholds, opportunity phase, contract completion and acquired/not-acquired upgrades.
-- Rhea's old rumour branch has been removed from `MiloParcelOpportunityController`; physical parcel inspection, acceptance, return, delivery and outcome mechanics remain there. The authored rumour keeps `subjectId = milo` and `sourceId = rhea`, preserving Milo's existing distinct-signal offer condition.
-- GameSession loads agenda definitions from its optional inspector array or `Resources/Agendas`, routes nearby conversations through the director, and delegates the machine offer to the existing supplier panel.
-- The implementation and focused tests are committed, and the user reports the full **417/417 EditMode suite passing** on the current branch. Play Mode must still verify Rhea's rumour at Street, her supplier offer after Milo's contract, her mending follow-up after purchase, and save/load progress.
+## Next strategic feature
 
-## Current next action
+**B-04 Repair & Restoration** is now a source-audited design draft, not implementation approval. Its first proposal reuses the upgraded workbench, patch kits, item condition, stable identity and item knowledge. See [B-04 design draft](tasks/LIVELIHOOD-B-04-REPAIR-RESTORATION.md) and [Open Questions](OPEN_QUESTIONS.md). Do not implement repairs until the First Workshop Play Mode acceptance is complete and the B-04 rules are approved.
 
-The save-version cleanup and NPC agenda framework now pass the user's full **417/417 EditMode suite**. Return to the player-facing acceptance pass: (1) talk to Rhea on the Street and exercise the sourced Milo rumour choices; (2) complete Milo's request, return to Rhea at CornerShop, inspect and purchase/install the Compact Sewing Machine; (3) confirm Rhea's mending advice becomes available and the Reinforced Patch Kit recipe unlocks and can be crafted; (4) F5/F9 save/reload and verify balances, inventories, contract, agenda choices, installed upgrade and recipe unlock. After this, close B-01 to B-03 and begin the B-04 Repair & Restoration design. Do not implement repair mechanics until their rules are approved.
+## Repository hazards and deferred scope
 
-## Known repository layout caveat
-
-- Existing `Assets/_Project/Content/Items/` and `Assets/_Project/Content/items/` differ only by case and may collide on Windows. The new First Workshop definitions were deliberately placed in `Content/WorkshopItems/`. Do not merge/rename the existing folders outside Unity Editor; preserving all asset GUIDs and references is mandatory.
-
-## Not included / deliberately deferred
-
-No automatic NPC shopping, supplier simulation, finite universal stock, dynamic prices, supply/demand, passive income, production timers/queues, quality rolls, procedural contracts, multiple active contracts, partial-stack delivery, repair system, relationship/favour rewards, police response, global rumour cascades or new districts are part of the current initiative.
+- `Assets/_Project/Content/Items/` and `Assets/_Project/Content/items/` differ only by case and may collide on Windows. New authored content currently uses distinct folders such as `Content/WorkshopItems/`; preserve GUIDs and do not merge/rename those folders outside Unity Editor.
+- Deliberately deferred: universal supply/demand, automatic NPC shopping, finite stock simulation, dynamic prices, passive income, production timers/queues, procedural/multiple contracts, partial-stack contract delivery, customer-owned repairs, random repair failure, broad relationship rewards, police response, global rumour cascades and new districts.
 
 ## Documentation maintenance
 
-- Update this summary when implementation or verification state changes.
-- Append dated session notes to `docs/progress/LOG-2026-11.md`.
-- Keep Open Questions genuinely open; move answered decisions to `docs/decisions/` or the historical archive.
-- Read `docs/INDEX.md` for the full game scope and documentation map.
+Keep this file concise. Append session history to `progress/LOG-2026-11.md`; keep approved rules in `DESIGN.md` / `decisions/`; keep implementation acceptance in the active task cards. The root `PROGRESS.md` is an intentional compatibility pointer to this canonical file.
