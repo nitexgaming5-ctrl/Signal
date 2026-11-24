@@ -5,7 +5,7 @@ namespace Signal.Core.Tests
     public sealed class NpcSocialEncounterSystemTests
     {
         [Test]
-        public void ScheduledEncounterBuildsFamiliarityAndSharesAtMostOneFact()
+        public void ScheduledEncountersBuildFamiliarity()
         {
             var world = new NpcSocialWorld();
             world.RegisterNpc("resident-a", "Street", 0f, 0f, 8f);
@@ -43,7 +43,7 @@ namespace Signal.Core.Tests
         }
 
         [Test]
-        public void AmbientSocialEncounterDoesNotSpreadCrimeWitnessKnowledge()
+        public void EncountersDoNotSpreadCrimeKnowledge()
         {
             var world = new NpcSocialWorld();
             world.RegisterNpc("witness", "Apartment", 0f, 0f, 8f);
@@ -61,7 +61,7 @@ namespace Signal.Core.Tests
         }
 
         [Test]
-        public void EncounterCooldownAndSinglePartnerLimitKeepSimulationControlled()
+        public void EncounterCooldownLimitsPartners()
         {
             var world = new NpcSocialWorld();
             world.RegisterNpc("a", "Street", 0f, 0f, 8f);
@@ -77,7 +77,7 @@ namespace Signal.Core.Tests
         }
 
         [Test]
-        public void ResidentsCannotEncounterAcrossLocationsOrOutsideMutualAwareness()
+        public void EncountersRequireSharedAwareness()
         {
             var world = new NpcSocialWorld();
             world.RegisterNpc("a", "Street", 0f, 0f, 8f);
