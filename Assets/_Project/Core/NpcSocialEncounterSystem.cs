@@ -151,11 +151,9 @@ namespace Signal.Core
 
         private void IncreaseFamiliarity(NpcSocialWorld world, string observerId, string otherId)
         {
-            NpcRelationship current = world.GetRelationship(observerId, otherId);
-            world.SetRelationship(observerId, otherId, new NpcRelationship(
-                current.Familiarity + _familiarityGain,
-                current.Trust,
-                current.Affinity));
+            // Scheduled encounters affect familiarity only; trust and affinity require
+            // an explicit authored or gameplay outcome.
+            world.AdjustRelationship(observerId, otherId, familiarityDelta: _familiarityGain);
         }
 
         private static void ExchangeAtMostOneKnownEvent(NpcSocialWorld world,
