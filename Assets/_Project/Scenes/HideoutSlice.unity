@@ -269,7 +269,7 @@ MonoBehaviour:
   repairTargetItem: {fileID: 11400000, guid: b6e7a9c1d3f5428db0a6c7e9f1d25384, type: 2}
   basicPatchKitItem: {fileID: 11400000, guid: aa000000000000000000000000000005, type: 2}
   reinforcedPatchKitItem: {fileID: 11400000, guid: aa000000000000000000000000000006, type: 2}
-  startingMoney: 70
+  startingMoney: 5000
   rentAmount: 0
   rentEveryDays: 7
   gameMinutesPerRealSecond: 1
