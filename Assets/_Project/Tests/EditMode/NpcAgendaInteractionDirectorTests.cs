@@ -62,6 +62,7 @@ namespace Signal.Game.Tests
             Assert.That(discoveries.TryGet("rhea-milo-rumour", out PlayerDiscoverySignal signal), Is.True);
             Assert.That(signal.Type, Is.EqualTo(DiscoverySignalType.Rumour));
             Assert.That(signal.SourceId, Is.EqualTo("rhea"));
+            Assert.That(signal.SubjectId, Is.EqualTo("milo"));
             Assert.That(signal.Confidence, Is.EqualTo(0.4f));
             Assert.That(relationships.Get("rhea").Familiarity, Is.EqualTo(0.03f).Within(0.0001f));
 
