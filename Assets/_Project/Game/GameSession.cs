@@ -1395,13 +1395,18 @@ namespace Signal.Game
 
         private bool CanStartAgendaInteraction(Vector2 playerPosition)
         {
-            return TryFindNearbyAgendaInteraction(playerPosition, out _, out _, out _);
+            return _npcAgendaDirector != null && _city != null &&
+                _city.TryGetNearestResidentWithin(playerPosition, InteractionDistance, out string npcId) &&
+                !_city.IsResidentTravelling(npcId) && _npcAgendaDirector.HasAgenda(npcId);
         }
 
         private bool TryOpenAgendaConversation(Vector2 playerPosition)
         {
-            if (_npcAgendaPanel == null ||
-                !TryFindNearbyAgendaInteraction(playerPosition, out string npcId,
+            if (_npcAgendaDirector == null || _npcAgendaPanel == null || _city == null ||
+                !_city.TryGetNearestResidentWithin(playerPosition, InteractionDistance, out string npcId) ||
+                _city.IsResidentTravelling(npcId) ||
+                !_npcAgendaDirector.TryGetNextStage(npcId, _city.GetResidentActivity(npcId),
+                    _city.GetResidentCurrentPlace(npcId),
                     out NpcAgendaThreadDefinition thread, out NpcAgendaStageDefinition stage))
                 return false;
 
@@ -1429,26 +1434,6 @@ namespace Signal.Game
                 return _npcAgendaPanel.IsOpen;
             }
             return false;
-        }
-
-        private bool TryFindNearbyAgendaInteraction(Vector2 playerPosition, out string npcId,
-            out NpcAgendaThreadDefinition selectedThread, out NpcAgendaStageDefinition selectedStage)
-        {
-            npcId = null;
-            selectedThread = null;
-            selectedStage = null;
-            if (_npcAgendaDirector == null || _city == null ||
-                !_city.TryGetNearestResidentWithin(playerPosition, InteractionDistance, out npcId) ||
-                _city.IsResidentTravelling(npcId))
-                return false;
-
-            if (!_npcAgendaDirector.TryGetNextStage(npcId, _city.GetResidentActivity(npcId),
-                _city.GetResidentCurrentPlace(npcId), out selectedThread, out selectedStage))
-            {
-                npcId = null;
-                return false;
-            }
-            return true;
         }
 
         private void HandleAgendaChoice(string npcId, string threadId, string stageId, string choiceId)
