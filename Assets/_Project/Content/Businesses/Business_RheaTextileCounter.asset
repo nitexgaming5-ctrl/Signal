@@ -17,7 +17,7 @@ MonoBehaviour:
   businessType: Textile Repair & Resale
   ownerNpcId: rhea
   locationId: CornerShop
-  interactionPoint: {x: 996.7, y: 1000.8}
+  interactionPoint: {x: 996.7, y: 999.45}
   openingMinute: 540
   closingMinute: 1080
   merchandise:
