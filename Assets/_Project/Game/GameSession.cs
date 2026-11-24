@@ -587,9 +587,7 @@ namespace Signal.Game
             if (nearContractCustomer)
                 cityPrompt = "E  Customer request";
             if (nearUpgradeSupplier)
-                cityPrompt = CanStartAgendaInteraction(playerPosition)
-                    ? "E  Talk to " + _city.GetResidentDisplayName(firstWorkshopUpgrade.PayeeNpcId)
-                    : "E  Workshop offer";
+                cityPrompt = "E  Talk to " + _city.GetResidentDisplayName(firstWorkshopUpgrade.PayeeNpcId);
             if (CanStartAgendaInteraction(playerPosition))
                 cityPrompt = "E  Talk";
             if (_miloScenario != null)
@@ -612,9 +610,11 @@ namespace Signal.Game
             if (nearContractCustomer)
                 cityPrompt = "E  Customer request";
             if (nearUpgradeSupplier)
-                cityPrompt = CanStartAgendaInteraction(playerPosition)
-                    ? "E  Talk to " + _city.GetResidentDisplayName(firstWorkshopUpgrade.PayeeNpcId)
-                    : "E  Workshop offer";
+                cityPrompt = "E  Talk to " + _city.GetResidentDisplayName(firstWorkshopUpgrade.PayeeNpcId);
+            if (!nearSearchableContainer && !nearDirtyCashContact && !nearContractCustomer &&
+                !nearUpgradeSupplier && nearbyBusiness == null && !nearWorkbench && !nearStorage &&
+                CanStartAgendaInteraction(playerPosition))
+                cityPrompt = "E  Talk";
             if (contractOpen)
                 _hud.SetPrompt("ESC  Close customer request");
             else if (upgradeOpen)
@@ -1437,41 +1437,34 @@ namespace Signal.Game
             npcId = null;
             selectedThread = null;
             selectedStage = null;
-            if (_npcAgendaDirector == null || _city == null)
+            if (_npcAgendaDirector == null || _city == null ||
+                !_city.TryGetNearestResidentWithin(playerPosition, InteractionDistance, out npcId) ||
+                _city.IsResidentTravelling(npcId))
                 return false;
 
-            float bestDistance = InteractionDistance * InteractionDistance;
-            foreach (NpcPresenter resident in _city.DebugResidents)
+            if (!_npcAgendaDirector.TryGetNextStage(npcId, _city.GetResidentActivity(npcId),
+                _city.GetResidentCurrentPlace(npcId), out selectedThread, out selectedStage))
             {
-                if (resident == null || resident.CurrentPlace != _city.CurrentPlace || resident.IsTravelling)
-                    continue;
-                float distance = (resident.Position - playerPosition).sqrMagnitude;
-                if (distance > bestDistance ||
-                    !_npcAgendaDirector.TryGetNextStage(resident.NpcId, resident.Activity,
-                        resident.CurrentPlace, out NpcAgendaThreadDefinition thread,
-                        out NpcAgendaStageDefinition stage))
-                    continue;
-
-                if (npcId == null || distance < bestDistance ||
-                    (Mathf.Approximately(distance, bestDistance) &&
-                     string.CompareOrdinal(resident.NpcId, npcId) < 0))
-                {
-                    npcId = resident.NpcId;
-                    selectedThread = thread;
-                    selectedStage = stage;
-                    bestDistance = distance;
-                }
+                npcId = null;
+                return false;
             }
-            return npcId != null;
+            return true;
         }
 
         private void HandleAgendaChoice(string npcId, string threadId, string stageId, string choiceId)
         {
-            if (_npcAgendaDirector == null ||
+            if (_npcAgendaDirector == null || _city == null || _room == null ||
+                !_city.IsResidentWithin(npcId, _room.PlayerBody.position, InteractionDistance) ||
+                _city.IsResidentTravelling(npcId) ||
+                !_npcAgendaDirector.TryGetNextStage(npcId, _city.GetResidentActivity(npcId),
+                    _city.GetResidentCurrentPlace(npcId),
+                    out NpcAgendaThreadDefinition currentThread, out NpcAgendaStageDefinition currentStage) ||
+                currentThread.ThreadId != threadId || currentStage.StageId != stageId ||
                 !_npcAgendaDirector.TryChoose(npcId, threadId, stageId, choiceId,
                     out string response, out _))
             {
-                Say("That conversation option is no longer available.");
+                if (_npcAgendaPanel != null) _npcAgendaPanel.Close();
+                Say("That conversation has ended or is no longer available.");
                 return;
             }
 
