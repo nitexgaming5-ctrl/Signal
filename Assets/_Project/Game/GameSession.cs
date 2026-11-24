@@ -66,6 +66,7 @@ namespace Signal.Game
         private GridInventory _storage;
         private ItemKnowledgeBook _itemKnowledge;
         private PlayerDiscoveryLedger _playerDiscoveries;
+        private NpcAgendaProgressBook _npcAgendaProgress;
         private OpportunityState _miloOpportunity;
         private PlayerRelationshipBook _playerRelationships;
         private GameClock _clock;
@@ -97,6 +98,7 @@ namespace Signal.Game
         /// <summary>Player-scoped discovered item facts, shared by inventory and scenario interactions.</summary>
         public ItemKnowledgeBook PlayerItemKnowledge => _itemKnowledge;
         public PlayerDiscoveryLedger PlayerDiscoveries => _playerDiscoveries;
+        public NpcAgendaProgressBook NpcAgendaProgress => _npcAgendaProgress;
         public OpportunityState MiloOpportunity => _miloOpportunity;
         public PlayerRelationshipBook PlayerRelationships => _playerRelationships;
         public CleanMoneyAccount CleanMoney => _stats != null ? _stats.CleanMoney : null;
@@ -140,6 +142,7 @@ namespace Signal.Game
             _economicContainers.TryRegister(_contactInventory, DirtyCashContactActorId);
             _itemKnowledge = new ItemKnowledgeBook();
             _playerDiscoveries = new PlayerDiscoveryLedger();
+            _npcAgendaProgress = new NpcAgendaProgressBook();
             _miloOpportunity = new OpportunityState("milo-parcel");
             _playerRelationships = new PlayerRelationshipBook();
             _clock = new GameClock();
@@ -910,7 +913,8 @@ namespace Signal.Game
                                                _shopSaleTransactions, _criminalProgression, _crimeOutcomes,
                                                _contactInventory, _illicitExchanges, _dirtyCashCleanings,
                                                _productionTransactions, _customerContracts, _workshopProgression,
-                                               _contractReceiverInventory, _contractReceiverActor.Value);
+                                               _contractReceiverInventory, _contractReceiverActor.Value,
+                                               _npcAgendaProgress);
             SearchableContainerSaveMapper.Capture(_searchableContainers, data);
 
             try
@@ -942,7 +946,8 @@ namespace Signal.Game
                 ResolveType, _itemKnowledge, _playerDiscoveries, _playerRelationships, _assetOwnership, _economicTransactions,
                 _economicAccounts, _retailTransactions, _shopSaleTransactions, _criminalProgression, _crimeOutcomes,
                 _contactInventory, _illicitExchanges, _dirtyCashCleanings,
-                _productionTransactions, _customerContracts, _workshopProgression, _contractReceiverInventory);
+                _productionTransactions, _customerContracts, _workshopProgression, _contractReceiverInventory,
+                _npcAgendaProgress);
             if (!report.Success)
             {
                 Say("Load failed: " + report.Error);
@@ -976,7 +981,8 @@ namespace Signal.Game
                 report.SkippedCrimeOutcomes + report.SkippedContactItems +
                 report.SkippedIllicitExchangeTransactions + report.SkippedDirtyCashCleaningTransactions +
                 skippedContainers + report.SkippedProductionTransactions + report.SkippedCustomerContracts +
-                report.SkippedWorkshopUpgradeIds + report.SkippedContractReceiverItems > 0
+                report.SkippedWorkshopUpgradeIds + report.SkippedContractReceiverItems +
+                report.SkippedNpcAgendaProgress > 0
                 ? "Loaded at " + data.worldPlace + ". Some saved item or discovery details could not be restored."
                 : "Loaded at " + data.worldPlace + ".");
         }
