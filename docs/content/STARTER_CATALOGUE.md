@@ -92,12 +92,13 @@ The player starts with **70 CARD**. Completing Milo's request raises the player'
 5. Close the workspace with **Esc**. Travel to CornerShop while Milo is at work (his authored work window begins at 06:30; the world starts at 08:00).
 6. Approach Milo and press **E**. Review and accept “A Repair Kit for the Bakery”.
 7. Select one Basic Patch Kit stack and fulfil the contract. Confirm 40 CARD is credited, Milo's account is debited, the delivered kit is in his receiving inventory and the other kit remains with the player.
-8. Find Rhea at her current scheduled location. Her authored work window begins at **09:00** in CornerShop. Approach her until the prompt reads **E  Workshop offer**, then press **E**. If Milo and Rhea are both within range, stand closer to Rhea so the nearest-resident interaction selects her.
-9. Review Rhea's Compact Sewing Machine offer. It requires Milo's contract to be complete and costs **90 CARD**. Select **BUY & INSTALL**. Confirm 90 CARD is paid to Rhea, the installed prop appears at the hideout workbench and Reinforced Patch Kit becomes available.
-10. Return to the hideout workbench and produce the Reinforced Patch Kit using the retained Basic Patch Kit, remaining Fabric Roll and Fastener Pack.
-11. Save with **F5**, reload with **F9**, and confirm balances, retained/output items, completed contract, acquired upgrade, installed prop and recipe unlock remain coherent.
+8. When Rhea is socializing on the Street, approach her and press **E**. Choose one of the three responses to her cautious, second-hand tip about Milo. Confirm the discovery is recorded as a **Rumour** about Milo with source Rhea and confidence 0.4; it must not be presented as verified fact. If Milo is the nearest resident, move closer to Rhea before interacting.
+9. After Milo's contract is complete, find Rhea during her CornerShop work window (begins at **09:00**). Approach until the prompt reads **E  Talk to Rhea**, press **E**, then choose **Take a look**. The existing supplier panel opens; the upgrade still requires the completed contract and costs **90 CARD**. Select **BUY & INSTALL**. Confirm 90 CARD is paid to Rhea, the installed prop appears at the hideout workbench and Reinforced Patch Kit becomes available.
+10. Speak to Rhea again after the machine is acquired. Her mending-advice thread should become available, with no repair contract or repair mechanic created yet.
+11. Return to the hideout workbench and produce the Reinforced Patch Kit using the retained Basic Patch Kit, remaining Fabric Roll and Fastener Pack.
+12. Save with **F5**, reload with **F9**, and confirm balances, retained/output items, completed contract, completed agenda stages, acquired upgrade, installed prop and recipe unlock remain coherent.
 
-This script is the acceptance plan for Editor verification. The user has confirmed the workbench, selling and customer-request portions in Play Mode; the Rhea supplier menu, upgrade purchase/installation, second recipe and save/reload path remain unverified until tested.
+This script is the acceptance plan for Editor verification. The user has confirmed the workbench, selling and customer-request portions in Play Mode; Rhea's agenda conversations, supplier purchase/installation, mending follow-up, second recipe and save/reload path remain unverified until tested.
 
 ## Scene wiring
 
