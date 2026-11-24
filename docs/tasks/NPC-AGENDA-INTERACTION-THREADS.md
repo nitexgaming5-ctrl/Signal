@@ -53,6 +53,10 @@ Keep the parcel controller's physical world props, inspection, acceptance, retur
 - [x] Milo parcel physical lifecycle remains in its existing controller; only Rhea's conversation/rumour path was removed.
 - [ ] Full EditMode suite passes; user verifies Play Mode interactions and save/load.
 
-## Current verification note\n\nAll implementation checkboxes above mean code/content is in place, not Unity-verified. The full EditMode suite and Play Mode acceptance remain pending. The prior 415/415 result predates these changes.\n\n## Out of scope
+## Current verification note
+
+All implementation checkboxes above mean code/content is in place, not Unity-verified. The full EditMode suite and Play Mode acceptance remain pending. The prior 415/415 result predates these changes.
+
+## Out of scope
 
 Procedural/LLM dialogue, autonomous quest generation, broad NPC relationship simulation, repair mechanics, multiple active customer contracts, new economy rules, and wholesale migration of Milo's parcel opportunity.
