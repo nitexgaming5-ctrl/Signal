@@ -33,6 +33,20 @@ namespace Signal.Core
             return _npcs.TryGetValue(id, out state);
         }
 
+        public IList<string> GetNpcIds()
+        {
+            var ids = new List<string>(_npcs.Keys);
+            ids.Sort(StringComparer.Ordinal);
+            return ids.AsReadOnly();
+        }
+
+        internal bool TryRestoreKnowledge(string npcId, NpcKnowledge knowledge)
+        {
+            if (knowledge == null || !_npcs.TryGetValue(npcId, out NpcAgentState npc))
+                return false;
+            return npc.Remember(knowledge);
+        }
+
         public void MoveNpc(string id, string locationId, float x, float y)
         {
             if (!_npcs.TryGetValue(id, out NpcAgentState state))
