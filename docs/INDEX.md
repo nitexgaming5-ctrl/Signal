@@ -58,8 +58,8 @@ The current implementation status, branch head, verification and next action liv
 - The connected hideout, street, corner bakery and apartment foundations exist.
 - Inventory, item identity/state, knowledge, save/load, ownership transfers, clean accounts, retail, scavenging, theft, Dirty Cash, NPC routines and contextual narrative opportunity foundations exist.
 - The First Workshop B-01 to B-03 foundation and starter content are committed: Fabric Roll/Thread Spool/Adhesive Tube/Fastener Pack → Basic Patch Kit; Milo requests one kit for 40 CARD; Rhea sells the Compact Sewing Machine for 90 CARD after contract completion; the upgrade unlocks Reinforced Patch Kit.
-- The latest full EditMode result was **415/415 passed**, user-validated on 2026-11-23 after the two test maintenance corrections. This is a baseline; any subsequent code change requires a fresh run.
-- The active work is validating the authored First Workshop loop in the Unity Editor without building unnecessary general-purpose systems.
+- The latest full EditMode result is **417/417 passed**, user-validated on 2026-11-24 after the unversioned-save cleanup and NPC agenda changes. Any subsequent code change to runtime/tests requires a fresh run.
+- The full EditMode suite passes. Remaining First Workshop Play Mode acceptance covers Rhea's three agenda threads, the Compact Sewing Machine purchase/installation, Reinforced Patch Kit production and F5/F9 persistence.
 
 ### Current and future strategic direction
 
