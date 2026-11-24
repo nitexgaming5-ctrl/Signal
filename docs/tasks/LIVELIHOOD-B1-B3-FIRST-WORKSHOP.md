@@ -1,6 +1,6 @@
 # LIVELIHOOD-B1-B3 — First Workshop vertical slice
 
-**Status:** Core/Game foundation and starter content committed; user-confirmed Play Mode workbench/selling/customer-request flow; Rhea supplier-menu correction now committed; the 415/415 test result predates that correction, so current-branch compilation/full suite and upgrade/save acceptance remain  
+**Status:** Core/Game foundation and starter content committed; user-confirmed Play Mode workbench/selling/customer-request flow; Rhea supplier-menu correction committed; current branch passes 417/417 EditMode tests; final Rhea/upgrade/save Play Mode acceptance remains  
 **Direction:** approved Direction B — meaningful everyday livelihood  
 **User decisions:** workshop model = both (player-operated first, NPC-owned compatible later); one active contract; first practical hideout upgrade unlocks another recipe/capability.
 
@@ -75,12 +75,12 @@ B-01 must be playable before B-02 is integrated. B-02 must be playable before B-
 - Persist recipe unlocks and workshop upgrade state.
 - Persist production and contract transaction histories if new histories are introduced.
 - Rebuild runtime workspace/container references from authored scene definitions; never serialize Unity object references.
-- Save v15 now persists production history/operator, contract lifecycle, acquired upgrade IDs, issuer receiving inventory and receiver actor identity. v14 migration initializes the new collections and assigns stable IDs to receiver items. Round-trip and migration tests have been added; Unity execution remains pending.
-- Preserve current-format save integrity and test v14 → v15 migration in Unity.
+- Current unversioned 0.01 save snapshots persist production history/operator, contract lifecycle, acquired upgrade IDs, issuer receiving inventory and receiver actor identity. Current-build round-trip tests cover these fields.
+- There is deliberately no save schema version, migration chain or old-save compatibility promise in this development build. Preserve current-build round-trip integrity; older experimental saves may need to be discarded after data-shape changes.
 
 ## Implementation status — 2026-11-23
 
-The code foundation now includes actor-aware production and production history, the existing workbench extended into a recipe-book UI, one-active customer contracts with physical issuer-inventory delivery and clean CARD payment, a practical one-time upgrade/recipe unlock, and Save v15 persistence/migration.
+The code foundation now includes actor-aware production and production history, the existing workbench extended into a recipe-book UI, one-active customer contracts with physical issuer-inventory delivery and clean CARD payment, a practical one-time upgrade/recipe unlock, and current-state persistence in unversioned 0.01 save snapshots. The user reports 417/417 full EditMode tests passing after the save-version cleanup.
 
 Authored starter content is now assigned in HideoutSlice: Fabric Roll, Thread Spool, Adhesive Tube and Fastener Pack; Basic Patch Kit and Reinforced Patch Kit; Milo's Basic Patch Kit request (40 CARD, legitimate goods only); and Rhea's Compact Sewing Machine (90 CARD, after Milo's contract, unlocks the second recipe). Milo starts with 150 CARD, Rhea with 250 CARD and the player with 70 CARD. The starter inventory includes exactly enough workshop materials to craft two Basic Patch Kits, hand over one and retain one for the upgrade recipe. The sewing-machine prop is a simple replaceable placeholder. The user validated 415/415 EditMode tests after the test corrections in commit b6bd50a. No Play Mode verification of these newly authored assets/scene references is claimed yet.
 
@@ -143,3 +143,8 @@ The user reconfirmed **415/415 EditMode tests** and reports that the project is 
 ### Rhea supplier interaction correction — 2026-11-24
 
 The user reported that no menu opened when trying to buy the Compact Sewing Machine from Rhea. Inspection showed the purchase button had been placed in WorkbenchWorkspace instead of being attached to Rhea's NPC interaction. A dedicated WorkshopUpgradePanel now opens with E when near Rhea; purchase validation checks supplier proximity, Milo's completed request and account funds. The workbench UI now handles production only. If Milo and Rhea are both in range at the CornerShop work positions, the nearest NPC wins the E interaction. Added a focused panel callback test. The user-reported 415/415 result predates this patch; compile and rerun all EditMode tests, then test supplier purchase, installation, recipe unlock and save/reload in Play Mode.
+
+
+### Full EditMode verification — 2026-11-24
+
+The user reports **417/417 EditMode tests passing** on the current branch. This verifies compilation and the full automated suite for the workshop, supplier-panel and NPC agenda changes. It does not replace the remaining Play Mode acceptance: Rhea rumour/offer/mending threads, Compact Sewing Machine purchase and installation, Reinforced Patch Kit unlock/production, and save/reload continuity.
