@@ -71,7 +71,7 @@ Preserve these existing owners and extend them rather than introducing parallel 
 - Ensure witnessed world events and explicit information-sharing use the same knowledge path.
 - Customer contracts may author familiarity/trust/affinity deltas for their issuer. Apply them only after goods transfer, payment and contract completion succeed; the completed contract state prevents replay.
 - `CustomerContractDefinition` validates finite deltas in [-1, 1]. `CustomerContractService` applies them through the canonical `PlayerRelationshipBook`, scoped to the issuer NPC ID.
-- The first Milo contract authors +0.05 familiarity and +0.02 trust, with no affinity change. This is generic authored content, not a Milo-specific runtime branch.
+- The generic contract hook currently targets the player→issuer relationship book. Milo's current contract keeps all three deltas at zero until the separate NPC→player opinion owner is designed; a customer's successful delivery should not be misrepresented as the player's trust in that customer.
 - Add a minimal generic player-facing response/condition hook only where needed to prove affinity matters; do not invent a broad friendship, romance, faction or reputation system.
 
 ### B05-05 — Verification
@@ -104,3 +104,8 @@ No global reputation score, friendship/romance/loyalty system, faction standing,
 ## Implementation guardrail
 
 This is a unification and completion of existing foundations, not permission to replace working NPC routines, agenda progression, event pacing, navigation, or scenario lifecycles. Preserve current behaviour unless a change is required by the rules above and covered by regression tests.
+
+
+## Directionality gap — next B-05 design decision
+
+`PlayerRelationshipBook` is explicitly the player→NPC authority. It cannot represent an NPC's own opinion of the player, and it must not be inverted or overloaded to do so. `NpcSocialWorld` currently owns NPC→NPC relationships. The remaining B-05 outcome—each resident holding a distinct opinion of the player—needs a third, direction-specific owner without registering the player as an NPC. The natural candidate is a player-relationship value stored on each `NpcAgentState` and persisted with that NPC's social state. Confirm this ownership before implementing it; customer contracts and authored agendas can then update the NPC→player direction through generic content.
