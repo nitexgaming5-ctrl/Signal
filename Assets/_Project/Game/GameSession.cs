@@ -683,7 +683,9 @@ namespace Signal.Game
                 !nearContractCustomer && !nearUpgradeSupplier && !nearDirtyCashContact &&
                 !nearSearchableContainer && keyboard.eKey.wasPressedThisFrame)
             {
-                TryOpenAgendaConversation(playerPosition);
+                if (!TryOpenAgendaConversation(playerPosition) &&
+                    _city.TryInteractNpc(playerPosition, out string agendaFallbackDialogue))
+                    Say(agendaFallbackDialogue, 5f);
             }
             else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
                 !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen && nearDirtyCashContact && keyboard.eKey.wasPressedThisFrame)
