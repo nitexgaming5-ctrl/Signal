@@ -7,7 +7,7 @@ Last reconciled: **2026-11-24**. This is the short status board. Session history
 - Unity **6000.6.9f1**, 2D URP. Active architecture: `Signal.Core` (plain C#) + `Signal.Game` (Unity integration). Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
 - Working branch: `chore/collaboration-workflow-and-audit`. Keep `main` untouched.
 - Application version: **0.01**. Save snapshots are deliberately unversioned; there is no schema-version field, version gate or automatic migration chain. Older experimental saves may be incompatible after data-shape changes.
-- Latest user-reported full EditMode result: **417/417 passed (2026-11-24)**, before the hybrid buyback runtime/test additions in commit `7914355`. This is the last verified baseline, not verification of current HEAD; a fresh full suite is required.
+- Latest user-reported full EditMode result: **417/417 passed (2026-11-24)**, before all B-04 hybrid pricing, textile content, counter geometry, repair service/UI and test additions. This is the last verified baseline, not verification of current HEAD; a fresh full suite is required.
 - The user confirmed the workbench, selling and Milo's customer-request flow working in Play Mode. The supplier purchase/installation, Rhea agenda sequence, second recipe and full F5/F9 acceptance remain to be verified.
 
 ## Active initiative — Direction B: First Workshop (B-01 to B-03)
@@ -60,7 +60,7 @@ The full agenda implementation and acceptance checklist are in [NPC Agenda & Int
 
 ## Next strategic feature
 
-**B-04 Repair & Restoration** has an approved design and a committed hybrid buyback-pricing foundation. The BusinessDefinition mode, state-aware retail quote and sale-time resolution are implemented, with focused EditMode tests added; Unity compilation/full tests have not yet been rerun. Rhea's Textile Counter, Work Jacket, loot-profile entry, active-scene registration and visible CornerShop counter are committed. Repair gameplay/service/UI remains pending. Complete the First Workshop Play Mode acceptance first, then integrate the approved repair loop. See [B-04](tasks/LIVELIHOOD-B-04-REPAIR-RESTORATION.md) and [Decision 0006](decisions/0006-hybrid-buyback-and-textile-business.md).
+**B-04 Repair & Restoration** now has its approved hybrid catalogue, Rhea/Work Jacket content, Core repair service and workbench repair UI committed. Focused EditMode coverage has been added for fixed/condition-based buyback, repair transitions, ownership/provenance, knowledge refresh and current-save persistence. Unity has not yet imported/compiled or run the current branch changes; the old 417/417 report predates this work. Next action: pull the branch, run a fresh full EditMode suite, then complete the combined B-01–B-04 Play Mode path (Rhea's supplier/agenda, machine upgrade, recipes, textile counter, condition-priced sales, repair transitions and F5/F9 persistence). See [B-04](tasks/LIVELIHOOD-B-04-REPAIR-RESTORATION.md) and [Decision 0006](decisions/0006-hybrid-buyback-and-textile-business.md).
 
 ## Repository hazards and deferred scope
 
