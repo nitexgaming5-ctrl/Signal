@@ -138,6 +138,10 @@ namespace Signal.Game
         {
             RectTransform rect = Panel(parent, "Choice", new Color32(200, 162, 74, 255));
             rect.sizeDelta = new Vector2(0f, 54f);
+            LayoutElement layoutElement = rect.gameObject.AddComponent<LayoutElement>();
+            layoutElement.minHeight = 54f;
+            layoutElement.preferredHeight = 54f;
+            layoutElement.flexibleHeight = 0f;
             Button button = rect.gameObject.AddComponent<Button>();
             button.targetGraphic = rect.GetComponent<Image>();
             Text text = MakeText(rect, 16, Color.black, TextAnchor.MiddleCenter);
