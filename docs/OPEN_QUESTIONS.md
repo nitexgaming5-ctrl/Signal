@@ -14,10 +14,13 @@ The following are implementation/verification checks, not open design questions:
 ## Future design — deliberately not blocking B-01 to B-03
 
 ### Repair/restoration (B-04)
-- Which item categories can be repaired, and what does a repair change?
-- Are repair materials consumed, and does the player need a specific tool/workspace?
-- Can customers entrust their own goods, or are repairs limited to player-owned items?
-- What are the failure, cost and presentation rules?
+See the source-audited draft in `tasks/LIVELIHOOD-B-04-REPAIR-RESTORATION.md`. This is a design draft, not implementation approval.
+
+- Confirm whether repairs should directly increase CARD earnings. Current shop buyback offers are fixed per item definition; `ItemValueCalculator` does not currently determine shop payment. Preserve the fixed-price economy unless a narrow condition-sensitive buyback rule is explicitly approved.
+- Confirm the Basic/Reinforced Patch Kit condition transitions, especially whether Reinforced should also repair Worn → Good.
+- Approve one unstackable Worn textile item and its first source; approve a repeatable raw-material source through existing authored retail if the first repair loop should be repeatable.
+- The technical direction proposed in the task card is player-owned items only, existing upgraded hideout workbench, condition-only changes, stable identity preservation, immediate deterministic transactions, direct-inspection knowledge refresh and current-save round-trip coverage.
+- Customer-owned/entrusted goods remain deferred pending separate custody/return rules.
 
 ### Social life and recurring customers (B-05)
 - Which player actions change familiarity, trust or affinity?
