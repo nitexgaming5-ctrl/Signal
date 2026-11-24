@@ -152,6 +152,22 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void RepairServiceRejectsNonPlayerOperatorsInTheFirstSlice()
+        {
+            var fixture = new Fixture(ItemCondition.Damaged);
+            var resident = new EconomicActorId("resident:rhea");
+
+            RepairResult result = RepairService.TryRepair(fixture.JacketId, fixture.BasicKitId,
+                fixture.Jacket, fixture.BasicKit, fixture.ReinforcedKit, fixture.Inventory, resident,
+                fixture.Containers, fixture.Ownership, fixture.Knowledge, 2, 615);
+
+            Assert.That(result.Status, Is.EqualTo(RepairStatus.InvalidRequest));
+            Assert.That(fixture.Inventory.TryGetItemInstance(fixture.JacketId, out PlacedItem jacket), Is.True);
+            Assert.That(jacket.State.Condition, Is.EqualTo(ItemCondition.Damaged));
+            Assert.That(fixture.Inventory.TryGetItemInstance(fixture.BasicKitId, out _), Is.True);
+        }
+
+        [Test]
         public void RepairRequiresPlayerOwnedInventoryAndBothOwnedItems()
         {
             var fixture = new Fixture(ItemCondition.Damaged);
