@@ -18,7 +18,6 @@ namespace Signal.Game
         private static readonly Vector2 DropOffPosition = new Vector2(20.5f, -16.5f);
         private const float InteractionRadius = 1.85f;
         private const string MiloId = "milo";
-        private const string RheaId = "rhea";
         private const string OpportunityId = "milo-parcel";
 
         private GridInventory _inventory;
@@ -38,7 +37,6 @@ namespace Signal.Game
         private GameObject _deliveredParcel;
         private GameObject _carriedParcelMarker;
         private int _lastRoutineObservationDay;
-        private int _lastRumourDay;
         private bool _bound;
 
         public bool HasPendingChoice => _pendingChoice != PendingChoice.None;
@@ -138,9 +136,6 @@ namespace Signal.Game
                         ? "E  Return parcel to Milo"
                         : "E  Talk to Milo";
 
-                if (_city.HasResident(RheaId) &&
-                    Vector2.Distance(playerPosition, _city.GetResidentPosition(RheaId)) <= InteractionRadius)
-                    return "E  Talk to Rhea";
             }
 
             return string.Empty;
@@ -222,13 +217,6 @@ namespace Signal.Game
                 return true;
             }
 
-            if (_city.HasResident(RheaId) &&
-                Vector2.Distance(playerPosition, _city.GetResidentPosition(RheaId)) <= InteractionRadius)
-            {
-                message = TalkToRhea();
-                return true;
-            }
-
             return false;
         }
 
@@ -307,24 +295,6 @@ namespace Signal.Game
             RecordConversation("milo-evening",
                 "Milo made brief conversation after closing.", 1f);
             return "Milo: Some people around here need a hand now and then. You learn not to ask too many questions.";
-        }
-
-        private string TalkToRhea()
-        {
-            if (_city.GetResidentActivity(RheaId) == NpcActivity.Socialize &&
-                _city.GetResidentCurrentPlace(RheaId) == "Street" &&
-                !_city.IsResidentTravelling(RheaId) && _lastRumourDay != _clock.Day)
-            {
-                _lastRumourDay = _clock.Day;
-                RecordSignal("milo-rumour-rhea-" + _clock.Day, DiscoverySignalType.Rumour,
-                    RheaId, "Rhea heard that Milo has been carrying parcels after closing, but does not know why.",
-                    0.4f);
-                _relationships.Adjust(RheaId, familiarityDelta: 0.05f);
-                return "Rhea: I heard Milo has been carrying parcels after closing. Could be nothing. I don't know the whole story.";
-            }
-
-            _relationships.Adjust(RheaId, familiarityDelta: 0.05f);
-            return "Rhea: You hear things around this block, but half of it is probably just talk.";
         }
 
         private void InspectDeliverySlip()
