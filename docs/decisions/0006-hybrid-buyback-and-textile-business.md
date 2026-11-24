@@ -25,7 +25,7 @@ Rhea operates the first textile buyer/supplier using her existing resident ident
 - Name: Rhea's Textile Counter
 - Business ID: `rhea-textile-counter`
 - Owner: `resident:rhea`
-- Location: Street; a dedicated counter interaction point must not overlap her existing agenda/supplier prompt.
+- Location: `CornerShop`, inside the existing bakery interior; interaction point `(996.7, 999.45)` is separate from Rhea's work point `(1001.2, 1000.4)` and the Bakery interaction point `(1000, 1000.6)`.
 - Hours: 09:00–18:00, aligned with her authored work routine.
 
 Fixed merchandise prices (prototype tuning):
@@ -66,7 +66,7 @@ The raw material cost of a Basic kit is 14 CARD at these prototype retail prices
 
 ## Delivery gate
 
-The hybrid lookup/UI/sale framework is implemented and test cases are added. Unity verification is pending. Complete the remaining First Workshop Play Mode acceptance before adding the Work Jacket asset, Rhea business asset/scene registration and repair interaction. Then implement the repair transaction/UI, ownership/provenance checks, knowledge refresh, save round-trip and full Play Mode loop as specified in `tasks/LIVELIHOOD-B-04-REPAIR-RESTORATION.md`.
+The hybrid lookup/UI/sale framework, Work Jacket asset, Rhea business asset, `LootProfile_A` entry, active-scene registration, visible CornerShop counter and navigation reachability regression test are committed. Unity verification is pending; the 417/417 user report predates these changes. Finish the remaining First Workshop Play Mode acceptance, then implement the repair transaction/UI, ownership/provenance checks, knowledge refresh, save round-trip and full Play Mode loop as specified in `tasks/LIVELIHOOD-B-04-REPAIR-RESTORATION.md`.
 
 ## Rationale
 
