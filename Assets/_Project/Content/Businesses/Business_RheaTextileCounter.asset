@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4b8a2c1e6f7493a8b5c0d2e7f1a9c63, type: 3}
+  m_Name: Business_RheaTextileCounter
+  m_EditorClassIdentifier: Signal.Game::Signal.Game.BusinessDefinition
+  businessId: rhea-textile-counter
+  displayName: Rhea's Textile Counter
+  businessType: Textile Repair & Resale
+  ownerNpcId: rhea
+  locationId: CornerShop
+  interactionPoint: {x: 996.7, y: 1000.8}
+  openingMinute: 540
+  closingMinute: 1080
+  merchandise:
+  - Item: {fileID: 11400000, guid: aa000000000000000000000000000001, type: 2}
+    UnitPrice: 6
+  - Item: {fileID: 11400000, guid: aa000000000000000000000000000002, type: 2}
+    UnitPrice: 4
+  - Item: {fileID: 11400000, guid: aa000000000000000000000000000003, type: 2}
+    UnitPrice: 4
+  - Item: {fileID: 11400000, guid: aa000000000000000000000000000004, type: 2}
+    UnitPrice: 4
+  buybackOffers:
+  - Item: {fileID: 11400000, guid: b6e7a9c1d3f5428db0a6c7e9f1d25384, type: 2}
+    PricingMode: 1
+    UnitPrice: 1
+    DamagedUnitPrice: 24
+    WornUnitPrice: 36
+    GoodUnitPrice: 52
+    PristineUnitPrice: 58
