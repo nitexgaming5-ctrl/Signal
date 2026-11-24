@@ -76,8 +76,14 @@ namespace Signal.Core
         /// </summary>
         public bool TryRestore(NpcAgendaStageProgress progress)
         {
+            if (string.IsNullOrWhiteSpace(progress.NpcId) ||
+                string.IsNullOrWhiteSpace(progress.ThreadId) ||
+                string.IsNullOrWhiteSpace(progress.StageId) ||
+                string.IsNullOrWhiteSpace(progress.ChoiceId))
+                return false;
+
             string id = BuildProgressId(progress.NpcId, progress.ThreadId, progress.StageId);
-            if (string.IsNullOrWhiteSpace(progress.ChoiceId) || _stages.ContainsKey(id))
+            if (_stages.ContainsKey(id))
                 return false;
             _stages.Add(id, progress);
             return true;
