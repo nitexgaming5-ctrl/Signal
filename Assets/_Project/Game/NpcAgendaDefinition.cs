@@ -40,6 +40,8 @@ namespace Signal.Game
         [Range(-1f, 1f)] public float FamiliarityDelta;
         [Range(-1f, 1f)] public float TrustDelta;
         [Range(-1f, 1f)] public float AffinityDelta;
+        [Header("Workshop offer outcome")]
+        public WorkshopUpgradeDefinition WorkshopUpgradeOffer;
     }
 
     [Serializable]
@@ -184,6 +186,20 @@ namespace Signal.Game
                              choice.DiscoveryConfidence < 0f || choice.DiscoveryConfidence > 1f))
                         {
                             error = "Discovery choice " + choice.ChoiceId + " is missing valid authored discovery data.";
+                            return false;
+                        }
+                        if (choice.Action == NpcAgendaChoiceAction.OpenWorkshopUpgradeOffer &&
+                            (choice.WorkshopUpgradeOffer == null ||
+                             !choice.WorkshopUpgradeOffer.TryValidate(out _)))
+                        {
+                            error = "Workshop offer choice " + choice.ChoiceId + " must reference a valid upgrade.";
+                            return false;
+                        }
+                        if (float.IsNaN(choice.FamiliarityDelta) || float.IsInfinity(choice.FamiliarityDelta) ||
+                            float.IsNaN(choice.TrustDelta) || float.IsInfinity(choice.TrustDelta) ||
+                            float.IsNaN(choice.AffinityDelta) || float.IsInfinity(choice.AffinityDelta))
+                        {
+                            error = "Relationship outcomes must be finite in choice " + choice.ChoiceId + ".";
                             return false;
                         }
                     }
