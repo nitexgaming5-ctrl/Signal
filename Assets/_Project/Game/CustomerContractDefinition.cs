@@ -31,9 +31,9 @@ namespace Signal.Game
         [SerializeField] private ContractGoodsEligibility goodsEligibility;
         [SerializeField] private ContractDeliveryMode deliveryMode;
         [Header("Relationship outcome")]
-        [SerializeField, Range(-1f, 1f)] private float relationshipFamiliarityDelta;
-        [SerializeField, Range(-1f, 1f)] private float relationshipTrustDelta;
-        [SerializeField, Range(-1f, 1f)] private float relationshipAffinityDelta;
+        [SerializeField, Range(-1f, 1f)] private float playerFamiliarityDelta;
+        [SerializeField, Range(-1f, 1f)] private float playerTrustDelta;
+        [SerializeField, Range(-1f, 1f)] private float playerAffinityDelta;
 
         public Guid Id => Guid.TryParse(id, out Guid value) ? value : Guid.Empty;
         public string DisplayName => displayName;
@@ -45,9 +45,9 @@ namespace Signal.Game
         public int CleanCardReward => cleanCardReward;
         public ContractGoodsEligibility GoodsEligibility => goodsEligibility;
         public ContractDeliveryMode DeliveryMode => deliveryMode;
-        public float RelationshipFamiliarityDelta => relationshipFamiliarityDelta;
-        public float RelationshipTrustDelta => relationshipTrustDelta;
-        public float RelationshipAffinityDelta => relationshipAffinityDelta;
+        public float PlayerFamiliarityDelta => playerFamiliarityDelta;
+        public float PlayerTrustDelta => playerTrustDelta;
+        public float PlayerAffinityDelta => playerAffinityDelta;
         public bool AcceptStolenGoods => goodsEligibility == ContractGoodsEligibility.PlayerOwnedIncludingStolen;
 
         public bool TryValidate(out string error)
@@ -59,9 +59,9 @@ namespace Signal.Game
                 error = "Assign a stable ID, display name, issuer, required item, positive quantity and positive CARD reward.";
                 return false;
             }
-            if (!ValidRelationshipDelta(relationshipFamiliarityDelta) ||
-                !ValidRelationshipDelta(relationshipTrustDelta) ||
-                !ValidRelationshipDelta(relationshipAffinityDelta))
+            if (!ValidRelationshipDelta(playerFamiliarityDelta) ||
+                !ValidRelationshipDelta(playerTrustDelta) ||
+                !ValidRelationshipDelta(playerAffinityDelta))
             {
                 error = "Relationship outcome deltas must be finite and between -1 and 1.";
                 return false;
