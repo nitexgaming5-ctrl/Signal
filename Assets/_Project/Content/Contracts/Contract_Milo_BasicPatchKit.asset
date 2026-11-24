@@ -21,3 +21,6 @@ MonoBehaviour:
   cleanCardReward: 40
   goodsEligibility: 1
   deliveryMode: 1
+  relationshipFamiliarityDelta: 0.05
+  relationshipTrustDelta: 0.02
+  relationshipAffinityDelta: 0
