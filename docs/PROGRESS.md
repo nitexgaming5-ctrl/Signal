@@ -7,7 +7,7 @@ Last reconciled: **2026-11-24**. This is the short status board. Session history
 - Unity **6000.6.9f1**, 2D URP. Active architecture: `Signal.Core` (plain C#) + `Signal.Game` (Unity integration). Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
 - Working branch: `chore/collaboration-workflow-and-audit`. Keep `main` untouched.
 - Application version: **0.01**. Save snapshots are deliberately unversioned; there is no schema-version field, version gate or automatic migration chain. Older experimental saves may be incompatible after data-shape changes.
-- Latest user-reported full EditMode result: **430/430 passed (2026-11-24)** after the B-04 implementation. The user also confirmed the First Workshop and repair/trading gameplay works in Play Mode; the remaining issue was that the Work Jacket was not found during scavenging. This 430/430 result predates the movement, guaranteed-loot and NPC-interaction-pause changes in the current patch.
+- Latest user-reported full EditMode result before B-05: **431/431 passed (2026-11-24)** after the B-04 implementation. The user also confirmed the First Workshop and repair/trading gameplay works in Play Mode; the remaining issue was that the Work Jacket was not found during scavenging. This 430/430 result predates the movement, guaranteed-loot and NPC-interaction-pause changes in the current patch.
 - The user reports the First Workshop and repair/trading flow working in Play Mode. The Work Jacket still needs to be acquired through scavenging to complete the repair loop.
 
 ## Active initiative — Direction B: First Workshop and Repair (B-01 to B-04)
@@ -50,7 +50,7 @@ Specialist references: [Architecture](ARCHITECTURE.md), [Data Model](DATA_MODEL.
 
 ## Current verification and next action
 
-**EditMode:** the user's **417/417 result on 2026-11-24** predates all hybrid buyback, textile content, repair runtime/UI and test additions. It remains the last verified baseline; rerun the full suite in Unity on current HEAD.
+**EditMode:** the user's **431/431 result on 2026-11-24** predates B-05. It remains the last user-verified baseline; rerun the full suite in Unity on current HEAD.
 
 **Play Mode:** the user reports the First Workshop and repair/trading features work well. The Work Jacket was not found in scavenging, so its loot availability is being made deterministic for testing.
 
@@ -64,21 +64,22 @@ The guaranteed Work Jacket entry is explicitly temporary test scaffolding and sh
 
 ## Active initiative — B-05 Global NPC Awareness & Affinity
 
-The user approved a shared social foundation for every current and future NPC. The architecture audit confirms existing shared foundations for local perception, individual knowledge, directed relationships, explicit knowledge sharing, scheduled encounters and agenda outcomes. Relationship ownership is intentionally split: `PlayerRelationshipBook` is the existing player→NPC authority and is already persisted; `NpcSocialWorld` owns NPC→NPC relationships and per-NPC knowledge. B-05 preserves those boundaries while sharing the same `NpcRelationship` value model.
+The user approved a shared social foundation for every current and future NPC. Relationship ownership is intentionally split: `PlayerRelationshipBook` is the existing player→NPC authority and is already persisted; `NpcSocialWorld` owns NPC→NPC relationships and per-NPC knowledge. Both use the same `NpcRelationship` value model.
 
 **Implemented in the current branch (Unity verification pending):**
 - `SaveData` captures each registered NPC’s personal knowledge, including event identity, original actor, latest source, observation/told origin, confidence, event location/coordinates and occurred/learned timestamps.
 - Directed NPC→NPC familiarity/trust/affinity is captured independently for each observer→target pair.
-- Load restores after the scene has registered its NPCs. Missing residents, malformed records, invalid source references and invalid values are skipped and counted in `LoadReport`.
-- Loading clears prior durable NPC knowledge/relationships and the transient event journal before applying the save. The journal itself is not serialized or exposed as private memory; positions and perception remain rebuilt from the live scene.
-- `PlayerRelationshipBook` and its existing save format are unchanged.
-- Added focused SaveMapper tests for sourced knowledge and directional relationship round-trip, transient journal exclusion, and safe skipping of removed residents.
+- F5/F9 restores social state after scene residents are registered. Unknown residents, invalid source references and malformed values are skipped and counted in `LoadReport`.
+- Loading clears previous NPC knowledge/relationships and the transient event journal before applying the save. The journal is not serialized as private memory; positions and perception remain rebuilt from the live scene.
+- `NpcSocialWorld.AdjustRelationship` is the validated directed NPC mutation path. Scheduled encounters use it for familiarity only; trust and affinity do not drift from ambient meetings.
+- `PlayerRelationshipBook` and its existing save format remain unchanged. Agenda gates/outcomes already read/write that generic player→NPC book; the social encounter system uses the generic NPC→NPC world for all registered residents.
+- Added focused tests for sourced knowledge and directional relationship round-trip, transient journal exclusion, unknown residents, relationship dimensions and non-finite values.
 
-Task specification: `tasks/LIVELIHOOD-B-05-GLOBAL-NPC-AWARENESS-AFFINITY.md`. No Unity compile or EditMode result has been run/claimed for this patch. The user’s latest reported baseline before B-05 remains 431/431; rerun the full suite on this branch head.able state by stable IDs. No automatic city-wide gossip, omniscience, ambient affinity farming or character-specific runtime logic. Rhea and Milo are pilots only. See [B-05 task card](tasks/LIVELIHOOD-B-05-GLOBAL-NPC-AWARENESS-AFFINITY.md).
-
-The user has now reported **431/431 EditMode tests passing** and confirmed the full B-01–B-04 gameplay path works, including Rhea receiving payment for the sold jacket and the repaired jacket revealing its quality. This supersedes the older 430/430 baseline above. B-04 is functionally verified by the user; retain its historical test notes in the log.
+Task specification: `tasks/LIVELIHOOD-B-05-GLOBAL-NPC-AWARENESS-AFFINITY.md`. No Unity compile or EditMode result has been run/claimed for this patch. The latest user-reported baseline before B-05 remains **431/431**; rerun the full suite on this branch head.
 
 ## Repository hazards and deferred scope
+
+
 
 - `Assets/_Project/Content/Items/` and `Assets/_Project/Content/items/` differ only by case and may collide on Windows. New authored content currently uses distinct folders such as `Content/WorkshopItems/`; preserve GUIDs and do not merge/rename those folders outside Unity Editor.
 - Deliberately deferred: universal supply/demand, automatic NPC shopping, finite stock simulation, market-wide/time-/demand-driven price changes, passive income, production timers/queues, procedural/multiple contracts, partial-stack contract delivery, customer-owned repairs, random repair failure, broad relationship rewards, police response, global rumour cascades and new districts. Selective authored condition-based buyback is the approved narrow exception.
