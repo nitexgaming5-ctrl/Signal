@@ -207,7 +207,9 @@ namespace Signal.Core
             EconomicActorId receiverActor, EconomicActorId payerActor, GridInventory playerInventory,
             GridInventory receiverInventory, AssetOwnershipBook ownership, AssetTransferService transfers,
             EconomicTransactionLedger economicTransactions, CleanMoneyAccount playerAccount,
-            CleanMoneyAccount payerAccount, CustomerContractBook contracts, int day, int minuteOfDay)
+            CleanMoneyAccount payerAccount, CustomerContractBook contracts, int day, int minuteOfDay,
+            PlayerRelationshipBook relationships = null, string relationshipNpcId = null,
+            float familiarityDelta = 0f, float trustDelta = 0f, float affinityDelta = 0f)
         {
             if (contractId == Guid.Empty || itemInstanceId == Guid.Empty || requiredQuantity < 1 ||
                 reward < 1 || !receiverActor.IsValid || !payerActor.IsValid ||
@@ -215,7 +217,11 @@ namespace Signal.Core
                 requiredItem.MaxStack < 1 || playerInventory == null || receiverInventory == null ||
                 ownership == null || transfers == null || economicTransactions == null ||
                 playerAccount == null || payerAccount == null || ReferenceEquals(playerAccount, payerAccount) ||
-                contracts == null || day < 1 || minuteOfDay < 0 || minuteOfDay >= 1440)
+                contracts == null || day < 1 || minuteOfDay < 0 || minuteOfDay >= 1440 ||
+                !ValidRelationshipDelta(familiarityDelta) || !ValidRelationshipDelta(trustDelta) ||
+                !ValidRelationshipDelta(affinityDelta) ||
+                ((familiarityDelta != 0f || trustDelta != 0f || affinityDelta != 0f) &&
+                 (relationships == null || string.IsNullOrWhiteSpace(relationshipNpcId))) )
                 return Result(CustomerContractFulfilmentStatus.InvalidRequest);
 
             if (!contracts.TryGetState(contractId, out CustomerContractState contract) ||
@@ -264,8 +270,16 @@ namespace Signal.Core
                 return Result(CustomerContractFulfilmentStatus.ContractStateConflict);
             }
 
+            if (familiarityDelta != 0f || trustDelta != 0f || affinityDelta != 0f)
+                relationships.Adjust(relationshipNpcId, familiarityDelta, trustDelta, affinityDelta);
+
             return new CustomerContractFulfilmentResult(CustomerContractFulfilmentStatus.Completed,
                 transfer.Transaction, reward);
+        }
+
+        private static bool ValidRelationshipDelta(float value)
+        {
+            return !float.IsNaN(value) && !float.IsInfinity(value) && value >= -1f && value <= 1f;
         }
 
         private static CustomerContractFulfilmentResult Result(CustomerContractFulfilmentStatus status)
