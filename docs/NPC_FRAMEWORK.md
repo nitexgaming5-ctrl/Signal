@@ -41,7 +41,7 @@ Milo and Rhea began as fallback framework fixtures. They are now also represente
 - Game-layer authoring uses `NpcAgendaDefinition` ScriptableObjects with independent threads, priority ordering, sequential stages, optional activity/place, discovery, relationship, opportunity-phase, contract and acquired/not-acquired upgrade prerequisites, typed choices and repeatable choices for revisitable offers.
 `NpcAgendaInteractionDirector` performs deterministic stage selection and applies one-time discovery/relationship outcomes. It opens an existing workshop offer only through a typed reference to its authored upgrade definition. `NpcAgendaConversationPanel` presents authored choices without putting story branches in NpcPresenter.
 - Rhea's first three authored threads are loaded from Resources: a low-confidence second-hand Milo rumour (`subjectId=milo`, `sourceId=rhea`, confidence 0.4), the Compact Sewing Machine offer routed to the existing supplier panel, and post-upgrade mending advice. Keeping the rumour's subject as Milo is required by the parcel opportunity's existing distinct-discovery-type gate. The parcel controller no longer owns Rhea's dialogue; it retains physical parcel lifecycle mechanics.
-- New Core and Game EditMode tests are added but none of these changes have been run in Unity yet.
+- The user reports the current full EditMode suite passing **417/417 on 2026-11-24**, including these Core/Game agenda tests. The complete in-game Rhea thread flow and save/reload still need Play Mode verification.
 
 ### Game (Signal.Game)
 
@@ -170,6 +170,11 @@ The parcel controller currently owns physical parcel props, inspection, acceptan
 4. **Implemented:** Rhea's three independent threads and existing supplier/contract service adapters.
 5. **Implemented:** Rhea's sourced rumour moved into agenda content; Milo parcel lifecycle remains intact.
 6. **Implemented:** A second resident fixture and focused tests for independent authoring, conditions and outcomes.
-7. **Pending verification:** Import/compile, full EditMode suite, Play Mode thread flow and save/reload acceptance.
+7. **Verification:** Full EditMode suite passed **417/417** (user-reported 2026-11-24); Play Mode thread flow and save/reload acceptance remain.
 
 This initiative is approved. New gameplay mechanics outside these three Rhea threads remain subject to separate design approval.
+
+
+## Verification update — 2026-11-24
+
+The user reports **417/417 EditMode tests passing** on the current branch after the final unversioned-save cleanup. The agenda framework and its save/load tests therefore pass the full automated suite. The remaining acceptance is in Play Mode: exercise Rhea's Street rumour, CornerShop machine offer after Milo's contract, post-purchase mending advice, and save/reload of completed choices and repeatable offers.
