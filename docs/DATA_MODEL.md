@@ -12,7 +12,7 @@ Definitions describe what something is and belong in Game-layer ScriptableObject
 - **WorkshopUpgradeDefinition:** stable Guid, description, unlocked recipe, installed prop prefab/offset, acquisition mode, prerequisite, positive CARD cost and resident payee NPC ID.
 - **NpcCharacterDefinition:** stable NPC ID, display name, public role, awareness/movement settings, starting clean balance, utility routine profile, destinations, appearance and dialogue.
 - **NpcAgendaDefinition:** stable NPC ID, prioritized independent threads, sequential stages, activity/place/discovery/relationship/opportunity/contract/upgrade conditions and typed player choices. Workshop offer choices reference existing WorkshopUpgradeDefinition assets.
-- **BusinessDefinition:** stable business ID, resident owner, location/schedule, fixed merchandise catalogue and separate buyback offers.
+- **BusinessDefinition:** stable business ID, resident owner, location/schedule, fixed-price merchandise catalogue and separate buyback entries. Each buyback entry is either fixed-price or condition-based with authored prices for Damaged, Worn, Good and Pristine states; condition offers resolve against the selected physical stack.
 - **ContainerLootProfile:** weighted ItemDefinition entries and quantity ranges for one-time generation.
 - **ResidentPropertyContainerDefinition:** stable container identity, owner/location, fixed item content and initial crime/exposure tuning.
 - Other narrative definitions should be introduced only when a real scenario needs them.
