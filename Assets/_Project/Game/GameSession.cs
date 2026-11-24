@@ -587,7 +587,9 @@ namespace Signal.Game
             if (nearContractCustomer)
                 cityPrompt = "E  Customer request";
             if (nearUpgradeSupplier)
-                cityPrompt = "E  Workshop offer";
+                cityPrompt = CanStartAgendaInteraction(playerPosition)
+                    ? "E  Talk to " + _city.GetResidentDisplayName(firstWorkshopUpgrade.PayeeNpcId)
+                    : "E  Workshop offer";
             if (CanStartAgendaInteraction(playerPosition))
                 cityPrompt = "E  Talk";
             if (_miloScenario != null)
@@ -610,7 +612,9 @@ namespace Signal.Game
             if (nearContractCustomer)
                 cityPrompt = "E  Customer request";
             if (nearUpgradeSupplier)
-                cityPrompt = "E  Workshop offer";
+                cityPrompt = CanStartAgendaInteraction(playerPosition)
+                    ? "E  Talk to " + _city.GetResidentDisplayName(firstWorkshopUpgrade.PayeeNpcId)
+                    : "E  Workshop offer";
             if (contractOpen)
                 _hud.SetPrompt("ESC  Close customer request");
             else if (upgradeOpen)
@@ -666,7 +670,8 @@ namespace Signal.Game
             else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
                 !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen && nearUpgradeSupplier && keyboard.eKey.wasPressedThisFrame)
             {
-                if (_workshopUpgradePanel != null)
+                if (!TryOpenAgendaConversationForNpc(firstWorkshopUpgrade.PayeeNpcId) &&
+                    _workshopUpgradePanel != null)
                 {
                     _workshopUpgradePanel.Open();
                     _motor.enabled = false;
@@ -1390,25 +1395,74 @@ namespace Signal.Game
 
         private bool CanStartAgendaInteraction(Vector2 playerPosition)
         {
-            if (_npcAgendaDirector == null || _city == null ||
-                !_city.TryGetNearestResidentWithin(playerPosition, InteractionDistance, out string npcId))
-                return false;
-            return !_city.IsResidentTravelling(npcId) &&
-                _npcAgendaDirector.TryGetNextStage(npcId, _city.GetResidentActivity(npcId),
-                    out _, out _);
+            return TryFindNearbyAgendaInteraction(playerPosition, out _, out _, out _);
         }
 
         private bool TryOpenAgendaConversation(Vector2 playerPosition)
         {
-            if (_npcAgendaDirector == null || _npcAgendaPanel == null || _city == null ||
-                !_city.TryGetNearestResidentWithin(playerPosition, InteractionDistance, out string npcId) ||
-                _city.IsResidentTravelling(npcId) ||
-                !_npcAgendaDirector.TryGetNextStage(npcId, _city.GetResidentActivity(npcId),
+            if (_npcAgendaPanel == null ||
+                !TryFindNearbyAgendaInteraction(playerPosition, out string npcId,
                     out NpcAgendaThreadDefinition thread, out NpcAgendaStageDefinition stage))
                 return false;
 
             _npcAgendaPanel.Open(npcId, thread, stage);
             return _npcAgendaPanel.IsOpen;
+        }
+
+        private bool TryOpenAgendaConversationForNpc(string npcId)
+        {
+            if (_npcAgendaPanel == null || _city == null || string.IsNullOrWhiteSpace(npcId))
+                return false;
+
+            foreach (NpcPresenter resident in _city.DebugResidents)
+            {
+                if (resident == null || resident.NpcId != npcId ||
+                    resident.CurrentPlace != _city.CurrentPlace || resident.IsTravelling ||
+                    Vector2.Distance(resident.Position, _room.PlayerBody.position) > InteractionDistance)
+                    continue;
+                if (!_npcAgendaDirector.TryGetNextStage(resident.NpcId, resident.Activity,
+                    resident.CurrentPlace, out NpcAgendaThreadDefinition thread,
+                    out NpcAgendaStageDefinition stage))
+                    return false;
+
+                _npcAgendaPanel.Open(resident.NpcId, thread, stage);
+                return _npcAgendaPanel.IsOpen;
+            }
+            return false;
+        }
+
+        private bool TryFindNearbyAgendaInteraction(Vector2 playerPosition, out string npcId,
+            out NpcAgendaThreadDefinition selectedThread, out NpcAgendaStageDefinition selectedStage)
+        {
+            npcId = null;
+            selectedThread = null;
+            selectedStage = null;
+            if (_npcAgendaDirector == null || _city == null)
+                return false;
+
+            float bestDistance = InteractionDistance * InteractionDistance;
+            foreach (NpcPresenter resident in _city.DebugResidents)
+            {
+                if (resident == null || resident.CurrentPlace != _city.CurrentPlace || resident.IsTravelling)
+                    continue;
+                float distance = (resident.Position - playerPosition).sqrMagnitude;
+                if (distance > bestDistance ||
+                    !_npcAgendaDirector.TryGetNextStage(resident.NpcId, resident.Activity,
+                        resident.CurrentPlace, out NpcAgendaThreadDefinition thread,
+                        out NpcAgendaStageDefinition stage))
+                    continue;
+
+                if (npcId == null || distance < bestDistance ||
+                    (Mathf.Approximately(distance, bestDistance) &&
+                     string.CompareOrdinal(resident.NpcId, npcId) < 0))
+                {
+                    npcId = resident.NpcId;
+                    selectedThread = thread;
+                    selectedStage = stage;
+                    bestDistance = distance;
+                }
+            }
+            return npcId != null;
         }
 
         private void HandleAgendaChoice(string npcId, string threadId, string stageId, string choiceId)
