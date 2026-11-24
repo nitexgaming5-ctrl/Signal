@@ -728,12 +728,17 @@ namespace Signal.Core.Tests
             restoredWorld.RegisterNpc("milo", "Street", 0f, 0f, 8f);
             restoredWorld.RegisterNpc("rhea", "CornerShop", 0f, 0f, 8f);
             restoredWorld.RegisterNpc("customer", "Street", 0f, 0f, 8f);
+            restoredWorld.PublishEvent(new NpcWorldEvent("stale-event", "Noise", "Later timeline noise.",
+                "customer", "Street", 0f, 0f, 0f, 3, 900));
+            restoredWorld.SetRelationship("rhea", "customer", new NpcRelationship(0.9f, 0.9f, 0.9f));
             LoadReport report = SaveMapper.Apply(data, new World().Stats, new GridInventory(), null,
                 new GameClock(), new HeatMeter(), new RentLedger(50, 7), Resolver(), socialWorld: restoredWorld);
             Assert.That(report.Success, Is.True);
             Assert.That(report.SkippedNpcKnowledge, Is.Zero);
             Assert.That(report.SkippedNpcSocialRelationships, Is.Zero);
-            Assert.That(restoredWorld.EventCount, Is.Zero, "The transient world journal must not be restored.");
+            Assert.That(restoredWorld.EventCount, Is.Zero, "The transient world journal must be cleared and not restored.");
+            Assert.That(restoredWorld.BuildPerceptionFor("rhea", 8f).KnowsEvent("stale-event"), Is.False);
+            Assert.That(restoredWorld.GetRelationship("rhea", "customer").Affinity, Is.Zero);
             NpcKnowledge retold = restoredWorld.BuildPerceptionFor("rhea", 8f).FindEvent("parcel-1");
             Assert.That(retold, Is.Not.Null);
             Assert.That(retold.Origin, Is.EqualTo(NpcKnowledgeOrigin.ToldByAnotherNpc));
