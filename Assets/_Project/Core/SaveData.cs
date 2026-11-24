@@ -222,6 +222,15 @@ namespace Signal.Core
     }
 
     [Serializable]
+    public sealed class SavedNpcAgendaStageProgress
+    {
+        public string npcId;
+        public string threadId;
+        public string stageId;
+        public string choiceId;
+    }
+
+    [Serializable]
     public sealed class SaveData
     {
         public int version = SaveMigrator.CurrentVersion;
@@ -260,6 +269,7 @@ namespace Signal.Core
         public List<string> acquiredWorkshopUpgradeIds = new List<string>();
         public List<SavedItem> contractReceiverItems = new List<SavedItem>();
         public string contractReceiverActorId;
+        public List<SavedNpcAgendaStageProgress> npcAgendaProgress = new List<SavedNpcAgendaStageProgress>();
     }
 
     public sealed class LoadReport
@@ -284,6 +294,7 @@ namespace Signal.Core
         public int SkippedCustomerContracts { get; set; }
         public int SkippedWorkshopUpgradeIds { get; set; }
         public int SkippedContractReceiverItems { get; set; }
+        public int SkippedNpcAgendaProgress { get; set; }
         public OpportunityState RestoredOpportunity { get; set; }
     }
 
@@ -291,7 +302,7 @@ namespace Signal.Core
     {
         // Increment only when the serialized save schema changes. Runtime/UI/gameplay-only changes do not require a new save version.
         // Migration tests for historical inputs should assert this constant for their migrated result.
-        public const int CurrentVersion = 15;
+        public const int CurrentVersion = 16;
 
         /// <summary>Accepts supported save formats and migrates them to the current inventory, social and economic format.</summary>
         public static bool TryMigrate(SaveData data, out string error)
@@ -405,6 +416,10 @@ namespace Signal.Core
                 data.contractReceiverItems = new List<SavedItem>();
             EnsureInstanceIds(data.contractReceiverItems, usedIds);
 
+            // Version 16 persists stable NPC agenda stage progress.
+            if (data.npcAgendaProgress == null)
+                data.npcAgendaProgress = new List<SavedNpcAgendaStageProgress>();
+
             data.version = CurrentVersion;
 
             return true;
@@ -458,7 +473,8 @@ namespace Signal.Core
                                        CustomerContractBook customerContracts = null,
                                        WorkshopProgressionBook workshopProgression = null,
                                        GridInventory contractReceiverInventory = null,
-                                       string contractReceiverActorId = null)
+                                       string contractReceiverActorId = null,
+                                       NpcAgendaProgressBook npcAgendaProgress = null)
         {
             if (stats == null) throw new ArgumentNullException(nameof(stats));
             if (inventory == null) throw new ArgumentNullException(nameof(inventory));
@@ -504,6 +520,7 @@ namespace Signal.Core
             CaptureProductionTransactions(productionTransactions, data.productionTransactions);
             CaptureCustomerContracts(customerContracts, data.customerContracts);
             CaptureWorkshopProgression(workshopProgression, data.acquiredWorkshopUpgradeIds);
+            CaptureNpcAgendaProgress(npcAgendaProgress, data.npcAgendaProgress);
 
             return data;
         }
@@ -532,7 +549,8 @@ namespace Signal.Core
                                        ProductionTransactionLedger productionTransactions = null,
                                        CustomerContractBook customerContracts = null,
                                        WorkshopProgressionBook workshopProgression = null,
-                                       GridInventory contractReceiverInventory = null)
+                                       GridInventory contractReceiverInventory = null,
+                                       NpcAgendaProgressBook npcAgendaProgress = null)
         {
             if (stats == null) throw new ArgumentNullException(nameof(stats));
             if (inventory == null) throw new ArgumentNullException(nameof(inventory));
@@ -588,6 +606,7 @@ namespace Signal.Core
             int skippedProduction = RestoreProductionTransactions(data.productionTransactions, productionTransactions);
             int skippedContracts = RestoreCustomerContracts(data.customerContracts, customerContracts);
             int skippedUpgrades = RestoreWorkshopProgression(data.acquiredWorkshopUpgradeIds, workshopProgression);
+            int skippedAgendaProgress = RestoreNpcAgendaProgress(data.npcAgendaProgress, npcAgendaProgress);
             OpportunityState restoredOpportunity = RestoreOpportunity(data.opportunity);
 
             return new LoadReport
@@ -611,10 +630,59 @@ namespace Signal.Core
                 SkippedCustomerContracts = skippedContracts,
                 SkippedWorkshopUpgradeIds = skippedUpgrades,
                 SkippedContractReceiverItems = skippedContractReceiver,
+                SkippedNpcAgendaProgress = skippedAgendaProgress,
                 RestoredOpportunity = restoredOpportunity
             };
         }
 
+
+
+        private static void CaptureNpcAgendaProgress(NpcAgendaProgressBook book,
+            List<SavedNpcAgendaStageProgress> destination)
+        {
+            if (book == null || destination == null) return;
+            foreach (NpcAgendaStageProgress progress in book.CompletedStages)
+                destination.Add(new SavedNpcAgendaStageProgress
+                {
+                    npcId = progress.NpcId,
+                    threadId = progress.ThreadId,
+                    stageId = progress.StageId,
+                    choiceId = progress.ChoiceId
+                });
+        }
+
+        private static int RestoreNpcAgendaProgress(List<SavedNpcAgendaStageProgress> saved,
+            NpcAgendaProgressBook destination)
+        {
+            if (destination == null) return 0;
+            destination.Clear();
+            int skipped = 0;
+            if (saved == null) return skipped;
+            foreach (SavedNpcAgendaStageProgress entry in saved)
+            {
+                if (entry == null ||
+                    string.IsNullOrWhiteSpace(entry.npcId) ||
+                    string.IsNullOrWhiteSpace(entry.threadId) ||
+                    string.IsNullOrWhiteSpace(entry.stageId) ||
+                    string.IsNullOrWhiteSpace(entry.choiceId))
+                {
+                    skipped++;
+                    continue;
+                }
+
+                try
+                {
+                    if (!destination.TryRestore(new NpcAgendaStageProgress(
+                        entry.npcId, entry.threadId, entry.stageId, entry.choiceId)))
+                        skipped++;
+                }
+                catch (ArgumentException)
+                {
+                    skipped++;
+                }
+            }
+            return skipped;
+        }
 
         private static void CaptureIllicitExchanges(IllicitExchangeTransactionLedger ledger,
             List<SavedIllicitExchangeTransaction> destination)
