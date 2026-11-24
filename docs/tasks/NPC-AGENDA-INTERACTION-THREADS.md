@@ -1,6 +1,6 @@
 # NPC Agenda & Interaction Threads
 
-**Status:** Implementation in progress; Unity verification pending  
+**Status:** Implementation complete; Unity verification pending  
 **Approved:** 2026-11-24  
 **Priority:** High — shared narrative foundation for Direction B  
 **Pilot:** Rhea  
@@ -25,10 +25,10 @@ Create a reusable, data-authored interaction framework that lets any resident ha
 ## Rhea pilot content
 
 ### Thread A — A neighbour who notices things
-Rhea shares a low-confidence, sourced tip about Milo. Player can ask how she knows, ask why she is telling them, or leave. The player receives a rumour, not a factual verdict. Rhea must have a plausible observation/hearsay source.
+While socializing on the Street, Rhea shares a low-confidence, second-hand tip about Milo. Player can ask how she knows, ask why she is telling them, or leave. All three choices record the rumour the player heard; it remains belief, not a factual verdict.
 
 ### Thread B — Something in the back room
-After the existing Milo customer-request prerequisite, Rhea offers the Compact Sewing Machine. The agenda opens the existing supplier offer panel. Existing upgrade service remains authoritative for payment, installation and recipe unlock. Decline remains revisitable.
+While working in CornerShop, after the existing Milo customer-request is complete and while the upgrade is unacquired, Rhea offers the Compact Sewing Machine. The agenda opens the existing supplier offer panel. Existing upgrade service remains authoritative for payment, installation and recipe unlock. Decline remains revisitable.
 
 ### Thread C — Perhaps I need a favour myself
 After the machine transaction, Rhea gives practical mending advice and is established as a possible future repair customer. This is narrative setup only; B-04 repair mechanics are out of scope.
