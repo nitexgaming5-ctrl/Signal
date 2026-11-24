@@ -133,6 +133,32 @@ namespace Signal.Game.Tests
         }
 
         [Test]
+        public void AgendaValidationRejectsDuplicateIdsAndIncompleteTypedOutcomes()
+        {
+            NpcAgendaDefinition agenda = CreateAgenda("rhea", "duplicate", "stage",
+                Choice("choice", NpcAgendaChoiceAction.DialogueOnly));
+            agenda.Threads = new[]
+            {
+                Thread("duplicate", 0, Stage("stage-a", NpcAgendaActivityRequirement.Any,
+                    Choice("choice-a", NpcAgendaChoiceAction.DialogueOnly))),
+                Thread("duplicate", 1, Stage("stage-b", NpcAgendaActivityRequirement.Any,
+                    Choice("choice-b", NpcAgendaChoiceAction.DialogueOnly)))
+            };
+            Assert.That(agenda.TryValidate(out string duplicateError), Is.False);
+            Assert.That(duplicateError, Does.Contain("unique"));
+
+            NpcAgendaChoiceDefinition invalidDiscovery = Choice("rumour", NpcAgendaChoiceAction.RecordDiscovery);
+            invalidDiscovery.DiscoveryId = string.Empty;
+            agenda.Threads = new[]
+            {
+                Thread("valid-thread", 0, Stage("valid-stage",
+                    NpcAgendaActivityRequirement.Any, invalidDiscovery))
+            };
+            Assert.That(agenda.TryValidate(out string outcomeError), Is.False);
+            Assert.That(outcomeError, Does.Contain("discovery"));
+        }
+
+        [Test]
         public void ThreadPriorityIsDeterministicAndDoesNotBlockIndependentThreads()
         {
             NpcAgendaDefinition agenda = ScriptableObject.CreateInstance<NpcAgendaDefinition>();
