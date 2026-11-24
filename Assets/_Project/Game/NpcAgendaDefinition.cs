@@ -7,10 +7,19 @@ namespace Signal.Game
 {
     public enum NpcAgendaChoiceAction
     {
-        DialogueOnly,
-        RecordDiscovery,
-        AdjustRelationship,
-        OpenWorkshopUpgradeOffer
+        DialogueOnly = 0,
+        RecordDiscovery = 1,
+        AdjustRelationship = 2,
+        OpenWorkshopUpgradeOffer = 3
+    }
+
+    public enum NpcAgendaActivityRequirement
+    {
+        Any = 0,
+        Work = 1,
+        Rest = 2,
+        Socialize = 3,
+        Home = 4
     }
 
     [Serializable]
@@ -20,6 +29,7 @@ namespace Signal.Game
         public string Label;
         [TextArea(2, 5)] public string Response;
         public NpcAgendaChoiceAction Action;
+        public bool CompleteStageOnSelect = true;
         [Header("Discovery outcome")]
         public string DiscoveryId;
         public string DiscoverySubjectId;
@@ -30,6 +40,8 @@ namespace Signal.Game
         [Range(-1f, 1f)] public float FamiliarityDelta;
         [Range(-1f, 1f)] public float TrustDelta;
         [Range(-1f, 1f)] public float AffinityDelta;
+        [Header("Workshop offer outcome")]
+        public WorkshopUpgradeDefinition WorkshopUpgradeOffer;
     }
 
     [Serializable]
@@ -39,12 +51,17 @@ namespace Signal.Game
         public string Title;
         [TextArea(3, 8)] public string Dialogue;
         public bool RequireSocializingActivity;
+        public NpcAgendaActivityRequirement RequiredActivity = NpcAgendaActivityRequirement.Any;
+        public string RequiredPlace;
         [Tooltip("Optional player discovery required before this stage is available.")]
         public string RequiredDiscoveryId;
         [Tooltip("Optional completed customer contract ID required before this stage is available.")]
         public string RequiredCompletedContractId;
+        public CustomerContractDefinition RequiredContract;
         [Tooltip("Optional acquired workshop upgrade ID required before this stage is available.")]
         public string RequiredUpgradeId;
+        public WorkshopUpgradeDefinition RequiredUpgrade;
+        public bool RequireUpgradeNotAcquired;
         public NpcAgendaChoiceDefinition[] Choices = Array.Empty<NpcAgendaChoiceDefinition>();
     }
 
@@ -54,6 +71,7 @@ namespace Signal.Game
         public string ThreadId;
         public string DisplayName;
         [TextArea] public string Summary;
+        [Min(0)] public int Priority;
         public NpcAgendaStageDefinition[] Stages = Array.Empty<NpcAgendaStageDefinition>();
     }
 
@@ -74,9 +92,9 @@ namespace Signal.Game
                 error = "Agenda NPC ID is required.";
                 return false;
             }
-            if (Threads == null)
+            if (Threads == null || Threads.Length == 0)
             {
-                error = "Agenda thread collection is missing.";
+                error = "An NPC agenda must contain at least one thread.";
                 return false;
             }
 
@@ -85,9 +103,9 @@ namespace Signal.Game
             {
                 NpcAgendaThreadDefinition thread = Threads[t];
                 if (thread == null || string.IsNullOrWhiteSpace(thread.ThreadId) ||
-                    !threadIds.Add(thread.ThreadId))
+                    string.IsNullOrWhiteSpace(thread.DisplayName) || !threadIds.Add(thread.ThreadId))
                 {
-                    error = "Agenda thread IDs must be present and unique for NPC " + NpcId + ".";
+                    error = "Agenda thread IDs and display names must be present and unique for NPC " + NpcId + ".";
                     return false;
                 }
                 if (thread.Stages == null || thread.Stages.Length == 0)
@@ -107,6 +125,40 @@ namespace Signal.Game
                             thread.ThreadId + ".";
                         return false;
                     }
+                    if (!Enum.IsDefined(typeof(NpcAgendaActivityRequirement), stage.RequiredActivity))
+                    {
+                        error = "Stage " + stage.StageId + " has an invalid activity requirement.";
+                        return false;
+                    }
+                    if (stage.RequiredContract != null && !stage.RequiredContract.TryValidate(out _))
+                    {
+                        error = "Stage " + stage.StageId + " references an invalid customer contract.";
+                        return false;
+                    }
+                    if (stage.RequiredUpgrade != null && !stage.RequiredUpgrade.TryValidate(out _))
+                    {
+                        error = "Stage " + stage.StageId + " references an invalid workshop upgrade.";
+                        return false;
+                    }
+                    if (!string.IsNullOrWhiteSpace(stage.RequiredCompletedContractId) && stage.RequiredContract != null &&
+                        stage.RequiredCompletedContractId != stage.RequiredContract.Id.ToString())
+                    {
+                        error = "Stage " + stage.StageId + " has conflicting contract identity requirements.";
+                        return false;
+                    }
+                    if (!string.IsNullOrWhiteSpace(stage.RequiredUpgradeId) && stage.RequiredUpgrade != null &&
+                        stage.RequiredUpgradeId != stage.RequiredUpgrade.Id.ToString())
+                    {
+                        error = "Stage " + stage.StageId + " has conflicting workshop upgrade identity requirements.";
+                        return false;
+                    }
+                    if (stage.RequireUpgradeNotAcquired &&
+                        string.IsNullOrWhiteSpace(stage.RequiredUpgradeId) && stage.RequiredUpgrade == null)
+                    {
+                        error = "Stage " + stage.StageId + " requires an upgrade ID for its not-acquired condition.";
+                        return false;
+                    }
+
                     if (stage.Choices == null || stage.Choices.Length == 0)
                     {
                         error = "Stage " + stage.StageId + " must contain at least one choice.";
@@ -118,17 +170,29 @@ namespace Signal.Game
                     {
                         NpcAgendaChoiceDefinition choice = stage.Choices[c];
                         if (choice == null || string.IsNullOrWhiteSpace(choice.ChoiceId) ||
-                            !choiceIds.Add(choice.ChoiceId) || string.IsNullOrWhiteSpace(choice.Label))
+                            !choiceIds.Add(choice.ChoiceId) || string.IsNullOrWhiteSpace(choice.Label) ||
+                            string.IsNullOrWhiteSpace(choice.Response) ||
+                            !Enum.IsDefined(typeof(NpcAgendaChoiceAction), choice.Action))
                         {
-                            error = "Choice IDs and labels must be present and unique in stage " + stage.StageId + ".";
+                            error = "Choice IDs, labels, responses and actions must be valid and unique in stage " +
+                                stage.StageId + ".";
                             return false;
                         }
                         if (choice.Action == NpcAgendaChoiceAction.RecordDiscovery &&
                             (string.IsNullOrWhiteSpace(choice.DiscoveryId) ||
                              string.IsNullOrWhiteSpace(choice.DiscoverySubjectId) ||
-                             string.IsNullOrWhiteSpace(choice.DiscoveryDescription)))
+                             string.IsNullOrWhiteSpace(choice.DiscoveryDescription) ||
+                             float.IsNaN(choice.DiscoveryConfidence) || float.IsInfinity(choice.DiscoveryConfidence) ||
+                             choice.DiscoveryConfidence < 0f || choice.DiscoveryConfidence > 1f))
                         {
-                            error = "Discovery choice " + choice.ChoiceId + " is missing its authored discovery data.";
+                            error = "Discovery choice " + choice.ChoiceId + " is missing valid authored discovery data.";
+                            return false;
+                        }
+                        if (choice.Action == NpcAgendaChoiceAction.OpenWorkshopUpgradeOffer &&
+                            (choice.WorkshopUpgradeOffer == null ||
+                             !choice.WorkshopUpgradeOffer.TryValidate(out _)))
+                        {
+                            error = "Workshop offer choice " + choice.ChoiceId + " must reference a valid upgrade.";
                             return false;
                         }
                     }
