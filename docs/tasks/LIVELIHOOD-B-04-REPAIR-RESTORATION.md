@@ -23,6 +23,7 @@ These facts were checked against the current branch:
 - `SaveMapper` already persists physical item state and item-knowledge facts in the unversioned 0.01 save snapshot. A repair round-trip test can use the existing save shape; no save-version field or migration is needed.
 - `ContainerLootProfile` creates loot using each `ItemDefinition.DefaultInstanceState`; it has no per-loot state override. A dedicated worn garment definition can therefore be authored with default condition Worn and added to an existing loot profile without adding a new loot-state mechanism.
 - Shop buyback prices are currently fixed per item in `BusinessDefinition.BuybackEntry`. `Shop.TryFulfilExact` pays the supplied fixed `ShopOrder.UnitPrice`; the sale record stores item state but does not calculate payment from condition. `ItemValueCalculator` currently provides an indicative reference valuation used by item inspection, not a dynamic sell-price rule.
+- `AssetTransferService` handles theft by changing the item's state to `ItemOwnershipStatus.Stolen` and transferring the `AssetOwnershipBook` owner from the previous actor to the thief. A stolen item can therefore be repaired under the proposed player-owned rule when the player is its current registered owner; repair must preserve the Stolen marker and must not change the owner.
 
 ## Proposed first-slice rules
 
