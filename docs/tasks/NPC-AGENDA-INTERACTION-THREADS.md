@@ -15,8 +15,8 @@ Create a reusable, data-authored interaction framework that lets any resident ha
 - Stable NPC/thread/stage/choice IDs.
 - Multiple independent threads per NPC; deterministic selection and clear priority/tie-breaking.
 - Stage eligibility from authored conditions: activity/location, player discoveries, relationship thresholds, opportunity/contract phases and acquired upgrades.
-- Multi-choice stages with typed outcomes.
-- Idempotent effects: no duplicate discovery, relationship adjustment, contract activation, item transfer, payment or upgrade purchase when revisiting/reloading.
+- Multi-choice stages with typed outcomes for dialogue, discovery, relationship changes and opening an existing workshop offer.
+- Idempotent one-time discovery/relationship outcomes. The agenda layer does not own contract activation, item transfer, payment or upgrade acquisition; those remain authoritative in their existing services and are never reimplemented here.
 - Sourced information and confidence. Rumour is belief, not objective truth.
 - Save/load persistence for durable choices and stage progress; safe handling of unknown or removed content IDs.
 - Generic Core rules/progress, Game ScriptableObject content, generic director and reusable conversation UI.
