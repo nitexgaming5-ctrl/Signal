@@ -102,6 +102,7 @@ namespace Signal.Game
 
         private float _minuteBuffer;
         private bool _debugMenuOpen;
+        private string _interactionPausedNpcId;
         
         /// <summary>Player-scoped discovered item facts, shared by inventory and scenario interactions.</summary>
         public ItemKnowledgeBook PlayerItemKnowledge => _itemKnowledge;
@@ -598,6 +599,13 @@ namespace Signal.Game
                 _npcAgendaPanel.Close();
                 agendaOpen = false;
             }
+
+            UpdateNpcInteractionPause(
+                agendaOpen ? _npcAgendaPanel.ActiveNpcId :
+                retailOpen ? _retailPanel.ActiveOwnerNpcId :
+                contractOpen && firstCustomerContract != null ? firstCustomerContract.IssuerNpcId :
+                upgradeOpen && firstWorkshopUpgrade != null ? firstWorkshopUpgrade.PayeeNpcId :
+                dirtyCashOpen ? DirtyCashContactNpcId : null);
 
             bool scenarioChoiceOpen = _miloScenario != null && _miloScenario.HasPendingChoice;
             _motor.enabled = !inventoryOpen && !workspaceOpen && !storageOpen && !itemViewerOpen &&
@@ -1485,6 +1493,31 @@ namespace Signal.Game
             return _npcAgendaDirector != null && _city != null &&
                 _city.TryGetNearestResidentWithin(playerPosition, InteractionDistance, out string npcId) &&
                 !_city.IsResidentTravelling(npcId) && _npcAgendaDirector.HasAgenda(npcId);
+        }
+
+        private void UpdateNpcInteractionPause(string npcId)
+        {
+            if (string.Equals(_interactionPausedNpcId, npcId, StringComparison.Ordinal))
+                return;
+
+            SetResidentInteractionPaused(_interactionPausedNpcId, false);
+            _interactionPausedNpcId = string.IsNullOrWhiteSpace(npcId) ? null : npcId;
+            SetResidentInteractionPaused(_interactionPausedNpcId, true);
+        }
+
+        private void SetResidentInteractionPaused(string npcId, bool paused)
+        {
+            if (string.IsNullOrWhiteSpace(npcId) || _city == null)
+                return;
+
+            foreach (NpcPresenter resident in _city.DebugResidents)
+            {
+                if (resident != null && resident.NpcId == npcId)
+                {
+                    resident.SetInteractionPaused(paused);
+                    return;
+                }
+            }
         }
 
         private bool TryOpenAgendaConversation(Vector2 playerPosition)
