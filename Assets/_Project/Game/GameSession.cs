@@ -579,6 +579,7 @@ namespace Signal.Game
                 nearbyContainerId = nearbyProperty.ContainerId;
                 nearbyContainerLabel = nearbyProperty.DisplayName;
             }
+            bool nearAgendaInteraction = CanStartAgendaInteraction(playerPosition);
             string cityPrompt = _city.GetPrompt(playerPosition);
             if (nearSearchableContainer)
                 cityPrompt = "E  Search " + nearbyContainerLabel;
@@ -588,8 +589,6 @@ namespace Signal.Game
                 cityPrompt = "E  Customer request";
             if (nearUpgradeSupplier)
                 cityPrompt = "E  Talk to " + _city.GetResidentDisplayName(firstWorkshopUpgrade.PayeeNpcId);
-            if (CanStartAgendaInteraction(playerPosition))
-                cityPrompt = "E  Talk";
             if (_miloScenario != null)
             {
                 if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen)
@@ -612,8 +611,7 @@ namespace Signal.Game
             if (nearUpgradeSupplier)
                 cityPrompt = "E  Talk to " + _city.GetResidentDisplayName(firstWorkshopUpgrade.PayeeNpcId);
             if (!nearSearchableContainer && !nearDirtyCashContact && !nearContractCustomer &&
-                !nearUpgradeSupplier && nearbyBusiness == null && !nearWorkbench && !nearStorage &&
-                CanStartAgendaInteraction(playerPosition))
+                !nearUpgradeSupplier && nearAgendaInteraction)
                 cityPrompt = "E  Talk";
             if (contractOpen)
                 _hud.SetPrompt("ESC  Close customer request");
@@ -635,6 +633,9 @@ namespace Signal.Game
                 _hud.SetPrompt("ESC  Close storage");
             else if (inventoryOpen)
                 _hud.SetPrompt(string.Empty);
+            else if (nearAgendaInteraction && !nearSearchableContainer && !nearDirtyCashContact &&
+                !nearContractCustomer && !nearUpgradeSupplier)
+                _hud.SetPrompt("E  Talk");
             else if (nearWorkbench)
                 _hud.SetPrompt("E  Use workbench");
             else if (nearStorage)
@@ -676,6 +677,13 @@ namespace Signal.Game
                     _workshopUpgradePanel.Open();
                     _motor.enabled = false;
                 }
+            }
+            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
+                !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen && nearAgendaInteraction &&
+                !nearContractCustomer && !nearUpgradeSupplier && !nearDirtyCashContact &&
+                !nearSearchableContainer && keyboard.eKey.wasPressedThisFrame)
+            {
+                TryOpenAgendaConversation(playerPosition);
             }
             else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
                 !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen && nearDirtyCashContact && keyboard.eKey.wasPressedThisFrame)
