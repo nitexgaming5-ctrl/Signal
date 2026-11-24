@@ -36,12 +36,13 @@ namespace Signal.Core.Tests
             public Guid ContractId = System.Guid.NewGuid();
 
             public CustomerContractFulfilmentResult Fulfil(int quantity = 2, int reward = 20, bool acceptStolen = false,
-                float familiarityDelta = 0f, float trustDelta = 0f, float affinityDelta = 0f)
+                float familiarityDelta = 0f, float trustDelta = 0f, float affinityDelta = 0f,
+                string relationshipNpcId = "customer")
             {
                 return CustomerContractService.TryFulfil(ContractId, PlayerInventory.Items[0].ItemInstanceId,
                     Goods, quantity, acceptStolen, reward, Customer, Customer, PlayerInventory,
                     CustomerInventory, Ownership, Transfers, Transactions, PlayerAccount, CustomerAccount,
-                    Contracts, 1, 200, Relationships, "customer",
+                    Contracts, 1, 200, Relationships, relationshipNpcId,
                     familiarityDelta, trustDelta, affinityDelta);
             }
         }
@@ -128,6 +129,23 @@ namespace Signal.Core.Tests
             Assert.That(fixture.CustomerInventory.CountOf(fixture.Goods), Is.Zero);
             Assert.That(fixture.Contracts.ActiveContractId, Is.EqualTo(fixture.ContractId));
             Assert.That(fixture.Relationships.Get("customer").Familiarity, Is.Zero);
+        }
+
+
+        [Test]
+        public void RelationshipOutcomeMustTargetThePayingResident()
+        {
+            var fixture = new Fixture();
+
+            CustomerContractFulfilmentResult result = fixture.Fulfil(
+                familiarityDelta: 0.1f, relationshipNpcId: "someone-else");
+
+            Assert.That(result.Status, Is.EqualTo(CustomerContractFulfilmentStatus.InvalidRequest));
+            Assert.That(fixture.PlayerInventory.CountOf(fixture.Goods), Is.EqualTo(2));
+            Assert.That(fixture.CustomerInventory.CountOf(fixture.Goods), Is.Zero);
+            Assert.That(fixture.Contracts.ActiveContractId, Is.EqualTo(fixture.ContractId));
+            Assert.That(fixture.Relationships.Get("customer").Familiarity, Is.Zero);
+            Assert.That(fixture.Relationships.Get("someone-else").Familiarity, Is.Zero);
         }
 
         [Test]
