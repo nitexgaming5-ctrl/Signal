@@ -16,6 +16,7 @@ namespace Signal.Core.Tests
             public readonly EconomicContainerRegistry Containers = new EconomicContainerRegistry();
             public readonly EconomicTransactionLedger Transactions = new EconomicTransactionLedger();
             public readonly CustomerContractBook Contracts = new CustomerContractBook();
+            public readonly PlayerRelationshipBook Relationships = new PlayerRelationshipBook();
             public readonly EconomicActorId Customer = new EconomicActorId("resident:customer");
             public readonly CleanMoneyAccount PlayerAccount = new CleanMoneyAccount(10);
             public readonly CleanMoneyAccount CustomerAccount = new CleanMoneyAccount(100);
@@ -34,12 +35,14 @@ namespace Signal.Core.Tests
 
             public Guid ContractId = System.Guid.NewGuid();
 
-            public CustomerContractFulfilmentResult Fulfil(int quantity = 2, int reward = 20, bool acceptStolen = false)
+            public CustomerContractFulfilmentResult Fulfil(int quantity = 2, int reward = 20, bool acceptStolen = false,
+                float familiarityDelta = 0f, float trustDelta = 0f, float affinityDelta = 0f)
             {
                 return CustomerContractService.TryFulfil(ContractId, PlayerInventory.Items[0].ItemInstanceId,
                     Goods, quantity, acceptStolen, reward, Customer, Customer, PlayerInventory,
                     CustomerInventory, Ownership, Transfers, Transactions, PlayerAccount, CustomerAccount,
-                    Contracts, 1, 200);
+                    Contracts, 1, 200, Relationships, "customer",
+                    familiarityDelta, trustDelta, affinityDelta);
             }
         }
 
@@ -85,6 +88,48 @@ namespace Signal.Core.Tests
             Assert.That(fixture.CustomerAccount.Balance, Is.EqualTo(80));
         }
 
+
+        [Test]
+        public void SuccessfulContractAppliesAuthoredRelationshipOutcomeOnceToIssuer()
+        {
+            var fixture = new Fixture();
+
+            CustomerContractFulfilmentResult result = fixture.Fulfil(
+                familiarityDelta: 0.15f, trustDelta: 0.1f, affinityDelta: 0.2f);
+
+            Assert.That(result.Success, Is.True);
+            NpcRelationship relationship = fixture.Relationships.Get("customer");
+            Assert.That(relationship.Familiarity, Is.EqualTo(0.15f).Within(0.0001f));
+            Assert.That(relationship.Trust, Is.EqualTo(0.6f).Within(0.0001f));
+            Assert.That(relationship.Affinity, Is.EqualTo(0.2f).Within(0.0001f));
+            Assert.That(fixture.Relationships.Get("other-customer").Familiarity, Is.Zero);
+
+            CustomerContractFulfilmentResult replay = CustomerContractService.TryFulfil(
+                fixture.ContractId, Guid.NewGuid(), fixture.Goods, 2, false, 20,
+                fixture.Customer, fixture.Customer, fixture.PlayerInventory, fixture.CustomerInventory,
+                fixture.Ownership, fixture.Transfers, fixture.Transactions, fixture.PlayerAccount,
+                fixture.CustomerAccount, fixture.Contracts, 1, 201, fixture.Relationships, "customer",
+                0.15f, 0.1f, 0.2f);
+            Assert.That(replay.Success, Is.False);
+            Assert.That(fixture.Relationships.Get("customer").Familiarity, Is.EqualTo(0.15f).Within(0.0001f));
+            Assert.That(fixture.Relationships.Get("customer").Trust, Is.EqualTo(0.6f).Within(0.0001f));
+            Assert.That(fixture.Relationships.Get("customer").Affinity, Is.EqualTo(0.2f).Within(0.0001f));
+        }
+
+        [Test]
+        public void InvalidRelationshipOutcomeLeavesContractAndGoodsUntouched()
+        {
+            var fixture = new Fixture();
+
+            CustomerContractFulfilmentResult result = fixture.Fulfil(familiarityDelta: float.NaN);
+
+            Assert.That(result.Status, Is.EqualTo(CustomerContractFulfilmentStatus.InvalidRequest));
+            Assert.That(fixture.PlayerInventory.CountOf(fixture.Goods), Is.EqualTo(2));
+            Assert.That(fixture.CustomerInventory.CountOf(fixture.Goods), Is.Zero);
+            Assert.That(fixture.Contracts.ActiveContractId, Is.EqualTo(fixture.ContractId));
+            Assert.That(fixture.Relationships.Get("customer").Familiarity, Is.Zero);
+        }
+
         [Test]
         public void WrongQuantityLeavesItemsAndAccountsUntouched()
         {
@@ -104,13 +149,17 @@ namespace Signal.Core.Tests
         {
             var fixture = new Fixture();
             fixture.CustomerAccount.TryDebit(90);
-            CustomerContractFulfilmentResult result = fixture.Fulfil();
+            CustomerContractFulfilmentResult result = fixture.Fulfil(
+                familiarityDelta: 0.2f, trustDelta: 0.1f, affinityDelta: 0.1f);
 
             Assert.That(result.Status, Is.EqualTo(CustomerContractFulfilmentStatus.InsufficientFunds));
             Assert.That(fixture.PlayerInventory.CountOf(fixture.Goods), Is.EqualTo(2));
             Assert.That(fixture.CustomerInventory.CountOf(fixture.Goods), Is.Zero);
             Assert.That(fixture.Transactions.Count, Is.Zero);
             Assert.That(fixture.PlayerAccount.Balance, Is.EqualTo(10));
+            Assert.That(fixture.Relationships.Get("customer").Familiarity, Is.Zero);
+            Assert.That(fixture.Relationships.Get("customer").Trust, Is.EqualTo(0.5f));
+            Assert.That(fixture.Relationships.Get("customer").Affinity, Is.Zero);
         }
 
         [Test]
