@@ -43,6 +43,7 @@ namespace Signal.Game
         {
             public string Label;
             public Color Color;
+            public Sprite Icon;
         }
 
         private readonly Dictionary<Guid, ItemVisual> _visuals = new Dictionary<Guid, ItemVisual>();
@@ -106,7 +107,12 @@ namespace Signal.Game
                     }
 
                     string label = string.IsNullOrWhiteSpace(definition.DisplayName) ? definition.name : definition.DisplayName;
-                    _visuals[type.Id] = new ItemVisual { Label = label, Color = Palette[i % Palette.Length] };
+                    _visuals[type.Id] = new ItemVisual
+                    {
+                        Label = label,
+                        Color = Palette[i % Palette.Length],
+                        Icon = definition.Icon
+                    };
                 }
             }
 
@@ -232,8 +238,11 @@ namespace Signal.Game
             ItemVisual visual = VisualFor(_dragType);
             Color color = visual.Color;
             color.a = 0.85f;
-            _ghost.color = color;
+            _ghost.sprite = visual.Icon;
+            _ghost.preserveAspect = visual.Icon != null;
+            _ghost.color = visual.Icon != null ? new Color(1f, 1f, 1f, 0.85f) : color;
             _ghostLabel.text = visual.Label;
+            _ghostLabel.gameObject.SetActive(visual.Icon == null);
             _ghost.gameObject.SetActive(true);
 
             Refresh();
@@ -259,7 +268,12 @@ namespace Signal.Game
             _dragging = false;
 
             if (_ghost != null)
+            {
                 _ghost.gameObject.SetActive(false);
+                _ghost.sprite = null;
+            }
+            if (_ghostLabel != null)
+                _ghostLabel.gameObject.SetActive(true);
             if (_preview != null)
                 _preview.gameObject.SetActive(false);
         }
@@ -314,16 +328,33 @@ namespace Signal.Game
             if (_dragging && item.InstanceId == _dragId)
                 color.a = 0.25f;
 
-            Image image = NewImage("Item_" + item.InstanceId, _itemsRoot, color);
+            Image image = NewImage("Item_" + item.InstanceId, _itemsRoot,
+                visual.Icon != null ? new Color(1f, 1f, 1f, color.a) : color);
+            image.sprite = visual.Icon;
+            image.preserveAspect = visual.Icon != null;
             SetTopLeft(image.rectTransform,
                        item.X * cellSize + ItemInset,
                        item.Y * cellSize + ItemInset,
                        item.FootprintWidth * cellSize - ItemInset * 2f,
                        item.FootprintHeight * cellSize - ItemInset * 2f);
 
-            string label = item.Count > 1 ? visual.Label + "\nx" + item.Count : visual.Label;
-            Text text = NewText("Label", image.transform, label, LabelFontSize, TextAnchor.MiddleCenter, InkColor);
-            Stretch(text.rectTransform);
+            if (visual.Icon == null)
+            {
+                string label = item.Count > 1 ? visual.Label + "\nx" + item.Count : visual.Label;
+                Text text = NewText("Label", image.transform, label, LabelFontSize, TextAnchor.MiddleCenter, InkColor);
+                Stretch(text.rectTransform);
+            }
+            else if (item.Count > 1)
+            {
+                Text count = NewText("StackCount", image.transform, "x" + item.Count, 12,
+                    TextAnchor.LowerRight, Color.white);
+                RectTransform countRect = count.rectTransform;
+                countRect.anchorMin = countRect.anchorMax = new Vector2(1f, 0f);
+                countRect.pivot = new Vector2(1f, 0f);
+                countRect.anchoredPosition = new Vector2(-3f, 3f);
+                countRect.sizeDelta = new Vector2(30f, 18f);
+                count.fontStyle = FontStyle.Bold;
+            }
         }
 
         private ItemVisual VisualFor(ItemType type)
