@@ -6,6 +6,22 @@ namespace Signal.Game.Tests
 {
     public sealed class NpcAgendaInteractionDirectorTests
     {
+
+        [Test]
+        public void RheaAgendaResourceLoadsWithThreeValidatedIndependentThreads()
+        {
+            NpcAgendaDefinition definition = Resources.Load<NpcAgendaDefinition>("Agendas/RheaAgenda");
+            Assert.That(definition, Is.Not.Null);
+            Assert.That(definition.TryValidate(out string error), Is.True, error);
+            Assert.That(definition.NpcId, Is.EqualTo("rhea"));
+            Assert.That(definition.Threads.Length, Is.EqualTo(3));
+            Assert.That(definition.Threads[0].ThreadId, Is.EqualTo("milo-parcel-rumour"));
+            Assert.That(definition.Threads[1].Stages[0].RequiredContract, Is.Not.Null);
+            Assert.That(definition.Threads[1].Stages[0].RequiredUpgrade, Is.Not.Null);
+            Assert.That(definition.Threads[1].Stages[0].Choices[0].WorkshopUpgradeOffer, Is.Not.Null);
+            Assert.That(definition.Threads[2].Stages[0].RequiredUpgrade, Is.Not.Null);
+        }
+
         [Test]
         public void ChoiceRecordsSourcedRumourAndRelationshipOnce()
         {
