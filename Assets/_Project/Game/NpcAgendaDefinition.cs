@@ -29,17 +29,21 @@ namespace Signal.Game
         public string Label;
         [TextArea(2, 5)] public string Response;
         public NpcAgendaChoiceAction Action;
+        [Tooltip("False keeps a revisitable offer/dialogue choice from consuming its stage.")]
         public bool CompleteStageOnChoice = true;
+
         [Header("Discovery outcome")]
         public string DiscoveryId;
         public string DiscoverySubjectId;
         public DiscoverySignalType DiscoveryType = DiscoverySignalType.Conversation;
         [TextArea] public string DiscoveryDescription;
         [Range(0f, 1f)] public float DiscoveryConfidence = 1f;
+
         [Header("Relationship outcome")]
         [Range(-1f, 1f)] public float FamiliarityDelta;
         [Range(-1f, 1f)] public float TrustDelta;
         [Range(-1f, 1f)] public float AffinityDelta;
+
         [Header("Workshop offer outcome")]
         public WorkshopUpgradeDefinition WorkshopUpgradeOffer;
     }
@@ -53,29 +57,28 @@ namespace Signal.Game
         public bool RequireSocializingActivity;
         public NpcAgendaActivityRequirement RequiredActivity = NpcAgendaActivityRequirement.Any;
         public string RequiredPlace;
-        [Tooltip("Optional player discovery required before this stage is available.")]
         public string RequiredDiscoveryId;
+
+        [Header("Relationship gates")]
         public bool RequireRelationshipThresholds;
         [Range(0f, 1f)] public float MinimumFamiliarity;
         [Range(0f, 1f)] public float MinimumTrust;
-        [Range(0f, 1f)] public float MinimumAffinity;
+        [Range(-1f, 1f)] public float MinimumAffinity = -1f;
+
+        [Header("Opportunity gate")]
         public bool RequireOpportunityPhase;
         public string RequiredOpportunityId;
         public OpportunityPhase RequiredOpportunityPhase;
+
+        [Header("Contract and upgrade gates")]
         [Tooltip("Optional completed customer contract ID required before this stage is available.")]
         public string RequiredCompletedContractId;
         public CustomerContractDefinition RequiredContract;
-        [Tooltip("Optional acquired workshop upgrade ID required before this stage is available.")]
+        [Tooltip("Optional acquired workshop upgrade required before this stage is available.")]
         public string RequiredUpgradeId;
         public WorkshopUpgradeDefinition RequiredUpgrade;
         public bool RequireUpgradeNotAcquired;
-        [Header("Relationship gates")]
-        [Range(0f, 1f)] public float MinimumFamiliarity;
-        [Range(0f, 1f)] public float MinimumTrust;
-        [Range(-1f, 1f)] public float MinimumAffinity = -1f;
-        [Header("Opportunity gate")]
-        public string RequiredOpportunityId;
-        public OpportunityPhase RequiredOpportunityPhase;
+
         public NpcAgendaChoiceDefinition[] Choices = Array.Empty<NpcAgendaChoiceDefinition>();
     }
 
@@ -117,9 +120,10 @@ namespace Signal.Game
             {
                 NpcAgendaThreadDefinition thread = Threads[t];
                 if (thread == null || string.IsNullOrWhiteSpace(thread.ThreadId) ||
-                    string.IsNullOrWhiteSpace(thread.DisplayName) || !threadIds.Add(thread.ThreadId))
+                    string.IsNullOrWhiteSpace(thread.DisplayName) || thread.Priority < 0 ||
+                    !threadIds.Add(thread.ThreadId))
                 {
-                    error = "Agenda thread IDs and display names must be present and unique for NPC " + NpcId + ".";
+                    error = "Agenda thread IDs, display names and priorities must be valid and unique for NPC " + NpcId + ".";
                     return false;
                 }
                 if (thread.Stages == null || thread.Stages.Length == 0)
@@ -144,10 +148,12 @@ namespace Signal.Game
                         error = "Stage " + stage.StageId + " has an invalid activity requirement.";
                         return false;
                     }
-                    if (stage.RequireRelationshipThresholds &&
-                        (stage.MinimumFamiliarity < 0f || stage.MinimumFamiliarity > 1f ||
-                         stage.MinimumTrust < 0f || stage.MinimumTrust > 1f ||
-                         stage.MinimumAffinity < 0f || stage.MinimumAffinity > 1f))
+                    if (float.IsNaN(stage.MinimumFamiliarity) || float.IsInfinity(stage.MinimumFamiliarity) ||
+                        stage.MinimumFamiliarity < 0f || stage.MinimumFamiliarity > 1f ||
+                        float.IsNaN(stage.MinimumTrust) || float.IsInfinity(stage.MinimumTrust) ||
+                        stage.MinimumTrust < 0f || stage.MinimumTrust > 1f ||
+                        float.IsNaN(stage.MinimumAffinity) || float.IsInfinity(stage.MinimumAffinity) ||
+                        stage.MinimumAffinity < -1f || stage.MinimumAffinity > 1f)
                     {
                         error = "Stage " + stage.StageId + " has invalid relationship thresholds.";
                         return false;
@@ -157,6 +163,12 @@ namespace Signal.Game
                          !Enum.IsDefined(typeof(OpportunityPhase), stage.RequiredOpportunityPhase)))
                     {
                         error = "Stage " + stage.StageId + " has an invalid opportunity phase requirement.";
+                        return false;
+                    }
+                    if (!string.IsNullOrWhiteSpace(stage.RequiredOpportunityId) &&
+                        !Enum.IsDefined(typeof(OpportunityPhase), stage.RequiredOpportunityPhase))
+                    {
+                        error = "Stage " + stage.StageId + " has an invalid opportunity phase.";
                         return false;
                     }
                     if (stage.RequiredContract != null && !stage.RequiredContract.TryValidate(out _))
@@ -187,22 +199,6 @@ namespace Signal.Game
                         error = "Stage " + stage.StageId + " requires an upgrade ID for its not-acquired condition.";
                         return false;
                     }
-                    if (float.IsNaN(stage.MinimumFamiliarity) || float.IsInfinity(stage.MinimumFamiliarity) ||
-                        stage.MinimumFamiliarity < 0f || stage.MinimumFamiliarity > 1f ||
-                        float.IsNaN(stage.MinimumTrust) || float.IsInfinity(stage.MinimumTrust) ||
-                        stage.MinimumTrust < 0f || stage.MinimumTrust > 1f ||
-                        float.IsNaN(stage.MinimumAffinity) || float.IsInfinity(stage.MinimumAffinity) ||
-                        stage.MinimumAffinity < -1f || stage.MinimumAffinity > 1f)
-                    {
-                        error = "Stage " + stage.StageId + " has invalid relationship thresholds.";
-                        return false;
-                    }
-                    if (!string.IsNullOrWhiteSpace(stage.RequiredOpportunityId) &&
-                        !Enum.IsDefined(typeof(OpportunityPhase), stage.RequiredOpportunityPhase))
-                    {
-                        error = "Stage " + stage.StageId + " has an invalid opportunity phase requirement.";
-                        return false;
-                    }
 
                     if (stage.Choices == null || stage.Choices.Length == 0)
                     {
@@ -227,6 +223,7 @@ namespace Signal.Game
                             (string.IsNullOrWhiteSpace(choice.DiscoveryId) ||
                              string.IsNullOrWhiteSpace(choice.DiscoverySubjectId) ||
                              string.IsNullOrWhiteSpace(choice.DiscoveryDescription) ||
+                             !Enum.IsDefined(typeof(DiscoverySignalType), choice.DiscoveryType) ||
                              float.IsNaN(choice.DiscoveryConfidence) || float.IsInfinity(choice.DiscoveryConfidence) ||
                              choice.DiscoveryConfidence < 0f || choice.DiscoveryConfidence > 1f))
                         {
@@ -240,19 +237,19 @@ namespace Signal.Game
                             error = "Workshop offer choice " + choice.ChoiceId + " must reference a valid upgrade.";
                             return false;
                         }
+                        if (float.IsNaN(choice.FamiliarityDelta) || float.IsInfinity(choice.FamiliarityDelta) ||
+                            float.IsNaN(choice.TrustDelta) || float.IsInfinity(choice.TrustDelta) ||
+                            float.IsNaN(choice.AffinityDelta) || float.IsInfinity(choice.AffinityDelta))
+                        {
+                            error = "Relationship outcomes must be finite in choice " + choice.ChoiceId + ".";
+                            return false;
+                        }
                         if (!choice.CompleteStageOnChoice &&
                             choice.Action != NpcAgendaChoiceAction.DialogueOnly &&
                             choice.Action != NpcAgendaChoiceAction.OpenWorkshopUpgradeOffer)
                         {
                             error = "Repeatable choice " + choice.ChoiceId +
                                 " cannot apply a one-time discovery or relationship outcome.";
-                            return false;
-                        }
-                        if (float.IsNaN(choice.FamiliarityDelta) || float.IsInfinity(choice.FamiliarityDelta) ||
-                            float.IsNaN(choice.TrustDelta) || float.IsInfinity(choice.TrustDelta) ||
-                            float.IsNaN(choice.AffinityDelta) || float.IsInfinity(choice.AffinityDelta))
-                        {
-                            error = "Relationship outcomes must be finite in choice " + choice.ChoiceId + ".";
                             return false;
                         }
                     }
