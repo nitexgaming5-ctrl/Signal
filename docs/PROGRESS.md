@@ -62,6 +62,14 @@ Starter content is now authored and wired into HideoutSlice: four workshop mater
 - **Theft witness correction:** witnessed and unwitnessed heat behavior should be retested in Play Mode after the prior heat fix if not already covered.
 - Do not claim a Play Mode verification that the user has not reported.
 
+## Newly approved initiative — NPC Agenda & Interaction Threads (2026-11-24)
+
+- Approved reusable, data-authored NPC agenda/thread framework with Rhea as the first pilot.
+- Rhea's three independent threads: sourced Milo tip; Compact Sewing Machine offer using the existing supplier/upgrade service; post-sale mending advice that foreshadows B-04 without implementing repairs.
+- Preserve Milo parcel physical lifecycle mechanics. Migrate only Rhea's conversational tip and any conversation presentation that cleanly belongs in the reusable framework.
+- Architecture contract and implementation sequence: `docs/NPC_FRAMEWORK.md`, section **NPC Agenda & Interaction Threads**. A dedicated task card tracks acceptance criteria.
+- No code implementation or Unity verification is claimed yet; this entry records the approved scope before implementation.
+
 ## Current next action
 
 First complete the corrected supplier route in Play Mode: approach Rhea until the prompt reads `E Workshop offer`, open her offer, and verify the Compact Sewing Machine purchase/installation, Reinforced Patch Kit unlock/production and F5/F9 persistence. The previous workbench-side purchase button was the wrong interaction route and has been removed. The user has reconfirmed 415/415 and the core workbench/selling/request loop. Once the upgrade/save path is confirmed, close B-01 to B-03 and begin B-04 Repair & Restoration design; do not implement that new mechanic before its rules are approved.
