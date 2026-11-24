@@ -24,8 +24,8 @@ New ScriptableObjects generate their stable Guid once. Never change it after con
 - **GridInventory / PlacedItem:** spatial grid, definition ItemType, position, rotation, stack count, stable ItemInstanceId and ItemInstanceState.
 - **ItemInstanceState:** quality, condition, authenticity and ownership. Ownership is a property of the item; storage custody is separate.
 - **ItemKnowledgeBook:** player beliefs about item state, each with aspect, believed value, source, confidence and learned time. Unknown aspects remain unknown.
-- **NpcSocialWorld:** resident presence, directed relationships, world events and individual knowledge. NPC belief is not world truth.
-- **PlayerRelationshipBook / PlayerDiscoveryLedger:** player-scoped directed relationship impressions and learned discovery signals.
+- **NpcSocialWorld:** resident presence, directed NPC→NPC relationships, world events and individual knowledge. NPC belief is not world truth. Directed NPC relationships and individual knowledge are persisted by stable NPC/event IDs; the transient event journal and spatial perception are rebuilt.
+- **PlayerRelationshipBook / PlayerDiscoveryLedger:** player-scoped directed relationship impressions and learned discovery signals. Player→NPC relationship persistence remains separate from NPC→NPC social-world persistence; both use `NpcRelationship`.
 - **NpcAgendaProgressBook:** completed NPC/thread/stage IDs and selected choice IDs; dialogue content remains in Game ScriptableObjects.
 - **CleanMoneyAccount / EconomicAccountBook:** clean CARD integer balances by actor. Dirty Cash is never an account field.
 - **AssetOwnershipBook / EconomicContainerRegistry:** asset owner and container custodian are distinct registries.
