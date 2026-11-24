@@ -233,7 +233,6 @@ namespace Signal.Core
     [Serializable]
     public sealed class SaveData
     {
-        // Legacy v1-v7 field retained for migration; v8 mirrors the clean account value.
         public int money;
         public int cleanBalance;
         public int health;
