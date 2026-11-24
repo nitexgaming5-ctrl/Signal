@@ -68,11 +68,15 @@ Starter content is now authored and wired into HideoutSlice: four workshop mater
 - Rhea's three independent threads: sourced Milo tip; Compact Sewing Machine offer using the existing supplier/upgrade service; post-sale mending advice that foreshadows B-04 without implementing repairs.
 - Preserve Milo parcel physical lifecycle mechanics. Migrate only Rhea's conversational tip and any conversation presentation that cleanly belongs in the reusable framework.
 - Architecture contract and implementation sequence: `docs/NPC_FRAMEWORK.md`, section **NPC Agenda & Interaction Threads**. A dedicated task card tracks acceptance criteria.
-- Core `NpcAgendaProgressBook` and focused EditMode tests have been added as the first implementation increment. SaveMapper integration, authored content assets, director/UI and Rhea migration are not implemented yet. The new tests have not been run in Unity; rerun the full suite after the implementation is complete.
+- Core `NpcAgendaProgressBook`, schema v16 persistence/migration, GameSession save/load wiring and focused SaveMapper tests are implemented.
+- Added `NpcAgendaDefinition` authoring assets, deterministic `NpcAgendaInteractionDirector`, reusable `NpcAgendaConversationPanel`, and Rhea's three authored threads under `Resources/Agendas/RheaAgenda.asset`.
+- Rhea's old rumour branch has been removed from `MiloParcelOpportunityController`; physical parcel inspection, acceptance, return, delivery and outcome mechanics remain there.
+- GameSession loads agenda definitions from its optional inspector array or `Resources/Agendas`, routes nearby conversations through the director, and delegates the machine offer to the existing supplier panel.
+- The implementation has not been compiled or tested in Unity yet. Inspect import/compilation carefully, run the full EditMode suite, then Play Mode verify all three threads and save/load progress.
 
 ## Current next action
 
-First complete the corrected supplier route in Play Mode: approach Rhea until the prompt reads `E Workshop offer`, open her offer, and verify the Compact Sewing Machine purchase/installation, Reinforced Patch Kit unlock/production and F5/F9 persistence. The previous workbench-side purchase button was the wrong interaction route and has been removed. The user has reconfirmed 415/415 and the core workbench/selling/request loop. Once the upgrade/save path is confirmed, close B-01 to B-03 and begin B-04 Repair & Restoration design; do not implement that new mechanic before its rules are approved.
+Pull the current branch and let Unity import/compile the agenda framework. Run the full EditMode suite; the existing 415/415 report predates all current agenda/save changes and must not be treated as current verification. Play Mode: talk to Rhea in the Street to test the sourced rumour choice; complete Milo's request, return to Rhea and verify the repeatable Compact Sewing Machine offer opens the existing supplier panel; buy/install it and confirm Rhea's mending-advice thread becomes available. Save/reload and verify completed conversation choices persist while the repeatable offer remains available until the upgrade is acquired. Also retest the separate supplier prompt/purchase path and First Workshop upgrade persistence. Do not implement B-04 repairs until its rules are approved.
 
 ## Known repository layout caveat
 
