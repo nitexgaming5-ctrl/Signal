@@ -47,7 +47,7 @@ namespace Signal.Core
                 targetType.Id == basicKitType.Id || targetType.Id == reinforcedKitType.Id ||
                 basicKitType.Id == reinforcedKitType.Id || targetType.MaxStack != 1 ||
                 basicKitType.MaxStack != 1 || reinforcedKitType.MaxStack != 1 ||
-                inventory == null || !operatorActor.IsValid || containers == null ||
+                inventory == null || operatorActor != EconomicActorId.Player || containers == null ||
                 ownership == null || knowledge == null || day < 1 || minuteOfDay < 0 || minuteOfDay >= 1440)
                 return new RepairResult(RepairStatus.InvalidRequest);
 
