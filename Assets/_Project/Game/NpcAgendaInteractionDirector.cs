@@ -51,37 +51,49 @@ namespace Signal.Game
         public bool TryGetNextStage(string npcId, NpcActivity activity,
             out NpcAgendaThreadDefinition thread, out NpcAgendaStageDefinition stage)
         {
+            return TryGetNextStage(npcId, activity, null, out thread, out stage);
+        }
+
+        public bool TryGetNextStage(string npcId, NpcActivity activity, string place,
+            out NpcAgendaThreadDefinition thread, out NpcAgendaStageDefinition stage)
+        {
             thread = null;
             stage = null;
-            if (string.IsNullOrWhiteSpace(npcId) || !_definitions.TryGetValue(npcId, out NpcAgendaDefinition agenda))
+            if (string.IsNullOrWhiteSpace(npcId) ||
+                !_definitions.TryGetValue(npcId, out NpcAgendaDefinition agenda))
                 return false;
 
+            NpcAgendaThreadDefinition selectedThread = null;
+            NpcAgendaStageDefinition selectedStage = null;
             for (int t = 0; t < agenda.Threads.Length; t++)
             {
                 NpcAgendaThreadDefinition candidateThread = agenda.Threads[t];
+                NpcAgendaStageDefinition firstIncompleteStage = null;
                 for (int s = 0; s < candidateThread.Stages.Length; s++)
                 {
                     NpcAgendaStageDefinition candidateStage = candidateThread.Stages[s];
                     if (_progress.IsStageCompleted(npcId, candidateThread.ThreadId, candidateStage.StageId))
                         continue;
-                    if (candidateStage.RequireSocializingActivity && activity != NpcActivity.Socialize)
-                        break;
-                    if (!string.IsNullOrWhiteSpace(candidateStage.RequiredDiscoveryId) &&
-                        !_discoveries.HasSignal(candidateStage.RequiredDiscoveryId))
-                        break;
-                    if (!string.IsNullOrWhiteSpace(candidateStage.RequiredCompletedContractId) &&
-                        !_isContractCompleted(candidateStage.RequiredCompletedContractId))
-                        break;
-                    if (!string.IsNullOrWhiteSpace(candidateStage.RequiredUpgradeId) &&
-                        !_isUpgradeAcquired(candidateStage.RequiredUpgradeId))
-                        break;
 
-                    thread = candidateThread;
-                    stage = candidateStage;
-                    return true;
+                    firstIncompleteStage = candidateStage;
+                    break;
+                }
+
+                if (!IsEligible(firstIncompleteStage, activity, place))
+                    continue;
+
+                if (selectedThread == null || candidateThread.Priority > selectedThread.Priority ||
+                    (candidateThread.Priority == selectedThread.Priority &&
+                     string.CompareOrdinal(candidateThread.ThreadId, selectedThread.ThreadId) < 0))
+                {
+                    selectedThread = candidateThread;
+                    selectedStage = firstIncompleteStage;
                 }
             }
-            return false;
+
+            thread = selectedThread;
+            stage = selectedStage;
+            return selectedStage != null;
         }
 
         public bool TryChoose(string npcId, string threadId, string stageId, string choiceId,
@@ -128,6 +140,57 @@ namespace Signal.Game
 
             response = choice.Response;
             stageCompleted = true;
+            return true;
+        }
+
+        private bool IsEligible(NpcAgendaStageDefinition stage, NpcActivity activity, string place)
+        {
+            if (stage == null) return false;
+            if (stage.RequireSocializingActivity && activity != NpcActivity.Socialize)
+                return false;
+
+            switch (stage.RequiredActivity)
+            {
+                case NpcAgendaActivityRequirement.Any:
+                    break;
+                case NpcAgendaActivityRequirement.Work:
+                    if (activity != NpcActivity.Work) return false;
+                    break;
+                case NpcAgendaActivityRequirement.Rest:
+                    if (activity != NpcActivity.Rest) return false;
+                    break;
+                case NpcAgendaActivityRequirement.Socialize:
+                    if (activity != NpcActivity.Socialize) return false;
+                    break;
+                case NpcAgendaActivityRequirement.Home:
+                    if (activity != NpcActivity.Home) return false;
+                    break;
+                default:
+                    return false;
+            }
+
+            if (!string.IsNullOrWhiteSpace(stage.RequiredPlace) && stage.RequiredPlace != place)
+                return false;
+
+            if (!string.IsNullOrWhiteSpace(stage.RequiredDiscoveryId) &&
+                !_discoveries.HasSignal(stage.RequiredDiscoveryId))
+                return false;
+
+            string contractId = !string.IsNullOrWhiteSpace(stage.RequiredCompletedContractId)
+                ? stage.RequiredCompletedContractId
+                : stage.RequiredContract != null ? stage.RequiredContract.Id.ToString() : null;
+            if (!string.IsNullOrWhiteSpace(contractId) && !_isContractCompleted(contractId))
+                return false;
+
+            string upgradeId = !string.IsNullOrWhiteSpace(stage.RequiredUpgradeId)
+                ? stage.RequiredUpgradeId
+                : stage.RequiredUpgrade != null ? stage.RequiredUpgrade.Id.ToString() : null;
+            if (!string.IsNullOrWhiteSpace(upgradeId))
+            {
+                bool acquired = _isUpgradeAcquired(upgradeId);
+                if (stage.RequireUpgradeNotAcquired ? acquired : !acquired)
+                    return false;
+            }
             return true;
         }
 
