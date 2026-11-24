@@ -73,8 +73,14 @@ namespace Signal.Game
             // This does not affect containers that have already generated and persisted their contents.
             foreach (LootEntry entry in entries)
             {
-                if (entry == null || entry.item == null || !entry.guaranteedForTesting)
+                if (entry == null || !entry.guaranteedForTesting)
                     continue;
+                if (entry.item == null || entry.minimumCount < 1 || entry.maximumCount < entry.minimumCount)
+                {
+                    container.Reset();
+                    error = "A guaranteed testing loot entry has an invalid item or count range.";
+                    return false;
+                }
                 ItemType guaranteedType = entry.item.ToItemType();
                 int guaranteedCount = Math.Min(guaranteedType.MaxStack,
                     random.Next(entry.minimumCount, entry.maximumCount + 1));
