@@ -589,6 +589,7 @@ namespace Signal.Game
             }
             bool nearAgendaInteraction = CanStartAgendaInteraction(playerPosition);
             string cityPrompt = _city.GetPrompt(playerPosition);
+            bool hasScenarioPrompt = false;
             if (nearSearchableContainer)
                 cityPrompt = "E  Search " + nearbyContainerLabel;
             if (nearDirtyCashContact)
@@ -603,10 +604,13 @@ namespace Signal.Game
                     _miloScenario.Tick(playerPosition, _city.CurrentPlace);
                 string scenarioPrompt = _miloScenario.GetPrompt(playerPosition, _city.CurrentPlace);
                 if (!string.IsNullOrEmpty(scenarioPrompt))
+                {
                     cityPrompt = scenarioPrompt;
+                    hasScenarioPrompt = true;
+                }
             }
 
-            if (nearbyBusiness != null && !nearSearchableContainer)
+            if (nearbyBusiness != null && !nearSearchableContainer && !hasScenarioPrompt)
                 cityPrompt = nearbyBusiness.IsOpen(_clock.MinuteOfDay)
                     ? "E  Browse " + nearbyBusiness.DisplayName
                     : nearbyBusiness.DisplayName + "  —  Closed";
@@ -618,8 +622,8 @@ namespace Signal.Game
                 cityPrompt = "E  Customer request";
             if (nearUpgradeSupplier)
                 cityPrompt = "E  Talk to " + _city.GetResidentDisplayName(firstWorkshopUpgrade.PayeeNpcId);
-            if (!nearSearchableContainer && !nearDirtyCashContact && !nearContractCustomer &&
-                !nearUpgradeSupplier && nearAgendaInteraction)
+            if (!hasScenarioPrompt && !nearSearchableContainer && !nearDirtyCashContact &&
+                !nearContractCustomer && !nearUpgradeSupplier && nearAgendaInteraction)
                 cityPrompt = "E  Talk";
             if (contractOpen)
                 _hud.SetPrompt("ESC  Close customer request");
@@ -687,7 +691,16 @@ namespace Signal.Game
                 }
             }
             else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
-                !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen && nearAgendaInteraction &&
+                !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen && hasScenarioPrompt &&
+                !nearContractCustomer && !nearUpgradeSupplier && !nearDirtyCashContact &&
+                !nearSearchableContainer && keyboard.eKey.wasPressedThisFrame &&
+                _miloScenario != null && _miloScenario.TryInteract(playerPosition, _city.CurrentPlace, out string scenarioPromptMessage))
+            {
+                RegisterUnownedPlayerAssets(_inventory);
+                Say(scenarioPromptMessage, 8f);
+            }
+            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
+                !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen && !hasScenarioPrompt && nearAgendaInteraction &&
                 !nearContractCustomer && !nearUpgradeSupplier && !nearDirtyCashContact &&
                 !nearSearchableContainer && keyboard.eKey.wasPressedThisFrame)
             {
