@@ -21,7 +21,7 @@ The following are implementation/verification checks, not open design questions:
 - Rhea's Textile Counter is the first buyer/supplier; it sells fixed-price raw repair materials and buys one Worn Work Jacket using four authored condition prices.
 - Basic and Reinforced kit transitions, player-owned repair eligibility, identity/provenance preservation and save/load requirements are specified in the B-04 task card.
 - The generic hybrid buyback lookup and UI/sale integration are committed; focused tests have been added but require a fresh Unity compile/EditMode run.
-- Repair gameplay, Work Jacket content and Rhea's business asset/scene wiring remain gated on completing the outstanding First Workshop Play Mode acceptance. This is a verification dependency, not an open design question.
+- The Work Jacket asset, low-weight scavenging-profile entry, Rhea business asset, active-scene registration and visible CornerShop counter are committed. Repair gameplay/service/UI is the next implementation batch after the First Workshop Play Mode acceptance. This is a verification dependency, not an open design question.
 - Customer-owned/entrusted goods and broader market simulation remain out of scope.
 
 ### Social life and recurring customers (B-05)
