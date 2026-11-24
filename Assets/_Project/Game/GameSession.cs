@@ -1420,14 +1420,16 @@ namespace Signal.Game
         private bool IsAgendaContractCompleted(string contractId)
         {
             return firstCustomerContract != null &&
-                string.Equals(firstCustomerContract.Id.ToString(), contractId, StringComparison.Ordinal) &&
+                (string.Equals(firstCustomerContract.Id.ToString(), contractId, StringComparison.Ordinal) ||
+                 string.Equals("first-customer-contract", contractId, StringComparison.Ordinal)) &&
                 GetCustomerContractPhase() == CustomerContractPhase.Completed;
         }
 
         private bool IsAgendaUpgradeAcquired(string upgradeId)
         {
             return firstWorkshopUpgrade != null &&
-                string.Equals(firstWorkshopUpgrade.Id.ToString(), upgradeId, StringComparison.Ordinal) &&
+                (string.Equals(firstWorkshopUpgrade.Id.ToString(), upgradeId, StringComparison.Ordinal) ||
+                 string.Equals("compact-sewing-machine", upgradeId, StringComparison.Ordinal)) &&
                 IsFirstUpgradeAcquired();
         }
 
