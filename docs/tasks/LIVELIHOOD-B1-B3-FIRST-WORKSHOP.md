@@ -1,150 +1,70 @@
 # LIVELIHOOD-B1-B3 — First Workshop vertical slice
 
-**Status:** Core/Game foundation and starter content committed; user-confirmed Play Mode workbench/selling/customer-request flow; Rhea supplier-menu correction committed; current branch passes 417/417 EditMode tests; final Rhea/upgrade/save Play Mode acceptance remains  
+**Status:** implementation and starter content committed; user reports **417/417 EditMode tests passed (2026-11-24)**; partial Play Mode loop confirmed; final supplier/upgrade/save acceptance pending  
 **Direction:** approved Direction B — meaningful everyday livelihood  
-**User decisions:** workshop model = both (player-operated first, NPC-owned compatible later); one active contract; first practical hideout upgrade unlocks another recipe/capability.
-
-**Content catalogue:** [First Workshop starter catalogue and workbench usage](../content/STARTER_CATALOGUE.md). Durable authored values are recorded in [Decision 0005](../decisions/0005-first-workshop-content.md).
+**User decisions:** player-operated workshop first (NPC-owned compatible later); one active contract; first practical hideout upgrade unlocks another recipe.
 
 ## Player outcome
 
-The player operates a modest production workshop from the hideout, obtains materials, makes authored goods, accepts one customer contract, physically hands over the required goods, receives clean CARD, and invests in a practical workshop upgrade that unlocks another recipe. The architecture must not prevent an authored NPC-owned business from operating a production workspace later.
+The player operates a modest hideout workshop, produces useful physical goods from authored recipes, accepts one customer request, hands over the requested goods, receives clean CARD and invests in a practical upgrade that unlocks another recipe.
 
-This is a connected livelihood loop, not a universal economy, idle business simulator, or generic quest framework.
+This is one connected livelihood loop, not a universal economy, idle business simulator or generic quest framework.
 
-## Scope and sequencing
+## Delivery packages
 
-1. **B-01 — Production foundation and player workshop:** authored production recipes, transactional crafting integration, one usable hideout production station and player-facing production UI.
-2. **B-02 — Customer contracts:** one active accepted contract, authored customer/issuer, physical fulfilment and clean CARD payment.
-3. **B-03 — Practical workshop upgrade:** one persistent practical upgrade whose concrete effect is unlocking one additional authored recipe/capability.
+The implementation is divided into three linked cards. Their file-level work and acceptance criteria live in the child cards:
 
-B-01 must be playable before B-02 is integrated. B-02 must be playable before B-03 is connected to the livelihood loop. Work may be implemented in substantial batches, but each task has its own tests and acceptance criteria.
+1. [B-01 — Production foundation and player workshop](LIVELIHOOD-B-01-PRODUCTION-WORKSHOP.md)
+2. [B-02 — Single active customer contract](LIVELIHOOD-B-02-CUSTOMER-CONTRACTS.md)
+3. [B-03 — Practical hideout workshop upgrade](LIVELIHOOD-B-03-PRACTICAL-WORKSHOP-UPGRADE.md)
 
-## Approved design decisions
+B-01 provides the playable production station. B-02 connects an authored customer and physical handover. B-03 makes the first practical workshop upgrade part of the same loop.
 
-- The first operating workshop belongs to the player and is located in the existing hideout.
-- The long-term model supports both player-operated workshops and NPC-owned production businesses. NPC-owned production is a compatibility requirement, not a requirement to ship a second complete business in this first slice.
-- Production is authored: recipe assets describe exact inputs and outputs.
-- Production creates real physical inventory items. It is not an abstract balance, job-progress number or instant reward detached from inventory.
-- The first slice uses the existing clean CARD account and transaction architecture.
-- Exactly one contract may be accepted/active at a time.
-- The first practical hideout upgrade unlocks one additional authored recipe/capability.
-- Existing Core crafting, item identity, inventory, ownership, account and save foundations must be inspected and reused.
-- No new package, third-party code, global supply/demand simulation or automatic NPC shopping.
+## Binding design rules
 
-## Player loop
+- Core owns domain rules and transaction validation; GameSession composes services and authored content; UI is presentation/input only.
+- Recipes are authored and contain explicit ItemDefinition inputs/outputs with positive integer quantities.
+- Production is immediate and transactional. It consumes player-owned ingredients and creates physical output in the same inventory.
+- Failed production leaves inventory, ownership and history unchanged.
+- The first slice supports exactly one accepted/active contract. The contract terms are visible before acceptance.
+- Fulfilment uses the exact required whole stack from the player's carried inventory. The goods transfer to the issuer's physical receiving inventory.
+- The issuer pays a fixed clean CARD reward from their existing resident account. The first issuer is Milo; do not create a separate business account or mint funds.
+- The first upgrade is a one-time practical purchase from Rhea. It installs a visible Compact Sewing Machine at the hideout workbench and unlocks the Reinforced Patch Kit recipe.
+- NPC-owned production remains a future compatibility requirement, not a second workshop deliverable in this slice.
 
-1. Obtain required materials through existing approved sources (starting inventory, scavenging or authored purchases).
-2. Interact with the hideout production station.
-3. Inspect an available recipe, its inputs and output.
-4. Confirm production; validate inputs and output capacity before committing.
-5. Consume required materials atomically and create the physical output.
-6. Review the first authored customer contract and accept it if no other contract is active.
-7. Produce the requested goods and physically submit eligible player-owned output.
-8. Validate the contract, transfer goods and clean CARD payment atomically.
-9. Use the existing hideout upgrade interaction to unlock the second recipe.
-10. Save/reload and confirm workshop, unlock and contract state remain coherent.
+## Authored content
 
-## Technical direction
+The active scene is wired to the starter catalogue: Fabric Roll, Thread Spool, Adhesive Tube and Fastener Pack; Basic Patch Kit and Reinforced Patch Kit; two immediate recipes; Milo's Basic Patch Kit request; and Rhea's Compact Sewing Machine offer.
 
-### Core and transaction boundaries
-- Keep domain rules in plain C# under Signal.Core; no UnityEngine references.
-- Reuse Recipe, Ingredient, Crafting.TryCraft, GridInventory, snapshots, stable ItemInstanceId, ownership services and economic account/ledger primitives.
-- Audit the current crafting API before changing it. It currently consumes/creates by ItemType and inventory count; it does not itself validate AssetOwnershipBook, distinguish item-instance states for ingredient selection, or record a production transaction. Do not assume those guarantees already exist.
-- Add only the smallest production transaction boundary needed for ownership-aware, atomic input consumption/output creation and a distinct production history if existing ledgers do not represent it.
-- A failed production attempt must leave ingredients, outputs, ownership and history unchanged.
-- Output creation uses the authored ItemDefinition's normal default state unless a later approved recipe rule says otherwise.
-- No production duration, queue, quality roll, skill check, worker assignment, spoilage or recurring cost is included in the first slice.
+Exact quantities, prototype values, account balances, item/recipe details and the user-facing verification script are maintained in [the Starter Catalogue](../content/STARTER_CATALOGUE.md). Content values are provisional, replaceable fixtures, not a universal price or stock policy.
 
-### Authoring and Game integration
-- Reuse RecipeDefinition and its ScriptableObject authoring pattern. Add validation and editor-facing error messages where needed.
-- Reuse the existing WorkbenchWorkspace interaction surface, but replace/extend its current presentation-only placeholder behavior through explicit GameSession bindings. Do not create a parallel workshop scene or singleton.
-- The first workshop is an authored player-operated workspace. Keep ownership/operator identity explicit in definitions/runtime composition so an NPC-owned workspace can be added later without rewriting Core production rules.
-- UI is presentation only; GameSession/Core revalidate recipe, station, inputs, output capacity, ownership and upgrade unlock at commit time.
+## Persistence and save policy
 
-### Contracts and money
-- A contract is authored content with stable identity, issuer/customer identity, required ItemDefinition and quantity, fixed clean CARD reward and a clear lifecycle.
-- The first implementation supports one accepted/active contract at a time. It does not imply an unlimited procedural contract generator.
-- Contract fulfilment is a physical handover from the player's carried inventory, not a counter increment. It validates exact required goods and player ownership, then transfers/consumes the goods and pays clean CARD.
-- Use existing resident clean-money accounts and economic transaction patterns. Never mint money or bypass the payer's account. A resident issuer pays from that resident's account; if a business issues the contract, payment comes from its resident owner account, consistent with the approved rule that business revenue belongs to the owner. Do not create a separate business account. The payer must have sufficient funds; define the first authored payer and balance only after the user approves the content.
-- Item provenance/state acceptance, partial stack delivery, cancellation, expiry and contract penalties remain open design questions. Do not silently add them.
-- A successful fulfilment is atomic: if goods cannot be accepted, the payer cannot pay, or any ledger step fails, inventory, ownership, balances, contract state and history roll back together.
+Current unversioned 0.01 save snapshots preserve the persistent workshop state: inventories and item instance states, production history/operator, contract lifecycle, receiver inventory/identity, account balances, acquired upgrade IDs and NPC agenda progress.
 
-### Persistence
-- Persist accepted/active/completed contract state and stable contract/issuer identifiers as required by the final model.
-- Persist recipe unlocks and workshop upgrade state.
-- Persist production and contract transaction histories if new histories are introduced.
-- Rebuild runtime workspace/container references from authored scene definitions; never serialize Unity object references.
-- Current unversioned 0.01 save snapshots persist production history/operator, contract lifecycle, acquired upgrade IDs, issuer receiving inventory and receiver actor identity. Current-build round-trip tests cover these fields.
-- There is deliberately no save schema version, migration chain or old-save compatibility promise in this development build. Preserve current-build round-trip integrity; older experimental saves may need to be discarded after data-shape changes.
+There is deliberately no schema-version field, migration chain or old-save compatibility promise in this build. Current-build save/load round trips are mandatory for persistent changes; older experimental saves may be discarded when the data shape changes.
 
-## Implementation status — 2026-11-23
+## Current verification
 
-The code foundation now includes actor-aware production and production history, the existing workbench extended into a recipe-book UI, one-active customer contracts with physical issuer-inventory delivery and clean CARD payment, a practical one-time upgrade/recipe unlock, and current-state persistence in unversioned 0.01 save snapshots. The user reports 417/417 full EditMode tests passing after the save-version cleanup.
+- The user reports **417/417 full EditMode tests passed on 2026-11-24**, including the latest supplier-panel, agenda and unversioned-save work.
+- The user previously confirmed workbench access, production, selling and Milo's customer-request handover in Play Mode.
+- Remaining acceptance: Rhea's rumour and supplier threads, machine purchase/installation, mending follow-up, Reinforced Patch Kit unlock/production, and F5/F9 persistence of balances, inventories, contract, agenda choices, installed upgrade and recipe unlock.
+- Do not call B-01 to B-03 complete until the user confirms the remaining in-game flow.
 
-Authored starter content is now assigned in HideoutSlice: Fabric Roll, Thread Spool, Adhesive Tube and Fastener Pack; Basic Patch Kit and Reinforced Patch Kit; Milo's Basic Patch Kit request (40 CARD, legitimate goods only); and Rhea's Compact Sewing Machine (90 CARD, after Milo's contract, unlocks the second recipe). Milo starts with 150 CARD, Rhea with 250 CARD and the player with 70 CARD. The starter inventory includes exactly enough workshop materials to craft two Basic Patch Kits, hand over one and retain one for the upgrade recipe. The sewing-machine prop is a simple replaceable placeholder. The user validated 415/415 EditMode tests after the test corrections in commit b6bd50a. No Play Mode verification of these newly authored assets/scene references is claimed yet.
+## Exit criteria
 
-## Explicitly out of scope
+1. The hideout workbench makes the Basic Patch Kit from exact player-owned materials and creates a physical output.
+2. Missing inputs, insufficient output space, invalid ownership and duplicate confirmation fail without mutation.
+3. Only one customer contract can be active; the player sees terms before accepting.
+4. Exact eligible goods are handed over to the issuer's physical inventory; payer debit and player credit are atomic.
+5. The Compact Sewing Machine can be purchased from Rhea once, visibly installed and persisted.
+6. The Reinforced Patch Kit recipe remains locked until acquisition, then becomes craftable.
+7. Current-build save/load preserves balances, inventories, contract, upgrade and unlock state.
+8. Existing retail, scavenging, theft, Dirty Cash and NPC behaviour remain intact.
+9. Full EditMode and the complete Play Mode loop are verified in Unity.
 
-- NPC-owned production gameplay/content in this first vertical slice (only keep the architecture compatible).
-- Multiple simultaneous active contracts, procedural contract generation, recurring contracts or automatic customer demand.
-- Repair/restoration, multiple professions, farming, water processing or fictional drug production.
-- Production timers, queues, quality/skill rolls, production costs beyond authored ingredients, spoilage or staffing.
-- Business stock simulation, automatic sales, NPC shopping, supply/demand, dynamic prices, passive revenue or business ownership progression.
-- Relationship/trust/favour rewards for contracts; these belong to a later approved social slice.
-- New districts, police response or additional crime systems.
+## Out of scope
 
-## Acceptance criteria across B1-B3
+NPC-owned production gameplay/content, multiple active or procedural contracts, partial-stack handover, production timers/queues/quality rolls, automatic NPC shopping, business stock simulation, dynamic prices, passive revenue, relationship/favour rewards, repair/restoration, new crime systems and new districts.
 
-1. The player can use the existing hideout workshop interaction to view and perform the Basic Patch Kit recipe.
-2. Inputs are validated and consumed exactly once; outputs are physical inventory items.
-3. Missing inputs and insufficient output space fail without mutation.
-4. Production cannot duplicate output through repeated confirmation.
-5. Production preserves correct player ownership and item identity/state semantics.
-6. The first authored contract can be accepted only when no other contract is active.
-7. The contract displays its issuer, required goods, quantity and fixed reward before acceptance.
-8. The player can physically fulfil it with eligible carried goods; unrelated or insufficient goods are rejected.
-9. Contract goods and clean CARD payment commit atomically; failed fulfilment changes nothing.
-10. The player can complete the first practical hideout upgrade and see the second recipe become available.
-11. Upgrade/unlock and contract state survive save/load.
-12. Existing inventory, retail, selling, scavenging, theft, Dirty Cash and NPC behavior remain unchanged.
-13. Core rules have focused EditMode tests; Unity Game integration has relevant tests where the current test architecture supports them.
-14. Unity compilation, full EditMode suite and the complete Play Mode loop are user-verified before the initiative is marked complete.
-
-## Verification script
-
-- Start in HideoutSlice with the authored player workshop.
-- Confirm the initial recipe is available and the locked recipe is unavailable.
-- Attempt production with missing inputs; confirm no mutation.
-- Attempt production with insufficient output space; confirm no mutation.
-- Produce the required output; confirm exact input consumption, output count, ownership and one history record.
-- Accept the first contract; verify a second acceptance is blocked while one is active.
-- Attempt fulfilment with insufficient/wrong goods; confirm no item/account/contract mutation.
-- Fulfil with the exact eligible goods; verify goods handover, payer debit, player clean CARD credit and completed state.
-- Acquire and apply the first practical upgrade; verify the additional recipe unlocks.
-- Save/reload during an active contract and after completion; verify state, balances, inventory and unlocks.
-- Regression-check existing retail BUY/SELL, scavenging, theft, Dirty Cash contact and city NPC routines.
-
-## Open decisions before implementation
-
-Starter content and prototype values are recorded in decisions/0005-first-workshop-content.md. Remaining work is Editor import/validation and the full Play Mode acceptance script; later balancing may replace these fixture values.
-
-
-### Editor import follow-up — 2026-11-23
-
-Unity reported that the sewing-machine placeholder prefab contained a GameObject using reserved `fileID 100100000`. The root GameObject and its component back-references have been corrected to `100000`; the upgrade asset's external root-object reference was updated accordingly. The prefab GUID and hierarchy are unchanged. Reimport in Unity and confirm the warning is gone before proceeding with the Play Mode acceptance script.
-
-
-### Play Mode progress update — 2026-11-23
-
-The user reconfirmed **415/415 EditMode tests** and reports that the project is running with the workbench, selling and customer-request flow working in Play Mode. The sewing-machine prefab root fileID correction has also been applied. Before marking B-01 to B-03 complete, explicitly verify the Compact Sewing Machine purchase and visual installation, Reinforced Patch Kit recipe unlock/production, and F5/F9 persistence of the completed contract, account balances, inventory and upgrade state.
-
-
-### Rhea supplier interaction correction — 2026-11-24
-
-The user reported that no menu opened when trying to buy the Compact Sewing Machine from Rhea. Inspection showed the purchase button had been placed in WorkbenchWorkspace instead of being attached to Rhea's NPC interaction. A dedicated WorkshopUpgradePanel now opens with E when near Rhea; purchase validation checks supplier proximity, Milo's completed request and account funds. The workbench UI now handles production only. If Milo and Rhea are both in range at the CornerShop work positions, the nearest NPC wins the E interaction. Added a focused panel callback test. The user-reported 415/415 result predates this patch; compile and rerun all EditMode tests, then test supplier purchase, installation, recipe unlock and save/reload in Play Mode.
-
-
-### Full EditMode verification — 2026-11-24
-
-The user reports **417/417 EditMode tests passing** on the current branch. This verifies compilation and the full automated suite for the workshop, supplier-panel and NPC agenda changes. It does not replace the remaining Play Mode acceptance: Rhea rumour/offer/mending threads, Compact Sewing Machine purchase and installation, Reinforced Patch Kit unlock/production, and save/reload continuity.
+Repair/restoration is tracked separately in [B-04](LIVELIHOOD-B-04-REPAIR-RESTORATION.md). It must not be implemented as part of this vertical slice.
