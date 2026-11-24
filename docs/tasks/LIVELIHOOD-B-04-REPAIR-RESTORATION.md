@@ -1,8 +1,8 @@
 # LIVELIHOOD-B-04 — Repair, restoration and the first textile business
 
-**Status:** Design approved; hybrid buyback framework and Rhea textile-business content committed; repair gameplay integration remains to be implemented.  
+**Status:** Design approved; hybrid buyback, Rhea textile content, repair service and workbench repair UI committed; Unity verification pending.  
 **Parent:** Direction B livelihood roadmap  
-**Prerequisite for repair gameplay/content integration:** Complete B-01 to B-03 Play Mode acceptance (Rhea's agenda threads, Compact Sewing Machine purchase/installation, Reinforced Patch Kit production and F5/F9 persistence).  
+**Acceptance dependency:** Complete the remaining B-01 to B-03 Play Mode checks as part of the end-to-end B-04 session, including Rhea's agenda threads, Compact Sewing Machine purchase/installation, Reinforced Patch Kit production and F5/F9 persistence.  
 **Approved scope:** The first player-owned textile repair loop and one Rhea-operated textile buyer/supplier, using the existing hideout workbench, Compact Sewing Machine, physical patch kits, item condition and hybrid buyback catalogue.
 
 ## Player outcome
@@ -26,6 +26,8 @@ The current branch was source-audited before these decisions were finalised:
 - `RetailPanel` quotes from the selected stack's state. `GameSession.SellToBusiness` resolves the offer again from the current stack state immediately before the transaction, so a stale UI quote cannot determine the committed price.
 - The original fixed-only lookup remains available and does not silently choose a condition price. Merchandise purchases remain fixed-price.
 - `ItemValueCalculator` remains an indicative inspection/reference valuation, not the source of the buyer's payout.
+- `RepairService.TryRepair` is implemented in Core. It validates the player-owned carried container, exact Work Jacket and patch-kit instances, explicit kit transition and item ownership; it consumes the selected kit, changes only Condition, and records a full-confidence `DirectInspection` condition fact. It rolls back inventory/kit ownership if the state update fails.
+- `WorkbenchWorkspace` now presents the repair controls alongside the existing recipe book. `GameSession` wires authored Work Jacket/kit definitions, requires the Compact Sewing Machine and the player to be at the hideout workbench, and routes the operation to `RepairService`.
 - The hybrid code and focused `BusinessDefinitionTests` were committed in `79143557c26c3dd1cf291027ecbc677aaaec80e4`. They have not yet been compiled or run in the Unity Editor. The last user-reported 417/417 EditMode result predates that commit.
 
 ## Approved catalogue model
@@ -152,13 +154,12 @@ Basic restores one explicit step. Reinforced is the efficient one-step restorati
 
 ## Implementation sequence after the First Workshop gate
 
-1. Complete and user-verify the remaining B-01 to B-03 Play Mode acceptance (Rhea's agenda threads, machine purchase/installation, Reinforced recipe production and F5/F9 continuity).
-2. Already committed: the Work Jacket asset (`MaxStack = 1`, default Worn), its low-weight `LootProfile_A` entry, Rhea's business asset with fixed material prices and condition-based jacket buyback, active-scene registration, visible CornerShop counter/cloth display, and a navigation reachability regression test.
-3. Run Unity import/validation and the full EditMode suite. Confirm the CornerShop point and both existing Rhea/Bakery interactions in Play Mode. The old 417/417 report predates the new runtime/tests.
-4. Implement a focused repair service/operation with explicit transitions, exact kit consumption, ownership checks and rollback-safe validation. Integrate it into the existing hideout workbench UI rather than creating a separate profession scene.
-5. Refresh player Condition knowledge only on successful repair; cover current-build save/load with tests.
-6. Add integration tests for the Rhea quote/sale path and verify sale history captures the state and realized unit price.
-7. Complete Play Mode: acquire Worn Jacket, inspect it, repair through each allowed kit transition, inspect the resulting state, sell condition variants to Rhea, confirm balances and sale records, then F5/F9 and verify inventory, identity, state, knowledge and ledgers.
+1. Authored and wired: Work Jacket (`MaxStack = 1`, default Worn), low-weight `LootProfile_A` entry, Rhea's fixed-material/condition-buyback business, active scene references, and the visible CornerShop counter with a navigation reachability regression test.
+2. Implemented: hybrid buyback pricing at quote/sale time; `RepairService` with explicit transitions, player ownership checks, exact kit consumption, condition-only state updates, provenance preservation and condition knowledge refresh; repair controls in the existing workbench UI; GameSession gate requiring the installed Compact Sewing Machine and hideout workbench.
+3. Added focused EditMode tests for all repair transitions, invalid use/ownership, exact kit consumption, condition-knowledge preservation and a repaired-item save/knowledge round trip. These tests have not yet run in Unity.
+4. Run Unity import/validation and the full EditMode suite. Fix any compile/test failures before beginning Play Mode; the old 417/417 report predates all B-04 changes.
+5. Play Mode acceptance: finish the remaining First Workshop Rhea/machine/recipe/F5-F9 checks; acquire a Worn Work Jacket; inspect it; repair Damaged with Basic → Worn, Worn with Basic → Good, Damaged with Reinforced → Good; reject Reinforced on Worn and all repairs on Good/Pristine; verify only the selected kit is consumed and state/provenance/identity are preserved.
+6. Confirm Rhea's textile counter, Bakery and Rhea supplier/agenda interactions do not overlap; purchase materials at fixed prices; sell Damaged/Worn/Good/Pristine jackets to verify each condition price and sale-history state/unit price; F5/F9 and verify item state, ownership, player knowledge, accounts and relevant ledgers.
 
 ## Out of scope
 
