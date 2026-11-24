@@ -34,6 +34,7 @@ namespace Signal.Game
         private SpriteRenderer _bodyRenderer;
         private string _activePlace = "Hideout";
         private bool _debugSimulationPaused;
+        private bool _interactionPaused;
         private bool _debugActivityOverride;
         private CityBlockBootstrap _city;
         private string _currentPlace = "Apartment";
@@ -49,7 +50,7 @@ namespace Signal.Game
         public Vector2 Position => transform.position;
         public string CurrentPlace => _currentPlace;
         public bool NavigationFailed { get; private set; }
-        public bool IsTravelling => NavigationFailed || _nextTravelWaypoint < _travelRoute.Count;
+        public bool IsTravelling => !_interactionPaused && (NavigationFailed || _nextTravelWaypoint < _travelRoute.Count);
         public Vector2 Destination => _destination;
         public IReadOnlyList<NpcTravelWaypoint> DebugTravelRoute => _travelRoute;
         public int DebugNextWaypoint => _nextTravelWaypoint;
@@ -138,6 +139,16 @@ namespace Signal.Game
                 _clock.Changed -= OnClockChanged;
         }
 
+        public void SetInteractionPaused(bool paused)
+        {
+            if (_interactionPaused == paused)
+                return;
+
+            _interactionPaused = paused;
+            if (!paused)
+                RefreshFromClock(false);
+        }
+
         public void SetDebugSimulationPaused(bool paused)
         {
             _debugSimulationPaused = paused;
@@ -163,7 +174,7 @@ namespace Signal.Game
 
         private void Update()
         {
-            if (_initialized && !_debugSimulationPaused && _clock != null && !_clock.IsPaused)
+            if (_initialized && !_debugSimulationPaused && !_interactionPaused && _clock != null && !_clock.IsPaused)
                 AdvanceMovement(Time.deltaTime);
         }
 
@@ -174,7 +185,7 @@ namespace Signal.Game
 
         private void AdvanceMovement(float deltaTime)
         {
-            if (!_initialized || _debugSimulationPaused || (_clock != null && _clock.IsPaused) || deltaTime <= 0f ||
+            if (!_initialized || _debugSimulationPaused || _interactionPaused || (_clock != null && _clock.IsPaused) || deltaTime <= 0f ||
                 _definition == null || _definition.WalkingSpeed <= 0f)
                 return;
 
@@ -243,7 +254,7 @@ namespace Signal.Game
 
         private void RefreshFromClock(bool snapToDestination)
         {
-            if (_clock == null || _brain == null || _debugSimulationPaused || _debugActivityOverride)
+            if (_clock == null || _brain == null || _debugSimulationPaused || _interactionPaused || _debugActivityOverride)
                 return;
 
             NpcPerception perception = _socialWorld != null && _registered
