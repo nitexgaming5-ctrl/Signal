@@ -55,6 +55,13 @@ namespace Signal.Game
         public string RequiredPlace;
         [Tooltip("Optional player discovery required before this stage is available.")]
         public string RequiredDiscoveryId;
+        public bool RequireRelationshipThresholds;
+        [Range(0f, 1f)] public float MinimumFamiliarity;
+        [Range(0f, 1f)] public float MinimumTrust;
+        [Range(0f, 1f)] public float MinimumAffinity;
+        public bool RequireOpportunityPhase;
+        public string RequiredOpportunityId;
+        public OpportunityPhase RequiredOpportunityPhase;
         [Tooltip("Optional completed customer contract ID required before this stage is available.")]
         public string RequiredCompletedContractId;
         public CustomerContractDefinition RequiredContract;
@@ -130,6 +137,21 @@ namespace Signal.Game
                         error = "Stage " + stage.StageId + " has an invalid activity requirement.";
                         return false;
                     }
+                    if (stage.RequireRelationshipThresholds &&
+                        (stage.MinimumFamiliarity < 0f || stage.MinimumFamiliarity > 1f ||
+                         stage.MinimumTrust < 0f || stage.MinimumTrust > 1f ||
+                         stage.MinimumAffinity < 0f || stage.MinimumAffinity > 1f))
+                    {
+                        error = "Stage " + stage.StageId + " has invalid relationship thresholds.";
+                        return false;
+                    }
+                    if (stage.RequireOpportunityPhase &&
+                        (string.IsNullOrWhiteSpace(stage.RequiredOpportunityId) ||
+                         !Enum.IsDefined(typeof(OpportunityPhase), stage.RequiredOpportunityPhase)))
+                    {
+                        error = "Stage " + stage.StageId + " has an invalid opportunity phase requirement.";
+                        return false;
+                    }
                     if (stage.RequiredContract != null && !stage.RequiredContract.TryValidate(out _))
                     {
                         error = "Stage " + stage.StageId + " references an invalid customer contract.";
@@ -193,6 +215,14 @@ namespace Signal.Game
                              !choice.WorkshopUpgradeOffer.TryValidate(out _)))
                         {
                             error = "Workshop offer choice " + choice.ChoiceId + " must reference a valid upgrade.";
+                            return false;
+                        }
+                        if (!choice.CompleteStageOnChoice &&
+                            choice.Action != NpcAgendaChoiceAction.DialogueOnly &&
+                            choice.Action != NpcAgendaChoiceAction.OpenWorkshopUpgradeOffer)
+                        {
+                            error = "Repeatable choice " + choice.ChoiceId +
+                                " cannot apply a one-time discovery or relationship outcome.";
                             return false;
                         }
                         if (float.IsNaN(choice.FamiliarityDelta) || float.IsInfinity(choice.FamiliarityDelta) ||
