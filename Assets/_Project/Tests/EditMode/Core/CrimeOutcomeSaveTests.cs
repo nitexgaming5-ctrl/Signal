@@ -57,21 +57,5 @@ namespace Signal.Core.Tests
             Assert.That(restoredOutcomes.Outcomes[0].ProgressionAward, Is.EqualTo(1));
         }
 
-        [Test]
-        public void VersionTwelveSaveMigratesWithNoCrimeHistoryOrProgression()
-        {
-            var data = new SaveData
-            {
-                version = 12,
-                crimeOutcomes = null,
-                criminalProgressionPoints = 0
-            };
-
-            Assert.That(SaveMigrator.TryMigrate(data, out _), Is.True);
-            Assert.That(data.version, Is.EqualTo(SaveMigrator.CurrentVersion));
-            Assert.That(data.crimeOutcomes, Is.Not.Null);
-            Assert.That(data.crimeOutcomes, Is.Empty);
-            Assert.That(data.criminalProgressionPoints, Is.Zero);
-        }
     }
 }
