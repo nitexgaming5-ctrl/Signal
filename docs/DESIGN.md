@@ -84,3 +84,11 @@ The current starter content and exact prototype values are listed in the active 
 ## Explicit exclusions
 
 No universal quest framework rewrite, procedural contract board, multiple active contracts, partial-stack handover, automatic NPC demand, recurring customer simulation, relationship rewards, production time/quality simulation, repair mechanics, police response or new districts are introduced by the First Workshop slice.
+
+
+## NPC awareness and relationships
+
+- Every registered NPC uses the shared local-perception and individual-knowledge framework; authored residents do not receive character-specific runtime social systems.
+- NPC-to-NPC relationships are directional and keep familiarity, trust and affinity separate. Player-to-NPC relationships remain in the existing `PlayerRelationshipBook`; NPC-to-NPC relationships remain in `NpcSocialWorld`.
+- Personal knowledge is sourced and confidence-weighted. Direct observation and explicit communication/discovery are valid acquisition paths; the world event journal is not private NPC memory and is never a decision-making shortcut.
+- Durable personal knowledge and NPC-to-NPC relationships survive save/load. Position, proximity and perception are reconstructed from the active scene.
