@@ -17,7 +17,7 @@ MonoBehaviour:
   - ThreadId: milo-parcel-rumour
     DisplayName: A neighbour who notices things
     Summary: Rhea shares an uncertain, second-hand account about Milo after closing.
-    Priority: 10
+    Priority: 40
     Stages:
     - StageId: first-conversation
       Title: A neighbour who notices things
@@ -80,8 +80,8 @@ MonoBehaviour:
       Title: Something in the back room
       Dialogue: "Rhea: I have an old compact sewing machine in the back. It still runs. If you're serious about making a little workshop out of that place, I could let it go."
       RequireSocializingActivity: 0
-      RequiredActivity: 0
-      RequiredPlace:
+      RequiredActivity: 1
+      RequiredPlace: CornerShop
       RequiredDiscoveryId:
       RequiredCompletedContractId:
       RequiredContract: {fileID: 11400000, guid: dd000000000000000000000000000001, type: 2}
