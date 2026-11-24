@@ -29,7 +29,7 @@ namespace Signal.Game
         public string Label;
         [TextArea(2, 5)] public string Response;
         public NpcAgendaChoiceAction Action;
-        public bool CompleteStageOnSelect = true;
+        public bool CompleteStageOnChoice = true;
         [Header("Discovery outcome")]
         public string DiscoveryId;
         public string DiscoverySubjectId;
@@ -40,8 +40,6 @@ namespace Signal.Game
         [Range(-1f, 1f)] public float FamiliarityDelta;
         [Range(-1f, 1f)] public float TrustDelta;
         [Range(-1f, 1f)] public float AffinityDelta;
-        [Header("Workshop offer outcome")]
-        public WorkshopUpgradeDefinition WorkshopUpgradeOffer;
     }
 
     [Serializable]
@@ -186,13 +184,6 @@ namespace Signal.Game
                              choice.DiscoveryConfidence < 0f || choice.DiscoveryConfidence > 1f))
                         {
                             error = "Discovery choice " + choice.ChoiceId + " is missing valid authored discovery data.";
-                            return false;
-                        }
-                        if (choice.Action == NpcAgendaChoiceAction.OpenWorkshopUpgradeOffer &&
-                            (choice.WorkshopUpgradeOffer == null ||
-                             !choice.WorkshopUpgradeOffer.TryValidate(out _)))
-                        {
-                            error = "Workshop offer choice " + choice.ChoiceId + " must reference a valid upgrade.";
                             return false;
                         }
                     }
