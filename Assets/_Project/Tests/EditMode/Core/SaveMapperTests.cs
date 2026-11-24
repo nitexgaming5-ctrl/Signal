@@ -51,8 +51,6 @@ namespace Signal.Core.Tests
             SaveData data = SaveMapper.Capture(source.Stats, source.Inventory, null,
                 source.Clock, source.Heat, source.Rent, "Hideout", 0f, 0f,
                 npcAgendaProgress: progress);
-
-            Assert.That(data.version, Is.EqualTo(16));
             Assert.That(data.npcAgendaProgress.Count, Is.EqualTo(2));
 
             var restored = new NpcAgendaProgressBook();
@@ -68,37 +66,6 @@ namespace Signal.Core.Tests
         }
 
         [Test]
-        public void AgendaProgressMigrationInitializesMissingCollectionAndSkipsMalformedEntries()
-        {
-            var data = new SaveData
-            {
-                version = 15,
-                npcAgendaProgress = null
-            };
-
-            Assert.That(SaveMigrator.TryMigrate(data, out string error), Is.True, error);
-            Assert.That(data.version, Is.EqualTo(16));
-            Assert.That(data.npcAgendaProgress, Is.Not.Null);
-            Assert.That(data.npcAgendaProgress, Is.Empty);
-
-            data.npcAgendaProgress.Add(new SavedNpcAgendaStageProgress
-            {
-                npcId = "rhea",
-                threadId = "thread",
-                stageId = "stage",
-                choiceId = ""
-            });
-            var restored = new NpcAgendaProgressBook();
-            LoadReport report = SaveMapper.Apply(data, new World().Stats, new GridInventory(),
-                null, new GameClock(), new HeatMeter(), new RentLedger(50, 7),
-                Resolver(), npcAgendaProgress: restored);
-
-            Assert.That(report.Success, Is.True);
-            Assert.That(report.SkippedNpcAgendaProgress, Is.EqualTo(1));
-            Assert.That(restored.CompletedStageCount, Is.Zero);
-        }
-
-        [Test]
         public void CaptureWritesEveryField()
         {
             var world = new World();
@@ -110,8 +77,6 @@ namespace Signal.Core.Tests
             world.Inventory.Place(type, 3, 2, rotated: true, count: 4);
 
             SaveData data = CaptureOf(world, 1.5f, -2.5f);
-
-            Assert.That(data.version, Is.EqualTo(SaveMigrator.CurrentVersion));
             Assert.That(data.money, Is.EqualTo(40));
             Assert.That(data.health, Is.EqualTo(70));
             Assert.That(data.day, Is.EqualTo(5));
@@ -196,16 +161,6 @@ namespace Signal.Core.Tests
         }
 
         [Test]
-        public void VersionOneSaveMigratesWithEmptyHomeStorageAndHideoutLocation()
-        {
-            var data = new SaveData { version = 1, storageItems = null, worldPlace = null };
-
-            Assert.That(SaveMigrator.TryMigrate(data, out _), Is.True);
-            Assert.That(data.worldPlace, Is.EqualTo("Hideout"));
-            Assert.That(data.storageItems, Is.Empty);
-        }
-
-        [Test]
         public void ApplySkipsItemsOfUnknownTypes()
         {
             var source = new World();
@@ -255,35 +210,11 @@ namespace Signal.Core.Tests
         }
 
         [Test]
-        public void ANewerSaveIsRejectedAndChangesNothing()
-        {
-            var data = new SaveData { version = SaveMigrator.CurrentVersion + 1, money = 999 };
-            var target = new World();
-            target.Stats.Restore(5, 50);
-
-            LoadReport report = ApplyTo(target, data);
-
-            Assert.That(report.Success, Is.False);
-            Assert.That(report.Error, Is.Not.Empty);
-            Assert.That(target.Stats.Money, Is.EqualTo(5));
-        }
-
-        [Test]
         public void MissingSaveDataIsRejected()
         {
             LoadReport report = ApplyTo(new World(), null);
 
             Assert.That(report.Success, Is.False);
-        }
-
-        [TestCase(1, true)]
-        [TestCase(0, false)]
-        [TestCase(-3, false)]
-        public void MigrationAcceptsOnlyKnownVersions(int version, bool expected)
-        {
-            var data = new SaveData { version = version };
-
-            Assert.That(SaveMigrator.TryMigrate(data, out _), Is.EqualTo(expected));
         }
 
         [Test]
@@ -309,7 +240,6 @@ namespace Signal.Core.Tests
 
             Assert.That(report.Success, Is.True);
             Assert.That(report.SkippedKnowledgeFacts, Is.Zero);
-            Assert.That(data.version, Is.EqualTo(SaveMigrator.CurrentVersion));
             Assert.That(target.Inventory.Items[0].ItemInstanceId, Is.EqualTo(itemId));
             Assert.That(targetKnowledge.FactCount, Is.EqualTo(2));
             Assert.That(targetKnowledge.TryGetFact(itemId, ItemKnowledgeAspect.Authenticity, out ItemKnowledgeFact rumour), Is.True);
@@ -321,16 +251,6 @@ namespace Signal.Core.Tests
             Assert.That(targetKnowledge.TryGetFact(itemId, ItemKnowledgeAspect.Condition, out ItemKnowledgeFact inspection), Is.True);
             Assert.That(inspection.Value, Is.EqualTo((int)ItemCondition.Worn));
             Assert.That(inspection.Source, Is.EqualTo(ItemKnowledgeSource.DirectInspection));
-        }
-
-        [Test]
-        public void VersionFourSaveMigratesWithNoPlayerItemKnowledge()
-        {
-            var data = new SaveData { version = 4, itemKnowledge = null };
-
-            Assert.That(SaveMigrator.TryMigrate(data, out _), Is.True);
-            Assert.That(data.version, Is.EqualTo(SaveMigrator.CurrentVersion));
-            Assert.That(data.itemKnowledge, Is.Empty);
         }
 
         [Test]
@@ -382,7 +302,7 @@ namespace Signal.Core.Tests
         }
 
         [Test]
-        public void VersionSevenRoundTripPreservesPlayerDiscoveriesAndOpportunityLifecycle()
+        public void RoundTripPreservesPlayerDiscoveriesAndOpportunityLifecycle()
         {
             var source = new World();
             var discoveries = new PlayerDiscoveryLedger();
@@ -400,8 +320,6 @@ namespace Signal.Core.Tests
 
             SaveData data = SaveMapper.Capture(source.Stats, source.Inventory, null, source.Clock,
                 source.Heat, source.Rent, "Street", 4f, -12f, null, discoveries, opportunity);
-
-            Assert.That(data.version, Is.EqualTo(SaveMigrator.CurrentVersion));
             Assert.That(data.playerDiscoveries.Count, Is.EqualTo(2));
             Assert.That(data.opportunity.parcelInstanceId, Is.EqualTo(parcelId.ToString()));
 
@@ -421,18 +339,6 @@ namespace Signal.Core.Tests
             Assert.That(report.RestoredOpportunity.ParcelInstanceId, Is.EqualTo(parcelId));
             Assert.That(report.RestoredOpportunity.AcceptanceCount, Is.EqualTo(1));
             Assert.That(report.RestoredOpportunity.DeclineCount, Is.EqualTo(1));
-        }
-
-        [Test]
-        public void VersionSixSaveMigratesWithEmptyPlayerDiscoveriesRelationshipsAndNoOpportunity()
-        {
-            var data = new SaveData { version = 6, playerDiscoveries = null, opportunity = null, playerRelationships = null };
-
-            Assert.That(SaveMigrator.TryMigrate(data, out _), Is.True);
-            Assert.That(data.version, Is.EqualTo(SaveMigrator.CurrentVersion));
-            Assert.That(data.playerDiscoveries, Is.Empty);
-            Assert.That(data.opportunity, Is.Null);
-            Assert.That(data.playerRelationships, Is.Empty);
         }
 
         [Test]
@@ -456,7 +362,7 @@ namespace Signal.Core.Tests
         }
 
         [Test]
-        public void VersionSevenRoundTripPreservesPlayerRelationshipImpressions()
+        public void RoundTripPreservesPlayerRelationshipImpressions()
         {
             var source = new World();
             var relationships = new PlayerRelationshipBook();
@@ -502,45 +408,6 @@ namespace Signal.Core.Tests
             Assert.That(report.RestoredOpportunity.DeliveredOnTime, Is.False);
             Assert.That(report.RestoredOpportunity.DeliveredIntact, Is.False);
             Assert.That(report.RestoredOpportunity.DeliveryWitnessed, Is.True);
-        }
-
-        [Test]
-        public void VersionSixResolvedOpportunityMigratesWithNeutralDeliveryAssessment()
-        {
-            var data = new SaveData
-            {
-                version = 6,
-                opportunity = new SavedOpportunityState
-                {
-                    opportunityId = "milo-parcel",
-                    phase = (int)OpportunityPhase.Resolved,
-                    resolution = (int)OpportunityResolution.Delivered,
-                    parcelInstanceId = Guid.NewGuid().ToString(),
-                    acceptanceCount = 1,
-                    lastAcceptedDay = 1,
-                    lastAcceptedMinuteOfDay = 600,
-                    resolvedDay = 1,
-                    resolvedMinuteOfDay = 700
-                }
-            };
-
-            Assert.That(SaveMigrator.TryMigrate(data, out _), Is.True);
-            Assert.That(data.version, Is.EqualTo(SaveMigrator.CurrentVersion));
-            Assert.That(data.opportunity.hasDeliveryAssessment, Is.True);
-            Assert.That(data.opportunity.deliveredOnTime, Is.True);
-            Assert.That(data.opportunity.deliveredIntact, Is.True);
-            Assert.That(data.opportunity.deliveryWitnessed, Is.False);
-        }
-
-        [Test]
-        public void VersionSevenSaveMigratesLegacyMoneyIntoCleanAccountAndInitializesEconomicLedgers()
-        {
-            var data = new SaveData { version = 7, money = 275, assetOwners = null, economicTransactions = null };
-            Assert.That(SaveMigrator.TryMigrate(data, out _), Is.True);
-            Assert.That(data.version, Is.EqualTo(SaveMigrator.CurrentVersion));
-            Assert.That(data.cleanBalance, Is.EqualTo(275));
-            Assert.That(data.assetOwners, Is.Empty);
-            Assert.That(data.economicTransactions, Is.Empty);
         }
 
         [Test]
@@ -643,7 +510,6 @@ namespace Signal.Core.Tests
             SaveData data = SaveMapper.Capture(sourceStats, sourceInventory, null,
                 new GameClock(), new HeatMeter(), new RentLedger(50, 7), "Hideout", 0f, 0f,
                 null, null, null, null, sourceOwnership, null, null, null, sourceSales);
-            Assert.That(data.version, Is.EqualTo(SaveMigrator.CurrentVersion));
             Assert.That(data.shopSaleTransactions.Count, Is.EqualTo(1));
 
             var targetStats = new PlayerStats();
@@ -673,16 +539,6 @@ namespace Signal.Core.Tests
         }
 
         [Test]
-        public void VersionNineSaveMigratesToCurrentAndInitializesAnEmptyShopSaleLedger()
-        {
-            var data = new SaveData { version = 9, shopSaleTransactions = null };
-
-            Assert.That(SaveMigrator.TryMigrate(data, out _), Is.True);
-            Assert.That(data.version, Is.EqualTo(SaveMigrator.CurrentVersion));
-            Assert.That(data.shopSaleTransactions, Is.Empty);
-        }
-
-        [Test]
         public void InvalidShopSaleRecordsAreSkippedWithoutRejectingTheSave()
         {
             var data = new SaveData();
@@ -709,26 +565,6 @@ namespace Signal.Core.Tests
             Assert.That(report.Success, Is.True);
             Assert.That(report.SkippedShopSaleTransactions, Is.EqualTo(1));
             Assert.That(sales.Count, Is.Zero);
-        }
-
-        [Test]
-        public void VersionFourteenSaveMigratesWithEmptyLivelihoodState()
-        {
-            var data = new SaveData
-            {
-                version = 14,
-                productionTransactions = null,
-                customerContracts = null,
-                acquiredWorkshopUpgradeIds = null,
-                contractReceiverItems = null
-            };
-
-            Assert.That(SaveMigrator.TryMigrate(data, out _), Is.True);
-            Assert.That(data.version, Is.EqualTo(15));
-            Assert.That(data.productionTransactions, Is.Empty);
-            Assert.That(data.customerContracts, Is.Empty);
-            Assert.That(data.acquiredWorkshopUpgradeIds, Is.Empty);
-            Assert.That(data.contractReceiverItems, Is.Empty);
         }
 
         [Test]
@@ -801,5 +637,39 @@ namespace Signal.Core.Tests
             Assert.That(restoredOwner, Is.EqualTo(customerActor));
             Assert.That(targetInventory.CountOf(input), Is.EqualTo(2));
         }
+        [Test]
+        public void MalformedAgendaProgressEntriesAreSkippedWithoutFailingSaveLoad()
+        {
+            var data = new SaveData();
+            data.npcAgendaProgress.Add(new SavedNpcAgendaStageProgress
+            {
+                npcId = "rhea",
+                threadId = "thread",
+                stageId = "stage",
+                choiceId = ""
+            });
+
+            var restored = new NpcAgendaProgressBook();
+            LoadReport report = SaveMapper.Apply(data, new World().Stats, new GridInventory(),
+                null, new GameClock(), new HeatMeter(), new RentLedger(50, 7),
+                Resolver(), npcAgendaProgress: restored);
+
+            Assert.That(report.Success, Is.True);
+            Assert.That(report.SkippedNpcAgendaProgress, Is.EqualTo(1));
+            Assert.That(restored.CompletedStageCount, Is.Zero);
+        }
+
+        [Test]
+        public void SaveDataStartsWithDefaultHideoutAndInitializedCollections()
+        {
+            var data = new SaveData();
+
+            Assert.That(data.worldPlace, Is.EqualTo("Hideout"));
+            Assert.That(data.items, Is.Not.Null);
+            Assert.That(data.storageItems, Is.Not.Null);
+            Assert.That(data.playerDiscoveries, Is.Not.Null);
+            Assert.That(data.npcAgendaProgress, Is.Not.Null);
+        }
+
     }
 }
