@@ -10,7 +10,7 @@ Signal is a top-down 2D urban RPG built around one connected city, a lived-in hi
 - Active architecture: `Signal.Core` (plain C#, no UnityEngine) + `Signal.Game` (Unity integration, UI and authored ScriptableObjects).
 - Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
 - Working branch: `chore/collaboration-workflow-and-audit`; keep `main` untouched.
-- Current validated baseline: user confirmed **415/415 EditMode tests passed on 2026-11-23**, after the v15 migration expectation and recipe fixture corrections.
+- Latest user-reported EditMode run before the current save-version cleanup: **434/435 on 2026-11-24**. Its sole failure was the obsolete `VersionFourteenSaveMigratesWithEmptyLivelihoodState` schema assertion; the versioning code and migration-only tests are now being removed, and a fresh Unity run is pending.
 - `Assets/_Project/_Prototype/` and `Main.unity` are legacy reference only; do not extend the old architecture.
 
 ## How to understand the project
@@ -74,7 +74,7 @@ Existing approved decisions remain binding unless the user changes them. If two 
 4. **Keep layers clean.** Core must not reference UnityEngine. Dependencies flow Game → Core only.
 5. **Preserve identity.** Never casually change stable ScriptableObject IDs, item GUIDs, Unity .meta GUIDs, scene references or saved stack identities. Known repository hazard: `Assets/_Project/Content/Items/` and `Assets/_Project/Content/items/` differ only by case and may collide on Windows. Do not add content to either path until they are safely merged inside Unity Editor; use a clearly distinct folder such as `WorkshopItems/` in the meantime.
 6. **Protect atomicity.** A failed transaction must leave inventory, ownership, accounts, ledgers and progression unchanged.
-7. **Persistence is a contract.** Update SaveData/SaveMapper/Migrator and round-trip coverage when persistent schema changes. Increment the save version only when serialized shape/meaning changes.
+7. **Persistence is a contract.** Keep SaveData/SaveMapper and current-build round-trip coverage coherent when persistent data changes. Build 0.01 intentionally has no save-schema version field, version gate or automatic migration layer; incompatible development saves may be discarded and recreated.
 8. **No incidental simulation.** Do not add universal supply/demand, automatic NPC shopping, passive revenue, background economy, global gossip or per-frame NPC decision scoring without a designed player-facing reason.
 9. **No opportunistic sprawl.** Improvements must serve the active initiative or protect the project. Park unrelated ideas in the backlog.
 10. **Preserve a playable baseline.** Prefer additive and reversible changes. Back up or explicitly plan around any operation that could damage user saves, scenes or asset identity.
@@ -85,7 +85,7 @@ Existing approved decisions remain binding unless the user changes them. If two 
 - Separate code inspection, Unity compilation, EditMode results and Play Mode verification. Never claim a check that was not run.
 - The 415/415 result dated 2026-11-23 is a validated baseline for the then-current code. If code changes touch compiled runtime or tests, mark that baseline as preceding the change and request/run a fresh suite when Unity is available.
 - For content-only changes, inspect ScriptableObject references, serialized fields, scene wiring and build inclusion; still ask for an Editor import/Play Mode check when Unity itself was unavailable.
-- Add focused regression tests for changed rules and save round-trip/migration tests for persistent state.
+- Add focused regression tests for changed rules and current-build save round-trip tests for persistent state. Do not introduce save-version/migration machinery in build 0.01.
 - Do not change packages or Project Settings merely to suppress errors.
 
 ## Documentation is part of the work
