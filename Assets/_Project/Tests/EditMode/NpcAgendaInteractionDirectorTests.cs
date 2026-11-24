@@ -33,7 +33,7 @@ namespace Signal.Game.Tests
                                     Response = "Someone from the block told me.",
                                     Action = NpcAgendaChoiceAction.RecordDiscovery,
                                     DiscoveryId = "rhea-milo-rumour",
-                                    DiscoverySubjectId = "milo-after-hours",
+                                    DiscoverySubjectId = "milo",
                                     DiscoveryType = DiscoverySignalType.Rumour,
                                     DiscoveryDescription = "Rhea heard from a neighbour that Milo carried parcels after closing.",
                                     DiscoveryConfidence = 0.4f,
