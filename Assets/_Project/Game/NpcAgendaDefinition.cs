@@ -165,12 +165,6 @@ namespace Signal.Game
                         error = "Stage " + stage.StageId + " has an invalid opportunity phase requirement.";
                         return false;
                     }
-                    if (!string.IsNullOrWhiteSpace(stage.RequiredOpportunityId) &&
-                        !Enum.IsDefined(typeof(OpportunityPhase), stage.RequiredOpportunityPhase))
-                    {
-                        error = "Stage " + stage.StageId + " has an invalid opportunity phase.";
-                        return false;
-                    }
                     if (stage.RequiredContract != null && !stage.RequiredContract.TryValidate(out _))
                     {
                         error = "Stage " + stage.StageId + " references an invalid customer contract.";
