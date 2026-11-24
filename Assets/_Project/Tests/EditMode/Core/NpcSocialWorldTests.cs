@@ -20,6 +20,8 @@ namespace Signal.Core.Tests
             Assert.That(world.GetRelationship("rhea", "milo").Trust, Is.EqualTo(0.5f));
             Assert.Throws<System.ArgumentOutOfRangeException>(() =>
                 world.AdjustRelationship("milo", "rhea", trustDelta: float.NaN));
+            Assert.Throws<System.ArgumentOutOfRangeException>(() =>
+                new NpcRelationship(float.NaN, 0.5f, 0f));
         }
         [Test]
         public void NearbyCharactersAreAwareOnlyOfPeopleInTheirCurrentLocation()
