@@ -1034,7 +1034,7 @@ namespace Signal.Game
                                                _contactInventory, _illicitExchanges, _dirtyCashCleanings,
                                                _productionTransactions, _customerContracts, _workshopProgression,
                                                _contractReceiverInventory, _contractReceiverActor.Value,
-                                               _npcAgendaProgress);
+                                               _npcAgendaProgress, _city != null ? _city.SocialWorld : null);
             SearchableContainerSaveMapper.Capture(_searchableContainers, data);
 
             try
@@ -1068,7 +1068,7 @@ namespace Signal.Game
                 _economicAccounts, _retailTransactions, _shopSaleTransactions, _criminalProgression, _crimeOutcomes,
                 _contactInventory, _illicitExchanges, _dirtyCashCleanings,
                 _productionTransactions, _customerContracts, _workshopProgression, _contractReceiverInventory,
-                _npcAgendaProgress);
+                _npcAgendaProgress, _city != null ? _city.SocialWorld : null);
             if (!report.Success)
             {
                 Say("Load failed: " + report.Error);
