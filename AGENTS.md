@@ -10,7 +10,7 @@ Signal is a top-down 2D urban RPG built around one connected city, a lived-in hi
 - Active architecture: `Signal.Core` (plain C#, no UnityEngine) + `Signal.Game` (Unity integration, UI and authored ScriptableObjects).
 - Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
 - Working branch: `chore/collaboration-workflow-and-audit`; keep `main` untouched.
-- Latest user-reported EditMode run before the current save-version cleanup: **434/435 on 2026-11-24**. Its sole failure was the obsolete `VersionFourteenSaveMigratesWithEmptyLivelihoodState` schema assertion; the versioning code and migration-only tests have now been removed, and a fresh Unity run is pending.
+- Latest user-reported full EditMode run: **417/417 passed on 2026-11-24**, after the unversioned-save cleanup and NPC agenda changes. This is the current verified baseline for that branch state; any later runtime/test code change requires a fresh full suite.
 - `Assets/_Project/_Prototype/` and `Main.unity` are legacy reference only; do not extend the old architecture.
 
 ## How to understand the project
@@ -83,7 +83,7 @@ Existing approved decisions remain binding unless the user changes them. If two 
 
 - Unity Editor is the authority for project compilation and tests. Do not run `dotnet`, `msbuild` or standalone .NET builds for this Unity project.
 - Separate code inspection, Unity compilation, EditMode results and Play Mode verification. Never claim a check that was not run.
-- The 415/415 result dated 2026-11-23 is a validated baseline for the then-current code. If code changes touch compiled runtime or tests, mark that baseline as preceding the change and request/run a fresh suite when Unity is available.
+- The **417/417 result dated 2026-11-24** is the latest user-verified full EditMode baseline. If later changes touch compiled runtime or tests, mark this baseline as preceding the change and request/run a fresh suite when Unity is available.
 - For content-only changes, inspect ScriptableObject references, serialized fields, scene wiring and build inclusion; still ask for an Editor import/Play Mode check when Unity itself was unavailable.
 - Add focused regression tests for changed rules and current-build save round-trip tests for persistent state. Do not introduce save-version/migration machinery in build 0.01.
 - Do not change packages or Project Settings merely to suppress errors.
