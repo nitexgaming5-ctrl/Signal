@@ -88,7 +88,7 @@ namespace Signal.Game.Tests
             var progress = new NpcAgendaProgressBook();
             var director = new NpcAgendaInteractionDirector(new[] { agenda },
                 progress, new PlayerDiscoveryLedger(), new PlayerRelationshipBook(),
-                _ => true, _ => false, _ => true, () => 2, () => 600);
+                _ => true, _ => false, (_, __) => false, _ => true, () => 2, () => 600);
 
             Assert.That(director.TryChoose("rhea", "machine", "offer", "inspect",
                 out string response, out bool completed), Is.True);
@@ -97,6 +97,37 @@ namespace Signal.Game.Tests
             Assert.That(director.TryChoose("rhea", "machine", "offer", "inspect",
                 out _, out _), Is.True);
             Assert.That(progress.IsStageCompleted("rhea", "machine", "offer"), Is.False);
+        }
+
+        [Test]
+        public void StageCanRequireRelationshipThresholdsAndAnOpportunityPhase()
+        {
+            NpcAgendaDefinition agenda = CreateAgenda("rhea", "follow-up", "trusted-stage",
+                Choice("continue", NpcAgendaChoiceAction.DialogueOnly));
+            NpcAgendaStageDefinition stage = agenda.Threads[0].Stages[0];
+            stage.RequireRelationshipThresholds = true;
+            stage.MinimumFamiliarity = 0.2f;
+            stage.MinimumTrust = 0.6f;
+            stage.MinimumAffinity = 0.1f;
+            stage.RequireOpportunityPhase = true;
+            stage.RequiredOpportunityId = "milo-parcel";
+            stage.RequiredOpportunityPhase = OpportunityPhase.Accepted;
+
+            var relationships = new PlayerRelationshipBook();
+            relationships.Set("rhea", 0.25f, 0.7f, 0.2f);
+            bool parcelAccepted = false;
+            var director = new NpcAgendaInteractionDirector(new[] { agenda },
+                new NpcAgendaProgressBook(), new PlayerDiscoveryLedger(), relationships,
+                _ => false, _ => false,
+                (id, phase) => id == "milo-parcel" && phase == OpportunityPhase.Accepted && parcelAccepted,
+                _ => true, () => 2, () => 600);
+
+            Assert.That(director.TryGetNextStage("rhea", NpcActivity.Socialize, "Street", out _, out _), Is.False);
+            parcelAccepted = true;
+            Assert.That(director.TryGetNextStage("rhea", NpcActivity.Socialize, "Street", out _, out _), Is.True);
+
+            relationships.Set("rhea", 0.25f, 0.4f, 0.2f);
+            Assert.That(director.TryGetNextStage("rhea", NpcActivity.Socialize, "Street", out _, out _), Is.False);
         }
 
         [Test]
@@ -186,7 +217,7 @@ namespace Signal.Game.Tests
             System.Func<string, bool> upgrade = null)
         {
             return new NpcAgendaInteractionDirector(agendas, progress, discoveries, relationships,
-                contract ?? (_ => false), upgrade ?? (_ => false), _ => true,
+                contract ?? (_ => false), upgrade ?? (_ => false), (_, __) => false, _ => true,
                 () => 2, () => 600);
         }
     }
