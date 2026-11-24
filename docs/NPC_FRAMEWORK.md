@@ -149,14 +149,27 @@ The threads are independent wherever their prerequisites allow. Hearing the Milo
 
 The parcel controller currently owns physical parcel props, inspection, acceptance, return, drop-off, delivery and outcome assessment. Preserve those mechanics and their stable IDs. Move only conversational content/choice presentation into the agenda framework where doing so produces a cleaner reusable path. The framework may call the existing opportunity service/controller through a narrow typed action; it must not duplicate parcel lifecycle rules or silently alter the opportunity's eligibility/outcomes.
 
+### Implemented first pilot (2026-11-24)
+
+- `NpcAgendaProgressBook` in Core stores completed choices by stable NPC/thread/stage IDs. The same stage cannot be completed twice; different residents and threads remain independent.
+- Save schema v16 captures/restores agenda progress and migrates v15 saves by initializing an empty progress collection. Focused SaveMapper tests cover round-trip and malformed legacy entries.
+- `NpcAgendaDefinition` ScriptableObjects author stable threads, ordered stages, priorities, choices, activity/location gates, discovery gates, relationship thresholds, opportunity phases, completed-contract gates and acquired/not-acquired upgrade gates.
+- `NpcAgendaInteractionDirector` deterministically selects the highest-priority eligible thread, applies typed one-time outcomes, and delegates workshop offers to the existing supplier panel. It does not run a background AI loop.
+- `NpcAgendaConversationPanel` is the reusable player-facing choice surface. `GameSession` routes the nearest eligible resident interaction through it, enforces modal input locking and revalidates the resident/stage before accepting a choice.
+- Rhea's authored content is `Assets/_Project/Resources/Agendas/RheaAgenda.asset`. Her three independent threads are the sourced Milo rumour, Compact Sewing Machine offer, and post-purchase mending advice.
+- The rumour is stored as a `Rumour` about subject `milo`, source `rhea`, confidence 0.4. The description explicitly says Rhea heard it second-hand and did not witness where the parcels went. All three dialogue choices still record the rumour the player has heard.
+- The former Rhea rumour branch has been removed from `MiloParcelOpportunityController`. Parcel props, inspection, acceptance, return, delivery and outcome logic remain there.
+- A second resident fixture in EditMode tests uses the same director; tests cover independent progress, deterministic thread priority, activity/location/contract/upgrade gates, relationship/opportunity gates and repeatable non-completing choices.
+- Unity compilation, full EditMode execution and Play Mode validation are still pending. The previous 415/415 user result predates these additions.
+
 ### Implementation sequence
 
-1. Add and test Core progress/state primitives using stable IDs and idempotent outcome application.
-2. Add authored agenda/thread/stage/choice content assets and validation.
-3. Add a generic interaction director and reusable conversation panel; route nearby NPC interaction through it without adding branches to NpcPresenter.
-4. Integrate Rhea's three threads and existing supplier/contract services.
-5. Migrate Rhea's Milo tip from the parcel controller, preserving sourced-knowledge constraints; retain the parcel mechanics.
-6. Decide and implement minimal save persistence/migration only after the state model is proven. Stable content IDs must survive renames and missing optional content safely.
-7. Add a second resident/thread fixture using the same system to prove authoring reuse, then update task/docs and verify the full EditMode suite.
+1. **Implemented:** Core progress book, stable IDs, idempotent completion and v16 save/load migration.
+2. **Implemented:** Authored agenda definitions and validation for duplicate/missing IDs and invalid typed outcomes.
+3. **Implemented:** Generic priority-based interaction director and reusable conversation panel; no character-specific logic in `NpcPresenter`.
+4. **Implemented:** Rhea's three independent threads and existing supplier/contract service adapters.
+5. **Implemented:** Rhea's sourced rumour moved into agenda content; Milo parcel lifecycle remains intact.
+6. **Implemented:** A second resident fixture and focused tests for independent authoring, conditions and outcomes.
+7. **Pending verification:** Import/compile, full EditMode suite, Play Mode thread flow and save/reload acceptance.
 
 This initiative is approved. New gameplay mechanics outside these three Rhea threads remain subject to separate design approval.
