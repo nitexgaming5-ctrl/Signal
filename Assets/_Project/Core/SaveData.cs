@@ -578,7 +578,8 @@ namespace Signal.Core
                     !destination.TryGetNpc(entry.npcId, out NpcAgentState _) ||
                     (!string.IsNullOrEmpty(entry.originalActorNpcId) && !destination.TryGetNpc(entry.originalActorNpcId, out NpcAgentState _)) ||
                     ((NpcKnowledgeOrigin)entry.origin == NpcKnowledgeOrigin.ToldByAnotherNpc &&
-                     (string.IsNullOrWhiteSpace(entry.lastSourceNpcId) || !destination.TryGetNpc(entry.lastSourceNpcId, out NpcAgentState _))))
+                     (string.IsNullOrWhiteSpace(entry.lastSourceNpcId) || entry.lastSourceNpcId == entry.npcId || !destination.TryGetNpc(entry.lastSourceNpcId, out NpcAgentState _))) ||
+                    ((NpcKnowledgeOrigin)entry.origin == NpcKnowledgeOrigin.DirectObservation && !string.IsNullOrEmpty(entry.lastSourceNpcId)))
                 { skipped++; continue; }
                 NpcKnowledge fact = NpcKnowledge.Restore(entry.eventId, entry.kind, entry.description,
                     entry.originalActorNpcId, entry.lastSourceNpcId, (NpcKnowledgeOrigin)entry.origin,
