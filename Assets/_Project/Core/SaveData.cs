@@ -494,6 +494,7 @@ namespace Signal.Core
             int skippedContracts = RestoreCustomerContracts(data.customerContracts, customerContracts);
             int skippedUpgrades = RestoreWorkshopProgression(data.acquiredWorkshopUpgradeIds, workshopProgression);
             int skippedAgendaProgress = RestoreNpcAgendaProgress(data.npcAgendaProgress, npcAgendaProgress);
+            if (socialWorld != null) socialWorld.ClearForRestore();
             int skippedNpcKnowledge = RestoreNpcKnowledge(data.npcKnowledge, socialWorld);
             int skippedNpcRelationships = RestoreNpcSocialRelationships(data.npcSocialRelationships, socialWorld);
             OpportunityState restoredOpportunity = RestoreOpportunity(data.opportunity);
