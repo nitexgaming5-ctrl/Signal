@@ -81,6 +81,7 @@ namespace Signal.Game.Tests
                 new NpcAgendaThreadDefinition
                 {
                     ThreadId = "machine",
+                    DisplayName = "Machine offer",
                     Stages = new[]
                     {
                         new NpcAgendaStageDefinition
