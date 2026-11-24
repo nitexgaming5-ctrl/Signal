@@ -56,7 +56,7 @@ Starter content is now authored and wired into HideoutSlice: four workshop mater
 
 ## Current verification
 
-- **EditMode:** 415/415 was user-validated before the Rhea supplier-panel code/test additions. The current branch adds `WorkshopUpgradePanelTests`; a fresh compile and full EditMode run are required.
+- **EditMode:** 415/415 was user-validated before the Rhea supplier-panel and NPC agenda additions. The current branch adds `WorkshopUpgradePanelTests`, `NpcAgendaProgressBookTests`, `NpcAgendaInteractionDirectorTests`, and SaveMapper agenda round-trip/v15-migration coverage; a fresh compile and full EditMode run are required.
 - **Unity compilation / asset import:** the sewing-machine placeholder's reserved root `fileID 100100000` was corrected to `100000`, including Transform/SpriteRenderer back-references and the upgrade asset reference. The prefab GUID is unchanged. The user subsequently reported the project running and the core workshop/customer loop working; no further prefab import blocker has been reported.
 - **First Workshop Play Mode:** user-confirmed workbench, selling and customer-request flow. The Rhea supplier interaction now routes through her agenda conversation before opening the existing offer panel. Confirm `E Talk to Rhea`, choose to inspect the offer, purchase/install the Compact Sewing Machine, then speak to her again for mending advice. Unlock and craft the Reinforced Patch Kit, then F5/F9 save/reload and confirm balances, inventory, contract, agenda progress, installed upgrade and recipe unlock.
 - **Theft witness correction:** witnessed and unwitnessed heat behavior should be retested in Play Mode after the prior heat fix if not already covered.
