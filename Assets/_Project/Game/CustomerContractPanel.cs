@@ -38,6 +38,7 @@ namespace Signal.Game
         private Guid _selectedItem;
 
         public bool IsOpen => _root != null && _root.activeSelf;
+        public string ActiveIssuerNpcId => IsOpen && _definition != null ? _definition.IssuerNpcId : string.Empty;
 
         public void Bind(CustomerContractDefinition definition, GridInventory inventory,
             AssetOwnershipBook ownership, IReadOnlyList<ItemDefinition> itemDefinitions,
