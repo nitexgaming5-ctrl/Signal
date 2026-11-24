@@ -44,7 +44,7 @@ namespace Signal.Game.Tests
             Assert.That(discoveries.TryGet("signal-rhea", out PlayerDiscoverySignal signal), Is.True);
             Assert.That(signal.SourceId, Is.EqualTo("rhea"));
             Assert.That(signal.Type, Is.EqualTo(DiscoverySignalType.Rumour));
-            Assert.That(signal.Confidence, Is.EqualTo(0.35f));
+            Assert.That(signal.Confidence, Is.EqualTo(0.4f));
             Assert.That(relationships.Get("rhea").Familiarity, Is.EqualTo(0.05f));
 
             Assert.That(director.TryChoose("rhea", "neighbour-tip", "first-talk", "ask-source",
@@ -291,7 +291,7 @@ namespace Signal.Game.Tests
                 DiscoverySubjectId = action == NpcAgendaChoiceAction.RecordDiscovery ? "milo" : null,
                 DiscoveryType = DiscoverySignalType.Rumour,
                 DiscoveryDescription = action == NpcAgendaChoiceAction.RecordDiscovery ? "Rhea heard something." : null,
-                DiscoveryConfidence = 0.35f,
+                DiscoveryConfidence = 0.4f,
                 FamiliarityDelta = action == NpcAgendaChoiceAction.RecordDiscovery ? 0.05f : 0f
             };
         }
