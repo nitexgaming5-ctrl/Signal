@@ -15,6 +15,8 @@ namespace Signal.Game
             [Min(1)] public int weight = 1;
             [Min(1)] public int minimumCount = 1;
             [Min(1)] public int maximumCount = 1;
+            [Tooltip("Testing aid: include this item in every newly generated container using this profile.")]
+            public bool guaranteedForTesting;
         }
 
         [SerializeField, Min(1)] private int minimumRolls = 2;
@@ -67,6 +69,23 @@ namespace Signal.Game
             }
 
             var random = new System.Random(Guid.NewGuid().GetHashCode());
+            // Testing-only guaranteed entries are inserted before ordinary weighted rolls.
+            // This does not affect containers that have already generated and persisted their contents.
+            foreach (LootEntry entry in entries)
+            {
+                if (entry == null || entry.item == null || !entry.guaranteedForTesting)
+                    continue;
+                ItemType guaranteedType = entry.item.ToItemType();
+                int guaranteedCount = Math.Min(guaranteedType.MaxStack,
+                    random.Next(entry.minimumCount, entry.maximumCount + 1));
+                if (container.Inventory.Add(guaranteedType, guaranteedCount, entry.item.DefaultInstanceState) > 0)
+                {
+                    container.Reset();
+                    error = "A guaranteed testing item does not fit inside the container inventory.";
+                    return false;
+                }
+            }
+
             int stackCount = random.Next(minimumRolls, maximumRolls + 1);
             for (int i = 0; i < stackCount; i++)
             {
