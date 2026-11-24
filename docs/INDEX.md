@@ -58,19 +58,19 @@ The current implementation status, branch head, verification and next action liv
 - The connected hideout, street, corner bakery and apartment foundations exist.
 - Inventory, item identity/state, knowledge, save/load, ownership transfers, clean accounts, retail, scavenging, theft, Dirty Cash, NPC routines and contextual narrative opportunity foundations exist.
 - The First Workshop B-01 to B-03 foundation and starter content are committed: Fabric Roll/Thread Spool/Adhesive Tube/Fastener Pack → Basic Patch Kit; Milo requests one kit for 40 CARD; Rhea sells the Compact Sewing Machine for 90 CARD after contract completion; the upgrade unlocks Reinforced Patch Kit.
-- The latest user-reported full EditMode result is **417/417 passed on 2026-11-24**, before the hybrid buyback code/test additions. A fresh full run is required for current HEAD.
-- The full EditMode suite passes. Remaining First Workshop Play Mode acceptance covers Rhea's three agenda threads, the Compact Sewing Machine purchase/installation, Reinforced Patch Kit production and F5/F9 persistence.
+- The latest user-reported full EditMode result is **417/417 passed on 2026-11-24**, before all B-04 code/content/test additions. It is not verification of current HEAD; a fresh full run is required.
+- The current B-04 hybrid buyback and repair service/UI tests are authored but unverified in Unity. Remaining First Workshop acceptance covers Rhea's three agenda threads, Compact Sewing Machine purchase/installation, Reinforced Patch Kit production and F5/F9 persistence.
 
 ### Current and future strategic direction
 
 1. **B-01 to B-03 — First Workshop:** make authored physical goods, fulfil one customer request and improve the hideout workshop. This is the active vertical slice.
-2. **B-04 — Repair, restoration and textile business:** design approved; hybrid pricing and the Rhea/Work Jacket content framework are committed; finish First Workshop Play Mode acceptance before integrating repair gameplay.
+2. **B-04 — Repair, restoration and textile business:** design, hybrid pricing, Rhea/Work Jacket content, Core repair service and workbench UI are committed; current-HEAD Unity verification and end-to-end Play Mode acceptance remain.
 3. **B-05 — Social life and recurring customers:** future design placeholder; deepen player-driven relationships and authored requests.
 4. **B-06 — Livelihood expansion:** choose another coherent legitimate activity, not a universal profession simulator.
 5. **B-07 — Neighbourhood expansion:** add connected geography only when existing places have meaningful reasons to revisit.
 6. **Crime depth and long-term progression:** continue as separate, scenario-led design that reuses the shared city, item and economy foundations.
 
-B-05 to B-07 remain future placeholders. B-04 has an approved textile-repair design and a committed hybrid buyback foundation; the remaining B-04 gate is completion of the First Workshop Play Mode acceptance, not another design approval.
+B-05 to B-07 remain future placeholders. B-04 design and implementation are committed; the remaining gate is current-HEAD Unity verification and combined First Workshop/textile repair Play Mode acceptance, not another design approval.
 
 ## How to navigate this repository
 
