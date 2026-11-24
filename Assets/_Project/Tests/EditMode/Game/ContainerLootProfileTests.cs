@@ -9,6 +9,52 @@ namespace Signal.Game.Tests
     public sealed class ContainerLootProfileTests
     {
         [Test]
+        public void ProfileIncludesGuaranteedTestingItemInEveryNewContainer()
+        {
+            ItemDefinition item = ScriptableObject.CreateInstance<ItemDefinition>();
+            ContainerLootProfile profile = ScriptableObject.CreateInstance<ContainerLootProfile>();
+            try
+            {
+                Guid itemId = Guid.NewGuid();
+                typeof(ItemDefinition).GetField("id", BindingFlags.Instance | BindingFlags.NonPublic)
+                    .SetValue(item, itemId.ToString());
+                typeof(ItemDefinition).GetField("displayName", BindingFlags.Instance | BindingFlags.NonPublic)
+                    .SetValue(item, "Guaranteed test jacket");
+
+                Type entryType = typeof(ContainerLootProfile).GetNestedType("LootEntry", BindingFlags.NonPublic);
+                object entry = Activator.CreateInstance(entryType, true);
+                entryType.GetField("item").SetValue(entry, item);
+                entryType.GetField("weight").SetValue(entry, 1);
+                entryType.GetField("minimumCount").SetValue(entry, 1);
+                entryType.GetField("maximumCount").SetValue(entry, 1);
+                entryType.GetField("guaranteedForTesting").SetValue(entry, true);
+
+                Array entries = Array.CreateInstance(entryType, 1);
+                entries.SetValue(entry, 0);
+                typeof(ContainerLootProfile).GetField("entries", BindingFlags.Instance | BindingFlags.NonPublic)
+                    .SetValue(profile, entries);
+                typeof(ContainerLootProfile).GetField("minimumRolls", BindingFlags.Instance | BindingFlags.NonPublic)
+                    .SetValue(profile, 1);
+                typeof(ContainerLootProfile).GetField("maximumRolls", BindingFlags.Instance | BindingFlags.NonPublic)
+                    .SetValue(profile, 1);
+
+                var container = new SearchableContainer("guaranteed-profile-test-bin", 8, 6);
+                Assert.That(profile.TryGenerate(container, out string error), Is.True, error);
+
+                bool found = false;
+                foreach (PlacedItem placed in container.Inventory.Items)
+                    if (placed.Type.Id == itemId)
+                        found = true;
+                Assert.That(found, Is.True, "The guaranteed testing item must be present in newly generated loot.");
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(profile);
+                UnityEngine.Object.DestroyImmediate(item);
+            }
+        }
+
+        [Test]
         public void ProfileGeneratesPersistentItemInstancesOnlyOnce()
         {
             ItemDefinition item = ScriptableObject.CreateInstance<ItemDefinition>();
