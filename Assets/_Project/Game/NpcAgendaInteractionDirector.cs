@@ -77,6 +77,7 @@ namespace Signal.Game
                 !_orderedThreads.TryGetValue(npcId, out NpcAgendaThreadDefinition[] orderedThreads))
                 return false;
 
+            MigrateLegacyDiscoveryProgress(npcId);
             for (int t = 0; t < orderedThreads.Length; t++)
             {
                 NpcAgendaThreadDefinition candidateThread = orderedThreads[t];
@@ -94,6 +95,34 @@ namespace Signal.Game
                 }
             }
             return false;
+        }
+
+        private void MigrateLegacyDiscoveryProgress(string npcId)
+        {
+            if (!_definitions.TryGetValue(npcId, out NpcAgendaDefinition agenda))
+                return;
+
+            foreach (NpcAgendaThreadDefinition thread in agenda.Threads)
+            {
+                foreach (NpcAgendaStageDefinition stage in thread.Stages)
+                {
+                    if (!stage.CompleteIfLegacyDiscoveryExists ||
+                        _progress.IsStageCompleted(npcId, thread.ThreadId, stage.StageId))
+                        continue;
+
+                    foreach (PlayerDiscoverySignal signal in _discoveries.Signals)
+                    {
+                        if (signal.SubjectId != stage.LegacyDiscoverySubjectId ||
+                            signal.SourceId != stage.LegacyDiscoverySourceId ||
+                            signal.Type != stage.LegacyDiscoveryType)
+                            continue;
+
+                        _progress.TryCompleteStage(npcId, thread.ThreadId, stage.StageId,
+                            "legacy-discovery");
+                        break;
+                    }
+                }
+            }
         }
 
         private static int CompareThreadPriority(NpcAgendaThreadDefinition left,
