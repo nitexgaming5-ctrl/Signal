@@ -7,6 +7,78 @@ namespace Signal.Game.Tests
     public sealed class NpcAgendaInteractionDirectorTests
     {
 
+
+        [Test]
+        public void AuthoredAgendaRejectsDuplicateThreadIdsAndMissingOfferReferences()
+        {
+            var duplicate = ScriptableObject.CreateInstance<NpcAgendaDefinition>();
+            duplicate.NpcId = "resident";
+            duplicate.Threads = new[]
+            {
+                new NpcAgendaThreadDefinition
+                {
+                    ThreadId = "same",
+                    DisplayName = "First",
+                    Stages = new[]
+                    {
+                        new NpcAgendaStageDefinition
+                        {
+                            StageId = "one",
+                            Dialogue = "First.",
+                            Choices = new[] { new NpcAgendaChoiceDefinition { ChoiceId = "ok", Label = "Okay", Response = "Okay." } }
+                        }
+                    }
+                },
+                new NpcAgendaThreadDefinition
+                {
+                    ThreadId = "same",
+                    DisplayName = "Second",
+                    Stages = new[]
+                    {
+                        new NpcAgendaStageDefinition
+                        {
+                            StageId = "two",
+                            Dialogue = "Second.",
+                            Choices = new[] { new NpcAgendaChoiceDefinition { ChoiceId = "ok", Label = "Okay", Response = "Okay." } }
+                        }
+                    }
+                }
+            };
+            Assert.That(duplicate.TryValidate(out _), Is.False);
+
+            var missingOffer = ScriptableObject.CreateInstance<NpcAgendaDefinition>();
+            missingOffer.NpcId = "resident";
+            missingOffer.Threads = new[]
+            {
+                new NpcAgendaThreadDefinition
+                {
+                    ThreadId = "offer",
+                    DisplayName = "Offer",
+                    Stages = new[]
+                    {
+                        new NpcAgendaStageDefinition
+                        {
+                            StageId = "show",
+                            Dialogue = "An offer.",
+                            Choices = new[]
+                            {
+                                new NpcAgendaChoiceDefinition
+                                {
+                                    ChoiceId = "show",
+                                    Label = "Show me",
+                                    Response = "Here it is.",
+                                    Action = NpcAgendaChoiceAction.OpenWorkshopUpgradeOffer
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+            Assert.That(missingOffer.TryValidate(out _), Is.False);
+            Object.DestroyImmediate(duplicate);
+            Object.DestroyImmediate(missingOffer);
+        }
+
         [Test]
         public void RheaAgendaResourceLoadsWithThreeValidatedIndependentThreads()
         {
