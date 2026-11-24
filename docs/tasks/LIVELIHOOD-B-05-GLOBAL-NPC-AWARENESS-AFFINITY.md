@@ -38,10 +38,10 @@ Before adding any new type, map these existing APIs and migrate their responsibi
 
 ## Implementation packages
 
-### B05-01 — Canonical relationship model
+### B05-01 — Canonical relationship model\n**Implementation status:** Shared value model and directed NPC adjustment path implemented; player/NPC ownership remains deliberately separate.
 - Preserve the existing distinct authority boundaries: PlayerRelationshipBook for player-to-NPC, NpcSocialWorld for NPC-to-NPC.
 - Keep the shared NpcRelationship value model and consistent validation/ranges without forcing the player into the NPC registry.
-- Store directed familiarity, trust and affinity consistently in each existing owner.
+- Store directed familiarity, trust and affinity consistently in each existing owner.\n- Route NPC-to-NPC changes through the validated `NpcSocialWorld.AdjustRelationship` path; scheduled encounters may adjust familiarity only.
 - Provide validated, explicit mutation operations with source/reason metadata where durable history is needed.
 - Preserve current ambient encounter behaviour: familiarity only; no ambient trust/affinity drift.
 - Keep existing consumers (perception, agenda conditions, social encounters) reading the canonical relationship state.
@@ -53,7 +53,7 @@ Before adding any new type, map these existing APIs and migrate their responsibi
 - Prevent duplicate event knowledge and invalid/unknown actor references.
 - Do not expose the global event journal through NPC perception or utility decisions.
 
-### B05-03 — Persistence and composition
+### B05-03 — Persistence and composition\n**Implementation status:** First durable-state slice implemented; Unity verification pending.
 - Preserve the existing player-to-NPC save path unchanged.
 - Persist durable NPC knowledge and directed NPC-to-NPC relationship state using stable NPC/event IDs.
 - Restore after NPC definitions and social world are registered; skip malformed or removed content records safely.
@@ -66,7 +66,7 @@ Before adding any new type, map these existing APIs and migrate their responsibi
 - Ensure witnessed world events and explicit information-sharing use the same knowledge path.
 - Add a minimal generic player-facing response/condition hook only where needed to prove affinity matters; do not invent a broad friendship, romance, faction or reputation system.
 
-### B05-05 — Verification
+### B05-05 — Verification\n**Implementation status:** Focused SaveMapper/social-world regression tests added; not yet run in Unity.
 - Core tests: directed independence, separate dimensions, bounded values, mutation idempotency, local observation, source/confidence retention, no journal leakage, explicit-only transmission and no gossip cascade.
 - Game tests: arbitrary authored NPC definitions receive identical social state wiring; no Rhea/Milo branches.
 - Save tests: player↔NPC and NPC↔NPC relationships, durable knowledge, malformed records and unknown IDs round-trip safely.
