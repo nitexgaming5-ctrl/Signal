@@ -7,7 +7,7 @@ namespace Signal.Game
     [RequireComponent(typeof(Rigidbody2D))]
     public sealed class PlayerMotor2D : MonoBehaviour
     {
-        [SerializeField] private float speed = 4f;
+        [SerializeField, Min(0f)] private float speed = 6f;
 
         private Rigidbody2D _body;
         private Vector2 _input;
