@@ -52,6 +52,11 @@ namespace Signal.Game
             }
         }
 
+        public bool HasAgenda(string npcId)
+        {
+            return !string.IsNullOrWhiteSpace(npcId) && _definitions.ContainsKey(npcId);
+        }
+
         public bool TryGetNextStage(string npcId, NpcActivity activity,
             out NpcAgendaThreadDefinition thread, out NpcAgendaStageDefinition stage)
         {
