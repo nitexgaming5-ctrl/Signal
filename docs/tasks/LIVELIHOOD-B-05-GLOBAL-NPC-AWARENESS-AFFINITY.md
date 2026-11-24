@@ -1,6 +1,6 @@
 # B-05 — Global NPC Awareness & Affinity
 
-**Status:** Approved for implementation; architecture audit complete  
+**Status:** Approved; first implementation slice committed, Unity verification pending  
 **Approved:** 2026-11-24  
 **Priority:** High — shared social foundation  
 **Pilot content:** Rhea and Milo; neither may receive bespoke runtime logic  
@@ -34,7 +34,7 @@ Residents remember what they personally witness or are explicitly told, form ind
 - NpcSocialWorld and NpcAgentState for NPC-to-NPC state and per-NPC knowledge; these are the B-05 persistence gap.
 - Existing explicit knowledge sharing and controlled scheduled social encounters.
 
-Before adding any new type, map these existing APIs and migrate their responsibilities into one canonical path.
+Preserve these existing owners and extend them rather than introducing parallel authority. Add new types only when the existing APIs cannot safely represent the approved behavior.
 
 ## Implementation packages
 
