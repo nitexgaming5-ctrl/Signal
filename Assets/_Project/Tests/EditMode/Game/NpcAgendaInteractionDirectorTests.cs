@@ -170,8 +170,6 @@ namespace Signal.Game.Tests
             Assert.That(definition.Threads[1].Stages[0].Choices[0].WorkshopUpgradeOffer, Is.Not.Null);
 
             WorkshopUpgradeDefinition routedOffer = null;
-            var director = CreateDirector(new[] { definition }, new NpcAgendaProgressBook(),
-                new PlayerDiscoveryLedger(), new PlayerRelationshipBook());
             var typedDirector = new NpcAgendaInteractionDirector(new[] { definition },
                 new NpcAgendaProgressBook(), new PlayerDiscoveryLedger(), new PlayerRelationshipBook(),
                 _ => true, _ => false, (_, __) => false,
