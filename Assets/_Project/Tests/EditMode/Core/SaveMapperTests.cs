@@ -743,7 +743,8 @@ namespace Signal.Core.Tests
             Assert.That(retold, Is.Not.Null);
             Assert.That(retold.Origin, Is.EqualTo(NpcKnowledgeOrigin.ToldByAnotherNpc));
             Assert.That(retold.LastSourceNpcId, Is.EqualTo("milo"));
-            Assert.That(retold.Confidence, Is.EqualTo(0.85f).Within(0.0001f));
+            // ShareKnowledge uses listener trust: 1.0 * (0.35 + 0.7 * 0.5) = 0.70.
+            Assert.That(retold.Confidence, Is.EqualTo(0.7f).Within(0.0001f));
             Assert.That(retold.LearnedMinuteOfDay, Is.EqualTo(630));
             Assert.That(restoredWorld.GetRelationship("rhea", "milo").Affinity, Is.EqualTo(-0.2f));
             Assert.That(restoredWorld.GetRelationship("milo", "rhea").Affinity, Is.EqualTo(0.6f));
