@@ -82,6 +82,18 @@ namespace Signal.Game.Tests
             Assert.That(signal.Confidence, Is.EqualTo(0.4f));
             Assert.That(relationships.Get("rhea").Familiarity, Is.EqualTo(0.03f).Within(0.0001f));
 
+            discoveries.Record(new PlayerDiscoverySignal("milo-routine-test", "milo",
+                DiscoverySignalType.RoutineObservation, "milo",
+                "Milo stepped outside after closing with a wrapped parcel.", 1f, 2, 600));
+            relationships.Adjust("milo", familiarityDelta: 0.2f);
+            var parcelOffer = new OpportunityDefinition("milo-parcel", "milo",
+                new InteractionConditionSet(NpcActivity.Socialize, minimumFamiliarity: 0.2f,
+                    minimumDistinctSignalTypes: 2));
+            var context = new InteractionContext(NpcActivity.Socialize,
+                relationships.Get("milo"), discoveries);
+            Assert.That(parcelOffer.OfferConditions.IsSatisfiedBy(context, "milo"), Is.True,
+                "Rhea's rumour must remain a Milo-subject signal so the existing parcel offer can count it.");
+
             Assert.That(director.TryChoose("rhea", thread.ThreadId, stage.StageId, "ask-source",
                 out _, out _), Is.False);
             Assert.That(relationships.Get("rhea").Familiarity, Is.EqualTo(0.03f).Within(0.0001f));
