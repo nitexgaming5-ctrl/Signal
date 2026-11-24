@@ -234,10 +234,18 @@ namespace Signal.Game
             NpcAgendaDefinition[] agendaDefinitions = npcAgendas != null && npcAgendas.Length > 0
                 ? npcAgendas
                 : Resources.LoadAll<NpcAgendaDefinition>("Agendas");
-            _npcAgendaDirector = new NpcAgendaInteractionDirector(agendaDefinitions,
-                _npcAgendaProgress, _playerDiscoveries, _playerRelationships,
-                IsAgendaContractCompleted, IsAgendaUpgradeAcquired, IsAgendaOpportunityInPhase,
-                OpenAgendaWorkshopOffer, () => _clock.Day, () => _clock.MinuteOfDay);
+            try
+            {
+                _npcAgendaDirector = new NpcAgendaInteractionDirector(agendaDefinitions,
+                    _npcAgendaProgress, _playerDiscoveries, _playerRelationships,
+                    IsAgendaContractCompleted, IsAgendaUpgradeAcquired, IsAgendaOpportunityInPhase,
+                    OpenAgendaWorkshopOffer, () => _clock.Day, () => _clock.MinuteOfDay);
+            }
+            catch (ArgumentException exception)
+            {
+                Debug.LogError("NPC agenda content could not be loaded: " + exception.Message, this);
+                _npcAgendaDirector = null;
+            }
             _npcAgendaPanel = gameObject.AddComponent<NpcAgendaConversationPanel>();
             _npcAgendaPanel.Bind(HandleAgendaChoice);
 
