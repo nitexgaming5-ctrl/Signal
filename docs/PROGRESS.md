@@ -7,10 +7,10 @@ Last reconciled: **2026-11-24**. This is the short status board. Session history
 - Unity **6000.6.9f1**, 2D URP. Active architecture: `Signal.Core` (plain C#) + `Signal.Game` (Unity integration). Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
 - Working branch: `chore/collaboration-workflow-and-audit`. Keep `main` untouched.
 - Application version: **0.01**. Save snapshots are deliberately unversioned; there is no schema-version field, version gate or automatic migration chain. Older experimental saves may be incompatible after data-shape changes.
-- Latest user-reported full EditMode result: **417/417 passed (2026-11-24)**, before all B-04 hybrid pricing, textile content, counter geometry, repair service/UI and test additions. This is the last verified baseline, not verification of current HEAD; a fresh full suite is required.
-- The user confirmed the workbench, selling and Milo's customer-request flow working in Play Mode. The supplier purchase/installation, Rhea agenda sequence, second recipe and full F5/F9 acceptance remain to be verified.
+- Latest user-reported full EditMode result: **430/430 passed (2026-11-24)** after the B-04 implementation. The user also confirmed the First Workshop and repair/trading gameplay works in Play Mode; the remaining issue was that the Work Jacket was not found during scavenging. This 430/430 result predates the movement, guaranteed-loot and NPC-interaction-pause changes in the current patch.
+- The user reports the First Workshop and repair/trading flow working in Play Mode. The Work Jacket still needs to be acquired through scavenging to complete the repair loop.
 
-## Active initiative — Direction B: First Workshop (B-01 to B-03)
+## Active initiative — Direction B: First Workshop and Repair (B-01 to B-04)
 
 **Player outcome:** make physical goods at the hideout, fulfil one authored customer request for clean CARD, then purchase a practical upgrade that unlocks another recipe.
 
@@ -47,16 +47,15 @@ Specialist references: [Architecture](ARCHITECTURE.md), [Data Model](DATA_MODEL.
 
 **EditMode:** the user's **417/417 result on 2026-11-24** predates all hybrid buyback, textile content, repair runtime/UI and test additions. It remains the last verified baseline; rerun the full suite in Unity on current HEAD.
 
-**Play Mode already confirmed:** workbench opens, production/selling works, Milo's request can be completed.
+**Play Mode:** the user reports the First Workshop and repair/trading features work well. The Work Jacket was not found in scavenging, so its loot availability is being made deterministic for testing.
 
-**Remaining First Workshop acceptance:**
-1. Talk to Rhea on the Street and exercise the sourced Milo-rumour choices.
-2. Complete Milo's request; talk to Rhea in CornerShop and choose to inspect her Compact Sewing Machine offer.
-3. Buy/install the machine; verify payment, installed prop and Rhea's post-purchase mending advice.
-4. Confirm Reinforced Patch Kit unlock and production.
-5. F5/F9 save/reload; verify balances, inventories, contract, agenda choices, installed upgrade and recipe unlock.
+**Current patch acceptance:**
+1. Verify player movement feels right at the new 6 units/second speed (1.5× the previous 4).
+2. Open a newly generated Street bin using `LootProfile_A`; it should contain a Work Jacket for repair testing. Existing generated bins retain their saved contents, so use a fresh/reset test bin or a fresh test save.
+3. Confirm the involved NPC stops during agenda dialogue, business trading, the customer request, the upgrade offer and Dirty Cash contact UI, then resumes their schedule when the panel closes.
+4. Run the full EditMode suite and the combined B-01–B-04 Play Mode loop again.
 
-The full agenda implementation and acceptance checklist are in [NPC Agenda & Interaction Threads](tasks/NPC-AGENDA-INTERACTION-THREADS.md). No Play Mode result is claimed for steps not reported by the user.
+The guaranteed Work Jacket entry is explicitly temporary test scaffolding and should be removed or changed back to a low-weight normal entry once the repair loop is fully validated.
 
 ## Next strategic feature
 
