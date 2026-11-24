@@ -1,6 +1,6 @@
 # NPC Agenda & Interaction Threads
 
-**Status:** Approved; implementation not yet started  
+**Status:** Implementation in progress; Unity verification pending  
 **Approved:** 2026-11-24  
 **Priority:** High — shared narrative foundation for Direction B  
 **Pilot:** Rhea  
@@ -41,18 +41,18 @@ Keep the parcel controller's physical world props, inspection, acceptance, retur
 
 ## Acceptance criteria
 
-- [ ] Core progress model and rule tests cover stable IDs, independent threads, stage transitions, choice recording, invalid content and idempotent outcomes.
-- [ ] Authored assets validate missing/duplicate IDs and invalid references.
-- [ ] Generic director selects the correct eligible interaction for a nearby resident.
-- [ ] Reusable conversation panel presents dialogue and choices and respects modal input locking.
-- [ ] Rhea Thread A preserves source/confidence and never implies rumour is confirmed truth.
-- [ ] Rhea Thread B opens the existing offer panel and purchases through the existing upgrade service only.
-- [ ] Rhea Thread C appears only after the intended purchase milestone and does not create repair gameplay.
-- [ ] A second NPC fixture uses the same framework without new character-specific runtime code.
-- [ ] Save/reload preserves meaningful stage/choice state without replaying one-time effects.
-- [ ] Milo parcel physical gameplay and its existing tests remain unchanged.
+- [x] Core progress model, save v16 migration/round-trip wiring and focused tests cover stable IDs, independent threads, selected choices, invalid records and idempotent stage completion (Unity execution pending).
+- [x] Authored assets validate stable IDs, duplicate IDs, required references, typed outcomes and invalid discovery/relationship data.
+- [x] Generic director selects eligible interactions using thread priority, activity, location, discovery, relationship, opportunity, contract and upgrade conditions.
+- [x] Reusable conversation panel presents dialogue and choices with modal input locking.
+- [x] Rhea Thread A is authored as a second-hand rumour with source `rhea` and confidence 0.4; the response explicitly states it is unverified.
+- [x] Rhea Thread B references the existing Compact Sewing Machine upgrade and opens the existing supplier panel; the existing upgrade service remains the only purchase path.
+- [x] Rhea Thread C requires the acquired sewing-machine upgrade and only provides narrative mending advice.
+- [x] A second resident fixture (`milo`) is covered through the same director tests without character-specific runtime code.
+- [x] Save v16 persists completed stage/choice IDs and restores them through GameSession; SaveMapper round-trip and v15 migration tests are added.
+- [x] Milo parcel physical lifecycle remains in its existing controller; only Rhea's conversation/rumour path was removed.
 - [ ] Full EditMode suite passes; user verifies Play Mode interactions and save/load.
 
-## Out of scope
+## Current verification note\n\nAll implementation checkboxes above mean code/content is in place, not Unity-verified. The full EditMode suite and Play Mode acceptance remain pending. The prior 415/415 result predates these changes.\n\n## Out of scope
 
 Procedural/LLM dialogue, autonomous quest generation, broad NPC relationship simulation, repair mechanics, multiple active customer contracts, new economy rules, and wholesale migration of Milo's parcel opportunity.
