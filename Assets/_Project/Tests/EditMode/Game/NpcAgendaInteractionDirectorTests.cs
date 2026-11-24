@@ -29,6 +29,8 @@ namespace Signal.Game.Tests
             var relationships = new PlayerRelationshipBook();
             var director = CreateDirector(new[] { rhea, milo }, progress, discoveries, relationships);
 
+            Assert.That(director.HasAgenda("rhea"), Is.True);
+            Assert.That(director.HasAgenda("unlisted"), Is.False);
             Assert.That(director.TryGetNextStage("rhea", NpcActivity.Socialize, "Street",
                 out NpcAgendaThreadDefinition rheaThread, out NpcAgendaStageDefinition rheaStage), Is.True);
             Assert.That(rheaThread.ThreadId, Is.EqualTo("neighbour-tip"));
