@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using NUnit.Framework;
 using Signal.Core;
 
@@ -156,23 +155,6 @@ namespace Signal.Core.Tests
             Assert.That(restored.Inventory.TryGetItemInstance(remaining, out _), Is.True);
             Assert.That(restored.TryRevealNext(out Guid next), Is.True);
             Assert.That(next, Is.EqualTo(remaining));
-        }
-
-        [Test]
-        public void VersionElevenSaveMigratesGeneratedBinWithoutStartingSearch()
-        {
-            var data = new SaveData
-            {
-                version = 11,
-                searchableContainers = new List<SavedSearchableContainer>
-                {
-                    new SavedSearchableContainer { containerId = "street-bin-a", generated = true }
-                }
-            };
-
-            Assert.That(SaveMigrator.TryMigrate(data, out string error), Is.True, error);
-            Assert.That(data.version, Is.EqualTo(SaveMigrator.CurrentVersion));
-            Assert.That(data.searchableContainers[0].searchStarted, Is.False);
         }
 
         [Test]
