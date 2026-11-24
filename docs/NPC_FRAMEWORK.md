@@ -110,3 +110,43 @@ This is a framework milestone, not a narrative milestone. No new story arc, fina
 - Failed navigation remains explicit. A caller may request one retry through DebugRetryNavigation; the F1 menu exposes a one-shot retry across failed residents. There is no per-frame retry loop.
 - The map is currently a static build-time snapshot, so retry is a controlled diagnostic hook for cases where the navigation representation has become usable again; dynamic obstacle/map rebuilding is future infrastructure, not part of this milestone.
 - Focused EditMode tests cover forced-activity return, pause/resume route preservation and schedule changes while paused. Unity compilation, the full suite and Play Mode validation remain pending user verification.
+
+
+## NPC Agenda & Interaction Threads — approved initiative (2026-11-24)
+
+The next narrative-interaction layer is a reusable, authored agenda system. It extends the shared-world and player-relationship foundations above; it does not replace NPC schedules, perception, knowledge, discovery, opportunities, contracts or economy services.
+
+### Design contract
+
+- Every thread has stable NPC, thread and stage IDs. Content is authored; runtime progress is deterministic and save-safe.
+- Threads are independent. A resident may have several available conversations or offers without forcing one giant linear quest.
+- Eligibility is evaluated from explicit context: resident identity/activity/location, player discoveries, relationship values, contract/opportunity state and acquired upgrades. Only configured requirements apply.
+- A conversation stage may offer multiple player choices. Outcomes are typed, explicit, idempotent and applied once. Reopening a conversation must not duplicate relationship changes, discoveries, payments, items or unlocks.
+- Dialogue and rumours preserve source and confidence. The player may learn what a resident believes or heard without the game declaring that belief objectively true.
+- NPC knowledge is never inferred from the global event journal. A stage may reveal only information the resident actually observed, was told, or has explicitly authored knowledge of.
+- Core owns stable progress and rule evaluation. Game owns ScriptableObject content, presentation and adapters to existing gameplay services. NpcPresenter remains generic and does not gain character-specific story branches.
+- No procedural dialogue, LLM, free-running quest generator, background relationship drift or per-frame agenda evaluation.
+
+### Rhea pilot threads
+
+1. **A neighbour who notices things:** Rhea can share her limited, sourced information about Milo. The tip is a rumour with low confidence, not a verified conclusion. The player can ask how she knows, ask why she is telling them, or leave the subject.
+2. **Something in the back room:** after the existing Milo customer-request prerequisite, Rhea can offer the Compact Sewing Machine. The agenda opens the existing supplier panel; the existing upgrade service remains authoritative for payment, ownership and installation. Declining does not permanently destroy the offer.
+3. **Perhaps I need a favour myself:** after the machine transaction, Rhea can offer practical mending advice and establish a future repair-service/customer connection. This is narrative setup only; it does not implement B-04 Repair & Restoration.
+
+The threads are independent wherever their prerequisites allow. Hearing the Milo tip does not require buying the machine; buying the machine does not require exhausting all dialogue.
+
+### Milo parcel integration boundary
+
+The parcel controller currently owns physical parcel props, inspection, acceptance, return, drop-off, delivery and outcome assessment. Preserve those mechanics and their stable IDs. Move only conversational content/choice presentation into the agenda framework where doing so produces a cleaner reusable path. The framework may call the existing opportunity service/controller through a narrow typed action; it must not duplicate parcel lifecycle rules or silently alter the opportunity's eligibility/outcomes.
+
+### Implementation sequence
+
+1. Add and test Core progress/state primitives using stable IDs and idempotent outcome application.
+2. Add authored agenda/thread/stage/choice content assets and validation.
+3. Add a generic interaction director and reusable conversation panel; route nearby NPC interaction through it without adding branches to NpcPresenter.
+4. Integrate Rhea's three threads and existing supplier/contract services.
+5. Migrate Rhea's Milo tip from the parcel controller, preserving sourced-knowledge constraints; retain the parcel mechanics.
+6. Decide and implement minimal save persistence/migration only after the state model is proven. Stable content IDs must survive renames and missing optional content safely.
+7. Add a second resident/thread fixture using the same system to prove authoring reuse, then update task/docs and verify the full EditMode suite.
+
+This initiative is approved. New gameplay mechanics outside these three Rhea threads remain subject to separate design approval.
