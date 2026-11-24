@@ -139,7 +139,7 @@ namespace Signal.Game
             Text title = CreateText(frame, "WORKBENCH  /  PERSONAL SPACE", 28, InkColor, TextAnchor.MiddleLeft);
             Anchor(title.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(34f, -28f), new Vector2(820f, 42f));
 
-            Text subtitle = CreateText(frame, "Arrange the tools. Inspect the objects. More functionality will come with the game.", 16, MutedColor, TextAnchor.MiddleLeft);
+            Text subtitle = CreateText(frame, "Arrange the tools, produce useful goods and restore worn clothing with the right equipment.", 16, MutedColor, TextAnchor.MiddleLeft);
             Anchor(subtitle.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(34f, -70f), new Vector2(900f, 30f));
 
             Button closeButton = CreateButton(frame, "BACK TO ROOM  [ESC]", new Vector2(230f, 48f));
