@@ -51,6 +51,7 @@ namespace Signal.Game
         private Action _closed;
 
         public bool IsOpen => _root != null && _root.activeSelf;
+        public string ActiveOwnerNpcId => IsOpen && _business != null ? _business.OwnerNpcId : string.Empty;
 
         public void Bind(Func<BusinessDefinition, ItemDefinition, string> purchase,
             Func<BusinessDefinition, Guid, int, string> sell, GridInventory inventory,
