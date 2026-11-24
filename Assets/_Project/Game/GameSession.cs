@@ -645,8 +645,11 @@ namespace Signal.Game
                 _hud.SetPrompt("ESC  Close storage");
             else if (inventoryOpen)
                 _hud.SetPrompt(string.Empty);
-            else if (nearAgendaInteraction && !nearSearchableContainer && !nearDirtyCashContact &&
+            else if (hasScenarioPrompt && !nearSearchableContainer && !nearDirtyCashContact &&
                 !nearContractCustomer && !nearUpgradeSupplier)
+                _hud.SetPrompt(cityPrompt);
+            else if (!hasScenarioPrompt && nearAgendaInteraction && !nearSearchableContainer &&
+                !nearDirtyCashContact && !nearContractCustomer && !nearUpgradeSupplier)
                 _hud.SetPrompt("E  Talk");
             else if (nearWorkbench)
                 _hud.SetPrompt("E  Use workbench");
