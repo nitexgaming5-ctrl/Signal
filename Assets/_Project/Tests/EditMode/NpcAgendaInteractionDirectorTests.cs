@@ -95,7 +95,7 @@ namespace Signal.Game.Tests
             };
             var director = new NpcAgendaInteractionDirector(new[] { definition },
                 new NpcAgendaProgressBook(), new PlayerDiscoveryLedger(), new PlayerRelationshipBook(),
-                id => id == "contract-one", _ => false, () => true, () => 1, () => 0);
+                id => id == "contract-one", _ => false, _ => true, () => 1, () => 0);
 
             Assert.That(director.TryGetNextStage("rhea", NpcActivity.Work, out _, out _), Is.True);
             Object.DestroyImmediate(definition);
@@ -135,7 +135,7 @@ namespace Signal.Game.Tests
             var progress = new NpcAgendaProgressBook();
             var director = new NpcAgendaInteractionDirector(new[] { definition }, progress,
                 new PlayerDiscoveryLedger(), new PlayerRelationshipBook(), _ => false, _ => false,
-                () => { opened++; return true; }, () => 1, () => 0);
+                _ => { opened++; return true; }, () => 1, () => 0);
 
             Assert.That(director.TryChoose("rhea", "machine", "offer", "see-offer", out _, out bool completed), Is.True);
             Assert.That(completed, Is.False);
