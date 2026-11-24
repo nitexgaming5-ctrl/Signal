@@ -42,7 +42,7 @@ MonoBehaviour:
         DiscoveryType: 3
         DiscoveryDescription: "Rhea says someone from the block told her Milo has carried parcels after closing. She has not seen where they go."
         DiscoveryConfidence: 0.4
-        FamiliarityDelta: 0.03
+        FamiliarityDelta: 0.05
         TrustDelta: 0
         AffinityDelta: 0
       - ChoiceId: ask-why
@@ -55,7 +55,7 @@ MonoBehaviour:
         DiscoveryType: 3
         DiscoveryDescription: "Rhea says someone from the block told her Milo has carried parcels after closing. She has not seen where they go."
         DiscoveryConfidence: 0.4
-        FamiliarityDelta: 0.03
+        FamiliarityDelta: 0.05
         TrustDelta: 0
         AffinityDelta: 0
       - ChoiceId: leave-subject
@@ -68,7 +68,7 @@ MonoBehaviour:
         DiscoveryType: 3
         DiscoveryDescription: "Rhea says someone from the block told her Milo has carried parcels after closing. She has not seen where they go."
         DiscoveryConfidence: 0.4
-        FamiliarityDelta: 0.03
+        FamiliarityDelta: 0.05
         TrustDelta: 0
         AffinityDelta: 0
   - ThreadId: compact-sewing-machine
