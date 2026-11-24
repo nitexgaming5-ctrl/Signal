@@ -47,6 +47,16 @@ namespace Signal.Core
             LearnedMinuteOfDay = learnedMinuteOfDay;
         }
 
+        internal static NpcKnowledge Restore(string eventId, string kind, string description,
+            string originalActorNpcId, string lastSourceNpcId, NpcKnowledgeOrigin origin, float confidence,
+            string eventLocationId, float eventX, float eventY, int occurredDay, int occurredMinuteOfDay,
+            int learnedDay, int learnedMinuteOfDay)
+        {
+            return new NpcKnowledge(eventId, kind, description, originalActorNpcId, lastSourceNpcId,
+                origin, confidence, eventLocationId, eventX, eventY, occurredDay, occurredMinuteOfDay,
+                learnedDay, learnedMinuteOfDay);
+        }
+
         internal NpcKnowledge Retell(string sourceNpcId, float confidence, int day, int minuteOfDay)
         {
             return new NpcKnowledge(EventId, Kind, Description, OriginalActorNpcId, sourceNpcId,
