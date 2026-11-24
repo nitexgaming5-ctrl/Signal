@@ -39,6 +39,65 @@ namespace Signal.Core.Tests
             return SaveMapper.Apply(data, world.Stats, world.Inventory, world.Clock, world.Heat, world.Rent, Resolver(known));
         }
 
+
+        [Test]
+        public void AgendaProgressSurvivesSaveCaptureAndRestore()
+        {
+            var source = new World();
+            var progress = new NpcAgendaProgressBook();
+            progress.TryCompleteStage("rhea", "milo-tip", "opening", "ask-source");
+            progress.TryCompleteStage("rhea", "machine-offer", "opening", "decline");
+
+            SaveData data = SaveMapper.Capture(source.Stats, source.Inventory, null,
+                source.Clock, source.Heat, source.Rent, "Hideout", 0f, 0f,
+                npcAgendaProgress: progress);
+
+            Assert.That(data.version, Is.EqualTo(16));
+            Assert.That(data.npcAgendaProgress.Count, Is.EqualTo(2));
+
+            var restored = new NpcAgendaProgressBook();
+            LoadReport report = SaveMapper.Apply(data, new World().Stats, new GridInventory(),
+                null, new GameClock(), new HeatMeter(), new RentLedger(50, 7),
+                Resolver(), npcAgendaProgress: restored);
+
+            Assert.That(report.Success, Is.True);
+            Assert.That(report.SkippedNpcAgendaProgress, Is.Zero);
+            Assert.That(restored.CompletedStageCount, Is.EqualTo(2));
+            Assert.That(restored.TryGetChoice("rhea", "milo-tip", "opening", out string choice), Is.True);
+            Assert.That(choice, Is.EqualTo("ask-source"));
+        }
+
+        [Test]
+        public void AgendaProgressMigrationInitializesMissingCollectionAndSkipsMalformedEntries()
+        {
+            var data = new SaveData
+            {
+                version = 15,
+                npcAgendaProgress = null
+            };
+
+            Assert.That(SaveMigrator.TryMigrate(data, out string error), Is.True, error);
+            Assert.That(data.version, Is.EqualTo(16));
+            Assert.That(data.npcAgendaProgress, Is.Not.Null);
+            Assert.That(data.npcAgendaProgress, Is.Empty);
+
+            data.npcAgendaProgress.Add(new SavedNpcAgendaStageProgress
+            {
+                npcId = "rhea",
+                threadId = "thread",
+                stageId = "stage",
+                choiceId = ""
+            });
+            var restored = new NpcAgendaProgressBook();
+            LoadReport report = SaveMapper.Apply(data, new World().Stats, new GridInventory(),
+                null, new GameClock(), new HeatMeter(), new RentLedger(50, 7),
+                Resolver(), npcAgendaProgress: restored);
+
+            Assert.That(report.Success, Is.True);
+            Assert.That(report.SkippedNpcAgendaProgress, Is.EqualTo(1));
+            Assert.That(restored.CompletedStageCount, Is.Zero);
+        }
+
         [Test]
         public void CaptureWritesEveryField()
         {
