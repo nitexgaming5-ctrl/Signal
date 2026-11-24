@@ -99,6 +99,24 @@ namespace Signal.Core
             return observer.GetRelationship(otherNpcId);
         }
 
+        public void AdjustRelationship(string observerNpcId, string otherNpcId,
+            float familiarityDelta = 0f, float trustDelta = 0f, float affinityDelta = 0f)
+        {
+            ValidateRelationshipDelta(familiarityDelta, nameof(familiarityDelta));
+            ValidateRelationshipDelta(trustDelta, nameof(trustDelta));
+            ValidateRelationshipDelta(affinityDelta, nameof(affinityDelta));
+            NpcRelationship current = GetRelationship(observerNpcId, otherNpcId);
+            var updated = new NpcRelationship(current.Familiarity + familiarityDelta,
+                current.Trust + trustDelta, current.Affinity + affinityDelta);
+            SetRelationship(observerNpcId, otherNpcId, updated);
+        }
+
+        private static void ValidateRelationshipDelta(float value, string name)
+        {
+            if (float.IsNaN(value) || float.IsInfinity(value))
+                throw new ArgumentOutOfRangeException(name);
+        }
+
         public void SetRelationship(string observerNpcId, string otherNpcId, NpcRelationship relationship)
         {
             if (observerNpcId == otherNpcId)
