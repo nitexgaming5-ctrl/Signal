@@ -35,6 +35,12 @@ namespace Signal.Core
             return result.AsReadOnly();
         }
 
+        internal void ClearDurableSocialState()
+        {
+            _knowledge.Clear();
+            _relationships.Clear();
+        }
+
         internal bool KnowsEvent(string eventId)
         {
             for (int i = 0; i < _knowledge.Count; i++)
