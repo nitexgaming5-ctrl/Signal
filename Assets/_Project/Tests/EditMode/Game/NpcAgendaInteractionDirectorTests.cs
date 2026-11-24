@@ -81,15 +81,14 @@ namespace Signal.Game.Tests
         }
 
         [Test]
-        public void NonCompletingWorkshopOfferCanBeReopenedWithoutDuplicatingStageProgress()
+        public void NonCompletingDialogueChoiceCanBeRevisitedWithoutCreatingProgress()
         {
             NpcAgendaDefinition agenda = CreateAgenda("rhea", "machine", "offer",
-                Choice("inspect", NpcAgendaChoiceAction.OpenWorkshopUpgradeOffer, complete: false));
-            int opened = 0;
+                Choice("inspect", NpcAgendaChoiceAction.DialogueOnly, complete: false));
+            var progress = new NpcAgendaProgressBook();
             var director = new NpcAgendaInteractionDirector(new[] { agenda },
-                new NpcAgendaProgressBook(), new PlayerDiscoveryLedger(),
-                new PlayerRelationshipBook(), _ => true, _ => false,
-                _ => { opened++; return true; }, () => 2, () => 600);
+                progress, new PlayerDiscoveryLedger(), new PlayerRelationshipBook(),
+                _ => true, _ => false, _ => true, () => 2, () => 600);
 
             Assert.That(director.TryChoose("rhea", "machine", "offer", "inspect",
                 out string response, out bool completed), Is.True);
@@ -97,7 +96,7 @@ namespace Signal.Game.Tests
             Assert.That(completed, Is.False);
             Assert.That(director.TryChoose("rhea", "machine", "offer", "inspect",
                 out _, out _), Is.True);
-            Assert.That(opened, Is.EqualTo(2));
+            Assert.That(progress.IsStageCompleted("rhea", "machine", "offer"), Is.False);
         }
 
         [Test]
