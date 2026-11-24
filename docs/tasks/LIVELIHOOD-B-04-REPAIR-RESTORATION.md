@@ -20,7 +20,7 @@ The current branch was source-audited before these decisions were finalised:
 - `GridInventory.TryUpdateItemState(Guid, ItemInstanceState)` replaces state on the exact existing stack while preserving its local ID, stable `ItemInstanceId`, definition, position, orientation and quantity, then raises `Changed`.
 - `ItemKnowledgeBook` stores partial player knowledge separately from authoritative physical state. `RecordFact` replaces one aspect's known fact without wiping other aspects.
 - `SaveMapper` persists physical item state and item-knowledge facts in the unversioned 0.01 save snapshot. No schema-version field or migration chain is to be introduced.
-- `ContainerLootProfile` creates items from `ItemDefinition.DefaultInstanceState`; a dedicated Work Jacket definition authored Worn can be added to an existing loot profile without a new loot-state mechanism.
+- `ContainerLootProfile` creates items from `ItemDefinition.DefaultInstanceState`; the Work Jacket is authored Worn and included as a low-weight entry in the existing `LootProfile_A` without a new loot-state mechanism.
 - `Shop.TryFulfilExact` receives the resolved unit price and records that exact price plus the sold stack's state in `ShopSaleTransaction`. The transaction format already supports the required audit trail; no new sale-history fields or save migration are needed.
 - `BusinessDefinition` now exposes `BuybackPricingMode.Fixed` and `BuybackPricingMode.ByCondition`. Existing entries default to Fixed; the state-aware overload resolves the four explicit condition prices.
 - `RetailPanel` quotes from the selected stack's state. `GameSession.SellToBusiness` resolves the offer again from the current stack state immediately before the transaction, so a stale UI quote cannot determine the committed price.
@@ -28,7 +28,7 @@ The current branch was source-audited before these decisions were finalised:
 - `ItemValueCalculator` remains an indicative inspection/reference valuation, not the source of the buyer's payout.
 - `RepairService.TryRepair` is implemented in Core. It validates the player-owned carried container, exact Work Jacket and patch-kit instances, explicit kit transition and item ownership; it consumes the selected kit, changes only Condition, and records a full-confidence `DirectInspection` condition fact. It rolls back inventory/kit ownership if the state update fails.
 - `WorkbenchWorkspace` now presents the repair controls alongside the existing recipe book. `GameSession` wires authored Work Jacket/kit definitions, requires the Compact Sewing Machine and the player to be at the hideout workbench, and routes the operation to `RepairService`.
-- The hybrid code and focused `BusinessDefinitionTests` were committed in `79143557c26c3dd1cf291027ecbc677aaaec80e4`. They have not yet been compiled or run in the Unity Editor. The last user-reported 417/417 EditMode result predates that commit.
+- The hybrid pricing code and `BusinessDefinitionTests` began in commit `79143557c26c3dd1cf291027ecbc677aaaec80e4`. Subsequent commits add the Rhea/Work Jacket content, `RepairService`, workbench UI and repair/save tests. None of the B-04 changes have been compiled or run in Unity; the last user-reported 417/417 EditMode result predates all of them.
 
 ## Approved catalogue model
 
