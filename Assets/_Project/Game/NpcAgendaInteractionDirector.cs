@@ -12,6 +12,8 @@ namespace Signal.Game
     {
         private readonly Dictionary<string, NpcAgendaDefinition> _definitions =
             new Dictionary<string, NpcAgendaDefinition>(StringComparer.Ordinal);
+        private readonly Dictionary<string, NpcAgendaThreadDefinition[]> _orderedThreads =
+            new Dictionary<string, NpcAgendaThreadDefinition[]>(StringComparer.Ordinal);
         private readonly NpcAgendaProgressBook _progress;
         private readonly PlayerDiscoveryLedger _discoveries;
         private readonly PlayerRelationshipBook _relationships;
@@ -49,6 +51,9 @@ namespace Signal.Game
                 if (_definitions.ContainsKey(definition.NpcId))
                     throw new ArgumentException("Duplicate NPC agenda for " + definition.NpcId + ".", nameof(definitions));
                 _definitions.Add(definition.NpcId, definition);
+                var orderedThreads = new List<NpcAgendaThreadDefinition>(definition.Threads);
+                orderedThreads.Sort(CompareThreadPriority);
+                _orderedThreads.Add(definition.NpcId, orderedThreads.ToArray());
             }
         }
 
@@ -69,17 +74,10 @@ namespace Signal.Game
             thread = null;
             stage = null;
             if (string.IsNullOrWhiteSpace(npcId) ||
-                !_definitions.TryGetValue(npcId, out NpcAgendaDefinition agenda))
+                !_orderedThreads.TryGetValue(npcId, out NpcAgendaThreadDefinition[] orderedThreads))
                 return false;
 
-            var orderedThreads = new List<NpcAgendaThreadDefinition>(agenda.Threads);
-            orderedThreads.Sort((left, right) =>
-            {
-                int priority = right.Priority.CompareTo(left.Priority);
-                return priority != 0 ? priority : string.CompareOrdinal(left.ThreadId, right.ThreadId);
-            });
-
-            for (int t = 0; t < orderedThreads.Count; t++)
+            for (int t = 0; t < orderedThreads.Length; t++)
             {
                 NpcAgendaThreadDefinition candidateThread = orderedThreads[t];
                 for (int s = 0; s < candidateThread.Stages.Length; s++)
@@ -96,6 +94,13 @@ namespace Signal.Game
                 }
             }
             return false;
+        }
+
+        private static int CompareThreadPriority(NpcAgendaThreadDefinition left,
+            NpcAgendaThreadDefinition right)
+        {
+            int priority = right.Priority.CompareTo(left.Priority);
+            return priority != 0 ? priority : string.CompareOrdinal(left.ThreadId, right.ThreadId);
         }
 
         private bool IsEligible(string npcId, NpcAgendaStageDefinition stage, NpcActivity activity, string place)
