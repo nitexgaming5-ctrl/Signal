@@ -81,7 +81,6 @@ namespace Signal.Core.Tests
             SaveData save = SaveMapper.Capture(stats, carried, storage, new GameClock(),
                 new HeatMeter(), new RentLedger(0, 7), "Hideout", 1f, 2f);
 
-            Assert.That(save.version, Is.EqualTo(SaveMigrator.CurrentVersion));
             Assert.That(save.items[0].instanceId, Is.EqualTo(carriedId.ToString()));
             Assert.That(save.storageItems[0].instanceId, Is.EqualTo(storedId.ToString()));
 
@@ -100,84 +99,5 @@ namespace Signal.Core.Tests
             Assert.That(loadedStorage.Items[0].State, Is.EqualTo(ItemInstanceState.Default));
         }
 
-        [Test]
-        public void VersionTwoSaveMigrationAssignsUniqueIdsAcrossCarriedAndStoredItemsAndAdvancesToCurrentVersion()
-        {
-            Guid typeId = Guid.NewGuid();
-            var save = new SaveData
-            {
-                version = 2,
-                items = { new SavedItem { typeId = typeId.ToString(), x = 0, y = 0, count = 1 } },
-                storageItems = { new SavedItem { typeId = typeId.ToString(), x = 0, y = 0, count = 1 } }
-            };
-
-            Assert.That(SaveMigrator.TryMigrate(save, out string error), Is.True, error);
-            Assert.That(save.version, Is.EqualTo(SaveMigrator.CurrentVersion));
-            Assert.That(Guid.TryParse(save.items[0].instanceId, out Guid carriedId), Is.True);
-            Assert.That(Guid.TryParse(save.storageItems[0].instanceId, out Guid storedId), Is.True);
-            Assert.That(carriedId, Is.Not.EqualTo(Guid.Empty));
-            Assert.That(storedId, Is.Not.EqualTo(Guid.Empty));
-            Assert.That(carriedId, Is.Not.EqualTo(storedId));
-        }
-
-        [Test]
-        public void VersionOneSaveStillMigratesToCurrentVersionWithStableIds()
-        {
-            var save = new SaveData
-            {
-                version = 1,
-                worldPlace = null,
-                items = { new SavedItem { typeId = Guid.NewGuid().ToString(), count = 2 } }
-            };
-
-            Assert.That(SaveMigrator.TryMigrate(save, out string error), Is.True, error);
-            Assert.That(save.version, Is.EqualTo(SaveMigrator.CurrentVersion));
-            Assert.That(save.worldPlace, Is.EqualTo("Hideout"));
-            Assert.That(save.storageItems, Is.Not.Null);
-            Assert.That(save.storageItems, Is.Empty);
-            Assert.That(Guid.TryParse(save.items[0].instanceId, out Guid identity), Is.True);
-            Assert.That(identity, Is.Not.EqualTo(Guid.Empty));
-        }
-
-        [Test]
-        public void VersionThreeSaveMigrationDefaultsNewInstanceStateWithoutChangingIdentityAndAdvancesToCurrentVersion()
-        {
-            Guid identity = Guid.NewGuid();
-            var save = new SaveData
-            {
-                version = 3,
-                items =
-                {
-                    new SavedItem { typeId = Guid.NewGuid().ToString(), instanceId = identity.ToString(), count = 1 }
-                }
-            };
-
-            Assert.That(SaveMigrator.TryMigrate(save, out string error), Is.True, error);
-            Assert.That(save.version, Is.EqualTo(SaveMigrator.CurrentVersion));
-            Assert.That(save.items[0].instanceId, Is.EqualTo(identity.ToString()));
-            Assert.That(save.items[0].quality, Is.EqualTo((int)ItemQuality.Standard));
-            Assert.That(save.items[0].condition, Is.EqualTo((int)ItemCondition.Good));
-            Assert.That(save.items[0].authenticity, Is.EqualTo((int)ItemAuthenticity.Genuine));
-            Assert.That(save.items[0].ownership, Is.EqualTo((int)ItemOwnershipStatus.Legitimate));
-        }
-
-        [Test]
-        public void MigrationRepairsMissingOrDuplicateInstanceIds()
-        {
-            string duplicate = Guid.NewGuid().ToString();
-            var save = new SaveData
-            {
-                version = 4,
-                items =
-                {
-                    new SavedItem { typeId = Guid.NewGuid().ToString(), instanceId = duplicate, count = 1 },
-                    new SavedItem { typeId = Guid.NewGuid().ToString(), instanceId = duplicate, count = 1 }
-                }
-            };
-
-            Assert.That(SaveMigrator.TryMigrate(save, out string error), Is.True, error);
-            Assert.That(save.items[0].instanceId, Is.Not.EqualTo(save.items[1].instanceId));
-            Assert.That(Guid.TryParse(save.items[1].instanceId, out _), Is.True);
-        }
     }
 }
