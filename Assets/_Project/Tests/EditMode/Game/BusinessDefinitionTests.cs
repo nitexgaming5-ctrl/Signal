@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
+using Signal.Core;
 using UnityEngine;
 
 namespace Signal.Game.Tests
@@ -220,6 +221,125 @@ namespace Signal.Game.Tests
                 UnityEngine.Object.DestroyImmediate(bread);
                 UnityEngine.Object.DestroyImmediate(business);
             }
+        }
+
+
+        [Test]
+        public void FixedBuybackPriceRemainsFixedForEveryPhysicalCondition()
+        {
+            BusinessDefinition business = ScriptableObject.CreateInstance<BusinessDefinition>();
+            ItemDefinition jacket = ScriptableObject.CreateInstance<ItemDefinition>();
+            try
+            {
+                SetPrivate(jacket, "id", Guid.NewGuid().ToString());
+                SetPrivate(jacket, "displayName", "Work Jacket");
+                SetPrivate(business, "buybackOffers", new[]
+                {
+                    new BusinessDefinition.BuybackEntry { Item = jacket, UnitPrice = 12 }
+                });
+
+                Assert.That(business.TryGetBuybackOffer(jacket, out int legacyPrice), Is.True);
+                Assert.That(legacyPrice, Is.EqualTo(12));
+
+                foreach (ItemCondition condition in new[]
+                {
+                    ItemCondition.Damaged, ItemCondition.Worn, ItemCondition.Good, ItemCondition.Pristine
+                })
+                {
+                    var state = new ItemInstanceState(ItemQuality.Standard, condition,
+                        ItemAuthenticity.Genuine, ItemOwnershipStatus.Legitimate);
+                    Assert.That(business.TryGetBuybackOffer(jacket, state, out int price), Is.True);
+                    Assert.That(price, Is.EqualTo(12));
+                }
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(jacket);
+                UnityEngine.Object.DestroyImmediate(business);
+            }
+        }
+
+        [Test]
+        public void ConditionBasedBuybackResolvesTheAuthoredPriceForEachCondition()
+        {
+            BusinessDefinition business = ScriptableObject.CreateInstance<BusinessDefinition>();
+            ItemDefinition jacket = ScriptableObject.CreateInstance<ItemDefinition>();
+            try
+            {
+                SetPrivate(jacket, "id", Guid.NewGuid().ToString());
+                SetPrivate(jacket, "displayName", "Work Jacket");
+                SetPrivate(business, "buybackOffers", new[]
+                {
+                    new BusinessDefinition.BuybackEntry
+                    {
+                        Item = jacket,
+                        PricingMode = BuybackPricingMode.ByCondition,
+                        DamagedUnitPrice = 24,
+                        WornUnitPrice = 36,
+                        GoodUnitPrice = 52,
+                        PristineUnitPrice = 58
+                    }
+                });
+
+                Assert.That(business.TryGetBuybackOffer(jacket, out _), Is.False,
+                    "The legacy lookup must not silently choose one condition price.");
+
+                AssertConditionPrice(business, jacket, ItemCondition.Damaged, 24);
+                AssertConditionPrice(business, jacket, ItemCondition.Worn, 36);
+                AssertConditionPrice(business, jacket, ItemCondition.Good, 52);
+                AssertConditionPrice(business, jacket, ItemCondition.Pristine, 58);
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(jacket);
+                UnityEngine.Object.DestroyImmediate(business);
+            }
+        }
+
+        [Test]
+        public void ConditionBasedBuybackRequiresPositivePriceForEveryCondition()
+        {
+            BusinessDefinition business = ScriptableObject.CreateInstance<BusinessDefinition>();
+            ItemDefinition jacket = ScriptableObject.CreateInstance<ItemDefinition>();
+            try
+            {
+                SetPrivate(business, "businessId", "rhea-textiles");
+                SetPrivate(business, "displayName", "Rhea's Textile Counter");
+                SetPrivate(business, "businessType", "Textile Repair & Resale");
+                SetPrivate(business, "ownerNpcId", "rhea");
+                SetPrivate(business, "locationId", "Street");
+                SetPrivate(jacket, "id", Guid.NewGuid().ToString());
+                SetPrivate(jacket, "displayName", "Work Jacket");
+                SetPrivate(business, "buybackOffers", new[]
+                {
+                    new BusinessDefinition.BuybackEntry
+                    {
+                        Item = jacket,
+                        PricingMode = BuybackPricingMode.ByCondition,
+                        DamagedUnitPrice = 24,
+                        WornUnitPrice = 0,
+                        GoodUnitPrice = 52,
+                        PristineUnitPrice = 58
+                    }
+                });
+
+                Assert.That(business.TryValidate(out string error), Is.False);
+                Assert.That(error, Does.Contain("positive price for every condition"));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(jacket);
+                UnityEngine.Object.DestroyImmediate(business);
+            }
+        }
+
+        private static void AssertConditionPrice(BusinessDefinition business, ItemDefinition item,
+            ItemCondition condition, int expectedPrice)
+        {
+            var state = new ItemInstanceState(ItemQuality.Standard, condition,
+                ItemAuthenticity.Genuine, ItemOwnershipStatus.Legitimate);
+            Assert.That(business.TryGetBuybackOffer(item, state, out int price), Is.True);
+            Assert.That(price, Is.EqualTo(expectedPrice));
         }
 
         private static void SetPrivate(object target, string fieldName, object value)

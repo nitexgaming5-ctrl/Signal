@@ -1193,8 +1193,9 @@ namespace Signal.Game
                 return "You do not own that item.";
 
             ItemDefinition definition = FindItemDefinition(selected.Type.Id);
-            if (definition == null || !business.TryGetBuybackOffer(definition, out int unitPrice))
-                return "This business does not buy that item.";
+            if (definition == null ||
+                !business.TryGetBuybackOffer(definition, selected.State, out int unitPrice))
+                return "This business does not buy that item in its current condition.";
             if (quantity > selected.Count)
                 return "That stack no longer contains the requested quantity.";
 

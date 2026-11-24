@@ -174,7 +174,8 @@ namespace Signal.Game
                     continue;
 
                 ItemDefinition definition = FindDefinition(stack.Type.Id);
-                if (definition == null || !_business.TryGetBuybackOffer(definition, out int unitPrice))
+                if (definition == null ||
+                    !_business.TryGetBuybackOffer(definition, stack.State, out int unitPrice))
                     continue;
 
                 _sellableStacks.Add(new SellableStack

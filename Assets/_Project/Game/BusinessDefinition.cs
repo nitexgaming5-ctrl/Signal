@@ -5,6 +5,12 @@ using UnityEngine;
 
 namespace Signal.Game
 {
+    public enum BuybackPricingMode
+    {
+        Fixed = 0,
+        ByCondition = 1
+    }
+
     [CreateAssetMenu(menuName = "Signal/Business Definition", fileName = "Business")]
     public sealed class BusinessDefinition : ScriptableObject
     {
@@ -19,7 +25,12 @@ namespace Signal.Game
         public sealed class BuybackEntry
         {
             public ItemDefinition Item;
+            public BuybackPricingMode PricingMode = BuybackPricingMode.Fixed;
             [Min(1)] public int UnitPrice = 1;
+            [Min(1)] public int DamagedUnitPrice = 1;
+            [Min(1)] public int WornUnitPrice = 1;
+            [Min(1)] public int GoodUnitPrice = 1;
+            [Min(1)] public int PristineUnitPrice = 1;
         }
 
         [SerializeField, HideInInspector] private string businessId;
@@ -108,11 +119,36 @@ namespace Signal.Game
                 for (int i = 0; i < buybackOffers.Length; i++)
                 {
                     BuybackEntry entry = buybackOffers[i];
-                    if (entry == null || entry.Item == null || entry.UnitPrice < 1)
+                    if (entry == null || entry.Item == null)
                     {
-                        error = "Every buyback offer needs a valid item and a positive fixed price.";
+                        error = "Every buyback offer needs a valid item.";
                         return false;
                     }
+
+                    switch (entry.PricingMode)
+                    {
+                        case BuybackPricingMode.Fixed:
+                            if (entry.UnitPrice < 1)
+                            {
+                                error = "Every fixed buyback offer needs a positive fixed price.";
+                                return false;
+                            }
+                            break;
+
+                        case BuybackPricingMode.ByCondition:
+                            if (entry.DamagedUnitPrice < 1 || entry.WornUnitPrice < 1 ||
+                                entry.GoodUnitPrice < 1 || entry.PristineUnitPrice < 1)
+                            {
+                                error = "Every condition-based buyback offer needs a positive price for every condition.";
+                                return false;
+                            }
+                            break;
+
+                        default:
+                            error = "A buyback offer has an unsupported pricing mode.";
+                            return false;
+                    }
+
                     try
                     {
                         if (!buybackIds.Add(entry.Item.ToItemType().Id))
@@ -148,6 +184,7 @@ namespace Signal.Game
             return false;
         }
 
+        /// <summary>Looks up a fixed buyback offer. Condition-based offers require an item-state argument.</summary>
         public bool TryGetBuybackOffer(ItemDefinition item, out int unitPrice)
         {
             unitPrice = 0;
@@ -157,10 +194,48 @@ namespace Signal.Game
             for (int i = 0; i < buybackOffers.Length; i++)
             {
                 BuybackEntry entry = buybackOffers[i];
-                if (entry == null || entry.Item != item || entry.UnitPrice < 1)
+                if (entry == null || entry.Item != item ||
+                    entry.PricingMode != BuybackPricingMode.Fixed || entry.UnitPrice < 1)
                     continue;
                 unitPrice = entry.UnitPrice;
                 return true;
+            }
+            return false;
+        }
+
+        /// <summary>Resolves the exact offer for one physical item's authoritative condition.</summary>
+        public bool TryGetBuybackOffer(ItemDefinition item, ItemInstanceState itemState, out int unitPrice)
+        {
+            unitPrice = 0;
+            if (item == null || buybackOffers == null)
+                return false;
+
+            for (int i = 0; i < buybackOffers.Length; i++)
+            {
+                BuybackEntry entry = buybackOffers[i];
+                if (entry == null || entry.Item != item)
+                    continue;
+
+                switch (entry.PricingMode)
+                {
+                    case BuybackPricingMode.Fixed:
+                        unitPrice = entry.UnitPrice;
+                        break;
+                    case BuybackPricingMode.ByCondition:
+                        switch (itemState.Condition)
+                        {
+                            case ItemCondition.Damaged: unitPrice = entry.DamagedUnitPrice; break;
+                            case ItemCondition.Worn: unitPrice = entry.WornUnitPrice; break;
+                            case ItemCondition.Good: unitPrice = entry.GoodUnitPrice; break;
+                            case ItemCondition.Pristine: unitPrice = entry.PristineUnitPrice; break;
+                            default: return false;
+                        }
+                        break;
+                    default:
+                        return false;
+                }
+
+                return unitPrice > 0;
             }
             return false;
         }
