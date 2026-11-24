@@ -710,6 +710,8 @@ namespace Signal.Game
                     // The agenda panel now owns this interaction until the player chooses or closes it.
                 }
                 else if (_miloScenario != null &&
+                    _city.TryGetNearestResidentWithin(playerPosition, InteractionDistance, out string nearestResidentId) &&
+                    string.Equals(nearestResidentId, "milo", StringComparison.Ordinal) &&
                     _miloScenario.TryInteract(playerPosition, _city.CurrentPlace, out string scenarioMessage))
                 {
                     RegisterUnownedPlayerAssets(_inventory);
