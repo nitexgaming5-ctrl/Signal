@@ -52,7 +52,7 @@ Specialist references: [Architecture](ARCHITECTURE.md), [Data Model](DATA_MODEL.
 **Current patch acceptance:**
 1. Verify player movement feels right at the new 6 units/second speed (1.5× the previous 4).
 2. Open a newly generated Street bin using `LootProfile_A`; it should contain a Work Jacket for repair testing. Existing generated bins retain their saved contents, so use a fresh/reset test bin or a fresh test save.
-3. Confirm the involved NPC stops during agenda dialogue, business trading, the customer request, the upgrade offer and Dirty Cash contact UI, then resumes their schedule when the panel closes.
+3. Confirm interaction pauses freeze NPC movement without blocking clock-driven schedule/activity changes; verify the resident replans toward the latest destination when the panel closes.
 4. Run the full EditMode suite and the combined B-01–B-04 Play Mode loop again.
 
 The guaranteed Work Jacket entry is explicitly temporary test scaffolding and should be removed or changed back to a low-weight normal entry once the repair loop is fully validated.
