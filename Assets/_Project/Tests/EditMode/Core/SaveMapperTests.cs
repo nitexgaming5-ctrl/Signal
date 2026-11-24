@@ -254,6 +254,55 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void RepairedJacketStateAndConditionKnowledgeRoundTripTogether()
+        {
+            var source = new World();
+            ItemType jacket = Item(2, 2, 1);
+            Guid itemId = Guid.NewGuid();
+            var repairedState = new ItemInstanceState(ItemQuality.Fine, ItemCondition.Good,
+                ItemAuthenticity.Genuine, ItemOwnershipStatus.Stolen);
+            source.Inventory.Place(jacket, 0, 0, itemInstanceId: itemId, state: repairedState);
+            var sourceKnowledge = new ItemKnowledgeBook();
+            sourceKnowledge.RecordFact(itemId, ItemKnowledgeAspect.Quality, (int)ItemQuality.Fine,
+                ItemKnowledgeSource.Document, 0.8f, 2, 615);
+            sourceKnowledge.RecordFact(itemId, ItemKnowledgeAspect.Authenticity, (int)ItemAuthenticity.Genuine,
+                ItemKnowledgeSource.Rumour, 0.6f, 2, 615);
+            sourceKnowledge.RecordFact(itemId, ItemKnowledgeAspect.Ownership, (int)ItemOwnershipStatus.Stolen,
+                ItemKnowledgeSource.Document, 0.95f, 2, 615);
+            sourceKnowledge.RecordFact(itemId, ItemKnowledgeAspect.Condition, (int)ItemCondition.Good,
+                ItemKnowledgeSource.DirectInspection, 1f, 2, 615);
+            var sourceOwnership = new AssetOwnershipBook();
+            sourceOwnership.TryRegister(itemId, EconomicActorId.Player);
+
+            SaveData data = SaveMapper.Capture(source.Stats, source.Inventory, null, source.Clock,
+                source.Heat, source.Rent, "Hideout", 1f, 2f, sourceKnowledge,
+                assetOwnership: sourceOwnership);
+
+            var target = new World();
+            var targetKnowledge = new ItemKnowledgeBook();
+            var targetOwnership = new AssetOwnershipBook();
+            LoadReport report = SaveMapper.Apply(data, target.Stats, target.Inventory, null,
+                target.Clock, target.Heat, target.Rent, Resolver(jacket), targetKnowledge,
+                assetOwnership: targetOwnership);
+
+            Assert.That(report.Success, Is.True);
+            Assert.That(report.SkippedItemInstances, Is.Zero);
+            Assert.That(report.SkippedKnowledgeFacts, Is.Zero);
+            Assert.That(target.Inventory.Items.Count, Is.EqualTo(1));
+            Assert.That(target.Inventory.Items[0].ItemInstanceId, Is.EqualTo(itemId));
+            Assert.That(target.Inventory.Items[0].State, Is.EqualTo(repairedState));
+            Assert.That(targetOwnership.TryGetOwner(itemId, out EconomicActorId owner), Is.True);
+            Assert.That(owner, Is.EqualTo(EconomicActorId.Player));
+            Assert.That(targetKnowledge.FactCount, Is.EqualTo(4));
+            Assert.That(targetKnowledge.TryGetFact(itemId, ItemKnowledgeAspect.Condition, out ItemKnowledgeFact condition), Is.True);
+            Assert.That(condition.Value, Is.EqualTo((int)ItemCondition.Good));
+            Assert.That(condition.Source, Is.EqualTo(ItemKnowledgeSource.DirectInspection));
+            Assert.That(condition.Confidence, Is.EqualTo(1f));
+            Assert.That(targetKnowledge.TryGetFact(itemId, ItemKnowledgeAspect.Ownership, out ItemKnowledgeFact ownership), Is.True);
+            Assert.That(ownership.Value, Is.EqualTo((int)ItemOwnershipStatus.Stolen));
+        }
+
+        [Test]
         public void InvalidSavedKnowledgeFactsAreSkippedWithoutRejectingTheSave()
         {
             var data = new SaveData();
