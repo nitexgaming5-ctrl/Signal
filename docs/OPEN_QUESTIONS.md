@@ -13,14 +13,16 @@ The following are implementation/verification checks, not open design questions:
 
 ## Future design — deliberately not blocking B-01 to B-03
 
-### Repair/restoration (B-04)
-See the source-audited draft in `tasks/LIVELIHOOD-B-04-REPAIR-RESTORATION.md`. This is a design draft, not implementation approval.
+### Repair/restoration and textile business (B-04)
 
-- Confirm whether repairs should directly increase CARD earnings. Current shop buyback offers are fixed per item definition; `ItemValueCalculator` does not currently determine shop payment. Preserve the fixed-price economy unless a narrow condition-sensitive buyback rule is explicitly approved.
-- Confirm the Basic/Reinforced Patch Kit condition transitions, especially whether Reinforced should also repair Worn → Good.
-- Approve one unstackable Worn textile item and its first source; approve a repeatable raw-material source through existing authored retail if the first repair loop should be repeatable.
-- The technical direction proposed in the task card is player-owned items only, existing upgraded hideout workbench, condition-only changes, stable identity preservation, immediate deterministic transactions, direct-inspection knowledge refresh and current-save round-trip coverage.
-- Customer-owned/entrusted goods remain deferred pending separate custody/return rules.
+**Design decisions are accepted.** The user approved a hybrid catalogue and delegated continuation of the first textile-business framework. See `tasks/LIVELIHOOD-B-04-REPAIR-RESTORATION.md` and decision `0006-hybrid-buyback-and-textile-business.md`.
+
+- Merchandise remains fixed-price. Buyback entries may be fixed-price or explicitly condition-based for one authored item/business pair. Existing fixed offers are unchanged.
+- Rhea's Textile Counter is the first buyer/supplier; it sells fixed-price raw repair materials and buys one Worn Work Jacket using four authored condition prices.
+- Basic and Reinforced kit transitions, player-owned repair eligibility, identity/provenance preservation and save/load requirements are specified in the B-04 task card.
+- The generic hybrid buyback lookup and UI/sale integration are committed; focused tests have been added but require a fresh Unity compile/EditMode run.
+- Repair gameplay, Work Jacket content and Rhea's business asset/scene wiring remain gated on completing the outstanding First Workshop Play Mode acceptance. This is a verification dependency, not an open design question.
+- Customer-owned/entrusted goods and broader market simulation remain out of scope.
 
 ### Social life and recurring customers (B-05)
 - Which player actions change familiarity, trust or affinity?
@@ -48,6 +50,6 @@ See the source-audited draft in `tasks/LIVELIHOOD-B-04-REPAIR-RESTORATION.md`. T
 
 ## Parked, not missing
 
-The following are deliberately outside the active slice: production timers/queues, quality rolls, tool durability, procedural contracts, multiple active contracts, partial-stack contract delivery, relationship/favour rewards, automatic NPC shopping, universal supply/demand, dynamic prices, police response, global rumour cascades and additional districts.
+The following are deliberately outside the active slice: production timers/queues, quality rolls, tool durability, procedural contracts, multiple active contracts, partial-stack contract delivery, relationship/favour rewards, automatic NPC shopping, universal supply/demand, market-wide/time-/demand-driven price changes, police response, global rumour cascades and additional districts. Selective per-item condition-based buyback is an approved authored exception, not a general dynamic market.
 
 Do not turn these into implementation tasks until a player-facing scenario demonstrates the need.
