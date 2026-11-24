@@ -79,6 +79,12 @@ namespace Signal.Game
         public WorkshopUpgradeDefinition RequiredUpgrade;
         public bool RequireUpgradeNotAcquired;
 
+        [Header("Legacy discovery migration")]
+        public bool CompleteIfLegacyDiscoveryExists;
+        public string LegacyDiscoverySubjectId;
+        public string LegacyDiscoverySourceId;
+        public DiscoverySignalType LegacyDiscoveryType = DiscoverySignalType.Rumour;
+
         public NpcAgendaChoiceDefinition[] Choices = Array.Empty<NpcAgendaChoiceDefinition>();
     }
 
@@ -191,6 +197,14 @@ namespace Signal.Game
                         string.IsNullOrWhiteSpace(stage.RequiredUpgradeId) && stage.RequiredUpgrade == null)
                     {
                         error = "Stage " + stage.StageId + " requires an upgrade ID for its not-acquired condition.";
+                        return false;
+                    }
+                    if (stage.CompleteIfLegacyDiscoveryExists &&
+                        (string.IsNullOrWhiteSpace(stage.LegacyDiscoverySubjectId) ||
+                         string.IsNullOrWhiteSpace(stage.LegacyDiscoverySourceId) ||
+                         !Enum.IsDefined(typeof(DiscoverySignalType), stage.LegacyDiscoveryType)))
+                    {
+                        error = "Stage " + stage.StageId + " has an invalid legacy discovery migration rule.";
                         return false;
                     }
 
