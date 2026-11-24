@@ -37,7 +37,7 @@ Milo and Rhea began as fallback framework fixtures. They are now also represente
 
 - `NpcAgendaProgressBook` stores completed stages by stable NPC/thread/stage IDs and the selected choice ID. Independent threads and residents have independent progress; a stage can be completed only once, preventing replayed choices from applying their outcomes twice.
 - The book exposes sorted progress snapshots and a restore hook for future SaveMapper integration. It stores no Unity objects or dialogue content.
-- Focused EditMode tests cover one-time completion, independent threads, selected-choice retention, restore duplicate rejection and clearing. Save schema v16 now captures/restores agenda progress through SaveMapper and GameSession; v15 migration initializes the new collection and malformed entries are skipped.
+- Focused EditMode tests cover one-time completion, independent threads, selected-choice retention, restore duplicate rejection and clearing. Save/load captures and restores agenda progress through SaveMapper and GameSession; malformed entries are skipped. The 0.01 build uses unversioned development snapshots with no automatic save migration.
 - Game-layer authoring uses `NpcAgendaDefinition` ScriptableObjects with independent threads, priority ordering, sequential stages, optional activity/place, discovery, relationship, opportunity-phase, contract and acquired/not-acquired upgrade prerequisites, typed choices and repeatable choices for revisitable offers.
 `NpcAgendaInteractionDirector` performs deterministic stage selection and applies one-time discovery/relationship outcomes. It opens an existing workshop offer only through a typed reference to its authored upgrade definition. `NpcAgendaConversationPanel` presents authored choices without putting story branches in NpcPresenter.
 - Rhea's first three authored threads are loaded from Resources: a low-confidence second-hand Milo rumour (`subjectId=milo`, `sourceId=rhea`, confidence 0.4), the Compact Sewing Machine offer routed to the existing supplier panel, and post-upgrade mending advice. Keeping the rumour's subject as Milo is required by the parcel opportunity's existing distinct-discovery-type gate. The parcel controller no longer owns Rhea's dialogue; it retains physical parcel lifecycle mechanics.
@@ -152,19 +152,19 @@ The parcel controller currently owns physical parcel props, inspection, acceptan
 ### Implemented first pilot (2026-11-24)
 
 - `NpcAgendaProgressBook` in Core stores completed choices by stable NPC/thread/stage IDs. The same stage cannot be completed twice; different residents and threads remain independent.
-- Save schema v16 captures/restores agenda progress and migrates v15 saves by initializing an empty progress collection. Focused SaveMapper tests cover round-trip and malformed legacy entries.
+- Unversioned 0.01 save snapshots capture/restore agenda progress. Focused SaveMapper tests cover round-trip and malformed entries.
 - `NpcAgendaDefinition` ScriptableObjects author stable threads, ordered stages, priorities, choices, activity/location gates, discovery gates, relationship thresholds, opportunity phases, completed-contract gates and acquired/not-acquired upgrade gates.
 - `NpcAgendaInteractionDirector` deterministically selects the highest-priority eligible thread, applies typed one-time outcomes, and delegates workshop offers to the existing supplier panel. It does not run a background AI loop.
 - `NpcAgendaConversationPanel` is the reusable player-facing choice surface. `GameSession` routes the nearest eligible resident interaction through it, enforces modal input locking and revalidates the resident/stage before accepting a choice.
 - Rhea's authored content is `Assets/_Project/Resources/Agendas/RheaAgenda.asset`. Her three independent threads are the sourced Milo rumour, Compact Sewing Machine offer, and post-purchase mending advice.
-- The rumour is stored as a `Rumour` about subject `milo`, source `rhea`, confidence 0.4. The description explicitly says Rhea heard it second-hand and did not witness where the parcels went. All three dialogue choices still record the rumour the player has heard. A data-authored legacy-discovery migration recognizes the old `milo-rumour-rhea-{day}` signals and marks this stage complete, so existing saves do not replay a rumour the player already heard.
+- The rumour is stored as a `Rumour` about subject `milo`, source `rhea`, confidence 0.4. The description explicitly says Rhea heard it second-hand and did not witness where the parcels went. All three dialogue choices still record the rumour the player has heard. A data-authored existing-discovery check recognizes prior `milo-rumour-rhea-{day}` signals and marks this stage complete, so a player who already heard the rumour is not shown it again.
 - The former Rhea rumour branch has been removed from `MiloParcelOpportunityController`. Parcel props, inspection, acceptance, return, delivery and outcome logic remain there.
 - A second resident fixture in EditMode tests uses the same director; tests cover independent progress, deterministic thread priority, activity/location/contract/upgrade gates, relationship/opportunity gates and repeatable non-completing choices.
 - Unity compilation, full EditMode execution and Play Mode validation are still pending. The previous 415/415 user result predates these additions.
 
 ### Implementation sequence
 
-1. **Implemented:** Core progress book, stable IDs, idempotent completion and v16 save/load migration.
+1. **Implemented:** Core progress book, stable IDs, idempotent completion and current-state save/load persistence.
 2. **Implemented:** Authored agenda definitions and validation for duplicate/missing IDs and invalid typed outcomes.
 3. **Implemented:** Generic priority-based interaction director and reusable conversation panel; no character-specific logic in `NpcPresenter`.
 4. **Implemented:** Rhea's three independent threads and existing supplier/contract service adapters.
