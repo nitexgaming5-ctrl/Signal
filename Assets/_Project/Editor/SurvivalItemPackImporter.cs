@@ -34,14 +34,13 @@ namespace Signal.EditorTools
         [MenuItem("Tools/Signal/Import Survival Items Pack")]
         public static void Import()
         {
-            TextAsset manifest = AssetDatabase.LoadAssetAtPath<TextAsset>(ManifestPath);
-            if (manifest == null)
+            if (!File.Exists(ManifestPath))
             {
                 Debug.LogError("Survival item manifest is missing: " + ManifestPath);
                 return;
             }
 
-            List<Entry> entries = ParseManifest(manifest.text, out string parseError);
+            List<Entry> entries = ParseManifest(File.ReadAllText(ManifestPath), out string parseError);
             if (entries == null)
             {
                 Debug.LogError("Survival item manifest is invalid: " + parseError);
