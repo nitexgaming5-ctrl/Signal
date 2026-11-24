@@ -66,7 +66,7 @@ The raw material cost of a Basic kit is 14 CARD at these prototype retail prices
 
 ## Delivery gate
 
-The hybrid lookup/UI/sale framework, Work Jacket asset, Rhea business asset, `LootProfile_A` entry, active-scene registration, visible CornerShop counter and navigation reachability regression test are committed. Unity verification is pending; the 417/417 user report predates these changes. Finish the remaining First Workshop Play Mode acceptance, then implement the repair transaction/UI, ownership/provenance checks, knowledge refresh, save round-trip and full Play Mode loop as specified in `tasks/LIVELIHOOD-B-04-REPAIR-RESTORATION.md`.
+The hybrid lookup/UI/sale framework, Work Jacket asset, Rhea business asset, `LootProfile_A` entry, active-scene registration, visible CornerShop counter, Core `RepairService`, workbench repair UI and focused pricing/repair/save tests are committed. Unity verification is pending; the 417/417 user report predates these changes. Run a fresh full EditMode suite, complete the remaining First Workshop Play Mode checks and then verify the full repair/material purchase/condition-priced sale/save-load loop as specified in `tasks/LIVELIHOOD-B-04-REPAIR-RESTORATION.md`.
 
 ## Rationale
 
