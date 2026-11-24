@@ -350,7 +350,11 @@ namespace Signal.Game
                 firstCustomerContract.CleanCardReward, _contractReceiverActor, firstCustomerContract.IssuerActor,
                 _inventory, _contractReceiverInventory, _assetOwnership, _assetTransfers,
                 _economicTransactions, _stats.CleanMoney, payer, _customerContracts,
-                _clock.Day, _clock.MinuteOfDay);
+                _clock.Day, _clock.MinuteOfDay, _playerRelationships,
+                firstCustomerContract.IssuerNpcId,
+                firstCustomerContract.RelationshipFamiliarityDelta,
+                firstCustomerContract.RelationshipTrustDelta,
+                firstCustomerContract.RelationshipAffinityDelta);
 
             if (result.Success)
                 return "Goods handed over. Received " + result.Reward + " clean CARD.";
