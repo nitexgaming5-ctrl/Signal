@@ -31,6 +31,11 @@ namespace Signal.Game
         [SerializeField] private CustomerContractDefinition firstCustomerContract;
         [SerializeField] private WorkshopUpgradeDefinition firstWorkshopUpgrade;
 
+        [Header("Livelihood — repair and restoration")]
+        [SerializeField] private ItemDefinition repairTargetItem;
+        [SerializeField] private ItemDefinition basicPatchKitItem;
+        [SerializeField] private ItemDefinition reinforcedPatchKitItem;
+
         [Header("Placeholder tuning (not final design)")]
         [SerializeField] private int startingMoney;
         [SerializeField] private int rentAmount = 50;
@@ -258,8 +263,12 @@ namespace Signal.Game
             }
 
             _workspace = gameObject.AddComponent<WorkbenchWorkspace>();
+            ItemType? repairTargetType = repairTargetItem != null ? repairTargetItem.ToItemType() : (ItemType?)null;
+            ItemType? basicKitType = basicPatchKitItem != null ? basicPatchKitItem.ToItemType() : (ItemType?)null;
+            ItemType? reinforcedKitType = reinforcedPatchKitItem != null ? reinforcedPatchKitItem.ToItemType() : (ItemType?)null;
             _workspace.Bind(_motor, _inventory, _assetOwnership, _workshopRecipes,
-                IsRecipeUnlocked, ProduceRecipe);
+                IsRecipeUnlocked, ProduceRecipe, repairTargetType, basicKitType, reinforcedKitType,
+                _itemKnowledge, CanRepairAtWorkbench, RepairItem);
             RefreshWorkshopUpgradeVisual();
             _hud.ShowMessage("Your hideout is ready. The street is just outside.", 5f);
         }
@@ -377,6 +386,43 @@ namespace Signal.Game
                 case ProductionStatus.OwnershipMismatch: return "Production only uses ingredients you own.";
                 case ProductionStatus.NoSpaceForOutput: return "Not enough room for the produced goods. Ingredients were returned.";
                 default: return "Production failed. Your inventory was left unchanged.";
+            }
+        }
+
+        private bool CanRepairAtWorkbench()
+        {
+            return IsFirstUpgradeAcquired() && _city != null && _city.IsAtHome &&
+                _room != null && _room.Workbench != null && _room.PlayerBody != null &&
+                Vector2.Distance(_room.PlayerBody.position, _room.Workbench.position) <= 2.15f;
+        }
+
+        private string RepairItem(Guid targetInstanceId, Guid kitInstanceId)
+        {
+            if (!CanRepairAtWorkbench())
+                return "Install the Compact Sewing Machine and use the hideout workbench before repairing.";
+            if (repairTargetItem == null || basicPatchKitItem == null || reinforcedPatchKitItem == null)
+                return "Repair content is not configured. No items were consumed.";
+
+            RepairResult result = RepairService.TryRepair(targetInstanceId, kitInstanceId,
+                repairTargetItem.ToItemType(), basicPatchKitItem.ToItemType(), reinforcedPatchKitItem.ToItemType(),
+                _inventory, EconomicActorId.Player, _economicContainers, _assetOwnership,
+                _itemKnowledge, _clock.Day, _clock.MinuteOfDay);
+
+            if (result.Success)
+                return "Work Jacket restored to " + result.ResultingCondition + ".";
+
+            switch (result.Status)
+            {
+                case RepairStatus.ContainerNotOwned: return "Repairs can only be performed on your own hideout workbench.";
+                case RepairStatus.TargetNotFound: return "The Work Jacket is no longer in your carried inventory.";
+                case RepairStatus.UnsupportedTarget: return "Only the Work Jacket is supported by this first textile repair service.";
+                case RepairStatus.KitNotFound: return "The selected patch kit is no longer in your inventory.";
+                case RepairStatus.UnsupportedKit: return "That is not a supported physical patch kit.";
+                case RepairStatus.OwnershipMismatch: return "You must own both the Work Jacket and the patch kit.";
+                case RepairStatus.ConditionNotRepairable: return "This Work Jacket's condition cannot be improved further.";
+                case RepairStatus.KitCannotRepairCondition: return "Use a Basic Patch Kit for a Worn jacket. The Reinforced kit is for Damaged jackets.";
+                case RepairStatus.InventoryConflict: return "Repair failed safely. Your inventory and ownership were restored.";
+                default: return "Repair setup is invalid. No items were consumed.";
             }
         }
 
@@ -1021,6 +1067,8 @@ namespace Signal.Game
                 return;
             }
             RefreshWorkshopUpgradeVisual();
+            if (_workspace != null)
+                _workspace.Refresh();
 
             int skippedContainers = SearchableContainerSaveMapper.Apply(data, _searchableContainers, ResolveType);
             RegisterSearchableContainerAssets();
@@ -1245,6 +1293,10 @@ namespace Signal.Game
                     _allItemDefinitions.Add(definition);
                 }
             }
+
+            RegisterItemCatalog(repairTargetItem);
+            RegisterItemCatalog(basicPatchKitItem);
+            RegisterItemCatalog(reinforcedPatchKitItem);
 
             _workshopRecipes.Clear();
             if (startingWorkshopRecipes != null)
