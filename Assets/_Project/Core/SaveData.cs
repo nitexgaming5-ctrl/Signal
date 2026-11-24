@@ -74,6 +74,36 @@ namespace Signal.Core
     }
 
     [Serializable]
+    public sealed class SavedNpcKnowledge
+    {
+        public string npcId;
+        public string eventId;
+        public string kind;
+        public string description;
+        public string originalActorNpcId;
+        public string lastSourceNpcId;
+        public int origin;
+        public float confidence;
+        public string eventLocationId;
+        public float eventX;
+        public float eventY;
+        public int occurredDay;
+        public int occurredMinuteOfDay;
+        public int learnedDay;
+        public int learnedMinuteOfDay;
+    }
+
+    [Serializable]
+    public sealed class SavedNpcSocialRelationship
+    {
+        public string observerNpcId;
+        public string otherNpcId;
+        public float familiarity;
+        public float trust;
+        public float affinity;
+    }
+
+    [Serializable]
     public sealed class SavedAssetOwner
     {
         public string instanceId;
@@ -268,6 +298,8 @@ namespace Signal.Core
         public List<SavedItem> contractReceiverItems = new List<SavedItem>();
         public string contractReceiverActorId;
         public List<SavedNpcAgendaStageProgress> npcAgendaProgress = new List<SavedNpcAgendaStageProgress>();
+        public List<SavedNpcKnowledge> npcKnowledge = new List<SavedNpcKnowledge>();
+        public List<SavedNpcSocialRelationship> npcSocialRelationships = new List<SavedNpcSocialRelationship>();
     }
 
     public sealed class LoadReport
@@ -293,6 +325,8 @@ namespace Signal.Core
         public int SkippedWorkshopUpgradeIds { get; set; }
         public int SkippedContractReceiverItems { get; set; }
         public int SkippedNpcAgendaProgress { get; set; }
+        public int SkippedNpcKnowledge { get; set; }
+        public int SkippedNpcSocialRelationships { get; set; }
         public OpportunityState RestoredOpportunity { get; set; }
     }
 
@@ -324,7 +358,8 @@ namespace Signal.Core
                                        WorkshopProgressionBook workshopProgression = null,
                                        GridInventory contractReceiverInventory = null,
                                        string contractReceiverActorId = null,
-                                       NpcAgendaProgressBook npcAgendaProgress = null)
+                                       NpcAgendaProgressBook npcAgendaProgress = null,
+                                       NpcSocialWorld socialWorld = null)
         {
             if (stats == null) throw new ArgumentNullException(nameof(stats));
             if (inventory == null) throw new ArgumentNullException(nameof(inventory));
@@ -371,6 +406,7 @@ namespace Signal.Core
             CaptureCustomerContracts(customerContracts, data.customerContracts);
             CaptureWorkshopProgression(workshopProgression, data.acquiredWorkshopUpgradeIds);
             CaptureNpcAgendaProgress(npcAgendaProgress, data.npcAgendaProgress);
+            CaptureNpcSocialWorld(socialWorld, data.npcKnowledge, data.npcSocialRelationships);
 
             return data;
         }
@@ -400,7 +436,8 @@ namespace Signal.Core
                                        CustomerContractBook customerContracts = null,
                                        WorkshopProgressionBook workshopProgression = null,
                                        GridInventory contractReceiverInventory = null,
-                                       NpcAgendaProgressBook npcAgendaProgress = null)
+                                       NpcAgendaProgressBook npcAgendaProgress = null,
+                                       NpcSocialWorld socialWorld = null)
         {
             if (stats == null) throw new ArgumentNullException(nameof(stats));
             if (inventory == null) throw new ArgumentNullException(nameof(inventory));
@@ -457,6 +494,8 @@ namespace Signal.Core
             int skippedContracts = RestoreCustomerContracts(data.customerContracts, customerContracts);
             int skippedUpgrades = RestoreWorkshopProgression(data.acquiredWorkshopUpgradeIds, workshopProgression);
             int skippedAgendaProgress = RestoreNpcAgendaProgress(data.npcAgendaProgress, npcAgendaProgress);
+            int skippedNpcKnowledge = RestoreNpcKnowledge(data.npcKnowledge, socialWorld);
+            int skippedNpcRelationships = RestoreNpcSocialRelationships(data.npcSocialRelationships, socialWorld);
             OpportunityState restoredOpportunity = RestoreOpportunity(data.opportunity);
 
             return new LoadReport
@@ -481,12 +520,97 @@ namespace Signal.Core
                 SkippedWorkshopUpgradeIds = skippedUpgrades,
                 SkippedContractReceiverItems = skippedContractReceiver,
                 SkippedNpcAgendaProgress = skippedAgendaProgress,
+                SkippedNpcKnowledge = skippedNpcKnowledge,
+                SkippedNpcSocialRelationships = skippedNpcRelationships,
                 RestoredOpportunity = restoredOpportunity
             };
         }
 
 
 
+        private static void CaptureNpcSocialWorld(NpcSocialWorld world,
+            List<SavedNpcKnowledge> knowledgeDestination,
+            List<SavedNpcSocialRelationship> relationshipDestination)
+        {
+            if (world == null) return;
+            IList<string> npcIds = world.GetNpcIds();
+            for (int i = 0; i < npcIds.Count; i++)
+            {
+                string npcId = npcIds[i];
+                if (!world.TryGetNpc(npcId, out NpcAgentState npc)) continue;
+                foreach (NpcKnowledge fact in npc.GetKnowledge())
+                {
+                    knowledgeDestination.Add(new SavedNpcKnowledge
+                    {
+                        npcId = npcId, eventId = fact.EventId, kind = fact.Kind, description = fact.Description,
+                        originalActorNpcId = fact.OriginalActorNpcId, lastSourceNpcId = fact.LastSourceNpcId,
+                        origin = (int)fact.Origin, confidence = fact.Confidence, eventLocationId = fact.EventLocationId,
+                        eventX = fact.EventX, eventY = fact.EventY, occurredDay = fact.OccurredDay,
+                        occurredMinuteOfDay = fact.OccurredMinuteOfDay, learnedDay = fact.LearnedDay,
+                        learnedMinuteOfDay = fact.LearnedMinuteOfDay
+                    });
+                }
+                foreach (KeyValuePair<string, NpcRelationship> entry in npc.GetRelationships())
+                {
+                    relationshipDestination.Add(new SavedNpcSocialRelationship
+                    {
+                        observerNpcId = npcId, otherNpcId = entry.Key,
+                        familiarity = entry.Value.Familiarity, trust = entry.Value.Trust, affinity = entry.Value.Affinity
+                    });
+                }
+            }
+        }
+
+        private static int RestoreNpcKnowledge(List<SavedNpcKnowledge> saved, NpcSocialWorld destination)
+        {
+            if (destination == null) return 0;
+            int skipped = 0;
+            if (saved == null) return skipped;
+            foreach (SavedNpcKnowledge entry in saved)
+            {
+                if (entry == null || string.IsNullOrWhiteSpace(entry.npcId) || string.IsNullOrWhiteSpace(entry.eventId) ||
+                    string.IsNullOrWhiteSpace(entry.kind) || string.IsNullOrWhiteSpace(entry.eventLocationId) ||
+                    !Enum.IsDefined(typeof(NpcKnowledgeOrigin), entry.origin) || !IsFinite(entry.confidence) ||
+                    entry.confidence < 0f || entry.confidence > 1f || !IsFinite(entry.eventX) || !IsFinite(entry.eventY) ||
+                    entry.occurredDay < 1 || entry.occurredMinuteOfDay < 0 || entry.occurredMinuteOfDay > 1439 ||
+                    entry.learnedDay < 1 || entry.learnedMinuteOfDay < 0 || entry.learnedMinuteOfDay > 1439 ||
+                    !destination.TryGetNpc(entry.npcId, out NpcAgentState _) ||
+                    (!string.IsNullOrEmpty(entry.originalActorNpcId) && !destination.TryGetNpc(entry.originalActorNpcId, out NpcAgentState _)) ||
+                    ((NpcKnowledgeOrigin)entry.origin == NpcKnowledgeOrigin.ToldByAnotherNpc &&
+                     (string.IsNullOrWhiteSpace(entry.lastSourceNpcId) || !destination.TryGetNpc(entry.lastSourceNpcId, out NpcAgentState _))))
+                { skipped++; continue; }
+                NpcKnowledge fact = NpcKnowledge.Restore(entry.eventId, entry.kind, entry.description,
+                    entry.originalActorNpcId, entry.lastSourceNpcId, (NpcKnowledgeOrigin)entry.origin,
+                    entry.confidence, entry.eventLocationId, entry.eventX, entry.eventY,
+                    entry.occurredDay, entry.occurredMinuteOfDay, entry.learnedDay, entry.learnedMinuteOfDay);
+                if (!destination.TryRestoreKnowledge(entry.npcId, fact)) skipped++;
+            }
+            return skipped;
+        }
+
+        private static int RestoreNpcSocialRelationships(List<SavedNpcSocialRelationship> saved, NpcSocialWorld destination)
+        {
+            if (destination == null) return 0;
+            int skipped = 0;
+            if (saved == null) return skipped;
+            foreach (SavedNpcSocialRelationship entry in saved)
+            {
+                if (entry == null || string.IsNullOrWhiteSpace(entry.observerNpcId) || string.IsNullOrWhiteSpace(entry.otherNpcId) ||
+                    entry.observerNpcId == entry.otherNpcId || !IsFinite(entry.familiarity) || entry.familiarity < 0f || entry.familiarity > 1f ||
+                    !IsFinite(entry.trust) || entry.trust < 0f || entry.trust > 1f || !IsFinite(entry.affinity) ||
+                    entry.affinity < -1f || entry.affinity > 1f ||
+                    !destination.TryGetNpc(entry.observerNpcId, out NpcAgentState _) || !destination.TryGetNpc(entry.otherNpcId, out NpcAgentState _))
+                { skipped++; continue; }
+                destination.SetRelationship(entry.observerNpcId, entry.otherNpcId,
+                    new NpcRelationship(entry.familiarity, entry.trust, entry.affinity));
+            }
+            return skipped;
+        }
+
+        private static bool IsFinite(float value)
+        {
+            return !float.IsNaN(value) && !float.IsInfinity(value);
+        }
         private static void CaptureNpcAgendaProgress(NpcAgendaProgressBook book,
             List<SavedNpcAgendaStageProgress> destination)
         {
