@@ -88,7 +88,7 @@ namespace Signal.Game.Tests
                             StageId = "offer",
                             Dialogue = "The old machine is available.",
                             RequiredCompletedContractId = "contract-one",
-                            Choices = new[] { new NpcAgendaChoiceDefinition { ChoiceId = "later", Label = "Later" } }
+                            Choices = new[] { new NpcAgendaChoiceDefinition { ChoiceId = "later", Label = "Later", Response = "Maybe another time." } }
                         }
                     }
                 }
@@ -212,6 +212,7 @@ namespace Signal.Game.Tests
                                 {
                                     ChoiceId = "see-offer",
                                     Label = "Take a look",
+                                    Response = "Have a look.",
                                     Action = NpcAgendaChoiceAction.DialogueOnly,
                                     CompleteStageOnChoice = false
                                 }
