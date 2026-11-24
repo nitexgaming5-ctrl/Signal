@@ -137,6 +137,7 @@ namespace Signal.Game.Tests
                         {
                             StageId = "machine",
                             Dialogue = "An offer.",
+                            RequiredActivity = NpcAgendaActivityRequirement.Socialize,
                             RequiredCompletedContractId = "contract-one",
                             RequiredUpgradeId = "upgrade-one",
                             RequireUpgradeNotAcquired = true,
