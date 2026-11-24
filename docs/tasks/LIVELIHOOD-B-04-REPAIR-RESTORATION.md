@@ -1,6 +1,6 @@
 # LIVELIHOOD-B-04 — Repair, restoration and the first textile business
 
-**Status:** Design approved; hybrid buyback framework committed; repair loop integration is gated on First Workshop Play Mode acceptance.  
+**Status:** Design approved; hybrid buyback framework and Rhea textile-business content committed; repair gameplay integration remains to be implemented.  
 **Parent:** Direction B livelihood roadmap  
 **Prerequisite for repair gameplay/content integration:** Complete B-01 to B-03 Play Mode acceptance (Rhea's agenda threads, Compact Sewing Machine purchase/installation, Reinforced Patch Kit production and F5/F9 persistence).  
 **Approved scope:** The first player-owned textile repair loop and one Rhea-operated textile buyer/supplier, using the existing hideout workbench, Compact Sewing Machine, physical patch kits, item condition and hybrid buyback catalogue.
@@ -60,11 +60,11 @@ Rhea is the natural first operator: the existing Rhea definition gives her a 09:
 | Business ID | `rhea-textile-counter` |
 | Business type | Textile Repair & Resale |
 | Owner | Rhea (`resident:rhea`) |
-| Location | Street |
+| Location | CornerShop (the existing bakery interior) |
 | Hours | 09:00–18:00 |
 | Catalogue | Fixed-price repair materials; one condition-based Work Jacket buyback |
 
-The future scene counter must use a dedicated interaction point in Rhea's Street work area. It must not overlap the existing agenda/supplier interaction radius used for the Compact Sewing Machine offer. The current `GameSession.Update` routes that supplier interaction before a nearby business; keep the two prompts distinct and test both in Play Mode.
+Rhea's counter is authored inside the existing `CornerShop` interior, not on the Street. The business interaction point is `(996.7, 999.45)`, in front of the separate counter on the left side of the room. Rhea's work position is `(1001.2, 1000.4)` and the Bakery interaction point is `(1000, 1000.6)`, so the new prompt is outside both existing interaction radii. `CityBlockBootstrap` now builds a visible textile counter and cloth display. An EditMode regression test checks that the approach point is walkable and reachable from the shop entrance. The supplier/agenda interaction, Bakery prompt and Textile Counter prompt must still be confirmed together in Play Mode.
 
 ### Fixed merchandise — repeatable repair materials
 
@@ -152,11 +152,11 @@ Basic restores one explicit step. Reinforced is the efficient one-step restorati
 
 ## Implementation sequence after the First Workshop gate
 
-1. Finish and user-verify the remaining B-01 to B-03 Play Mode acceptance. Do not introduce the repair interaction before that vertical slice is stable.
-2. Author the Work Jacket, add the small `LootProfile_A` entry, create the Rhea textile business asset and fixed material catalogue, and wire the business into the active scene. Verify its interaction point does not steal Rhea's agenda/supplier prompt.
-3. Add a condition-based Work Jacket buyback entry using the prices above. Preserve all existing fixed merchandise and buyback content.
-4. Add a focused repair service/operation with explicit transitions, exact kit consumption, ownership checks and rollback-safe validation. Integrate it into the existing hideout workbench UI rather than creating a separate profession scene.
-5. Refresh player Condition knowledge only on successful repair; cover save/load with current-build tests.
+1. Complete and user-verify the remaining B-01 to B-03 Play Mode acceptance (Rhea's agenda threads, machine purchase/installation, Reinforced recipe production and F5/F9 continuity).
+2. Already committed: the Work Jacket asset (`MaxStack = 1`, default Worn), its low-weight `LootProfile_A` entry, Rhea's business asset with fixed material prices and condition-based jacket buyback, active-scene registration, visible CornerShop counter/cloth display, and a navigation reachability regression test.
+3. Run Unity import/validation and the full EditMode suite. Confirm the CornerShop point and both existing Rhea/Bakery interactions in Play Mode. The old 417/417 report predates the new runtime/tests.
+4. Implement a focused repair service/operation with explicit transitions, exact kit consumption, ownership checks and rollback-safe validation. Integrate it into the existing hideout workbench UI rather than creating a separate profession scene.
+5. Refresh player Condition knowledge only on successful repair; cover current-build save/load with tests.
 6. Add integration tests for the Rhea quote/sale path and verify sale history captures the state and realized unit price.
 7. Complete Play Mode: acquire Worn Jacket, inspect it, repair through each allowed kit transition, inspect the resulting state, sell condition variants to Rhea, confirm balances and sale records, then F5/F9 and verify inventory, identity, state, knowledge and ledgers.
 
