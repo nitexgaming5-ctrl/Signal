@@ -539,6 +539,11 @@ namespace Signal.Game
                 _workshopUpgradePanel.Close();
                 upgradeOpen = false;
             }
+            if (_debugMenuOpen && agendaOpen)
+            {
+                _npcAgendaPanel.Close();
+                agendaOpen = false;
+            }
 
             bool scenarioChoiceOpen = _miloScenario != null && _miloScenario.HasPendingChoice;
             _motor.enabled = !inventoryOpen && !workspaceOpen && !storageOpen && !itemViewerOpen &&
@@ -610,6 +615,8 @@ namespace Signal.Game
                 _hud.SetPrompt("ESC  Close customer request");
             else if (upgradeOpen)
                 _hud.SetPrompt("ESC  Close workshop offer");
+            else if (agendaOpen)
+                _hud.SetPrompt("ESC  Close conversation");
             else if (dirtyCashOpen)
                 _hud.SetPrompt("ESC  Close contact");
             else if (itemViewerOpen)
@@ -636,7 +643,7 @@ namespace Signal.Game
             if (_debugMenuOpen || keyboard == null)
                 return;
 
-            if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen &&
+            if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen &&
                 _miloScenario != null && _miloScenario.HasPendingChoice)
             {
                 int choice = keyboard.digit1Key.wasPressedThisFrame ? 1 :
@@ -652,12 +659,12 @@ namespace Signal.Game
             }
 
             if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
-                !dirtyCashOpen && !contractOpen && !upgradeOpen && nearContractCustomer && keyboard.eKey.wasPressedThisFrame)
+                !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen && nearContractCustomer && keyboard.eKey.wasPressedThisFrame)
             {
                 _customerContractPanel.Open();
             }
             else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
-                !dirtyCashOpen && !contractOpen && !upgradeOpen && nearUpgradeSupplier && keyboard.eKey.wasPressedThisFrame)
+                !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen && nearUpgradeSupplier && keyboard.eKey.wasPressedThisFrame)
             {
                 if (_workshopUpgradePanel != null)
                 {
@@ -666,16 +673,16 @@ namespace Signal.Game
                 }
             }
             else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
-                !dirtyCashOpen && !contractOpen && !upgradeOpen && nearDirtyCashContact && keyboard.eKey.wasPressedThisFrame)
+                !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen && nearDirtyCashContact && keyboard.eKey.wasPressedThisFrame)
             {
                 if (_dirtyCashPanel != null) _dirtyCashPanel.Open();
             }
             else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
-                !dirtyCashOpen && !contractOpen && !upgradeOpen && nearSearchableContainer && keyboard.eKey.wasPressedThisFrame)
+                !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen && nearSearchableContainer && keyboard.eKey.wasPressedThisFrame)
             {
                 OpenSearchableContainer(nearbyContainerId);
             }
-            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen &&
+            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen &&
                 nearbyBusiness != null && keyboard.eKey.wasPressedThisFrame)
             {
                 if (!nearbyBusiness.TryValidate(out string businessError))
@@ -685,12 +692,12 @@ namespace Signal.Game
                 else
                     _retailPanel.Open(nearbyBusiness);
             }
-            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen && nearWorkbench && keyboard.eKey.wasPressedThisFrame)
+            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen && nearWorkbench && keyboard.eKey.wasPressedThisFrame)
                 _workspace.Open();
-            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen && nearStorage && keyboard.eKey.wasPressedThisFrame)
+            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen && nearStorage && keyboard.eKey.wasPressedThisFrame)
                 _storagePanel.SetOpen(true);
             else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
-                     !dirtyCashOpen && !contractOpen && !upgradeOpen && !nearDirtyCashContact && !nearContractCustomer && !nearUpgradeSupplier && !nearSearchableContainer && nearbyBusiness == null && !nearWorkbench && !nearStorage &&
+                     !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen && !nearDirtyCashContact && !nearContractCustomer && !nearUpgradeSupplier && !nearSearchableContainer && nearbyBusiness == null && !nearWorkbench && !nearStorage &&
                      cityPrompt.Length > 0 && keyboard.eKey.wasPressedThisFrame)
             {
                 if (TryOpenAgendaConversation(playerPosition))
@@ -709,7 +716,7 @@ namespace Signal.Game
                     Say("Location: " + _city.CurrentPlace);
             }
 
-            if (!retailOpen && !dirtyCashOpen && !upgradeOpen)
+            if (!retailOpen && !dirtyCashOpen && !upgradeOpen && !agendaOpen)
             {
                 if (!containerOpen && keyboard.f6Key.wasPressedThisFrame) Sleep();
                 if (keyboard.f5Key.wasPressedThisFrame) SaveGame();
