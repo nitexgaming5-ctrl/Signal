@@ -69,6 +69,13 @@ namespace Signal.Game
         public string RequiredUpgradeId;
         public WorkshopUpgradeDefinition RequiredUpgrade;
         public bool RequireUpgradeNotAcquired;
+        [Header("Relationship gates")]
+        [Range(0f, 1f)] public float MinimumFamiliarity;
+        [Range(0f, 1f)] public float MinimumTrust;
+        [Range(-1f, 1f)] public float MinimumAffinity = -1f;
+        [Header("Opportunity gate")]
+        public string RequiredOpportunityId;
+        public OpportunityPhase RequiredOpportunityPhase;
         public NpcAgendaChoiceDefinition[] Choices = Array.Empty<NpcAgendaChoiceDefinition>();
     }
 
@@ -178,6 +185,22 @@ namespace Signal.Game
                         string.IsNullOrWhiteSpace(stage.RequiredUpgradeId) && stage.RequiredUpgrade == null)
                     {
                         error = "Stage " + stage.StageId + " requires an upgrade ID for its not-acquired condition.";
+                        return false;
+                    }
+                    if (float.IsNaN(stage.MinimumFamiliarity) || float.IsInfinity(stage.MinimumFamiliarity) ||
+                        stage.MinimumFamiliarity < 0f || stage.MinimumFamiliarity > 1f ||
+                        float.IsNaN(stage.MinimumTrust) || float.IsInfinity(stage.MinimumTrust) ||
+                        stage.MinimumTrust < 0f || stage.MinimumTrust > 1f ||
+                        float.IsNaN(stage.MinimumAffinity) || float.IsInfinity(stage.MinimumAffinity) ||
+                        stage.MinimumAffinity < -1f || stage.MinimumAffinity > 1f)
+                    {
+                        error = "Stage " + stage.StageId + " has invalid relationship thresholds.";
+                        return false;
+                    }
+                    if (!string.IsNullOrWhiteSpace(stage.RequiredOpportunityId) &&
+                        !Enum.IsDefined(typeof(OpportunityPhase), stage.RequiredOpportunityPhase))
+                    {
+                        error = "Stage " + stage.StageId + " has an invalid opportunity phase requirement.";
                         return false;
                     }
 
