@@ -30,6 +30,10 @@ namespace Signal.Game
         [SerializeField, Min(1)] private int cleanCardReward = 1;
         [SerializeField] private ContractGoodsEligibility goodsEligibility;
         [SerializeField] private ContractDeliveryMode deliveryMode;
+        [Header("Relationship outcome")]
+        [SerializeField, Range(-1f, 1f)] private float relationshipFamiliarityDelta;
+        [SerializeField, Range(-1f, 1f)] private float relationshipTrustDelta;
+        [SerializeField, Range(-1f, 1f)] private float relationshipAffinityDelta;
 
         public Guid Id => Guid.TryParse(id, out Guid value) ? value : Guid.Empty;
         public string DisplayName => displayName;
@@ -41,6 +45,9 @@ namespace Signal.Game
         public int CleanCardReward => cleanCardReward;
         public ContractGoodsEligibility GoodsEligibility => goodsEligibility;
         public ContractDeliveryMode DeliveryMode => deliveryMode;
+        public float RelationshipFamiliarityDelta => relationshipFamiliarityDelta;
+        public float RelationshipTrustDelta => relationshipTrustDelta;
+        public float RelationshipAffinityDelta => relationshipAffinityDelta;
         public bool AcceptStolenGoods => goodsEligibility == ContractGoodsEligibility.PlayerOwnedIncludingStolen;
 
         public bool TryValidate(out string error)
@@ -50,6 +57,13 @@ namespace Signal.Game
                 requiredQuantity < 1 || cleanCardReward < 1)
             {
                 error = "Assign a stable ID, display name, issuer, required item, positive quantity and positive CARD reward.";
+                return false;
+            }
+            if (!ValidRelationshipDelta(relationshipFamiliarityDelta) ||
+                !ValidRelationshipDelta(relationshipTrustDelta) ||
+                !ValidRelationshipDelta(relationshipAffinityDelta))
+            {
+                error = "Relationship outcome deltas must be finite and between -1 and 1.";
                 return false;
             }
             if (!Enum.IsDefined(typeof(ContractGoodsEligibility), goodsEligibility) ||
@@ -71,6 +85,11 @@ namespace Signal.Game
             }
             error = null;
             return true;
+        }
+
+        private static bool ValidRelationshipDelta(float value)
+        {
+            return !float.IsNaN(value) && !float.IsInfinity(value) && value >= -1f && value <= 1f;
         }
 
         private void Reset() => EnsureId();
