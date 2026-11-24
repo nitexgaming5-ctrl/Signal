@@ -92,6 +92,16 @@ namespace Signal.Game.Tests
             Assert.That(definition.Threads[1].Stages[0].RequiredUpgrade, Is.Not.Null);
             Assert.That(definition.Threads[1].Stages[0].Choices[0].WorkshopUpgradeOffer, Is.Not.Null);
             Assert.That(definition.Threads[2].Stages[0].RequiredUpgrade, Is.Not.Null);
+
+            WorkshopUpgradeDefinition routedOffer = null;
+            var director = new NpcAgendaInteractionDirector(new[] { definition },
+                new NpcAgendaProgressBook(), new PlayerDiscoveryLedger(), new PlayerRelationshipBook(),
+                _ => true, _ => false, (_, __) => false,
+                upgrade => { routedOffer = upgrade; return true; }, () => 1, () => 0);
+            Assert.That(director.TryChoose("rhea", "compact-sewing-machine", "offer-machine",
+                "see-machine", out _, out bool stageCompleted), Is.True);
+            Assert.That(stageCompleted, Is.False);
+            Assert.That(routedOffer, Is.SameAs(definition.Threads[1].Stages[0].Choices[0].WorkshopUpgradeOffer));
         }
 
         [Test]
