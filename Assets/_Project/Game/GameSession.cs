@@ -21,6 +21,7 @@ namespace Signal.Game
         [SerializeField] private ItemDefinition parcelItem;
         [SerializeField] private DirtyCashContactOfferDefinition dirtyCashContactOffer;
         [SerializeField] private NpcCharacterDefinition[] npcDefinitions;
+        [SerializeField] private NpcAgendaDefinition[] npcAgendas;
         [SerializeField] private BusinessDefinition[] businesses;
         [SerializeField] private ContainerLootProfile[] searchableLootProfiles;
         [SerializeField] private ResidentPropertyContainerDefinition[] residentPropertyContainers;
@@ -67,6 +68,8 @@ namespace Signal.Game
         private ItemKnowledgeBook _itemKnowledge;
         private PlayerDiscoveryLedger _playerDiscoveries;
         private NpcAgendaProgressBook _npcAgendaProgress;
+        private NpcAgendaInteractionDirector _npcAgendaDirector;
+        private NpcAgendaConversationPanel _npcAgendaPanel;
         private OpportunityState _miloOpportunity;
         private PlayerRelationshipBook _playerRelationships;
         private GameClock _clock;
@@ -227,6 +230,16 @@ namespace Signal.Game
                     GetFirstUpgradeAvailabilityMessage, IsFirstUpgradeAcquired,
                     CanAcquireFirstUpgrade, AcquireFirstUpgrade);
             }
+
+            NpcAgendaDefinition[] agendaDefinitions = npcAgendas != null && npcAgendas.Length > 0
+                ? npcAgendas
+                : Resources.LoadAll<NpcAgendaDefinition>("Agendas");
+            _npcAgendaDirector = new NpcAgendaInteractionDirector(agendaDefinitions,
+                _npcAgendaProgress, _playerDiscoveries, _playerRelationships,
+                IsAgendaContractCompleted, IsAgendaUpgradeAcquired,
+                OpenAgendaWorkshopOffer, () => _clock.Day, () => _clock.MinuteOfDay);
+            _npcAgendaPanel = gameObject.AddComponent<NpcAgendaConversationPanel>();
+            _npcAgendaPanel.Bind(HandleAgendaChoice);
 
             if (parcelItem != null)
             {
@@ -502,8 +515,9 @@ namespace Signal.Game
             bool dirtyCashOpen = _dirtyCashPanel != null && _dirtyCashPanel.IsOpen;
             bool contractOpen = _customerContractPanel != null && _customerContractPanel.IsOpen;
             bool upgradeOpen = _workshopUpgradePanel != null && _workshopUpgradePanel.IsOpen;
+            bool agendaOpen = _npcAgendaPanel != null && _npcAgendaPanel.IsOpen;
             if (_panel != null)
-                _panel.enabled = !_debugMenuOpen && !workspaceOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen;
+                _panel.enabled = !_debugMenuOpen && !workspaceOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen;
             if (_storagePanel != null)
                 _storagePanel.enabled = !_debugMenuOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen;
             if (_containerPanel != null)
@@ -528,7 +542,7 @@ namespace Signal.Game
 
             bool scenarioChoiceOpen = _miloScenario != null && _miloScenario.HasPendingChoice;
             _motor.enabled = !inventoryOpen && !workspaceOpen && !storageOpen && !itemViewerOpen &&
-                !scenarioChoiceOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen && !_debugMenuOpen;
+                !scenarioChoiceOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen && !_debugMenuOpen;
 
             Vector2 playerPosition = _room.Player.position;
             bool nearWorkbench = _room.Workbench != null &&
@@ -569,6 +583,8 @@ namespace Signal.Game
                 cityPrompt = "E  Customer request";
             if (nearUpgradeSupplier)
                 cityPrompt = "E  Workshop offer";
+            if (CanStartAgendaInteraction(playerPosition))
+                cityPrompt = "E  Talk";
             if (_miloScenario != null)
             {
                 if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen)
@@ -677,7 +693,11 @@ namespace Signal.Game
                      !dirtyCashOpen && !contractOpen && !upgradeOpen && !nearDirtyCashContact && !nearContractCustomer && !nearUpgradeSupplier && !nearSearchableContainer && nearbyBusiness == null && !nearWorkbench && !nearStorage &&
                      cityPrompt.Length > 0 && keyboard.eKey.wasPressedThisFrame)
             {
-                if (_miloScenario != null &&
+                if (TryOpenAgendaConversation(playerPosition))
+                {
+                    // The agenda panel now owns this interaction until the player chooses or closes it.
+                }
+                else if (_miloScenario != null &&
                     _miloScenario.TryInteract(playerPosition, _city.CurrentPlace, out string scenarioMessage))
                 {
                     RegisterUnownedPlayerAssets(_inventory);
@@ -1357,6 +1377,70 @@ namespace Signal.Game
                 _residentPropertyDefinitions.Add(definition.ContainerId, definition);
                 _economicContainers.TryRegister(container.Inventory, owner);
             }
+        }
+
+
+        private bool CanStartAgendaInteraction(Vector2 playerPosition)
+        {
+            if (_npcAgendaDirector == null || _city == null ||
+                !_city.TryGetNearestResidentWithin(playerPosition, InteractionDistance, out string npcId))
+                return false;
+            return _npcAgendaDirector.TryGetNextStage(npcId, _city.GetResidentActivity(npcId),
+                out _, out _);
+        }
+
+        private bool TryOpenAgendaConversation(Vector2 playerPosition)
+        {
+            if (_npcAgendaDirector == null || _npcAgendaPanel == null || _city == null ||
+                !_city.TryGetNearestResidentWithin(playerPosition, InteractionDistance, out string npcId) ||
+                !_npcAgendaDirector.TryGetNextStage(npcId, _city.GetResidentActivity(npcId),
+                    out NpcAgendaThreadDefinition thread, out NpcAgendaStageDefinition stage))
+                return false;
+
+            _npcAgendaPanel.Open(npcId, thread, stage);
+            return _npcAgendaPanel.IsOpen;
+        }
+
+        private void HandleAgendaChoice(string npcId, string threadId, string stageId, string choiceId)
+        {
+            if (_npcAgendaDirector == null ||
+                !_npcAgendaDirector.TryChoose(npcId, threadId, stageId, choiceId,
+                    out string response, out _))
+            {
+                Say("That conversation option is no longer available.");
+                return;
+            }
+
+            if (_npcAgendaPanel != null)
+                _npcAgendaPanel.Close();
+            if (!string.IsNullOrWhiteSpace(response))
+                Say(response, 8f);
+        }
+
+        private bool IsAgendaContractCompleted(string contractId)
+        {
+            return firstCustomerContract != null &&
+                string.Equals(firstCustomerContract.Id.ToString(), contractId, StringComparison.Ordinal) &&
+                GetCustomerContractPhase() == CustomerContractPhase.Completed;
+        }
+
+        private bool IsAgendaUpgradeAcquired(string upgradeId)
+        {
+            return firstWorkshopUpgrade != null &&
+                string.Equals(firstWorkshopUpgrade.Id.ToString(), upgradeId, StringComparison.Ordinal) &&
+                IsFirstUpgradeAcquired();
+        }
+
+        private bool OpenAgendaWorkshopOffer()
+        {
+            if (_workshopUpgradePanel == null || firstWorkshopUpgrade == null ||
+                _city == null || _room == null ||
+                !_city.IsResidentWithin(firstWorkshopUpgrade.PayeeNpcId,
+                    _room.PlayerBody.position, InteractionDistance))
+                return false;
+
+            _workshopUpgradePanel.Open();
+            return _workshopUpgradePanel.IsOpen;
         }
 
         private void OpenSearchableContainer(string containerId)
