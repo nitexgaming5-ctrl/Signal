@@ -57,9 +57,9 @@ The approved first loop uses Rhea as a textile buyer/supplier, a Worn unstackabl
 
 The catalogue model is hybrid but bounded: merchandise remains fixed-price; each buyback entry is either fixed or explicitly condition-based for one authored item and business. Existing fixed offers remain unchanged. Do not derive CARD payouts from `ItemValueCalculator`, which remains an indicative reference value. This is not demand pricing or a global market simulator. The generic pricing code, Work Jacket, Rhea business asset, loot-profile entry, active-scene registration, visible CornerShop counter, repair service and workbench repair UI are committed. Focused tests cover pricing, repair, ownership/provenance and save/knowledge persistence, but have not run in Unity. Complete the combined First Workshop/B-04 EditMode and Play Mode acceptance before calling the initiative verified.
 
-### B-05 — Social life and recurring customers
+### B-05 — Global NPC awareness & affinity
 
-Deepen player-driven familiarity, trust, affinity, requests and recurring customer context. Use the existing directed relationship and NPC knowledge foundations. Avoid ambient relationship farming, universal reputation or automatic city-wide gossip.
+**Approved for implementation.** Unify the existing social foundations into one canonical, persistent system used by every NPC and the player. Each actor has individual sourced knowledge and directed relationships; familiarity, trust and affinity remain separate. Knowledge is acquired through local observation, explicit communication or authored discovery. No omniscience, automatic city-wide gossip, ambient affinity farming or universal reputation. Rhea and Milo are test content, not special cases. See [B-05 task card](tasks/LIVELIHOOD-B-05-GLOBAL-NPC-AWARENESS-AFFINITY.md).
 
 ### B-06 — Livelihood expansion
 
