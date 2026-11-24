@@ -7,7 +7,7 @@ Last reconciled: **2026-11-24**. This is the short status board. Session history
 - Unity **6000.6.9f1**, 2D URP. Active architecture: `Signal.Core` (plain C#) + `Signal.Game` (Unity integration). Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
 - Working branch: `chore/collaboration-workflow-and-audit`. Keep `main` untouched.
 - Application version: **0.01**. Save snapshots are deliberately unversioned; there is no schema-version field, version gate or automatic migration chain. Older experimental saves may be incompatible after data-shape changes.
-- Latest user-reported full EditMode result: **417/417 passed (2026-11-24)**, after the unversioned-save cleanup and NPC agenda changes.
+- Latest user-reported full EditMode result: **417/417 passed (2026-11-24)**, before the hybrid buyback runtime/test additions in commit `7914355`. This is the last verified baseline, not verification of current HEAD; a fresh full suite is required.
 - The user confirmed the workbench, selling and Milo's customer-request flow working in Play Mode. The supplier purchase/installation, Rhea agenda sequence, second recipe and full F5/F9 acceptance remain to be verified.
 
 ## Active initiative — Direction B: First Workshop (B-01 to B-03)
@@ -35,7 +35,7 @@ Implementation and authored content are committed. Do not rebuild these systems 
 |---|---|
 | World | Hideout, Street, CornerShop, Apartment and one persistent session |
 | Inventory/items | Grid inventory, stable stack GUIDs, quality/condition/authenticity/ownership, item knowledge and inspection |
-| Economy | Resident CARD accounts, ownership/custody, atomic transfers, authored fixed-price retail BUY/SELL |
+| Economy | Resident CARD accounts, ownership/custody, atomic transfers, fixed-price merchandise, fixed or condition-based authored buyback offers (Unity verification pending) |
 | Workshop | Actor-aware production, one-active contract, physical fulfilment, issuer-paid reward, upgrade/recipe unlock |
 | Scavenging/crime | One-time searchable physical bins, resident-owned containers, theft outcomes and witness-scoped knowledge |
 | NPCs | Shared social world, local perception, individual knowledge, authored schedules, generic presenter and agenda threads |
@@ -45,7 +45,7 @@ Specialist references: [Architecture](ARCHITECTURE.md), [Data Model](DATA_MODEL.
 
 ## Current verification and next action
 
-**EditMode:** user reports **417/417 passed** on 2026-11-24. This verifies the current branch's compilation and full automated EditMode suite.
+**EditMode:** the user's **417/417 result on 2026-11-24** predates the hybrid buyback code and new tests. It remains the last verified baseline; rerun the full suite in Unity on current HEAD.
 
 **Play Mode already confirmed:** workbench opens, production/selling works, Milo's request can be completed.
 
@@ -60,12 +60,12 @@ The full agenda implementation and acceptance checklist are in [NPC Agenda & Int
 
 ## Next strategic feature
 
-**B-04 Repair & Restoration** is now a source-audited design draft, not implementation approval. Its first proposal reuses the upgraded workbench, patch kits, item condition, stable identity and item knowledge. See [B-04 design draft](tasks/LIVELIHOOD-B-04-REPAIR-RESTORATION.md) and [Open Questions](OPEN_QUESTIONS.md). Do not implement repairs until the First Workshop Play Mode acceptance is complete and the B-04 rules are approved.
+**B-04 Repair & Restoration** has an approved design and a committed hybrid buyback-pricing foundation. The BusinessDefinition mode, state-aware retail quote and sale-time resolution are implemented, with focused EditMode tests added; Unity compilation/full tests have not yet been rerun. Rhea's Textile Counter, Work Jacket content and the repair gameplay interaction are still pending. Complete the First Workshop Play Mode acceptance first, then integrate the approved B-04 loop. See [B-04](tasks/LIVELIHOOD-B-04-REPAIR-RESTORATION.md) and [Decision 0006](decisions/0006-hybrid-buyback-and-textile-business.md).
 
 ## Repository hazards and deferred scope
 
 - `Assets/_Project/Content/Items/` and `Assets/_Project/Content/items/` differ only by case and may collide on Windows. New authored content currently uses distinct folders such as `Content/WorkshopItems/`; preserve GUIDs and do not merge/rename those folders outside Unity Editor.
-- Deliberately deferred: universal supply/demand, automatic NPC shopping, finite stock simulation, dynamic prices, passive income, production timers/queues, procedural/multiple contracts, partial-stack contract delivery, customer-owned repairs, random repair failure, broad relationship rewards, police response, global rumour cascades and new districts.
+- Deliberately deferred: universal supply/demand, automatic NPC shopping, finite stock simulation, market-wide/time-/demand-driven price changes, passive income, production timers/queues, procedural/multiple contracts, partial-stack contract delivery, customer-owned repairs, random repair failure, broad relationship rewards, police response, global rumour cascades and new districts. Selective authored condition-based buyback is the approved narrow exception.
 
 ## Documentation maintenance
 
