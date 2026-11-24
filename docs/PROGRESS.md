@@ -7,7 +7,7 @@ Last reconciled: **2026-11-24**. This is the short status board. Session history
 - Unity **6000.6.9f1**, 2D URP. Active architecture: `Signal.Core` (plain C#) + `Signal.Game` (Unity integration). Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
 - Working branch: `chore/collaboration-workflow-and-audit`. Keep `main` untouched.
 - Application version: **0.01**. Save snapshots are deliberately unversioned; there is no schema-version field, version gate or automatic migration chain. Older experimental saves may be incompatible after data-shape changes.
-- Latest user-reported full EditMode result before B-05: **431/431 passed (2026-11-24)** after the B-04 implementation. The user also confirmed the First Workshop and repair/trading gameplay works in Play Mode; the remaining issue was that the Work Jacket was not found during scavenging. This 430/430 result predates the movement, guaranteed-loot and NPC-interaction-pause changes in the current patch.
+- Latest user-reported full EditMode result before B-05: **431/431 passed (2026-11-24)** after the B-04 implementation. The user also confirmed the First Workshop and repair/trading gameplay works in Play Mode; the remaining issue was that the Work Jacket was not found during scavenging. This 431/431 result predates the B-05 social-persistence and relationship-mutation changes now committed.
 - The user reports the First Workshop and repair/trading flow working in Play Mode. The Work Jacket still needs to be acquired through scavenging to complete the repair loop.
 
 ## Active initiative — Direction B: First Workshop and Repair (B-01 to B-04)
