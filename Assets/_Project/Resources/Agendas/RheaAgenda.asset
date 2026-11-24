@@ -17,14 +17,20 @@ MonoBehaviour:
   - ThreadId: milo-parcel-rumour
     DisplayName: A neighbour who notices things
     Summary: Rhea shares an uncertain, second-hand account about Milo after closing.
+    Priority: 10
     Stages:
     - StageId: first-conversation
       Title: A neighbour who notices things
       Dialogue: "Rhea: I heard Milo has been carrying parcels after closing. I don't know what they're for, and I wouldn't take it as proof of anything."
       RequireSocializingActivity: 1
+      RequiredActivity: 3
+      RequiredPlace: Street
       RequiredDiscoveryId:
       RequiredCompletedContractId:
+      RequiredContract: {fileID: 0}
       RequiredUpgradeId:
+      RequiredUpgrade: {fileID: 0}
+      RequireUpgradeNotAcquired: 0
       Choices:
       - ChoiceId: ask-source
         Label: "Ask where she heard it"
@@ -68,20 +74,27 @@ MonoBehaviour:
   - ThreadId: compact-sewing-machine
     DisplayName: Something in the back room
     Summary: Rhea offers an old compact sewing machine after Milo's request is completed.
+    Priority: 30
     Stages:
     - StageId: offer-machine
       Title: Something in the back room
       Dialogue: "Rhea: I have an old compact sewing machine in the back. It still runs. If you're serious about making a little workshop out of that place, I could let it go."
       RequireSocializingActivity: 0
+      RequiredActivity: 0
+      RequiredPlace:
       RequiredDiscoveryId:
-      RequiredCompletedContractId: first-customer-contract
+      RequiredCompletedContractId:
+      RequiredContract: {fileID: 11400000, guid: dd000000000000000000000000000001, type: 2}
       RequiredUpgradeId:
+      RequiredUpgrade: {fileID: 11400000, guid: ee000000000000000000000000000001, type: 2}
+      RequireUpgradeNotAcquired: 1
       Choices:
       - ChoiceId: see-machine
         Label: "Take a look"
         Response: "Rhea: It's yours to consider. Have a look at the offer."
         CompleteStageOnChoice: 0
         Action: 3
+        WorkshopUpgradeOffer: {fileID: 11400000, guid: ee000000000000000000000000000001, type: 2}
         DiscoveryId:
         DiscoverySubjectId:
         DiscoveryType: 1
@@ -106,14 +119,20 @@ MonoBehaviour:
   - ThreadId: rhea-mending
     DisplayName: Perhaps I need a favour myself
     Summary: Rhea gives practical advice and foreshadows a future repair customer role.
+    Priority: 20
     Stages:
     - StageId: mending-advice
       Title: Perhaps I need a favour myself
       Dialogue: "Rhea: Once that machine is set up, start with simple seams and keep the tension even. I have a coat that could use attention one of these days."
       RequireSocializingActivity: 0
+      RequiredActivity: 0
+      RequiredPlace:
       RequiredDiscoveryId:
       RequiredCompletedContractId:
-      RequiredUpgradeId: compact-sewing-machine
+      RequiredContract: {fileID: 0}
+      RequiredUpgradeId:
+      RequiredUpgrade: {fileID: 11400000, guid: ee000000000000000000000000000001, type: 2}
+      RequireUpgradeNotAcquired: 0
       Choices:
       - ChoiceId: thank-rhea
         Label: "Thank her for the advice"
