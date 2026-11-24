@@ -28,6 +28,13 @@ namespace Signal.Core
             return _knowledge.ToArray();
         }
 
+        internal IList<KeyValuePair<string, NpcRelationship>> GetRelationships()
+        {
+            var result = new List<KeyValuePair<string, NpcRelationship>>(_relationships);
+            result.Sort((left, right) => string.CompareOrdinal(left.Key, right.Key));
+            return result.AsReadOnly();
+        }
+
         internal bool KnowsEvent(string eventId)
         {
             for (int i = 0; i < _knowledge.Count; i++)
