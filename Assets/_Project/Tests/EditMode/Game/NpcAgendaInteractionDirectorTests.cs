@@ -155,7 +155,7 @@ namespace Signal.Game.Tests
                     NpcAgendaActivityRequirement.Any, invalidDiscovery))
             };
             Assert.That(agenda.TryValidate(out string outcomeError), Is.False);
-            Assert.That(outcomeError, Does.Contain("discovery"));
+            Assert.That(outcomeError, Does.Contain("Discovery"));
         }
 
         [Test]
