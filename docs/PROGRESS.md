@@ -45,7 +45,7 @@ Specialist references: [Architecture](ARCHITECTURE.md), [Data Model](DATA_MODEL.
 
 ## Current verification and next action
 
-**EditMode:** the user's **417/417 result on 2026-11-24** predates the hybrid buyback code and new tests. It remains the last verified baseline; rerun the full suite in Unity on current HEAD.
+**EditMode:** the user's **417/417 result on 2026-11-24** predates all hybrid buyback, textile content, repair runtime/UI and test additions. It remains the last verified baseline; rerun the full suite in Unity on current HEAD.
 
 **Play Mode already confirmed:** workbench opens, production/selling works, Milo's request can be completed.
 
