@@ -60,7 +60,7 @@ The full agenda implementation and acceptance checklist are in [NPC Agenda & Int
 
 ## Next strategic feature
 
-**B-04 Repair & Restoration** has an approved design and a committed hybrid buyback-pricing foundation. The BusinessDefinition mode, state-aware retail quote and sale-time resolution are implemented, with focused EditMode tests added; Unity compilation/full tests have not yet been rerun. Rhea's Textile Counter, Work Jacket content and the repair gameplay interaction are still pending. Complete the First Workshop Play Mode acceptance first, then integrate the approved B-04 loop. See [B-04](tasks/LIVELIHOOD-B-04-REPAIR-RESTORATION.md) and [Decision 0006](decisions/0006-hybrid-buyback-and-textile-business.md).
+**B-04 Repair & Restoration** has an approved design and a committed hybrid buyback-pricing foundation. The BusinessDefinition mode, state-aware retail quote and sale-time resolution are implemented, with focused EditMode tests added; Unity compilation/full tests have not yet been rerun. Rhea's Textile Counter, Work Jacket, loot-profile entry, active-scene registration and visible CornerShop counter are committed. Repair gameplay/service/UI remains pending. Complete the First Workshop Play Mode acceptance first, then integrate the approved repair loop. See [B-04](tasks/LIVELIHOOD-B-04-REPAIR-RESTORATION.md) and [Decision 0006](decisions/0006-hybrid-buyback-and-textile-business.md).
 
 ## Repository hazards and deferred scope
 
