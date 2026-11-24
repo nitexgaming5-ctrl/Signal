@@ -10,8 +10,8 @@ using Signal.Core;
 namespace Signal.Game
 {
     /// <summary>
-    /// A close-up, tactile first-pass workbench workspace. This is a presentation and
-    /// interaction surface only; it deliberately does not invent crafting or economy rules.
+    /// A close-up, tactile workbench workspace for authored production and textile repair.
+    /// The UI delegates all inventory, ownership, crafting and repair rules to core services.
     /// </summary>
     public sealed class WorkbenchWorkspace : MonoBehaviour
     {
