@@ -191,6 +191,11 @@ namespace Signal.Game
 
         public void DebugAdvanceMovement(float deltaTime)
         {
+            // Explicit debug-time advancement represents elapsed simulation time.
+            // Do not let the short wall-clock dialogue grace period block this
+            // deterministic movement hook; real-time Update still honours it.
+            if (_dialoguePauseUntil > Time.time)
+                _dialoguePauseUntil = Time.time;
             AdvanceMovement(deltaTime);
         }
 
