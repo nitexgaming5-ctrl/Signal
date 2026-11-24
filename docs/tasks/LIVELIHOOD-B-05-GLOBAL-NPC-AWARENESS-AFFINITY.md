@@ -65,12 +65,12 @@ Preserve these existing owners and extend them rather than introducing parallel 
 - Keep the current unversioned 0.01 save policy; do not introduce a save-version/migration framework.
 
 ### B05-04 — Shared gameplay integration
-**Implementation status:** Generic agenda integration already uses player relationship gates/outcomes. First customer-contract outcome hook now applies authored issuer relationship deltas after successful fulfilment; Unity verification pending.
+**Implementation status:** Generic agenda integration already uses player relationship gates/outcomes. First customer-contract outcome hook now applies authored player→issuer relationship deltas after successful fulfilment; Unity verification pending.
 - Ensure agenda relationship conditions and outcomes query/mutate the canonical service.
 - Ensure scheduled encounters update familiarity through the same service.
 - Ensure witnessed world events and explicit information-sharing use the same knowledge path.
-- Customer contracts may author familiarity/trust/affinity deltas for their issuer. Apply them only after goods transfer, payment and contract completion succeed; the completed contract state prevents replay.
-- `CustomerContractDefinition` validates finite deltas in [-1, 1]. `CustomerContractService` applies them through the canonical `PlayerRelationshipBook`, scoped to the issuer NPC ID.
+- Customer contracts may author player→issuer familiarity/trust/affinity deltas. Apply them only after goods transfer, payment and contract completion succeed; the completed contract state prevents replay.
+- `CustomerContractDefinition` validates finite player→issuer deltas in [-1, 1]. `CustomerContractService` applies them through the canonical `PlayerRelationshipBook`, scoped to the paying resident's NPC ID.
 - The generic contract hook currently targets the player→issuer relationship book. Milo's current contract keeps all three deltas at zero until the separate NPC→player opinion owner is designed; a customer's successful delivery should not be misrepresented as the player's trust in that customer.
 - Add a minimal generic player-facing response/condition hook only where needed to prove affinity matters; do not invent a broad friendship, romance, faction or reputation system.
 
