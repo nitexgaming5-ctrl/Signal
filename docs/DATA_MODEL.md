@@ -38,11 +38,11 @@ New ScriptableObjects generate their stable Guid once. Never change it after con
 - **SearchableContainer:** stable identity, generated inventory, reveal order, search-started state and discovered count.
 - **CrimeOutcomeLedger / CriminalProgressionTrack / HeatMeter:** semantic crime outcomes, global criminal progression and current heat are separate concepts.
 
-## Current save schema: v16
+## Save/load policy for build 0.01
 
 Save DTOs are serializable plain data. They store definition GUIDs, stack instance GUIDs, enum values, scalar state, actor IDs and transaction records. They do not store Unity object references.
 
-Version 16 persists:
+The current `SaveData` snapshot persists:
 - player carried inventory, home storage, player stats/CARD, clock, heat and rent;
 - player item knowledge, discoveries, relationships and opportunity state;
 - asset ownership and economic transactions;
@@ -53,13 +53,12 @@ Version 16 persists:
 - production transactions/operator, customer contract lifecycle, acquired workshop upgrade IDs, issuer receiver inventory and receiver actor identity;
 - completed NPC agenda stage/choice progress by stable NPC/thread/stage IDs.
 
-### Migration policy
+### Development save policy
 
-- Current-format round-trip correctness is mandatory for persistent changes.
-- v14 migrates to v15 with empty production/contract/upgrade/receiver collections and unique stable IDs for receiver items.
-- v15 migrates to v16 with an initialized empty NPC agenda progress collection.
-- SaveMigrator.CurrentVersion is the single source of truth for migration result assertions. Historical input versions remain explicit in tests.
-- Backward compatibility with obsolete prototype saves is optional; a substantial schema change may intentionally require a fresh development save. Never silently corrupt or discard a current-format save.
+- Build 0.01 has no serialized save-schema version, version gate or automatic migration chain.
+- Save/load is expected to round-trip the current working build.
+- Older experimental save files are not guaranteed to remain compatible after persisted data changes. Start a fresh development save when necessary.
+- Keep current-build persistence reliable: reject a missing/unreadable file clearly and skip malformed or unknown records without silently corrupting unrelated state.
 
 ## Important inventory/economy invariants
 
