@@ -33,6 +33,12 @@ Milo and Rhea began as fallback framework fixtures. They are now also represente
 - NpcSocialEncounterSystem processes only residents whose authored activity is currently Socialize. It runs on clock changes, requires mutual local awareness and proximity, limits each resident to one encounter per pass and one encounter every three in-game hours, and applies a 12-hour pair cooldown.
 - A scheduled encounter adds a small familiarity increment in both directions, leaves trust and affinity unchanged, and shares at most one previously unknown event. It publishes one generic observable social-encounter event; it does not author dialogue or invent a narrative consequence.
 
+### Core (Signal.Core) — agenda progress first increment
+
+- `NpcAgendaProgressBook` stores completed stages by stable NPC/thread/stage IDs and the selected choice ID. Independent threads and residents have independent progress; a stage can be completed only once, preventing replayed choices from applying their outcomes twice.
+- The book exposes sorted progress snapshots and a restore hook for future SaveMapper integration. It stores no Unity objects or dialogue content.
+- Focused EditMode tests cover one-time completion, independent threads, selected-choice retention, restore duplicate rejection and clearing. These tests are newly added and still require Unity execution; save/load wiring is not complete.
+
 ### Game (Signal.Game)
 
 - The city creates one NpcSocialWorld for its active shared-city session.
