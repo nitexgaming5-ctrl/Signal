@@ -352,9 +352,9 @@ namespace Signal.Game
                 _economicTransactions, _stats.CleanMoney, payer, _customerContracts,
                 _clock.Day, _clock.MinuteOfDay, _playerRelationships,
                 firstCustomerContract.IssuerNpcId,
-                firstCustomerContract.RelationshipFamiliarityDelta,
-                firstCustomerContract.RelationshipTrustDelta,
-                firstCustomerContract.RelationshipAffinityDelta);
+                firstCustomerContract.PlayerFamiliarityDelta,
+                firstCustomerContract.PlayerTrustDelta,
+                firstCustomerContract.PlayerAffinityDelta);
 
             if (result.Success)
                 return "Goods handed over. Received " + result.Reward + " clean CARD.";
