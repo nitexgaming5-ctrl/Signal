@@ -45,7 +45,7 @@ Keep the parcel controller's physical world props, inspection, acceptance, retur
 - [x] Authored assets validate stable IDs, duplicate IDs, required references, typed outcomes and invalid discovery/relationship data.
 - [x] Generic director selects eligible interactions using thread priority, activity, location, discovery, relationship, opportunity, contract and upgrade conditions.
 - [x] Reusable conversation panel presents dialogue and choices with modal input locking.
-- [x] Rhea Thread A is authored as a second-hand rumour with source `rhea` and confidence 0.4; the response explicitly states it is unverified.
+- [x] Rhea Thread A is authored as a second-hand rumour with source `rhea` and confidence 0.4; the response explicitly states it is unverified. Legacy Rhea-sourced rumour signals mark the stage complete for existing saves.
 - [x] Rhea Thread B references the existing Compact Sewing Machine upgrade and opens the existing supplier panel; the existing upgrade service remains the only purchase path.
 - [x] Rhea Thread C requires the acquired sewing-machine upgrade and only provides narrative mending advice.
 - [x] A second resident fixture (`milo`) is covered through the same director tests without character-specific runtime code.
