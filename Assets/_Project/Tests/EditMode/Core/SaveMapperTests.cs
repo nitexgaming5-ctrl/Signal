@@ -740,12 +740,12 @@ namespace Signal.Core.Tests
             Assert.That(restoredWorld.BuildPerceptionFor("rhea", 8f).KnowsEvent("stale-event"), Is.False);
             Assert.That(restoredWorld.GetRelationship("rhea", "customer").Affinity, Is.Zero);
             NpcKnowledge sharedKnowledge = restoredWorld.BuildPerceptionFor("rhea", 8f).FindEvent("parcel-1");
-            Assert.That(retold, Is.Not.Null);
+            Assert.That(sharedKnowledge, Is.Not.Null);
             Assert.That(sharedKnowledge.Origin, Is.EqualTo(NpcKnowledgeOrigin.ToldByAnotherNpc));
-            Assert.That(retold.LastSourceNpcId, Is.EqualTo("milo"));
+            Assert.That(sharedKnowledge.LastSourceNpcId, Is.EqualTo("milo"));
             // ShareKnowledge uses listener trust: 1.0 * (0.35 + 0.7 * 0.5) = 0.70.
-            Assert.That(retold.Confidence, Is.EqualTo(0.7f).Within(0.0001f));
-            Assert.That(retold.LearnedMinuteOfDay, Is.EqualTo(630));
+            Assert.That(sharedKnowledge.Confidence, Is.EqualTo(0.7f).Within(0.0001f));
+            Assert.That(sharedKnowledge.LearnedMinuteOfDay, Is.EqualTo(630));
             Assert.That(restoredWorld.GetRelationship("rhea", "milo").Affinity, Is.EqualTo(-0.2f));
             Assert.That(restoredWorld.GetRelationship("milo", "rhea").Affinity, Is.EqualTo(0.6f));
         }
