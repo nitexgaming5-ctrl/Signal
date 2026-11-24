@@ -17,6 +17,7 @@ namespace Signal.Game
         private readonly PlayerRelationshipBook _relationships;
         private readonly Func<string, bool> _isContractCompleted;
         private readonly Func<string, bool> _isUpgradeAcquired;
+        private readonly Func<string, OpportunityPhase, bool> _isOpportunityInPhase;
         private readonly Func<WorkshopUpgradeDefinition, bool> _openWorkshopUpgradeOffer;
         private readonly Func<int> _getDay;
         private readonly Func<int> _getMinute;
@@ -25,6 +26,7 @@ namespace Signal.Game
             NpcAgendaProgressBook progress, PlayerDiscoveryLedger discoveries,
             PlayerRelationshipBook relationships, Func<string, bool> isContractCompleted,
             Func<string, bool> isUpgradeAcquired,
+            Func<string, OpportunityPhase, bool> isOpportunityInPhase,
             Func<WorkshopUpgradeDefinition, bool> openWorkshopUpgradeOffer,
             Func<int> getDay, Func<int> getMinute)
         {
@@ -33,6 +35,7 @@ namespace Signal.Game
             _relationships = relationships ?? throw new ArgumentNullException(nameof(relationships));
             _isContractCompleted = isContractCompleted ?? (_ => false);
             _isUpgradeAcquired = isUpgradeAcquired ?? (_ => false);
+            _isOpportunityInPhase = isOpportunityInPhase ?? ((_, __) => false);
             _openWorkshopUpgradeOffer = openWorkshopUpgradeOffer ?? (_ => false);
             _getDay = getDay ?? (() => 1);
             _getMinute = getMinute ?? (() => 0);
@@ -79,7 +82,7 @@ namespace Signal.Game
                     NpcAgendaStageDefinition candidateStage = candidateThread.Stages[s];
                     if (_progress.IsStageCompleted(npcId, candidateThread.ThreadId, candidateStage.StageId))
                         continue;
-                    if (!IsEligible(candidateStage, activity, place))
+                    if (!IsEligible(npcId, candidateStage, activity, place))
                         break;
 
                     thread = candidateThread;
@@ -90,7 +93,7 @@ namespace Signal.Game
             return false;
         }
 
-        private bool IsEligible(NpcAgendaStageDefinition stage, NpcActivity activity, string place)
+        private bool IsEligible(string npcId, NpcAgendaStageDefinition stage, NpcActivity activity, string place)
         {
             if (stage.RequireSocializingActivity && activity != NpcActivity.Socialize)
                 return false;
@@ -102,6 +105,19 @@ namespace Signal.Game
 
             if (!string.IsNullOrWhiteSpace(stage.RequiredDiscoveryId) &&
                 !_discoveries.HasSignal(stage.RequiredDiscoveryId))
+                return false;
+
+            if (stage.RequireRelationshipThresholds)
+            {
+                NpcRelationship relationship = _relationships.Get(npcId);
+                if (relationship.Familiarity < stage.MinimumFamiliarity ||
+                    relationship.Trust < stage.MinimumTrust ||
+                    relationship.Affinity < stage.MinimumAffinity)
+                    return false;
+            }
+
+            if (stage.RequireOpportunityPhase &&
+                !_isOpportunityInPhase(stage.RequiredOpportunityId, stage.RequiredOpportunityPhase))
                 return false;
 
             string contractId = stage.RequiredContract != null
