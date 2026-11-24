@@ -233,7 +233,6 @@ namespace Signal.Core
     [Serializable]
     public sealed class SaveData
     {
-        public int version = SaveMigrator.CurrentVersion;
         // Legacy v1-v7 field retained for migration; v8 mirrors the clean account value.
         public int money;
         public int cleanBalance;
@@ -296,154 +295,6 @@ namespace Signal.Core
         public int SkippedContractReceiverItems { get; set; }
         public int SkippedNpcAgendaProgress { get; set; }
         public OpportunityState RestoredOpportunity { get; set; }
-    }
-
-    public static class SaveMigrator
-    {
-        // Increment only when the serialized save schema changes. Runtime/UI/gameplay-only changes do not require a new save version.
-        // Migration tests for historical inputs should assert this constant for their migrated result.
-        public const int CurrentVersion = 16;
-
-        /// <summary>Accepts supported save formats and migrates them to the current inventory, social and economic format.</summary>
-        public static bool TryMigrate(SaveData data, out string error)
-        {
-            error = null;
-            if (data == null)
-            {
-                error = "No save data.";
-                return false;
-            }
-
-            if (data.version < 1)
-            {
-                error = "Save has an invalid version (" + data.version + ").";
-                return false;
-            }
-
-            if (data.version > CurrentVersion)
-            {
-                error = "Save was made by a newer version of the game (" + data.version + ").";
-                return false;
-            }
-
-            // Version 1 did not contain a separate home store or a world location.
-            if (data.version == 1)
-            {
-                data.worldPlace = "Hideout";
-                data.storageItems = new List<SavedItem>();
-            }
-
-            // Versions 1 and 2 had no stable identity for an inventory stack.
-            // Assign identities once during migration, across both containers.
-            var usedIds = new HashSet<Guid>();
-            EnsureInstanceIds(data.items, usedIds);
-            EnsureInstanceIds(data.storageItems, usedIds);
-            // Versions 1-3 had no per-stack state. Enum fields default to neutral values.
-            // Version 4 introduced per-stack state but no player-specific item knowledge.
-            if (data.itemKnowledge == null)
-                data.itemKnowledge = new List<SavedItemKnowledge>();
-            // Version 5 introduced player item knowledge. Version 6 adds discovery signals and one authored opportunity.
-            if (data.playerDiscoveries == null)
-                data.playerDiscoveries = new List<SavedDiscoverySignal>();
-            // Version 7 adds player-to-NPC relationship impressions and delivery outcome fields.
-            if (data.playerRelationships == null)
-                data.playerRelationships = new List<SavedPlayerRelationship>();
-
-            // A development save created during v6 could already contain a resolved parcel
-            // opportunity, before delivery assessment fields were introduced. Preserve it
-            // with neutral legacy outcome values rather than discarding the opportunity.
-            if (data.version == 6 && data.opportunity != null &&
-                data.opportunity.phase == (int)OpportunityPhase.Resolved &&
-                !data.opportunity.hasDeliveryAssessment)
-            {
-                data.opportunity.hasDeliveryAssessment = true;
-                data.opportunity.deliveredOnTime = true;
-                data.opportunity.deliveredIntact = true;
-                data.opportunity.deliveryWitnessed = false;
-            }
-
-            // Version 8 separates the clean bank/card balance and persists asset ownership
-            // plus completed economic transfer history.
-            if (data.version <= 7)
-                data.cleanBalance = data.money;
-            if (data.assetOwners == null)
-                data.assetOwners = new List<SavedAssetOwner>();
-            if (data.economicTransactions == null)
-                data.economicTransactions = new List<SavedEconomicTransaction>();
-
-            // Version 9 adds resident clean-account balances and the retail purchase ledger.
-            if (data.residentAccounts == null)
-                data.residentAccounts = new List<SavedEconomicAccount>();
-            if (data.retailTransactions == null)
-                data.retailTransactions = new List<SavedRetailTransaction>();
-
-            // Version 10 adds the dedicated player-to-business sale history.
-            if (data.shopSaleTransactions == null)
-                data.shopSaleTransactions = new List<SavedShopSaleTransaction>();
-
-            // Version 11 stores generated searchable-container contents and progressive discovery.
-            if (data.searchableContainers == null)
-                data.searchableContainers = new List<SavedSearchableContainer>();
-
-            // Version 12 persists whether the player started searching before closing the container.
-            if (data.version < 12 && data.searchableContainers != null)
-            {
-                foreach (SavedSearchableContainer container in data.searchableContainers)
-                    if (container != null) container.searchStarted = false;
-            }
-
-            // Version 13 records completed crime outcomes and the global criminal progression total.
-            if (data.crimeOutcomes == null)
-                data.crimeOutcomes = new List<SavedCrimeOutcome>();
-
-            // Version 14 persists the fence contact's physical inventory and separate illicit ledgers.
-            if (data.contactItems == null) data.contactItems = new List<SavedItem>();
-            EnsureInstanceIds(data.contactItems, usedIds);
-            if (data.illicitExchangeTransactions == null)
-                data.illicitExchangeTransactions = new List<SavedIllicitExchangeTransaction>();
-            if (data.dirtyCashCleaningTransactions == null)
-                data.dirtyCashCleaningTransactions = new List<SavedDirtyCashCleaningTransaction>();
-
-            // Version 15 adds production history, customer contract state, workshop upgrades
-            // and the customer's physical receiving inventory.
-            if (data.productionTransactions == null)
-                data.productionTransactions = new List<SavedProductionTransaction>();
-            if (data.customerContracts == null)
-                data.customerContracts = new List<SavedCustomerContract>();
-            if (data.acquiredWorkshopUpgradeIds == null)
-                data.acquiredWorkshopUpgradeIds = new List<string>();
-            if (data.contractReceiverItems == null)
-                data.contractReceiverItems = new List<SavedItem>();
-            EnsureInstanceIds(data.contractReceiverItems, usedIds);
-
-            // Version 16 persists stable NPC agenda stage progress.
-            if (data.npcAgendaProgress == null)
-                data.npcAgendaProgress = new List<SavedNpcAgendaStageProgress>();
-
-            data.version = CurrentVersion;
-
-            return true;
-        }
-
-        private static void EnsureInstanceIds(List<SavedItem> items, HashSet<Guid> usedIds)
-        {
-            if (items == null)
-                return;
-
-            foreach (SavedItem item in items)
-            {
-                if (item == null)
-                    continue;
-
-                if (!Guid.TryParse(item.instanceId, out Guid id) || id == Guid.Empty || !usedIds.Add(id))
-                {
-                    do { id = Guid.NewGuid(); }
-                    while (!usedIds.Add(id));
-
-                    item.instanceId = id.ToString();
-                }
-            }
-        }
     }
 
     public static class SaveMapper
@@ -559,8 +410,8 @@ namespace Signal.Core
             if (rent == null) throw new ArgumentNullException(nameof(rent));
             if (resolve == null) throw new ArgumentNullException(nameof(resolve));
 
-            if (!SaveMigrator.TryMigrate(data, out string error))
-                return new LoadReport { Success = false, Error = error };
+            if (data == null)
+                return new LoadReport { Success = false, Error = "No save data." };
 
             stats.Restore(data.cleanBalance, data.health);
             clock.Restore(data.day, data.minuteOfDay);
