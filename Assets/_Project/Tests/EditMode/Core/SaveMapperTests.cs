@@ -708,6 +708,60 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void NpcSocialKnowledgeAndDirectedRelationshipsSurviveSaveRoundTripWithoutSavingTheWorldJournal()
+        {
+            var sourceWorld = new NpcSocialWorld();
+            sourceWorld.RegisterNpc("milo", "Street", 1f, 2f, 8f);
+            sourceWorld.RegisterNpc("rhea", "CornerShop", 3f, 4f, 8f);
+            sourceWorld.RegisterNpc("customer", "Street", 5f, 6f, 8f);
+            sourceWorld.PublishEvent(new NpcWorldEvent("parcel-1", "Parcel", "Milo handled a parcel.",
+                "milo", "Street", 1f, 2f, 4f, 2, 620));
+            sourceWorld.SetRelationship("rhea", "milo", new NpcRelationship(0.8f, 0.7f, -0.2f));
+            sourceWorld.SetRelationship("milo", "rhea", new NpcRelationship(0.2f, 0.4f, 0.6f));
+            Assert.That(sourceWorld.ShareKnowledge("milo", "rhea", "parcel-1", 2, 630), Is.True);
+            var source = new World();
+            SaveData data = SaveMapper.Capture(source.Stats, source.Inventory, null, source.Clock,
+                source.Heat, source.Rent, "Hideout", 0f, 0f, socialWorld: sourceWorld);
+            Assert.That(data.npcKnowledge.Count, Is.EqualTo(3));
+            Assert.That(data.npcSocialRelationships.Count, Is.EqualTo(2));
+            var restoredWorld = new NpcSocialWorld();
+            restoredWorld.RegisterNpc("milo", "Street", 0f, 0f, 8f);
+            restoredWorld.RegisterNpc("rhea", "CornerShop", 0f, 0f, 8f);
+            restoredWorld.RegisterNpc("customer", "Street", 0f, 0f, 8f);
+            LoadReport report = SaveMapper.Apply(data, new World().Stats, new GridInventory(), null,
+                new GameClock(), new HeatMeter(), new RentLedger(50, 7), Resolver(), socialWorld: restoredWorld);
+            Assert.That(report.Success, Is.True);
+            Assert.That(report.SkippedNpcKnowledge, Is.Zero);
+            Assert.That(report.SkippedNpcSocialRelationships, Is.Zero);
+            Assert.That(restoredWorld.EventCount, Is.Zero, "The transient world journal must not be restored.");
+            NpcKnowledge retold = restoredWorld.BuildPerceptionFor("rhea", 8f).FindEvent("parcel-1");
+            Assert.That(retold, Is.Not.Null);
+            Assert.That(retold.Origin, Is.EqualTo(NpcKnowledgeOrigin.ToldByAnotherNpc));
+            Assert.That(retold.LastSourceNpcId, Is.EqualTo("milo"));
+            Assert.That(retold.Confidence, Is.EqualTo(0.85f).Within(0.0001f));
+            Assert.That(retold.LearnedMinuteOfDay, Is.EqualTo(630));
+            Assert.That(restoredWorld.GetRelationship("rhea", "milo").Affinity, Is.EqualTo(-0.2f));
+            Assert.That(restoredWorld.GetRelationship("milo", "rhea").Affinity, Is.EqualTo(0.6f));
+        }
+
+        [Test]
+        public void NpcSocialRestoreSkipsUnknownResidentsAndMalformedEntries()
+        {
+            var data = new SaveData();
+            data.npcKnowledge.Add(new SavedNpcKnowledge { npcId = "removed-resident", eventId = "event", kind = "Rumour",
+                eventLocationId = "Street", origin = (int)NpcKnowledgeOrigin.DirectObservation, confidence = 1f, occurredDay = 1, learnedDay = 1 });
+            data.npcSocialRelationships.Add(new SavedNpcSocialRelationship { observerNpcId = "milo", otherNpcId = "removed-resident",
+                familiarity = 0.5f, trust = 0.5f, affinity = 0f });
+            var world = new NpcSocialWorld();
+            world.RegisterNpc("milo", "Street", 0f, 0f, 8f);
+            LoadReport report = SaveMapper.Apply(data, new World().Stats, new GridInventory(), null,
+                new GameClock(), new HeatMeter(), new RentLedger(50, 7), Resolver(), socialWorld: world);
+            Assert.That(report.Success, Is.True);
+            Assert.That(report.SkippedNpcKnowledge, Is.EqualTo(1));
+            Assert.That(report.SkippedNpcSocialRelationships, Is.EqualTo(1));
+            Assert.That(world.BuildPerceptionFor("milo", 8f).KnownEvents, Is.Empty);
+        }
+        [Test]
         public void SaveDataStartsWithDefaultHideoutAndInitializedCollections()
         {
             var data = new SaveData();
