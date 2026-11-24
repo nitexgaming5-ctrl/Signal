@@ -96,8 +96,8 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 
 ## Current B-05 integration — customer relationship outcomes
 
-- Customer contracts now support authored familiarity, trust and affinity deltas for their issuer. The GameSession passes the issuer's stable NPC ID and authored values into the generic Core fulfilment service.
-- Relationship changes occur only after the exact item transfer, customer payment and contract completion all succeed. The contract's Completed state blocks replay, so the outcome cannot be applied twice.
+- Customer contracts now support authored player→issuer familiarity, trust and affinity deltas. The GameSession passes the issuer's stable NPC ID and authored values into the generic Core fulfilment service.
+- Player→issuer relationship changes occur only after the exact item transfer, customer payment and contract completion all succeed. The contract's Completed state blocks replay, so the outcome cannot be applied twice.
 - The generic contract hook currently targets the player→issuer relationship book. Milo's current contract keeps all deltas at zero until the separate NPC→player opinion owner is designed; a customer's successful delivery should not be misrepresented as the player's trust in that customer.
 - Added regression tests for one-time issuer-only changes and invalid delta rejection. Unity verification is pending.
 
