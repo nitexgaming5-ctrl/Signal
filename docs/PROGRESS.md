@@ -62,9 +62,11 @@ Specialist references: [Architecture](ARCHITECTURE.md), [Data Model](DATA_MODEL.
 
 The guaranteed Work Jacket entry is explicitly temporary test scaffolding and should be removed or changed back to a low-weight normal entry once the repair loop is fully validated.
 
-## Next strategic feature
+## Active next initiative — B-05 Global NPC Awareness & Affinity
 
-**B-04 Repair & Restoration** now has its approved hybrid catalogue, Rhea/Work Jacket content, Core repair service and workbench repair UI committed. Focused EditMode coverage has been added for fixed/condition-based buyback, repair transitions, ownership/provenance, knowledge refresh and current-save persistence. Unity has not yet imported/compiled or run the current branch changes; the old 417/417 report predates this work. Next action: pull the branch, run a fresh full EditMode suite, then complete the combined B-01–B-04 Play Mode path (Rhea's supplier/agenda, machine upgrade, recipes, textile counter, condition-priced sales, repair transitions and F5/F9 persistence). See [B-04](tasks/LIVELIHOOD-B-04-REPAIR-RESTORATION.md) and [Decision 0006](decisions/0006-hybrid-buyback-and-textile-business.md).
+The user has approved implementation of a shared social foundation for every current and future NPC. The architecture audit confirms existing shared foundations for local perception, individual knowledge, directed relationships, explicit knowledge sharing, scheduled encounters and agenda outcomes. The key gap is split/incomplete durable state: player-to-NPC relationships use a separate save path, while ordinary NPC-to-NPC relationships and personal knowledge are not broadly persisted. B-05 will unify these paths, preserve separate directional familiarity/trust/affinity, make every NPC use the same sourced knowledge model, and persist durable state by stable IDs. No automatic city-wide gossip, omniscience, ambient affinity farming or character-specific runtime logic. Rhea and Milo are pilots only. See [B-05 task card](tasks/LIVELIHOOD-B-05-GLOBAL-NPC-AWARENESS-AFFINITY.md).
+
+The user has now reported **431/431 EditMode tests passing** and confirmed the full B-01–B-04 gameplay path works, including Rhea receiving payment for the sold jacket and the repaired jacket revealing its quality. This supersedes the older 430/430 baseline above. B-04 is functionally verified by the user; retain its historical test notes in the log.
 
 ## Repository hazards and deferred scope
 
