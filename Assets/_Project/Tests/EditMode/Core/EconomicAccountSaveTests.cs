@@ -6,26 +6,6 @@ namespace Signal.Core.Tests
     public sealed class EconomicAccountSaveTests
     {
         [Test]
-        public void VersionEightMigratesToCurrentWithEmptyResidentRetailAndSaleRecords()
-        {
-            var data = new SaveData
-            {
-                version = 8,
-                money = 275,
-                cleanBalance = 275,
-                residentAccounts = null,
-                retailTransactions = null,
-                shopSaleTransactions = null
-            };
-
-            Assert.That(SaveMigrator.TryMigrate(data, out _), Is.True);
-            Assert.That(data.version, Is.EqualTo(SaveMigrator.CurrentVersion));
-            Assert.That(data.cleanBalance, Is.EqualTo(275));
-            Assert.That(data.residentAccounts, Is.Empty);
-            Assert.That(data.retailTransactions, Is.Empty);
-            Assert.That(data.shopSaleTransactions, Is.Empty);
-        }
-
         [Test]
         public void ResidentAccountsAndRetailTransactionsRoundTrip()
         {
@@ -51,8 +31,6 @@ namespace Signal.Core.Tests
 
             SaveData data = SaveMapper.Capture(stats, inventory, null, clock, heat, rent,
                 "Hideout", 0f, 0f, null, null, null, null, ownership, assetLedger, accounts, retailLedger);
-
-            Assert.That(data.version, Is.EqualTo(SaveMigrator.CurrentVersion));
             Assert.That(data.residentAccounts.Count, Is.EqualTo(1));
             Assert.That(data.retailTransactions.Count, Is.EqualTo(1));
 
@@ -86,10 +64,10 @@ namespace Signal.Core.Tests
         }
 
         [Test]
-        public void MissingNewResidentKeepsItsAuthoredStartingBalanceAfterOlderSaveLoad()
+        public void MissingNewResidentKeepsItsAuthoredStartingBalanceAfterSaveLoad()
         {
             var stats = new PlayerStats();
-            var data = new SaveData { version = 8, money = 40, cleanBalance = 40 };
+            var data = new SaveData { money = 40, cleanBalance = 40 };
 
             var accounts = new EconomicAccountBook();
             accounts.TryRegister(EconomicActorId.Player, stats.CleanMoney);
@@ -107,7 +85,7 @@ namespace Signal.Core.Tests
         }
 
         [Test]
-        public void LoadingLegacySaveResetsResidentsToAuthoredStartingBalances()
+        public void SaveWithoutResidentAccountRecordsPreservesAuthoredStartingBalances()
         {
             var stats = new PlayerStats();
             var accounts = new EconomicAccountBook();
@@ -116,8 +94,8 @@ namespace Signal.Core.Tests
             CleanMoneyAccount residentAccount = accounts.GetOrCreate(resident, 60);
             residentAccount.TryDebit(20);
 
-            var legacy = new SaveData { version = 8, money = 10, cleanBalance = 10 };
-            LoadReport report = SaveMapper.Apply(legacy, stats, new GridInventory(), null,
+            var data = new SaveData { money = 10, cleanBalance = 10 };
+            LoadReport report = SaveMapper.Apply(data, stats, new GridInventory(), null,
                 new GameClock(), new HeatMeter(), new RentLedger(50, 7), id => null,
                 null, null, null, new AssetOwnershipBook(), new EconomicTransactionLedger(),
                 accounts, new RetailTransactionLedger());
