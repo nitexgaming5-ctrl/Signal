@@ -13,7 +13,7 @@ Signal is a top-down 2D urban RPG built on Unity 6000.6.9f1.
 ## Open and verify
 - Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
 - Open the project in Unity Hub and let Unity import/compile.
-- Use Unity Test Runner for the full EditMode suite; the latest user-reported result was 434/435 on 2026-11-24; the only failure was an obsolete save-version migration assertion. The save-version field, migrator and migration-only tests have since been removed, so the updated branch needs a fresh Unity compile and full EditMode run. The Unity application version remains 0.01.
-- Exercise the First Workshop Play Mode flow and save/load path after importing the new content.
+- Use Unity Test Runner for the full EditMode suite. Latest user-reported result: **417/417 passed on 2026-11-24**, after removing the final stale save-version/migrator test references. The Unity application version remains **0.01** and save snapshots are deliberately unversioned.
+- Exercise the remaining First Workshop and Rhea agenda Play Mode flow: rumour, customer request prerequisite, supplier offer, machine purchase/installation, recipe unlock/production, and save/reload.
 
 Historical handoff snapshots and session history are retained under `docs/progress/`.
