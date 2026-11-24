@@ -31,8 +31,8 @@ namespace Signal.Core
     }
 
     /// <summary>
-    /// Mutable facts belonging to one physical stack, not to its shared item definition.
-    /// These are currently authoritative item facts; player discovery/knowledge is a separate future layer.
+    /// Immutable authoritative state belonging to one physical stack, not its shared item definition.
+    /// The player's partial knowledge is stored separately in ItemKnowledgeBook and may differ.
     /// </summary>
     public readonly struct ItemInstanceState : IEquatable<ItemInstanceState>
     {
