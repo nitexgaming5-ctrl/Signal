@@ -6,7 +6,7 @@ Last reconciled: **2026-11-24**. Historical detail is preserved in `docs/progres
 
 - Unity 6000.6.9f1, 2D URP. Active architecture: `Signal.Core` (plain C#) + `Signal.Game` (Unity layer). Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
 - Working branch: `chore/collaboration-workflow-and-audit`. Keep `main` untouched.
-- Save schema: **v16**. It adds durable NPC agenda stage/choice progress to the v15 production, contract, workshop upgrade and receiver-inventory state. Version 15 saves migrate with an empty agenda-progress collection.
+- Unity application version: **0.01**. Save files are unversioned development snapshots: no schema version field, version gate or automatic migration chain. Older experimental saves are not guaranteed to remain compatible after data-shape changes.
 - Latest completed full EditMode result reported by the user: **415/415 passed (2026-11-23)**. That run predates the Rhea supplier-panel integration now on this branch; rerun the full suite after importing the current patch. The earlier 413/415 report had two stale test defects corrected in `b6bd50a`.
 - The user has reconfirmed **415/415 passed** and reports that the project is running, with the workbench, selling and customer-request flow working in Play Mode. The First Workshop is now beyond a code-only milestone; the remaining acceptance pass is to explicitly confirm the visible upgrade, Reinforced Patch Kit unlock/production and save/reload persistence before calling B-01 to B-03 complete.
 - Active gameplay initiative: **LIVELIHOOD-B1-B3 — First Workshop**, following approved Direction B.
@@ -29,7 +29,7 @@ Implementation foundation already exists:
 - Existing `WorkbenchWorkspace` extended with recipe book and production feedback; separate Rhea-facing supplier offer panel handles upgrade purchase.
 - `CustomerContractBook`, atomic fulfilment and customer interaction panel.
 - `WorkshopProgressionBook`, one-time upgrade acquisition and visible installed-prop hook.
-- Save v16 persistence (including v15-to-v16 migration), v14 economy migration and focused Core/EditMode coverage.
+- Current-state save/load persistence for inventory, economy, contracts, workshop progression and NPC agenda progress, with current-build round-trip coverage.
 
 Starter content is now authored and wired into HideoutSlice: four workshop materials, two patch-kit products, two recipes, Milo's single customer contract, Milo/Rhea resident definitions and the Compact Sewing Machine upgrade. The assets and scene references are committed; do not rebuild the systems above unless source inspection shows a concrete defect.
 
@@ -56,7 +56,7 @@ Starter content is now authored and wired into HideoutSlice: four workshop mater
 
 ## Current verification
 
-- **EditMode:** 415/415 was user-validated before the Rhea supplier-panel and NPC agenda additions. The current branch adds `WorkshopUpgradePanelTests`, `NpcAgendaProgressBookTests`, `NpcAgendaInteractionDirectorTests`, and SaveMapper agenda round-trip/v15-migration coverage; a fresh compile and full EditMode run are required.
+- **EditMode:** the user's 2026-11-24 run reported **434/435**. Its only failure was the obsolete `VersionFourteenSaveMigratesWithEmptyLivelihoodState` assertion, which expected schema v15 while the code had advanced to v16. The save-version field, migrator and migration-only tests are now removed; a fresh Unity compile and full EditMode run are required.
 - **Unity compilation / asset import:** the sewing-machine placeholder's reserved root `fileID 100100000` was corrected to `100000`, including Transform/SpriteRenderer back-references and the upgrade asset reference. The prefab GUID is unchanged. The user subsequently reported the project running and the core workshop/customer loop working; no further prefab import blocker has been reported.
 - **First Workshop Play Mode:** user-confirmed workbench, selling and customer-request flow. The Rhea supplier interaction now routes through her agenda conversation before opening the existing offer panel. Confirm `E Talk to Rhea`, choose to inspect the offer, purchase/install the Compact Sewing Machine, then speak to her again for mending advice. Unlock and craft the Reinforced Patch Kit, then F5/F9 save/reload and confirm balances, inventory, contract, agenda progress, installed upgrade and recipe unlock.
 - **Theft witness correction:** witnessed and unwitnessed heat behavior should be retested in Play Mode after the prior heat fix if not already covered.
@@ -68,7 +68,7 @@ Starter content is now authored and wired into HideoutSlice: four workshop mater
 - Rhea's three independent threads: sourced Milo tip; Compact Sewing Machine offer using the existing supplier/upgrade service; post-sale mending advice that foreshadows B-04 without implementing repairs.
 - Preserve Milo parcel physical lifecycle mechanics. Migrate only Rhea's conversational tip and any conversation presentation that cleanly belongs in the reusable framework.
 - Architecture contract and implementation sequence: `docs/NPC_FRAMEWORK.md`, section **NPC Agenda & Interaction Threads**. A dedicated task card tracks acceptance criteria.
-- Core `NpcAgendaProgressBook`, schema v16 persistence/migration, GameSession save/load wiring and focused SaveMapper tests are implemented.
+- Core `NpcAgendaProgressBook`, current-state SaveMapper persistence, GameSession save/load wiring and focused round-trip tests are implemented.
 - Added `NpcAgendaDefinition` authoring assets, deterministic `NpcAgendaInteractionDirector`, reusable `NpcAgendaConversationPanel`, and Rhea's three authored threads under `Resources/Agendas/RheaAgenda.asset`. Stage selection supports priority, activity/place, discovery, relationship thresholds, opportunity phase, contract completion and acquired/not-acquired upgrades.
 - Rhea's old rumour branch has been removed from `MiloParcelOpportunityController`; physical parcel inspection, acceptance, return, delivery and outcome mechanics remain there. The authored rumour keeps `subjectId = milo` and `sourceId = rhea`, preserving Milo's existing distinct-signal offer condition.
 - GameSession loads agenda definitions from its optional inspector array or `Resources/Agendas`, routes nearby conversations through the director, and delegates the machine offer to the existing supplier panel.
