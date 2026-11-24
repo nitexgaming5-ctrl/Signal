@@ -31,6 +31,10 @@ MonoBehaviour:
       RequiredUpgradeId:
       RequiredUpgrade: {fileID: 0}
       RequireUpgradeNotAcquired: 0
+      CompleteIfLegacyDiscoveryExists: 1
+      LegacyDiscoverySubjectId: milo
+      LegacyDiscoverySourceId: rhea
+      LegacyDiscoveryType: 3
       Choices:
       - ChoiceId: ask-source
         Label: "Ask where she heard it"
