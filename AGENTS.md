@@ -10,7 +10,7 @@ Signal is a top-down 2D urban RPG built around one connected city, a lived-in hi
 - Active architecture: `Signal.Core` (plain C#, no UnityEngine) + `Signal.Game` (Unity integration, UI and authored ScriptableObjects).
 - Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
 - Working branch: `chore/collaboration-workflow-and-audit`; keep `main` untouched.
-- Latest user-reported full EditMode run: **417/417 passed on 2026-11-24**, after the unversioned-save cleanup and NPC agenda changes. This is the current verified baseline for that branch state; any later runtime/test code change requires a fresh full suite.
+- Latest user-reported full EditMode run: **417/417 passed on 2026-11-24**, before the hybrid buyback runtime/test additions in commit `7914355`. This is the last verified baseline, not verification of current HEAD; a fresh full suite is required.
 - `Assets/_Project/_Prototype/` and `Main.unity` are legacy reference only; do not extend the old architecture.
 
 ## How to understand the project
@@ -56,7 +56,17 @@ The user has granted the agent authority to author the provisional starter conte
 
 Use coherent, modest and replaceable values. Document the rationale and mark temporary art/economic tuning as provisional. Do not alter the stable IDs or roles of existing items; create new definitions for new goods. Keep the authored slice small and connected to existing residents and systems.
 
-This delegation does not authorise unrelated new mechanics. It does not automatically extend to B-04 and later systems.
+This delegation does not authorise unrelated new mechanics. It does not automatically extend to B-04 and later systems; B-04 has a separate, explicit user approval recorded below.
+
+### Explicitly approved B-04 scope — hybrid buybacks and textile repair
+
+The user has separately approved the hybrid catalogue direction and asked the agent to continue and retain the first textile-business framework. This authorises:
+- A generic, opt-in `Fixed` or `ByCondition` pricing mode on authored buyback entries. Merchandise purchase prices remain fixed.
+- Per-business, per-item condition schedules resolved from the selected physical stack's authoritative `ItemInstanceState`, at both quote and sale time.
+- Rhea as the first textile-business operator, one authored Worn Work Jacket as the first repair target, and fixed-price repeatable raw-material merchandise.
+- The small player-owned repair loop described in `docs/tasks/LIVELIHOOD-B-04-REPAIR-RESTORATION.md`, including deterministic kit transitions, preservation of item identity/provenance and save/load tests.
+
+This approval is deliberately narrow. It does not authorise a global dynamic market, stock simulation, supply/demand, time-based price fluctuation, automatic NPC shopping, or condition pricing on every business. Do not derive buyback payment from `ItemValueCalculator`; its output remains indicative inspection/reference value. The repair interaction/content integration remains gated on the outstanding First Workshop Play Mode acceptance so that B-01 to B-03 are verified before the next player-facing loop is layered on.
 
 ### Approval boundary
 
@@ -83,7 +93,7 @@ Existing approved decisions remain binding unless the user changes them. If two 
 
 - Unity Editor is the authority for project compilation and tests. Do not run `dotnet`, `msbuild` or standalone .NET builds for this Unity project.
 - Separate code inspection, Unity compilation, EditMode results and Play Mode verification. Never claim a check that was not run.
-- The **417/417 result dated 2026-11-24** is the latest user-verified full EditMode baseline. If later changes touch compiled runtime or tests, mark this baseline as preceding the change and request/run a fresh suite when Unity is available.
+- The **417/417 result dated 2026-11-24** is the latest user-verified full EditMode baseline and predates the hybrid buyback code/test changes. Any later change touching compiled runtime or tests requires a fresh suite; do not report the old result as current-HEAD verification.
 - For content-only changes, inspect ScriptableObject references, serialized fields, scene wiring and build inclusion; still ask for an Editor import/Play Mode check when Unity itself was unavailable.
 - Add focused regression tests for changed rules and current-build save round-trip tests for persistent state. Do not introduce save-version/migration machinery in build 0.01.
 - Do not change packages or Project Settings merely to suppress errors.
