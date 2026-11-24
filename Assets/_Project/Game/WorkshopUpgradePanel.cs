@@ -34,6 +34,7 @@ namespace Signal.Game
         private Font _font;
 
         public bool IsOpen => _root != null && _root.activeSelf;
+        public string ActiveSupplierNpcId => IsOpen && _definition != null ? _definition.PayeeNpcId : string.Empty;
 
         public void Bind(WorkshopUpgradeDefinition definition, string supplierDisplayName,
             Func<string> getAvailability, Func<bool> isAcquired, Func<bool> canPurchase,
