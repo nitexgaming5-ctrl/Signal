@@ -708,7 +708,7 @@ namespace Signal.Core.Tests
         }
 
         [Test]
-        public void NpcSocialKnowledgeAndDirectedRelationshipsSurviveSaveRoundTripWithoutSavingTheWorldJournal()
+        public void NpcSocialStateSurvivesSaveLoad()
         {
             var sourceWorld = new NpcSocialWorld();
             sourceWorld.RegisterNpc("milo", "Street", 1f, 2f, 8f);
@@ -739,9 +739,9 @@ namespace Signal.Core.Tests
             Assert.That(restoredWorld.EventCount, Is.Zero, "The transient world journal must be cleared and not restored.");
             Assert.That(restoredWorld.BuildPerceptionFor("rhea", 8f).KnowsEvent("stale-event"), Is.False);
             Assert.That(restoredWorld.GetRelationship("rhea", "customer").Affinity, Is.Zero);
-            NpcKnowledge retold = restoredWorld.BuildPerceptionFor("rhea", 8f).FindEvent("parcel-1");
+            NpcKnowledge sharedKnowledge = restoredWorld.BuildPerceptionFor("rhea", 8f).FindEvent("parcel-1");
             Assert.That(retold, Is.Not.Null);
-            Assert.That(retold.Origin, Is.EqualTo(NpcKnowledgeOrigin.ToldByAnotherNpc));
+            Assert.That(sharedKnowledge.Origin, Is.EqualTo(NpcKnowledgeOrigin.ToldByAnotherNpc));
             Assert.That(retold.LastSourceNpcId, Is.EqualTo("milo"));
             // ShareKnowledge uses listener trust: 1.0 * (0.35 + 0.7 * 0.5) = 0.70.
             Assert.That(retold.Confidence, Is.EqualTo(0.7f).Within(0.0001f));
@@ -751,7 +751,7 @@ namespace Signal.Core.Tests
         }
 
         [Test]
-        public void NpcSocialRestoreSkipsUnknownResidentsAndMalformedEntries()
+        public void NpcSocialLoadSkipsInvalidEntries()
         {
             var data = new SaveData();
             data.npcKnowledge.Add(new SavedNpcKnowledge { npcId = "removed-resident", eventId = "event", kind = "Rumour",
