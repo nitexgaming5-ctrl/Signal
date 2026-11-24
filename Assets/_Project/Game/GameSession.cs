@@ -723,17 +723,15 @@ namespace Signal.Game
                      !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen && !nearDirtyCashContact && !nearContractCustomer && !nearUpgradeSupplier && !nearSearchableContainer && nearbyBusiness == null && !nearWorkbench && !nearStorage &&
                      cityPrompt.Length > 0 && keyboard.eKey.wasPressedThisFrame)
             {
-                if (TryOpenAgendaConversation(playerPosition))
-                {
-                    // The agenda panel now owns this interaction until the player chooses or closes it.
-                }
-                else if (_miloScenario != null &&
-                    _city.TryGetNearestResidentWithin(playerPosition, InteractionDistance, out string nearestResidentId) &&
-                    string.Equals(nearestResidentId, "milo", StringComparison.Ordinal) &&
+                if (_miloScenario != null &&
                     _miloScenario.TryInteract(playerPosition, _city.CurrentPlace, out string scenarioMessage))
                 {
                     RegisterUnownedPlayerAssets(_inventory);
                     Say(scenarioMessage, 8f);
+                }
+                else if (TryOpenAgendaConversation(playerPosition))
+                {
+                    // The agenda panel now owns this interaction until the player chooses or closes it.
                 }
                 else if (_city.TryInteractNpc(playerPosition, out string npcDialogue))
                     Say(npcDialogue, 5f);
