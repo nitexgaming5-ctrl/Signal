@@ -41,7 +41,7 @@ Keep the parcel controller's physical world props, inspection, acceptance, retur
 
 ## Acceptance criteria
 
-- [x] Core progress model, save v16 migration/round-trip wiring and focused tests cover stable IDs, independent threads, selected choices, invalid records and idempotent stage completion (Unity execution pending).
+- [x] Core progress model, unversioned save/load round-trip wiring and focused tests cover stable IDs, independent threads, selected choices, invalid records and idempotent stage completion (Unity execution pending).
 - [x] Authored assets validate stable IDs, duplicate IDs, required references, typed outcomes and invalid discovery/relationship data.
 - [x] Generic director selects eligible interactions using thread priority, activity, location, discovery, relationship, opportunity, contract and upgrade conditions.
 - [x] Reusable conversation panel presents dialogue and choices with modal input locking.
@@ -49,7 +49,7 @@ Keep the parcel controller's physical world props, inspection, acceptance, retur
 - [x] Rhea Thread B references the existing Compact Sewing Machine upgrade and opens the existing supplier panel; the existing upgrade service remains the only purchase path.
 - [x] Rhea Thread C requires the acquired sewing-machine upgrade and only provides narrative mending advice.
 - [x] A second resident fixture (`milo`) is covered through the same director tests without character-specific runtime code.
-- [x] Save v16 persists completed stage/choice IDs and restores them through GameSession; SaveMapper round-trip and v15 migration tests are added.
+- [x] Unversioned 0.01 save snapshots persist completed stage/choice IDs and restore them through GameSession; SaveMapper round-trip and malformed-record tests are added.
 - [x] Milo parcel physical lifecycle remains in its existing controller; only Rhea's conversation/rumour path was removed.
 - [ ] Full EditMode suite passes; user verifies Play Mode interactions and save/load.
 
