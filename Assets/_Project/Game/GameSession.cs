@@ -1418,7 +1418,8 @@ namespace Signal.Game
 
         private bool TryOpenAgendaConversationForNpc(string npcId)
         {
-            if (_npcAgendaPanel == null || _city == null || string.IsNullOrWhiteSpace(npcId))
+            if (_npcAgendaDirector == null || _npcAgendaPanel == null || _city == null ||
+                _room == null || string.IsNullOrWhiteSpace(npcId))
                 return false;
 
             foreach (NpcPresenter resident in _city.DebugResidents)
