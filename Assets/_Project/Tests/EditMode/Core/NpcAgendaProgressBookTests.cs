@@ -51,6 +51,14 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void RestoreRejectsDefaultUninitializedRecord()
+        {
+            var book = new NpcAgendaProgressBook();
+            Assert.That(book.TryRestore(default), Is.False);
+            Assert.That(book.CompletedStageCount, Is.Zero);
+        }
+
+        [Test]
         public void ClearEmitsOneChangeOnlyWhenThereWasProgress()
         {
             var book = new NpcAgendaProgressBook();
