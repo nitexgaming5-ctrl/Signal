@@ -1,6 +1,6 @@
 # B-05 — Global NPC Awareness & Affinity
 
-**Status:** Approved; first implementation slice committed, Unity verification pending  
+**Status:** Approved; B05-01–03 implemented and user-reported 434/434; first B05-04 integration committed, verification pending  
 **Approved:** 2026-11-24  
 **Priority:** High — shared social foundation  
 **Pilot content:** Rhea and Milo; neither may receive bespoke runtime logic  
@@ -57,8 +57,7 @@ Preserve these existing owners and extend them rather than introducing parallel 
 - Do not expose the global event journal through NPC perception or utility decisions.
 
 ### B05-03 — Persistence and composition
-**Implementation status:** Durable NPC memory and directed relationship save/restore committed; runtime verification pending.
-**Implementation status:** First durable-state slice implemented; Unity verification pending.
+**Implementation status:** Durable NPC memory and directed relationship save/restore committed; user reports 434/434 EditMode tests passing on 2026-11-24.
 - Preserve the existing player-to-NPC save path unchanged.
 - Persist durable NPC knowledge and directed NPC-to-NPC relationship state using stable NPC/event IDs.
 - Restore after NPC definitions and social world are registered; skip malformed or removed content records safely.
@@ -66,17 +65,21 @@ Preserve these existing owners and extend them rather than introducing parallel 
 - Keep the current unversioned 0.01 save policy; do not introduce a save-version/migration framework.
 
 ### B05-04 — Shared gameplay integration
-**Implementation status:** Existing agenda/player relationship and scheduled NPC encounter paths audited; additional gameplay hooks remain content-driven.
+**Implementation status:** Generic agenda integration already uses player relationship gates/outcomes. First customer-contract outcome hook now applies authored issuer relationship deltas after successful fulfilment; Unity verification pending.
 - Ensure agenda relationship conditions and outcomes query/mutate the canonical service.
 - Ensure scheduled encounters update familiarity through the same service.
 - Ensure witnessed world events and explicit information-sharing use the same knowledge path.
+- Customer contracts may author familiarity/trust/affinity deltas for their issuer. Apply them only after goods transfer, payment and contract completion succeed; the completed contract state prevents replay.
+- `CustomerContractDefinition` validates finite deltas in [-1, 1]. `CustomerContractService` applies them through the canonical `PlayerRelationshipBook`, scoped to the issuer NPC ID.
+- The first Milo contract authors +0.05 familiarity and +0.02 trust, with no affinity change. This is generic authored content, not a Milo-specific runtime branch.
 - Add a minimal generic player-facing response/condition hook only where needed to prove affinity matters; do not invent a broad friendship, romance, faction or reputation system.
 
 ### B05-05 — Verification
-**Implementation status:** Focused SaveMapper/social-world regression tests added; not yet run in Unity.
+**Implementation status:** User reports 434/434 EditMode tests passing after B05-01–03. New customer relationship outcome regression tests are committed and await the next Unity run.
 - Core tests: directed independence, separate dimensions, bounded values, mutation idempotency, local observation, source/confidence retention, no journal leakage, explicit-only transmission and no gossip cascade.
 - Game tests: arbitrary authored NPC definitions receive identical social state wiring; no Rhea/Milo branches.
 - Save tests: player↔NPC and NPC↔NPC relationships, durable knowledge, malformed records and unknown IDs round-trip safely.
+- Contract tests: authored issuer relationship outcomes apply only on successful fulfilment, affect only the issuer, reject invalid deltas and cannot be replayed.
 - Play Mode: Rhea and Milo learn different facts from different circumstances; a third/fallback authored resident uses the same system; relationship/knowledge state survives F5/F9.
 - Run the full EditMode suite and report exact user/CI result. Do not claim Unity verification before it runs.
 
@@ -91,6 +94,7 @@ Preserve these existing owners and extend them rather than introducing parallel 
 - [ ] Agenda, perception, encounters and witness observations use the shared services.
 - [ ] Durable relationship and knowledge state round-trips through the current save.
 - [ ] Generic Game composition works for arbitrary authored NPC definitions.
+- [ ] Authored customer outcomes update the issuer's player relationship exactly once and only after successful delivery/payment.
 - [ ] Focused tests and full EditMode suite pass; user confirms Play Mode loop.
 
 ## Explicit exclusions
