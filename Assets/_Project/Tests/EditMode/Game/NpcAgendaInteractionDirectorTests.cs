@@ -228,6 +228,9 @@ namespace Signal.Game.Tests
             Assert.That(definition.TryValidate(out string error), Is.True, error);
             Assert.That(definition.NpcId, Is.EqualTo("rhea"));
             Assert.That(definition.Threads.Length, Is.EqualTo(3));
+            Assert.That(definition.Threads[0].Stages[0].Choices[0].DiscoverySubjectId, Is.EqualTo("milo"));
+            Assert.That(definition.Threads[0].Stages[0].Choices[0].DiscoveryType, Is.EqualTo(DiscoverySignalType.Rumour));
+            Assert.That(definition.Threads[0].Stages[0].Choices[0].DiscoveryConfidence, Is.EqualTo(0.4f));
             Assert.That(definition.Threads[1].Stages[0].RequiredContract, Is.Not.Null);
             Assert.That(definition.Threads[1].Stages[0].RequiredUpgrade, Is.Not.Null);
             Assert.That(definition.Threads[1].Stages[0].Choices[0].WorkshopUpgradeOffer, Is.Not.Null);
