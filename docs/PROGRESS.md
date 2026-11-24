@@ -43,6 +43,11 @@ Implementation and authored content are committed. Do not rebuild these systems 
 
 Specialist references: [Architecture](ARCHITECTURE.md), [Data Model](DATA_MODEL.md), [NPC framework](NPC_FRAMEWORK.md), [NPC simulation](NPC_SIMULATION.md), [NPC runtime](NPC_RUNTIME.md).
 
+## Test convenience and item inspection
+
+- `HideoutSlice.unity` now starts a fresh player session with **5000 CARD** (serialized `startingMoney`). Existing saves restore their saved balance and are not overwritten by this starting value.
+- Item inspection is already wired: open inventory with Tab, then right-click an item stack. The same viewer is also passed to searchable-container and storage item interactions. The viewer shows authored description/category/reference value and only item properties the player has learned; unknown properties remain hidden. Press Esc or the viewer's Close button to dismiss it.
+
 ## Current verification and next action
 
 **EditMode:** the user's **417/417 result on 2026-11-24** predates all hybrid buyback, textile content, repair runtime/UI and test additions. It remains the last verified baseline; rerun the full suite in Unity on current HEAD.
