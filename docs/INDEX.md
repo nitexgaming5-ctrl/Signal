@@ -64,7 +64,7 @@ The current implementation status, branch head, verification and next action liv
 ### Current and future strategic direction
 
 1. **B-01 to B-03 — First Workshop:** make authored physical goods, fulfil one customer request and improve the hideout workshop. This is the active vertical slice.
-2. **B-04 — Repair, restoration and textile business:** design approved; hybrid buyback framework committed; finish First Workshop Play Mode acceptance before integrating the Work Jacket, Rhea's textile counter and repair interaction.
+2. **B-04 — Repair, restoration and textile business:** design approved; hybrid pricing and the Rhea/Work Jacket content framework are committed; finish First Workshop Play Mode acceptance before integrating repair gameplay.
 3. **B-05 — Social life and recurring customers:** future design placeholder; deepen player-driven relationships and authored requests.
 4. **B-06 — Livelihood expansion:** choose another coherent legitimate activity, not a universal profession simulator.
 5. **B-07 — Neighbourhood expansion:** add connected geography only when existing places have meaningful reasons to revisit.
