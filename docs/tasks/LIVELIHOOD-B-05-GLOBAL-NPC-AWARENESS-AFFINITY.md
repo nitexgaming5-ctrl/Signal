@@ -13,7 +13,7 @@ Residents remember what they personally witness or are explicitly told, form ind
 ## Binding design rules
 
 1. **One global social domain.** Extend the existing `NpcSocialWorld`, knowledge and relationship foundations. Do not create a parallel Rhea/social manager or duplicate relationship books.
-2. **Directed relationships.** A relationship from A to B is independent of B to A. Player-to-NPC and NPC-to-NPC relationships use the same Core model and service path.
+2. **Directed relationships.** A relationship from A to B is independent of B to A. The existing PlayerRelationshipBook remains the canonical player-to-NPC store; NpcSocialWorld remains the canonical NPC-to-NPC store. Both use the same NpcRelationship value model, but are not merged into duplicate or ambiguous authority.
 3. **Separate dimensions.** Familiarity, trust and affinity remain separate values with documented ranges, defaults and mutation rules. No generic friendship score.
 4. **Individual awareness.** Every NPC has a private knowledge store. A world event journal records what happened; it is never a shortcut for NPC decision-making.
 5. **Grounded acquisition.** Knowledge enters a character's memory only through valid local perception, explicit communication, or a specific authored discovery. Preserve event identity, original actor, latest source, confidence, event context and learning time.
@@ -30,7 +30,8 @@ Residents remember what they personally witness or are explicitly told, form ind
 - `NpcAgentState`: individual awareness radius, knowledge and relationship access.
 - `NpcKnowledge`: observation/told source, event identity, confidence and context.
 - `NpcPerception`: character-scoped decision snapshot.
-- Existing player-to-NPC relationship persistence and agenda progress persistence.
+- PlayerRelationshipBook and its existing SavedPlayerRelationship save path for player-to-NPC state.
+- NpcSocialWorld and NpcAgentState for NPC-to-NPC state and per-NPC knowledge; these are the B-05 persistence gap.
 - Existing explicit knowledge sharing and controlled scheduled social encounters.
 
 Before adding any new type, map these existing APIs and migrate their responsibilities into one canonical path.
@@ -38,9 +39,9 @@ Before adding any new type, map these existing APIs and migrate their responsibi
 ## Implementation packages
 
 ### B05-01 — Canonical relationship model
-- Audit all relationship representations and remove split authority.
-- Make player and NPC actors addressable through one stable actor identity scheme.
-- Store directed familiarity, trust and affinity consistently.
+- Preserve the existing distinct authority boundaries: PlayerRelationshipBook for player-to-NPC, NpcSocialWorld for NPC-to-NPC.
+- Keep the shared NpcRelationship value model and consistent validation/ranges without forcing the player into the NPC registry.
+- Store directed familiarity, trust and affinity consistently in each existing owner.
 - Provide validated, explicit mutation operations with source/reason metadata where durable history is needed.
 - Preserve current ambient encounter behaviour: familiarity only; no ambient trust/affinity drift.
 - Keep existing consumers (perception, agenda conditions, social encounters) reading the canonical relationship state.
@@ -53,8 +54,8 @@ Before adding any new type, map these existing APIs and migrate their responsibi
 - Do not expose the global event journal through NPC perception or utility decisions.
 
 ### B05-03 — Persistence and composition
-- Unify current player-to-NPC relationship save data with the canonical directed relationship model.
-- Persist durable NPC knowledge and relationship state using stable NPC/actor/event IDs.
+- Preserve the existing player-to-NPC save path unchanged.
+- Persist durable NPC knowledge and directed NPC-to-NPC relationship state using stable NPC/event IDs.
 - Restore after NPC definitions and social world are registered; skip malformed or removed content records safely.
 - Rebuild transient location, position and perception from the live world.
 - Keep the current unversioned 0.01 save policy; do not introduce a save-version/migration framework.
@@ -74,7 +75,7 @@ Before adding any new type, map these existing APIs and migrate their responsibi
 
 ## Acceptance criteria
 
-- [ ] One canonical directed relationship model serves player and every NPC.
+- [ ] Player-to-NPC and NPC-to-NPC relationships retain their explicit ownership boundaries while sharing the same directed NpcRelationship value model.
 - [ ] Familiarity, trust and affinity remain separate and directional.
 - [ ] Every registered NPC has an individual knowledge store.
 - [ ] Observation is local and communication/discovery is explicit and sourced.
