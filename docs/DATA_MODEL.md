@@ -11,6 +11,7 @@ Definitions describe what something is and belong in Game-layer ScriptableObject
 - **CustomerContractDefinition:** stable Guid, customer/issuer NPC ID, required ItemDefinition/quantity, fixed clean CARD reward, goods eligibility and whole-stack delivery mode.
 - **WorkshopUpgradeDefinition:** stable Guid, description, unlocked recipe, installed prop prefab/offset, acquisition mode, prerequisite, positive CARD cost and resident payee NPC ID.
 - **NpcCharacterDefinition:** stable NPC ID, display name, public role, awareness/movement settings, starting clean balance, utility routine profile, destinations, appearance and dialogue.
+- **NpcAgendaDefinition:** stable NPC ID, prioritized independent threads, sequential stages, activity/place/discovery/relationship/opportunity/contract/upgrade conditions and typed player choices. Workshop offer choices reference existing WorkshopUpgradeDefinition assets.
 - **BusinessDefinition:** stable business ID, resident owner, location/schedule, fixed merchandise catalogue and separate buyback offers.
 - **ContainerLootProfile:** weighted ItemDefinition entries and quantity ranges for one-time generation.
 - **ResidentPropertyContainerDefinition:** stable container identity, owner/location, fixed item content and initial crime/exposure tuning.
@@ -25,6 +26,7 @@ New ScriptableObjects generate their stable Guid once. Never change it after con
 - **ItemKnowledgeBook:** player beliefs about item state, each with aspect, believed value, source, confidence and learned time. Unknown aspects remain unknown.
 - **NpcSocialWorld:** resident presence, directed relationships, world events and individual knowledge. NPC belief is not world truth.
 - **PlayerRelationshipBook / PlayerDiscoveryLedger:** player-scoped directed relationship impressions and learned discovery signals.
+- **NpcAgendaProgressBook:** completed NPC/thread/stage IDs and selected choice IDs; dialogue content remains in Game ScriptableObjects.
 - **CleanMoneyAccount / EconomicAccountBook:** clean CARD integer balances by actor. Dirty Cash is never an account field.
 - **AssetOwnershipBook / EconomicContainerRegistry:** asset owner and container custodian are distinct registries.
 - **AssetTransferService / EconomicTransactionLedger:** atomic physical ownership-changing transfer and append-only transaction history.
@@ -36,11 +38,11 @@ New ScriptableObjects generate their stable Guid once. Never change it after con
 - **SearchableContainer:** stable identity, generated inventory, reveal order, search-started state and discovered count.
 - **CrimeOutcomeLedger / CriminalProgressionTrack / HeatMeter:** semantic crime outcomes, global criminal progression and current heat are separate concepts.
 
-## Current save schema: v15
+## Current save schema: v16
 
 Save DTOs are serializable plain data. They store definition GUIDs, stack instance GUIDs, enum values, scalar state, actor IDs and transaction records. They do not store Unity object references.
 
-Version 15 persists:
+Version 16 persists:
 - player carried inventory, home storage, player stats/CARD, clock, heat and rent;
 - player item knowledge, discoveries, relationships and opportunity state;
 - asset ownership and economic transactions;
@@ -48,12 +50,14 @@ Version 15 persists:
 - searchable container generation/content/reveal state;
 - criminal progression and crime outcomes, including selected witness observation identity;
 - physical Dirty Cash contact inventory and illicit exchange/cleaning ledgers;
-- production transactions/operator, customer contract lifecycle, acquired workshop upgrade IDs, issuer receiver inventory and receiver actor identity.
+- production transactions/operator, customer contract lifecycle, acquired workshop upgrade IDs, issuer receiver inventory and receiver actor identity;
+- completed NPC agenda stage/choice progress by stable NPC/thread/stage IDs.
 
 ### Migration policy
 
 - Current-format round-trip correctness is mandatory for persistent changes.
 - v14 migrates to v15 with empty production/contract/upgrade/receiver collections and unique stable IDs for receiver items.
+- v15 migrates to v16 with an initialized empty NPC agenda progress collection.
 - SaveMigrator.CurrentVersion is the single source of truth for migration result assertions. Historical input versions remain explicit in tests.
 - Backward compatibility with obsolete prototype saves is optional; a substantial schema change may intentionally require a fresh development save. Never silently corrupt or discard a current-format save.
 
