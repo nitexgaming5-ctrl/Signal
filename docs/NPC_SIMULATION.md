@@ -80,3 +80,8 @@ The reusable, data-authored NPC agenda and conversation system is documented and
 
 - City navigation, world pacing, schedule interruption and route recovery: `NPC_RUNTIME.md`.
 - Authored agenda threads, choices, prerequisites and Rhea pilot: `tasks/NPC-AGENDA-INTERACTION-THREADS.md`.
+
+
+## Durable social state
+
+Each NPC’s personal knowledge and directed NPC-to-NPC relationships are persisted through the existing save mapper after authored residents are registered. Knowledge retains its event identity, original actor, latest source, observation/told origin, confidence, event context and occurred/learned time. The global event journal is transient and is not serialized as an omniscient truth source. On load, durable social state is cleared and restored by stable IDs; unknown residents and malformed/source-invalid records are skipped. The separate `PlayerRelationshipBook` remains the player-to-NPC authority and continues to use its existing save path. NPC position, nearby perception and encounter candidates are rebuilt from the live scene.
