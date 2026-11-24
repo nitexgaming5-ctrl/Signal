@@ -1483,25 +1483,32 @@ namespace Signal.Game
 
         private bool IsAgendaContractCompleted(string contractId)
         {
-            return firstCustomerContract != null &&
-                (string.Equals(firstCustomerContract.Id.ToString(), contractId, StringComparison.Ordinal) ||
-                 string.Equals("first-customer-contract", contractId, StringComparison.Ordinal)) &&
-                GetCustomerContractPhase() == CustomerContractPhase.Completed;
+            if (string.IsNullOrWhiteSpace(contractId) || _customerContracts == null)
+                return false;
+            if (firstCustomerContract != null &&
+                string.Equals("first-customer-contract", contractId, StringComparison.Ordinal))
+                return GetCustomerContractPhase() == CustomerContractPhase.Completed;
+            return Guid.TryParse(contractId, out Guid id) &&
+                _customerContracts.TryGetState(id, out CustomerContractState state) &&
+                state.Phase == CustomerContractPhase.Completed;
         }
 
         private bool IsAgendaUpgradeAcquired(string upgradeId)
         {
-            return firstWorkshopUpgrade != null &&
-                (string.Equals(firstWorkshopUpgrade.Id.ToString(), upgradeId, StringComparison.Ordinal) ||
-                 string.Equals("compact-sewing-machine", upgradeId, StringComparison.Ordinal)) &&
-                IsFirstUpgradeAcquired();
+            if (string.IsNullOrWhiteSpace(upgradeId) || _workshopProgression == null)
+                return false;
+            if (firstWorkshopUpgrade != null &&
+                string.Equals("compact-sewing-machine", upgradeId, StringComparison.Ordinal))
+                return IsFirstUpgradeAcquired();
+            return Guid.TryParse(upgradeId, out Guid id) && _workshopProgression.HasAcquired(id);
         }
 
-        private bool OpenAgendaWorkshopOffer()
+        private bool OpenAgendaWorkshopOffer(WorkshopUpgradeDefinition upgrade)
         {
-            if (_workshopUpgradePanel == null || firstWorkshopUpgrade == null ||
+            if (upgrade == null || firstWorkshopUpgrade == null ||
+                upgrade.Id != firstWorkshopUpgrade.Id || _workshopUpgradePanel == null ||
                 _city == null || _room == null ||
-                !_city.IsResidentWithin(firstWorkshopUpgrade.PayeeNpcId,
+                !_city.IsResidentWithin(upgrade.PayeeNpcId,
                     _room.PlayerBody.position, InteractionDistance))
                 return false;
 
