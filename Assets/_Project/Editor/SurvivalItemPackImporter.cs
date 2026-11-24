@@ -61,6 +61,7 @@ namespace Signal.EditorTools
                 return;
             }
 
+            AssetDatabase.Refresh();
             EnsureFolder(Root);
             EnsureFolder(IconRoot);
             EnsureFolder(DefinitionRoot);
