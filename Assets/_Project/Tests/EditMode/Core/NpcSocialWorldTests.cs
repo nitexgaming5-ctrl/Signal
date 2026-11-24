@@ -5,7 +5,7 @@ namespace Signal.Core.Tests
     public sealed class NpcSocialWorldTests
     {
         [Test]
-        public void RelationshipAdjustmentsAreDirectedAndPreserveSeparateDimensions()
+        public void RelationshipChangesAreDirectional()
         {
             var world = new NpcSocialWorld();
             world.RegisterNpc("milo", "Street", 0f, 0f, 8f);
@@ -24,7 +24,7 @@ namespace Signal.Core.Tests
                 new NpcRelationship(float.NaN, 0.5f, 0f));
         }
         [Test]
-        public void NearbyCharactersAreAwareOnlyOfPeopleInTheirCurrentLocation()
+        public void NearbyNpcsMustShareLocation()
         {
             var world = new NpcSocialWorld();
             world.RegisterNpc("milo", "CornerShop", 0f, 0f, 8f);
@@ -36,7 +36,7 @@ namespace Signal.Core.Tests
         }
 
         [Test]
-        public void PublishedEventIsRememberedOnlyByItsActorAndLocalWitnesses()
+        public void EventsReachActorsAndNearbyWitnesses()
         {
             var world = new NpcSocialWorld();
             world.RegisterNpc("milo", "Street", 0f, 0f, 8f);
@@ -65,7 +65,7 @@ namespace Signal.Core.Tests
         }
 
         [Test]
-        public void KnowledgeSpreadsOnlyWhenSharedAndListenerTrustChangesConfidence()
+        public void SharedKnowledgeUsesListenerTrust()
         {
             var world = new NpcSocialWorld();
             world.RegisterNpc("milo", "Street", 0f, 0f, 8f);
@@ -93,7 +93,7 @@ namespace Signal.Core.Tests
         }
 
         [Test]
-        public void MovingNpcChangesWhoCanObserveAndWhoCountsAsNearby()
+        public void MovingNpcsUpdatesLocalAwareness()
         {
             var world = new NpcSocialWorld();
             world.RegisterNpc("milo", "Street", 0f, 0f, 8f);
@@ -105,7 +105,7 @@ namespace Signal.Core.Tests
         }
 
         [Test]
-        public void PerceptionSnapshotContainsOnlyThatCharactersOwnKnowledge()
+        public void PerceptionUsesPersonalKnowledge()
         {
             var world = new NpcSocialWorld();
             world.RegisterNpc("observer", "Street", 0f, 0f, 8f);
@@ -138,7 +138,7 @@ namespace Signal.Core.Tests
         }
 
         [Test]
-        public void ExplicitWitnessEventIsKnownOnlyByTheSelectedNpcAndCanBeRestoredIdempotently()
+        public void WitnessKnowledgeCanBeRestored()
         {
             var world = new NpcSocialWorld();
             world.RegisterNpc("rhea", "Apartment", 0f, 0f, 8f);
