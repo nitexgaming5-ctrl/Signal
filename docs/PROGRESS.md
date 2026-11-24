@@ -98,7 +98,7 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 
 - Customer contracts now support authored familiarity, trust and affinity deltas for their issuer. The GameSession passes the issuer's stable NPC ID and authored values into the generic Core fulfilment service.
 - Relationship changes occur only after the exact item transfer, customer payment and contract completion all succeed. The contract's Completed state blocks replay, so the outcome cannot be applied twice.
-- Milo's first workshop contract currently authors +0.05 familiarity and +0.02 trust, with affinity unchanged. The same contract data/service path works for any issuer; there are no Milo/Rhea branches.
+- The generic contract hook currently targets the player→issuer relationship book. Milo's current contract keeps all deltas at zero until the separate NPC→player opinion owner is designed; a customer's successful delivery should not be misrepresented as the player's trust in that customer.
 - Added regression tests for one-time issuer-only changes and invalid delta rejection. Unity verification is pending.
 
 ## Free Pixel Survival Items Pack — local licensed import
@@ -109,3 +109,8 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 - `GameSession` loads these definitions into the shared catalogue without granting them as starter items. `InventoryPanel` now displays authored sprites (including drag previews); `ItemViewerPanel` already displays the definition icon.
 - Names, categories, grid footprints, stack sizes and base reference values are first-pass interpretations. Base values are inspection/reference values, not shop prices. No new consumable, equipment, weapon, recipe or loot behaviour is assigned. Items are not automatically added to loot profiles or shop stock.
 - Unity import/compile/Play Mode verification remains pending.
+
+
+### B-05 directionality gap
+
+`PlayerRelationshipBook` is player→NPC; `NpcSocialWorld` is NPC→NPC. Neither currently stores an NPC's own opinion of the player. Do not overload either direction or register the player as an NPC. Proposed next design: a player-relationship value owned by each `NpcAgentState`, persisted with that NPC's durable social state. Awaiting confirmation before implementing this distinct owner and wiring NPC response/agenda gates to it.
