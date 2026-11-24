@@ -35,6 +35,7 @@ namespace Signal.Game
         private string _activePlace = "Hideout";
         private bool _debugSimulationPaused;
         private bool _interactionPaused;
+        private float _dialoguePauseUntil;
         private bool _debugActivityOverride;
         private CityBlockBootstrap _city;
         private string _currentPlace = "Apartment";
@@ -50,7 +51,8 @@ namespace Signal.Game
         public Vector2 Position => transform.position;
         public string CurrentPlace => _currentPlace;
         public bool NavigationFailed { get; private set; }
-        public bool IsTravelling => !_interactionPaused && (NavigationFailed || _nextTravelWaypoint < _travelRoute.Count);
+        public bool IsTravelling => !IsInteractionPaused && (NavigationFailed || _nextTravelWaypoint < _travelRoute.Count);
+        public bool IsInteractionPaused => _interactionPaused || Time.time < _dialoguePauseUntil;
         public Vector2 Destination => _destination;
         public IReadOnlyList<NpcTravelWaypoint> DebugTravelRoute => _travelRoute;
         public int DebugNextWaypoint => _nextTravelWaypoint;
@@ -105,6 +107,7 @@ namespace Signal.Game
             if (!CanTalkFrom(playerPosition))
                 return false;
 
+            _dialoguePauseUntil = Mathf.Max(_dialoguePauseUntil, Time.time + 5f);
             string authoredDialogue = _definition.DialogueFor(_activity);
             dialogue = string.IsNullOrWhiteSpace(DisplayName) ? authoredDialogue : DisplayName + ": " + authoredDialogue;
             if (_socialWorld != null)
@@ -145,7 +148,7 @@ namespace Signal.Game
                 return;
 
             _interactionPaused = paused;
-            if (!paused)
+            if (!paused && !IsInteractionPaused)
                 RefreshFromClock(false);
         }
 
@@ -174,7 +177,15 @@ namespace Signal.Game
 
         private void Update()
         {
-            if (_initialized && !_debugSimulationPaused && !_interactionPaused && _clock != null && !_clock.IsPaused)
+            if (_dialoguePauseUntil > 0f && Time.time >= _dialoguePauseUntil)
+            {
+                _dialoguePauseUntil = 0f;
+                if (!_interactionPaused)
+                    RefreshFromClock(false);
+            }
+
+            if (_initialized && !_debugSimulationPaused && !IsInteractionPaused &&
+                _clock != null && !_clock.IsPaused)
                 AdvanceMovement(Time.deltaTime);
         }
 
@@ -185,7 +196,7 @@ namespace Signal.Game
 
         private void AdvanceMovement(float deltaTime)
         {
-            if (!_initialized || _debugSimulationPaused || _interactionPaused || (_clock != null && _clock.IsPaused) || deltaTime <= 0f ||
+            if (!_initialized || _debugSimulationPaused || IsInteractionPaused || (_clock != null && _clock.IsPaused) || deltaTime <= 0f ||
                 _definition == null || _definition.WalkingSpeed <= 0f)
                 return;
 
@@ -254,7 +265,7 @@ namespace Signal.Game
 
         private void RefreshFromClock(bool snapToDestination)
         {
-            if (_clock == null || _brain == null || _debugSimulationPaused || _interactionPaused || _debugActivityOverride)
+            if (_clock == null || _brain == null || _debugSimulationPaused || IsInteractionPaused || _debugActivityOverride)
                 return;
 
             NpcPerception perception = _socialWorld != null && _registered
