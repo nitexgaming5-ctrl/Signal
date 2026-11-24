@@ -40,6 +40,13 @@ namespace Signal.Core
             return ids.AsReadOnly();
         }
 
+        internal void ClearForRestore()
+        {
+            foreach (NpcAgentState npc in _npcs.Values)
+                npc.ClearDurableSocialState();
+            _eventJournal.Clear();
+        }
+
         internal bool TryRestoreKnowledge(string npcId, NpcKnowledge knowledge)
         {
             if (knowledge == null || !_npcs.TryGetValue(npcId, out NpcAgentState npc))
