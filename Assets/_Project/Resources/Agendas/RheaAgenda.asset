@@ -1,0 +1,130 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6c2f1d8e9b34710a5c6d7e8f9012345, type: 3}
+  m_Name: RheaAgenda
+  m_EditorClassIdentifier:
+  NpcId: rhea
+  Threads:
+  - ThreadId: milo-parcel-rumour
+    DisplayName: A neighbour who notices things
+    Summary: Rhea shares an uncertain, second-hand account about Milo after closing.
+    Stages:
+    - StageId: first-conversation
+      Title: A neighbour who notices things
+      Dialogue: "Rhea: I heard Milo has been carrying parcels after closing. I don't know what they're for, and I wouldn't take it as proof of anything."
+      RequireSocializingActivity: 1
+      RequiredDiscoveryId:
+      RequiredCompletedContractId:
+      RequiredUpgradeId:
+      Choices:
+      - ChoiceId: ask-source
+        Label: "Ask where she heard it"
+        Response: "Rhea: Someone from the block mentioned it. I haven't seen where the parcels go, so that's all I can tell you."
+        CompleteStageOnChoice: 1
+        Action: 1
+        DiscoveryId: rhea-milo-parcel-rumour
+        DiscoverySubjectId: milo-after-hours
+        DiscoveryType: 3
+        DiscoveryDescription: "Rhea says someone from the block told her Milo has carried parcels after closing. She has not seen where they go."
+        DiscoveryConfidence: 0.4
+        FamiliarityDelta: 0.03
+        TrustDelta: 0
+        AffinityDelta: 0
+      - ChoiceId: ask-why
+        Label: "Ask why she is telling you"
+        Response: "Rhea: Because people start making up stories when they don't know the whole thing. Better you hear how little I actually know."
+        CompleteStageOnChoice: 1
+        Action: 1
+        DiscoveryId: rhea-milo-parcel-rumour
+        DiscoverySubjectId: milo-after-hours
+        DiscoveryType: 3
+        DiscoveryDescription: "Rhea says someone from the block told her Milo has carried parcels after closing. She has not seen where they go."
+        DiscoveryConfidence: 0.4
+        FamiliarityDelta: 0.03
+        TrustDelta: 0
+        AffinityDelta: 0
+      - ChoiceId: leave-subject
+        Label: "Leave it there"
+        Response: "Rhea: Fair enough. I only wanted you to know it was talk, not something I could prove."
+        CompleteStageOnChoice: 1
+        Action: 0
+        DiscoveryId:
+        DiscoverySubjectId:
+        DiscoveryType: 1
+        DiscoveryDescription:
+        DiscoveryConfidence: 1
+        FamiliarityDelta: 0
+        TrustDelta: 0
+        AffinityDelta: 0
+  - ThreadId: compact-sewing-machine
+    DisplayName: Something in the back room
+    Summary: Rhea offers an old compact sewing machine after Milo's request is completed.
+    Stages:
+    - StageId: offer-machine
+      Title: Something in the back room
+      Dialogue: "Rhea: I have an old compact sewing machine in the back. It still runs. If you're serious about making a little workshop out of that place, I could let it go."
+      RequireSocializingActivity: 0
+      RequiredDiscoveryId:
+      RequiredCompletedContractId: first-customer-contract
+      RequiredUpgradeId:
+      Choices:
+      - ChoiceId: see-machine
+        Label: "Take a look"
+        Response: "Rhea: It's yours to consider. Have a look at the offer."
+        CompleteStageOnChoice: 0
+        Action: 3
+        DiscoveryId:
+        DiscoverySubjectId:
+        DiscoveryType: 1
+        DiscoveryDescription:
+        DiscoveryConfidence: 1
+        FamiliarityDelta: 0
+        TrustDelta: 0
+        AffinityDelta: 0
+      - ChoiceId: maybe-later
+        Label: "Maybe another time"
+        Response: "Rhea: No rush. I'll keep it aside for a while."
+        CompleteStageOnChoice: 0
+        Action: 0
+        DiscoveryId:
+        DiscoverySubjectId:
+        DiscoveryType: 1
+        DiscoveryDescription:
+        DiscoveryConfidence: 1
+        FamiliarityDelta: 0
+        TrustDelta: 0
+        AffinityDelta: 0
+  - ThreadId: rhea-mending
+    DisplayName: Perhaps I need a favour myself
+    Summary: Rhea gives practical advice and foreshadows a future repair customer role.
+    Stages:
+    - StageId: mending-advice
+      Title: Perhaps I need a favour myself
+      Dialogue: "Rhea: Once that machine is set up, start with simple seams and keep the tension even. I have a coat that could use attention one of these days."
+      RequireSocializingActivity: 0
+      RequiredDiscoveryId:
+      RequiredCompletedContractId:
+      RequiredUpgradeId: compact-sewing-machine
+      Choices:
+      - ChoiceId: thank-rhea
+        Label: "Thank her for the advice"
+        Response: "Rhea: You're welcome. When you're ready, perhaps I'll bring that coat by."
+        CompleteStageOnChoice: 1
+        Action: 2
+        DiscoveryId:
+        DiscoverySubjectId:
+        DiscoveryType: 1
+        DiscoveryDescription:
+        DiscoveryConfidence: 1
+        FamiliarityDelta: 0.04
+        TrustDelta: 0
+        AffinityDelta: 0.02
