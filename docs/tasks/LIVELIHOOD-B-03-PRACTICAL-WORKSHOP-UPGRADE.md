@@ -1,6 +1,6 @@
 # LIVELIHOOD-B-03 — Practical hideout workshop upgrade
 
-**Status:** Core/Game and Compact Sewing Machine upgrade content committed; Rhea-facing supplier offer panel and nearest-NPC interaction routing added; awaiting Unity compilation and Play Mode verification  
+**Status:** Core/Game and Compact Sewing Machine upgrade content committed; Rhea-facing supplier offer panel and nearest-NPC interaction routing added; 417/417 EditMode suite passed (2026-11-24); Play Mode supplier/upgrade acceptance pending  
 **Parent:** LIVELIHOOD-B1-B3-FIRST-WORKSHOP.md  
 **Depends on:** B-01 production and B-02 customer contract loop.
 
@@ -46,7 +46,7 @@ The first practical hideout upgrade unlocks another production recipe/capability
 - Authored the Compact Sewing Machine upgrade. It costs 90 clean CARD, is sold by Rhea (resident account starts at 250 CARD), requires Milo's first contract to be completed and unlocks Reinforced Patch Kit.
 - The installed prop is a replaceable SpriteRenderer placeholder built from the existing PlayerSquare sprite; final art is tracked in ART_TODO.
 - The player starts with 70 CARD; Milo's 40 CARD reward makes the upgrade affordable after fulfilling the request. Rent remains zero for this slice.
-- The user reconfirmed 415/415 EditMode tests before this supplier-menu correction and confirmed workbench production, selling and Milo's customer request in Play Mode. The first supplier menu was missing because purchase had incorrectly been exposed only inside WorkbenchWorkspace; this has been replaced by the Rhea-facing panel. The new UI test and GameSession changes still require Unity compilation and a fresh full EditMode run, followed by supplier purchase/installation, unlock and save/reload Play Mode verification.
+- The user previously confirmed workbench production, selling and Milo's customer request in Play Mode. The first supplier menu was missing because purchase had incorrectly been exposed only inside WorkbenchWorkspace; this has been replaced by the Rhea-facing panel. The user now reports **417/417 full EditMode tests passing**, including the panel and GameSession changes. Supplier purchase/installation, recipe unlock and save/reload still require Play Mode verification.
 
 ## Acceptance criteria
 
