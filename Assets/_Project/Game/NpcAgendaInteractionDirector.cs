@@ -120,11 +120,11 @@ namespace Signal.Game
                         choice.DiscoverySubjectId, choice.DiscoveryType, npcId,
                         choice.DiscoveryDescription, choice.DiscoveryConfidence, _getDay(), _getMinute()));
                     break;
-                case NpcAgendaChoiceAction.AdjustRelationship:
-                    _relationships.Adjust(npcId, choice.FamiliarityDelta,
-                        choice.TrustDelta, choice.AffinityDelta);
-                    break;
             }
+
+            if (choice.FamiliarityDelta != 0f || choice.TrustDelta != 0f || choice.AffinityDelta != 0f)
+                _relationships.Adjust(npcId, choice.FamiliarityDelta,
+                    choice.TrustDelta, choice.AffinityDelta);
 
             response = choice.Response;
             stageCompleted = true;
