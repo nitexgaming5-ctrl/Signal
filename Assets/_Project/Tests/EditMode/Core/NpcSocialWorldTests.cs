@@ -5,6 +5,23 @@ namespace Signal.Core.Tests
     public sealed class NpcSocialWorldTests
     {
         [Test]
+        public void RelationshipAdjustmentsAreDirectedAndPreserveSeparateDimensions()
+        {
+            var world = new NpcSocialWorld();
+            world.RegisterNpc("milo", "Street", 0f, 0f, 8f);
+            world.RegisterNpc("rhea", "Street", 1f, 0f, 8f);
+            world.SetRelationship("milo", "rhea", new NpcRelationship(0.4f, 0.6f, -0.2f));
+            world.AdjustRelationship("milo", "rhea", familiarityDelta: 0.2f, affinityDelta: 0.1f);
+            world.AdjustRelationship("rhea", "milo", familiarityDelta: 0.1f);
+            Assert.That(world.GetRelationship("milo", "rhea").Familiarity, Is.EqualTo(0.6f).Within(0.0001f));
+            Assert.That(world.GetRelationship("milo", "rhea").Trust, Is.EqualTo(0.6f).Within(0.0001f));
+            Assert.That(world.GetRelationship("milo", "rhea").Affinity, Is.EqualTo(-0.1f).Within(0.0001f));
+            Assert.That(world.GetRelationship("rhea", "milo").Familiarity, Is.EqualTo(0.1f).Within(0.0001f));
+            Assert.That(world.GetRelationship("rhea", "milo").Trust, Is.EqualTo(0.5f));
+            Assert.Throws<System.ArgumentOutOfRangeException>(() =>
+                world.AdjustRelationship("milo", "rhea", trustDelta: float.NaN));
+        }
+        [Test]
         public void NearbyCharactersAreAwareOnlyOfPeopleInTheirCurrentLocation()
         {
             var world = new NpcSocialWorld();
