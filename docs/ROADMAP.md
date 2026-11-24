@@ -117,3 +117,8 @@ The wider vision includes additional crime categories, hidden NPC activities, se
 ## Historical detail
 
 Completed task specifications and their verification snapshots are archived under `tasks/archive/`. The append-only session history is in `progress/LOG-2026-11.md`. These files are for specific audits and regressions, not routine roadmap reading.
+
+
+## Active social foundation — B-05 Global NPC Awareness & Affinity
+
+Approved shared NPC awareness/affinity work is tracked in `tasks/LIVELIHOOD-B-05-GLOBAL-NPC-AWARENESS-AFFINITY.md`. The implementation preserves `PlayerRelationshipBook` as player→NPC state and `NpcSocialWorld` as NPC→NPC state, while persisting individual knowledge and directed NPC relationships through F5/F9. Runtime changes and focused tests are committed; Unity verification remains pending.
