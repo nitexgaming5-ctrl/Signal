@@ -62,13 +62,13 @@ MonoBehaviour:
         Label: "Leave it there"
         Response: "Rhea: Fair enough. I only wanted you to know it was talk, not something I could prove."
         CompleteStageOnChoice: 1
-        Action: 0
-        DiscoveryId:
-        DiscoverySubjectId:
-        DiscoveryType: 1
-        DiscoveryDescription:
-        DiscoveryConfidence: 1
-        FamiliarityDelta: 0
+        Action: 1
+        DiscoveryId: rhea-milo-parcel-rumour
+        DiscoverySubjectId: milo
+        DiscoveryType: 3
+        DiscoveryDescription: "Rhea says someone from the block told her Milo has carried parcels after closing. She has not seen where they go."
+        DiscoveryConfidence: 0.4
+        FamiliarityDelta: 0.03
         TrustDelta: 0
         AffinityDelta: 0
   - ThreadId: compact-sewing-machine
