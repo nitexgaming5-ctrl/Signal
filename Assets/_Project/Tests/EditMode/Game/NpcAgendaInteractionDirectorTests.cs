@@ -156,6 +156,89 @@ namespace Signal.Game.Tests
             Assert.That(restThread.ThreadId, Is.EqualTo("middle"));
         }
 
+
+        [Test]
+        public void RheaAgendaResourceLoadsWithThreeValidatedThreadsAndTypedOfferReference()
+        {
+            NpcAgendaDefinition definition = Resources.Load<NpcAgendaDefinition>("Agendas/RheaAgenda");
+            Assert.That(definition, Is.Not.Null);
+            Assert.That(definition.TryValidate(out string error), Is.True, error);
+            Assert.That(definition.NpcId, Is.EqualTo("rhea"));
+            Assert.That(definition.Threads.Length, Is.EqualTo(3));
+            Assert.That(definition.Threads[1].Stages[0].RequiredContract, Is.Not.Null);
+            Assert.That(definition.Threads[1].Stages[0].RequiredUpgrade, Is.Not.Null);
+            Assert.That(definition.Threads[1].Stages[0].Choices[0].WorkshopUpgradeOffer, Is.Not.Null);
+
+            WorkshopUpgradeDefinition routedOffer = null;
+            var director = CreateDirector(new[] { definition }, new NpcAgendaProgressBook(),
+                new PlayerDiscoveryLedger(), new PlayerRelationshipBook());
+            var typedDirector = new NpcAgendaInteractionDirector(new[] { definition },
+                new NpcAgendaProgressBook(), new PlayerDiscoveryLedger(), new PlayerRelationshipBook(),
+                _ => true, _ => false, (_, __) => false,
+                upgrade => { routedOffer = upgrade; return true; }, () => 1, () => 0);
+            Assert.That(typedDirector.TryChoose("rhea", "compact-sewing-machine", "offer-machine",
+                "see-machine", out _, out bool stageCompleted), Is.True);
+            Assert.That(stageCompleted, Is.False);
+            Assert.That(routedOffer, Is.SameAs(definition.Threads[1].Stages[0].Choices[0].WorkshopUpgradeOffer));
+        }
+
+        [Test]
+        public void RheaRumourPreservesMiloSubjectAndExistingParcelOfferRequirements()
+        {
+            var discoveries = new PlayerDiscoveryLedger();
+            var relationships = new PlayerRelationshipBook();
+            var agenda = CreateAgenda("rhea", "milo-tip", "opening",
+                new NpcAgendaChoiceDefinition
+                {
+                    ChoiceId = "ask-source",
+                    Label = "Ask source",
+                    Response = "A neighbour told me.",
+                    Action = NpcAgendaChoiceAction.RecordDiscovery,
+                    DiscoveryId = "rhea-milo-parcel-rumour",
+                    DiscoverySubjectId = "milo",
+                    DiscoveryType = DiscoverySignalType.Rumour,
+                    DiscoveryDescription = "Rhea heard from a neighbour that Milo carried a parcel after closing.",
+                    DiscoveryConfidence = 0.4f
+                });
+            var director = CreateDirector(new[] { agenda }, new NpcAgendaProgressBook(),
+                discoveries, relationships);
+
+            Assert.That(director.TryChoose("rhea", "milo-tip", "opening", "ask-source", out _, out _), Is.True);
+            discoveries.Record(new PlayerDiscoverySignal("milo-routine-test", "milo",
+                DiscoverySignalType.RoutineObservation, "milo",
+                "Milo stepped outside after closing with a wrapped parcel.", 1f, 2, 600));
+            relationships.Adjust("milo", familiarityDelta: 0.2f);
+            var parcelOffer = new OpportunityDefinition("milo-parcel", "milo",
+                new InteractionConditionSet(NpcActivity.Socialize, minimumFamiliarity: 0.2f,
+                    minimumDistinctSignalTypes: 2));
+            var context = new InteractionContext(NpcActivity.Socialize, relationships.Get("milo"), discoveries);
+            Assert.That(parcelOffer.OfferConditions.IsSatisfiedBy(context, "milo"), Is.True);
+        }
+
+        [Test]
+        public void AuthoredAgendaRejectsDuplicateThreadIdsAndMissingWorkshopOfferReference()
+        {
+            var duplicate = ScriptableObject.CreateInstance<NpcAgendaDefinition>();
+            _created.Add(duplicate);
+            duplicate.NpcId = "resident";
+            NpcAgendaStageDefinition first = Stage("first", NpcAgendaActivityRequirement.Any,
+                Choice("okay", NpcAgendaChoiceAction.DialogueOnly));
+            NpcAgendaStageDefinition second = Stage("second", NpcAgendaActivityRequirement.Any,
+                Choice("okay", NpcAgendaChoiceAction.DialogueOnly));
+            duplicate.Threads = new[] { Thread("same", 0, first), Thread("same", 0, second) };
+            Assert.That(duplicate.TryValidate(out _), Is.False);
+
+            var missingOffer = CreateAgenda("resident", "offer", "show",
+                new NpcAgendaChoiceDefinition
+                {
+                    ChoiceId = "show",
+                    Label = "Show me",
+                    Response = "Here it is.",
+                    Action = NpcAgendaChoiceAction.OpenWorkshopUpgradeOffer
+                });
+            Assert.That(missingOffer.TryValidate(out _), Is.False);
+        }
+
         private NpcAgendaDefinition CreateAgenda(string npcId, string threadId, string stageId,
             NpcAgendaChoiceDefinition choice)
         {
