@@ -62,9 +62,19 @@ Specialist references: [Architecture](ARCHITECTURE.md), [Data Model](DATA_MODEL.
 
 The guaranteed Work Jacket entry is explicitly temporary test scaffolding and should be removed or changed back to a low-weight normal entry once the repair loop is fully validated.
 
-## Active next initiative — B-05 Global NPC Awareness & Affinity
+## Active initiative — B-05 Global NPC Awareness & Affinity
 
-The user has approved implementation of a shared social foundation for every current and future NPC. The architecture audit confirms existing shared foundations for local perception, individual knowledge, directed relationships, explicit knowledge sharing, scheduled encounters and agenda outcomes. The key gap is split/incomplete durable state: player-to-NPC relationships use a separate save path, while ordinary NPC-to-NPC relationships and personal knowledge are not broadly persisted. B-05 will unify these paths, preserve separate directional familiarity/trust/affinity, make every NPC use the same sourced knowledge model, and persist durable state by stable IDs. No automatic city-wide gossip, omniscience, ambient affinity farming or character-specific runtime logic. Rhea and Milo are pilots only. See [B-05 task card](tasks/LIVELIHOOD-B-05-GLOBAL-NPC-AWARENESS-AFFINITY.md).
+The user approved a shared social foundation for every current and future NPC. The architecture audit confirms existing shared foundations for local perception, individual knowledge, directed relationships, explicit knowledge sharing, scheduled encounters and agenda outcomes. Relationship ownership is intentionally split: `PlayerRelationshipBook` is the existing player→NPC authority and is already persisted; `NpcSocialWorld` owns NPC→NPC relationships and per-NPC knowledge. B-05 preserves those boundaries while sharing the same `NpcRelationship` value model.
+
+**Implemented in the current branch (Unity verification pending):**
+- `SaveData` captures each registered NPC’s personal knowledge, including event identity, original actor, latest source, observation/told origin, confidence, event location/coordinates and occurred/learned timestamps.
+- Directed NPC→NPC familiarity/trust/affinity is captured independently for each observer→target pair.
+- Load restores after the scene has registered its NPCs. Missing residents, malformed records, invalid source references and invalid values are skipped and counted in `LoadReport`.
+- Loading clears prior durable NPC knowledge/relationships and the transient event journal before applying the save. The journal itself is not serialized or exposed as private memory; positions and perception remain rebuilt from the live scene.
+- `PlayerRelationshipBook` and its existing save format are unchanged.
+- Added focused SaveMapper tests for sourced knowledge and directional relationship round-trip, transient journal exclusion, and safe skipping of removed residents.
+
+Task specification: `tasks/LIVELIHOOD-B-05-GLOBAL-NPC-AWARENESS-AFFINITY.md`. No Unity compile or EditMode result has been run/claimed for this patch. The user’s latest reported baseline before B-05 remains 431/431; rerun the full suite on this branch head.able state by stable IDs. No automatic city-wide gossip, omniscience, ambient affinity farming or character-specific runtime logic. Rhea and Milo are pilots only. See [B-05 task card](tasks/LIVELIHOOD-B-05-GLOBAL-NPC-AWARENESS-AFFINITY.md).
 
 The user has now reported **431/431 EditMode tests passing** and confirmed the full B-01–B-04 gameplay path works, including Rhea receiving payment for the sold jacket and the repaired jacket revealing its quality. This supersedes the older 430/430 baseline above. B-04 is functionally verified by the user; retain its historical test notes in the log.
 
