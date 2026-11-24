@@ -36,7 +36,7 @@ Dependency direction is Game → Core. Do not add gameplay to `Assets/_Project/_
 | Crime | `CrimeOutcomeLedger`, `CriminalProgressionTrack`, transfer semantics | ResidentPropertyContainerDefinition and local witness selection |
 | NPC/social | `NpcSocialWorld`, perception, knowledge, utility brain and encounters | NpcCharacterDefinition, NpcPresenter, CityBlockBootstrap |
 | Narrative opportunity | discovery, relationship and opportunity Core models | authored scenario controllers such as MiloParcelOpportunityController |
-| Save/load | Save DTOs, SaveMigrator, SaveMapper and dedicated mappers | SaveFileStore and GameSession |
+| Save/load | Save DTOs, SaveMapper and dedicated mappers | SaveFileStore and GameSession |
 
 ## Transaction rules
 
@@ -58,9 +58,9 @@ Dependency direction is Game → Core. Do not add gameplay to `Assets/_Project/_
 
 ## Persistence
 
-Current serialized save schema is **v15**. Version 15 adds production history/operator, customer contract state, acquired workshop upgrade IDs, contract receiver items and receiver actor identity. Version 14 migrates to v15 with empty new collections and stable IDs for restored receiver items.
+Build **0.01** uses an unversioned development save snapshot. `SaveData` is serialized directly and `SaveMapper` restores the current state; there is no save-version field, version gate or automatic migration layer.
 
-Increment the schema only when persisted fields/meaning/representation changes. Runtime/UI changes do not require a version bump. Test current-format round trips and relevant migrations. Older prototype saves need not all remain compatible, but never silently corrupt/discard a current-format save.
+Test current-build save/load round trips whenever persistent state changes. Older experimental saves are not guaranteed to remain compatible when the serialized data shape changes; start a fresh development save when needed. Malformed records should be skipped safely, and a missing or unreadable file must remain a clear load failure.
 
 ## Unity asset and refactoring safety
 
