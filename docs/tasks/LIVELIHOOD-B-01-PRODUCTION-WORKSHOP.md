@@ -1,6 +1,6 @@
 # LIVELIHOOD-B-01 — Production foundation and player workshop
 
-**Status:** Core/Game and starter recipe content committed; 417/417 EditMode suite passed (2026-11-24); Play Mode verification pending  
+**Status:** Core/Game and starter recipe content committed; 417/417 EditMode suite passed (2026-11-24); basic workbench/production flow user-confirmed in Play Mode; final integrated B-01 to B-03 acceptance pending  
 **Parent:** LIVELIHOOD-B1-B3-FIRST-WORKSHOP.md
 
 ## Player outcome
@@ -54,7 +54,7 @@ The player interacts with the existing hideout workbench, inspects an authored r
 - Added Fabric Roll, Thread Spool, Adhesive Tube and Fastener Pack as starter materials; added Basic Patch Kit and Reinforced Patch Kit as physical products.
 - Authored Recipe_Workshop_BasicPatch and Recipe_Workshop_ReinforcedPatch. The second recipe is assigned through the workshop upgrade and remains locked until acquisition.
 - Added the four material definitions to HideoutSlice's existing starting-item list. Their stack limits provide 3 Fabric Rolls, 2 Thread Spools, 2 Adhesive Tubes and 1 Fastener Pack: enough for two Basic Patch Kits and one Reinforced Patch Kit after one kit is delivered.
-- The user reports the current full EditMode suite passed **417/417 on 2026-11-24**. The production/workbench loop is confirmed in Play Mode; the remaining combined B-01 to B-03 acceptance includes the Rhea supplier upgrade, second recipe and save/reload.
+- The user reports the current full EditMode suite passed **417/417 on 2026-11-24**. Basic workbench access and production were confirmed in Play Mode; the remaining combined B-01 to B-03 acceptance includes Rhea's supplier interaction, second recipe and save/reload.
 
 ## Acceptance criteria
 
