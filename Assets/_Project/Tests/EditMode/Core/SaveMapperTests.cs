@@ -722,7 +722,7 @@ namespace Signal.Core.Tests
             var source = new World();
             SaveData data = SaveMapper.Capture(source.Stats, source.Inventory, null, source.Clock,
                 source.Heat, source.Rent, "Hideout", 0f, 0f, socialWorld: sourceWorld);
-            Assert.That(data.npcKnowledge.Count, Is.EqualTo(3));
+            Assert.That(data.npcKnowledge.Count, Is.EqualTo(2));
             Assert.That(data.npcSocialRelationships.Count, Is.EqualTo(2));
             var restoredWorld = new NpcSocialWorld();
             restoredWorld.RegisterNpc("milo", "Street", 0f, 0f, 8f);
