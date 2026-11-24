@@ -29,6 +29,7 @@ namespace Signal.Game
         private string _stageId;
 
         public bool IsOpen => _root != null && _root.activeSelf;
+        public string ActiveNpcId => IsOpen ? _npcId : string.Empty;
 
         public void Bind(Action<string, string, string, string> choose, Action closed = null)
         {
