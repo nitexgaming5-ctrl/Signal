@@ -87,3 +87,8 @@ Task specification: `tasks/LIVELIHOOD-B-05-GLOBAL-NPC-AWARENESS-AFFINITY.md`. No
 ## Documentation maintenance
 
 Keep this file concise. Append session history to `progress/LOG-2026-11.md`; keep approved rules in `DESIGN.md` / `decisions/`; keep implementation acceptance in the active task cards. The root `PROGRESS.md` is an intentional compatibility pointer to this canonical file.
+
+
+### B-05 naming and save-test correction
+- Shortened the new NPC social test names to describe one behavior each, renamed the restored knowledge local for clarity, and corrected the knowledge-sharing confidence expectation to `0.70` (listener trust `0.70` yields `1.0 * (0.35 + 0.70 * 0.5)`).
+- This is a focused test/readability correction; no runtime behavior or public API was changed. Unity verification remains required.
