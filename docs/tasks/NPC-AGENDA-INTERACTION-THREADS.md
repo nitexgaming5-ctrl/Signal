@@ -1,6 +1,6 @@
 # NPC Agenda & Interaction Threads
 
-**Status:** Implementation complete; Unity verification pending  
+**Status:** Implementation complete; user-reported 417/417 EditMode suite passed; Play Mode verification pending  
 **Approved:** 2026-11-24  
 **Priority:** High — shared narrative foundation for Direction B  
 **Pilot:** Rhea  
@@ -51,11 +51,12 @@ Keep the parcel controller's physical world props, inspection, acceptance, retur
 - [x] A second resident fixture (`milo`) is covered through the same director tests without character-specific runtime code.
 - [x] Unversioned 0.01 save snapshots persist completed stage/choice IDs and restore them through GameSession; SaveMapper round-trip and malformed-record tests are added.
 - [x] Milo parcel physical lifecycle remains in its existing controller; only Rhea's conversation/rumour path was removed.
-- [ ] Full EditMode suite passes; user verifies Play Mode interactions and save/load.
+- [x] Full EditMode suite passes (user-reported 417/417 on 2026-11-24).
+- [ ] User verifies Play Mode interactions and save/load.
 
 ## Current verification note
 
-All implementation checkboxes above mean code/content is in place, not Unity-verified. The full EditMode suite and Play Mode acceptance remain pending. The prior 415/415 result predates these changes.
+All implementation checkboxes above mean code/content is in place. The user reports the full 417/417 EditMode suite passing on 2026-11-24, including the current agenda/save implementation. Play Mode acceptance remains pending: exercise all three Rhea threads, verify the existing supplier service handles purchase/install, and save/reload agenda choices.
 
 ## Out of scope
 
