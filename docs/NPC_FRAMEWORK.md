@@ -139,11 +139,11 @@ The next narrative-interaction layer is a reusable, authored agenda system. It e
 
 ### Rhea pilot threads
 
-1. **A neighbour who notices things:** Rhea can share her limited, sourced information about Milo. The tip is a rumour with low confidence, not a verified conclusion. The player can ask how she knows, ask why she is telling them, or leave the subject.
-2. **Something in the back room:** after the existing Milo customer-request prerequisite, Rhea can offer the Compact Sewing Machine. The agenda opens the existing supplier panel; the existing upgrade service remains authoritative for payment, ownership and installation. Declining does not permanently destroy the offer.
-3. **Perhaps I need a favour myself:** after the machine transaction, Rhea can offer practical mending advice and establish a future repair-service/customer connection. This is narrative setup only; it does not implement B-04 Repair & Restoration.
+1. **A neighbour who notices things:** while Rhea is socializing on the Street, she can share her limited, second-hand information about Milo. The tip is a rumour with low confidence, not a verified conclusion. The player can ask how she knows, ask why she is telling them, or leave the subject; all choices preserve the fact that the player heard the rumour.
+2. **Something in the back room:** while Rhea is working in CornerShop, after the existing Milo customer-request prerequisite, she can offer the Compact Sewing Machine. The agenda opens the existing supplier panel; the existing upgrade service remains authoritative for payment, ownership and installation. Declining does not permanently destroy the offer.
+3. **Perhaps I need a favour myself:** after the machine is acquired, Rhea can offer practical mending advice and establish a future repair-service/customer connection. This is narrative setup only; it does not implement B-04 Repair & Restoration.
 
-The threads are independent wherever their prerequisites allow. Hearing the Milo tip does not require buying the machine; buying the machine does not require exhausting all dialogue.
+The threads are independent wherever their prerequisites allow. The Street/socializing tip remains available regardless of contract or machine state; the CornerShop/work machine offer requires the contract and an unacquired upgrade; the mending follow-up requires the acquired machine. Thread priority is deterministic, but an ineligible thread never blocks another eligible thread.
 
 ### Milo parcel integration boundary
 
