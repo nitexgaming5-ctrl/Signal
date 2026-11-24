@@ -66,7 +66,7 @@ The user has separately approved the hybrid catalogue direction and asked the ag
 - Rhea as the first textile-business operator, one authored Worn Work Jacket as the first repair target, and fixed-price repeatable raw-material merchandise.
 - The small player-owned repair loop described in `docs/tasks/LIVELIHOOD-B-04-REPAIR-RESTORATION.md`, including deterministic kit transitions, preservation of item identity/provenance and save/load tests.
 
-This approval is deliberately narrow. It does not authorise a global dynamic market, stock simulation, supply/demand, time-based price fluctuation, automatic NPC shopping, or condition pricing on every business. Do not derive buyback payment from `ItemValueCalculator`; its output remains indicative inspection/reference value. The repair interaction/content integration remains gated on the outstanding First Workshop Play Mode acceptance so that B-01 to B-03 are verified before the next player-facing loop is layered on.
+This approval is deliberately narrow. It does not authorise a global dynamic market, stock simulation, supply/demand, time-based price fluctuation, automatic NPC shopping, or condition pricing on every business. Do not derive buyback payment from `ItemValueCalculator`; its output remains indicative inspection/reference value. The B-04 service, UI and authored textile content are now committed. The outstanding First Workshop Play Mode acceptance and a fresh full Unity compile/EditMode run remain verification gates; do not call B-04 verified until the user confirms the new tests and end-to-end Play Mode path.
 
 ### Approval boundary
 
@@ -93,7 +93,7 @@ Existing approved decisions remain binding unless the user changes them. If two 
 
 - Unity Editor is the authority for project compilation and tests. Do not run `dotnet`, `msbuild` or standalone .NET builds for this Unity project.
 - Separate code inspection, Unity compilation, EditMode results and Play Mode verification. Never claim a check that was not run.
-- The **417/417 result dated 2026-11-24** is the latest user-verified full EditMode baseline and predates the hybrid buyback code/test changes. Any later change touching compiled runtime or tests requires a fresh suite; do not report the old result as current-HEAD verification.
+- The **417/417 result dated 2026-11-24** is the latest user-verified full EditMode baseline and predates all B-04 hybrid pricing, textile asset, counter geometry, repair service, UI and test additions. Any later change touching compiled runtime or tests requires a fresh suite; do not report the old result as current-HEAD verification.
 - For content-only changes, inspect ScriptableObject references, serialized fields, scene wiring and build inclusion; still ask for an Editor import/Play Mode check when Unity itself was unavailable.
 - Add focused regression tests for changed rules and current-build save round-trip tests for persistent state. Do not introduce save-version/migration machinery in build 0.01.
 - Do not change packages or Project Settings merely to suppress errors.
