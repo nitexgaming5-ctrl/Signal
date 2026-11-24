@@ -1,103 +1,165 @@
-# LIVELIHOOD-B-04 — Repair and restoration
+# LIVELIHOOD-B-04 — Repair, restoration and the first textile business
 
-**Status:** Design draft; not approved for implementation  
+**Status:** Design approved; hybrid buyback framework committed; repair loop integration is gated on First Workshop Play Mode acceptance.  
 **Parent:** Direction B livelihood roadmap  
-**Prerequisite:** Complete the First Workshop Play Mode acceptance (Rhea threads, machine purchase/installation, Reinforced Patch Kit production and F5/F9 persistence).  
-**Scope:** One small, player-owned textile-repair loop using the existing hideout workbench and installed Compact Sewing Machine.
+**Prerequisite for repair gameplay/content integration:** Complete B-01 to B-03 Play Mode acceptance (Rhea's agenda threads, Compact Sewing Machine purchase/installation, Reinforced Patch Kit production and F5/F9 persistence).  
+**Approved scope:** The first player-owned textile repair loop and one Rhea-operated textile buyer/supplier, using the existing hideout workbench, Compact Sewing Machine, physical patch kits, item condition and hybrid buyback catalogue.
 
 ## Player outcome
 
-The player finds or acquires a worn textile item, prepares a physical patch kit at the workbench, repairs the item in place, sees its condition improve, and retains the same physical item with its identity and other properties intact.
+The player finds a worn Work Jacket, brings it home, uses the upgraded hideout workbench and a physical Patch Kit to restore it, then chooses whether to keep it or sell it to Rhea. Rhea also sells the raw materials needed to keep making repair kits. The same physical garment retains its identity and provenance throughout.
 
-This extends the existing livelihood loop. It is not a new profession, a generic durability system or a customer-property contract.
+This is a small livelihood loop, not a generic durability system, customer-property repair service or simulated clothing market.
 
-## Source audit — current implementation facts
+## Current implementation facts and hybrid catalogue foundation
 
-These facts were checked against the current branch:
+The current branch was source-audited before these decisions were finalised:
 
-- `ItemCondition` is declared as `Good = 0`, `Worn = 1`, `Damaged = 2`, `Pristine = 3`. The enum's numeric order is not a repair ladder.
-- `ItemInstanceState` is a readonly value type. `PlacedItem` is also a readonly value type, and its state belongs to one physical stack.
-- `GridInventory.TryUpdateItemState(Guid, ItemInstanceState)` already replaces the state on an existing stack, preserves its local ID, stable `ItemInstanceId`, definition, position, orientation and quantity, then raises `Changed`. A new split-stack system is not needed for the first target.
-- The current Basic Patch Kit and Reinforced Patch Kit definitions both have `MaxStack = 1`. The First Workshop starter grant contains only enough materials for the two Basic kits already reserved by Milo's delivery and the Reinforced recipe.
-- `ItemKnowledgeBook` stores the player's known facts separately from authoritative item state. `RecordFact` replaces the fact for one aspect; the other known aspects remain. The item viewer reads this book, not the hidden authoritative state.
-- `SaveMapper` already persists physical item state and item-knowledge facts in the unversioned 0.01 save snapshot. A repair round-trip test can use the existing save shape; no save-version field or migration is needed.
-- `ContainerLootProfile` creates loot using each `ItemDefinition.DefaultInstanceState`; it has no per-loot state override. A dedicated worn garment definition can therefore be authored with default condition Worn and added to an existing loot profile without adding a new loot-state mechanism.
-- Shop buyback prices are currently fixed per item in `BusinessDefinition.BuybackEntry`. `Shop.TryFulfilExact` pays the supplied fixed `ShopOrder.UnitPrice`; the sale record stores item state but does not calculate payment from condition. `ItemValueCalculator` currently provides an indicative reference valuation used by item inspection, not a dynamic sell-price rule.
-- `AssetTransferService` handles theft by changing the item's state to `ItemOwnershipStatus.Stolen` and transferring the `AssetOwnershipBook` owner from the previous actor to the thief. A stolen item can therefore be repaired under the proposed player-owned rule when the player is its current registered owner; repair must preserve the Stolen marker and must not change the owner.
+- `ItemCondition` is declared as `Good = 0`, `Worn = 1`, `Damaged = 2`, `Pristine = 3`. Enum numeric order is not a repair ladder.
+- `ItemInstanceState` and `PlacedItem` are readonly value types. State belongs to one physical stack.
+- `GridInventory.TryUpdateItemState(Guid, ItemInstanceState)` replaces state on the exact existing stack while preserving its local ID, stable `ItemInstanceId`, definition, position, orientation and quantity, then raises `Changed`.
+- `ItemKnowledgeBook` stores partial player knowledge separately from authoritative physical state. `RecordFact` replaces one aspect's known fact without wiping other aspects.
+- `SaveMapper` persists physical item state and item-knowledge facts in the unversioned 0.01 save snapshot. No schema-version field or migration chain is to be introduced.
+- `ContainerLootProfile` creates items from `ItemDefinition.DefaultInstanceState`; a dedicated Work Jacket definition authored Worn can be added to an existing loot profile without a new loot-state mechanism.
+- `Shop.TryFulfilExact` receives the resolved unit price and records that exact price plus the sold stack's state in `ShopSaleTransaction`. The transaction format already supports the required audit trail; no new sale-history fields or save migration are needed.
+- `BusinessDefinition` now exposes `BuybackPricingMode.Fixed` and `BuybackPricingMode.ByCondition`. Existing entries default to Fixed; the state-aware overload resolves the four explicit condition prices.
+- `RetailPanel` quotes from the selected stack's state. `GameSession.SellToBusiness` resolves the offer again from the current stack state immediately before the transaction, so a stale UI quote cannot determine the committed price.
+- The original fixed-only lookup remains available and does not silently choose a condition price. Merchandise purchases remain fixed-price.
+- `ItemValueCalculator` remains an indicative inspection/reference valuation, not the source of the buyer's payout.
+- The hybrid code and focused `BusinessDefinitionTests` were committed in `79143557c26c3dd1cf291027ecbc677aaaec80e4`. They have not yet been compiled or run in the Unity Editor. The last user-reported 417/417 EditMode result predates that commit.
 
-## Proposed first-slice rules
+## Approved catalogue model
 
-These are recommendations for approval, not implementation instructions.
+The catalogue has three deliberately separate layers:
 
-### Repair eligibility and station
+| Layer | Rule | First textile-business use |
+|---|---|---|
+| Merchandise | Fixed authored unit price; existing unlimited catalogue behaviour | Rhea sells Fabric Roll, Thread Spool, Adhesive Tube and Fastener Pack |
+| Fixed buyback | Fixed authored unit price for that exact item definition | All existing fixed buyback offers continue unchanged |
+| Condition-based buyback | Per-business, per-item authored price schedule resolved from the physical stack's current condition | Rhea buys the Work Jacket at a different offer per condition |
 
-- Repair only a physical item currently in the player's carried inventory.
-- `AssetOwnershipBook` must identify the player as the item's current owner.
-- Allow an item whose `ItemOwnershipStatus` is `Stolen` when the player is its current economic owner. Repair must preserve Stolen status; it must not launder provenance or change ownership.
-- Repair is available at the existing hideout workbench only after the Compact Sewing Machine is installed.
-- Customer-owned/entrusted items are deferred. They require custody, temporary possession and return rules and should not be mixed into this first loop.
-- No timers, queues, random failure, skill checks or tool durability. Invalid attempts fail without changing inventory, ownership, knowledge, money or item state.
+Condition pricing is an offer policy, not a market simulation:
 
-### Explicit condition ladder
+- Only a `BuybackEntry` explicitly set to `ByCondition` uses the state schedule. Existing/missing serialized mode fields retain the enum's zero/default `Fixed` behaviour.
+- The schedule contains four independent positive CARD prices: Damaged, Worn, Good and Pristine.
+- Price is resolved from `PlacedItem.State.Condition`, never from an enum arithmetic operation or item-definition default.
+- The sell UI displays the resulting offer amount, not a hidden condition label. The offer can be Rhea's assessment of the garment; it does not automatically grant the player a `DirectInspection` knowledge fact.
+- The sale boundary recalculates using the current selected stack. The existing sale transaction stores the realized unit price and complete item state.
+- No time-based modifiers, stock levels, finite availability, restocking, demand, category-wide automatic rules or dynamic merchandise purchase prices.
+- Do not use `ItemValueCalculator` to calculate CARD payout. Reference value and a particular buyer's offer are separate concepts.
 
-Never calculate the next condition by subtracting or adding enum integers. Use explicit allowed transitions:
+## The first textile business — Rhea's Textile Counter
+
+Rhea is the natural first operator: the existing Rhea definition gives her a 09:00–18:00 work routine and the line, “I still mend things for neighbours now and then. This old sewing machine has seen better days.” This extends established character context rather than creating a new NPC.
+
+**Authored business profile (prototype content):**
+
+| Field | Value |
+|---|---|
+| Display name | Rhea's Textile Counter |
+| Business ID | `rhea-textile-counter` |
+| Business type | Textile Repair & Resale |
+| Owner | Rhea (`resident:rhea`) |
+| Location | Street |
+| Hours | 09:00–18:00 |
+| Catalogue | Fixed-price repair materials; one condition-based Work Jacket buyback |
+
+The future scene counter must use a dedicated interaction point in Rhea's Street work area. It must not overlap the existing agenda/supplier interaction radius used for the Compact Sewing Machine offer. The current `GameSession.Update` routes that supplier interaction before a nearby business; keep the two prompts distinct and test both in Play Mode.
+
+### Fixed merchandise — repeatable repair materials
+
+| Item | Prototype unit price |
+|---|---:|
+| Fabric Roll | 6 CARD |
+| Thread Spool | 4 CARD |
+| Adhesive Tube | 4 CARD |
+| Fastener Pack | 4 CARD |
+
+These are authored fixed retail prices. Reuse the current `RetailService`: purchases debit the player and credit Rhea's resident account. Merchandise remains unlimited in this slice; do not add physical shop stock or automatic restocking.
+
+### First repair target — Work Jacket
+
+Create one new `ItemDefinition` under the distinct `Assets/_Project/Content/WorkshopItems/` content path (do not use the case-colliding `Items/` and `items/` folders):
+
+| Field | Value |
+|---|---|
+| Display name | Work Jacket |
+| Category | Clothing |
+| Grid size | 2 × 2 |
+| Max stack | 1 |
+| Base reference value | 60 |
+| Default quality | Standard |
+| Default condition | Worn |
+| Default authenticity | Genuine |
+| Default ownership status | Legitimate |
+
+Add it as a low-weight entry to the existing `LootProfile_A` used by a street scavenging container. It uses its own authored Worn default state. Do not create a new loot system, per-drop state override, respawn mechanic or guaranteed reward container. The item is unstackable so the first repair does not need generic partial-stack splitting.
+
+### Condition-based buyback — Rhea's authored offer
+
+Rhea buys only the Work Jacket in this first dynamic catalogue entry. Proposed prototype values:
+
+| Work Jacket condition | Rhea's unit offer |
+|---|---:|
+| Damaged | 24 CARD |
+| Worn | 36 CARD |
+| Good | 52 CARD |
+| Pristine | 58 CARD |
+
+These are per-business offer prices, not multipliers and not a formula derived from BaseValue. They are replaceable balance values. Other businesses retain their existing fixed offers until a later approved scenario gives them a reason to use condition pricing.
+
+The values create a small, legible reason to repair: Basic Worn → Good improves the buyer's offer by 16 CARD against 14 CARD of raw materials; Reinforced Damaged → Good improves it by 28 CARD against 24 CARD of recipe materials. A Basic Damaged → Worn step alone is not a profit step (12 CARD offer increase against 14 CARD of materials); two Basic kits take Damaged → Good at break-even material cost, while the Reinforced route is the more efficient one-step option. This is intentional prototype tuning, not a promise of a universal profit loop. The player's cost of acquiring the jacket itself is scenario-dependent.
+
+## Approved repair rules
+
+### Station and eligibility
+
+- Repairs apply only to one physical item in the player's carried inventory.
+- `AssetOwnershipBook` must identify the player as the item's current economic owner.
+- The existing hideout workbench can repair only after the Compact Sewing Machine upgrade is installed.
+- The first item must be the Work Jacket described above.
+- Customer-owned or entrusted goods are not eligible. Custody, temporary possession and return contracts are a separate future slice.
+- The operation is immediate and deterministic: no queue, timer, random failure, skill check, quality roll or tool durability.
+- Validate the target, ownership, station/upgrade, explicit transition and selected kit before consuming anything. A failed repair changes nothing.
+
+### Explicit kit transitions
+
+Never use enum integer arithmetic. Apply only this table:
 
 | Current condition | Basic Patch Kit | Reinforced Patch Kit |
 |---|---|---|
-| Damaged | Proposed: Worn | Proposed: Good |
-| Worn | Proposed: Good | Needs decision: allow Good, or reserve Reinforced for Damaged only |
+| Damaged | Worn | Good |
+| Worn | Good | Not accepted |
 | Good | Not repairable | Not repairable |
 | Pristine | Not repairable | Not repairable |
 
-The Basic kit would restore one step. The Reinforced kit would offer the larger Damaged → Good restoration. A successful repair changes **Condition only**; Quality, Authenticity and Ownership remain exactly as they were.
+Basic restores one explicit step. Reinforced is the efficient one-step restoration from Damaged to Good; it is not a substitute for the Basic kit on Worn items.
 
-### Identity, stacks and transaction
+### Atomic state change and provenance
 
-- The first repairable garment must be authored with `MaxStack = 1`. This prevents accidentally repairing every unit in a state-sharing stack and avoids building general split-stack support for one feature.
-- The repair operation targets one stable `ItemInstanceId`, consumes one selected physical kit and uses `GridInventory.TryUpdateItemState` to replace only the target's condition.
-- Preserve item identity, inventory position, quality, authenticity, ownership, count and all unrelated inventory state.
-- Validate station/upgrade, target, explicit condition transition, player ownership and kit before committing. Failed validation changes nothing.
-- Do not add a dedicated repair history ledger unless the implementation audit identifies a real player-facing or persistence need.
+- The Work Jacket is `MaxStack = 1`; target one stable `ItemInstanceId`.
+- Consume exactly one physical kit and update the existing jacket stack with `GridInventory.TryUpdateItemState`.
+- Change **Condition only**. Preserve Quality, Authenticity and Ownership exactly as they were, along with stable item identity, local ID, position, orientation and quantity.
+- A stolen jacket may be repaired only if the player is its current registered owner after the theft transfer. Its `ItemOwnershipStatus.Stolen` marker must remain Stolen; repair must not launder provenance or alter the owner.
+- No repair-history ledger is needed for the first slice unless implementation reveals a specific player-facing/persistence requirement.
 
 ### Player knowledge and persistence
 
-- On successful repair, update the player's Condition fact for that same `ItemInstanceId` using `ItemKnowledgeSource.DirectInspection` and full confidence. This replaces a stale Worn/Damaged belief without wiping knowledge of quality, authenticity or ownership.
-- The item viewer must immediately display the new condition and refreshed known reference valuation.
-- Add a current-build save/load round-trip test: repair a known item, capture/apply the save, and assert the same stable ID, new authoritative condition and matching DirectInspection knowledge fact. Also assert the other known facts remain unchanged.
-- Preserve the existing unversioned 0.01 save policy.
+- After a successful repair, record the new Condition fact for that same `ItemInstanceId` with `ItemKnowledgeSource.DirectInspection` and full confidence. Replace only the Condition fact; preserve known Quality, Authenticity and Ownership facts.
+- The item viewer should immediately show the new known condition and updated reference valuation.
+- Add a current-build save/load round-trip test covering stable ID, changed authoritative condition, DirectInspection condition knowledge and preservation of all other known facts.
+- Keep the current unversioned 0.01 save shape. Do not add version fields or migrations.
 
-### First content and repeatable supply
+## Implementation sequence after the First Workshop gate
 
-- Add one dedicated textile garment definition with `MaxStack = 1` and default condition Worn (for example, a second-hand work jacket). It does not currently exist in `WorkshopItems/`.
-- Place the first test garment in an authored scavenging profile or sell it through an existing resident/business. A scavenging drop is the smaller first fixture; the profile already uses the item's authored default state.
-- The initial First Workshop starter materials are already committed to the two Basic kits and Reinforced recipe. They are not a renewable repair supply.
-- For a repeatable repair loop, expose the required raw materials (Fabric Roll, Thread Spool and Adhesive Tube) through an existing authored retail catalogue with fixed prices, using the current unlimited-merchandise `RetailService`. This reuses existing retail and does not add stock simulation, automatic restocking or a new supplier system.
-- The actual retailer, prices and first garment source are content choices to settle before implementation.
-
-## Economic value — important unresolved design point
-
-The current `ItemValueCalculator` condition multipliers are:
-
-- Damaged: ×0.45
-- Worn: ×0.70
-- Good: ×1.00
-- Pristine: ×1.10
-
-A Worn → Good repair therefore raises the **reference valuation** by 0.30 × the item's base value (about 42.9% relative to the Worn valuation). However, this does **not** currently increase the CARD paid by a shop: buyback offers use fixed authored prices per item definition. The Basic Patch Kit's base value of 18 is also a reference value, not a verified purchase cost. The project currently has no condition-based sale formula from which to calculate repair profit.
-
-Two possible directions:
-
-1. **Preserve the approved fixed-price economy:** repair improves item condition and inspection/reference value, but does not automatically increase the shop's buyback payment. Profit is not claimed as a feature of this first slice.
-2. **Approve a narrow condition-sensitive buyback rule:** one authored buyer pays according to condition for the first repairable textile category. This changes the existing fixed-price-only sell rule and needs separate explicit approval, transaction tests and balance values.
-
-Do not silently change all business buyback offers or treat BaseValue as a shop price.
-
-## Decisions required before implementation
-
-1. Does B-04 need to produce direct CARD profit in the first slice, or should the fixed-price economy remain unchanged for now?
-2. Confirm the proposed kit mapping: Basic repairs Damaged → Worn and Worn → Good; Reinforced repairs Damaged → Good. Should Reinforced also be allowed for Worn → Good?
-3. Approve the first worn garment and supply source (recommended: one worn garment in a scavenging profile, with repeatable raw repair materials sold through an existing authored retail catalogue).
+1. Finish and user-verify the remaining B-01 to B-03 Play Mode acceptance. Do not introduce the repair interaction before that vertical slice is stable.
+2. Author the Work Jacket, add the small `LootProfile_A` entry, create the Rhea textile business asset and fixed material catalogue, and wire the business into the active scene. Verify its interaction point does not steal Rhea's agenda/supplier prompt.
+3. Add a condition-based Work Jacket buyback entry using the prices above. Preserve all existing fixed merchandise and buyback content.
+4. Add a focused repair service/operation with explicit transitions, exact kit consumption, ownership checks and rollback-safe validation. Integrate it into the existing hideout workbench UI rather than creating a separate profession scene.
+5. Refresh player Condition knowledge only on successful repair; cover save/load with current-build tests.
+6. Add integration tests for the Rhea quote/sale path and verify sale history captures the state and realized unit price.
+7. Complete Play Mode: acquire Worn Jacket, inspect it, repair through each allowed kit transition, inspect the resulting state, sell condition variants to Rhea, confirm balances and sale records, then F5/F9 and verify inventory, identity, state, knowledge and ledgers.
 
 ## Out of scope
 
-Customer-owned repairs, repair contracts, multiple textile types, general-purpose stack splitting, repair skill/quality rolls, random failure, tool durability, repair queues, item degradation over time, condition-based prices for every business, provenance laundering and a new profession/upgrade tree.
+Global or demand-driven dynamic markets, time-based price fluctuation, finite textile-shop stock, restocking simulation, NPC shopping, universal condition-price rules, dynamic merchandise prices, prices derived from `ItemValueCalculator`, customer-owned repair contracts, additional garment families, stack splitting for repair, random repair failures, repair skills/quality rolls, tool durability, degradation over time, queues, provenance laundering and a generic profession/upgrade tree.
