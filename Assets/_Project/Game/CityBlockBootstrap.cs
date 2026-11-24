@@ -833,6 +833,10 @@ namespace Signal.Game
             else
             {
                 AddBlock(root, "ShopCounter", new Vector2(0f, 2.2f), new Vector2(5.8f, 1.2f), new Color32(110, 78, 55, 255), true, 3);
+                // A separate textile counter gives Rhea a visible business space beside the bakery.
+                // Its front interaction point is in the clear walkway, away from the central counter and shelves.
+                AddBlock(root, "RheaTextileCounter", new Vector2(-3.3f, 0.45f), new Vector2(1.2f, 0.8f), new Color32(88, 67, 55, 255), true, 3);
+                AddBlock(root, "RheaTextileClothDisplay", new Vector2(-3.3f, 0.9f), new Vector2(1.05f, 0.12f), new Color32(164, 127, 111, 255), false, 5);
                 AddBlock(root, "ShelfLeft", new Vector2(-4.8f, 0.5f), new Vector2(1.2f, 3f), new Color32(86, 76, 62, 255), true, 3);
                 AddBlock(root, "ShelfRight", new Vector2(4.8f, 0.5f), new Vector2(1.2f, 3f), new Color32(86, 76, 62, 255), true, 3);
                 AddBlock(root, "BackRoomDoor", new Vector2(0f, 4.15f), new Vector2(1.1f, 0.2f), new Color32(55, 48, 42, 255), false, 4);
