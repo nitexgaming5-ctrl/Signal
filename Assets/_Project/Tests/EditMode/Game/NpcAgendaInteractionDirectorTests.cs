@@ -142,6 +142,8 @@ namespace Signal.Game.Tests
                     Choice("low-choice", NpcAgendaChoiceAction.DialogueOnly))),
                 Thread("high", 10, Stage("high-stage", NpcAgendaActivityRequirement.Work,
                     Choice("high-choice", NpcAgendaChoiceAction.DialogueOnly))),
+                Thread("same-priority", 10, Stage("same-stage", NpcAgendaActivityRequirement.Work,
+                    Choice("same-choice", NpcAgendaChoiceAction.DialogueOnly))),
                 Thread("middle", 5, Stage("middle-stage", NpcAgendaActivityRequirement.Any,
                     Choice("middle-choice", NpcAgendaChoiceAction.DialogueOnly)))
             };
