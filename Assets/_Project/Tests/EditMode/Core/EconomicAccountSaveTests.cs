@@ -6,7 +6,6 @@ namespace Signal.Core.Tests
     public sealed class EconomicAccountSaveTests
     {
         [Test]
-        [Test]
         public void ResidentAccountsAndRetailTransactionsRoundTrip()
         {
             var stats = new PlayerStats(250);
