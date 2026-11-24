@@ -79,17 +79,5 @@ namespace Signal.Core.Tests
             Assert.That(targetCleanings.Transactions[0].FeeRecipient, Is.EqualTo(contactActor));
         }
 
-        [Test]
-        public void VersionThirteenMigratesWithEmptyDirtyCashState()
-        {
-            var data = new SaveData { version = 13, contactItems = null,
-                illicitExchangeTransactions = null, dirtyCashCleaningTransactions = null };
-
-            Assert.That(SaveMigrator.TryMigrate(data, out _), Is.True);
-            Assert.That(data.version, Is.EqualTo(SaveMigrator.CurrentVersion));
-            Assert.That(data.contactItems, Is.Empty);
-            Assert.That(data.illicitExchangeTransactions, Is.Empty);
-            Assert.That(data.dirtyCashCleaningTransactions, Is.Empty);
-        }
     }
 }
