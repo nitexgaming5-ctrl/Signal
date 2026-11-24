@@ -6,7 +6,7 @@ Last reconciled: **2026-11-24**. Historical detail is preserved in `docs/progres
 
 - Unity 6000.6.9f1, 2D URP. Active architecture: `Signal.Core` (plain C#) + `Signal.Game` (Unity layer). Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
 - Working branch: `chore/collaboration-workflow-and-audit`. Keep `main` untouched.
-- Save schema: **v15**. It persists production history, contract lifecycle, workshop upgrade IDs, contract receiver inventory and receiver actor identity in addition to previous player/world/economy state.
+- Save schema: **v16**. It adds durable NPC agenda stage/choice progress to the v15 production, contract, workshop upgrade and receiver-inventory state. Version 15 saves migrate with an empty agenda-progress collection.
 - Latest completed full EditMode result reported by the user: **415/415 passed (2026-11-23)**. That run predates the Rhea supplier-panel integration now on this branch; rerun the full suite after importing the current patch. The earlier 413/415 report had two stale test defects corrected in `b6bd50a`.
 - The user has reconfirmed **415/415 passed** and reports that the project is running, with the workbench, selling and customer-request flow working in Play Mode. The First Workshop is now beyond a code-only milestone; the remaining acceptance pass is to explicitly confirm the visible upgrade, Reinforced Patch Kit unlock/production and save/reload persistence before calling B-01 to B-03 complete.
 - Active gameplay initiative: **LIVELIHOOD-B1-B3 — First Workshop**, following approved Direction B.
@@ -29,7 +29,7 @@ Implementation foundation already exists:
 - Existing `WorkbenchWorkspace` extended with recipe book and production feedback; separate Rhea-facing supplier offer panel handles upgrade purchase.
 - `CustomerContractBook`, atomic fulfilment and customer interaction panel.
 - `WorkshopProgressionBook`, one-time upgrade acquisition and visible installed-prop hook.
-- Save v15 persistence, v14 migration and focused Core/EditMode coverage.
+- Save v16 persistence (including v15-to-v16 migration), v14 economy migration and focused Core/EditMode coverage.
 
 Starter content is now authored and wired into HideoutSlice: four workshop materials, two patch-kit products, two recipes, Milo's single customer contract, Milo/Rhea resident definitions and the Compact Sewing Machine upgrade. The assets and scene references are committed; do not rebuild the systems above unless source inspection shows a concrete defect.
 
@@ -58,7 +58,7 @@ Starter content is now authored and wired into HideoutSlice: four workshop mater
 
 - **EditMode:** 415/415 was user-validated before the Rhea supplier-panel code/test additions. The current branch adds `WorkshopUpgradePanelTests`; a fresh compile and full EditMode run are required.
 - **Unity compilation / asset import:** the sewing-machine placeholder's reserved root `fileID 100100000` was corrected to `100000`, including Transform/SpriteRenderer back-references and the upgrade asset reference. The prefab GUID is unchanged. The user subsequently reported the project running and the core workshop/customer loop working; no further prefab import blocker has been reported.
-- **First Workshop Play Mode:** user-confirmed workbench, selling and customer-request flow. The Rhea-facing upgrade menu/purchase route has now been implemented but not yet user-tested. Confirm `E Workshop offer` at Rhea, purchase/install the Compact Sewing Machine, unlock and craft the Reinforced Patch Kit, then F5/F9 save/reload and confirm balances, inventory, contract, installed upgrade and recipe unlock.
+- **First Workshop Play Mode:** user-confirmed workbench, selling and customer-request flow. The Rhea supplier interaction now routes through her agenda conversation before opening the existing offer panel. Confirm `E Talk to Rhea`, choose to inspect the offer, purchase/install the Compact Sewing Machine, then speak to her again for mending advice. Unlock and craft the Reinforced Patch Kit, then F5/F9 save/reload and confirm balances, inventory, contract, agenda progress, installed upgrade and recipe unlock.
 - **Theft witness correction:** witnessed and unwitnessed heat behavior should be retested in Play Mode after the prior heat fix if not already covered.
 - Do not claim a Play Mode verification that the user has not reported.
 
@@ -72,7 +72,7 @@ Starter content is now authored and wired into HideoutSlice: four workshop mater
 - Added `NpcAgendaDefinition` authoring assets, deterministic `NpcAgendaInteractionDirector`, reusable `NpcAgendaConversationPanel`, and Rhea's three authored threads under `Resources/Agendas/RheaAgenda.asset`. Stage selection supports priority, activity/place, discovery, relationship thresholds, opportunity phase, contract completion and acquired/not-acquired upgrades.
 - Rhea's old rumour branch has been removed from `MiloParcelOpportunityController`; physical parcel inspection, acceptance, return, delivery and outcome mechanics remain there.
 - GameSession loads agenda definitions from its optional inspector array or `Resources/Agendas`, routes nearby conversations through the director, and delegates the machine offer to the existing supplier panel.
-- The implementation has not been compiled or tested in Unity yet. Inspect import/compilation carefully, run the full EditMode suite, then Play Mode verify all three threads and save/load progress.
+- The implementation and focused tests are committed, but the current branch has not yet been compiled or tested in Unity. Import/compile, run the full EditMode suite, then Play Mode verify Rhea's rumour at Street, her supplier offer after Milo's contract, her mending follow-up after purchase, and save/load progress.
 
 ## Current next action
 
