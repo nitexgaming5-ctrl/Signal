@@ -29,6 +29,10 @@ namespace Signal.Game.Tests
             NpcAgendaStageDefinition rumour = agenda.Threads[0].Stages[0];
             Assert.That(rumour.RequireSocializingActivity, Is.True);
             Assert.That(rumour.RequiredPlace, Is.EqualTo("Street"));
+            Assert.That(rumour.CompleteIfLegacyDiscoveryExists, Is.True);
+            Assert.That(rumour.LegacyDiscoverySubjectId, Is.EqualTo("milo"));
+            Assert.That(rumour.LegacyDiscoverySourceId, Is.EqualTo("rhea"));
+            Assert.That(rumour.LegacyDiscoveryType, Is.EqualTo(DiscoverySignalType.Rumour));
             Assert.That(rumour.Choices.Length, Is.EqualTo(3));
             foreach (NpcAgendaChoiceDefinition choice in rumour.Choices)
             {
@@ -48,6 +52,34 @@ namespace Signal.Game.Tests
             NpcAgendaStageDefinition mending = agenda.Threads[2].Stages[0];
             Assert.That(mending.RequiredUpgrade, Is.Not.Null);
             Assert.That(mending.RequireUpgradeNotAcquired, Is.False);
+        }
+
+        [Test]
+        public void PreviouslyHeardRheaRumourMigratesToCompletedAgendaStage()
+        {
+            NpcAgendaDefinition agenda = CreateAgenda("rhea", "milo-parcel-rumour", "first-tip",
+                Choice("ask-source", NpcAgendaChoiceAction.RecordDiscovery));
+            NpcAgendaStageDefinition stage = agenda.Threads[0].Stages[0];
+            stage.CompleteIfLegacyDiscoveryExists = true;
+            stage.LegacyDiscoverySubjectId = "milo";
+            stage.LegacyDiscoverySourceId = "rhea";
+            stage.LegacyDiscoveryType = DiscoverySignalType.Rumour;
+
+            var discoveries = new PlayerDiscoveryLedger();
+            discoveries.Record(new PlayerDiscoverySignal("milo-rumour-rhea-4", "milo",
+                DiscoverySignalType.Rumour, "rhea",
+                "Rhea heard that Milo has been carrying parcels after closing, but does not know why.",
+                0.4f, 4, 300));
+            var progress = new NpcAgendaProgressBook();
+            var director = CreateDirector(new[] { agenda }, progress, discoveries,
+                new PlayerRelationshipBook());
+
+            Assert.That(director.TryGetNextStage("rhea", NpcActivity.Socialize, "Street",
+                out _, out _), Is.False);
+            Assert.That(progress.IsStageCompleted("rhea", "milo-parcel-rumour", "first-tip"), Is.True);
+            Assert.That(progress.TryGetChoice("rhea", "milo-parcel-rumour", "first-tip",
+                out string migratedChoice), Is.True);
+            Assert.That(migratedChoice, Is.EqualTo("legacy-discovery"));
         }
 
         [Test]
