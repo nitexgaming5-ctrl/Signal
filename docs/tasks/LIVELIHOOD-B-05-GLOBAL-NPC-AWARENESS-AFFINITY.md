@@ -38,22 +38,27 @@ Preserve these existing owners and extend them rather than introducing parallel 
 
 ## Implementation packages
 
-### B05-01 — Canonical relationship model\n**Implementation status:** Shared value model and directed NPC adjustment path implemented; player/NPC ownership remains deliberately separate.
+### B05-01 — Canonical relationship model
+**Implementation status:** Shared value model and directed NPC adjustment path implemented; player/NPC ownership remains deliberately separate.
 - Preserve the existing distinct authority boundaries: PlayerRelationshipBook for player-to-NPC, NpcSocialWorld for NPC-to-NPC.
 - Keep the shared NpcRelationship value model and consistent validation/ranges without forcing the player into the NPC registry.
-- Store directed familiarity, trust and affinity consistently in each existing owner.\n- Route NPC-to-NPC changes through the validated `NpcSocialWorld.AdjustRelationship` path; scheduled encounters may adjust familiarity only.
+- Store directed familiarity, trust and affinity consistently in each existing owner.
+- Route NPC-to-NPC changes through the validated `NpcSocialWorld.AdjustRelationship` path; scheduled encounters may adjust familiarity only.
 - Provide validated, explicit mutation operations with source/reason metadata where durable history is needed.
 - Preserve current ambient encounter behaviour: familiarity only; no ambient trust/affinity drift.
 - Keep existing consumers (perception, agenda conditions, social encounters) reading the canonical relationship state.
 
 ### B05-02 — Universal awareness and transmission
+**Implementation status:** Existing generic local observation and explicit sourced transmission retained; durable state is now serialized.
 - Ensure every registered NPC receives the same individual knowledge store.
 - Route direct observations through local perception and explicit discoveries through a validated knowledge service.
 - Route told/rumour knowledge through explicit transmission, retaining source and confidence.
 - Prevent duplicate event knowledge and invalid/unknown actor references.
 - Do not expose the global event journal through NPC perception or utility decisions.
 
-### B05-03 — Persistence and composition\n**Implementation status:** First durable-state slice implemented; Unity verification pending.
+### B05-03 — Persistence and composition
+**Implementation status:** Durable NPC memory and directed relationship save/restore committed; runtime verification pending.
+**Implementation status:** First durable-state slice implemented; Unity verification pending.
 - Preserve the existing player-to-NPC save path unchanged.
 - Persist durable NPC knowledge and directed NPC-to-NPC relationship state using stable NPC/event IDs.
 - Restore after NPC definitions and social world are registered; skip malformed or removed content records safely.
@@ -61,12 +66,14 @@ Preserve these existing owners and extend them rather than introducing parallel 
 - Keep the current unversioned 0.01 save policy; do not introduce a save-version/migration framework.
 
 ### B05-04 — Shared gameplay integration
+**Implementation status:** Existing agenda/player relationship and scheduled NPC encounter paths audited; additional gameplay hooks remain content-driven.
 - Ensure agenda relationship conditions and outcomes query/mutate the canonical service.
 - Ensure scheduled encounters update familiarity through the same service.
 - Ensure witnessed world events and explicit information-sharing use the same knowledge path.
 - Add a minimal generic player-facing response/condition hook only where needed to prove affinity matters; do not invent a broad friendship, romance, faction or reputation system.
 
-### B05-05 — Verification\n**Implementation status:** Focused SaveMapper/social-world regression tests added; not yet run in Unity.
+### B05-05 — Verification
+**Implementation status:** Focused SaveMapper/social-world regression tests added; not yet run in Unity.
 - Core tests: directed independence, separate dimensions, bounded values, mutation idempotency, local observation, source/confidence retention, no journal leakage, explicit-only transmission and no gossip cascade.
 - Game tests: arbitrary authored NPC definitions receive identical social state wiring; no Rhea/Milo branches.
 - Save tests: player↔NPC and NPC↔NPC relationships, durable knowledge, malformed records and unknown IDs round-trip safely.
