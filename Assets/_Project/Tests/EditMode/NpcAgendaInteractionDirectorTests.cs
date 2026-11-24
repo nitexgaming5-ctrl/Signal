@@ -49,7 +49,7 @@ namespace Signal.Game.Tests
             var discoveries = new PlayerDiscoveryLedger();
             var relationships = new PlayerRelationshipBook();
             var director = new NpcAgendaInteractionDirector(new[] { definition }, progress,
-                discoveries, relationships, _ => false, _ => false, _ => true, () => 2, () => 600);
+                discoveries, relationships, _ => false, _ => false, (_, __) => false, _ => true, () => 2, () => 600);
 
             Assert.That(director.TryGetNextStage("rhea", NpcActivity.Socialize,
                 out NpcAgendaThreadDefinition thread, out NpcAgendaStageDefinition stage), Is.True);
@@ -95,7 +95,7 @@ namespace Signal.Game.Tests
             };
             var director = new NpcAgendaInteractionDirector(new[] { definition },
                 new NpcAgendaProgressBook(), new PlayerDiscoveryLedger(), new PlayerRelationshipBook(),
-                id => id == "contract-one", _ => false, _ => true, () => 1, () => 0);
+                id => id == "contract-one", _ => false, (_, __) => false, _ => true, () => 1, () => 0);
 
             Assert.That(director.TryGetNextStage("rhea", NpcActivity.Work, out _, out _), Is.True);
             Object.DestroyImmediate(definition);
@@ -170,7 +170,7 @@ namespace Signal.Game.Tests
             bool upgradeAcquired = false;
             var director = new NpcAgendaInteractionDirector(new[] { rhea, milo },
                 new NpcAgendaProgressBook(), new PlayerDiscoveryLedger(), new PlayerRelationshipBook(),
-                _ => contractCompleted, _ => upgradeAcquired, _ => true, () => 1, () => 0);
+                _ => contractCompleted, _ => upgradeAcquired, (_, __) => false, _ => true, () => 1, () => 0);
 
             Assert.That(director.TryGetNextStage("rhea", NpcActivity.Work, "Street", out _, out _), Is.False);
             Assert.That(director.TryGetNextStage("rhea", NpcActivity.Socialize, "Street",
@@ -224,7 +224,7 @@ namespace Signal.Game.Tests
             int opened = 0;
             var progress = new NpcAgendaProgressBook();
             var director = new NpcAgendaInteractionDirector(new[] { definition }, progress,
-                new PlayerDiscoveryLedger(), new PlayerRelationshipBook(), _ => false, _ => false,
+                new PlayerDiscoveryLedger(), new PlayerRelationshipBook(), _ => false, _ => false, (_, __) => false,
                 _ => { opened++; return true; }, () => 1, () => 0);
 
             Assert.That(director.TryChoose("rhea", "machine", "offer", "see-offer", out _, out bool completed), Is.True);
