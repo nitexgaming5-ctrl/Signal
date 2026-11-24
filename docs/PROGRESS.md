@@ -7,7 +7,7 @@ Last reconciled: **2026-11-24**. This is the short status board. Session history
 - Unity **6000.6.9f1**, 2D URP. Active architecture: `Signal.Core` (plain C#) + `Signal.Game` (Unity integration). Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
 - Working branch: `chore/collaboration-workflow-and-audit`. Keep `main` untouched.
 - Application version: **0.01**. Save snapshots are deliberately unversioned; there is no schema-version field, version gate or automatic migration chain. Older experimental saves may be incompatible after data-shape changes.
-- Latest user-reported full EditMode result before B-05: **431/431 passed (2026-11-24)** after the B-04 implementation. The user also confirmed the First Workshop and repair/trading gameplay works in Play Mode; the remaining issue was that the Work Jacket was not found during scavenging. This 431/431 result predates the B-05 social-persistence and relationship-mutation changes now committed.
+- Latest user-reported full EditMode result: **434/434 passed (2026-11-24)** after the B-05 social persistence, relationship mutation and test-name/confidence corrections. This result predates the latest customer-contract relationship outcome, inventory icon rendering and survival-pack importer changes; rerun the suite on current HEAD.
 - The user reports the First Workshop and repair/trading flow working in Play Mode. The Work Jacket still needs to be acquired through scavenging to complete the repair loop.
 
 ## Active initiative — Direction B: First Workshop and Repair (B-01 to B-04)
@@ -50,7 +50,7 @@ Specialist references: [Architecture](ARCHITECTURE.md), [Data Model](DATA_MODEL.
 
 ## Current verification and next action
 
-**EditMode:** the user's **431/431 result on 2026-11-24** predates B-05. It remains the last user-verified baseline; rerun the full suite in Unity on current HEAD.
+**EditMode:** the user reports **434/434 passed** after the first B-05 persistence slice and test correction. The latest B-05-04 customer outcome tests and item UI/importer changes have not yet been run in Unity; rerun the full suite on current HEAD.
 
 **Play Mode:** the user reports the First Workshop and repair/trading features work well. The Work Jacket was not found in scavenging, so its loot availability is being made deterministic for testing.
 
@@ -75,7 +75,7 @@ The user approved a shared social foundation for every current and future NPC. R
 - `PlayerRelationshipBook` and its existing save format remain unchanged. Agenda gates/outcomes already read/write that generic player→NPC book; the social encounter system uses the generic NPC→NPC world for all registered residents.
 - Added focused tests for sourced knowledge and directional relationship round-trip, transient journal exclusion, unknown residents, relationship dimensions and non-finite values.
 
-Task specification: `tasks/LIVELIHOOD-B-05-GLOBAL-NPC-AWARENESS-AFFINITY.md`. No Unity compile or EditMode result has been run/claimed for this patch. The latest user-reported baseline before B-05 remains **431/431**; rerun the full suite on this branch head.
+Task specification: `tasks/LIVELIHOOD-B-05-GLOBAL-NPC-AWARENESS-AFFINITY.md`. The user reports **434/434** after B05-01–03. The new customer-outcome integration is implemented but still needs Unity compilation and a fresh full-suite run.
 
 ## Repository hazards and deferred scope
 
@@ -92,3 +92,20 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 ### B-05 naming and save-test correction
 - Shortened the new NPC social test names to describe one behavior each, renamed the restored knowledge local for clarity, and corrected the knowledge-sharing confidence expectation to `0.70` (listener trust `0.70` yields `1.0 * (0.35 + 0.70 * 0.5)`).
 - This is a focused test/readability correction; no runtime behavior or public API was changed. Unity verification remains required.
+
+
+## Current B-05 integration — customer relationship outcomes
+
+- Customer contracts now support authored familiarity, trust and affinity deltas for their issuer. The GameSession passes the issuer's stable NPC ID and authored values into the generic Core fulfilment service.
+- Relationship changes occur only after the exact item transfer, customer payment and contract completion all succeed. The contract's Completed state blocks replay, so the outcome cannot be applied twice.
+- Milo's first workshop contract currently authors +0.05 familiarity and +0.02 trust, with affinity unchanged. The same contract data/service path works for any issuer; there are no Milo/Rhea branches.
+- Added regression tests for one-time issuer-only changes and invalid delta rejection. Unity verification is pending.
+
+## Free Pixel Survival Items Pack — local licensed import
+
+- The user supplied 100 individual 32×32 icons. The pack licence permits game use but prohibits uploading the graphics to public repositories; Signal's GitHub repository is public.
+- The PNGs are therefore excluded by `.gitignore` at `Assets/_Project/Resources/SurvivalItems/Icons/*.png`. The importer and text manifest remain in the repository.
+- Local install: copy the ZIP's `Icons` folder into `Assets/_Project/Resources/SurvivalItems/`, then run **Tools → Signal → Import Survival Items Pack** in Unity. The editor importer creates 100 `ItemDefinition` assets under `Resources/SurvivalItems/Definitions`.
+- `GameSession` loads these definitions into the shared catalogue without granting them as starter items. `InventoryPanel` now displays authored sprites (including drag previews); `ItemViewerPanel` already displays the definition icon.
+- Names, categories, grid footprints, stack sizes and base reference values are first-pass interpretations. Base values are inspection/reference values, not shop prices. No new consumable, equipment, weapon, recipe or loot behaviour is assigned. Items are not automatically added to loot profiles or shop stock.
+- Unity import/compile/Play Mode verification remains pending.
