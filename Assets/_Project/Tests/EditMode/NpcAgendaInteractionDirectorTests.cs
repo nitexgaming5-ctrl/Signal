@@ -190,6 +190,51 @@ namespace Signal.Game.Tests
             Object.DestroyImmediate(milo);
         }
 
+
+        [Test]
+        public void RelationshipAndOpportunityConditionsGateAStage()
+        {
+            var definition = ScriptableObject.CreateInstance<NpcAgendaDefinition>();
+            definition.NpcId = "resident";
+            definition.Threads = new[]
+            {
+                new NpcAgendaThreadDefinition
+                {
+                    ThreadId = "follow-up",
+                    DisplayName = "Follow-up",
+                    Stages = new[]
+                    {
+                        new NpcAgendaStageDefinition
+                        {
+                            StageId = "trusted-opportunity",
+                            Dialogue = "A private follow-up.",
+                            RequireRelationshipThresholds = true,
+                            MinimumFamiliarity = 0.2f,
+                            MinimumTrust = 0.4f,
+                            RequireOpportunityPhase = true,
+                            RequiredOpportunityId = "parcel-opportunity",
+                            RequiredOpportunityPhase = OpportunityPhase.Resolved,
+                            Choices = new[] { new NpcAgendaChoiceDefinition { ChoiceId = "talk", Label = "Talk", Response = "Let's talk." } }
+                        }
+                    }
+                }
+            };
+
+            var relationships = new PlayerRelationshipBook();
+            bool opportunityResolved = false;
+            var director = new NpcAgendaInteractionDirector(new[] { definition },
+                new NpcAgendaProgressBook(), new PlayerDiscoveryLedger(), relationships,
+                _ => false, _ => false, (_, __) => opportunityResolved, _ => true,
+                () => 1, () => 0);
+
+            Assert.That(director.TryGetNextStage("resident", NpcActivity.Socialize, "Street", out _, out _), Is.False);
+            relationships.Set("resident", 0.3f, 0.5f, 0f);
+            Assert.That(director.TryGetNextStage("resident", NpcActivity.Socialize, "Street", out _, out _), Is.False);
+            opportunityResolved = true;
+            Assert.That(director.TryGetNextStage("resident", NpcActivity.Socialize, "Street", out _, out _), Is.True);
+            Object.DestroyImmediate(definition);
+        }
+
         [Test]
         public void RepeatableOfferChoiceDoesNotConsumeStageProgress()
         {
