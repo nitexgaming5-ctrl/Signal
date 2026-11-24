@@ -265,7 +265,7 @@ namespace Signal.Game
 
         private void RefreshFromClock(bool snapToDestination)
         {
-            if (_clock == null || _brain == null || _debugSimulationPaused || IsInteractionPaused || _debugActivityOverride)
+            if (_clock == null || _brain == null || _debugSimulationPaused || _debugActivityOverride)
                 return;
 
             NpcPerception perception = _socialWorld != null && _registered
