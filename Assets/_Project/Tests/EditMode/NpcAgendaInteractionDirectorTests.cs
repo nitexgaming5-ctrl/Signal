@@ -49,7 +49,7 @@ namespace Signal.Game.Tests
             var discoveries = new PlayerDiscoveryLedger();
             var relationships = new PlayerRelationshipBook();
             var director = new NpcAgendaInteractionDirector(new[] { definition }, progress,
-                discoveries, relationships, _ => false, _ => false, () => true, () => 2, () => 600);
+                discoveries, relationships, _ => false, _ => false, _ => true, () => 2, () => 600);
 
             Assert.That(director.TryGetNextStage("rhea", NpcActivity.Socialize,
                 out NpcAgendaThreadDefinition thread, out NpcAgendaStageDefinition stage), Is.True);
@@ -123,7 +123,7 @@ namespace Signal.Game.Tests
                                 {
                                     ChoiceId = "see-offer",
                                     Label = "Take a look",
-                                    Action = NpcAgendaChoiceAction.OpenWorkshopUpgradeOffer,
+                                    Action = NpcAgendaChoiceAction.DialogueOnly,
                                     CompleteStageOnChoice = false
                                 }
                             }
@@ -139,7 +139,7 @@ namespace Signal.Game.Tests
 
             Assert.That(director.TryChoose("rhea", "machine", "offer", "see-offer", out _, out bool completed), Is.True);
             Assert.That(completed, Is.False);
-            Assert.That(opened, Is.EqualTo(1));
+            Assert.That(opened, Is.Zero);
             Assert.That(progress.CompletedStageCount, Is.Zero);
             Object.DestroyImmediate(definition);
         }
