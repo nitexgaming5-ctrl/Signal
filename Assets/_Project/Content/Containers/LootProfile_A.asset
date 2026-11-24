@@ -31,3 +31,4 @@ MonoBehaviour:
     weight: 5
     minimumCount: 1
     maximumCount: 1
+    guaranteedForTesting: 1
