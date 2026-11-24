@@ -236,7 +236,7 @@ namespace Signal.Game
                 : Resources.LoadAll<NpcAgendaDefinition>("Agendas");
             _npcAgendaDirector = new NpcAgendaInteractionDirector(agendaDefinitions,
                 _npcAgendaProgress, _playerDiscoveries, _playerRelationships,
-                IsAgendaContractCompleted, IsAgendaUpgradeAcquired,
+                IsAgendaContractCompleted, IsAgendaUpgradeAcquired, IsAgendaOpportunityInPhase,
                 OpenAgendaWorkshopOffer, () => _clock.Day, () => _clock.MinuteOfDay);
             _npcAgendaPanel = gameObject.AddComponent<NpcAgendaConversationPanel>();
             _npcAgendaPanel.Bind(HandleAgendaChoice);
@@ -1501,6 +1501,13 @@ namespace Signal.Game
                 string.Equals("compact-sewing-machine", upgradeId, StringComparison.Ordinal))
                 return IsFirstUpgradeAcquired();
             return Guid.TryParse(upgradeId, out Guid id) && _workshopProgression.HasAcquired(id);
+        }
+
+        private bool IsAgendaOpportunityInPhase(string opportunityId, OpportunityPhase phase)
+        {
+            return _miloOpportunity != null &&
+                string.Equals(_miloOpportunity.OpportunityId, opportunityId, StringComparison.Ordinal) &&
+                _miloOpportunity.Phase == phase;
         }
 
         private bool OpenAgendaWorkshopOffer(WorkshopUpgradeDefinition upgrade)
