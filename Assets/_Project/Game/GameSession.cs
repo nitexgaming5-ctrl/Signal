@@ -1306,6 +1306,10 @@ namespace Signal.Game
                 }
             }
 
+            ItemDefinition[] survivalCatalogue = Resources.LoadAll<ItemDefinition>("SurvivalItems/Definitions");
+            foreach (ItemDefinition survivalItem in survivalCatalogue)
+                RegisterItemCatalog(survivalItem);
+
             RegisterItemCatalog(repairTargetItem);
             RegisterItemCatalog(basicPatchKitItem);
             RegisterItemCatalog(reinforcedPatchKitItem);
