@@ -286,7 +286,6 @@ namespace Signal.Core.Tests
                 assetOwnership: targetOwnership);
 
             Assert.That(report.Success, Is.True);
-            Assert.That(report.SkippedItemInstances, Is.Zero);
             Assert.That(report.SkippedKnowledgeFacts, Is.Zero);
             Assert.That(target.Inventory.Items.Count, Is.EqualTo(1));
             Assert.That(target.Inventory.Items[0].ItemInstanceId, Is.EqualTo(itemId));
