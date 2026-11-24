@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a6c2f1d8e9b34710a5c6d7e8f9012345, type: 3}
   m_Name: RheaAgenda
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: Signal.Game::Signal.Game.NpcAgendaDefinition
   NpcId: rhea
   Threads:
   - ThreadId: milo-parcel-rumour
