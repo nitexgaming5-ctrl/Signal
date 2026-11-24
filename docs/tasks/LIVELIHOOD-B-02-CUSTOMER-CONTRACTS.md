@@ -1,6 +1,6 @@
 # LIVELIHOOD-B-02 — Single active customer contract
 
-**Status:** Core/Game and Milo contract content committed; 417/417 EditMode suite passed (2026-11-24); Play Mode verification pending  
+**Status:** Core/Game and Milo contract content committed; 417/417 EditMode suite passed (2026-11-24); customer-request flow user-confirmed in Play Mode; final integrated save/reload acceptance pending  
 **Parent:** LIVELIHOOD-B1-B3-FIRST-WORKSHOP.md  
 **Depends on:** B-01 production loop; NPC identities, inventories, clean accounts, ownership and transaction ledgers.
 
@@ -66,7 +66,7 @@ Only one contract may be Active at a time. The first slice contains one authored
 - Authored one request from Milo: one Basic Patch Kit for his bakery apron, reward 40 clean CARD from Milo's resident account (starting balance 150).
 - Contract eligibility is LegitimateOnly; delivery is one exact whole stack to Milo's physical receiving inventory. The request is not procedural or recurring.
 - Rhea and Milo are now explicit scene-assigned NpcCharacterDefinition assets; their resident accounts are created from authored starting balances.
-- The user reports the current full **417/417 EditMode suite passed on 2026-11-24**. The customer interaction and physical handover were confirmed in Play Mode; the combined First Workshop supplier/upgrade and save/reload acceptance remains.
+- The user reports the current full **417/417 EditMode suite passed on 2026-11-24**. The customer-request flow was confirmed in Play Mode; the combined First Workshop supplier/upgrade and save/reload acceptance remains.
 
 ## Acceptance criteria
 
