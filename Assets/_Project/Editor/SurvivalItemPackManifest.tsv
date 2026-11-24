@@ -1,0 +1,101 @@
+1|Metal Pipe|Materials|A short length of sturdy metal pipe.|8|1|2|5
+2|Flashlight|Tools|A handheld flashlight for dark rooms and streets.|15|1|2|1
+3|Pocket Lighter|Tools|A small lighter for starting a flame.|5|1|1|1
+4|Green Medicine Bottle|Medicine|A small bottle containing an unidentified green medicine.|12|1|1|5
+5|Electrical Wire Bundle|Materials|A bundle of coloured electrical wires.|6|1|2|10
+6|Camouflage Pack|Clothing|A compact camouflage field pack.|35|2|2|1
+7|Field Notes|Miscellaneous|A weathered page of handwritten field notes.|3|1|1|10
+8|Protective Helmet|Clothing|A hard protective helmet.|20|2|2|1
+9|Laptop Computer|Electronics|A portable computer with a worn casing.|60|2|2|1
+10|Portable Radio|Electronics|A compact radio receiver.|25|1|2|1
+11|Insect Specimen|Materials|A small preserved or collected insect.|1|1|1|10
+12|Compass|Tools|A pocket compass for finding direction.|15|1|1|1
+13|Floppy Disk|Electronics|An old removable data disk.|2|1|1|10
+14|Mobile Phone|Electronics|A basic mobile phone.|18|1|2|1
+15|Blue Sleeping Roll|Survival|A rolled blue sleeping mat or bedroll.|20|2|2|1
+16|Wrapped Ration|Food|A small wrapped food ration.|8|1|1|5
+17|Red Tool Case|Tools|A sturdy red toolbox for carrying equipment.|30|2|2|1
+18|Battery|Electronics|A compact rechargeable battery.|5|1|1|10
+19|Folded Map|Miscellaneous|A folded paper map of the surrounding area.|3|1|1|10
+20|Hand Torch|Tools|A narrow handheld torch.|8|1|2|1
+21|Green Field Guide|Books|A small green reference book.|4|1|1|1
+22|Purple Field Guide|Books|A small purple reference book.|4|1|1|1
+23|Canned Fruit|Food|A sealed tin of preserved fruit.|6|1|1|10
+24|Canned Beans|Food|A sealed tin of beans.|6|1|1|10
+25|Canned Stew|Food|A sealed tin of prepared stew.|7|1|1|10
+26|Cooking Pot|Tools|A small red cooking pot with a handle.|10|2|2|1
+27|Spare Gear|Materials|A toothed metal gear for repairs or machinery.|6|1|1|10
+28|Red Fuel Can|Materials|A red portable can for storing fuel.|15|2|2|1
+29|Canvas Satchel|Clothing|A small canvas shoulder bag.|12|2|2|1
+30|Metal Canteen|Survival|A compact metal drinking canteen.|10|1|2|1
+31|Smartphone|Electronics|A touchscreen mobile phone.|35|1|2|1
+32|Wide-Brim Hat|Clothing|A dark wide-brimmed hat.|8|2|1|1
+33|Baseball Cap|Clothing|A green baseball cap.|5|1|1|1
+34|Brown Backpack|Clothing|A worn brown backpack.|25|2|2|1
+35|Blue Backpack|Clothing|A blue backpack with multiple pockets.|30|2|2|1
+36|Tactical Chest Rig|Clothing|A dark utility vest or chest rig with several straps.|28|2|2|1
+37|Handheld Transceiver|Electronics|A portable two-way radio.|25|1|2|1
+38|Arrow|Tools|A single arrow with a simple shaft and metal head.|2|1|2|10
+39|Wooden Torch|Tools|A wooden torch wrapped with combustible material.|4|1|2|5
+40|Oil Lantern|Tools|A portable lantern with a protective metal frame.|15|1|2|1
+41|Blue Jeans|Clothing|A pair of blue denim trousers.|15|2|2|1
+42|Green T-Shirt|Clothing|A plain green short-sleeved shirt.|8|2|2|1
+43|White Shirt|Clothing|A plain light-coloured shirt.|8|2|2|1
+44|Red Shorts|Clothing|A pair of red shorts.|8|2|1|1
+45|Patterned Shirt|Clothing|A colourful patterned shirt.|12|2|2|1
+46|Brown Jacket|Clothing|A heavy brown outer jacket.|25|2|2|1
+47|Work Trousers|Clothing|A pair of durable brown work trousers.|18|2|2|1
+48|Grey Sneakers|Clothing|A pair of light grey athletic shoes.|12|2|1|1
+49|Dark Shoes|Clothing|A pair of dark everyday shoes.|10|2|1|1
+50|Hiking Boots|Clothing|A pair of sturdy high-cut boots.|20|2|2|1
+51|Stone|Materials|A rough piece of stone.|1|1|1|20
+52|Glass Oil Lamp|Tools|A small glass oil lamp.|12|1|2|1
+53|Small Key|Miscellaneous|A small metal key of unknown purpose.|1|1|1|10
+54|Old Key|Miscellaneous|A worn metal key.|1|1|1|10
+55|Paper Map Fragment|Miscellaneous|A torn section of a paper map.|2|1|1|10
+56|Green Glass Bottle|Miscellaneous|An empty green glass bottle.|2|1|1|10
+57|Brown Glass Bottle|Miscellaneous|An empty dark glass bottle.|2|1|1|10
+58|Green Flask|Survival|A small green flask or sealed container.|5|1|1|5
+59|Metal Drink Can|Food|An unopened canned drink.|3|1|1|10
+60|Light Bulb|Materials|A spare light bulb.|2|1|1|10
+61|Hunting Knife|Tools|A compact fixed-blade knife.|10|1|2|1
+62|Utility Blade|Tools|A narrow utility blade or small cutting tool.|8|1|2|1
+63|Orange Soda|Food|A can of orange-flavoured soda.|3|1|1|10
+64|Apple|Food|A fresh red apple.|2|1|1|10
+65|Fabric Scrap|Materials|A piece of blue fabric suitable for basic crafting.|1|1|1|20
+66|Coal|Materials|A lump of coal.|3|1|1|20
+67|Stone Chunk|Materials|A rough chunk of stone.|2|1|1|10
+68|Scrap Metal|Materials|A piece of recovered metal scrap.|4|1|1|10
+69|Gold Nuggets|Materials|A small collection of raw gold nuggets.|25|1|1|10
+70|Salt|Food|A small pile of coarse white salt.|2|1|1|10
+71|Bone|Materials|A clean animal bone.|1|1|2|10
+72|Bread Loaf|Food|A fresh loaf of bread.|4|1|1|5
+73|Corn Cob|Food|A ripe ear of corn.|2|1|1|10
+74|Dried Beans|Food|A handful of dried beans.|3|1|1|10
+75|Carrot|Food|A fresh carrot.|1|1|1|10
+76|Cheese|Food|A wedge of yellow cheese.|5|1|1|10
+77|Silver Ingot|Materials|A small bar of refined silver.|12|1|1|10
+78|Copper Ingot|Materials|A small bar of refined copper.|8|1|1|10
+79|Gold Ingot|Materials|A small bar of refined gold.|40|1|1|10
+80|Iron Ingot|Materials|A small bar of refined iron.|10|1|1|10
+81|Wooden Plank|Materials|A cut plank of timber.|3|1|2|10
+82|Wood Log|Materials|A short cut log of wood.|5|1|2|5
+83|Frying Pan|Tools|A metal frying pan.|8|2|2|1
+84|Cash Bundle|Currency|A small bundle of banknotes; this is a catalogue item, not CARD.|20|1|1|10
+85|Wire Coil|Materials|A coil of dark utility wire.|4|1|1|10
+86|Stone Shard|Materials|A sharp fragment of stone.|1|1|1|20
+87|Rope Coil|Materials|A coiled length of sturdy rope.|5|1|2|5
+88|Raw Steak|Food|A piece of raw red meat.|6|1|1|5
+89|Sausage|Food|A cured sausage.|5|1|1|5
+90|Animal Hide|Materials|A piece of raw animal hide.|10|2|2|5
+91|Green Ammunition Box|Ammunition|A sealed green ammunition container.|15|2|1|1
+92|Red Ammunition Box|Ammunition|A sealed red ammunition container.|15|2|1|1
+93|Blue Ammunition Box|Ammunition|A sealed blue ammunition container.|15|2|1|1
+94|Prepared Meal|Food|A small bowl or tin of prepared food.|5|1|1|5
+95|Water Bottle|Food|A sealed bottle of drinking water.|2|1|1|10
+96|Red Food Tin|Food|A small red tin of preserved food.|5|1|1|10
+97|Red Medicine Bottle|Medicine|A small red bottle containing medicine.|8|1|1|5
+98|Signal Flare|Tools|A compact flare or emergency signal stick.|6|1|2|5
+99|First Aid Kit|Medicine|A compact medical kit for basic first aid.|20|2|2|1
+100|Rifle|Weapons|A long firearm shown as a catalogue object; no combat behaviour is implied.|75|1|3|1
+
