@@ -38,7 +38,7 @@ MonoBehaviour:
         CompleteStageOnChoice: 1
         Action: 1
         DiscoveryId: rhea-milo-parcel-rumour
-        DiscoverySubjectId: milo-after-hours
+        DiscoverySubjectId: milo
         DiscoveryType: 3
         DiscoveryDescription: "Rhea says someone from the block told her Milo has carried parcels after closing. She has not seen where they go."
         DiscoveryConfidence: 0.4
@@ -51,7 +51,7 @@ MonoBehaviour:
         CompleteStageOnChoice: 1
         Action: 1
         DiscoveryId: rhea-milo-parcel-rumour
-        DiscoverySubjectId: milo-after-hours
+        DiscoverySubjectId: milo
         DiscoveryType: 3
         DiscoveryDescription: "Rhea says someone from the block told her Milo has carried parcels after closing. She has not seen where they go."
         DiscoveryConfidence: 0.4
