@@ -51,6 +51,48 @@ namespace Signal.Game.Tests
 
 
         [Test]
+        public void RheaTextileCounterHasAVisibleReachableInteractionSpaceInCornerShop()
+        {
+            var host = new GameObject("CityHost");
+            var player = new GameObject("Player");
+            var cameraObject = new GameObject("MainCamera");
+            Rigidbody2D body = player.AddComponent<Rigidbody2D>();
+            Camera camera = cameraObject.AddComponent<Camera>();
+            CityBlockBootstrap city = host.AddComponent<CityBlockBootstrap>();
+
+            try
+            {
+                city.Build(player.transform, body, camera);
+                Assert.That(city.TryRestorePlace("CornerShop", new Vector2(1000f, 997.4f)), Is.True);
+
+                Vector2 counterInteraction = new Vector2(996.7f, 999.45f);
+                Assert.That(city.NavigationMap.IsWalkable("CornerShop", counterInteraction, 0.38f), Is.True,
+                    "The approach point must remain clear of the counter, shelves and bakery fixtures.");
+
+                List<NpcTravelWaypoint> route = city.BuildNpcTravelRoute(
+                    "CornerShop", new Vector2(1000f, 997.4f), "CornerShop", counterInteraction);
+                Assert.That(route.Count, Is.GreaterThan(0));
+                Vector2 previous = new Vector2(1000f, 997.4f);
+                for (int i = 0; i < route.Count; i++)
+                {
+                    Assert.That(route[i].LocationId, Is.EqualTo("CornerShop"));
+                    Vector2 next = route[i].Position;
+                    int samples = Mathf.Max(1, Mathf.CeilToInt(Vector2.Distance(previous, next) / 0.05f));
+                    for (int sample = 0; sample <= samples; sample++)
+                        Assert.That(city.NavigationMap.IsWalkable("CornerShop",
+                            Vector2.Lerp(previous, next, sample / (float)samples), 0.38f), Is.True);
+                    previous = next;
+                }
+            }
+            finally
+            {
+                Object.DestroyImmediate(host);
+                Object.DestroyImmediate(player);
+                Object.DestroyImmediate(cameraObject);
+            }
+        }
+
+        [Test]
         public void ResidentRouteAvoidsTheStreetBenchInsteadOfCrossingItsCollider()
         {
             var host = new GameObject("CityHost");
