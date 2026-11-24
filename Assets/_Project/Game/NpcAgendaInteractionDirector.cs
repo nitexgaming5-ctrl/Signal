@@ -17,14 +17,15 @@ namespace Signal.Game
         private readonly PlayerRelationshipBook _relationships;
         private readonly Func<string, bool> _isContractCompleted;
         private readonly Func<string, bool> _isUpgradeAcquired;
-        private readonly Func<bool> _openWorkshopUpgradeOffer;
+        private readonly Func<WorkshopUpgradeDefinition, bool> _openWorkshopUpgradeOffer;
         private readonly Func<int> _getDay;
         private readonly Func<int> _getMinute;
 
         public NpcAgendaInteractionDirector(IEnumerable<NpcAgendaDefinition> definitions,
             NpcAgendaProgressBook progress, PlayerDiscoveryLedger discoveries,
             PlayerRelationshipBook relationships, Func<string, bool> isContractCompleted,
-            Func<string, bool> isUpgradeAcquired, Func<bool> openWorkshopUpgradeOffer,
+            Func<string, bool> isUpgradeAcquired,
+            Func<WorkshopUpgradeDefinition, bool> openWorkshopUpgradeOffer,
             Func<int> getDay, Func<int> getMinute)
         {
             _progress = progress ?? throw new ArgumentNullException(nameof(progress));
@@ -32,7 +33,7 @@ namespace Signal.Game
             _relationships = relationships ?? throw new ArgumentNullException(nameof(relationships));
             _isContractCompleted = isContractCompleted ?? (_ => false);
             _isUpgradeAcquired = isUpgradeAcquired ?? (_ => false);
-            _openWorkshopUpgradeOffer = openWorkshopUpgradeOffer ?? (() => false);
+            _openWorkshopUpgradeOffer = openWorkshopUpgradeOffer ?? (_ => false);
             _getDay = getDay ?? (() => 1);
             _getMinute = getMinute ?? (() => 0);
 
@@ -63,37 +64,74 @@ namespace Signal.Game
                 !_definitions.TryGetValue(npcId, out NpcAgendaDefinition agenda))
                 return false;
 
-            NpcAgendaThreadDefinition selectedThread = null;
-            NpcAgendaStageDefinition selectedStage = null;
-            for (int t = 0; t < agenda.Threads.Length; t++)
+            var orderedThreads = new List<NpcAgendaThreadDefinition>(agenda.Threads);
+            orderedThreads.Sort((left, right) =>
             {
-                NpcAgendaThreadDefinition candidateThread = agenda.Threads[t];
-                NpcAgendaStageDefinition firstIncompleteStage = null;
+                int priority = right.Priority.CompareTo(left.Priority);
+                return priority != 0 ? priority : string.CompareOrdinal(left.ThreadId, right.ThreadId);
+            });
+
+            for (int t = 0; t < orderedThreads.Count; t++)
+            {
+                NpcAgendaThreadDefinition candidateThread = orderedThreads[t];
                 for (int s = 0; s < candidateThread.Stages.Length; s++)
                 {
                     NpcAgendaStageDefinition candidateStage = candidateThread.Stages[s];
                     if (_progress.IsStageCompleted(npcId, candidateThread.ThreadId, candidateStage.StageId))
                         continue;
+                    if (!IsEligible(candidateStage, activity, place))
+                        break;
 
-                    firstIncompleteStage = candidateStage;
-                    break;
-                }
-
-                if (!IsEligible(firstIncompleteStage, activity, place))
-                    continue;
-
-                if (selectedThread == null || candidateThread.Priority > selectedThread.Priority ||
-                    (candidateThread.Priority == selectedThread.Priority &&
-                     string.CompareOrdinal(candidateThread.ThreadId, selectedThread.ThreadId) < 0))
-                {
-                    selectedThread = candidateThread;
-                    selectedStage = firstIncompleteStage;
+                    thread = candidateThread;
+                    stage = candidateStage;
+                    return true;
                 }
             }
+            return false;
+        }
 
-            thread = selectedThread;
-            stage = selectedStage;
-            return selectedStage != null;
+        private bool IsEligible(NpcAgendaStageDefinition stage, NpcActivity activity, string place)
+        {
+            if (stage.RequireSocializingActivity && activity != NpcActivity.Socialize)
+                return false;
+            if (stage.RequiredActivity != NpcAgendaActivityRequirement.Any &&
+                !MatchesActivity(stage.RequiredActivity, activity))
+                return false;
+            if (!string.IsNullOrWhiteSpace(stage.RequiredPlace) && stage.RequiredPlace != place)
+                return false;
+
+            if (!string.IsNullOrWhiteSpace(stage.RequiredDiscoveryId) &&
+                !_discoveries.HasSignal(stage.RequiredDiscoveryId))
+                return false;
+
+            string contractId = stage.RequiredContract != null
+                ? stage.RequiredContract.Id.ToString()
+                : stage.RequiredCompletedContractId;
+            if (!string.IsNullOrWhiteSpace(contractId) && !_isContractCompleted(contractId))
+                return false;
+
+            string upgradeId = stage.RequiredUpgrade != null
+                ? stage.RequiredUpgrade.Id.ToString()
+                : stage.RequiredUpgradeId;
+            if (!string.IsNullOrWhiteSpace(upgradeId))
+            {
+                bool acquired = _isUpgradeAcquired(upgradeId);
+                if (stage.RequireUpgradeNotAcquired ? acquired : !acquired)
+                    return false;
+            }
+            return true;
+        }
+
+        private static bool MatchesActivity(NpcAgendaActivityRequirement requirement, NpcActivity activity)
+        {
+            switch (requirement)
+            {
+                case NpcAgendaActivityRequirement.Work: return activity == NpcActivity.Work;
+                case NpcAgendaActivityRequirement.Rest: return activity == NpcActivity.Rest;
+                case NpcAgendaActivityRequirement.Socialize: return activity == NpcActivity.Socialize;
+                case NpcAgendaActivityRequirement.Home: return activity == NpcActivity.Home;
+                default: return true;
+            }
         }
 
         public bool TryChoose(string npcId, string threadId, string stageId, string choiceId,
@@ -113,7 +151,7 @@ namespace Signal.Game
                 return false;
 
             if (choice.Action == NpcAgendaChoiceAction.OpenWorkshopUpgradeOffer &&
-                !_openWorkshopUpgradeOffer())
+                !_openWorkshopUpgradeOffer(choice.WorkshopUpgradeOffer))
                 return false;
 
             if (!choice.CompleteStageOnChoice)
@@ -125,14 +163,10 @@ namespace Signal.Game
             if (!_progress.TryCompleteStage(npcId, threadId, stageId, choiceId))
                 return false;
 
-            switch (choice.Action)
-            {
-                case NpcAgendaChoiceAction.RecordDiscovery:
-                    _discoveries.Record(new PlayerDiscoverySignal(choice.DiscoveryId,
-                        choice.DiscoverySubjectId, choice.DiscoveryType, npcId,
-                        choice.DiscoveryDescription, choice.DiscoveryConfidence, _getDay(), _getMinute()));
-                    break;
-            }
+            if (choice.Action == NpcAgendaChoiceAction.RecordDiscovery)
+                _discoveries.Record(new PlayerDiscoverySignal(choice.DiscoveryId,
+                    choice.DiscoverySubjectId, choice.DiscoveryType, npcId,
+                    choice.DiscoveryDescription, choice.DiscoveryConfidence, _getDay(), _getMinute()));
 
             if (choice.FamiliarityDelta != 0f || choice.TrustDelta != 0f || choice.AffinityDelta != 0f)
                 _relationships.Adjust(npcId, choice.FamiliarityDelta,
@@ -140,57 +174,6 @@ namespace Signal.Game
 
             response = choice.Response;
             stageCompleted = true;
-            return true;
-        }
-
-        private bool IsEligible(NpcAgendaStageDefinition stage, NpcActivity activity, string place)
-        {
-            if (stage == null) return false;
-            if (stage.RequireSocializingActivity && activity != NpcActivity.Socialize)
-                return false;
-
-            switch (stage.RequiredActivity)
-            {
-                case NpcAgendaActivityRequirement.Any:
-                    break;
-                case NpcAgendaActivityRequirement.Work:
-                    if (activity != NpcActivity.Work) return false;
-                    break;
-                case NpcAgendaActivityRequirement.Rest:
-                    if (activity != NpcActivity.Rest) return false;
-                    break;
-                case NpcAgendaActivityRequirement.Socialize:
-                    if (activity != NpcActivity.Socialize) return false;
-                    break;
-                case NpcAgendaActivityRequirement.Home:
-                    if (activity != NpcActivity.Home) return false;
-                    break;
-                default:
-                    return false;
-            }
-
-            if (!string.IsNullOrWhiteSpace(stage.RequiredPlace) && stage.RequiredPlace != place)
-                return false;
-
-            if (!string.IsNullOrWhiteSpace(stage.RequiredDiscoveryId) &&
-                !_discoveries.HasSignal(stage.RequiredDiscoveryId))
-                return false;
-
-            string contractId = !string.IsNullOrWhiteSpace(stage.RequiredCompletedContractId)
-                ? stage.RequiredCompletedContractId
-                : stage.RequiredContract != null ? stage.RequiredContract.Id.ToString() : null;
-            if (!string.IsNullOrWhiteSpace(contractId) && !_isContractCompleted(contractId))
-                return false;
-
-            string upgradeId = !string.IsNullOrWhiteSpace(stage.RequiredUpgradeId)
-                ? stage.RequiredUpgradeId
-                : stage.RequiredUpgrade != null ? stage.RequiredUpgrade.Id.ToString() : null;
-            if (!string.IsNullOrWhiteSpace(upgradeId))
-            {
-                bool acquired = _isUpgradeAcquired(upgradeId);
-                if (stage.RequireUpgradeNotAcquired ? acquired : !acquired)
-                    return false;
-            }
             return true;
         }
 
