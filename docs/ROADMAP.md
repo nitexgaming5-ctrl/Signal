@@ -51,7 +51,11 @@ These are approved direction placeholders, not implementation permission for un-
 
 ### B-04 — Repair and restoration
 
-A hands-on legal service built around the existing per-item condition model. Start with one repairable category, one clear station/tool requirement and a visible before/after result. Keep quality, authenticity and ownership unchanged unless a specific later rule justifies otherwise. The repair rules and failure model need design when B-04 becomes active.
+**Status: design draft only; not implementation approval.** The source-audited proposal is tracked in [LIVELIHOOD-B-04](tasks/LIVELIHOOD-B-04-REPAIR-RESTORATION.md), with unresolved decisions in [Open Questions](OPEN_QUESTIONS.md).
+
+The candidate loop reuses the existing hideout workbench/Compact Sewing Machine, Basic and Reinforced Patch Kits, per-item condition state, stable stack identity and player item-knowledge book. The first target is one unstackable Worn textile item; repair changes condition only through explicit transitions, preserves quality/authenticity/ownership and stable ID, refreshes the player's condition knowledge as direct inspection, and persists through the current unversioned save round trip.
+
+The current economy is fixed-price: `ItemValueCalculator` changes indicative reference value, but shop buyback payment is authored per item and is not condition-sensitive. Whether B-04 should create direct CARD profit therefore remains an explicit decision; do not silently change global sell-price rules. First confirm the remaining First Workshop Play Mode acceptance, then settle B-04's supply and monetization rules before implementation.
 
 ### B-05 — Social life and recurring customers
 
@@ -107,7 +111,7 @@ The wider vision includes additional crime categories, hidden NPC activities, se
 - Reuse existing transaction and inventory rules; do not fork them.
 - No new Unity packages or third-party systems without approval.
 - Core remains plain C#; Game owns Unity integration and authored content.
-- Persistent changes require round-trip and migration coverage.
+- Persistent changes require current-build save/load round-trip coverage. Build 0.01 intentionally has no schema-version field or migration chain; incompatible experimental saves may be discarded.
 - A system is not complete merely because the classes compile: integrate it into the active scene and verify the experience.
 
 ## Historical detail
