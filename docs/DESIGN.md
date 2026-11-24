@@ -29,7 +29,7 @@ Detailed game identity and reference-game intent: `VISION.md`.
 - Residents share one world context with authored routines and a deterministic, inexpensive utility brain.
 - NPCs only directly observe local events within perception range. Knowledge is character-scoped; the world event log is not everyone's memory.
 - Explicit communication can share knowledge with source/confidence. There is no automatic city-wide gossip.
-- Player-to-NPC familiarity, trust and affinity are separate and directional. Ambient encounters may create small familiarity changes; trust/affinity and dramatic social consequences require player actions or authored scenarios.
+- Player-to-NPC and NPC-to-NPC familiarity, trust and affinity are separate and directional, using the same shared relationship model. Every NPC has individual sourced knowledge. Information is learned through local observation, explicit communication or authored discovery; rumours retain source and confidence. Ambient encounters may create small familiarity changes only; trust/affinity and dramatic social consequences require player actions or authored scenarios. Durable relationships and knowledge persist by stable IDs; transient perception is rebuilt.
 - Milo and Rhea are authored neighbourhood residents. Dialogue and content should support their roles without hardcoding their identities into reusable systems.
 
 Specialist implementation and social boundaries: `NPC_FRAMEWORK.md`.
