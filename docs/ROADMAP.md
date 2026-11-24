@@ -31,7 +31,7 @@ Approved model:
 
 The implementation foundation and starter content for all three packages are committed. The active scene references the catalogue, two recipes, contract, upgrade prefab and resident definitions. The active task cards provide file-level acceptance criteria.
 
-**Verification update (2026-11-24):** the user reports **417/417 EditMode tests passing** on the current branch, including the supplier-panel and NPC agenda/save changes. The workbench, selling and customer-request loop was previously confirmed in Play Mode. Remaining acceptance is the full Rhea dialogue/supplier interaction, machine installation, second recipe production and save/reload loop. Once that is verified, close B-01 to B-03 and activate the B-04 design.
+**Verification update (2026-11-24):** the user's last full report was **417/417 EditMode tests passing**, before the B-04 hybrid pricing, textile assets, counter geometry, repair service/UI and new tests. It is a historical baseline only; current HEAD needs a fresh full suite. The workbench, selling and Milo's customer-request flow were confirmed in Play Mode. Remaining First Workshop acceptance is the full Rhea dialogue/supplier interaction, machine installation, second recipe production and save/reload loop.
 
 ### Exit criteria
 
@@ -51,11 +51,11 @@ These are approved direction placeholders, not implementation permission for un-
 
 ### B-04 — Repair and restoration
 
-**Status: design approved; hybrid buyback framework committed; repair gameplay integration gated on First Workshop Play Mode acceptance.** See [LIVELIHOOD-B-04](tasks/LIVELIHOOD-B-04-REPAIR-RESTORATION.md) and [Decision 0006](decisions/0006-hybrid-buyback-and-textile-business.md).
+**Status: approved design and implementation committed; Unity verification pending.** See [LIVELIHOOD-B-04](tasks/LIVELIHOOD-B-04-REPAIR-RESTORATION.md) and [Decision 0006](decisions/0006-hybrid-buyback-and-textile-business.md).
 
 The approved first loop uses Rhea as a textile buyer/supplier, a Worn unstackable Work Jacket from an existing scavenging loot profile, fixed-price raw repair materials, and one per-condition buyback schedule for that jacket. The existing hideout workbench/Compact Sewing Machine and Basic/Reinforced Patch Kits provide the repair path. Repairs change Condition only, preserve stable identity and all other state/provenance, refresh the player's Condition knowledge as direct inspection and persist through the current unversioned save round trip.
 
-The catalogue model is hybrid but bounded: merchandise remains fixed-price; each buyback entry is either fixed or explicitly condition-based for one authored item and business. Existing fixed offers remain unchanged. Do not derive CARD payouts from `ItemValueCalculator`, which remains an indicative reference value. This is not demand pricing or a global market simulator. The generic pricing code, Work Jacket, Rhea business asset, loot-profile entry, active-scene registration, visible CornerShop counter and reachability regression test are committed. A fresh Unity run is required. Finish the remaining First Workshop Play Mode acceptance, then implement the repair service and workbench interaction.
+The catalogue model is hybrid but bounded: merchandise remains fixed-price; each buyback entry is either fixed or explicitly condition-based for one authored item and business. Existing fixed offers remain unchanged. Do not derive CARD payouts from `ItemValueCalculator`, which remains an indicative reference value. This is not demand pricing or a global market simulator. The generic pricing code, Work Jacket, Rhea business asset, loot-profile entry, active-scene registration, visible CornerShop counter, repair service and workbench repair UI are committed. Focused tests cover pricing, repair, ownership/provenance and save/knowledge persistence, but have not run in Unity. Complete the combined First Workshop/B-04 EditMode and Play Mode acceptance before calling the initiative verified.
 
 ### B-05 — Social life and recurring customers
 
