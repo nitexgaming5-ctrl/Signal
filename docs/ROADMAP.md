@@ -31,6 +31,8 @@ Approved model:
 
 The implementation foundation and starter content for all three packages are committed. The active scene references the catalogue, two recipes, contract, upgrade prefab and resident definitions. The active task cards provide file-level acceptance criteria.
 
+**Verification update (2026-11-24):** the user reports **417/417 EditMode tests passing** on the current branch, including the supplier-panel and NPC agenda/save changes. The workbench, selling and customer-request loop was previously confirmed in Play Mode. Remaining acceptance is the full Rhea dialogue/supplier interaction, machine installation, second recipe production and save/reload loop. Once that is verified, close B-01 to B-03 and activate the B-04 design.
+
 ### Exit criteria
 
 - The starter materials, recipes, contract, upgrade and authored residents are assigned to the active scene.
