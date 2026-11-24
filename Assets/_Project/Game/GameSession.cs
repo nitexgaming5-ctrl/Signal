@@ -592,7 +592,7 @@ namespace Signal.Game
                 cityPrompt = "E  Talk";
             if (_miloScenario != null)
             {
-                if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen)
+                if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen)
                     _miloScenario.Tick(playerPosition, _city.CurrentPlace);
                 string scenarioPrompt = _miloScenario.GetPrompt(playerPosition, _city.CurrentPlace);
                 if (!string.IsNullOrEmpty(scenarioPrompt))
@@ -968,6 +968,7 @@ namespace Signal.Game
             if (_dirtyCashPanel != null) _dirtyCashPanel.Close();
             if (_customerContractPanel != null) _customerContractPanel.Close();
             if (_workshopUpgradePanel != null) _workshopUpgradePanel.Close();
+            if (_npcAgendaPanel != null) _npcAgendaPanel.Close();
             _activeSearchableContainer = null;
             LoadReport report = SaveMapper.Apply(data, _stats, _inventory, _storage, _clock, _heat, _rent,
                 ResolveType, _itemKnowledge, _playerDiscoveries, _playerRelationships, _assetOwnership, _economicTransactions,
