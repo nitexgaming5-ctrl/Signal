@@ -40,21 +40,28 @@ namespace Signal.Core
             return false;
         }
 
-        public bool TryAdd(PlacedItem item, out int pocketIndex)
+        public bool TryAdd(ItemType type, Guid itemInstanceId, int count, ItemInstanceState state, out int pocketIndex)
         {
             pocketIndex = -1;
-            if (item.ItemInstanceId == Guid.Empty || item.Type.Width != 1 || item.Type.Height != 1 || item.Rotated ||
-                item.Count < 1 || item.Count > item.Type.MaxStack)
+            if (itemInstanceId == Guid.Empty || type.Width != 1 || type.Height != 1 ||
+                count < 1 || count > type.MaxStack)
                 return false;
             for (int i = 0; i < PocketCount; i++)
             {
                 if (_pockets[i].Items.Count != 0) continue;
-                if (!_pockets[i].Place(item.Type, 0, 0, false, item.Count, item.ItemInstanceId, item.State).HasValue)
+                if (!_pockets[i].Place(type, 0, 0, false, count, itemInstanceId, state).HasValue)
                     return false;
                 pocketIndex = i;
                 return true;
             }
             return false;
+        }
+
+        public bool TryAdd(PlacedItem item, out int pocketIndex)
+        {
+            if (item.Rotated)
+            { pocketIndex = -1; return false; }
+            return TryAdd(item.Type, item.ItemInstanceId, item.Count, item.State, out pocketIndex);
         }
 
         public bool TryMoveFrom(GridInventory source, Guid itemInstanceId, int pocketIndex)
@@ -143,23 +150,19 @@ namespace Signal.Core
 
                 ItemType? type = resolve != null ? resolve(typeId) : null;
                 ItemInstanceState state;
+                EconomicActorId owner = EconomicActorId.Player;
                 try
                 {
                     state = new ItemInstanceState((ItemQuality)saved.quality, (ItemCondition)saved.condition,
                         (ItemAuthenticity)saved.authenticity, (ItemOwnershipStatus)saved.ownership);
+                    if (!string.IsNullOrWhiteSpace(saved.ownerActorId))
+                        owner = new EconomicActorId(saved.ownerActorId);
                 }
-                catch (ArgumentOutOfRangeException) { skipped++; continue; }
+                catch (ArgumentException) { skipped++; continue; }
 
                 if (!type.HasValue || type.Value.Width != 1 || type.Value.Height != 1 ||
                     !pockets.GetPocket(saved.pocketIndex).Place(type.Value, 0, 0, false, saved.count, instanceId, state).HasValue)
                 { skipped++; continue; }
-
-                EconomicActorId owner = EconomicActorId.Player;
-                if (!string.IsNullOrWhiteSpace(saved.ownerActorId))
-                {
-                    try { owner = new EconomicActorId(saved.ownerActorId); }
-                    catch (ArgumentException) { skipped++; continue; }
-                }
                 if (ownership != null && !ownership.TryRegister(instanceId, owner))
                     skipped++;
             }
