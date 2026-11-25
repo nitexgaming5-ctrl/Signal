@@ -243,7 +243,7 @@ namespace Signal.Game
             _itemViewer.Bind(_allItemDefinitions, _itemKnowledge);
             _panel = gameObject.AddComponent<InventoryPanel>();
             _panel.Bind(_inventory, _allItemDefinitions, _itemViewer.Open, TryEquipPlayerItem, TryUnequipPlayerSlot,
-                _playerEquipment, DropPlayerBackpack);
+                _playerEquipment, DropPlayerBackpack, () => !_droppedBackpackItem.HasValue);
             _debugItemSpawnerPanel = gameObject.AddComponent<DebugItemSpawnerPanel>();
             _debugItemSpawnerPanel.Bind(_allItemDefinitions, SpawnDebugItem);
             _containerPanel = gameObject.AddComponent<SearchableContainerPanel>();
@@ -975,6 +975,22 @@ namespace Signal.Game
                     Say(choiceMessage, 8f);
                     return;
                 }
+            }
+
+            if (keyboard.bKey.wasPressedThisFrame && _equippedBackpackInstanceId.HasValue &&
+                !workspaceOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
+                !dirtyCashOpen && !contractOpen && !repairOrderOpen && !upgradeOpen && !agendaOpen)
+            {
+                DropPlayerBackpack();
+                return;
+            }
+
+            if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
+                !dirtyCashOpen && !contractOpen && !repairOrderOpen && !upgradeOpen && !agendaOpen &&
+                nearDroppedBackpack && keyboard.eKey.wasPressedThisFrame)
+            {
+                RecoverDroppedBackpack(nearbyBackpackId);
+                return;
             }
 
             if (keyboard.bKey.wasPressedThisFrame && _equippedBackpackInstanceId.HasValue &&
