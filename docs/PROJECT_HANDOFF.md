@@ -126,3 +126,10 @@ Committed but not yet Unity-verified:
 - Press E while hovering an equippable item in a pocket to equip it. This uses the pocket itself as the source container and works without an equipped backpack.
 - SearchableContainerPanel rebuilds its player-side grid to match the actual active inventory dimensions on each open. The equipped backpack's 8×6 grid should now visually match the underlying storage instead of showing the stale 6×4 layout.
 - Next: pull latest, compile and rerun EditMode tests, then Play Mode verify drag/drop, pocket equipment and bin-search 8×6 alignment. Do not claim the latest UI fixes are verified until the user confirms.
+
+## Debug-only fresh-session starting loadout (2026-11-26)
+- Added a temporary GameSession startup bootstrap for Play Mode testing. Each fresh session finds a compatible portable backpack definition (8×6), creates a unique backpack item instance, equips it through the normal equipment/storage/world-state path, then seeds up to three non-backpack items with distinct grid footprints into the backpack.
+- The seed items are selected from the loaded item catalogue, sorted largest footprint first, and placed through normal GridInventory placement. Ownership is registered to the Player. Existing item definitions and save schemas are unchanged.
+- This is explicitly debug/test scaffolding, not intended starting gear or final game balance. Remove this helper before establishing the real new-game starting inventory.
+- If no compatible backpack is available, the helper logs a warning and leaves the session otherwise unchanged. If fewer than three distinct item footprints exist in the catalogue, it seeds however many are available.
+- No Unity compile, EditMode or Play Mode result is claimed for this commit. User should pull and confirm the character spawns with an equipped backpack and 2–3 differently-sized items visible in its 8×6 grid.
