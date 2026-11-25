@@ -2561,11 +2561,22 @@ namespace Signal.Game
 
         private GridInventory GetCarryInventory(ItemType type)
         {
-            if (_equippedBackpackInstanceId.HasValue && !_droppedBackpackItem.HasValue)
+            if (_equippedBackpackInstanceId.HasValue && !_droppedBackpackItem.HasValue &&
+                CanReceiveOneStack(_inventory, type))
                 return _inventory;
             return _playerPockets != null &&
                 _playerPockets.TryFindAvailablePocket(type, out _, out GridInventory pocket)
                 ? pocket : null;
+        }
+
+        private static bool CanReceiveOneStack(GridInventory inventory, ItemType type)
+        {
+            if (inventory == null) return false;
+            for (int y = 0; y < inventory.Height; y++)
+                for (int x = 0; x < inventory.Width; x++)
+                    if (inventory.CanPlace(type, x, y, false))
+                        return true;
+            return false;
         }
 
         private bool TryGetPlayerItem(Guid itemInstanceId, out GridInventory source, out PlacedItem item)
