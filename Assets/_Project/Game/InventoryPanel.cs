@@ -50,6 +50,7 @@ namespace Signal.Game
 
         private GridInventory _inventory;
         private Action<PlacedItem> _inspectItem;
+        private Func<PlacedItem, bool> _equipItem;
         private Font _font;
         private bool _built;
         private bool _open;
@@ -72,7 +73,8 @@ namespace Signal.Game
 
         public bool IsOpen => _open;
 
-        public void Bind(GridInventory inventory, IReadOnlyList<ItemDefinition> definitions, Action<PlacedItem> inspectItem = null)
+        public void Bind(GridInventory inventory, IReadOnlyList<ItemDefinition> definitions, Action<PlacedItem> inspectItem = null,
+            Func<PlacedItem, bool> equipItem = null)
         {
             if (inventory == null)
                 throw new ArgumentNullException(nameof(inventory));
@@ -84,6 +86,7 @@ namespace Signal.Game
 
             _inventory = inventory;
             _inspectItem = inspectItem;
+            _equipItem = equipItem;
             _inventory.Changed += OnInventoryChanged;
 
             _visuals.Clear();
@@ -168,6 +171,14 @@ namespace Signal.Game
         {
             Vector2 screen = mouse.position.ReadValue();
             bool inGrid = TryGetHoverCell(screen, out int hoverX, out int hoverY, out Vector2 local);
+
+            if (!_dragging && keyboard != null && keyboard.eKey.wasPressedThisFrame && inGrid &&
+                _inventory.TryGetItemAt(hoverX, hoverY, out PlacedItem equipTarget))
+            {
+                if (_equipItem != null && _equipItem(equipTarget))
+                    Refresh();
+                return;
+            }
 
             if (!_dragging)
             {
