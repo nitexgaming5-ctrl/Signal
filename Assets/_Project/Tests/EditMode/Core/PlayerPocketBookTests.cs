@@ -36,11 +36,9 @@ namespace Signal.Core.Tests
             var pockets = new PlayerPocketBook();
             ItemType type = Item();
             Guid id = Guid.NewGuid();
-            var state = new ItemInstanceState(ItemQuality.Good, ItemCondition.Worn,
-                ItemAuthenticity.Authentic, ItemOwnershipStatus.Stolen);
-            var placed = new PlacedItem(1, id, type, 0, 0, false, 3, state);
-
-            Assert.That(pockets.TryAdd(placed, out int index), Is.True);
+            var state = new ItemInstanceState(ItemQuality.Fine, ItemCondition.Worn,
+                ItemAuthenticity.Genuine, ItemOwnershipStatus.Stolen);
+            Assert.That(pockets.TryAdd(type, id, 3, state, out int index), Is.True);
             Assert.That(index, Is.EqualTo(0));
             PlacedItem stored = pockets.GetPocket(0).Items[0];
             Assert.That(stored.ItemInstanceId, Is.EqualTo(id));
@@ -52,11 +50,11 @@ namespace Signal.Core.Tests
         public void RejectsLargeRotatedOrFullPocketItemsWithoutMutation()
         {
             var pockets = new PlayerPocketBook();
-            Assert.That(pockets.TryAdd(new PlacedItem(1, Guid.NewGuid(), Item(2, 1), 0, 0, false, 1, ItemInstanceState.Default), out _), Is.False);
-            Assert.That(pockets.TryAdd(new PlacedItem(1, Guid.NewGuid(), Item(1, 2), 0, 0, true, 1, ItemInstanceState.Default), out _), Is.False);
+            Assert.That(pockets.TryAdd(Item(2, 1), Guid.NewGuid(), 1, ItemInstanceState.Default, out _), Is.False);
+            Assert.That(pockets.TryAdd(Item(1, 2), Guid.NewGuid(), 1, ItemInstanceState.Default, out _), Is.False);
             for (int i = 0; i < 3; i++)
-                Assert.That(pockets.TryAdd(new PlacedItem(i + 1, Guid.NewGuid(), Item(), 0, 0, false, 1, ItemInstanceState.Default), out _), Is.True);
-            Assert.That(pockets.TryAdd(new PlacedItem(4, Guid.NewGuid(), Item(), 0, 0, false, 1, ItemInstanceState.Default), out _), Is.False);
+                Assert.That(pockets.TryAdd(Item(), Guid.NewGuid(), 1, ItemInstanceState.Default, out _), Is.True);
+            Assert.That(pockets.TryAdd(Item(), Guid.NewGuid(), 1, ItemInstanceState.Default, out _), Is.False);
             Assert.That(pockets.GetPocket(0).Items.Count, Is.EqualTo(1));
             Assert.That(pockets.GetPocket(1).Items.Count, Is.EqualTo(1));
             Assert.That(pockets.GetPocket(2).Items.Count, Is.EqualTo(1));
