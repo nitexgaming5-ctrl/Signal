@@ -91,12 +91,7 @@ namespace Signal.Game
         private PlayerDevelopmentState _playerDevelopment;
         private PlayerDevelopmentPanel _playerDevelopmentPanel;
 
-        // Prototype content IDs; the final skill catalogue remains a data/content decision.
-        private static readonly string[] ProvisionalPlayerSkillIds =
-            { "repair", "production", "trading", "scavenging", "social" };
-        private const int PrototypeStartingSkillPoints = 8;
-        private const int PrototypeMaximumSkillRank = 5;
-        private const int PrototypePointsPerSkillRank = 1;
+        private PlayerDevelopmentCatalog _playerDevelopmentCatalog;
         private InventoryPanel _panel;
         private ItemViewerPanel _itemViewer;
         private DebugItemSpawnerPanel _debugItemSpawnerPanel;
@@ -192,10 +187,17 @@ namespace Signal.Game
             _room = roomObject.AddComponent<RoomBootstrap>();
             _room.Build(camera);
             _motor = _room.Player.GetComponent<PlayerMotor2D>();
-            _playerDevelopment = new PlayerDevelopmentState(ProvisionalPlayerSkillIds,
-                PrototypeStartingSkillPoints, PrototypeMaximumSkillRank, PrototypePointsPerSkillRank);
+            _playerDevelopmentCatalog = Resources.Load<PlayerDevelopmentCatalog>("PlayerDevelopment/DefaultPlayerDevelopmentCatalog");
+            if (_playerDevelopmentCatalog == null)
+            {
+                Debug.LogWarning("Player development catalog missing; using provisional runtime defaults.", this);
+                _playerDevelopmentCatalog = PlayerDevelopmentCatalog.CreatePrototypeDefaults();
+            }
+            _playerDevelopment = new PlayerDevelopmentState(_playerDevelopmentCatalog.GetSkillIds(),
+                _playerDevelopmentCatalog.StartingSkillPoints, _playerDevelopmentCatalog.MaximumSkillRank,
+                _playerDevelopmentCatalog.PointsPerRank);
             _playerDevelopmentPanel = gameObject.AddComponent<PlayerDevelopmentPanel>();
-            _playerDevelopmentPanel.Bind(_playerDevelopment);
+            _playerDevelopmentPanel.Bind(_playerDevelopment, _playerDevelopmentCatalog);
 
             _city = gameObject.AddComponent<CityBlockBootstrap>();
             _city.Build(_room.Player, _room.PlayerBody, camera, _clock, npcDefinitions);
@@ -1323,10 +1325,11 @@ namespace Signal.Game
                 Say("Load failed: " + report.Error);
                 return;
             }
-            _playerDevelopment = PlayerDevelopmentSaveMapper.Restore(data, ProvisionalPlayerSkillIds,
-                PrototypeStartingSkillPoints, PrototypeMaximumSkillRank, PrototypePointsPerSkillRank);
+            _playerDevelopment = PlayerDevelopmentSaveMapper.Restore(data, _playerDevelopmentCatalog.GetSkillIds(),
+                _playerDevelopmentCatalog.StartingSkillPoints, _playerDevelopmentCatalog.MaximumSkillRank,
+                _playerDevelopmentCatalog.PointsPerRank);
             if (_playerDevelopmentPanel != null)
-                _playerDevelopmentPanel.Bind(_playerDevelopment);
+                _playerDevelopmentPanel.Bind(_playerDevelopment, _playerDevelopmentCatalog);
             EnsureCustomerRepairItem();
             RefreshWorkshopUpgradeVisual();
             if (_workspace != null)
