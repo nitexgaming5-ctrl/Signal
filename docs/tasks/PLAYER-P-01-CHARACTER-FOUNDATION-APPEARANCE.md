@@ -1,6 +1,6 @@
 # P-01 — Character Foundation & Appearance
 
-**Status:** Design prepared; implementation not authorized.
+**Status:** First implementation slice committed; character-pack import and Unity verification pending.
 **Track:** Player Development
 **Dependencies:** Existing player composition in GameSession/RoomBootstrap; supplied modular character resource pack.
 **Scope boundary:** This task establishes the player identity/visual foundation. It does not implement skill progression, a complete wardrobe, armor gameplay, or weather exposure.
@@ -93,3 +93,14 @@ The player can edit supported appearance selections on the existing player. A la
 ## Explicit exclusions
 
 No full clothing/armor catalogue, equipment inventory slots, combat system, cold exposure, weather simulation, character classes, backgrounds, skill point allocation, skill milestone awards, or new NPC cast. Those belong to P-02, P-03 or W-01 as specified separately.
+
+
+## Implementation slice committed (2026-11-25)
+
+- Added `PlayerCharacterVisual`, a five-layer modular renderer for Legs, left/right arms, Chest and Head. Idle and Walk use shared animation timing/frame selection, directional facing (Down/Side/Top), horizontal mirroring and direction/action-specific draw ordering.
+- Added `CharacterPackImporter` under the Unity menu `Signal > Import World Build Character Pack...`. It extracts the supplied pack's `Character/Body_A` PNGs into `Assets/_Project/Resources/Character/Body_A`, configures point filtering/no mipmaps/uncompressed import, and preserves the bundled terms file under `Assets/_Project/Art/CharacterPackTerms.txt`.
+- `RoomBootstrap.CreatePlayer()` now creates the modular visual while preserving the existing Rigidbody2D and movement controller. A simple teal fallback remains if the resource pack has not yet been imported.
+- The uploaded archive contains the modular Body_A base character and multiple action sheets. It does not provide a complete alternative body/wardrobe catalogue; full clothing/armor visuals remain P-03 content work.
+- One-time Unity action: run the importer menu and select the supplied ZIP, then enter Play Mode. The original archive is not duplicated into the repository.
+
+**Not yet verified:** Unity import, compilation, EditMode suite and Play Mode animation/facing. The rig currently consumes Idle/Walk sheets; additional action sheets are imported for later integration.
