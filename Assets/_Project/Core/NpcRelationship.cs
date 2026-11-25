@@ -1,7 +1,7 @@
 namespace Signal.Core
 {
     /// <summary>
-    /// Directed social impression held by one NPC about another.
+    /// Directed social impression held by one actor about another actor (player or NPC).
     /// Values are authored/simulated by later systems, not inferred from a global truth.
     /// </summary>
     public sealed class NpcRelationship
