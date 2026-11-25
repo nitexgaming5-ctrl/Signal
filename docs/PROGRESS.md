@@ -7,7 +7,7 @@ Last reconciled: **2026-11-25**. This is the short status board. Session history
 - Unity **6000.6.9f1**, 2D URP. Active architecture: `Signal.Core` (plain C#) + `Signal.Game` (Unity integration). Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
 - Working branch: `chore/collaboration-workflow-and-audit`. Keep `main` untouched.
 - Application version: **0.01**. Save snapshots are deliberately unversioned; there is no schema-version field, version gate or automatic migration chain. Older experimental saves may be incompatible after data-shape changes.
-- Latest user-reported full EditMode result: **478/478 passed (2026-11-25)**, including the P-03 backpack-equipped integration and its two additional Core tests., including B-05 NPC→player directionality, generic agenda integration, contract outcomes and persistence. B-05 is now user-verified.
+- Latest user-reported full EditMode result: **486/486 passed (2026-11-25)**. B-05 social directionality/agenda integration, B-06 repair orders, and P-03 backpack equipment/drop/recovery/fresh-start UI have been user-verified. Newer P-03.4a interaction changes are awaiting a fresh Unity compile/test run.
 - The user reports the First Workshop and B-04 repair/trading loop working in Play Mode. B-06 uses a separate Worn jacket seeded in Milo's inventory for the entrusted-service test.
 
 ## Completed livelihood foundations — B-01 to B-06
@@ -246,3 +246,12 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 - To keep the fresh-start test path usable, a backpack spawned through the debug item spawner auto-equips when no backpack is equipped.
 - Existing save files are deliberately preserved. Loading an older save with F9 may restore its previous inventory contents; this cleanup does not erase player saves.
 - No new tests were added and no Unity compile/EditMode/Play Mode result is claimed. User should verify the new empty start, debug-spawned backpack auto-equip, storage visibility, and dropped-bag recovery.
+
+
+## P-03.4a — Backpack-independent social/mission interactions (2026-11-25)
+- Removed the global no-backpack E/F early return. NPC dialogue, agenda conversations, customer-request review/acceptance, and world navigation are no longer blocked by the absence of a backpack.
+- Added preflight capacity warnings for physical item receipts: repair-order acceptance, shop purchases, searchable-container loot, illicit-exchange Dirty Cash rewards, and production output. These checks run before the transactional service call, preserving money, ownership, inputs and source items on rejection.
+- Retail browsing and container inspection remain available without a backpack. Home-storage transfers and workbench access remain blocked until pocket storage exists, because those flows currently depend on the 8×6 inventory grid.
+- No-backpack HUD no longer overwrites useful NPC/mission prompts with a generic backpack warning.
+- No new tests were added in this subphase. The last user-confirmed suite is 486/486 before these code changes; Unity compile, EditMode rerun and Play Mode checks remain pending.
+- Next: P-03.4b functional three-slot 1×1 pocket storage, persistence, UI and pocket-aware routing. Pockets remain placeholders; do not mark P-03 complete.
