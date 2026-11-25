@@ -7,7 +7,7 @@ Last reconciled: **2026-11-24**. This is the short status board. Session history
 - Unity **6000.6.9f1**, 2D URP. Active architecture: `Signal.Core` (plain C#) + `Signal.Game` (Unity integration). Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
 - Working branch: `chore/collaboration-workflow-and-audit`. Keep `main` untouched.
 - Application version: **0.01**. Save snapshots are deliberately unversioned; there is no schema-version field, version gate or automatic migration chain. Older experimental saves may be incompatible after data-shape changes.
-- Latest user-reported full EditMode result: **434/434 passed (2026-11-24)** after the B-05 social persistence, relationship mutation and test-name/confidence corrections. This result predates the latest customer-contract relationship outcome, inventory icon rendering and survival-pack importer changes; rerun the suite on current HEAD.
+- Latest user-reported full EditMode result: **437/437 passed (2026-11-25)** after the B-05 customer-contract outcome integration and survival-item catalogue/importer work. The two new debug-spawner tests added after that run still require Unity verification.
 - The user reports the First Workshop and repair/trading flow working in Play Mode. The Work Jacket still needs to be acquired through scavenging to complete the repair loop.
 
 ## Active initiative — Direction B: First Workshop and Repair (B-01 to B-04)
@@ -75,7 +75,17 @@ The user approved a shared social foundation for every current and future NPC. R
 - `PlayerRelationshipBook` and its existing save format remain unchanged. Agenda gates/outcomes already read/write that generic player→NPC book; the social encounter system uses the generic NPC→NPC world for all registered residents.
 - Added focused tests for sourced knowledge and directional relationship round-trip, transient journal exclusion, unknown residents, relationship dimensions and non-finite values.
 
-Task specification: `tasks/LIVELIHOOD-B-05-GLOBAL-NPC-AWARENESS-AFFINITY.md`. The user reports **434/434** after B05-01–03. The new customer-outcome integration is implemented but still needs Unity compilation and a fresh full-suite run.
+Task specification: `tasks/LIVELIHOOD-B-05-GLOBAL-NPC-AWARENESS-AFFINITY.md`. The user reports **437/437** after the customer-outcome integration and survival-item importer. The debug-spawner integration and its two new tests are newer and still need Unity compilation and a fresh full-suite run.
+
+
+## Developer debug item spawner
+
+- F1 opens the existing developer debug menu. Its Open item spawner action opens a searchable, scrollable catalogue panel with item icons, category, grid footprint and stack limit.
+- Clicking an entry adds one instance to the real player inventory using that definition's default instance state. The existing inventory capacity/stack rules apply; full inventory returns a visible message and does not silently discard the item.
+- Successful spawns are registered as player-owned through the existing ownership book and are ordinary inventory items, so the existing save/load path handles them.
+- The picker uses the same shared item-definition catalogue as inventory, inspection, shops and containers. That includes the 100 local survival-pack definitions plus definitions referenced by the scene, recipes, contracts, businesses, loot profiles, resident property and special-item fields. Prototype ITEM_A/B/C definitions are included when assigned in the scene's item catalogue.
+- The current GitHub source contains no separate ItemDefinition named Wool. If Wool exists only in a local uncommitted asset, it will appear once added to a source catalogue the session loads; the spawner does not fabricate a duplicate definition.
+- Two focused EditMode tests cover panel binding/open-close and routing a selected definition through the spawn callback. The user's latest 437/437 run predates these tests; expected count is 439 if no other tests are added, but Unity verification is pending.
 
 ## Repository hazards and deferred scope
 
