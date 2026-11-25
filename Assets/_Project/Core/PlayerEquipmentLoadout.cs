@@ -125,11 +125,19 @@ namespace Signal.Core
 
         public bool TryRegister(Guid backpackInstanceId, int width, int height)
         {
-            if (backpackInstanceId == Guid.Empty || width < 1 || height < 1 ||
+            if (width < 1 || height < 1)
+                return false;
+            return TryRegister(backpackInstanceId, new GridInventory(width, height));
+        }
+
+        /// <summary>Attaches an existing grid as this backpack instance's contents without copying items.</summary>
+        public bool TryRegister(Guid backpackInstanceId, GridInventory existingContents)
+        {
+            if (backpackInstanceId == Guid.Empty || existingContents == null ||
                 _contents.ContainsKey(backpackInstanceId))
                 return false;
 
-            _contents.Add(backpackInstanceId, new GridInventory(width, height));
+            _contents.Add(backpackInstanceId, existingContents);
             return true;
         }
 
