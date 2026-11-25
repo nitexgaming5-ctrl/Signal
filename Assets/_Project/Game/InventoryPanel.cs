@@ -56,6 +56,7 @@ namespace Signal.Game
         private Func<EquipmentSlot, bool> _unequipItem;
         private PlayerEquipmentLoadout _equipment;
         private Func<bool> _dropBackpack;
+        private Func<bool> _hasBackpack;
         private Func<bool> _canAccessGrid;
         private readonly List<Text> _equipmentLabels = new List<Text>();
         private Button _dropButton;
@@ -86,7 +87,8 @@ namespace Signal.Game
 
         public void Bind(GridInventory inventory, IReadOnlyList<ItemDefinition> definitions, Action<PlacedItem> inspectItem = null,
             Func<PlacedItem, bool> equipItem = null, Func<EquipmentSlot, bool> unequipItem = null,
-            PlayerEquipmentLoadout equipment = null, Func<bool> dropBackpack = null, Func<bool> canAccessGrid = null)
+            PlayerEquipmentLoadout equipment = null, Func<bool> dropBackpack = null,
+            Func<bool> hasBackpack = null, Func<bool> canAccessGrid = null)
         {
             if (inventory == null)
                 throw new ArgumentNullException(nameof(inventory));
@@ -102,6 +104,7 @@ namespace Signal.Game
             _unequipItem = unequipItem;
             _equipment = equipment;
             _dropBackpack = dropBackpack;
+            _hasBackpack = hasBackpack;
             _canAccessGrid = canAccessGrid;
             _inventory.Changed += OnInventoryChanged;
 
@@ -557,9 +560,9 @@ namespace Signal.Game
                 }
                 _equipmentLabels[i].text = slots[i] + ": " + value;
             }
-            bool hasBackpack = _equipment.TryGet(EquipmentSlot.Accessory1, out EquippedItem accessory) &&
-                _visuals.TryGetValue(accessory.Item.Type.Id, out ItemVisual visualForAccessory) &&
-                string.Equals(visualForAccessory.Label, "Canvas Backpack", StringComparison.OrdinalIgnoreCase);
+            bool hasBackpack = _hasBackpack != null
+                ? _hasBackpack()
+                : _equipment.TryGet(EquipmentSlot.Accessory1, out _);
             if (_dropButton != null) _dropButton.interactable = hasBackpack;
         }
 
