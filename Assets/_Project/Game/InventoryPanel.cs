@@ -206,6 +206,9 @@ namespace Signal.Game
                 }
             }
 
+            if (_canAccessGrid != null && !_canAccessGrid())
+                return;
+
             if (!_dragging && keyboard != null && keyboard.eKey.wasPressedThisFrame && inGrid &&
                 _inventory.TryGetItemAt(hoverX, hoverY, out PlacedItem equipTarget))
             {
