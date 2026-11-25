@@ -1249,7 +1249,7 @@ namespace Signal.Game
                                                _productionTransactions, _customerContracts, _workshopProgression,
                                                _contractReceiverInventory, _contractReceiverActor.Value,
                                                _npcAgendaProgress, _city != null ? _city.SocialWorld : null,
-                                               _customerRepairOrders);
+                                               _customerRepairOrders, _servicePaymentTransactions);
             SearchableContainerSaveMapper.Capture(_searchableContainers, data);
 
             try
@@ -1284,7 +1284,7 @@ namespace Signal.Game
                 _economicAccounts, _retailTransactions, _shopSaleTransactions, _criminalProgression, _crimeOutcomes,
                 _contactInventory, _illicitExchanges, _dirtyCashCleanings,
                 _productionTransactions, _customerContracts, _workshopProgression, _contractReceiverInventory,
-                _npcAgendaProgress, _city != null ? _city.SocialWorld : null, _customerRepairOrders);
+                _npcAgendaProgress, _city != null ? _city.SocialWorld : null, _customerRepairOrders, _servicePaymentTransactions);
             if (!report.Success)
             {
                 Say("Load failed: " + report.Error);
@@ -1321,7 +1321,7 @@ namespace Signal.Game
                 report.SkippedCrimeOutcomes + report.SkippedContactItems +
                 report.SkippedIllicitExchangeTransactions + report.SkippedDirtyCashCleaningTransactions +
                 skippedContainers + report.SkippedProductionTransactions + report.SkippedCustomerContracts +
-                report.SkippedWorkshopUpgradeIds + report.SkippedContractReceiverItems + report.SkippedCustomerRepairOrders +
+                report.SkippedWorkshopUpgradeIds + report.SkippedContractReceiverItems + report.SkippedCustomerRepairOrders + report.SkippedServicePaymentTransactions +
                 report.SkippedNpcAgendaProgress + report.SkippedNpcKnowledge +
                 report.SkippedNpcSocialRelationships + report.SkippedNpcPlayerRelationships > 0
                 ? "Loaded at " + data.worldPlace + ". Some saved item or discovery details could not be restored."
