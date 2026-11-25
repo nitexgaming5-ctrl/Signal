@@ -162,6 +162,26 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void PlayerAccountOverflowRejectsReturnWithoutMovingOrCharging()
+        {
+            var fixture = new Fixture();
+            Assert.That(fixture.Accept().Success, Is.True);
+            Assert.That(fixture.Repair().Success, Is.True);
+            Assert.That(fixture.PlayerAccount.TryCredit(int.MaxValue - 10), Is.True);
+
+            CustomerRepairOrderResult result = fixture.Return();
+
+            Assert.That(result.Status, Is.EqualTo(CustomerRepairOrderStatus.AccountOverflow));
+            Assert.That(fixture.PlayerInventory.TryGetItemInstance(fixture.JacketId, out _), Is.True);
+            Assert.That(fixture.CustomerInventory.TryGetItemInstance(fixture.JacketId, out _), Is.False);
+            Assert.That(fixture.CustomerAccount.Balance, Is.EqualTo(100));
+            Assert.That(fixture.PlayerAccount.Balance, Is.EqualTo(int.MaxValue));
+            Assert.That(fixture.Payments.Count, Is.Zero);
+            Assert.That(fixture.Orders.TryGetState(fixture.OrderId, out CustomerRepairOrderState order), Is.True);
+            Assert.That(order.Phase, Is.EqualTo(CustomerRepairOrderPhase.Active));
+        }
+
+        [Test]
         public void FullCustomerInventoryLeavesEntrustedItemAndPaymentUntouched()
         {
             var fixture = new Fixture();
