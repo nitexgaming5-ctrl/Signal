@@ -32,12 +32,13 @@ namespace Signal.Core
     public sealed class CustomerRepairOrderState
     {
         internal CustomerRepairOrderState(Guid orderId, EconomicActorId issuer,
-            Guid itemDefinitionId, int reward)
+            Guid itemDefinitionId, int reward, ItemCondition requiredReturnCondition)
         {
             OrderId = orderId;
             Issuer = issuer;
             ItemDefinitionId = itemDefinitionId;
             Reward = reward;
+            RequiredReturnCondition = requiredReturnCondition;
             Phase = CustomerRepairOrderPhase.Offered;
         }
 
@@ -45,6 +46,7 @@ namespace Signal.Core
         public EconomicActorId Issuer { get; }
         public Guid ItemDefinitionId { get; }
         public int Reward { get; }
+        public ItemCondition RequiredReturnCondition { get; }
         public CustomerRepairOrderPhase Phase { get; internal set; }
         public Guid ItemInstanceId { get; internal set; }
         public int AcceptedDay { get; internal set; }
@@ -72,12 +74,15 @@ namespace Signal.Core
         }
         public IEnumerable<CustomerRepairOrderState> States => _states.Values;
 
-        public bool TryRegisterOffer(Guid orderId, EconomicActorId issuer, Guid itemDefinitionId, int reward)
+        public bool TryRegisterOffer(Guid orderId, EconomicActorId issuer, Guid itemDefinitionId, int reward,
+            ItemCondition requiredReturnCondition = ItemCondition.Good)
         {
             if (orderId == Guid.Empty || !issuer.IsValid || issuer == EconomicActorId.Player ||
-                itemDefinitionId == Guid.Empty || reward < 1 || _states.ContainsKey(orderId))
+                itemDefinitionId == Guid.Empty || reward < 1 ||
+                (requiredReturnCondition != ItemCondition.Good && requiredReturnCondition != ItemCondition.Pristine) ||
+                _states.ContainsKey(orderId))
                 return false;
-            _states.Add(orderId, new CustomerRepairOrderState(orderId, issuer, itemDefinitionId, reward));
+            _states.Add(orderId, new CustomerRepairOrderState(orderId, issuer, itemDefinitionId, reward, requiredReturnCondition));
             return true;
         }
 
@@ -275,7 +280,10 @@ namespace Signal.Core
                 return Result(CustomerRepairOrderStatus.WrongItem);
             if (!ownership.TryGetOwner(item.ItemInstanceId, out EconomicActorId owner) || owner != order.Issuer)
                 return Result(CustomerRepairOrderStatus.OwnershipMismatch);
-            if (item.State.Condition != ItemCondition.Good && item.State.Condition != ItemCondition.Pristine)
+            bool returnConditionMet = order.RequiredReturnCondition == ItemCondition.Good
+                ? item.State.Condition == ItemCondition.Good || item.State.Condition == ItemCondition.Pristine
+                : item.State.Condition == ItemCondition.Pristine;
+            if (!returnConditionMet)
                 return Result(CustomerRepairOrderStatus.ItemNotRestored);
             if (issuerAccount.Balance < order.Reward)
                 return Result(CustomerRepairOrderStatus.InsufficientFunds);
