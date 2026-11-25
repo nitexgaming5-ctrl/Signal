@@ -1,6 +1,6 @@
 # Progress — current repository truth
 
-Last reconciled: **2026-11-25**. This is the short status board. Session history is in [the November log](progress/LOG-2026-11.md); approved rules and implementation detail live in the linked decision/task documents.
+Last reconciled: **2026-11-26**. This is the short status board. Session history is in [the November log](progress/LOG-2026-11.md); approved rules and implementation detail live in the linked decision/task documents.
 
 ## Project baseline
 
@@ -315,3 +315,13 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 - Pocket dragging remains available without a backpack and while the backpack is dropped. P1/P2 ordinary-search visibility and P3 hidden-pocket exclusion remain unchanged.
 - **Next:** P-03.5 pocket-aware service-panel integration. Audit and support pocket-held items in Retail SELL and Dirty Cash selection first, then home storage and workbench/production inputs and outputs. Preserve atomic transactions and never expose dropped-backpack cargo.
 - Remaining P-03 work also includes wearable overlays constrained by the supplied Body_A art, removal of temporary fresh-session debug loadout seeding, and full Play Mode acceptance. The 500/500 result verifies EditMode tests only; no unreported Play Mode scenario is marked passed.
+
+
+## P-03.5 implementation checkpoint — source changes committed, verification pending (2026-11-26)
+
+- Retail SELL now lists owned accepted stacks across all accessible carried inventories: equipped backpack and P1/P2/P3. Sale execution resolves the actual source inventory by stable item instance ID.
+- Dirty Cash fence and cleaning selection now show pocket-held items separately from backpack cargo and resolve the selected ID against the actual source inventory.
+- Home Storage now lists backpack and pocket contents. STORE uses the exact source grid; TAKE routes through carry-capacity selection, including pockets when the backpack is unavailable or full.
+- Dropped-backpack contents remain excluded because the accessible inventory list includes the backpack only while equipped/accessibly carried, plus the three pockets at all times.
+- These are source changes only. Unity compile, EditMode tests and Play Mode acceptance are pending; do not report the previous 500/500 as verification of this new code.
+- Next: make workbench repair and production consume accessible backpack/pocket inputs and route outputs safely; audit other direct-grid assumptions. Wearable visuals wait for the user's actual sprite assets.
