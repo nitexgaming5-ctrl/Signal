@@ -385,6 +385,7 @@ namespace Signal.Core
         public List<SavedPlayerSkillRank> playerSkillRanks = new List<SavedPlayerSkillRank>();
         public List<SavedPlayerMilestoneAward> playerMilestoneAwards = new List<SavedPlayerMilestoneAward>();
         public List<SavedEquippedItem> equippedItems = new List<SavedEquippedItem>();
+        public SavedEquippedItem droppedBackpack;
         public List<SavedPortableBackpack> portableBackpacks = new List<SavedPortableBackpack>();
     }
 
