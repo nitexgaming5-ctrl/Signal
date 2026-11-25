@@ -232,3 +232,8 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 - Follow-up correction: dropped-backpack mode permits E at authored building/hideout doors and interior exits, and retains the navigation prompt. The temporary gate blocks item interactions, not world transitions.
 
 - HUD follow-up: the initial navigation allowlist matched only five exact door labels, so an authored prompt such as “E Exit building” could still be hidden even though the E interaction worked. Replaced the brittle exact-string list with a case-insensitive E-action check for enter/exit/leave/return wording. Unity verification remains pending.
+
+### P-03 HUD and API cleanup — 2026-11-25
+- Corrected the dropped-backpack HUD path: keep the raw CityBlock world prompt separate from modified nearby-interaction text, recognise transition wording even when the source prompt lacks an E prefix, and display an explicit `E` hint. This addresses the user's report that exiting worked but the HUD did not tell them to press E.
+- Replaced obsolete `FindObjectOfType<EventSystem>()` with `FindAnyObjectByType<EventSystem>()` in InventoryPanel (CS0618 cleanup).
+- User confirms **486/486 EditMode tests passing** after pulling the previous code. Latest cleanup commits are pending Unity recompilation, test rerun and Play Mode confirmation.
