@@ -1,6 +1,6 @@
 # P-02 — Player Attributes & Skills
 
-**Status:** Design prepared; implementation not authorized.
+**Status:** Core progression and debug-panel slice committed; Unity verification pending.
 **Track:** Player Development
 **Dependency:** P-01 establishes the persistent player character profile and composition boundary. P-02 may be developed against the profile contract, but should not duplicate appearance/rendering responsibilities.
 
@@ -113,3 +113,15 @@ Do not serialize ScriptableObject references. Unknown skill/milestone IDs must b
 ## Explicit exclusions
 
 No character classes/backgrounds, automatic use-based skill growth, generic attributes beyond Armor and Heat Protection, final balance values, full equipment loadout, combat/damage implementation, hot-weather systems, cold exposure simulation, weather simulation or NPC skill systems.
+
+
+## Implementation slice committed (2026-11-25)
+
+- Added Core `PlayerAttributeSet` with exactly Armor and Heat Protection, plus a pure `CharacterAttributeCalculator` seam for future equipment modifiers.
+- Added `PlayerSkillBook`, `PlayerSkillProgression`, `PlayerMilestoneLedger` and `PlayerDevelopmentState`. Point spending validates skill IDs, budget and maximum rank. Milestone awards are stable-ID, one-time and reject invalid rewards. Free respecialization returns every allocated point.
+- Added save capture/restore using primitive values and stable IDs only. Unknown skills and invalid/duplicate milestone awards are safely ignored; over-budget malformed ranks are restored deterministically within the available budget.
+- Added an authored `PlayerDevelopmentCatalog` asset. Its current prototype values are **8 starting points, rank cap 5, and 1 point per rank**. Repair, Production, Trading, Scavenging and Social are explicitly flagged provisional and can be edited in the catalog.
+- Added the in-game F2 Player Development debug panel for viewing the two attributes, allocating points and freely resetting allocations. GameSession exposes an idempotent milestone-award entry point for future successful gameplay events.
+- Skill ranks are stored and allocated, but activity-specific gameplay effects are intentionally not invented or wired yet. The final skill catalogue and what each skill modifies still need design/tuning. Equipment modifiers are P-03's responsibility.
+
+**Not yet verified:** Unity compilation, full EditMode suite and F2/F5/F9 Play Mode acceptance. The last user-confirmed baseline was 456/456 before these 11 new tests; expected suite count is now 467, pending Unity execution.
