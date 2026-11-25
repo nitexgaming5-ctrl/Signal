@@ -260,6 +260,8 @@ namespace Signal.Game
             _containerPanel.Bind(_allItemDefinitions, TakeSearchableItem, TakeSearchableItemAt, _itemViewer.Open);
             _storagePanel = gameObject.AddComponent<StoragePanel>();
             _storagePanel.Bind(_inventory, _storage, _allItemDefinitions, _itemViewer.Open, _itemKnowledge);
+            _storagePanel.SetCarriedInventories(GetAccessibleCarryInventories(),
+                item => GetCarryInventory(item.Type, item.Rotated, item.State));
 
             _hud = gameObject.AddComponent<HudPanel>();
             _hud.Bind(_stats, _clock);
@@ -2786,7 +2788,11 @@ namespace Signal.Game
             if (_customerContractPanel != null) _customerContractPanel.SetPlayerInventory(accessible);
             if (_dirtyCashPanel != null)
                 _dirtyCashPanel.SetPlayerInventories(_inventory, GetPocketInventories(), IsBackpackAccessible());
-            if (_retailPanel != null) _retailPanel.SetInventories(GetAccessibleCarryInventories());
+            List<GridInventory> carriedInventories = GetAccessibleCarryInventories();
+            if (_retailPanel != null) _retailPanel.SetInventories(carriedInventories);
+            if (_storagePanel != null)
+                _storagePanel.SetCarriedInventories(carriedInventories,
+                    item => GetCarryInventory(item.Type, item.Rotated, item.State));
         }
 
         private GridInventory GetCarryInventory(ItemType type, bool rotated = false,
