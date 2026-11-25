@@ -253,7 +253,7 @@ namespace Signal.Game
             _panel.Bind(_inventory, _allItemDefinitions, _itemViewer.Open, TryEquipPlayerItem, TryUnequipPlayerSlot,
                 _playerEquipment, DropPlayerBackpack, () => _equippedBackpackInstanceId.HasValue,
                 () => _equippedBackpackInstanceId.HasValue && !_droppedBackpackItem.HasValue,
-                _playerPockets, MoveItemToPocket, MovePocketToBackpack);
+                _playerPockets, MoveItemToPocket, MovePocketToBackpack, EquipPocketItem);
             _debugItemSpawnerPanel = gameObject.AddComponent<DebugItemSpawnerPanel>();
             _debugItemSpawnerPanel.Bind(_allItemDefinitions, SpawnDebugItem);
             _containerPanel = gameObject.AddComponent<SearchableContainerPanel>();
@@ -1510,6 +1510,22 @@ namespace Signal.Game
 
         private bool TryEquipPlayerItem(PlacedItem item)
         {
+            return TryEquipPlayerItem(item, _inventory);
+        }
+
+        private bool EquipPocketItem(int pocketIndex)
+        {
+            if (_playerPockets == null || pocketIndex < 0 || pocketIndex >= PlayerPocketBook.PocketCount)
+                return false;
+
+            GridInventory pocket = _playerPockets.GetPocket(pocketIndex);
+            return pocket.Items.Count > 0 && TryEquipPlayerItem(pocket.Items[0], pocket);
+        }
+
+        private bool TryEquipPlayerItem(PlacedItem item, GridInventory sourceInventory)
+        {
+            if (sourceInventory == null)
+                return false;
             if (_playerEquipment == null || item.ItemInstanceId == Guid.Empty)
                 return false;
 
@@ -1549,7 +1565,7 @@ namespace Signal.Game
                 return false;
             }
 
-            if (!_playerEquipment.TryEquip(_inventory, item.ItemInstanceId, definition.EquipmentSlot,
+            if (!_playerEquipment.TryEquip(sourceInventory, item.ItemInstanceId, definition.EquipmentSlot,
                 definition.ArmorModifier, definition.HeatProtectionModifier))
             {
                 Say("That equipment slot is occupied or the item cannot be equipped.", 3f);
