@@ -985,7 +985,7 @@ namespace Signal.Game
                 return;
             }
 
-            if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
+            if (!workspaceOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
                 !dirtyCashOpen && !contractOpen && !repairOrderOpen && !upgradeOpen && !agendaOpen &&
                 nearDroppedBackpack && keyboard.eKey.wasPressedThisFrame)
             {
@@ -1521,7 +1521,7 @@ namespace Signal.Game
             if (_equippedBackpackInstanceId.HasValue &&
                 equipped.Item.ItemInstanceId == _equippedBackpackInstanceId.Value)
             {
-                Say("The backpack will be removable when physical drop and pickup are implemented.", 4f);
+                Say("Press B or use the Drop Backpack button to remove your backpack.", 4f);
                 return false;
             }
 
