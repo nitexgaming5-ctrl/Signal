@@ -357,7 +357,12 @@ namespace Signal.Game
                 firstCustomerContract.IssuerNpcId,
                 firstCustomerContract.PlayerFamiliarityDelta,
                 firstCustomerContract.PlayerTrustDelta,
-                firstCustomerContract.PlayerAffinityDelta);
+                firstCustomerContract.PlayerAffinityDelta,
+                _city != null ? _city.SocialWorld : null,
+                firstCustomerContract.IssuerNpcId,
+                firstCustomerContract.IssuerFamiliarityDelta,
+                firstCustomerContract.IssuerTrustDelta,
+                firstCustomerContract.IssuerAffinityDelta);
 
             if (result.Success)
                 return "Goods handed over. Received " + result.Reward + " clean CARD.";
