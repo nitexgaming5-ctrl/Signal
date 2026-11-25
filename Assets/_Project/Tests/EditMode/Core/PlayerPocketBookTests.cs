@@ -166,6 +166,71 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void MovesStackDirectlyIntoAnEmptyPocket()
+        {
+            var pockets = new PlayerPocketBook();
+            ItemType type = Item();
+            Guid id = Guid.NewGuid();
+            var state = new ItemInstanceState(ItemQuality.Fine, ItemCondition.Worn,
+                ItemAuthenticity.Genuine, ItemOwnershipStatus.Stolen);
+            Assert.That(pockets.TryAdd(type, id, 3, state, out int source), Is.True);
+            Assert.That(source, Is.EqualTo(0));
+
+            Assert.That(pockets.TryMoveBetweenPockets(0, 2), Is.True);
+            Assert.That(pockets.GetPocket(0).Items, Is.Empty);
+            PlacedItem moved = pockets.GetPocket(2).Items[0];
+            Assert.That(moved.ItemInstanceId, Is.EqualTo(id));
+            Assert.That(moved.Count, Is.EqualTo(3));
+            Assert.That(moved.State, Is.EqualTo(state));
+        }
+
+        [Test]
+        public void SwapsOccupiedPocketsWithoutChangingEitherStack()
+        {
+            var pockets = new PlayerPocketBook();
+            ItemType firstType = Item();
+            ItemType secondType = Item();
+            Guid firstId = Guid.NewGuid();
+            Guid secondId = Guid.NewGuid();
+            var firstState = new ItemInstanceState(ItemQuality.Fine, ItemCondition.Worn,
+                ItemAuthenticity.Genuine, ItemOwnershipStatus.Stolen);
+            var secondState = new ItemInstanceState(ItemQuality.Exceptional, ItemCondition.Damaged,
+                ItemAuthenticity.Counterfeit, ItemOwnershipStatus.Legitimate);
+
+            Assert.That(pockets.TryAdd(firstType, firstId, 2, firstState, out int firstPocket), Is.True);
+            Assert.That(pockets.TryAdd(secondType, secondId, 4, secondState, out int secondPocket), Is.True);
+            Assert.That(firstPocket, Is.EqualTo(0));
+            Assert.That(secondPocket, Is.EqualTo(1));
+
+            Assert.That(pockets.TryMoveBetweenPockets(0, 1), Is.True);
+
+            PlacedItem nowFirst = pockets.GetPocket(0).Items[0];
+            PlacedItem nowSecond = pockets.GetPocket(1).Items[0];
+            Assert.That(nowFirst.ItemInstanceId, Is.EqualTo(secondId));
+            Assert.That(nowFirst.Type, Is.EqualTo(secondType));
+            Assert.That(nowFirst.Count, Is.EqualTo(4));
+            Assert.That(nowFirst.State, Is.EqualTo(secondState));
+            Assert.That(nowSecond.ItemInstanceId, Is.EqualTo(firstId));
+            Assert.That(nowSecond.Type, Is.EqualTo(firstType));
+            Assert.That(nowSecond.Count, Is.EqualTo(2));
+            Assert.That(nowSecond.State, Is.EqualTo(firstState));
+        }
+
+        [Test]
+        public void RejectsInvalidPocketMoveWithoutChangingEitherPocket()
+        {
+            var pockets = new PlayerPocketBook();
+            ItemType type = Item();
+            Guid id = Guid.NewGuid();
+            Assert.That(pockets.TryAdd(type, id, 1, ItemInstanceState.Default, out _), Is.True);
+
+            Assert.That(pockets.TryMoveBetweenPockets(0, 0), Is.False);
+            Assert.That(pockets.TryMoveBetweenPockets(1, 0), Is.False);
+            Assert.That(pockets.GetPocket(0).Items[0].ItemInstanceId, Is.EqualTo(id));
+            Assert.That(pockets.GetPocket(1).Items, Is.Empty);
+        }
+
+        [Test]
         public void MovesPocketItemToExactBackpackDropCell()
         {
             var pockets = new PlayerPocketBook();
