@@ -73,6 +73,7 @@ namespace Signal.Game
         private GridInventory _contactInventory;
         private GridInventory _inventory;
         private GridInventory _storage;
+        private PlayerPocketBook _playerPockets;
         private PlayerEquipmentLoadout _playerEquipment;
         private PortableStorageBook _portableStorage;
         private PortableBackpackWorldBook _backpackWorldBook;
@@ -144,6 +145,7 @@ namespace Signal.Game
         public CrimeOutcomeLedger CrimeOutcomes => _crimeOutcomes;
         public PlayerDevelopmentState PlayerDevelopment => _playerDevelopment;
         public PlayerEquipmentLoadout PlayerEquipment => _playerEquipment;
+        public PlayerPocketBook PlayerPockets => _playerPockets;
         public PortableStorageBook PortableStorage => _portableStorage;
         public bool HasEquippedBackpack => _equippedBackpackInstanceId.HasValue;
 
@@ -161,6 +163,7 @@ namespace Signal.Game
             // the final no-backpack inventory will be reduced to 2-3 personal pockets.
             _inventory = new GridInventory(8, 6);
             _storage = new GridInventory(8, 6);
+            _playerPockets = new PlayerPocketBook();
             _playerEquipment = new PlayerEquipmentLoadout();
             _portableStorage = new PortableStorageBook();
             _backpackWorldBook = new PortableBackpackWorldBook();
@@ -168,6 +171,8 @@ namespace Signal.Game
             _economicTransactions = new EconomicTransactionLedger();
             _economicContainers = new EconomicContainerRegistry();
             _economicContainers.TryRegister(_inventory, EconomicActorId.Player);
+            for (int pocketIndex = 0; pocketIndex < PlayerPocketBook.PocketCount; pocketIndex++)
+                _economicContainers.TryRegister(_playerPockets.GetPocket(pocketIndex), EconomicActorId.Player);
             _economicContainers.TryRegister(_storage, EconomicActorId.Player);
             _assetTransfers = new AssetTransferService(_assetOwnership, _economicContainers, _economicTransactions);
             _economicAccounts = new EconomicAccountBook();
@@ -245,7 +250,8 @@ namespace Signal.Game
             _panel = gameObject.AddComponent<InventoryPanel>();
             _panel.Bind(_inventory, _allItemDefinitions, _itemViewer.Open, TryEquipPlayerItem, TryUnequipPlayerSlot,
                 _playerEquipment, DropPlayerBackpack, () => _equippedBackpackInstanceId.HasValue,
-                () => _equippedBackpackInstanceId.HasValue && !_droppedBackpackItem.HasValue);
+                () => _equippedBackpackInstanceId.HasValue && !_droppedBackpackItem.HasValue,
+                _playerPockets, MoveItemToPocket, MovePocketToBackpack);
             _debugItemSpawnerPanel = gameObject.AddComponent<DebugItemSpawnerPanel>();
             _debugItemSpawnerPanel.Bind(_allItemDefinitions, SpawnDebugItem);
             _containerPanel = gameObject.AddComponent<SearchableContainerPanel>();
@@ -448,12 +454,13 @@ namespace Signal.Game
             if (!IsNearRepairOrderCustomer(_room.PlayerBody.position)) return "Move closer to the customer.";
             if (firstCustomerRepairOrder == null || _contractReceiverInventory == null)
                 return "The repair order is unavailable.";
-            if (!_equippedBackpackInstanceId.HasValue)
-                return "Not enough space to receive the customer's jacket. Equip a backpack first. The order was not accepted.";
+            GridInventory receivingInventory = GetCarryInventory(firstCustomerRepairOrder.EntrustedItem.ToItemType());
+            if (receivingInventory == null)
+                return "Not enough space for the customer's jacket. Your three personal pockets are full or the item is too large. The order was not accepted.";
             if (_customerContracts != null && _customerContracts.HasActiveContract)
                 return "Complete your active customer request before accepting a repair order.";
             CustomerRepairOrderResult result = CustomerRepairOrderService.TryAccept(firstCustomerRepairOrder.Id,
-                firstCustomerRepairOrder.EntrustedItem.ToItemType(), _contractReceiverInventory, _inventory,
+                firstCustomerRepairOrder.EntrustedItem.ToItemType(), _contractReceiverInventory, receivingInventory,
                 _economicContainers, _assetOwnership, _customerRepairOrders, _clock.Day, _clock.MinuteOfDay);
             if (result.Success)
             {
@@ -1743,6 +1750,7 @@ namespace Signal.Game
                                                _npcAgendaProgress, _city != null ? _city.SocialWorld : null,
                                                _customerRepairOrders, _servicePaymentTransactions);
             PlayerDevelopmentSaveMapper.Capture(_playerDevelopment, data);
+            PlayerPocketSaveMapper.Capture(_playerPockets, _assetOwnership, data);
             CaptureEquipment(data);
             if (_droppedBackpackItem.HasValue)
                 data.droppedBackpack = ToSavedEquippedItem(_droppedBackpackItem.Value, _assetOwnership);
@@ -1789,6 +1797,7 @@ namespace Signal.Game
                 return;
             }
             RestoreEquipment(data);
+            int skippedPocketItems = PlayerPocketSaveMapper.Apply(data, _playerPockets, ResolveType, _assetOwnership);
             PortableBackpackWorldSaveMapper.Apply(data, _backpackWorldBook, _portableStorage);
             if (_equippedBackpackInstanceId.HasValue &&
                 !_backpackWorldBook.TryGet(_equippedBackpackInstanceId.Value, out _))
@@ -1826,7 +1835,7 @@ namespace Signal.Game
                 return;
             }
 
-            Say(report.SkippedItems + report.SkippedStorageItems + report.SkippedKnowledgeFacts +
+            Say(report.SkippedItems + report.SkippedStorageItems + skippedPocketItems + report.SkippedKnowledgeFacts +
                 report.SkippedDiscoverySignals + report.SkippedPlayerRelationships +
                 report.SkippedAssetOwners + report.SkippedEconomicTransactions +
                 report.SkippedResidentAccounts + report.SkippedRetailTransactions + report.SkippedShopSaleTransactions +
@@ -1847,8 +1856,6 @@ namespace Signal.Game
 
         private string ExchangeWithContact(Guid selectedItemInstanceId)
         {
-            if (!_equippedBackpackInstanceId.HasValue)
-                return "Not enough space to receive Dirty Cash. Equip a backpack first. Nothing was exchanged.";
             if (!IsNearDirtyCashContact())
                 return "Move closer to the contact.";
             if (dirtyCashContactOffer == null || !dirtyCashContactOffer.TryValidate(out _))
@@ -1859,7 +1866,7 @@ namespace Signal.Game
             int acceptedQuantity = dirtyCashContactOffer.AcceptedQuantity;
             int dirtyCashUnits = dirtyCashContactOffer.DirtyCashUnits;
             ItemType acceptedType = acceptedItem.ToItemType();
-            if (!_inventory.TryGetItemInstance(selectedItemInstanceId, out PlacedItem selected) ||
+            if (!TryGetPlayerItem(selectedItemInstanceId, out GridInventory sourceInventory, out PlacedItem selected) ||
                 selected.Type != acceptedType || selected.Count != acceptedQuantity ||
                 selected.State.Ownership != ItemOwnershipStatus.Stolen ||
                 !_assetOwnership.TryGetOwner(selectedItemInstanceId, out EconomicActorId owner) ||
@@ -1867,10 +1874,14 @@ namespace Signal.Game
                 return "Select one player-owned stolen stack of exactly " + acceptedQuantity + " " +
                     acceptedItem.DisplayName + " items.";
 
-            IllicitExchangeResult result = IllicitExchangeService.TryExchange(_inventory, _contactInventory,
+            GridInventory rewardInventory = sourceInventory == _inventory
+                ? GetCarryInventory(cashItem.ToItemType()) ?? _inventory
+                : sourceInventory;
+            IllicitExchangeResult result = IllicitExchangeService.TryExchange(sourceInventory, _contactInventory,
                 selected.ItemInstanceId, acceptedType, acceptedQuantity, cashItem.ToItemType(),
                 dirtyCashUnits, DirtyCashContactActorId,
-                _assetOwnership, _economicTransactions, _illicitExchanges, _clock.Day, _clock.MinuteOfDay);
+                _assetOwnership, _economicTransactions, _illicitExchanges, _clock.Day, _clock.MinuteOfDay,
+                rewardInventory);
             if (result.Success)
                 return "Exchange complete. Received " + dirtyCashUnits + " Dirty Cash units.";
             switch (result.Status)
@@ -1932,8 +1943,6 @@ namespace Signal.Game
 
         private string PurchaseFromBusiness(BusinessDefinition business, ItemDefinition item)
         {
-            if (!_equippedBackpackInstanceId.HasValue)
-                return "Not enough space to receive this item. Equip a backpack before purchasing. No payment was taken.";
             if (business == null || item == null)
                 return "The business is unavailable.";
             if (!business.TryValidate(out string businessError))
@@ -1948,7 +1957,10 @@ namespace Signal.Game
             if (!_economicAccounts.TryGetAccount(owner, out _))
                 return "The business owner's account is unavailable.";
 
-            RetailPurchaseResult result = _retailService.TryPurchase(business.BusinessId, _inventory,
+            GridInventory receivingInventory = GetCarryInventory(item.ToItemType());
+            if (receivingInventory == null)
+                return "Not enough space. Your personal pockets are full or this item is too large. No payment was taken.";
+            RetailPurchaseResult result = _retailService.TryPurchase(business.BusinessId, receivingInventory,
                 EconomicActorId.Player, owner, item.ToItemType(), item.DefaultInstanceState,
                 1, unitPrice, _clock.Day, _clock.MinuteOfDay);
             if (result.Success)
@@ -2427,12 +2439,6 @@ namespace Signal.Game
         private bool TransferSearchableItem(Guid itemInstanceId, EconomicActorId actor,
             bool positioned, int x, int y, bool rotated)
         {
-            if (!_equippedBackpackInstanceId.HasValue)
-            {
-                Say("Not enough space to take this item. Equip a backpack first. Nothing was transferred.", 4f);
-                return false;
-            }
-
             bool isTheft = _residentPropertyDefinitions.TryGetValue(_activeSearchableContainer.ContainerId,
                 out ResidentPropertyContainerDefinition property);
             string witnessNpcId = null;
@@ -2440,12 +2446,20 @@ namespace Signal.Game
                 property.WitnessRadius, out string nearbyWitness))
                 witnessNpcId = nearbyWitness;
 
-            AssetTransferResult result = positioned
-                ? _assetTransfers.TransferStackAt(_activeSearchableContainer.Inventory, _inventory,
+            if (!_activeSearchableContainer.Inventory.TryGetItemInstance(itemInstanceId, out PlacedItem incoming))
+                return false;
+            GridInventory receivingInventory = GetCarryInventory(incoming.Type);
+            if (receivingInventory == null)
+            {
+                Say("Not enough space. Your personal pockets are full or this item is too large. Nothing was transferred.", 4f);
+                return false;
+            }
+            AssetTransferResult result = positioned && receivingInventory == _inventory
+                ? _assetTransfers.TransferStackAt(_activeSearchableContainer.Inventory, receivingInventory,
                     itemInstanceId, x, y, rotated, actor, EconomicActorId.Player,
                     isTheft ? AssetTransferReason.Theft : AssetTransferReason.Scavenging,
                     _clock.Day, _clock.MinuteOfDay)
-                : _assetTransfers.TransferStack(_activeSearchableContainer.Inventory, _inventory,
+                : _assetTransfers.TransferStack(_activeSearchableContainer.Inventory, receivingInventory,
                     itemInstanceId, actor, EconomicActorId.Player,
                     isTheft ? AssetTransferReason.Theft : AssetTransferReason.Scavenging,
                     _clock.Day, _clock.MinuteOfDay);
