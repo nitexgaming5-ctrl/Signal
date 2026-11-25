@@ -167,3 +167,9 @@ Run this after the current GameSession/world-object integration is pulled and th
 - Next user test: equip → place cargo → B/button drop → confirm grid hidden → E pickup/auto-equip → F5 while dropped → F9 → recover; then repeat F5/F9 while equipped. Check cargo identity/state and ownership throughout.
 
 - Follow-up fix: the first navigation-prompt exception used exact door strings and missed alternate authored wording (for example, “E Exit building”). It now recognizes E-prefixed enter/exit/leave/return prompts case-insensitively, while continuing to suppress item-based prompts when the backpack is dropped. Unity verification is pending.
+
+### HUD exit-prompt and Unity warning follow-up (2026-11-25)
+- User clarified that exiting the building worked while the backpack was dropped, but the HUD did not display the required E instruction. The prior prompt check inspected the modified interaction prompt and required an E prefix, so an authored world prompt such as `Exit building` could be missed.
+- GameSession now preserves the raw CityBlock world-transition prompt separately from nearby interaction overrides. During dropped-backpack mode, the HUD recognises enter/exit/leave/return wording and adds `E` if the authored prompt does not include it. Item-interaction blocking remains unchanged.
+- Replaced obsolete `FindObjectOfType<EventSystem>()` with `FindAnyObjectByType<EventSystem>()` in InventoryPanel to remove CS0618.
+- User reports **486/486 EditMode tests passing** after pulling the previous implementation. The latest prompt/API cleanup commits are newer than that test run; recompile and rerun tests, then verify the visible E exit prompt in Play Mode. No verification of these latest changes is claimed yet.
