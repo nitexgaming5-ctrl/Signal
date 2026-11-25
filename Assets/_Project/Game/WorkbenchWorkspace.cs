@@ -38,6 +38,7 @@ namespace Signal.Game
         private ItemKnowledgeBook _itemKnowledge;
         private Func<bool> _canRepair;
         private Func<Guid, Guid, string> _repair;
+        private Func<Guid, bool> _canRepairTarget;
         private Text _repairDetails;
         private Button _basicRepairButton;
         private Button _reinforcedRepairButton;
@@ -57,7 +58,8 @@ namespace Signal.Game
             IReadOnlyList<RecipeDefinition> recipes, Func<RecipeDefinition, bool> isRecipeUnlocked,
             Func<Guid, string> produce, ItemType? repairTargetType, ItemType? basicPatchKitType,
             ItemType? reinforcedPatchKitType, ItemKnowledgeBook itemKnowledge,
-            Func<bool> canRepair, Func<Guid, Guid, string> repair)
+            Func<bool> canRepair, Func<Guid, Guid, string> repair,
+            Func<Guid, bool> canRepairTarget = null)
         {
             if (inventory == null) throw new ArgumentNullException(nameof(inventory));
             if (ownership == null) throw new ArgumentNullException(nameof(ownership));
@@ -73,6 +75,7 @@ namespace Signal.Game
             _itemKnowledge = itemKnowledge ?? throw new ArgumentNullException(nameof(itemKnowledge));
             _canRepair = canRepair ?? throw new ArgumentNullException(nameof(canRepair));
             _repair = repair ?? throw new ArgumentNullException(nameof(repair));
+            _canRepairTarget = canRepairTarget;
         }
 
         public void Open()
@@ -304,14 +307,14 @@ namespace Signal.Game
                 return;
             }
 
-            bool hasTarget = TryFindOwnedItem(_repairTargetType, out PlacedItem target);
+            bool hasTarget = TryFindRepairTarget(_repairTargetType, out PlacedItem target);
             bool hasBasicKit = TryFindOwnedItem(_basicPatchKitType, out PlacedItem basicKit);
             bool hasReinforcedKit = TryFindOwnedItem(_reinforcedPatchKitType, out PlacedItem reinforcedKit);
             bool stationReady = _canRepair != null && _canRepair();
 
             if (!hasTarget)
             {
-                _repairDetails.text = "TARGET  /  No player-owned Work Jacket in your carried inventory.";
+                _repairDetails.text = "TARGET  /  No eligible Work Jacket in your carried inventory.";
             }
             else
             {
@@ -327,6 +330,23 @@ namespace Signal.Game
 
             _basicRepairButton.interactable = stationReady && hasTarget && hasBasicKit;
             _reinforcedRepairButton.interactable = stationReady && hasTarget && hasReinforcedKit;
+        }
+
+        private bool TryFindRepairTarget(ItemType? type, out PlacedItem item)
+        {
+            item = default;
+            if (!type.HasValue || _inventory == null || _ownership == null) return false;
+            foreach (PlacedItem candidate in _inventory.Items)
+            {
+                if (candidate.Type != type.Value) continue;
+                bool eligible = _canRepairTarget != null
+                    ? _canRepairTarget(candidate.ItemInstanceId)
+                    : _ownership.TryGetOwner(candidate.ItemInstanceId, out EconomicActorId owner) && owner == EconomicActorId.Player;
+                if (!eligible) continue;
+                item = candidate;
+                return true;
+            }
+            return false;
         }
 
         private bool TryFindOwnedItem(ItemType? type, out PlacedItem item)
@@ -357,7 +377,7 @@ namespace Signal.Game
                 RefreshRepair();
                 return;
             }
-            if (!TryFindOwnedItem(_repairTargetType, out PlacedItem target))
+            if (!TryFindRepairTarget(_repairTargetType, out PlacedItem target))
             {
                 SelectStatus("Bring a Work Jacket that you own to the workbench.");
                 RefreshRepair();
