@@ -23,8 +23,8 @@ Detailed game identity and reference-game intent: `VISION.md`.
 - Inventory transfers move whole stacks in the current system. Partial sale is a separate explicit operation; general split-stack support is not implied.
 - Player knowledge is partial and sourced. The item viewer must not reveal hidden state that the player has not learned.
 - Item reference value is not a shop price. Buy/sell prices are authored per business/offer.
-- Final carried-inventory direction: without a backpack, the player has only 2–3 small personal pockets. When equipped, the backpack provides the existing large tabbed grid; dropping it means the player loses access to that grid until the same backpack is recovered. Backpack contents remain physically attached to the backpack instance.
-- The current 8×6 player grid is temporary test scaffolding while the equipped-backpack loop is built; it is not the final no-backpack capacity.
+- Final carried-inventory direction: without a backpack, the player has exactly three small personal pockets. Each pocket is a 1×1 slot that can hold one stack of a 1×1 item. With a backpack equipped, the backpack provides the large tabbed grid while the pockets remain separate and available. Dropping the backpack removes access to its grid until that same bag is recovered; pocket contents remain with the player.
+- The current 8×6 grid is the backpack's contents, not free starting capacity. The three personal pockets are real independent storage and remain accessible while the backpack is dropped.
 
 ## NPCs, social knowledge and discovery
 
@@ -140,3 +140,12 @@ Detailed specifications: `tasks/PLAYER-P-01-CHARACTER-FOUNDATION-APPEARANCE.md`,
 ## Player Development implementation status (2026-11-25)
 
 The first P-01/P-02 implementation slice is committed but awaits Unity import/compile/test/Play Mode verification. P-01 adds a modular Body_A renderer and a Unity ZIP importer. P-02 adds the two-attribute Core model, point-based skill ranks, one-time milestone ledger, free respecialization, save mapping, a provisional authored catalog and an F2 debug panel. Prototype tuning (8 starting points, rank cap 5, one point per rank) and the five candidate skills remain provisional. No activity-specific skill effects or equipment loadout are implemented in this slice.
+
+
+### Personal pockets and backpack-independent participation (P-03.4b)
+- The player can talk to residents, accept/discuss jobs and missions, and use normal city interactions without a backpack.
+- Three persistent 1×1 pockets provide minimal carried capacity. Each holds one stack of one 1×1 item; larger footprints require backpack storage.
+- Pockets remain accessible while the backpack is dropped. The dropped bag retains its own inaccessible 8×6 cargo until recovered.
+- The character inventory UI shows the actual contents of each pocket. Hover a 1×1 backpack item and press P to move it to the first free pocket; click an occupied pocket to move its stack back into the equipped backpack when space is available.
+- Physical item receipts should select available backpack or pocket capacity before committing a transaction. If no suitable space exists, show a clear warning and leave payment, source items, ownership and mission state unchanged.
+- This slice routes repair-order acceptance, retail purchases, searchable-container pickups, Dirty Cash exchange output and Milo's parcel into pocket capacity when appropriate. Some older item workflows, notably home-storage/workbench and panels bound directly to the backpack grid, still need follow-up integration.
