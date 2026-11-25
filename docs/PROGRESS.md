@@ -7,7 +7,7 @@ Last reconciled: **2026-11-25**. This is the short status board. Session history
 - Unity **6000.6.9f1**, 2D URP. Active architecture: `Signal.Core` (plain C#) + `Signal.Game` (Unity integration). Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
 - Working branch: `chore/collaboration-workflow-and-audit`. Keep `main` untouched.
 - Application version: **0.01**. Save snapshots are deliberately unversioned; there is no schema-version field, version gate or automatic migration chain. Older experimental saves may be incompatible after data-shape changes.
-- Latest user-reported full EditMode result: **439/439 passed (2026-11-25)**, including the debug item spawner and its EditMode cleanup fix. The latest B-05 NPC→player relationship work adds three focused tests; these still require a fresh Unity run (expected 442/442 if no other tests changed).
+- Latest user-reported full EditMode result: **439/439 passed (2026-11-25)**, including the debug item spawner and its EditMode cleanup fix. The latest B-05 NPC→player and agenda integration work adds six focused tests; these still require a fresh Unity run (expected 445/445 if no other tests changed).
 - The user reports the First Workshop and repair/trading flow working in Play Mode. The Work Jacket still needs to be acquired through scavenging to complete the repair loop.
 
 ## Active initiative — Direction B: First Workshop and Repair (B-01 to B-04)
@@ -50,7 +50,7 @@ Specialist references: [Architecture](ARCHITECTURE.md), [Data Model](DATA_MODEL.
 
 ## Current verification and next action
 
-**EditMode:** the user reports **439/439 passed** on the item-spawner fix. The latest B-05 NPC→player relationship implementation adds three focused tests and has not yet been run in Unity; rerun the full suite on current HEAD.
+**EditMode:** the user reports **439/439 passed** on the item-spawner fix. The latest B-05 NPC→player and agenda relationship implementation adds six focused tests and has not yet been run in Unity; rerun the full suite on current HEAD.
 
 **Play Mode:** the user reports the First Workshop and repair/trading features work well. The Work Jacket was not found in scavenging, so its loot availability is being made deterministic for testing.
 
@@ -78,9 +78,10 @@ Relationship ownership is explicitly directional:
 - New independent NPC→player opinion with neutral per-NPC default and validated get/set/adjust APIs.
 - F5/F9 persistence for NPC→player opinion, validated against registered stable NPC IDs and finite bounded values. Restore clears prior timeline state and rebuilds the transient event journal/presence separately.
 - Customer contracts now support authored outcomes in both directions: player→issuer through PlayerRelationshipBook and issuer→player through the issuer's own NpcAgentState. Both apply only after successful goods transfer, payment and contract completion; replay cannot award twice.
-- Added tests for independent directionality, persistence round-trip, contract success/replay and target validation. These latest tests have not run in Unity.
+- Generic agenda stages can gate on either relationship perspective, and agenda choices can award one-time outcomes in either direction. GameSession passes the shared NpcSocialWorld to the generic director; repeatable choices are forbidden from applying relationship deltas.
+- Added tests for independent directionality, persistence round-trip, contract success/replay/target validation, agenda gates/outcomes and repeatable-choice safeguards. These latest tests have not run in Unity.
 
-The user reports **439/439** after the debug item spawner fix. The latest slice adds three tests, so expect **442/442** if no other test files changed. Do not claim that result until the user runs the Unity suite.
+The user reports **439/439** after the debug item spawner fix. The latest B-05 slices add six tests, so expect **445/445** if no other test files changed. Do not claim that result until the user runs the Unity suite.
 
 Task specification: `tasks/LIVELIHOOD-B-05-GLOBAL-NPC-AWARENESS-AFFINITY.md`.
 
