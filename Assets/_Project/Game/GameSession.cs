@@ -1994,7 +1994,8 @@ namespace Signal.Game
             if (!_economicAccounts.TryGetAccount(owner, out _))
                 return "The business owner's account is unavailable.";
 
-            GridInventory receivingInventory = GetCarryInventory(item.ToItemType());
+            GridInventory receivingInventory = GetCarryInventory(item.ToItemType(), false,
+                item.DefaultInstanceState, allowStackTopUp: true);
             if (receivingInventory == null)
                 return "Not enough space. Your personal pockets are full or this item is too large. No payment was taken.";
             RetailPurchaseResult result = _retailService.TryPurchase(business.BusinessId, receivingInventory,
@@ -2600,22 +2601,31 @@ namespace Signal.Game
             if (_retailPanel != null) _retailPanel.SetInventory(accessible);
         }
 
-        private GridInventory GetCarryInventory(ItemType type, bool rotated = false)
+        private GridInventory GetCarryInventory(ItemType type, bool rotated = false,
+            ItemInstanceState? state = null, bool allowStackTopUp = false)
         {
             if (_equippedBackpackInstanceId.HasValue && !_droppedBackpackItem.HasValue &&
-                CanReceiveOneStack(_inventory, type, rotated))
+                CanReceiveOneStack(_inventory, type, rotated, state, allowStackTopUp))
                 return _inventory;
             return _playerPockets != null &&
                 _playerPockets.TryFindAvailablePocket(type, out _, out GridInventory pocket, rotated)
                 ? pocket : null;
         }
 
-        private static bool CanReceiveOneStack(GridInventory inventory, ItemType type, bool rotated)
+        private bool CanReceiveOneStack(GridInventory inventory, ItemType type, bool rotated,
+            ItemInstanceState? state, bool allowStackTopUp)
         {
             if (inventory == null) return false;
             for (int y = 0; y < inventory.Height; y++)
                 for (int x = 0; x < inventory.Width; x++)
                     if (inventory.CanPlace(type, x, y, rotated))
+                        return true;
+            if (allowStackTopUp && state.HasValue)
+                foreach (PlacedItem existing in inventory.Items)
+                    if (existing.Type == type && existing.State == state.Value &&
+                        existing.Count < type.MaxStack &&
+                        _assetOwnership.TryGetOwner(existing.ItemInstanceId, out EconomicActorId owner) &&
+                        owner == EconomicActorId.Player)
                         return true;
             return false;
         }
