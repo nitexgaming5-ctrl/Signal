@@ -42,12 +42,24 @@ namespace Signal.Core
             EconomicContainerRegistry containers, AssetOwnershipBook ownership,
             ItemKnowledgeBook knowledge, int day, int minuteOfDay)
         {
+            return TryRepairForOwner(targetInstanceId, kitInstanceId, targetType, basicKitType,
+                reinforcedKitType, inventory, operatorActor, operatorActor, containers, ownership,
+                knowledge, day, minuteOfDay);
+        }
+
+        /// <summary>Repairs a carried item while preserving its registered owner's identity.</summary>
+        public static RepairResult TryRepairForOwner(Guid targetInstanceId, Guid kitInstanceId,
+            ItemType targetType, ItemType basicKitType, ItemType reinforcedKitType,
+            GridInventory inventory, EconomicActorId operatorActor, EconomicActorId targetOwner,
+            EconomicContainerRegistry containers, AssetOwnershipBook ownership,
+            ItemKnowledgeBook knowledge, int day, int minuteOfDay)
+        {
             if (targetInstanceId == Guid.Empty || kitInstanceId == Guid.Empty || targetInstanceId == kitInstanceId ||
                 !IsValid(targetType) || !IsValid(basicKitType) || !IsValid(reinforcedKitType) ||
                 targetType.Id == basicKitType.Id || targetType.Id == reinforcedKitType.Id ||
                 basicKitType.Id == reinforcedKitType.Id || targetType.MaxStack != 1 ||
                 basicKitType.MaxStack != 1 || reinforcedKitType.MaxStack != 1 ||
-                inventory == null || operatorActor != EconomicActorId.Player || containers == null ||
+                inventory == null || operatorActor != EconomicActorId.Player || !targetOwner.IsValid || containers == null ||
                 ownership == null || knowledge == null || day < 1 || minuteOfDay < 0 || minuteOfDay >= 1440)
                 return new RepairResult(RepairStatus.InvalidRequest);
 
@@ -66,7 +78,7 @@ namespace Signal.Core
             if ((!isBasicKit && !isReinforcedKit) || kit.Count != 1 || kit.Type.MaxStack != 1)
                 return new RepairResult(RepairStatus.UnsupportedKit);
 
-            if (!ownership.TryGetOwner(targetInstanceId, out EconomicActorId targetOwner) || targetOwner != operatorActor ||
+            if (!ownership.TryGetOwner(targetInstanceId, out EconomicActorId registeredTargetOwner) || registeredTargetOwner != targetOwner ||
                 !ownership.TryGetOwner(kitInstanceId, out EconomicActorId kitOwner) || kitOwner != operatorActor)
                 return new RepairResult(RepairStatus.OwnershipMismatch);
 
