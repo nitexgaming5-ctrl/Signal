@@ -333,7 +333,7 @@ namespace Signal.Game
             {
                 if (!_customerRepairOrders.TryRegisterOffer(firstCustomerRepairOrder.Id,
                     firstCustomerRepairOrder.IssuerActor, firstCustomerRepairOrder.EntrustedItem.ToItemType().Id,
-                    firstCustomerRepairOrder.CleanCardReward))
+                    firstCustomerRepairOrder.CleanCardReward, firstCustomerRepairOrder.RequiredReturnCondition))
                     Debug.LogError("GameSession: the first customer repair order could not be registered.");
                 EnsureCustomerRepairItem();
             }
