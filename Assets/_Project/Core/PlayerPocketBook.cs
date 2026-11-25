@@ -144,7 +144,7 @@ namespace Signal.Core
             foreach (SavedPocketItem saved in data.pocketItems)
             {
                 if (saved == null || saved.pocketIndex < 0 || saved.pocketIndex >= PlayerPocketBook.PocketCount ||
-                    !restoredSlots.Add(saved.pocketIndex) || !Guid.TryParse(saved.typeId, out Guid typeId) ||
+                    restoredSlots.Contains(saved.pocketIndex) || !Guid.TryParse(saved.typeId, out Guid typeId) ||
                     !Guid.TryParse(saved.instanceId, out Guid instanceId) || instanceId == Guid.Empty)
                 { skipped++; continue; }
 
@@ -163,6 +163,7 @@ namespace Signal.Core
                 if (!type.HasValue || type.Value.Width != 1 || type.Value.Height != 1 ||
                     !pockets.GetPocket(saved.pocketIndex).Place(type.Value, 0, 0, false, saved.count, instanceId, state).HasValue)
                 { skipped++; continue; }
+                restoredSlots.Add(saved.pocketIndex);
                 if (ownership != null && !ownership.TryRegister(instanceId, owner))
                     skipped++;
             }
