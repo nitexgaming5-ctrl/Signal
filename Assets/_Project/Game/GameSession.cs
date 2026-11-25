@@ -940,10 +940,12 @@ namespace Signal.Game
                 _hud.SetPrompt("ESC  Back to room");
             else if (storageOpen)
                 _hud.SetPrompt("ESC  Close storage");
-            else if (inventoryOpen)
-                _hud.SetPrompt("B  Drop backpack");
             else if (nearDroppedBackpack)
                 _hud.SetPrompt("E  Pick up backpack");
+            else if (inventoryOpen && _equippedBackpackInstanceId.HasValue)
+                _hud.SetPrompt("B  Drop backpack");
+            else if (inventoryOpen)
+                _hud.SetPrompt(string.Empty);
             else if (hasScenarioPrompt && !nearSearchableContainer && !nearDirtyCashContact &&
                 !nearContractCustomer && !nearUpgradeSupplier)
                 _hud.SetPrompt(cityPrompt);
