@@ -977,6 +977,22 @@ namespace Signal.Game
                 }
             }
 
+            if (keyboard.bKey.wasPressedThisFrame && _equippedBackpackInstanceId.HasValue &&
+                !workspaceOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
+                !dirtyCashOpen && !contractOpen && !repairOrderOpen && !upgradeOpen && !agendaOpen)
+            {
+                DropPlayerBackpack();
+                return;
+            }
+
+            if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
+                !dirtyCashOpen && !contractOpen && !repairOrderOpen && !upgradeOpen && !agendaOpen &&
+                nearDroppedBackpack && keyboard.eKey.wasPressedThisFrame)
+            {
+                RecoverDroppedBackpack(nearbyBackpackId);
+                return;
+            }
+
             if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
                 !dirtyCashOpen && !contractOpen && !repairOrderOpen && !upgradeOpen && !agendaOpen &&
                 nearRepairOrderCustomer && keyboard.fKey.wasPressedThisFrame)
@@ -1438,7 +1454,16 @@ namespace Signal.Game
                     ? _room.Player.GetComponent<PlayerCharacterVisual>() : null;
                 if (visual != null)
                     visual.SetBackpackEquipped(true);
-                Say("Backpack equipped. Your expanded inventory is now carried inside it.", 5f);
+                if (!_backpackWorldBook.TryRegisterEquipped(item.ItemInstanceId, _portableStorage))
+                {
+                    _equippedBackpackInstanceId = null;
+                    _portableStorage.TryUnregister(item.ItemInstanceId);
+                    _playerEquipment.TryUnequip(_inventory, definition.EquipmentSlot);
+                    if (visual != null) visual.SetBackpackEquipped(false);
+                    Say("Backpack world state could not be registered. Nothing was changed.", 4f);
+                    return false;
+                }
+                Say("Backpack equipped. Press B or use the inventory button to drop it.", 5f);
             }
             else
             {
