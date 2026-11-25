@@ -1,6 +1,6 @@
 # P-03 — Equipment, Wearables & Portable Backpack
 
-**Status:** Core foundation and backpack-equipped Game integration verified by the user at 478/478 EditMode tests. Physical backpack drop/pickup remains the next sub-phase.
+**Status:** Equipped-backpack integration verified by the user at 478/478. P-03.3 Core world-state foundation committed with seven focused tests; Unity verification pending. Physical Game drop/pickup and pocket switching remain the next integration work.
 **Track:** Player Development
 **Dependency:** P-01 modular player visual and P-02 Armor/Heat Protection modifier contract.
 
@@ -62,10 +62,18 @@ Accessory slots are generic. Do not reserve all three for hardcoded item categor
 - F5/F9 now capture/restore equipped item identity, type, slot, modifiers, item state, owner actor and backpack association. The current grid's items were already handled by the existing inventory save path.
 - A provisional backpack silhouette is shown behind the character when equipped; this is a placeholder, not final backpack art.
 
+### P-03.3 Core lifecycle foundation (2026-11-25)
+
+- Added `PortableBackpackWorldBook`, which records each registered backpack as Equipped or Dropped and stores the dropped world coordinates.
+- Registration requires an existing `PortableStorageBook` contents grid keyed by the exact same backpack instance ID. Drop/recover transitions never copy, clear or reassign the contents grid.
+- Added `SavedPortableBackpack` and `PortableBackpackWorldSaveMapper` for serializing/restoring world state. Restore rejects malformed IDs, duplicate records, invalid statuses, non-finite coordinates and backpacks whose contents identity is unavailable.
+- Added seven focused EditMode tests for registration preconditions, exact identity/content continuity, valid/invalid transitions, duplicate registration, dropped position save/restore, malformed records and equipped-coordinate normalization.
+- This is a Core data/persistence foundation only. It is not yet wired into GameSession, world object spawning, interaction, inventory access switching or F5/F9 orchestration. Do not describe physical drop/pickup as playable yet.
+
 ### Remaining integration
 - Enforce 2–3 personal pockets when no backpack is equipped and make the 8×6 grid accessible only through the backpack.
 - Add a dedicated equipment/loadout presentation with drag/drop and readable slot state.
-- Implement physical backpack drop/pickup using the existing world-container and custody authorities. Preserve the exact backpack ID and contents; do not create a parallel loot-container system.
+- Wire the new Core world-state book into GameSession and F5/F9 orchestration; instantiate a physical dropped-bag world object at the saved position and recover the same item instance through interaction. Reuse the existing custody/ownership authority; do not create a parallel loot-container system.
 - Add actual wearable sprite overlays for head/torso/legs/feet and equipment variants. The supplied Body_A pack is only a base body; do not invent a full wardrobe from missing sprites.
 - Author more clothing/armor content after the core loop is validated.
 
