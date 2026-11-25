@@ -75,3 +75,5 @@ Committed but not yet Unity-verified:
 ### Dropped-storage access rule
 
 - While the bag is dropped, item-driven E/F interactions are temporarily blocked so workbench/shop/container flows cannot access the backpack's still-registered 8×6 grid. World navigation remains available: E at building/hideout doors and exits still transitions locations, with the matching HUD prompt. Movement, pickup, F5/F9 and sleep remain available. Replace this conservative gate with pocket-aware inventory routing when the real pocket inventory is implemented.
+
+- HUD prompt follow-up: the exact-string door allowlist missed alternate wording such as “E Exit building”. `IsWorldTransitionPrompt` now recognizes E-prefixed enter/exit/leave/return prompts case-insensitively. This corrects prompt visibility without allowing item-based interactions while the backpack is dropped. Unity verification is pending.
