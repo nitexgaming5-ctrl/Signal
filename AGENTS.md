@@ -10,7 +10,7 @@ Signal is a top-down 2D urban RPG built around one connected city, a lived-in hi
 - Active architecture: `Signal.Core` (plain C#, no UnityEngine) + `Signal.Game` (Unity integration, UI and authored ScriptableObjects).
 - Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
 - Working branch: `chore/collaboration-workflow-and-audit`; keep `main` untouched.
-- Latest user-reported full EditMode run: **417/417 passed on 2026-11-24**, before the hybrid buyback runtime/test additions in commit `7914355`. This is the last verified baseline, not verification of current HEAD; a fresh full suite is required.
+- Latest user-reported full EditMode run: **456/456 passed on 2026-11-25**. The user also confirmed B-06's in-game acceptance/repair/return-payment loop. Treat this as the current verified baseline; require fresh Unity verification after subsequent gameplay changes.
 - `Assets/_Project/_Prototype/` and `Main.unity` are legacy reference only; do not extend the old architecture.
 
 ## How to understand the project
