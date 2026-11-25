@@ -151,3 +151,10 @@ P-03 still owns actual clothing/armor item slots, physical item identity/custody
 - `GameSession` captures/restores equipped items alongside the existing `GridInventory` save path. The current backpack implementation binds the existing 8×6 player grid to the backpack instance ID without copying; this keeps current contents intact and avoids a parallel inventory representation.
 - Temporary test grid is 8×6. Final no-backpack state is approved as 2–3 personal pockets; restriction and active-grid switching await the physical backpack drop/pickup slice.
 - Prototype item assets: Canvas Backpack (Accessory 1), Padded Work Jacket (Armor +2, Heat Protection +1), Insulated Coat (Armor +0, Heat Protection +3). Modifiers are test fixtures only.
+
+## Backpack physical world state — P-03.3
+
+- `PortableBackpackWorldBook` maps a stable backpack item instance ID to Equipped or Dropped state and a world position. It requires the corresponding `PortableStorageBook` contents registration; drop/recovery transitions do not replace the contents grid.
+- `SavedPortableBackpack` persists world state and dropped coordinates. `SavedEquippedItem` persists an equipped backpack; `SaveData.droppedBackpack` preserves the exact item identity, definition, owner, slot, modifiers and item condition/state while the item is outside the loadout.
+- `PortableBackpackWorldSaveMapper` captures/restores world state after the backpack contents grid is reattached. GameSession recreates a placeholder world visual for dropped state and E recovery restores the same item to Accessory 1.
+- Current implementation uses the existing 8×6 player grid as backpack contents. The character sidebar's three pocket cells are visual placeholders; a separate functional pocket inventory and full item-system access gating while dropped remain outstanding.
