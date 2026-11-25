@@ -134,3 +134,11 @@ The current authored Game catalog is a prototype: 8 starting points, maximum ran
 - RoomBootstrap retains Rigidbody2D/PlayerMotor2D and falls back to the existing teal placeholder if required sheets are not imported.
 
 P-03 still owns actual clothing/armor item slots, physical item identity/custody, equipment modifiers and wearable appearance. The supplied pack has one modular base body and is not a complete wardrobe.
+
+
+## Player equipment and portable storage — P-03 first slice
+
+- EquipmentSlot defines the seven approved slots: Head, Torso, Legs, Feet and Accessory1–3. All accessory slots are generic; backpacks are compatible accessories, not a hardcoded exclusive slot.
+- EquippedItem retains the exact PlacedItem and authored Armor/Heat Protection modifiers. PlayerEquipmentLoadout transfers exact single item instances between GridInventory and a slot, rejects duplicate identity/occupied slots, and aggregates effective attributes. It does not change AssetOwnershipBook.
+- PortableStorageBook maps a stable backpack item instance GUID to its own GridInventory. Contents are attached to the physical backpack identity rather than to the player or equipment slot.
+- GameSession integration, SaveData DTOs, visual wearables, UI and world drop/pickup are still pending. The world representation must reuse existing economic/container custody authorities and preserve the same backpack identity and nested contents.
