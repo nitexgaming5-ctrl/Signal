@@ -198,6 +198,72 @@ namespace Signal.Game.Tests
         }
 
         [Test]
+        public void AgendaRelationshipGateCanReadNpcOpinionOfPlayer()
+        {
+            NpcAgendaDefinition agenda = CreateAgenda("resident", "opinion-gate", "trusted",
+                Choice("continue", NpcAgendaChoiceAction.DialogueOnly));
+            NpcAgendaStageDefinition stage = agenda.Threads[0].Stages[0];
+            stage.RequireRelationshipThresholds = true;
+            stage.RelationshipPerspective = NpcAgendaRelationshipPerspective.NpcToPlayer;
+            stage.MinimumFamiliarity = 0.3f;
+            stage.MinimumTrust = 0.6f;
+            stage.MinimumAffinity = -0.2f;
+
+            var socialWorld = new NpcSocialWorld();
+            socialWorld.RegisterNpc("resident", "Street", 0f, 0f, 8f);
+            var director = new NpcAgendaInteractionDirector(new[] { agenda },
+                new NpcAgendaProgressBook(), new PlayerDiscoveryLedger(), new PlayerRelationshipBook(),
+                _ => false, _ => false, (_, __) => false, _ => true, () => 1, () => 600, socialWorld);
+
+            Assert.That(director.TryGetNextStage("resident", NpcActivity.Socialize, "Street", out _, out _), Is.False);
+            socialWorld.SetPlayerRelationship("resident", new NpcRelationship(0.4f, 0.7f, 0f));
+            Assert.That(director.TryGetNextStage("resident", NpcActivity.Socialize, "Street", out _, out _), Is.True);
+        }
+
+        [Test]
+        public void AgendaChoiceCanChangeNpcOpinionOfPlayerWithoutChangingPlayerOpinion()
+        {
+            NpcAgendaChoiceDefinition choice = Choice("help", NpcAgendaChoiceAction.DialogueOnly);
+            choice.RelationshipOutcomePerspective = NpcAgendaRelationshipPerspective.NpcToPlayer;
+            choice.FamiliarityDelta = 0.2f;
+            choice.TrustDelta = 0.1f;
+            choice.AffinityDelta = 0.3f;
+            NpcAgendaDefinition agenda = CreateAgenda("resident", "opinion-outcome", "help", choice);
+
+            var socialWorld = new NpcSocialWorld();
+            socialWorld.RegisterNpc("resident", "Street", 0f, 0f, 8f);
+            var playerRelationships = new PlayerRelationshipBook();
+            var director = new NpcAgendaInteractionDirector(new[] { agenda },
+                new NpcAgendaProgressBook(), new PlayerDiscoveryLedger(), playerRelationships,
+                _ => false, _ => false, (_, __) => false, _ => true, () => 1, () => 600, socialWorld);
+
+            Assert.That(director.TryChoose("resident", "opinion-outcome", "help", "help",
+                out _, out bool completed), Is.True);
+            Assert.That(completed, Is.True);
+            Assert.That(socialWorld.GetPlayerRelationship("resident").Familiarity,
+                Is.EqualTo(0.2f).Within(0.0001f));
+            Assert.That(socialWorld.GetPlayerRelationship("resident").Trust,
+                Is.EqualTo(0.6f).Within(0.0001f));
+            Assert.That(socialWorld.GetPlayerRelationship("resident").Affinity,
+                Is.EqualTo(0.3f).Within(0.0001f));
+            Assert.That(playerRelationships.Get("resident").Familiarity, Is.Zero);
+        }
+
+        [Test]
+        public void NpcOpinionAgendaRulesFailClosedWithoutRegisteredSocialWorldActor()
+        {
+            NpcAgendaDefinition agenda = CreateAgenda("resident", "opinion-gate", "trusted",
+                Choice("continue", NpcAgendaChoiceAction.DialogueOnly));
+            NpcAgendaStageDefinition stage = agenda.Threads[0].Stages[0];
+            stage.RequireRelationshipThresholds = true;
+            stage.RelationshipPerspective = NpcAgendaRelationshipPerspective.NpcToPlayer;
+            var director = CreateDirector(new[] { agenda }, new NpcAgendaProgressBook(),
+                new PlayerDiscoveryLedger(), new PlayerRelationshipBook());
+
+            Assert.That(director.TryGetNextStage("resident", NpcActivity.Socialize, "Street", out _, out _), Is.False);
+        }
+
+        [Test]
         public void AgendaValidationRejectsDuplicateIdsAndIncompleteTypedOutcomes()
         {
             NpcAgendaDefinition agenda = CreateAgenda("rhea", "duplicate", "stage",
