@@ -379,7 +379,7 @@ namespace Signal.Game
             }
             if (!TryFindRepairTarget(_repairTargetType, out PlacedItem target))
             {
-                SelectStatus("Bring a Work Jacket that you own to the workbench.");
+                SelectStatus("Bring an eligible Work Jacket that you own or have been entrusted with.");
                 RefreshRepair();
                 return;
             }
