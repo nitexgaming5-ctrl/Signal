@@ -22,6 +22,26 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void OrdinarySearchSeesP1AndP2ButNeverHiddenP3()
+        {
+            var pockets = new PlayerPocketBook();
+            ItemType type = Item();
+            Assert.That(pockets.TryAdd(type, Guid.NewGuid(), 1, ItemInstanceState.Default, out int first), Is.True);
+            Assert.That(first, Is.EqualTo(0));
+            Assert.That(pockets.TryAdd(type, Guid.NewGuid(), 1, ItemInstanceState.Default, out int second), Is.True);
+            Assert.That(second, Is.EqualTo(1));
+            Assert.That(pockets.TryAdd(type, Guid.NewGuid(), 1, ItemInstanceState.Default, out int hidden), Is.True);
+            Assert.That(hidden, Is.EqualTo(PlayerPocketBook.HiddenPocketIndex));
+
+            Assert.That(pockets.IsExposedToOrdinarySearch(0), Is.True);
+            Assert.That(pockets.IsExposedToOrdinarySearch(1), Is.True);
+            Assert.That(pockets.IsExposedToOrdinarySearch(2), Is.False);
+            Assert.That(pockets.GetItemsVisibleToOrdinarySearch().Count, Is.EqualTo(2));
+            Assert.That(pockets.GetItemsVisibleToOrdinarySearch().Exists(
+                item => item.ItemInstanceId == pockets.GetPocket(2).Items[0].ItemInstanceId), Is.False);
+        }
+
+        [Test]
         public void FindsFirstEmptyPocketOnlyForOneByOneItems()
         {
             var pockets = new PlayerPocketBook();
