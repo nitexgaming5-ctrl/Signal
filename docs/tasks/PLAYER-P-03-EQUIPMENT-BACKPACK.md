@@ -268,3 +268,13 @@ Implement three actual 1×1 personal pocket slots, separate from the backpack's 
 - Pocket item visuals use the matching ItemDefinition icon when available, with a text fallback when no icon is authored.
 - Added Core coverage for ordinary-search visibility and hidden-pocket exclusion. New tests are pending Unity execution.
 - Important integration boundary: the current project does not yet have a complete police-search/confiscation flow. The new visibility API is the canonical rule for routine-search enumeration; when the police-search system is implemented, it must use this API rather than scanning all three pocket inventories directly.
+
+
+## Direct pocket-to-pocket transfers (2026-11-26)
+
+- InventoryPanel now allows dragging an occupied pocket directly onto another pocket, whether or not a backpack is equipped.
+- Dropping onto an empty pocket moves the complete stack. Dropping onto an occupied pocket swaps both complete stacks.
+- Core validates distinct pocket indices and the existing one-cell/unrotated item contract. Both paths preserve stable instance IDs, stack counts, condition, quality, authenticity and ownership state. Occupied-pocket swaps update both inventories before emitting change notifications; no temporary empty-pocket state is exposed.
+- Added three EditMode tests for move-to-empty, occupied-pocket swap identity/state preservation, and invalid-move non-mutation.
+- Unity compilation, EditMode execution and Play Mode verification are pending. The last user-confirmed suite remains 494/494; expected total after these three tests is 500, subject to the user's run.
+- Play Mode check: with the backpack equipped and then again with it dropped, drag P1 onto empty P3; then drag P3 onto occupied P2 and confirm the two item stacks exchange positions. Confirm P3 remains marked HIDDEN and the routine-search visibility rule remains P1/P2 only.
