@@ -942,6 +942,10 @@ namespace Signal.Game
                 _hud.SetPrompt("ESC  Close storage");
             else if (nearDroppedBackpack)
                 _hud.SetPrompt("E  Pick up backpack");
+            else if (_droppedBackpackItem.HasValue && IsWorldTransitionPrompt(cityPrompt))
+                _hud.SetPrompt(cityPrompt);
+            else if (_droppedBackpackItem.HasValue)
+                _hud.SetPrompt("Backpack dropped — recover it before item interactions");
             else if (inventoryOpen && _equippedBackpackInstanceId.HasValue)
                 _hud.SetPrompt("B  Drop backpack");
             else if (inventoryOpen)
@@ -1001,7 +1005,18 @@ namespace Signal.Game
                 if (keyboard.f5Key.wasPressedThisFrame) SaveGame();
                 if (keyboard.f9Key.wasPressedThisFrame) LoadGame();
                 if (keyboard.f6Key.wasPressedThisFrame) Sleep();
-                if (keyboard.eKey.wasPressedThisFrame || keyboard.fKey.wasPressedThisFrame)
+                if (keyboard.eKey.wasPressedThisFrame)
+                {
+                    // World navigation is not an item interaction: allow doors/exits while the bag is dropped.
+                    if (IsWorldTransitionPrompt(cityPrompt) && _city.TryInteract(playerPosition))
+                    {
+                        Say("Location: " + _city.CurrentPlace, 3f);
+                        return;
+                    }
+
+                    Say("Your backpack is on the ground. Recover it before using item-based interactions.", 3f);
+                }
+                else if (keyboard.fKey.wasPressedThisFrame)
                     Say("Your backpack is on the ground. Recover it before using item-based interactions.", 3f);
                 return;
             }
@@ -1097,6 +1112,15 @@ namespace Signal.Game
                 if (keyboard.f5Key.wasPressedThisFrame) SaveGame();
                 if (keyboard.f9Key.wasPressedThisFrame) LoadGame();
             }
+        }
+
+        private static bool IsWorldTransitionPrompt(string prompt)
+        {
+            return prompt == "E  Leave hideout" ||
+                prompt == "E  Return to hideout" ||
+                prompt == "E  Enter corner shop" ||
+                prompt == "E  Enter apartment" ||
+                prompt == "E  Return to street";
         }
 
         private void TickClock()
