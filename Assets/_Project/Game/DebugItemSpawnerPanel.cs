@@ -219,6 +219,7 @@ namespace Signal.Game
             tileObject.transform.SetParent(_content, false);
             Image tileImage = tileObject.GetComponent<Image>();
             tileImage.color = TileColor;
+            tileImage.raycastTarget = true;
             Button button = tileObject.GetComponent<Button>();
             button.targetGraphic = tileImage;
             button.onClick.AddListener(() => Spawn(definition));
