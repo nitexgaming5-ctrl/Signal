@@ -1606,10 +1606,32 @@ namespace Signal.Game
                 return false;
             }
 
-            if (!_playerEquipment.TryUnequip(_inventory, slot))
+            bool backpackAccessible = _equippedBackpackInstanceId.HasValue && !_droppedBackpackItem.HasValue;
+            if (backpackAccessible)
             {
-                Say("There is no room in your inventory for that equipment.", 4f);
-                return false;
+                if (!_playerEquipment.TryUnequip(_inventory, slot))
+                {
+                    Say("There is no room in your backpack for that equipment.", 4f);
+                    return false;
+                }
+            }
+            else
+            {
+                if (equipped.Item.Rotated ||
+                    !_playerPockets.TryFindAvailablePocket(equipped.Item.Type, out _, out _))
+                {
+                    Say("You need a free personal pocket to unequip this item without a backpack.", 4f);
+                    return false;
+                }
+                if (!_playerEquipment.TryTakeEquipped(slot, out EquippedItem removed))
+                    return false;
+                if (!_playerPockets.TryAdd(removed.Item, out _))
+                {
+                    _playerEquipment.TryRestoreEquipped(removed.Item.ItemInstanceId, removed.Item.Type,
+                        removed.Item.State, removed.Slot, removed.ArmorModifier, removed.HeatProtectionModifier);
+                    Say("There is no free personal pocket for that equipment.", 4f);
+                    return false;
+                }
             }
 
             Say("Unequipped " + slot + ".", 3f);
