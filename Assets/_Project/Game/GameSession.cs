@@ -253,7 +253,7 @@ namespace Signal.Game
             _panel.Bind(_inventory, _allItemDefinitions, _itemViewer.Open, TryEquipPlayerItem, TryUnequipPlayerSlot,
                 _playerEquipment, DropPlayerBackpack, () => _equippedBackpackInstanceId.HasValue,
                 () => _equippedBackpackInstanceId.HasValue && !_droppedBackpackItem.HasValue,
-                _playerPockets, MoveItemToPocket, MovePocketToBackpack, EquipPocketItem, MovePocketToBackpackAt);
+                _playerPockets, MoveItemToPocket, MovePocketToBackpack, EquipPocketItem, MovePocketToBackpackAt, MovePocketToPocket);
             _debugItemSpawnerPanel = gameObject.AddComponent<DebugItemSpawnerPanel>();
             _debugItemSpawnerPanel.Bind(_allItemDefinitions, SpawnDebugItem);
             _containerPanel = gameObject.AddComponent<SearchableContainerPanel>();
@@ -2829,6 +2829,18 @@ namespace Signal.Game
                 return false;
             }
             Say("Moved item to personal pocket " + (pocketIndex + 1) + ".");
+            return true;
+        }
+
+        private bool MovePocketToPocket(int sourcePocketIndex, int destinationPocketIndex)
+        {
+            if (_playerPockets == null ||
+                !_playerPockets.TryMoveBetweenPockets(sourcePocketIndex, destinationPocketIndex))
+            {
+                Say("That pocket move could not be completed. Both items were kept.", 4f);
+                return false;
+            }
+            Say("Moved item between personal pockets.");
             return true;
         }
 
