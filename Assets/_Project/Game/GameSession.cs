@@ -284,7 +284,7 @@ namespace Signal.Game
                 _customerContractPanel = gameObject.AddComponent<CustomerContractPanel>();
                 _customerContractPanel.Bind(firstCustomerContract, _inventory, _assetOwnership,
                     _allItemDefinitions, GetCustomerDisplayName(), AcceptCustomerContract, FulfilCustomerContract,
-                    GetCustomerContractPhase);
+                    GetCustomerContractPhase, _playerPockets);
             }
             if (firstCustomerRepairOrder != null && _contractReceiverInventory != null)
             {
