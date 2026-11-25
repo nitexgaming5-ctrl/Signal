@@ -187,5 +187,30 @@ namespace Signal.Core.Tests
             Assert.That(jacket.State.Condition, Is.EqualTo(ItemCondition.Damaged));
             Assert.That(fixture.Inventory.TryGetItemInstance(fixture.BasicKitId, out _), Is.True);
         }
+        [Test]
+        public void RepairCanConsumePatchKitFromPocketWhileTargetRemainsInBackpack()
+        {
+            var fixture = new Fixture(ItemCondition.Worn);
+            var pocket = new GridInventory(1, 1);
+            pocket.Place(fixture.BasicKit, 0, 0);
+            Guid pocketKitId = pocket.Items[0].ItemInstanceId;
+            fixture.Ownership.TryRegister(pocketKitId, fixture.Player);
+            fixture.Containers.TryRegister(pocket, fixture.Player);
+
+            RepairResult result = RepairService.TryRepairForOwner(fixture.JacketId, pocketKitId,
+                fixture.Jacket, fixture.BasicKit, fixture.ReinforcedKit, fixture.Inventory, pocket,
+                fixture.Player, fixture.Player, fixture.Containers, fixture.Ownership,
+                fixture.Knowledge, 2, 615);
+
+            Assert.That(result.Success, Is.True);
+            Assert.That(fixture.Inventory.TryGetItemInstance(fixture.JacketId, out PlacedItem jacket), Is.True);
+            Assert.That(jacket.State.Condition, Is.EqualTo(ItemCondition.Good));
+            Assert.That(pocket.TryGetItemInstance(pocketKitId, out _), Is.False);
+            Assert.That(fixture.Ownership.TryGetOwner(pocketKitId, out _), Is.False);
+            Assert.That(fixture.Ownership.TryGetOwner(fixture.JacketId, out EconomicActorId owner), Is.True);
+            Assert.That(owner, Is.EqualTo(fixture.Player));
+        }
+
+
     }
 }
