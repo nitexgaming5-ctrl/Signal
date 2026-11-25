@@ -160,7 +160,7 @@ namespace Signal.Game
                     if (!Enum.IsDefined(typeof(NpcAgendaActivityRequirement), stage.RequiredActivity) ||
                         !Enum.IsDefined(typeof(NpcAgendaRelationshipPerspective), stage.RelationshipPerspective))
                     {
-                        error = "Stage " + stage.StageId + " has an invalid activity requirement.";
+                        error = "Stage " + stage.StageId + " has an invalid activity or relationship perspective.";
                         return false;
                     }
                     if (float.IsNaN(stage.MinimumFamiliarity) || float.IsInfinity(stage.MinimumFamiliarity) ||
