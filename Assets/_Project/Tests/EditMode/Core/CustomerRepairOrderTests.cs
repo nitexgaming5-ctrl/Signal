@@ -15,7 +15,8 @@ namespace Signal.Core.Tests
             public readonly GridInventory PlayerInventory = new GridInventory(8, 6);
             public readonly AssetOwnershipBook Ownership = new AssetOwnershipBook();
             public readonly EconomicContainerRegistry Containers = new EconomicContainerRegistry();
-            public readonly EconomicTransactionLedger Transactions = new EconomicTransactionLedger();
+            public readonly EconomicTransactionLedger AssetTransactions = new EconomicTransactionLedger();
+            public readonly ServicePaymentTransactionLedger Payments = new ServicePaymentTransactionLedger();
             public readonly CustomerRepairOrderBook Orders = new CustomerRepairOrderBook();
             public readonly CleanMoneyAccount PlayerAccount = new CleanMoneyAccount(10);
             public readonly CleanMoneyAccount CustomerAccount = new CleanMoneyAccount(100);
@@ -51,7 +52,7 @@ namespace Signal.Core.Tests
 
             public CustomerRepairOrderResult Return(int minute = 500) =>
                 CustomerRepairOrderService.TryReturn(OrderId, Jacket, PlayerInventory, CustomerInventory,
-                    Containers, Ownership, PlayerAccount, CustomerAccount, Transactions, Orders, 1, minute);
+                    Containers, Ownership, PlayerAccount, CustomerAccount, Payments, Orders, 1, minute);
         }
 
         [Test]
@@ -78,7 +79,7 @@ namespace Signal.Core.Tests
             Assert.That(result.State.Condition, Is.EqualTo(ItemCondition.Good));
             Assert.That(fixture.Ownership.TryGetOwner(fixture.JacketId, out owner), Is.True);
             Assert.That(owner, Is.EqualTo(fixture.Customer));
-            Assert.That(fixture.Transactions.Count, Is.Zero,
+            Assert.That(fixture.AssetTransactions.Count, Is.Zero,
                 "Repairing the entrusted item is not an ownership-changing asset transfer.");
         }
 
@@ -102,14 +103,14 @@ namespace Signal.Core.Tests
 
             Assert.That(fixture.CustomerAccount.Balance, Is.EqualTo(65));
             Assert.That(fixture.PlayerAccount.Balance, Is.EqualTo(45));
-            Assert.That(fixture.Transactions.Count, Is.EqualTo(1));
-            EconomicTransaction transaction = fixture.Transactions.Transactions[0];
+            Assert.That(fixture.Payments.Count, Is.EqualTo(1));
+            ServicePaymentTransaction transaction = fixture.Payments.Transactions[0];
             Assert.That(transaction.ItemInstanceId, Is.EqualTo(fixture.JacketId));
-            Assert.That(transaction.ItemDefinitionId, Is.EqualTo(fixture.Jacket.Id));
-            Assert.That(transaction.FromActor, Is.EqualTo(fixture.Customer));
-            Assert.That(transaction.ToActor, Is.EqualTo(EconomicActorId.Player));
-            Assert.That(transaction.Reason, Is.EqualTo(AssetTransferReason.ServicePayment));
-            Assert.That(transaction.Quantity, Is.EqualTo(1));
+            Assert.That(transaction.OrderId, Is.EqualTo(fixture.OrderId));
+            Assert.That(transaction.Payer, Is.EqualTo(fixture.Customer));
+            Assert.That(transaction.Payee, Is.EqualTo(EconomicActorId.Player));
+            Assert.That(transaction.Amount, Is.EqualTo(35));
+            Assert.That(transaction.ItemInstanceId, Is.EqualTo(fixture.JacketId));
 
             Assert.That(fixture.Orders.TryGetState(fixture.OrderId, out CustomerRepairOrderState order), Is.True);
             Assert.That(order.Phase, Is.EqualTo(CustomerRepairOrderPhase.Completed));
@@ -119,7 +120,7 @@ namespace Signal.Core.Tests
             Assert.That(replay.Success, Is.False);
             Assert.That(fixture.CustomerAccount.Balance, Is.EqualTo(65));
             Assert.That(fixture.PlayerAccount.Balance, Is.EqualTo(45));
-            Assert.That(fixture.Transactions.Count, Is.EqualTo(1));
+            Assert.That(fixture.Payments.Count, Is.EqualTo(1));
         }
 
         [Test]
@@ -217,7 +218,7 @@ namespace Signal.Core.Tests
             SaveData data = SaveMapper.Capture(new PlayerStats(), fixture.PlayerInventory,
                 new GridInventory(8, 6), new GameClock(), new HeatMeter(), new RentLedger(50, 7),
                 "Hideout", 0f, 0f, assetOwnership: fixture.Ownership,
-                economicTransactions: fixture.Transactions,
+                servicePaymentTransactions: fixture.Payments,
                 contractReceiverInventory: fixture.CustomerInventory,
                 contractReceiverActorId: fixture.Customer.Value,
                 customerRepairOrders: fixture.Orders);
@@ -225,7 +226,7 @@ namespace Signal.Core.Tests
             var loadedPlayerInventory = new GridInventory(8, 6);
             var loadedCustomerInventory = new GridInventory(8, 6);
             var loadedOwnership = new AssetOwnershipBook();
-            var loadedTransactions = new EconomicTransactionLedger();
+            var loadedPayments = new ServicePaymentTransactionLedger();
             var loadedOrders = new CustomerRepairOrderBook();
             Assert.That(loadedOrders.TryRegisterOffer(fixture.OrderId, fixture.Customer, fixture.Jacket.Id, 35), Is.True);
             var known = new System.Collections.Generic.Dictionary<Guid, ItemType>
@@ -236,18 +237,18 @@ namespace Signal.Core.Tests
             LoadReport report = SaveMapper.Apply(data, new PlayerStats(), loadedPlayerInventory,
                 new GridInventory(8, 6), new GameClock(), new HeatMeter(), new RentLedger(50, 7),
                 id => known.TryGetValue(id, out ItemType type) ? type : (ItemType?)null,
-                assetOwnership: loadedOwnership, economicTransactions: loadedTransactions,
+                assetOwnership: loadedOwnership, servicePaymentTransactions: loadedPayments,
                 contractReceiverInventory: loadedCustomerInventory, customerRepairOrders: loadedOrders);
 
             Assert.That(report.Success, Is.True);
             Assert.That(report.SkippedCustomerRepairOrders, Is.Zero);
-            Assert.That(report.SkippedEconomicTransactions, Is.Zero);
+            Assert.That(report.SkippedServicePaymentTransactions, Is.Zero);
             Assert.That(loadedOrders.TryGetState(fixture.OrderId, out CustomerRepairOrderState restored), Is.True);
             Assert.That(restored.Phase, Is.EqualTo(CustomerRepairOrderPhase.Completed));
             Assert.That(restored.PaymentTransactionId, Is.EqualTo(returned.Transaction.TransactionId));
-            Assert.That(loadedTransactions.Count, Is.EqualTo(1));
-            Assert.That(loadedTransactions.Transactions[0].Reason, Is.EqualTo(AssetTransferReason.ServicePayment));
-            Assert.That(loadedTransactions.Transactions[0].TransactionId, Is.EqualTo(restored.PaymentTransactionId));
+            Assert.That(loadedPayments.Count, Is.EqualTo(1));
+            Assert.That(loadedPayments.Transactions[0].Amount, Is.EqualTo(35));
+            Assert.That(loadedPayments.Transactions[0].TransactionId, Is.EqualTo(restored.PaymentTransactionId));
             Assert.That(loadedCustomerInventory.TryGetItemInstance(fixture.JacketId, out _), Is.True);
             Assert.That(loadedOwnership.TryGetOwner(fixture.JacketId, out EconomicActorId owner), Is.True);
             Assert.That(owner, Is.EqualTo(fixture.Customer));
@@ -266,7 +267,7 @@ namespace Signal.Core.Tests
             var rent = new RentLedger(50, 7);
             SaveData data = SaveMapper.Capture(stats, fixture.PlayerInventory, storage, clock, heat, rent,
                 "Hideout", 0f, 0f, assetOwnership: fixture.Ownership,
-                economicTransactions: fixture.Transactions,
+                servicePaymentTransactions: fixture.Payments,
                 contractReceiverInventory: fixture.CustomerInventory,
                 contractReceiverActorId: fixture.Customer.Value,
                 customerRepairOrders: fixture.Orders);
