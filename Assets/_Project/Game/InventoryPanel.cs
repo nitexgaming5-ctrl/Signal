@@ -60,6 +60,7 @@ namespace Signal.Game
         private readonly List<Text> _equipmentLabels = new List<Text>();
         private Button _dropButton;
         private Text _emptyState;
+        private Text _backpackTitle;
         private RectTransform _characterRoot;
         private Font _font;
         private bool _built;
@@ -448,7 +449,7 @@ namespace Signal.Game
             _root.pivot = new Vector2(0.5f, 0.5f);
             _root.anchoredPosition = Vector2.zero;
 
-            _title = NewText("Title", _root, "INVENTORY   [E] equip   [1-7] unequip slot   [LMB] move   [RMB] inspect   [R] rotate", 16,
+            _title = NewText("Title", _root, "CHARACTER & INVENTORY   [E] equip   [1-7] unequip slot   [LMB] move   [RMB] inspect   [R] rotate", 16,
                              TextAnchor.MiddleLeft, TitleColor);
 
             _characterRoot = NewRect("CharacterPanel", _root);
@@ -483,8 +484,9 @@ namespace Signal.Game
             _root.sizeDelta = new Vector2(contentWidth + Padding * 2f, Mathf.Max(gridHeight, 430f) + Padding * 2f + TitleHeight);
             SetTopLeft(_title.rectTransform, Padding, Padding * 0.5f, contentWidth, TitleHeight);
             SetTopLeft(_characterRoot, Padding, Padding + TitleHeight, characterWidth, Mathf.Max(gridHeight, 430f));
-            SetTopLeft(_gridRect, Padding + characterWidth + 24f, Padding + TitleHeight, gridWidth, gridHeight);
-            SetTopLeft(_emptyState.rectTransform, Padding + characterWidth + 24f, Padding + TitleHeight, gridWidth, gridHeight);
+            SetTopLeft(_backpackTitle.rectTransform, Padding + characterWidth + 24f, Padding + TitleHeight, gridWidth, 22f);
+            SetTopLeft(_gridRect, Padding + characterWidth + 24f, Padding + TitleHeight + 24f, gridWidth, gridHeight);
+            SetTopLeft(_emptyState.rectTransform, Padding + characterWidth + 24f, Padding + TitleHeight + 24f, gridWidth, gridHeight);
 
             for (int y = 0; y < _inventory.Height; y++)
             {
