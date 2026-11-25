@@ -475,7 +475,7 @@ namespace Signal.Game
                         owner != EconomicActorId.Player)
                         continue;
                     ItemDefinition definition = FindDefinition(stack.Type.Id);
-                    if (definition != null && _business.TryGetBuybackOffer(definition, out _))
+                    if (definition != null && _business.TryGetBuybackOffer(definition, stack.State, out _))
                         count++;
                 }
             return count;
