@@ -244,3 +244,10 @@ Implement three actual 1×1 personal pocket slots, separate from the backpack's 
 - Fixed SearchableContainerPanel's player-side grid from a hardcoded 6×4 display to the active inventory's actual dimensions. With the current backpack this should render 8×6, matching the real GridInventory and item placement coordinates.
 - User reports the preceding P-03.4b suite passed **494/494**. These UI follow-up commits still require Unity compilation and Play Mode verification.
 - Add to Play Mode acceptance: drag a 1×1 item onto P1/P2/P3 and verify the stack moves; drag a 2×1 item or rotated item and verify rejection; hover an equippable item in a pocket and press E; open a searchable bin with the backpack equipped and verify the player grid is 8×6 and the transferred item remains in the same backpack cell.
+
+## Debug-only fresh-session starting loadout (2026-11-26)
+- Added a temporary GameSession startup bootstrap for Play Mode testing. Each fresh session finds a compatible portable backpack definition (8×6), creates a unique backpack item instance, equips it through the normal equipment/storage/world-state path, then seeds up to three non-backpack items with distinct grid footprints into the backpack.
+- The seed items are selected from the loaded item catalogue, sorted largest footprint first, and placed through normal GridInventory placement. Ownership is registered to the Player. Existing item definitions and save schemas are unchanged.
+- This is explicitly debug/test scaffolding, not intended starting gear or final game balance. Remove this helper before establishing the real new-game starting inventory.
+- If no compatible backpack is available, the helper logs a warning and leaves the session otherwise unchanged. If fewer than three distinct item footprints exist in the catalogue, it seeds however many are available.
+- No Unity compile, EditMode or Play Mode result is claimed for this commit. User should pull and confirm the character spawns with an equipped backpack and 2–3 differently-sized items visible in its 8×6 grid.
