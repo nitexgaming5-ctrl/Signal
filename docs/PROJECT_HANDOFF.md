@@ -16,7 +16,7 @@ Signal is a top-down 2D urban RPG built on Unity 6000.6.9f1.
 ## Current verified baseline
 - Working branch: `chore/collaboration-workflow-and-audit`; keep `main` untouched.
 - Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
-- User confirmed **500/500 EditMode tests passing** after direct pocket-to-pocket moves/swaps (2026-11-26). P-03.5 source changes since that checkpoint cover Retail SELL, Dirty Cash selection, Home Storage, Searchable Container pocket display, workbench repair and multi-grid production across accessible pockets/backpack; two targeted EditMode tests were added, but these changes are not yet Unity-verified. Play Mode acceptance remains outstanding.
+- User confirmed **500/500 EditMode tests passing** after direct pocket-to-pocket moves/swaps (2026-11-26). P-03.5 source changes since that checkpoint cover Retail SELL, Dirty Cash selection, Home Storage, Searchable Container pocket display, workbench repair and multi-grid production across accessible pockets/backpack; three targeted EditMode tests were added, but these changes are not yet Unity-verified. Play Mode acceptance remains outstanding.
 - B-06 Customer Repair Orders is complete: entrusted item custody remains distinct from ownership; exact item return and 35 CARD payment are atomic and replay-protected.
 - B-04 repair/trading and the First Workshop have also been reported working in Play Mode.
 - Unity remains the authority for compile, test and Play Mode verification. Never infer a pass from source edits.
