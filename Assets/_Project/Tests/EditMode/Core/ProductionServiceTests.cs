@@ -175,5 +175,29 @@ namespace Signal.Core.Tests
             Assert.That(fixture.Inventory.CountOf(fixture.Input), Is.EqualTo(1));
             Assert.That(fixture.Inventory.CountOf(fixture.Output), Is.EqualTo(1));
         }
+        [Test]
+        public void ProductionConsumesInputsAcrossBackpackAndPocketAndRoutesOutputToPocket()
+        {
+            var fixture = new Fixture(inputCount: 1);
+            var pocket = new GridInventory(1, 1);
+            pocket.Place(fixture.Input, 0, 0, count: 1);
+            Guid pocketInputId = pocket.Items[0].ItemInstanceId;
+            fixture.Ownership.TryRegister(pocketInputId, fixture.Operator);
+            fixture.Containers.TryRegister(pocket, fixture.Operator);
+
+            ProductionResult result = ProductionService.TryProduce(Guid.NewGuid(), fixture.Recipe(),
+                new[] { fixture.Inventory, pocket }, pocket, fixture.Operator, fixture.Containers,
+                fixture.Ownership, fixture.History, 1, 600);
+
+            Assert.That(result.Success, Is.True);
+            Assert.That(fixture.Inventory.CountOf(fixture.Input), Is.Zero);
+            Assert.That(pocket.CountOf(fixture.Input), Is.Zero);
+            Assert.That(pocket.CountOf(fixture.Output), Is.EqualTo(1));
+            Assert.That(fixture.Ownership.TryGetOwner(pocket.Items[0].ItemInstanceId, out EconomicActorId owner), Is.True);
+            Assert.That(owner, Is.EqualTo(fixture.Operator));
+            Assert.That(fixture.History.Count, Is.EqualTo(1));
+        }
+
+
     }
 }
