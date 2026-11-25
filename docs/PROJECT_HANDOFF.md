@@ -71,3 +71,7 @@ Committed but not yet Unity-verified:
 - Dropping closes the inventory and hides/blocks interaction with the backpack grid. The three pockets are not functional storage yet, and every other item-based interaction still needs an active-inventory accessibility audit.
 - One additional Core test was added. The user-confirmed baseline was 485/485; expected current suite is **486**, pending user Unity compile/EditMode run. No Play Mode verification is claimed.
 - Next: pull, compile, run EditMode (expected 486), then execute the documented drop/recover/save-load test game. Fix any compile/test errors before further expansion. P-03 remains incomplete until real 2–3 pocket inventory, item interaction gating, clothing visuals and full Play Mode acceptance are complete.
+
+### Dropped-storage access rule
+
+- While the bag is dropped, normal E/F item interactions are temporarily blocked at GameSession level so existing workbench/shop/container flows cannot access the backpack's still-registered 8×6 grid behind the UI. Movement, pickup, F5/F9 and sleep remain available. Replace this conservative global gate with pocket-aware inventory routing when the real pocket inventory is implemented.
