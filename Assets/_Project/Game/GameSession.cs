@@ -431,13 +431,12 @@ namespace Signal.Game
         private string ReturnCustomerRepairOrder()
         {
             if (!IsNearRepairOrderCustomer(_room.PlayerBody.position)) return "Move closer to the customer.";
-            if (firstCustomerRepairOrder == null || _contractReceiverInventory == null ||
-                !_economicAccounts.TryGetAccount(firstCustomerRepairOrder.IssuerActor, out CleanMoneyAccount payer))
-                return "The customer payment account is unavailable.";
+            if (firstCustomerRepairOrder == null || _contractReceiverInventory == null)
+                return "The repair order is unavailable.";
             CustomerRepairOrderResult result = CustomerRepairOrderService.TryReturn(firstCustomerRepairOrder.Id,
                 firstCustomerRepairOrder.EntrustedItem.ToItemType(), _inventory, _contractReceiverInventory,
-                _economicContainers, _assetOwnership, _stats.CleanMoney, payer, _servicePaymentTransactions,
-                _customerRepairOrders, _clock.Day, _clock.MinuteOfDay);
+                _economicContainers, _assetOwnership, _stats.CleanMoney, _economicAccounts,
+                _servicePaymentTransactions, _customerRepairOrders, _clock.Day, _clock.MinuteOfDay);
             if (result.Success)
             {
                 if (_workspace != null) _workspace.Refresh();
@@ -448,6 +447,7 @@ namespace Signal.Game
             {
                 case CustomerRepairOrderStatus.ItemNotRestored: return "Restore the jacket to " + firstCustomerRepairOrder.RequiredReturnCondition + " before returning it.";
                 case CustomerRepairOrderStatus.InsufficientFunds: return "The customer cannot currently afford the agreed service fee.";
+                case CustomerRepairOrderStatus.CustomerAccountUnavailable: return "The customer's CARD account is unavailable.";
                 case CustomerRepairOrderStatus.InventoryFull: return "The customer has no room to receive the jacket.";
                 default: return "Return failed safely. The jacket and both CARD balances were left unchanged.";
             }
