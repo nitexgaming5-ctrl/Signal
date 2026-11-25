@@ -548,6 +548,8 @@ namespace Signal.Core
             List<SavedNpcPlayerRelationship> playerRelationshipDestination)
         {
             if (world == null) return;
+            if (knowledgeDestination == null || relationshipDestination == null || playerRelationshipDestination == null)
+                throw new ArgumentNullException("NPC social save destinations cannot be null.");
             IList<string> npcIds = world.GetNpcIds();
             for (int i = 0; i < npcIds.Count; i++)
             {
