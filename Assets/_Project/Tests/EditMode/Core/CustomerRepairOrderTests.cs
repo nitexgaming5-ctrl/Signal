@@ -110,7 +110,8 @@ namespace Signal.Core.Tests
             Assert.That(transaction.Payer, Is.EqualTo(fixture.Customer));
             Assert.That(transaction.Payee, Is.EqualTo(EconomicActorId.Player));
             Assert.That(transaction.Amount, Is.EqualTo(35));
-            Assert.That(transaction.ItemInstanceId, Is.EqualTo(fixture.JacketId));
+            Assert.That(transaction.Day, Is.EqualTo(1));
+            Assert.That(transaction.MinuteOfDay, Is.EqualTo(500));
 
             Assert.That(fixture.Orders.TryGetState(fixture.OrderId, out CustomerRepairOrderState order), Is.True);
             Assert.That(order.Phase, Is.EqualTo(CustomerRepairOrderPhase.Completed));
