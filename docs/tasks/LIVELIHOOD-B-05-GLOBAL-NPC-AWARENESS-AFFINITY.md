@@ -83,7 +83,7 @@ Preserve these existing owners and extend them rather than introducing parallel 
 - Added Core directionality, SaveMapper round-trip and contract success/replay/target-validation tests.
 
 ### B05-06 — Generic agenda integration
-**Implementation status:** Implemented; focused tests added, Unity verification pending.
+**Implementation status:** Implemented; included in the user's 445/445 full EditMode result (2026-11-25).
 - Agenda stages can author their relationship-gate perspective as player→NPC or NPC→player while retaining the same familiarity/trust/affinity thresholds.
 - Agenda choices can author one-time relationship outcomes in either direction. The director routes each outcome through its canonical owner.
 - GameSession supplies the shared NpcSocialWorld to the generic agenda director. No character-specific branches or new resident content were added.
@@ -91,7 +91,7 @@ Preserve these existing owners and extend them rather than introducing parallel 
 - Added tests for NPC-opinion gates, NPC-opinion outcomes, fail-closed behaviour when the NPC social state is unavailable, and repeatable-outcome validation.
 
 ### B05-07 — Verification
-**Implementation status:** The user reports 439/439 EditMode tests passing after the debug item spawner fix. The B05-05 and B05-06 additions contribute six new tests; they have not yet run in Unity. Expected full-suite total is 445 if no other tests were added.
+**Implementation status:** User confirms 445/445 EditMode tests passing on 2026-11-25, including all six focused tests added for B05-05 and B05-06.
 - Core tests: directed independence, separate dimensions, bounded values, mutation idempotency, local observation, source/confidence retention, no journal leakage, explicit-only transmission and no gossip cascade.
 - Game tests: arbitrary authored NPC definitions receive identical social state wiring; no Rhea/Milo branches.
 - Save tests: player→NPC, NPC→player and NPC→NPC relationships, durable knowledge, malformed records and unknown IDs round-trip safely.
