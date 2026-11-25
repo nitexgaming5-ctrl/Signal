@@ -266,6 +266,7 @@ namespace Signal.Game
             _retailPanel = gameObject.AddComponent<RetailPanel>();
             _retailPanel.Bind(PurchaseFromBusiness, SellToBusiness, _inventory, _allItemDefinitions,
                 _assetOwnership, () => { });
+            _retailPanel.SetInventories(GetAccessibleCarryInventories());
             if (dirtyCashContactOffer != null && dirtyCashContactOffer.TryValidate(out _))
             {
                 _dirtyCashPanel = gameObject.AddComponent<DirtyCashContactPanel>();
@@ -2755,13 +2756,24 @@ namespace Signal.Game
             return nearest;
         }
 
+        private List<GridInventory> GetAccessibleCarryInventories()
+        {
+            var inventories = new List<GridInventory>();
+            if (_equippedBackpackInstanceId.HasValue && !_droppedBackpackItem.HasValue && _inventory != null)
+                inventories.Add(_inventory);
+            if (_playerPockets != null)
+                for (int i = 0; i < PlayerPocketBook.PocketCount; i++)
+                    inventories.Add(_playerPockets.GetPocket(i));
+            return inventories;
+        }
+
         private void RefreshCarryPanelInventories()
         {
             GridInventory accessible = _equippedBackpackInstanceId.HasValue && !_droppedBackpackItem.HasValue
                 ? _inventory : _emptyCarryInventory;
             if (_customerContractPanel != null) _customerContractPanel.SetPlayerInventory(accessible);
             if (_dirtyCashPanel != null) _dirtyCashPanel.SetPlayerInventory(accessible);
-            if (_retailPanel != null) _retailPanel.SetInventory(accessible);
+            if (_retailPanel != null) _retailPanel.SetInventories(GetAccessibleCarryInventories());
         }
 
         private GridInventory GetCarryInventory(ItemType type, bool rotated = false,
