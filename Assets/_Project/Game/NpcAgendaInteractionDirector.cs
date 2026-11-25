@@ -17,6 +17,7 @@ namespace Signal.Game
         private readonly NpcAgendaProgressBook _progress;
         private readonly PlayerDiscoveryLedger _discoveries;
         private readonly PlayerRelationshipBook _relationships;
+        private readonly NpcSocialWorld _socialWorld;
         private readonly Func<string, bool> _isContractCompleted;
         private readonly Func<string, bool> _isUpgradeAcquired;
         private readonly Func<string, OpportunityPhase, bool> _isOpportunityInPhase;
@@ -30,11 +31,12 @@ namespace Signal.Game
             Func<string, bool> isUpgradeAcquired,
             Func<string, OpportunityPhase, bool> isOpportunityInPhase,
             Func<WorkshopUpgradeDefinition, bool> openWorkshopUpgradeOffer,
-            Func<int> getDay, Func<int> getMinute)
+            Func<int> getDay, Func<int> getMinute, NpcSocialWorld socialWorld = null)
         {
             _progress = progress ?? throw new ArgumentNullException(nameof(progress));
             _discoveries = discoveries ?? throw new ArgumentNullException(nameof(discoveries));
             _relationships = relationships ?? throw new ArgumentNullException(nameof(relationships));
+            _socialWorld = socialWorld;
             _isContractCompleted = isContractCompleted ?? (_ => false);
             _isUpgradeAcquired = isUpgradeAcquired ?? (_ => false);
             _isOpportunityInPhase = isOpportunityInPhase ?? ((_, __) => false);
@@ -148,7 +150,17 @@ namespace Signal.Game
 
             if (stage.RequireRelationshipThresholds)
             {
-                NpcRelationship relationship = _relationships.Get(npcId);
+                NpcRelationship relationship;
+                if (stage.RelationshipPerspective == NpcAgendaRelationshipPerspective.NpcToPlayer)
+                {
+                    if (_socialWorld == null || !_socialWorld.TryGetNpc(npcId, out NpcAgentState _))
+                        return false;
+                    relationship = _socialWorld.GetPlayerRelationship(npcId);
+                }
+                else
+                {
+                    relationship = _relationships.Get(npcId);
+                }
                 if (relationship.Familiarity < stage.MinimumFamiliarity ||
                     relationship.Trust < stage.MinimumTrust ||
                     relationship.Affinity < stage.MinimumAffinity)
@@ -208,6 +220,12 @@ namespace Signal.Game
             if (choice.Action == NpcAgendaChoiceAction.OpenWorkshopUpgradeOffer &&
                 !_openWorkshopUpgradeOffer(choice.WorkshopUpgradeOffer))
                 return false;
+            bool hasRelationshipOutcome = choice.FamiliarityDelta != 0f ||
+                choice.TrustDelta != 0f || choice.AffinityDelta != 0f;
+            if (hasRelationshipOutcome &&
+                choice.RelationshipOutcomePerspective == NpcAgendaRelationshipPerspective.NpcToPlayer &&
+                (_socialWorld == null || !_socialWorld.TryGetNpc(npcId, out NpcAgentState _)))
+                return false;
 
             if (!choice.CompleteStageOnChoice)
             {
@@ -223,9 +241,15 @@ namespace Signal.Game
                     choice.DiscoverySubjectId, choice.DiscoveryType, npcId,
                     choice.DiscoveryDescription, choice.DiscoveryConfidence, _getDay(), _getMinute()));
 
-            if (choice.FamiliarityDelta != 0f || choice.TrustDelta != 0f || choice.AffinityDelta != 0f)
-                _relationships.Adjust(npcId, choice.FamiliarityDelta,
-                    choice.TrustDelta, choice.AffinityDelta);
+            if (hasRelationshipOutcome)
+            {
+                if (choice.RelationshipOutcomePerspective == NpcAgendaRelationshipPerspective.NpcToPlayer)
+                    _socialWorld.AdjustPlayerRelationship(npcId, choice.FamiliarityDelta,
+                        choice.TrustDelta, choice.AffinityDelta);
+                else
+                    _relationships.Adjust(npcId, choice.FamiliarityDelta,
+                        choice.TrustDelta, choice.AffinityDelta);
+            }
 
             response = choice.Response;
             stageCompleted = true;
