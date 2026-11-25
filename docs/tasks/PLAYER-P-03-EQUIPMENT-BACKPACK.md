@@ -237,3 +237,10 @@ Implement three actual 1×1 personal pocket slots, separate from the backpack's 
 - Home-storage transfer and workbench/production still depend on the backpack grid; production is not available without a backpack.
 - Customer Contract now lists pocket-held goods, so a player can accept and fulfil a qualifying request without a backpack. When the backpack is absent/dropped, Retail, Dirty Cash and searchable-container panels use an empty carry view rather than exposing hidden backpack cargo; pocket-held items are not yet enumerated in Retail SELL or Dirty Cash selection.
 - P-03 is not complete: full pocket-aware service-panel coverage, equipment/clothing visual overlays and end-to-end Play Mode acceptance remain.
+
+## UI follow-up — pocket drag/drop, equipment access and search-grid sizing (2026-11-25)
+- Added drag-and-drop from the backpack grid onto any of the three personal pocket cells. Pocket acceptance still enforces the approved rule: unrotated 1×1 items only, one stack per pocket; rejected drops leave the source item untouched.
+- E now equips an item when hovering either an accessible backpack item or an occupied pocket. Pocket equipment uses the actual pocket GridInventory as the source, preserving exact item identity and ownership. This also allows equippable debug-spawned items to be equipped when the player has no backpack.
+- Fixed SearchableContainerPanel's player-side grid from a hardcoded 6×4 display to the active inventory's actual dimensions. With the current backpack this should render 8×6, matching the real GridInventory and item placement coordinates.
+- User reports the preceding P-03.4b suite passed **494/494**. These UI follow-up commits still require Unity compilation and Play Mode verification.
+- Add to Play Mode acceptance: drag a 1×1 item onto P1/P2/P3 and verify the stack moves; drag a 2×1 item or rotated item and verify rejection; hover an equippable item in a pocket and press E; open a searchable bin with the backpack equipped and verify the player grid is 8×6 and the transferred item remains in the same backpack cell.
