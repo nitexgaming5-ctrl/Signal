@@ -191,3 +191,10 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 - F5/F9 capture and restore equipped item identity, definition, slot, modifiers, owner actor and item instance state. The current inventory contents continue to use the existing inventory save path.
 - Added two focused tests for attaching an existing inventory grid and restoring an equipped item without a free inventory cell. User's confirmed 476/476 baseline predates these additions; expected total 478, pending Unity compile/test.
 - Physical world backpack drop/pickup, no-backpack pocket restriction and final clothing visuals remain pending. See tasks/PLAYER-P-03-EQUIPMENT-BACKPACK.md.
+
+
+## 2026-11-25 — Unity folder metadata reconciliation
+
+- Corrected the two newly added SurvivalItems folder metadata files to preserve the GUIDs already generated in the user's local Unity project: SurvivalItems = dc080c683bb17b448ad72d35956ae8f4; Definitions = 0c275d1a215b0684e8fb75e43c9ca3c1.
+- The earlier repository values were different and blocked the user's pull because the matching local files were untracked. The repository now matches the user's supplied local metadata exactly. No local files were deleted or changed.
+- Repository housekeeping only; no gameplay code, assets, scenes or tests were changed.
