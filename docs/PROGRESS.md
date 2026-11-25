@@ -284,3 +284,12 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 - Pocket-to-backpack drag/drop is now supported. Dragging an occupied pocket onto a valid backpack cell transfers the exact item stack to that precise cell, preserving stable instance identity and item state. Invalid/occupied destinations leave the item in its pocket. The existing click action remains available for inspecting a pocket item.
 - Added Core coverage for exact-position pocket transfer and atomic failure when the target cell is occupied. These tests have been added but have NOT yet been run in Unity; the last user-confirmed baseline remains 494/494.
 - User clarified the intended pocket layout: two ordinary personal pockets plus one hidden pocket, with the hidden pocket intended to preserve at least one object from police/search confiscation. This changes the current three-equivalent-pocket design. Do not implement hidden-pocket search/concealment rules until the user explicitly confirms the proposed rules. Proposed baseline for confirmation: all three pockets remain player-accessible; only the first two are exposed to ordinary inventory searches; the hidden slot is excluded from routine police searches and preserves its single 1x1 item. A special thorough/strip search could be a separate future rule if desired.
+
+### P-03 pocket roles and UI follow-up — 2026-11-26
+
+- Confirmed design: P1/P2 are ordinary pockets; P3 is hidden and visually distinguished with a light-red background and “HIDDEN” label.
+- PlayerPocketBook exposes only P1/P2 through its ordinary-search enumeration API. P3 remains accessible to the player but is omitted from routine-search results. Advanced searches (scanner/dogs/thorough search) remain undecided.
+- Backpack items are moved into the exact pocket the player drops them onto; there is no automatic first-free-pocket assignment. Pocket-to-backpack drag/drop targets the exact backpack cell.
+- Pocket cells render ItemDefinition icons where available, otherwise a readable text fallback.
+- Added a focused Core test for ordinary-search visibility. Unity compilation and test execution are pending; last user-confirmed baseline remains 494/494 before these additions.
+- Police search/confiscation is not yet a complete implemented gameplay flow. Future routine police-search code must query `GetItemsVisibleToOrdinarySearch()` and must not directly enumerate all pocket grids.
