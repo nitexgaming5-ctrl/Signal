@@ -1064,6 +1064,15 @@ namespace Signal.Game
             else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
                 !dirtyCashOpen && !contractOpen && !repairOrderOpen && !upgradeOpen && !agendaOpen && nearDirtyCashContact && keyboard.eKey.wasPressedThisFrame)
             {
+                if ((!_equippedBackpackInstanceId.HasValue || _droppedBackpackItem.HasValue) &&
+                    TryOpenAgendaConversationForNpc(DirtyCashContactNpcId))
+                    return;
+                if ((!_equippedBackpackInstanceId.HasValue || _droppedBackpackItem.HasValue) &&
+                    _city.TryInteractNpc(playerPosition, out string contactDialogue))
+                {
+                    Say(contactDialogue, 5f);
+                    return;
+                }
                 if (_dirtyCashPanel != null) _dirtyCashPanel.Open();
             }
             else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
