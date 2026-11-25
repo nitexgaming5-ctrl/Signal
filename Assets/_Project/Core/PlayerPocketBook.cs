@@ -27,9 +27,9 @@ namespace Signal.Core
             return true;
         }
 
-        public bool TryFindAvailablePocket(ItemType type, out int index, out GridInventory pocket)
+        public bool TryFindAvailablePocket(ItemType type, out int index, out GridInventory pocket, bool rotated = false)
         {
-            if (type.Width == 1 && type.Height == 1)
+            if (!rotated && type.Width == 1 && type.Height == 1)
             {
                 for (int i = 0; i < PocketCount; i++)
                     if (_pockets[i].Items.Count == 0)
