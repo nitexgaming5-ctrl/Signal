@@ -27,7 +27,8 @@ namespace Signal.Core
         TransactionConflict = 12,
         OrderConflict = 13,
         ItemNotRestored = 14,
-        CustomerAccountUnavailable = 15
+        CustomerAccountUnavailable = 15,
+        PlayerAccountUnavailable = 16
     }
 
     public sealed class CustomerRepairOrderState
@@ -268,6 +269,9 @@ namespace Signal.Core
             if (!orders.TryGetState(orderId, out CustomerRepairOrderState order) ||
                 order.Phase != CustomerRepairOrderPhase.Active || order.ItemInstanceId == Guid.Empty)
                 return Result(CustomerRepairOrderStatus.OfferUnavailable);
+            if (!accounts.TryGetAccount(EconomicActorId.Player, out CleanMoneyAccount registeredPlayerAccount) ||
+                !ReferenceEquals(playerAccount, registeredPlayerAccount))
+                return Result(CustomerRepairOrderStatus.PlayerAccountUnavailable);
             if (!accounts.TryGetAccount(order.Issuer, out CleanMoneyAccount issuerAccount) ||
                 ReferenceEquals(playerAccount, issuerAccount))
                 return Result(CustomerRepairOrderStatus.CustomerAccountUnavailable);
