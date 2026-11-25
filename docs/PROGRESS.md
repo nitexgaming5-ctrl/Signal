@@ -297,3 +297,12 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 ### P-03 exact pocket-to-backpack test correction — 2026-11-26
 
 - Fixed `MovesPocketItemToExactBackpackDropCell`: its fixture incorrectly created a 2×1 item, which cannot legally enter a 1×1 pocket. The test now uses a valid 1×1 pocket item and continues to assert placement at the exact requested backpack coordinates. Production transfer validation is unchanged; larger/rotated items remain ineligible for pockets.
+
+
+### P-03 follow-up — direct pocket-to-pocket moves and swaps (2026-11-26)
+
+- Added direct drag-and-drop between personal pockets. Dragging onto an empty pocket moves the exact stack; dragging onto an occupied pocket swaps both stacks.
+- Pocket dragging is now available even when no backpack is equipped or the backpack is dropped. This keeps all three personal pockets independently usable.
+- Added an atomic Core single-stack swap primitive and PlayerPocketBook.TryMoveBetweenPockets. Stable item IDs, quantities, item state and ownership are preserved; both pocket grids are updated before change notifications fire.
+- Added three EditMode tests covering move-to-empty, occupied-pocket swap preservation, and invalid-move non-mutation. User's latest confirmed baseline is 494/494; expected current total is 500, pending Unity execution.
+- No Unity compile, EditMode or Play Mode result is claimed by this implementation pass.
