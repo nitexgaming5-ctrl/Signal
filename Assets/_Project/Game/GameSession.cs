@@ -274,6 +274,7 @@ namespace Signal.Game
                     dirtyCashContactOffer.DirtyCashItem, dirtyCashContactOffer.AcceptedItem,
                     dirtyCashContactOffer.AcceptedQuantity, dirtyCashContactOffer.DirtyCashUnits,
                     dirtyCashContactOffer.CleaningFeePercent, ExchangeWithContact, CleanDirtyCash);
+                _dirtyCashPanel.SetPlayerInventories(_inventory, GetPocketInventories(), IsBackpackAccessible());
             }
             else
             {
@@ -2756,23 +2757,35 @@ namespace Signal.Game
             return nearest;
         }
 
+        private bool IsBackpackAccessible()
+        {
+            return _equippedBackpackInstanceId.HasValue && !_droppedBackpackItem.HasValue;
+        }
+
+        private List<GridInventory> GetPocketInventories()
+        {
+            var pockets = new List<GridInventory>();
+            if (_playerPockets != null)
+                for (int i = 0; i < PlayerPocketBook.PocketCount; i++)
+                    pockets.Add(_playerPockets.GetPocket(i));
+            return pockets;
+        }
+
         private List<GridInventory> GetAccessibleCarryInventories()
         {
             var inventories = new List<GridInventory>();
-            if (_equippedBackpackInstanceId.HasValue && !_droppedBackpackItem.HasValue && _inventory != null)
+            if (IsBackpackAccessible() && _inventory != null)
                 inventories.Add(_inventory);
-            if (_playerPockets != null)
-                for (int i = 0; i < PlayerPocketBook.PocketCount; i++)
-                    inventories.Add(_playerPockets.GetPocket(i));
+            inventories.AddRange(GetPocketInventories());
             return inventories;
         }
 
         private void RefreshCarryPanelInventories()
         {
-            GridInventory accessible = _equippedBackpackInstanceId.HasValue && !_droppedBackpackItem.HasValue
-                ? _inventory : _emptyCarryInventory;
+            GridInventory accessible = IsBackpackAccessible() ? _inventory : _emptyCarryInventory;
             if (_customerContractPanel != null) _customerContractPanel.SetPlayerInventory(accessible);
-            if (_dirtyCashPanel != null) _dirtyCashPanel.SetPlayerInventory(accessible);
+            if (_dirtyCashPanel != null)
+                _dirtyCashPanel.SetPlayerInventories(_inventory, GetPocketInventories(), IsBackpackAccessible());
             if (_retailPanel != null) _retailPanel.SetInventories(GetAccessibleCarryInventories());
         }
 
