@@ -16,7 +16,7 @@ Signal is a top-down 2D urban RPG built on Unity 6000.6.9f1.
 ## Current verified baseline
 - Working branch: `chore/collaboration-workflow-and-audit`; keep `main` untouched.
 - Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
-- User confirmed **500/500 EditMode tests passing** after direct pocket-to-pocket moves/swaps (2026-11-26). This is the current full-suite automated-test checkpoint; Play Mode acceptance for the remaining P-03 scenarios is still outstanding.
+- User confirmed **500/500 EditMode tests passing** after direct pocket-to-pocket moves/swaps (2026-11-26). P-03.5 source changes since that checkpoint cover Retail SELL, Dirty Cash selection and Home Storage across accessible pockets/backpack; those new changes are not yet Unity-verified. Play Mode acceptance remains outstanding.
 - B-06 Customer Repair Orders is complete: entrusted item custody remains distinct from ownership; exact item return and 35 CARD payment are atomic and replay-protected.
 - B-04 repair/trading and the First Workshop have also been reported working in Play Mode.
 - Unity remains the authority for compile, test and Play Mode verification. Never infer a pass from source edits.
@@ -166,3 +166,6 @@ Committed but not yet Unity-verified:
 - Direct pocket moves to empty slots and swaps with occupied slots work through the shared pocket model; identity, count and item state are preserved. P3's ordinary-search exclusion remains unchanged.
 - Next implementation slice is P-03.5: audit and integrate Retail SELL and Dirty Cash selection with pocket-held items, then home storage and workbench/production. Dropped backpack cargo must remain inaccessible in every panel.
 - Remaining after service integration: wearable overlays constrained by supplied art, removal of temporary fresh-session debug loadout seeding, and full Play Mode acceptance. The 500/500 result is EditMode verification, not a claim that those Play Mode scenarios have passed.
+
+
+- Next implementation action: continue P-03.5 with workbench repair and production across accessible backpack/pocket grids, then audit other direct inventory assumptions. Do not start B-07 or W-01 until P-03 is closed.
