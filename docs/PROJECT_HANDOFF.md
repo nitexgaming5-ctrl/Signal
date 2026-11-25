@@ -115,7 +115,7 @@ Committed but not yet Unity-verified:
 ## P-03.4b — functional personal pockets (2026-11-25)
 - The player now has three independent persistent 1×1 personal pockets, each holding one stack of a 1×1 item. They remain available while the backpack is dropped.
 - PlayerPocketBook and PlayerPocketSaveMapper preserve item instance IDs, counts, instance state and owner through F5/F9.
-- The character UI displays pocket contents. Press P while hovering a 1×1 backpack item to move it to the first free pocket; click an occupied pocket to move it back into backpack storage, or inspect it when no backpack is accessible.
+- The character UI displays pocket contents. Press P while hovering a 1×1 backpack item to move it to the first free pocket; click an occupied pocket to move it back into backpack storage, or inspect it when no backpack is accessible. Ordinary 1×1 equipped gear can be unequipped into a free pocket.
 - Pockets are registered as player economic containers. Repair-order acceptance, retail purchase, searchable loot pickup, Dirty Cash exchange output and Milo's parcel can route to available pocket capacity.
 - Eight new Core tests are added; expected suite total is 494, pending Unity compile and test execution. The last user-confirmed baseline was 486/486 after P-03.4a.
 - Customer Contract now lists pocket-held goods and can fulfil from the pocket's actual GridInventory. When no backpack is accessible, Retail and Dirty Cash panels switch to an empty carry view rather than exposing the dropped bag's cargo; they do not yet enumerate pocket-held items. Workbench/production and home-storage transfer still require an equipped backpack. Further service-panel integration and clothing visual overlays remain before P-03 completion.
