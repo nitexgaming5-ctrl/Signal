@@ -13,6 +13,12 @@ namespace Signal.Game
         OpenWorkshopUpgradeOffer = 3
     }
 
+    public enum NpcAgendaRelationshipPerspective
+    {
+        PlayerToNpc = 0,
+        NpcToPlayer = 1
+    }
+
     public enum NpcAgendaActivityRequirement
     {
         Any = 0,
@@ -40,6 +46,7 @@ namespace Signal.Game
         [Range(0f, 1f)] public float DiscoveryConfidence = 1f;
 
         [Header("Relationship outcome")]
+        public NpcAgendaRelationshipPerspective RelationshipOutcomePerspective = NpcAgendaRelationshipPerspective.PlayerToNpc;
         [Range(-1f, 1f)] public float FamiliarityDelta;
         [Range(-1f, 1f)] public float TrustDelta;
         [Range(-1f, 1f)] public float AffinityDelta;
@@ -60,6 +67,7 @@ namespace Signal.Game
         public string RequiredDiscoveryId;
 
         [Header("Relationship gates")]
+        public NpcAgendaRelationshipPerspective RelationshipPerspective = NpcAgendaRelationshipPerspective.PlayerToNpc;
         public bool RequireRelationshipThresholds;
         [Range(0f, 1f)] public float MinimumFamiliarity;
         [Range(0f, 1f)] public float MinimumTrust;
@@ -149,7 +157,8 @@ namespace Signal.Game
                             thread.ThreadId + ".";
                         return false;
                     }
-                    if (!Enum.IsDefined(typeof(NpcAgendaActivityRequirement), stage.RequiredActivity))
+                    if (!Enum.IsDefined(typeof(NpcAgendaActivityRequirement), stage.RequiredActivity) ||
+                        !Enum.IsDefined(typeof(NpcAgendaRelationshipPerspective), stage.RelationshipPerspective))
                     {
                         error = "Stage " + stage.StageId + " has an invalid activity requirement.";
                         return false;
@@ -221,7 +230,8 @@ namespace Signal.Game
                         if (choice == null || string.IsNullOrWhiteSpace(choice.ChoiceId) ||
                             !choiceIds.Add(choice.ChoiceId) || string.IsNullOrWhiteSpace(choice.Label) ||
                             string.IsNullOrWhiteSpace(choice.Response) ||
-                            !Enum.IsDefined(typeof(NpcAgendaChoiceAction), choice.Action))
+                            !Enum.IsDefined(typeof(NpcAgendaChoiceAction), choice.Action) ||
+                            !Enum.IsDefined(typeof(NpcAgendaRelationshipPerspective), choice.RelationshipOutcomePerspective))
                         {
                             error = "Choice IDs, labels, responses and actions must be valid and unique in stage " +
                                 stage.StageId + ".";
@@ -247,7 +257,10 @@ namespace Signal.Game
                         }
                         if (float.IsNaN(choice.FamiliarityDelta) || float.IsInfinity(choice.FamiliarityDelta) ||
                             float.IsNaN(choice.TrustDelta) || float.IsInfinity(choice.TrustDelta) ||
-                            float.IsNaN(choice.AffinityDelta) || float.IsInfinity(choice.AffinityDelta))
+                            float.IsNaN(choice.AffinityDelta) || float.IsInfinity(choice.AffinityDelta) ||
+                            choice.FamiliarityDelta < -1f || choice.FamiliarityDelta > 1f ||
+                            choice.TrustDelta < -1f || choice.TrustDelta > 1f ||
+                            choice.AffinityDelta < -1f || choice.AffinityDelta > 1f)
                         {
                             error = "Relationship outcomes must be finite in choice " + choice.ChoiceId + ".";
                             return false;
