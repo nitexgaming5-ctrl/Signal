@@ -442,6 +442,7 @@ namespace Signal.Game
             {
                 GameObject eventSystemObject = new GameObject("InventoryEventSystem",
                     typeof(EventSystem), typeof(InputSystemUIInputModule));
+                eventSystemObject.transform.SetParent(transform, false);
                 eventSystemObject.GetComponent<InputSystemUIInputModule>().AssignDefaultActions();
             }
 
