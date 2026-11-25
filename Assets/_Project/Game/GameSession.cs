@@ -1848,7 +1848,7 @@ namespace Signal.Game
 
             int skippedContainers = SearchableContainerSaveMapper.Apply(data, _searchableContainers, ResolveType);
             RegisterSearchableContainerAssets();
-            RegisterUnownedPlayerAssets(_inventory);
+            RegisterUnownedAccessibleAssets();
             _miloOpportunity = report.RestoredOpportunity != null &&
                 report.RestoredOpportunity.OpportunityId == "milo-parcel"
                 ? report.RestoredOpportunity
