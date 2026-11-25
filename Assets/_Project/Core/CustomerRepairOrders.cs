@@ -26,7 +26,8 @@ namespace Signal.Core
         TransferFailed = 11,
         TransactionConflict = 12,
         OrderConflict = 13,
-        ItemNotRestored = 14
+        ItemNotRestored = 14,
+        CustomerAccountUnavailable = 15
     }
 
     public sealed class CustomerRepairOrderState
@@ -255,19 +256,21 @@ namespace Signal.Core
 
         public static CustomerRepairOrderResult TryReturn(Guid orderId, ItemType requiredItem,
             GridInventory playerInventory, GridInventory issuerInventory, EconomicContainerRegistry containers,
-            AssetOwnershipBook ownership, CleanMoneyAccount playerAccount, CleanMoneyAccount issuerAccount,
+            AssetOwnershipBook ownership, CleanMoneyAccount playerAccount, EconomicAccountBook accounts,
             ServicePaymentTransactionLedger transactions, CustomerRepairOrderBook orders, int day, int minuteOfDay)
         {
             if (orderId == Guid.Empty || !ValidItem(requiredItem) || playerInventory == null ||
                 issuerInventory == null || ReferenceEquals(playerInventory, issuerInventory) || containers == null ||
-                ownership == null || playerAccount == null || issuerAccount == null ||
-                ReferenceEquals(playerAccount, issuerAccount) || transactions == null || orders == null ||
+                ownership == null || playerAccount == null || accounts == null || transactions == null || orders == null ||
                 !ValidTime(day, minuteOfDay))
                 return Result(CustomerRepairOrderStatus.InvalidRequest);
 
             if (!orders.TryGetState(orderId, out CustomerRepairOrderState order) ||
                 order.Phase != CustomerRepairOrderPhase.Active || order.ItemInstanceId == Guid.Empty)
                 return Result(CustomerRepairOrderStatus.OfferUnavailable);
+            if (!accounts.TryGetAccount(order.Issuer, out CleanMoneyAccount issuerAccount) ||
+                ReferenceEquals(playerAccount, issuerAccount))
+                return Result(CustomerRepairOrderStatus.CustomerAccountUnavailable);
             if (!containers.TryGetCustodian(playerInventory, out EconomicActorId playerCustodian) ||
                 playerCustodian != EconomicActorId.Player ||
                 !containers.TryGetCustodian(issuerInventory, out EconomicActorId issuerCustodian) ||
