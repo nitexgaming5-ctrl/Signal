@@ -60,7 +60,7 @@ The current implementation status, branch head, verification and next action liv
 - The First Workshop B-01 to B-03 foundation and starter content are committed: Fabric Roll/Thread Spool/Adhesive Tube/Fastener Pack → Basic Patch Kit; Milo requests one kit for 40 CARD; Rhea sells the Compact Sewing Machine for 90 CARD after contract completion; the upgrade unlocks Reinforced Patch Kit.
 - The latest user-reported full EditMode result before B-06 was **445/445 passed on 2026-11-25**, including B-05 directionality, generic agenda integration, contract outcomes and persistence.
 - B-01–B-05 foundations are implemented; B-05 is user-verified. The user reports the First Workshop and repair/trading flow working in Play Mode.
-- B-06 Customer Repair Orders is now in its first implementation slice. Nine focused tests have been added; expected suite count is 454 from the 445 baseline, but Unity compilation and test execution are pending.
+- B-06 Customer Repair Orders is now in its first implementation slice. Ten focused tests have been added; expected suite count is 455 from the 445 baseline, but Unity compilation and test execution are pending.
 
 ### Current and future strategic direction
 
@@ -71,7 +71,7 @@ The current implementation status, branch head, verification and next action liv
 5. **B-07 — Livelihood expansion:** future placeholder; choose another coherent activity only after B-06 verification.
 6. **Neighbourhood expansion and crime depth:** continue as separate, scenario-led design reusing the shared city, item and economy foundations.
 
-B-06's first code slice is committed, but current-HEAD Unity compilation, full EditMode verification (454 expected from the prior 445 baseline) and the end-to-end Play Mode transaction/save-load loop remain pending. Do not add story NPCs until the main storyline and intended cast are designed.
+B-06's first code slice is committed, but current-HEAD Unity compilation, full EditMode verification (455 expected from the prior 445 baseline) and the end-to-end Play Mode transaction/save-load loop remain pending. Do not add story NPCs until the main storyline and intended cast are designed.
 
 ## How to navigate this repository
 
