@@ -41,7 +41,7 @@ Candidate skills (Repair, Production, Trading, Scavenging, Social), starting bud
 Dynamic seasonal weather is planned: temperature changes, rain, storms, snow and blizzards. Player exposure consequences are cold-focused and gradual. Heat Protection mitigates cold exposure; shelter supports recovery. No hot-weather/overheating gameplay is planned. W-01 is separate from P-01/P-02 and is not authorized for implementation.
 
 ## Next action
-Review/approve the P-01/P-02 specifications before implementation. Keep W-01 as a separate future design phase. Do not change gameplay code, assets or scenes until the user approves the implementation scope.
+Continue P-03 Equipment, Wearables & Portable Backpack. The seven-slot layout is approved: Head, Torso, Legs, Feet and three generic accessory slots. The backpack is a physical accessory/container whose contents remain attached to its stable item identity when equipped, dropped or recovered. The first Core foundation is committed; Unity verification and Game/save/UI/world integration remain pending. See docs/tasks/PLAYER-P-03-EQUIPMENT-BACKPACK.md. Keep B-07 and W-01 as separate roadmap tracks.
 
 
 ## Latest implementation — P-01/P-02 first slice (2026-11-25)
@@ -53,3 +53,11 @@ Committed but not yet Unity-verified:
 - Current prototype catalog: 8 starting points, rank cap 5, 1 point per rank. Candidate skills remain provisional. Activity-specific effects are not yet wired.
 - Eleven focused tests were added. Previous user-verified baseline was 456/456 before this change; expected current total is 467. Unity compile, full EditMode suite and Play Mode must be run before calling this verified.
 - F2 opens Player Development when other major panels are closed. F1 remains the existing debug menu.
+
+
+## P-03 first implementation slice (2026-11-25)
+
+- Core seven-slot PlayerEquipmentLoadout is committed with exact item-instance transfer, slot uniqueness and effective Armor/Heat Protection aggregation.
+- PortableStorageBook associates independent GridInventory contents with a stable backpack item instance ID; non-empty storage cannot be discarded.
+- Nine focused EditMode tests were added. User's 467/467 verification predates these tests; expected total is 476 pending Unity execution.
+- Game item metadata, GameSession composition, SaveData persistence, equipment/backpack UI, wearable visuals and physical world drop/pickup are not implemented yet. Do not describe P-03 as complete until these are integrated and tested.
