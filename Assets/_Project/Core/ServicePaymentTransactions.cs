@@ -60,7 +60,7 @@ namespace Signal.Core
             return true;
         }
 
-        public bool TryRemove(Guid transactionId)
+        internal bool TryRemove(Guid transactionId)
         {
             if (transactionId == Guid.Empty || !_transactionIds.Contains(transactionId)) return false;
             for (int i = 0; i < _transactions.Count; i++)
