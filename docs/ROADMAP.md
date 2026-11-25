@@ -6,11 +6,11 @@ Signal is a top-down urban RPG about making a precarious living in one shared ci
 
 This roadmap describes the direction and dependencies. Current implementation and verification are authoritative in `PROGRESS.md`; detailed approved player-facing rules live in `DESIGN.md`.
 
-## Completed sequence — Direction B: First Workshop through Global NPC Awareness (B-01 to B-05)
+## Completed sequence — Direction B: First Workshop through Customer Repair Orders (B-01 to B-06)
 
 B-01–B-04 establish the player-operated workshop, one active customer contract, practical hideout upgrade, repair/restoration and the first textile buyer/supplier loop. B-05 adds generic individual NPC awareness and all three independent relationship directions. The user confirmed **445/445 EditMode tests passing on 2026-11-25**. These foundations are the baseline for the next livelihood activity; do not rebuild them without a concrete defect.
 
-**Next: B-06 — Customer Repair Orders.** The user approved an entrusted-item repair service using the existing Milo framework resident. First implementation is committed; Unity compilation, EditMode and Play Mode verification remain pending. See [B-06 task card](tasks/LIVELIHOOD-B-06-CUSTOMER-REPAIR-ORDERS.md).
+**B-06 — Customer Repair Orders: complete and user-verified.** The user confirmed 456/456 EditMode tests and successful in-game acceptance → repair → return/payment testing on 2026-11-25. See [B-06 task card](tasks/LIVELIHOOD-B-06-CUSTOMER-REPAIR-ORDERS.md).
 
 **Player outcome:** produce useful physical goods in the hideout, fulfil one authored customer request, receive clean CARD and invest in a practical upgrade that unlocks another recipe.
 
@@ -69,11 +69,11 @@ Knowledge remains local or explicitly communicated; there is no omniscience, aut
 
 ### B-06 — Customer repair orders
 
-**Status: first implementation slice committed; Unity verification pending.** The existing Milo framework resident entrusts one Worn Work Jacket. The player accepts it into custody (ownership remains Milo's), repairs it with the existing workbench/Basic Patch Kit flow, returns the same physical instance and receives 35 clean CARD from Milo's resident account.
+**Status: implemented and user-verified; 456/456 EditMode tests and in-game acceptance confirmed by the user on 2026-11-25.** The existing Milo framework resident entrusts one Worn Work Jacket. The player accepts it into custody (ownership remains Milo's), repairs it with the existing workbench/Basic Patch Kit flow, returns the same physical instance and receives 35 clean CARD from Milo's resident account.
 
 The payment uses a dedicated ServicePaymentTransactionLedger, separate from ownership-changing asset transfers. The return operation is atomic across the two inventories, player/customer balances, payment history and order completion; replay is blocked. Active order and payment history are included in F5/F9. Only one customer job may be active across the existing contract and repair-order flows. No new story NPCs are introduced.
 
-Eleven focused EditMode tests cover custody/ownership, successful payment, replay, failed returns, insufficient funds, player-account overflow, missing issuer account, receiver capacity and save/load. Expected suite total is 456 from the user's previous 445 baseline; Unity execution is pending. See [B-06 task card](tasks/LIVELIHOOD-B-06-CUSTOMER-REPAIR-ORDERS.md).
+Eleven focused EditMode tests cover custody/ownership, successful payment, replay, failed returns, insufficient funds, player-account overflow, missing issuer account, receiver capacity and save/load. The user confirmed the complete suite at 456/456 and reported the in-game loop passing. See [B-06 task card](tasks/LIVELIHOOD-B-06-CUSTOMER-REPAIR-ORDERS.md).
 
 ### B-07 — Neighbourhood expansion
 
@@ -132,3 +132,18 @@ Completed task specifications and their verification snapshots are archived unde
 ## Active social foundation — B-05 Global NPC Awareness & Affinity
 
 B-05 preserves three distinct directions: player→NPC in `PlayerRelationshipBook`; NPC→NPC and NPC→player on each `NpcAgentState` in `NpcSocialWorld`. Each uses the shared `NpcRelationship` value model. Individual knowledge and all NPC-owned relationship directions persist through F5/F9. Customer contracts now support authored outcomes for both the player's impression of the issuer and the issuer's impression of the player. The user confirmed **445/445** after the NPC→player and generic agenda integration. No new story NPCs were authored during this framework phase.
+
+## Parallel track — Player Development (P-01 onward)
+
+The user has approved intercalating character development before returning to the B-07 neighbourhood-expansion work. This is a parallel track; it does not renumber or replace B-07.
+
+- **P-01 — Character Foundation & Appearance:** customize the existing player; replace the RoomBootstrap placeholder sprite with a modular animated character using the supplied resource pack; persist appearance IDs; prepare clothing/armor visual layers without implementing the full equipment loadout.
+- **P-02 — Attributes & Skills:** exactly two attributes (Armor and Heat Protection); fixed freely distributed starting skill-point budget; additional points from important one-time gameplay milestones; manual allocation and free redistribution at any time. The proposed skill catalogue remains provisional.
+- **P-03 — Equipment & Clothing:** future phase for authoritative wearable slots, physical item identity/custody, visual overlays and Armor/Heat Protection modifiers.
+
+Detailed P-01/P-02 task specifications are prepared but implementation is not authorized yet. See [P-01](tasks/PLAYER-P-01-CHARACTER-FOUNDATION-APPEARANCE.md) and [P-02](tasks/PLAYER-P-02-ATTRIBUTES-SKILLS.md).
+
+## Separate future world-simulation track — W-01
+
+**W-01 — Dynamic Weather & Cold Exposure** is a separate future phase, not part of P-01/P-02. The user wants dynamic seasonal weather (temperature changes, rain, storms, snow and blizzards), while player exposure consequences are cold-focused only. The attribute name remains **Heat Protection**; it protects against cold exposure. Exposure is gradual, with shelter and effective Heat Protection reducing risk. No hot-weather or overheating gameplay is planned. See [W-01 design](tasks/WEATHER-W-01-DYNAMIC-WEATHER-COLD-EXPOSURE-DESIGN.md). Detailed mechanics and balance remain open until W-01 is activated.
+
