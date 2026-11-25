@@ -1116,11 +1116,18 @@ namespace Signal.Game
 
         private static bool IsWorldTransitionPrompt(string prompt)
         {
-            return prompt == "E  Leave hideout" ||
-                prompt == "E  Return to hideout" ||
-                prompt == "E  Enter corner shop" ||
-                prompt == "E  Enter apartment" ||
-                prompt == "E  Return to street";
+            if (string.IsNullOrWhiteSpace(prompt) ||
+                !prompt.TrimStart().StartsWith("E", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            // CityBlock may use different wording for the same door depending on
+            // the current place (for example, "Exit building" rather than
+            // "Return to street"). Keep navigation prompts visible while the
+            // backpack is dropped without exposing item-based interactions.
+            return prompt.IndexOf("enter", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                prompt.IndexOf("exit", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                prompt.IndexOf("leave", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                prompt.IndexOf("return", StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         private void TickClock()
