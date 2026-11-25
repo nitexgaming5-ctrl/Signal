@@ -61,3 +61,13 @@ Committed but not yet Unity-verified:
 - PortableStorageBook associates independent GridInventory contents with a stable backpack item instance ID; non-empty storage cannot be discarded.
 - Nine focused EditMode tests were added. User's 467/467 verification predates these tests; expected total is 476 pending Unity execution.
 - Game item metadata, GameSession composition, SaveData persistence, equipment/backpack UI, wearable visuals and physical world drop/pickup are not implemented yet. Do not describe P-03 as complete until these are integrated and tested.
+
+
+## P-03 second implementation slice — backpack equipped (2026-11-25)
+
+- User confirmed 476/476 after the Core equipment/backpack foundation. Two additional focused tests were added in this slice; expected current suite is 478, pending Unity verification.
+- Temporary player grid expanded to 8×6 for testing. Final design: 2–3 small pockets without a backpack; current large tabbed grid belongs to the equipped backpack.
+- ItemDefinition optional metadata and three Resources fixtures are added: Canvas Backpack (Accessory 1, 8×6), Padded Work Jacket (Armor +2 / Heat Protection +1), Insulated Coat (Armor +0 / Heat Protection +3). All values are provisional test tuning.
+- Inventory: hover item + E to equip; number keys 1–7 unequip ordinary slots. Backpack cannot yet be unequipped; that action belongs to the physical drop/pickup phase.
+- Equipped identity/state/owner/modifiers persist through F5/F9. The existing 8×6 grid is attached to the backpack's stable identity without copying contents. A placeholder silhouette appears on the character.
+- Next: Unity verify, then implement physical backpack drop/pickup and the 2–3 pocket fallback. Do not mark P-03 complete yet.
