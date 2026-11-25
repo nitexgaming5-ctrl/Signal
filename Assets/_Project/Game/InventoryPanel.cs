@@ -58,6 +58,11 @@ namespace Signal.Game
         private Func<bool> _dropBackpack;
         private Func<bool> _hasBackpack;
         private Func<bool> _canAccessGrid;
+        private PlayerPocketBook _pockets;
+        private Func<Guid, bool> _moveItemToPocket;
+        private Func<int, bool> _movePocketToBackpack;
+        private readonly Button[] _pocketButtons = new Button[PlayerPocketBook.PocketCount];
+        private readonly Text[] _pocketLabels = new Text[PlayerPocketBook.PocketCount];
         private readonly List<Text> _equipmentLabels = new List<Text>();
         private Button _dropButton;
         private Text _emptyState;
@@ -88,7 +93,9 @@ namespace Signal.Game
         public void Bind(GridInventory inventory, IReadOnlyList<ItemDefinition> definitions, Action<PlacedItem> inspectItem = null,
             Func<PlacedItem, bool> equipItem = null, Func<EquipmentSlot, bool> unequipItem = null,
             PlayerEquipmentLoadout equipment = null, Func<bool> dropBackpack = null,
-            Func<bool> hasBackpack = null, Func<bool> canAccessGrid = null)
+            Func<bool> hasBackpack = null, Func<bool> canAccessGrid = null,
+            PlayerPocketBook pockets = null, Func<Guid, bool> moveItemToPocket = null,
+            Func<int, bool> movePocketToBackpack = null)
         {
             if (inventory == null)
                 throw new ArgumentNullException(nameof(inventory));
@@ -106,7 +113,13 @@ namespace Signal.Game
             _dropBackpack = dropBackpack;
             _hasBackpack = hasBackpack;
             _canAccessGrid = canAccessGrid;
+            _pockets = pockets;
+            _moveItemToPocket = moveItemToPocket;
+            _movePocketToBackpack = movePocketToBackpack;
             _inventory.Changed += OnInventoryChanged;
+            if (_pockets != null)
+                for (int i = 0; i < PlayerPocketBook.PocketCount; i++)
+                    _pockets.GetPocket(i).Changed += OnPocketChanged;
 
             _visuals.Clear();
             if (definitions != null)
@@ -161,6 +174,14 @@ namespace Signal.Game
         {
             if (_inventory != null)
                 _inventory.Changed -= OnInventoryChanged;
+            if (_pockets != null)
+                for (int i = 0; i < PlayerPocketBook.PocketCount; i++)
+                    _pockets.GetPocket(i).Changed -= OnPocketChanged;
+        }
+
+        private void OnPocketChanged(GridInventory inventory)
+        {
+            if (_open) Refresh();
         }
 
         private void OnInventoryChanged(GridInventory inventory)
@@ -212,6 +233,14 @@ namespace Signal.Game
 
             if (_canAccessGrid != null && !_canAccessGrid())
                 return;
+
+            if (!_dragging && keyboard != null && keyboard.pKey.wasPressedThisFrame && inGrid &&
+                _inventory.TryGetItemAt(hoverX, hoverY, out PlacedItem pocketTarget))
+            {
+                _moveItemToPocket?.Invoke(pocketTarget.ItemInstanceId);
+                Refresh();
+                return;
+            }
 
             if (!_dragging && keyboard != null && keyboard.eKey.wasPressedThisFrame && inGrid &&
                 _inventory.TryGetItemAt(hoverX, hoverY, out PlacedItem equipTarget))
@@ -374,6 +403,7 @@ namespace Signal.Game
             if (canAccess)
                 foreach (PlacedItem item in _inventory.Items)
                     CreateItemView(item);
+            RefreshPocketViews();
             RefreshCharacterPanel();
         }
 
@@ -457,7 +487,7 @@ namespace Signal.Game
             _root.pivot = new Vector2(0.5f, 0.5f);
             _root.anchoredPosition = Vector2.zero;
 
-            _title = NewText("Title", _root, "CHARACTER & INVENTORY   [E] equip   [1-7] unequip   [B] drop backpack   [LMB] move   [RMB] inspect   [R] rotate", 16,
+            _title = NewText("Title", _root, "CHARACTER & INVENTORY   [E] equip   [1-7] unequip   [P] move hovered 1x1 item to pocket   [B] drop backpack", 16,
                              TextAnchor.MiddleLeft, TitleColor);
 
             _characterRoot = NewRect("CharacterPanel", _root);
@@ -528,13 +558,26 @@ namespace Signal.Game
             Text pocketsTitle = NewText("PocketsTitle", _characterRoot, "PERSONAL POCKETS", 12,
                 TextAnchor.MiddleLeft, FallbackColor);
             SetTopLeft(pocketsTitle.rectTransform, 10f, 252f, 196f, 20f);
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < PlayerPocketBook.PocketCount; i++)
             {
                 Image pocket = NewImage("Pocket_" + (i + 1), _characterRoot, CellColor);
+                pocket.raycastTarget = true;
+                Button pocketButton = pocket.gameObject.AddComponent<Button>();
+                pocketButton.targetGraphic = pocket;
+                int pocketIndex = i;
+                pocketButton.onClick.AddListener(() =>
+                {
+                    if (_movePocketToBackpack != null && _movePocketToBackpack(pocketIndex))
+                        Refresh();
+                    else if (_pockets != null && _pockets.GetPocket(pocketIndex).Items.Count > 0)
+                        _inspectItem?.Invoke(_pockets.GetPocket(pocketIndex).Items[0]);
+                });
+                _pocketButtons[i] = pocketButton;
                 SetTopLeft(pocket.rectTransform, 10f + i * 66f, 278f, 60f, 54f);
-                Text pocketLabel = NewText("PocketLabel", pocket.transform, "P" + (i + 1), 12,
-                    TextAnchor.MiddleCenter, FallbackColor);
+                Text pocketLabel = NewText("PocketLabel", pocket.transform, "P" + (i + 1), 11,
+                    TextAnchor.MiddleCenter, TitleColor);
                 Stretch(pocketLabel.rectTransform);
+                _pocketLabels[i] = pocketLabel;
             }
 
             GameObject buttonObject = new GameObject("DropBackpackButton", typeof(RectTransform), typeof(Image), typeof(Button));
@@ -569,6 +612,29 @@ namespace Signal.Game
                 ? _hasBackpack()
                 : _equipment.TryGet(EquipmentSlot.Accessory1, out _);
             if (_dropButton != null) _dropButton.interactable = hasBackpack;
+        }
+
+        private void RefreshPocketViews()
+        {
+            for (int i = 0; i < PlayerPocketBook.PocketCount; i++)
+            {
+                if (_pocketLabels[i] == null) continue;
+                if (_pockets != null && _pockets.GetPocket(i).Items.Count > 0)
+                {
+                    PlacedItem item = _pockets.GetPocket(i).Items[0];
+                    ItemVisual visual = VisualFor(item.Type);
+                    _pocketLabels[i].text = "P" + (i + 1) + "\\n" + visual.Label +
+                        (item.Count > 1 ? "\\nx" + item.Count : string.Empty);
+                    _pocketLabels[i].color = TitleColor;
+                    _pocketButtons[i].interactable = true;
+                }
+                else
+                {
+                    _pocketLabels[i].text = "P" + (i + 1) + "\\nEMPTY";
+                    _pocketLabels[i].color = FallbackColor;
+                    _pocketButtons[i].interactable = false;
+                }
+            }
         }
 
         private static void ClearChildren(RectTransform parent)
