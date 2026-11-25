@@ -1225,7 +1225,8 @@ namespace Signal.Game
                                                _contactInventory, _illicitExchanges, _dirtyCashCleanings,
                                                _productionTransactions, _customerContracts, _workshopProgression,
                                                _contractReceiverInventory, _contractReceiverActor.Value,
-                                               _npcAgendaProgress, _city != null ? _city.SocialWorld : null);
+                                               _npcAgendaProgress, _city != null ? _city.SocialWorld : null,
+                                               _customerRepairOrders);
             SearchableContainerSaveMapper.Capture(_searchableContainers, data);
 
             try
@@ -1251,6 +1252,7 @@ namespace Signal.Game
             if (_containerPanel != null) _containerPanel.Close();
             if (_dirtyCashPanel != null) _dirtyCashPanel.Close();
             if (_customerContractPanel != null) _customerContractPanel.Close();
+            if (_customerRepairOrderPanel != null) _customerRepairOrderPanel.Close();
             if (_workshopUpgradePanel != null) _workshopUpgradePanel.Close();
             if (_npcAgendaPanel != null) _npcAgendaPanel.Close();
             _activeSearchableContainer = null;
@@ -1259,12 +1261,13 @@ namespace Signal.Game
                 _economicAccounts, _retailTransactions, _shopSaleTransactions, _criminalProgression, _crimeOutcomes,
                 _contactInventory, _illicitExchanges, _dirtyCashCleanings,
                 _productionTransactions, _customerContracts, _workshopProgression, _contractReceiverInventory,
-                _npcAgendaProgress, _city != null ? _city.SocialWorld : null);
+                _npcAgendaProgress, _city != null ? _city.SocialWorld : null, _customerRepairOrders);
             if (!report.Success)
             {
                 Say("Load failed: " + report.Error);
                 return;
             }
+            EnsureCustomerRepairItem();
             RefreshWorkshopUpgradeVisual();
             if (_workspace != null)
                 _workspace.Refresh();
@@ -1295,7 +1298,7 @@ namespace Signal.Game
                 report.SkippedCrimeOutcomes + report.SkippedContactItems +
                 report.SkippedIllicitExchangeTransactions + report.SkippedDirtyCashCleaningTransactions +
                 skippedContainers + report.SkippedProductionTransactions + report.SkippedCustomerContracts +
-                report.SkippedWorkshopUpgradeIds + report.SkippedContractReceiverItems +
+                report.SkippedWorkshopUpgradeIds + report.SkippedContractReceiverItems + report.SkippedCustomerRepairOrders +
                 report.SkippedNpcAgendaProgress + report.SkippedNpcKnowledge +
                 report.SkippedNpcSocialRelationships + report.SkippedNpcPlayerRelationships > 0
                 ? "Loaded at " + data.worldPlace + ". Some saved item or discovery details could not be restored."
