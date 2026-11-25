@@ -338,7 +338,122 @@ namespace Signal.Game
                 _itemKnowledge, CanRepairAtWorkbench, RepairItem, CanRepairTarget);
             RefreshCarryPanelInventories();
             RefreshWorkshopUpgradeVisual();
+            InitializeDebugStartingLoadout();
             _hud.ShowMessage("Your hideout is ready. The street is just outside.", 5f);
+        }
+
+        /// <summary>
+        /// Temporary development bootstrap: give every fresh Play Mode session a backpack
+        /// and a small selection of differently-sized test items. Remove when the debug
+        /// inventory workflow is no longer needed; this is not intended as player starting gear.
+        /// </summary>
+        private void InitializeDebugStartingLoadout()
+        {
+            ItemDefinition backpackDefinition = null;
+            foreach (ItemDefinition definition in _allItemDefinitions)
+            {
+                if (definition == null || !definition.PortableBackpack || !definition.Equippable)
+                    continue;
+                if (definition.BackpackWidth != _inventory.Width || definition.BackpackHeight != _inventory.Height)
+                    continue;
+                backpackDefinition = definition;
+                break;
+            }
+
+            if (backpackDefinition == null)
+            {
+                Debug.LogWarning("Debug starting loadout skipped: no compatible portable backpack definition was found.", this);
+                return;
+            }
+
+            ItemType backpackType;
+            try { backpackType = backpackDefinition.ToItemType(); }
+            catch (InvalidOperationException exception)
+            {
+                Debug.LogWarning("Debug starting loadout skipped: " + exception.Message, this);
+                return;
+            }
+
+            Guid backpackId = Guid.NewGuid();
+            int? backpackLocalId = _inventory.Place(backpackType, 0, 0, false, 1,
+                backpackId, backpackDefinition.DefaultInstanceState);
+            if (!backpackLocalId.HasValue || !_inventory.TryGet(backpackLocalId.Value, out PlacedItem backpackItem))
+            {
+                Debug.LogWarning("Debug starting loadout skipped: the backpack could not be placed in the test grid.", this);
+                return;
+            }
+
+            _assetOwnership.TryRegister(backpackId, EconomicActorId.Player);
+            if (!TryEquipPlayerItem(backpackItem, _inventory))
+            {
+                Debug.LogWarning("Debug starting loadout: the backpack item was created but could not be equipped.", this);
+                return;
+            }
+
+            // Pick up to three distinct item footprints. Prefer larger items first so
+            // the test grid immediately exercises placement, rotation and transfer logic.
+            var candidates = new List<ItemDefinition>();
+            var seenFootprints = new HashSet<string>(StringComparer.Ordinal);
+            foreach (ItemDefinition definition in _allItemDefinitions)
+            {
+                if (definition == null || definition.PortableBackpack || definition.Equippable)
+                    continue;
+
+                ItemType type;
+                try { type = definition.ToItemType(); }
+                catch (InvalidOperationException) { continue; }
+
+                if (type.Width > _inventory.Width || type.Height > _inventory.Height)
+                    continue;
+
+                string footprint = type.Width + "x" + type.Height;
+                if (!seenFootprints.Add(footprint))
+                    continue;
+
+                candidates.Add(definition);
+            }
+
+            candidates.Sort((left, right) =>
+            {
+                ItemType leftType = left.ToItemType();
+                ItemType rightType = right.ToItemType();
+                int areaOrder = (rightType.Width * rightType.Height).CompareTo(leftType.Width * leftType.Height);
+                return areaOrder != 0 ? areaOrder : string.Compare(left.DisplayName, right.DisplayName, StringComparison.Ordinal);
+            });
+
+            int added = 0;
+            foreach (ItemDefinition definition in candidates)
+            {
+                if (added >= 3)
+                    break;
+
+                ItemType type = definition.ToItemType();
+                bool placed = false;
+                for (int y = 0; y < _inventory.Height && !placed; y++)
+                {
+                    for (int x = 0; x < _inventory.Width; x++)
+                    {
+                        if (!_inventory.CanPlace(type, x, y, false))
+                            continue;
+
+                        Guid itemId = Guid.NewGuid();
+                        int? localId = _inventory.Place(type, x, y, false, 1,
+                            itemId, definition.DefaultInstanceState);
+                        if (!localId.HasValue)
+                            continue;
+
+                        _assetOwnership.TryRegister(itemId, EconomicActorId.Player);
+                        placed = true;
+                        added++;
+                        break;
+                    }
+                }
+            }
+
+            RegisterUnownedPlayerAssets(_inventory);
+            RefreshCarryPanelInventories();
+            Say("DEBUG LOADOUT: backpack equipped with " + added +
+                " differently-sized test item(s).", 5f);
         }
 
         private void InitializeLivelihoodWorld()
