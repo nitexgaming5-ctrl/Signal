@@ -7,12 +7,15 @@ namespace Signal.Core
     {
         private readonly List<NpcKnowledge> _knowledge = new List<NpcKnowledge>();
         private readonly Dictionary<string, NpcRelationship> _relationships = new Dictionary<string, NpcRelationship>();
+        private NpcRelationship _playerRelationship = NpcRelationship.Neutral;
 
         public string Id { get; }
         public string LocationId { get; private set; }
         public float X { get; private set; }
         public float Y { get; private set; }
         public float AwarenessRadius { get; }
+        /// <summary>This NPC's directed opinion of the player; never the player's opinion of this NPC.</summary>
+        public NpcRelationship PlayerRelationship => _playerRelationship;
 
         internal NpcAgentState(string id, string locationId, float x, float y, float awarenessRadius)
         {
@@ -39,6 +42,7 @@ namespace Signal.Core
         {
             _knowledge.Clear();
             _relationships.Clear();
+            _playerRelationship = NpcRelationship.Neutral;
         }
 
         internal bool KnowsEvent(string eventId)
@@ -62,6 +66,11 @@ namespace Signal.Core
             return _relationships.TryGetValue(otherNpcId, out NpcRelationship relationship)
                 ? relationship
                 : NpcRelationship.Neutral;
+        }
+
+        internal void SetPlayerRelationship(NpcRelationship relationship)
+        {
+            _playerRelationship = relationship ?? throw new System.ArgumentNullException(nameof(relationship));
         }
 
         internal void MoveTo(string locationId, float x, float y)
