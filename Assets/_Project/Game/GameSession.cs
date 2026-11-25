@@ -136,6 +136,14 @@ namespace Signal.Game
         public WorkshopProgressionBook WorkshopProgression => _workshopProgression;
         public CriminalProgressionTrack CriminalProgression => _criminalProgression;
         public CrimeOutcomeLedger CrimeOutcomes => _crimeOutcomes;
+        public PlayerDevelopmentState PlayerDevelopment => _playerDevelopment;
+
+        public bool TryAwardPlayerMilestone(string milestoneId, int points, string sourceId)
+        {
+            return _playerDevelopment != null &&
+                _playerDevelopment.Progression.TryAwardMilestone(_playerDevelopment.Milestones,
+                    milestoneId, points, sourceId);
+        }
 
         private void Start()
         {
@@ -743,7 +751,13 @@ namespace Signal.Game
                 (_storagePanel == null || !_storagePanel.IsOpen) &&
                 (_workspace == null || !_workspace.IsOpen) &&
                 (_containerPanel == null || !_containerPanel.IsOpen) &&
-                (_retailPanel == null || !_retailPanel.IsOpen))
+                (_retailPanel == null || !_retailPanel.IsOpen) &&
+                (_dirtyCashPanel == null || !_dirtyCashPanel.IsOpen) &&
+                (_customerContractPanel == null || !_customerContractPanel.IsOpen) &&
+                (_customerRepairOrderPanel == null || !_customerRepairOrderPanel.IsOpen) &&
+                (_workshopUpgradePanel == null || !_workshopUpgradePanel.IsOpen) &&
+                (_npcAgendaPanel == null || !_npcAgendaPanel.IsOpen) &&
+                (_itemViewer == null || !_itemViewer.IsOpen))
                 _playerDevelopmentPanel.SetOpen(!_playerDevelopmentPanel.IsOpen);
 
             bool workspaceOpen = _workspace != null && _workspace.IsOpen;
@@ -924,7 +938,8 @@ namespace Signal.Game
 
             TickClock();
 
-            if (_debugMenuOpen || keyboard == null)
+            if (_debugMenuOpen || keyboard == null ||
+                (_playerDevelopmentPanel != null && _playerDevelopmentPanel.IsOpen))
                 return;
 
             if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !repairOrderOpen && !upgradeOpen && !agendaOpen &&
