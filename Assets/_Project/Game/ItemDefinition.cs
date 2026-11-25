@@ -21,6 +21,14 @@ namespace Signal.Game
         [SerializeField, Min(1)] private int gridWidth = 1;
         [SerializeField, Min(1)] private int gridHeight = 1;
         [SerializeField, Min(1)] private int maxStack = 1;
+        [Header("Equipment — provisional test metadata")]
+        [SerializeField] private bool equippable;
+        [SerializeField] private EquipmentSlot equipmentSlot = EquipmentSlot.Accessory1;
+        [SerializeField] private int armorModifier;
+        [SerializeField] private int heatProtectionModifier;
+        [SerializeField] private bool portableBackpack;
+        [SerializeField, Min(1)] private int backpackWidth = 8;
+        [SerializeField, Min(1)] private int backpackHeight = 6;
 
         public string DisplayName => displayName;
         public string Description => description;
@@ -29,6 +37,13 @@ namespace Signal.Game
         public Sprite Icon => icon;
         public ItemInstanceState DefaultInstanceState => new ItemInstanceState(
             defaultQuality, defaultCondition, defaultAuthenticity, defaultOwnership);
+        public bool Equippable => equippable;
+        public EquipmentSlot EquipmentSlot => equipmentSlot;
+        public int ArmorModifier => armorModifier;
+        public int HeatProtectionModifier => heatProtectionModifier;
+        public bool PortableBackpack => portableBackpack;
+        public int BackpackWidth => Mathf.Max(1, backpackWidth);
+        public int BackpackHeight => Mathf.Max(1, backpackHeight);
 
         public ItemType ToItemType()
         {
