@@ -23,6 +23,8 @@ Detailed game identity and reference-game intent: `VISION.md`.
 - Inventory transfers move whole stacks in the current system. Partial sale is a separate explicit operation; general split-stack support is not implied.
 - Player knowledge is partial and sourced. The item viewer must not reveal hidden state that the player has not learned.
 - Item reference value is not a shop price. Buy/sell prices are authored per business/offer.
+- Final carried-inventory direction: without a backpack, the player has only 2–3 small personal pockets. When equipped, the backpack provides the existing large tabbed grid; dropping it means the player loses access to that grid until the same backpack is recovered. Backpack contents remain physically attached to the backpack instance.
+- The current 8×6 player grid is temporary test scaffolding while the equipped-backpack loop is built; it is not the final no-backpack capacity.
 
 ## NPCs, social knowledge and discovery
 
