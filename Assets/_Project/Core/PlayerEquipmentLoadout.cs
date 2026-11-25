@@ -165,6 +165,12 @@ namespace Signal.Core
             return backpackInstanceId != Guid.Empty && _contents.TryGetValue(backpackInstanceId, out contents);
         }
 
+        /// <summary>Detaches a registration without deleting the referenced inventory.</summary>
+        public bool TryUnregister(Guid backpackInstanceId)
+        {
+            return backpackInstanceId != Guid.Empty && _contents.Remove(backpackInstanceId);
+        }
+
         public bool TryRemoveEmpty(Guid backpackInstanceId)
         {
             if (!_contents.TryGetValue(backpackInstanceId, out GridInventory contents) ||
