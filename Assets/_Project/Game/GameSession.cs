@@ -368,7 +368,7 @@ namespace Signal.Game
 
         private bool IsNearRepairOrderCustomer(Vector2 playerPosition)
         {
-            return firstCustomerRepairOrder != null && _contractReceiverInventory != null && _city != null &&
+            return firstCustomerRepairOrder != null && _customerRepairOrderPanel != null && _contractReceiverInventory != null && _city != null &&
                 _city.IsResidentWithin(firstCustomerRepairOrder.IssuerNpcId, playerPosition, InteractionDistance);
         }
 
@@ -767,15 +767,20 @@ namespace Signal.Game
             bool nearContractCustomer = IsNearContractCustomer(playerPosition);
             bool nearRepairOrderCustomer = IsNearRepairOrderCustomer(playerPosition);
             bool nearUpgradeSupplier = IsNearFirstUpgradeSupplier(playerPosition);
-            if (nearContractCustomer && nearUpgradeSupplier)
+            if ((nearContractCustomer || nearRepairOrderCustomer) && nearUpgradeSupplier)
             {
-                // Milo and Rhea can share the CornerShop work area; route E to the closest resident.
-                Vector2 customerPosition = _city.GetResidentPosition(firstCustomerContract.IssuerNpcId);
+                // Milo and Rhea can share the CornerShop work area; route E/F to the closest resident.
+                string customerNpcId = firstCustomerContract != null
+                    ? firstCustomerContract.IssuerNpcId : firstCustomerRepairOrder.IssuerNpcId;
+                Vector2 customerPosition = _city.GetResidentPosition(customerNpcId);
                 Vector2 supplierPosition = _city.GetResidentPosition(firstWorkshopUpgrade.PayeeNpcId);
                 float customerDistance = (playerPosition - customerPosition).sqrMagnitude;
                 float supplierDistance = (playerPosition - supplierPosition).sqrMagnitude;
                 if (supplierDistance <= customerDistance)
+                {
                     nearContractCustomer = false;
+                    nearRepairOrderCustomer = false;
+                }
                 else
                     nearUpgradeSupplier = false;
             }
@@ -823,12 +828,16 @@ namespace Signal.Game
                 cityPrompt = "E  Search " + nearbyContainerLabel;
             if (nearDirtyCashContact)
                 cityPrompt = "E  Talk";
-            if (nearContractCustomer)
+            if (nearContractCustomer && nearRepairOrderCustomer)
+                cityPrompt = "E  Customer request   /   F  Repair order";
+            else if (nearContractCustomer)
                 cityPrompt = "E  Customer request";
+            else if (nearRepairOrderCustomer)
+                cityPrompt = "F  Repair order";
             if (nearUpgradeSupplier)
                 cityPrompt = "E  Talk to " + _city.GetResidentDisplayName(firstWorkshopUpgrade.PayeeNpcId);
             if (!hasScenarioPrompt && !nearSearchableContainer && !nearDirtyCashContact &&
-                !nearContractCustomer && !nearUpgradeSupplier && nearAgendaInteraction)
+                !nearContractCustomer && !nearRepairOrderCustomer && !nearUpgradeSupplier && nearAgendaInteraction)
                 cityPrompt = "E  Talk";
             if (repairOrderOpen)
                 _hud.SetPrompt("ESC  Close repair order");
