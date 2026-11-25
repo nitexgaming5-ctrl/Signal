@@ -949,12 +949,14 @@ namespace Signal.Game
                 return "This item has no valid stable ID.";
             }
 
+            string displayName = string.IsNullOrWhiteSpace(definition.DisplayName)
+                ? definition.name : definition.DisplayName;
             int remaining = _inventory.Add(type, 1, definition.DefaultInstanceState);
             if (remaining > 0)
-                return "Inventory full. No " + definition.DisplayName + " was added.";
+                return "Inventory full. No " + displayName + " was added.";
 
             RegisterUnownedPlayerAssets(_inventory);
-            return "Added " + definition.DisplayName + " to your inventory.";
+            return "Added " + displayName + " to your inventory.";
         }
 
         private void DebugForceRheaHome()
