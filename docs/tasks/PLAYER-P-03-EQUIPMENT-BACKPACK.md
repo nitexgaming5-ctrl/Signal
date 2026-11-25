@@ -212,7 +212,7 @@ Implement three actual 1×1 personal pocket slots, separate from the backpack's 
 - Added Core PlayerPocketBook with three independent GridInventory(1,1) pockets, capacity checks and exact-stack transfer methods.
 - Registered each pocket as a player-owned economic container. Existing transfer services can now receive searchable-container assets into a pocket without bypassing ownership validation.
 - Added SavedPocketItem and PlayerPocketSaveMapper; F5/F9 captures/restores pocket index, stable item identity, stack count, item state and owner separately from backpack contents.
-- Inventory UI now renders live pocket contents. Hover a 1×1 item in backpack storage and press P to move it to the first free pocket. Click an occupied pocket to move its stack into the equipped backpack; if no backpack is available, clicking inspects the item.
+- Inventory UI now renders live pocket contents. Hover a 1×1 item in backpack storage and press P to move it to the first free pocket. Click an occupied pocket to move its stack into the equipped backpack; if no backpack is available, clicking inspects the item. Ordinary equipped 1×1 gear can also be unequipped into a free pocket when the backpack is absent/dropped.
 - Item-receive routing can select an available pocket when the backpack is absent/dropped or has no suitable free cell: entrusted repair-order acceptance, retail purchase, searchable-container pickup and Dirty Cash exchange output.
 - Milo's parcel opportunity now accepts and tracks its exact parcel in a pocket when no backpack is equipped; a parcel inside a dropped backpack is not treated as carried/accessibly held.
 
@@ -235,5 +235,5 @@ Implement three actual 1×1 personal pocket slots, separate from the backpack's 
 
 ### Known follow-up limits
 - Home-storage transfer and workbench/production still depend on the backpack grid; production is not available without a backpack.
-- Customer Contract now lists pocket-held goods, so a player can accept and fulfil a qualifying request without a backpack. When the backpack is absent/dropped, Retail and Dirty Cash panels switch to an empty carry view rather than exposing the hidden backpack cargo; pocket-held items are not yet enumerated in Retail SELL or Dirty Cash selection.
+- Customer Contract now lists pocket-held goods, so a player can accept and fulfil a qualifying request without a backpack. When the backpack is absent/dropped, Retail, Dirty Cash and searchable-container panels use an empty carry view rather than exposing hidden backpack cargo; pocket-held items are not yet enumerated in Retail SELL or Dirty Cash selection.
 - P-03 is not complete: full pocket-aware service-panel coverage, equipment/clothing visual overlays and end-to-end Play Mode acceptance remain.
