@@ -448,6 +448,7 @@ namespace Signal.Game
                 case CustomerRepairOrderStatus.ItemNotRestored: return "Restore the jacket to " + firstCustomerRepairOrder.RequiredReturnCondition + " before returning it.";
                 case CustomerRepairOrderStatus.InsufficientFunds: return "The customer cannot currently afford the agreed service fee.";
                 case CustomerRepairOrderStatus.CustomerAccountUnavailable: return "The customer's CARD account is unavailable.";
+                case CustomerRepairOrderStatus.PlayerAccountUnavailable: return "Your CARD account is unavailable.";
                 case CustomerRepairOrderStatus.InventoryFull: return "The customer has no room to receive the jacket.";
                 default: return "Return failed safely. The jacket and both CARD balances were left unchanged.";
             }
