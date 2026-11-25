@@ -16,8 +16,8 @@ MonoBehaviour:
   description: A padded work jacket offering modest physical protection and insulation. Prototype modifiers.
   category: Equipment
   baseValue: 35
-  defaultQuality: 1
-  defaultCondition: 1
+  defaultQuality: 0
+  defaultCondition: 0
   defaultAuthenticity: 0
   defaultOwnership: 0
   id: b4e5f607-1829-4c3d-8e1f-2a3b4c5d6e72
