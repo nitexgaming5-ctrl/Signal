@@ -7,7 +7,7 @@ Last reconciled: **2026-11-25**. This is the short status board. Session history
 - Unity **6000.6.9f1**, 2D URP. Active architecture: `Signal.Core` (plain C#) + `Signal.Game` (Unity integration). Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
 - Working branch: `chore/collaboration-workflow-and-audit`. Keep `main` untouched.
 - Application version: **0.01**. Save snapshots are deliberately unversioned; there is no schema-version field, version gate or automatic migration chain. Older experimental saves may be incompatible after data-shape changes.
-- Latest user-reported full EditMode result: **456/456 passed (2026-11-25)**, including B-05 NPC→player directionality, generic agenda integration, contract outcomes and persistence. B-05 is now user-verified.
+- Latest user-reported full EditMode result: **476/476 passed (2026-11-25)**, including B-05 NPC→player directionality, generic agenda integration, contract outcomes and persistence. B-05 is now user-verified.
 - The user reports the First Workshop and B-04 repair/trading loop working in Play Mode. B-06 uses a separate Worn jacket seeded in Milo's inventory for the entrusted-service test.
 
 ## Completed livelihood foundations — B-01 to B-06
@@ -52,11 +52,11 @@ Specialist references: [Architecture](ARCHITECTURE.md), [Data Model](DATA_MODEL.
 
 ## Current verification and next action
 
-**EditMode:** the user reports **456/456 passed** on current HEAD (2026-11-25), including the eleven B-06 customer repair-order tests.
+**EditMode:** the user most recently reports **476/476 passed** before the current P-03 backpack-equipped integration slice. Two additional focused tests were added afterward; expected current total is **478**, pending Unity execution.
 
 **Play Mode:** the user reports the First Workshop, repair/trading features and B-06 entrusted repair-order loop work correctly.
 
-**Active initiative:** P-03 Equipment, Wearables & Portable Backpack. The first Core foundation is committed: seven equipment slots, exact-instance equip/unequip, modifier aggregation and backpack contents keyed by stable backpack identity. Unity verification and Game/save/UI/world-drop integration remain pending. See [P-03 task card](tasks/PLAYER-P-03-EQUIPMENT-BACKPACK.md). B-07 Neighbourhood Expansion remains intact; W-01 remains separate.
+**Active initiative:** P-03 Equipment, Wearables & Portable Backpack. Core seven-slot loadout plus first Game integration are committed: E equips prototype gear, 1–7 unequip ordinary slots, Canvas Backpack attaches the existing 8×6 grid to its stable identity, and equipped state is saved/restored through F5/F9. The 8×6 player grid is a temporary testing convenience; final no-backpack state is 2–3 pockets. Physical backpack drop/pickup is the next sub-phase. User's last verified baseline was 476/476 before two new tests; expected current suite is 478 pending Unity. See [P-03 task card](tasks/PLAYER-P-03-EQUIPMENT-BACKPACK.md). B-07 Neighbourhood Expansion remains intact; W-01 remains separate.
 
 The guaranteed Work Jacket entry is explicitly temporary test scaffolding and should be removed or changed back to a low-weight normal entry once the repair loop is fully validated.
 
@@ -180,3 +180,14 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 - Added nine focused EditMode tests and Unity metadata for new files.
 - This is a Core foundation only: no Game item definitions, UI, F5/F9 persistence, wearable visuals or dropped-world backpack object yet. The user's 467/467 verification predates these nine tests; expected suite is 476, pending Unity.
 - Task card: tasks/PLAYER-P-03-EQUIPMENT-BACKPACK.md.
+
+
+## P-03 second implementation slice — backpack equipped (2026-11-25)
+
+- Expanded the temporary player inventory grid to 8×6 for test capacity. Final design remains 2–3 small personal pockets without a backpack; the large tabbed grid is intended to belong to the equipped backpack.
+- Added optional equipment metadata to ItemDefinition and prototype Resources assets: Canvas Backpack (Accessory 1, 8×6), Padded Work Jacket (Torso, Armor +2 / Heat Protection +1), Insulated Coat (Torso, Armor +0 / Heat Protection +3). These modifiers are provisional test values, not final balance.
+- Inventory controls: hover an item and press E to equip; press 1–7 to unequip ordinary equipment slots. Backpack unequip is intentionally blocked until physical drop/pickup is implemented.
+- Equipping Canvas Backpack attaches the existing 8×6 GridInventory to the backpack's stable item instance ID without copying contents. A provisional backpack silhouette is shown on the player.
+- F5/F9 capture and restore equipped item identity, definition, slot, modifiers, owner actor and item instance state. The current inventory contents continue to use the existing inventory save path.
+- Added two focused tests for attaching an existing inventory grid and restoring an equipped item without a free inventory cell. User's confirmed 476/476 baseline predates these additions; expected total 478, pending Unity compile/test.
+- Physical world backpack drop/pickup, no-backpack pocket restriction and final clothing visuals remain pending. See tasks/PLAYER-P-03-EQUIPMENT-BACKPACK.md.
