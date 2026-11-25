@@ -84,3 +84,12 @@ Test current-build save/load round trips whenever persistent state changes. Olde
 ## Planned weather integration (W-01; separate and not implemented)
 
 W-01 owns the shared world weather state and player cold-exposure simulation. It is driven by GameClock and composed by GameSession/world bootstrap. Core owns deterministic weather/exposure rules; Game owns authored seasonal patterns and weather presentation. It reads effective Heat Protection through a value interface and must not branch on item IDs or depend on the character renderer. Only cold-related exposure is planned; no hot-weather system.
+
+
+## Player Development — first implementation slice
+
+- `RoomBootstrap.CreatePlayer()` keeps the existing physics and `PlayerMotor2D`, then adds `PlayerCharacterVisual`. The visual rig creates five child SpriteRenderers and loads body-part sheets through Resources. If assets are absent, the existing teal placeholder remains as a child fallback.
+- `CharacterPackImporter` is an Editor menu tool. It extracts the user-supplied archive and sets pixel-art texture import settings. The ZIP is not part of the repository.
+- `GameSession` composes `PlayerDevelopmentState` from the Resources `PlayerDevelopmentCatalog`, creates the F2 debug panel, captures/restores progression with SaveData, and exposes an idempotent milestone-award bridge.
+- Core remains Unity-free. Skill catalog/display content and visual sprite composition live in Game. The F2 panel is a debug-slice UI, not the final character-creation/wardrobe interface.
+- The current skill list and progression values are provisional. Skill effects on activity calculations are not yet integrated; P-03 supplies equipment modifiers to the pure attribute calculator.
