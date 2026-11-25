@@ -396,7 +396,7 @@ namespace Signal.Game
             var seenFootprints = new HashSet<string>(StringComparer.Ordinal);
             foreach (ItemDefinition definition in _allItemDefinitions)
             {
-                if (definition == null || definition.PortableBackpack || definition.Equippable)
+                if (definition == null || definition.PortableBackpack)
                     continue;
 
                 ItemType type;
