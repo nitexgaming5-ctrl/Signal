@@ -358,7 +358,8 @@ namespace Signal.Game
                     RefreshWorldProps();
                     return true;
                 }
-                _parcelContainer.TryRemoveItemInstance(_state.ParcelInstanceId);
+                if (_parcelContainer.TryGetItemInstance(_state.ParcelInstanceId, out PlacedItem inserted))
+                    _parcelContainer.Remove(inserted.InstanceId);
                 _parcelContainer = null;
                 return false;
             }
