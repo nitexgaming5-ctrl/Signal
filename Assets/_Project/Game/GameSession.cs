@@ -719,9 +719,9 @@ namespace Signal.Game
             if (_panel != null)
                 _panel.enabled = !_debugMenuOpen && !workspaceOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !repairOrderOpen && !upgradeOpen && !agendaOpen;
             if (_storagePanel != null)
-                _storagePanel.enabled = !_debugMenuOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen;
+                _storagePanel.enabled = !_debugMenuOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !repairOrderOpen && !upgradeOpen && !agendaOpen;
             if (_containerPanel != null)
-                _containerPanel.enabled = !_debugMenuOpen && !itemViewerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen;
+                _containerPanel.enabled = !_debugMenuOpen && !itemViewerOpen && !dirtyCashOpen && !contractOpen && !repairOrderOpen && !upgradeOpen && !agendaOpen;
             if (_dirtyCashPanel != null)
                 _dirtyCashPanel.enabled = !_debugMenuOpen && !upgradeOpen && !agendaOpen;
             if (_debugMenuOpen && retailOpen)
@@ -805,7 +805,7 @@ namespace Signal.Game
                 cityPrompt = "E  Talk to " + _city.GetResidentDisplayName(firstWorkshopUpgrade.PayeeNpcId);
             if (_miloScenario != null)
             {
-                if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen)
+                if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !repairOrderOpen && !upgradeOpen && !agendaOpen)
                     _miloScenario.Tick(playerPosition, _city.CurrentPlace);
                 string scenarioPrompt = _miloScenario.GetPrompt(playerPosition, _city.CurrentPlace);
                 if (!string.IsNullOrEmpty(scenarioPrompt))
@@ -870,7 +870,7 @@ namespace Signal.Game
             if (_debugMenuOpen || keyboard == null)
                 return;
 
-            if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen &&
+            if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !repairOrderOpen && !upgradeOpen && !agendaOpen &&
                 _miloScenario != null && _miloScenario.HasPendingChoice)
             {
                 int choice = keyboard.digit1Key.wasPressedThisFrame ? 1 :
@@ -886,12 +886,20 @@ namespace Signal.Game
             }
 
             if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
-                !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen && nearContractCustomer && keyboard.eKey.wasPressedThisFrame)
+                !dirtyCashOpen && !contractOpen && !repairOrderOpen && !upgradeOpen && !agendaOpen &&
+                nearRepairOrderCustomer && keyboard.fKey.wasPressedThisFrame)
+            {
+                _customerRepairOrderPanel.Open();
+                _motor.enabled = false;
+            }
+            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
+                !dirtyCashOpen && !contractOpen && !repairOrderOpen && !upgradeOpen && !agendaOpen &&
+                nearContractCustomer && keyboard.eKey.wasPressedThisFrame)
             {
                 _customerContractPanel.Open();
             }
             else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
-                !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen && nearUpgradeSupplier && keyboard.eKey.wasPressedThisFrame)
+                !dirtyCashOpen && !contractOpen && !repairOrderOpen && !upgradeOpen && !agendaOpen && nearUpgradeSupplier && keyboard.eKey.wasPressedThisFrame)
             {
                 if (!TryOpenAgendaConversationForNpc(firstWorkshopUpgrade.PayeeNpcId) &&
                     _workshopUpgradePanel != null)
@@ -901,7 +909,7 @@ namespace Signal.Game
                 }
             }
             else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
-                !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen && hasScenarioPrompt &&
+                !dirtyCashOpen && !contractOpen && !repairOrderOpen && !upgradeOpen && !agendaOpen && hasScenarioPrompt &&
                 !nearContractCustomer && !nearUpgradeSupplier && !nearDirtyCashContact &&
                 !nearSearchableContainer && keyboard.eKey.wasPressedThisFrame &&
                 _miloScenario != null && _miloScenario.TryInteract(playerPosition, _city.CurrentPlace, out string scenarioPromptMessage))
@@ -910,7 +918,7 @@ namespace Signal.Game
                 Say(scenarioPromptMessage, 8f);
             }
             else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
-                !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen && !hasScenarioPrompt && nearAgendaInteraction &&
+                !dirtyCashOpen && !contractOpen && !repairOrderOpen && !upgradeOpen && !agendaOpen && !hasScenarioPrompt && nearAgendaInteraction &&
                 !nearContractCustomer && !nearUpgradeSupplier && !nearDirtyCashContact &&
                 !nearSearchableContainer && keyboard.eKey.wasPressedThisFrame)
             {
@@ -919,16 +927,16 @@ namespace Signal.Game
                     Say(agendaFallbackDialogue, 5f);
             }
             else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
-                !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen && nearDirtyCashContact && keyboard.eKey.wasPressedThisFrame)
+                !dirtyCashOpen && !contractOpen && !repairOrderOpen && !upgradeOpen && !agendaOpen && nearDirtyCashContact && keyboard.eKey.wasPressedThisFrame)
             {
                 if (_dirtyCashPanel != null) _dirtyCashPanel.Open();
             }
             else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
-                !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen && nearSearchableContainer && keyboard.eKey.wasPressedThisFrame)
+                !dirtyCashOpen && !contractOpen && !repairOrderOpen && !upgradeOpen && !agendaOpen && nearSearchableContainer && keyboard.eKey.wasPressedThisFrame)
             {
                 OpenSearchableContainer(nearbyContainerId);
             }
-            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen &&
+            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !repairOrderOpen && !upgradeOpen && !agendaOpen &&
                 nearbyBusiness != null && keyboard.eKey.wasPressedThisFrame)
             {
                 if (!nearbyBusiness.TryValidate(out string businessError))
@@ -938,12 +946,12 @@ namespace Signal.Game
                 else
                     _retailPanel.Open(nearbyBusiness);
             }
-            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen && nearWorkbench && keyboard.eKey.wasPressedThisFrame)
+            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !repairOrderOpen && !upgradeOpen && !agendaOpen && nearWorkbench && keyboard.eKey.wasPressedThisFrame)
                 _workspace.Open();
-            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen && nearStorage && keyboard.eKey.wasPressedThisFrame)
+            else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !repairOrderOpen && !upgradeOpen && !agendaOpen && nearStorage && keyboard.eKey.wasPressedThisFrame)
                 _storagePanel.SetOpen(true);
             else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
-                     !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen && !nearDirtyCashContact && !nearContractCustomer && !nearUpgradeSupplier && !nearSearchableContainer && nearbyBusiness == null && !nearWorkbench && !nearStorage &&
+                     !dirtyCashOpen && !contractOpen && !repairOrderOpen && !upgradeOpen && !agendaOpen && !nearDirtyCashContact && !nearContractCustomer && !nearUpgradeSupplier && !nearSearchableContainer && nearbyBusiness == null && !nearWorkbench && !nearStorage &&
                      cityPrompt.Length > 0 && keyboard.eKey.wasPressedThisFrame)
             {
                 if (_miloScenario != null &&
