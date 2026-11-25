@@ -266,3 +266,8 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 - Item-receive routing now supports pockets for repair-order acceptance, retail purchase, searchable-container pickups and Dirty Cash exchange rewards. Milo's parcel opportunity can be accepted and tracked in pockets without a backpack; parcels inside a dropped backpack remain inaccessible.
 - Added eight focused Core tests for pocket capacity, footprint rules, identity/state-preserving transfers, failed-transfer atomicity and save/load validation. User confirmed 486/486 after P-03.4a; expected new total is 494, pending Unity execution. No Unity compile/test/Play Mode result is claimed.
 - Customer Contract now lists pocket-held goods, allowing qualifying contract fulfilment without a backpack. When no backpack is accessible, Retail and Dirty Cash panels switch to an empty carry view so dropped-bag cargo is not exposed; pocket-held items are not yet listed in Retail SELL or Dirty Cash selection. Home-storage transfer and workbench/production still require the backpack. P-03 remains active.
+
+## P-03.4b verification and UI follow-up (2026-11-25)
+- User confirmed **494/494 EditMode tests passed** for the functional-pocket implementation.
+- Follow-up UI fixes committed: drag-and-drop a backpack item directly onto a personal pocket; equip equippable items directly from a pocket with E; size the searchable-container player grid from the active GridInventory dimensions (8×6 for the current backpack rather than the old hardcoded 6×4 display).
+- The UI follow-up is not yet Unity-verified. Next: pull latest, compile, run EditMode suite, then Play Mode test pocket drops, pocket equipment, invalid footprint rejection and searchable-bin 8×6 visual alignment.
