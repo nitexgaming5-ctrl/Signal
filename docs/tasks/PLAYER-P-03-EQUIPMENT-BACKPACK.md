@@ -1,6 +1,6 @@
 # P-03 — Equipment, Wearables & Portable Backpack
 
-**Status:** P-03.3 backpack drop/recovery and fresh-start cleanup are user-verified; latest user-confirmed EditMode baseline is 486/486. P-03.4a restores social/mission interactions without a backpack and adds explicit capacity guards for physical item receipts. Functional three-slot pocket storage and pocket-aware item routing remain next; P-03 is not complete.
+**Status:** P-03.3 backpack drop/recovery and fresh-start cleanup are user-verified. User confirmed 486/486 after P-03.4a. P-03.4b now implements three persistent 1×1 pockets, UI transfer controls, and pocket-aware routing for selected item-receive flows. Eight new Core tests are added; expected total 494 is pending Unity execution. P-03 remains active.
 **Track:** Player Development
 **Dependency:** P-01 modular player visual and P-02 Armor/Heat Protection modifier contract.
 
@@ -197,3 +197,42 @@ Home-storage transfers and workbench access are blocked without a backpack becau
 
 ### Next P-03.4b — functional personal pockets
 Implement three actual 1×1 personal pocket slots, separate from the backpack's 8×6 contents grid. The pocket inventory must persist through F5/F9, remain accessible when the backpack is dropped, and participate in item-receive capacity checks. UI must show real pocket contents and support moving items between pockets and backpack. Do not treat the current placeholder cells as functional storage.
+
+
+## P-03.4b — functional personal pockets (2026-11-25)
+
+### Confirmed pocket rules
+- Exactly three personal pockets exist independently of any backpack.
+- Each pocket is a separate 1×1 slot and holds one stack of one unrotated 1×1 item. Larger items require the backpack grid.
+- Pocket contents stay with the player while the backpack is dropped. Backpack contents stay inside the dropped physical bag.
+- Each pocket stack keeps its stable item instance ID, quantity, condition, quality, authenticity and ownership state.
+- Internal pocket/backpack moves preserve the exact item identity and do not change the player's ownership.
+
+### Implementation
+- Added Core PlayerPocketBook with three independent GridInventory(1,1) pockets, capacity checks and exact-stack transfer methods.
+- Registered each pocket as a player-owned economic container. Existing transfer services can now receive searchable-container assets into a pocket without bypassing ownership validation.
+- Added SavedPocketItem and PlayerPocketSaveMapper; F5/F9 captures/restores pocket index, stable item identity, stack count, item state and owner separately from backpack contents.
+- Inventory UI now renders live pocket contents. Hover a 1×1 item in backpack storage and press P to move it to the first free pocket. Click an occupied pocket to move its stack into the equipped backpack; if no backpack is available, clicking inspects the item.
+- Item-receive routing can select an available pocket when the backpack is absent/dropped or has no suitable free cell: entrusted repair-order acceptance, retail purchase, searchable-container pickup and Dirty Cash exchange output.
+- Milo's parcel opportunity now accepts and tracks its exact parcel in a pocket when no backpack is equipped; a parcel inside a dropped backpack is not treated as carried/accessibly held.
+
+### Automated tests added
+- Eight Core tests cover three independent 1×1 pockets, supported item footprints, capacity, stable identity/state, exact-stack moves in both directions, failed-transfer atomicity, save/load round-trip and malformed/duplicate save records.
+- User's latest confirmed result is 486/486 before these eight tests. Expected total is 494/494, pending Unity compilation and EditMode execution. No Unity result is claimed by this implementation pass.
+
+### P-03.4b Play Mode test game
+1. Start a fresh session without F9 and confirm all three pockets show EMPTY; the backpack grid remains unavailable.
+2. Use the debug item spawner to add three different 1×1 items. Confirm they occupy P1, P2 and P3. Try adding a fourth 1×1 item and confirm a clear full-pocket warning with no item loss.
+3. Try spawning or receiving an item with a 2×1 or 1×2 footprint without a backpack. Confirm it is rejected without losing the source item or taking payment.
+4. Press F5, restart/load with F9, and confirm all pocket stacks return with the same item IDs, quantities and states.
+5. Accept Milo's parcel opportunity without a backpack while a pocket is free. Confirm the parcel appears in that pocket and can be returned/delivered; with all pockets full, acceptance must fail without changing the opportunity.
+6. Open a searchable container and take a 1×1 item with no backpack. Confirm it enters the first free pocket and ownership is Player. Fill all pockets and confirm the next pickup leaves the container item untouched.
+7. Browse a shop without a backpack and buy a 1×1 item with a free pocket. Confirm payment and item receipt both succeed; with full pockets, confirm no CARD is debited.
+8. Equip the Canvas Backpack. Move a 1×1 item from backpack storage to a pocket with P; click the occupied pocket to move it back. Confirm exact identity and quantity in both directions.
+9. Drop the backpack with B. Confirm pockets remain visible/usable, backpack grid is inaccessible, and cargo remains in the dropped bag. Save/load while dropped, then recover and verify both pocket and backpack contents.
+10. Accept the entrusted repair order without a backpack with a free pocket; verify the jacket enters that pocket. Equip a backpack and move it into backpack storage before attempting the workbench repair flow.
+
+### Known follow-up limits
+- Home-storage transfer and workbench/production still depend on the backpack grid; production is not available without a backpack.
+- Some service panels (notably retail SELL and Dirty Cash item selection) are still bound directly to _inventory; pocket-held items are not yet listed in every legacy panel.
+- P-03 is not complete: full pocket-aware service-panel coverage, equipment/clothing visual overlays and end-to-end Play Mode acceptance remain.
