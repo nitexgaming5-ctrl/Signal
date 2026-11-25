@@ -65,6 +65,7 @@ namespace Signal.Game
         private ProductionTransactionLedger _productionTransactions;
         private CustomerContractBook _customerContracts;
         private CustomerRepairOrderBook _customerRepairOrders;
+        private ServicePaymentTransactionLedger _servicePaymentTransactions;
         private WorkshopProgressionBook _workshopProgression;
         private GridInventory _contractReceiverInventory;
         private EconomicActorId _contractReceiverActor;
@@ -127,6 +128,7 @@ namespace Signal.Game
         public ProductionTransactionLedger ProductionTransactions => _productionTransactions;
         public CustomerContractBook CustomerContracts => _customerContracts;
         public CustomerRepairOrderBook CustomerRepairOrders => _customerRepairOrders;
+        public ServicePaymentTransactionLedger ServicePaymentTransactions => _servicePaymentTransactions;
         public WorkshopProgressionBook WorkshopProgression => _workshopProgression;
         public CriminalProgressionTrack CriminalProgression => _criminalProgression;
         public CrimeOutcomeLedger CrimeOutcomes => _crimeOutcomes;
@@ -152,6 +154,7 @@ namespace Signal.Game
             _productionTransactions = new ProductionTransactionLedger();
             _customerContracts = new CustomerContractBook();
             _customerRepairOrders = new CustomerRepairOrderBook();
+            _servicePaymentTransactions = new ServicePaymentTransactionLedger();
             _workshopProgression = new WorkshopProgressionBook();
             _contactInventory = new GridInventory(8, 6);
             _economicContainers.TryRegister(_contactInventory, DirtyCashContactActorId);
@@ -429,7 +432,7 @@ namespace Signal.Game
                 return "The customer payment account is unavailable.";
             CustomerRepairOrderResult result = CustomerRepairOrderService.TryReturn(firstCustomerRepairOrder.Id,
                 firstCustomerRepairOrder.EntrustedItem.ToItemType(), _inventory, _contractReceiverInventory,
-                _economicContainers, _assetOwnership, _stats.CleanMoney, payer, _economicTransactions,
+                _economicContainers, _assetOwnership, _stats.CleanMoney, payer, _servicePaymentTransactions,
                 _customerRepairOrders, _clock.Day, _clock.MinuteOfDay);
             if (result.Success)
             {
