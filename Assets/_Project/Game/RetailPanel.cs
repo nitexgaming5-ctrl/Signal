@@ -468,15 +468,16 @@ namespace Signal.Game
         private int CountSellableStacks()
         {
             int count = 0;
-            foreach (PlacedItem stack in _inventory.Items)
-            {
-                if (!_ownership.TryGetOwner(stack.ItemInstanceId, out EconomicActorId owner) ||
-                    owner != EconomicActorId.Player)
-                    continue;
-                ItemDefinition definition = FindDefinition(stack.Type.Id);
-                if (definition != null && _business.TryGetBuybackOffer(definition, out _))
-                    count++;
-            }
+            for (int inventoryIndex = 0; inventoryIndex < _inventories.Count; inventoryIndex++)
+                foreach (PlacedItem stack in _inventories[inventoryIndex].Items)
+                {
+                    if (!_ownership.TryGetOwner(stack.ItemInstanceId, out EconomicActorId owner) ||
+                        owner != EconomicActorId.Player)
+                        continue;
+                    ItemDefinition definition = FindDefinition(stack.Type.Id);
+                    if (definition != null && _business.TryGetBuybackOffer(definition, out _))
+                        count++;
+                }
             return count;
         }
 
