@@ -237,3 +237,12 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 - Corrected the dropped-backpack HUD path: keep the raw CityBlock world prompt separate from modified nearby-interaction text, recognise transition wording even when the source prompt lacks an E prefix, and display an explicit `E` hint. This addresses the user's report that exiting worked but the HUD did not tell them to press E.
 - Replaced obsolete `FindObjectOfType<EventSystem>()` with `FindAnyObjectByType<EventSystem>()` in InventoryPanel (CS0618 cleanup).
 - User confirms **486/486 EditMode tests passing** after pulling the previous code. Latest cleanup commits are pending Unity recompilation, test rerun and Play Mode confirmation.
+
+
+### P-03 fresh-start inventory cleanup — 2026-11-25
+- Removed the automatic starting-item grant from new sessions. The configured `items` list remains the item catalogue source; it no longer seeds player cargo.
+- The temporary 8×6 player grid is now hidden/inaccessible unless a backpack is equipped. Its contents remain attached to the same backpack identity when dropped, recovered, saved or loaded.
+- Item-based E/F interactions are gated while no backpack is equipped; authored world navigation, sleep and F5/F9 remain available. The inventory panel explains that storage requires an equipped/recovered backpack.
+- To keep the fresh-start test path usable, a backpack spawned through the debug item spawner auto-equips when no backpack is equipped.
+- Existing save files are deliberately preserved. Loading an older save with F9 may restore its previous inventory contents; this cleanup does not erase player saves.
+- No new tests were added and no Unity compile/EditMode/Play Mode result is claimed. User should verify the new empty start, debug-spawned backpack auto-equip, storage visibility, and dropped-bag recovery.
