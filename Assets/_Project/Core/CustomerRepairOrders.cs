@@ -174,14 +174,14 @@ namespace Signal.Core
     public readonly struct CustomerRepairOrderResult
     {
         internal CustomerRepairOrderResult(CustomerRepairOrderStatus status,
-            EconomicTransaction transaction = null, Guid itemInstanceId = default)
+            ServicePaymentTransaction transaction = null, Guid itemInstanceId = default)
         {
             Status = status;
             Transaction = transaction;
             ItemInstanceId = itemInstanceId;
         }
         public CustomerRepairOrderStatus Status { get; }
-        public EconomicTransaction Transaction { get; }
+        public ServicePaymentTransaction Transaction { get; }
         public Guid ItemInstanceId { get; }
         public bool Success => Status == CustomerRepairOrderStatus.Completed;
     }
@@ -304,9 +304,8 @@ namespace Signal.Core
                 return Result(CustomerRepairOrderStatus.TransactionConflict);
             }
 
-            var transaction = new EconomicTransaction(Guid.NewGuid(), item.ItemInstanceId,
-                item.Type.Id, 1, order.Issuer, EconomicActorId.Player,
-                AssetTransferReason.ServicePayment, day, minuteOfDay);
+            var transaction = new ServicePaymentTransaction(Guid.NewGuid(), orderId,
+                item.ItemInstanceId, order.Issuer, EconomicActorId.Player, order.Reward, day, minuteOfDay);
             if (!transactions.TryRecord(transaction) ||
                 !orders.TryComplete(orderId, transaction.TransactionId, day, minuteOfDay))
             {
