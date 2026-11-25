@@ -78,6 +78,8 @@ namespace Signal.Game
 
         public void SetInventories(IReadOnlyList<GridInventory> inventories)
         {
+            for (int i = 0; i < _inventories.Count; i++)
+                _inventories[i].Changed -= OnInventoryChanged;
             _inventories.Clear();
             if (inventories != null)
                 for (int i = 0; i < inventories.Count; i++)
@@ -85,9 +87,21 @@ namespace Signal.Game
                     GridInventory inventory = inventories[i];
                     if (inventory == null || _inventories.Contains(inventory)) continue;
                     _inventories.Add(inventory);
+                    inventory.Changed += OnInventoryChanged;
                 }
             _inventory = _inventories.Count > 0 ? _inventories[0] : null;
             if (IsOpen && _showSell) RefreshCatalogue();
+        }
+
+        private void OnInventoryChanged(GridInventory changed)
+        {
+            if (IsOpen && _showSell) RefreshCatalogue();
+        }
+
+        private void OnDestroy()
+        {
+            for (int i = 0; i < _inventories.Count; i++)
+                _inventories[i].Changed -= OnInventoryChanged;
         }
 
         public void Open(BusinessDefinition business)
