@@ -16,13 +16,13 @@ Signal is a top-down 2D urban RPG built on Unity 6000.6.9f1.
 ## Current verified baseline
 - Working branch: `chore/collaboration-workflow-and-audit`; keep `main` untouched.
 - Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
-- User confirmed **476/476 EditMode tests passed** after the first P-03 Core equipment/backpack slice (2026-11-25). The next P-03 integration slice added two focused tests; expected current total is 478 pending Unity verification.
+- User confirmed **486/486 EditMode tests passed** after P-03.4a (2026-11-25). P-03.4b adds eight focused Core tests; expected current total is 494, pending Unity compilation and EditMode execution.
 - B-06 Customer Repair Orders is complete: entrusted item custody remains distinct from ownership; exact item return and 35 CARD payment are atomic and replay-protected.
 - B-04 repair/trading and the First Workshop have also been reported working in Play Mode.
 - Unity remains the authority for compile, test and Play Mode verification. Never infer a pass from source edits.
 
 ## Player Development — P-01/P-02 implemented; P-03 active
-The user chose the Player Development track before returning to B-07. B-07 remains Neighbourhood Expansion.
+The user chose the Player Development track before returning to B-07. B-07 remains Neighbourhood Expansion. P-03 now includes the physical backpack drop/recovery loop and three real personal pockets.
 
 Confirmed: existing player character, fixed starting skill-point budget, milestone-earned points, free respecialization, exactly Armor and Heat Protection attributes, and cold-only environmental meaning for Heat Protection. P-01/P-02 first implementation is committed and user-verified at 467/467. The modular Body_A character pack is imported locally; P-03 equipment is the active next phase.
 
@@ -32,7 +32,17 @@ Candidate skills (Repair, Production, Trading, Scavenging, Social), starting bud
 Dynamic seasonal weather is planned: temperature changes, rain, storms, snow and blizzards. Player exposure consequences are cold-focused and gradual. Heat Protection mitigates cold exposure; shelter supports recovery. No hot-weather/overheating gameplay is planned. W-01 is separate from P-01/P-02 and is not authorized for implementation.
 
 ## Next action
-Verify the current P-03 backpack-equipped integration in Unity (expected 478 EditMode tests). The user approved seven slots: Head, Torso, Legs, Feet and three generic accessories. The temporary 8×6 test grid is attached to the equipped Canvas Backpack identity and persists with it through F5/F9. Final no-backpack inventory is 2–3 personal pockets. After verification, implement physical backpack drop/pickup, then enforce the pocket fallback. See docs/tasks/PLAYER-P-03-EQUIPMENT-BACKPACK.md. Keep B-07 and W-01 as separate roadmap tracks.
+Pull the latest P-03.4b commits, compile in Unity and run the full EditMode suite (expected **494/494**). Then run the P-03.4b Play Mode test game in docs/tasks/PLAYER-P-03-EQUIPMENT-BACKPACK.md: three pocket capacity, save/load, pocket-aware customer contract, Milo parcel, searchable loot, retail purchase, backpack/pocket transfer, dropped-backpack persistence and repair-order receipt.
+
+Current implementation:
+- Seven equipment slots are approved; Canvas Backpack occupies Accessory 1 and owns the 8×6 contents grid.
+- B drops the equipped backpack; E recovers the same item. The dropped bag keeps its cargo and is inaccessible until recovered.
+- Exactly three independent 1×1 personal pockets now exist, each holding one stack of a 1×1 item. P moves a hovered backpack item into the first free pocket; clicking a pocket item moves it back into the equipped backpack.
+- F5/F9 persists pocket items separately from backpack contents. Pocket item identity, quantity, state and owner are restored.
+- NPC conversations and customer-contract acceptance are available without a backpack. CustomerContractPanel can list and fulfil pocket-held goods. Physical item receipt routes to pockets for repair-order acceptance, shop purchase, searchable-container pickup and Milo's parcel.
+- When no backpack is accessible, Retail and Dirty Cash panels use an empty carry view rather than exposing the dropped backpack's cargo. Pocket-held items are not yet listed in those panels.
+- Home-storage transfer and workbench/production still require an equipped backpack. Clothing sprite overlays and broader service-panel pocket support remain future P-03 work.
+- No Unity compile/test result is claimed for the new P-03.4b changes yet. Keep B-07 and W-01 as separate roadmap tracks.
 
 
 ## Latest implementation — P-01/P-02 first slice (2026-11-25)
