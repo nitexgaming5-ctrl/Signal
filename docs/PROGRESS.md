@@ -7,10 +7,12 @@ Last reconciled: **2026-11-25**. This is the short status board. Session history
 - Unity **6000.6.9f1**, 2D URP. Active architecture: `Signal.Core` (plain C#) + `Signal.Game` (Unity integration). Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
 - Working branch: `chore/collaboration-workflow-and-audit`. Keep `main` untouched.
 - Application version: **0.01**. Save snapshots are deliberately unversioned; there is no schema-version field, version gate or automatic migration chain. Older experimental saves may be incompatible after data-shape changes.
-- Latest user-reported full EditMode result: **439/439 passed (2026-11-25)**, including the debug item spawner and its EditMode cleanup fix. The latest B-05 NPC→player and agenda integration work adds six focused tests; these still require a fresh Unity run (expected 445/445 if no other tests changed).
+- Latest user-reported full EditMode result: **445/445 passed (2026-11-25)**, including B-05 NPC→player directionality, generic agenda integration, contract outcomes and persistence. B-05 is now user-verified.
 - The user reports the First Workshop and repair/trading flow working in Play Mode. The Work Jacket still needs to be acquired through scavenging to complete the repair loop.
 
-## Active initiative — Direction B: First Workshop and Repair (B-01 to B-04)
+## Completed livelihood foundations — B-01 to B-05
+
+The first workshop, customer contract, practical hideout upgrade, repair/restoration loop and generic NPC awareness/relationship foundation are implemented. B-05 is now verified at 445/445 EditMode tests. The next roadmap phase is B-06 Livelihood Expansion; its activity and scope must be selected before gameplay implementation.
 
 **Player outcome:** make physical goods at the hideout, fulfil one authored customer request for clean CARD, then purchase a practical upgrade that unlocks another recipe.
 
@@ -50,7 +52,7 @@ Specialist references: [Architecture](ARCHITECTURE.md), [Data Model](DATA_MODEL.
 
 ## Current verification and next action
 
-**EditMode:** the user reports **439/439 passed** on the item-spawner fix. The latest B-05 NPC→player and agenda relationship implementation adds six focused tests and has not yet been run in Unity; rerun the full suite on current HEAD.
+**EditMode:** the user reports **445/445 passed** on current HEAD (2026-11-25). B-05's six new directionality/agenda tests are included in that result.
 
 **Play Mode:** the user reports the First Workshop and repair/trading features work well. The Work Jacket was not found in scavenging, so its loot availability is being made deterministic for testing.
 
@@ -62,7 +64,7 @@ Specialist references: [Architecture](ARCHITECTURE.md), [Data Model](DATA_MODEL.
 
 The guaranteed Work Jacket entry is explicitly temporary test scaffolding and should be removed or changed back to a low-weight normal entry once the repair loop is fully validated.
 
-## Active initiative — B-05 Global NPC Awareness & Affinity
+## Completed initiative — B-05 Global NPC Awareness & Affinity
 
 B-05 is a generic NPC framework phase, not a character/cast-writing phase. Rhea, Milo and the existing Dirty Cash contact are framework/test residents only. Do not add residents, invent backstories or author the final cast until the main storyline and intended cast have been deliberately designed.
 
@@ -72,7 +74,7 @@ Relationship ownership is explicitly directional:
 - NPC→player: a separate per-NPC opinion stored on `NpcAgentState` / `NpcSocialWorld`.
 - All three directions use the same `NpcRelationship` value model, but never share storage authority or register the player as an NPC.
 
-**Implemented in the current branch (latest directionality slice awaits Unity verification):**
+**Implemented and user-verified on 2026-11-25 (445/445 EditMode tests):**
 - Shared local perception, individual sourced knowledge, explicit knowledge sharing and directed NPC-to-NPC relationships.
 - F5/F9 persistence for each NPC's personal knowledge and directed NPC-to-NPC relationships.
 - New independent NPC→player opinion with neutral per-NPC default and validated get/set/adjust APIs.
@@ -81,7 +83,7 @@ Relationship ownership is explicitly directional:
 - Generic agenda stages can gate on either relationship perspective, and agenda choices can award one-time outcomes in either direction. GameSession passes the shared NpcSocialWorld to the generic director; repeatable choices are forbidden from applying relationship deltas.
 - Added tests for independent directionality, persistence round-trip, contract success/replay/target validation, agenda gates/outcomes and repeatable-choice safeguards. These latest tests have not run in Unity.
 
-The user reports **439/439** after the debug item spawner fix. The latest B-05 slices add six tests, so expect **445/445** if no other test files changed. Do not claim that result until the user runs the Unity suite.
+The user has now confirmed **445/445 EditMode tests passed (2026-11-25)** on the current B-05 implementation.
 
 Task specification: `tasks/LIVELIHOOD-B-05-GLOBAL-NPC-AWARENESS-AFFINITY.md`.
 
@@ -94,7 +96,7 @@ Task specification: `tasks/LIVELIHOOD-B-05-GLOBAL-NPC-AWARENESS-AFFINITY.md`.
 - The current GitHub source contains no separate ItemDefinition named Wool. If Wool exists only in a local uncommitted asset, it will appear once added to a source catalogue the session loads; the spawner does not fabricate a duplicate definition.
 - Two focused EditMode tests cover panel binding/open-close and routing a selected definition through the spawn callback.
 - **EditMode cleanup fix:** `DebugItemSpawnerPanel.RefreshTiles` now uses deferred `Destroy` while playing and `DestroyImmediate` outside Play Mode. This avoids Unity's edit-mode destruction warning/error when the panel rebuilds its tiles during EditMode tests; runtime behaviour remains deferred and safe.
- The user subsequently confirmed **439/439** after the EditMode cleanup fix. The latest B-05 directionality tests are newer and remain pending; expected current suite count is 442 if no other tests were added.
+ The user subsequently confirmed **439/439** after the EditMode cleanup fix; the later B-05 directionality and agenda integration tests are now included in the confirmed **445/445** result.
 
 ## Repository hazards and deferred scope
 
@@ -130,6 +132,3 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 - Unity import/compile/Play Mode verification remains pending.
 
 
-### B-05 directionality gap
-
-`PlayerRelationshipBook` is player→NPC; `NpcSocialWorld` is NPC→NPC. Neither currently stores an NPC's own opinion of the player. Do not overload either direction or register the player as an NPC. Proposed next design: a player-relationship value owned by each `NpcAgentState`, persisted with that NPC's durable social state. Awaiting confirmation before implementing this distinct owner and wiring NPC response/agenda gates to it.
