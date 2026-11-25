@@ -41,10 +41,10 @@ Accessory slots are generic. Do not reserve all three for hardcoded item categor
 
 ## Inventory direction confirmed
 
-- Final no-backpack state: only 2–3 small personal pockets. This is the intended end-state, not implemented yet.
+- Final no-backpack state: exactly three independent 1×1 personal pockets, each holding one stack of a 1×1 item. Implemented in P-03.4b; Unity verification pending.
 - With a backpack equipped: the existing large tabbed grid is the backpack's contents.
 - Dropping the backpack removes access to that large grid from the player; the physical bag retains every item. Recovering/equipping it restores access to the same contents.
-- For the current implementation/test pass, the player grid is temporarily enlarged to 8×6. It remains accessible without a backpack until the physical drop/pickup sub-phase is completed. Do not mistake this test convenience for final inventory design.
+- The 8×6 grid is accessible only while the backpack is equipped. It remains attached to the physical bag when dropped; the three personal pockets remain accessible.
 
 ## Architecture
 
@@ -57,7 +57,7 @@ Accessory slots are generic. Do not reserve all three for hardcoded item categor
 ### Implemented in the second slice
 - `ItemDefinition` now has optional equipment metadata: compatible slot, Armor/Heat Protection modifiers, backpack flag and backpack grid dimensions.
 - `GameSession` loads the three prototype items from `Resources/SurvivalItems/Definitions` through the existing Resources catalogue discovery.
-- Inventory interaction: hover an item and press E to equip; press 1–7 to unequip the corresponding non-backpack slot. The backpack cannot yet be unequipped because the physical drop flow is the next sub-phase.
+- Inventory interaction: hover an item and press E to equip; press 1–7 to unequip ordinary slots. Press B or use the UI button to drop the backpack; E near the dropped bag recovers and auto-equips it.
 - The prototype player inventory is expanded to 8×6 for testing. Equipping the Canvas Backpack binds that exact backpack instance ID to the existing inventory grid without copying any contents.
 - F5/F9 now capture/restore equipped item identity, type, slot, modifiers, item state, owner actor and backpack association. The current grid's items were already handled by the existing inventory save path.
 - A provisional backpack silhouette is shown behind the character when equipped; this is a placeholder, not final backpack art.
@@ -68,18 +68,18 @@ Accessory slots are generic. Do not reserve all three for hardcoded item categor
 - Registration requires an existing `PortableStorageBook` contents grid keyed by the exact same backpack instance ID. Drop/recover transitions never copy, clear or reassign the contents grid.
 - Added `SavedPortableBackpack` and `PortableBackpackWorldSaveMapper` for serializing/restoring world state. Restore rejects malformed IDs, duplicate records, invalid statuses, non-finite coordinates and backpacks whose contents identity is unavailable.
 - Added seven focused EditMode tests for registration preconditions, exact identity/content continuity, valid/invalid transitions, duplicate registration, dropped position save/restore, malformed records and equipped-coordinate normalization.
-- This is a Core data/persistence foundation only. It is not yet wired into GameSession, world object spawning, interaction, inventory access switching or F5/F9 orchestration. Do not describe physical drop/pickup as playable yet.
+- The Core lifecycle foundation is integrated into GameSession: B drops the equipped bag, a world placeholder appears, E recovers the same instance, and F5/F9 persist its dropped/equipped state and position. User verified the fresh-start/drop/recovery UI path; continue testing save/load edge cases.
 
 ### Remaining integration
-- Enforce 2–3 personal pockets when no backpack is equipped and make the 8×6 grid accessible only through the backpack.
-- Expand the new character sidebar into a fully functional equipment/pocket screen. Seven equipment slots are displayed; the three pocket cells are currently visual placeholders and still need their own small inventory model and item-transfer controls.
-- Finish the GameSession backpack lifecycle integration by validating the new B/UI drop and E pickup flow in Unity. The Core world-state book, saved dropped item identity, F5/F9 state, world placeholder and auto-equip recovery are now wired. Reuse the existing custody/ownership authority; do not create a parallel loot-container system.
+- Complete the pocket-aware service-panel audit: Retail SELL, Dirty Cash selection, home storage, workbench/production and any other panels still bound directly to the backpack grid.
+- Add actual wearable sprite overlays for head/torso/legs/feet and equipment variants. The supplied Body_A pack is only a base body; do not invent a full wardrobe from missing sprites.
+- Complete the P-03.4b Play Mode acceptance tests, then author more clothing/armor content after the core loop is validated.
 - Add actual wearable sprite overlays for head/torso/legs/feet and equipment variants. The supplied Body_A pack is only a base body; do not invent a full wardrobe from missing sprites.
 - Author more clothing/armor content after the core loop is validated.
 
 ## Next Play Mode test game — Backpack lifecycle acceptance
 
-Run this after the current GameSession/world-object integration is pulled and the expected 486 EditMode tests are green.
+Run this after the current GameSession/world-object integration is pulled and the expected 494 EditMode tests are green.
 
 ### Setup
 
