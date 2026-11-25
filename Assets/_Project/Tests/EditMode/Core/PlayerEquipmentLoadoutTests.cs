@@ -94,6 +94,26 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void TakingEquippedBackpackForWorldDropPreservesExactItemWithoutPuttingItInInventory()
+        {
+            var inventory = new GridInventory(2, 2);
+            ItemType type = CreateType(2, 2);
+            Guid backpackId = Guid.NewGuid();
+            var state = new ItemInstanceState(ItemQuality.Fine, ItemCondition.Good,
+                ItemAuthenticity.Genuine, ItemOwnershipStatus.Legitimate);
+            Assert.That(inventory.Place(type, 0, 0, false, 1, backpackId, state), Is.Not.Null);
+
+            var loadout = new PlayerEquipmentLoadout();
+            Assert.That(loadout.TryEquip(inventory, backpackId, EquipmentSlot.Accessory1), Is.True);
+            Assert.That(loadout.TryTakeEquipped(EquipmentSlot.Accessory1, out EquippedItem dropped), Is.True);
+            Assert.That(dropped.Item.ItemInstanceId, Is.EqualTo(backpackId));
+            Assert.That(dropped.Item.State, Is.EqualTo(state));
+            Assert.That(loadout.IsOccupied(EquipmentSlot.Accessory1), Is.False);
+            Assert.That(inventory.TryGetItemInstance(backpackId, out _), Is.False);
+            Assert.That(loadout.TryTakeEquipped(EquipmentSlot.Accessory1, out _), Is.False);
+        }
+
+        [Test]
         public void EquipmentModifiersAggregateAcrossAllSevenSlotsAndClampSafely()
         {
             var inventory = new GridInventory(7, 1);
