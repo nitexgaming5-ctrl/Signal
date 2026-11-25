@@ -179,7 +179,7 @@ namespace Signal.Core.Tests
         }
 
         [Test]
-        public void ActiveOrderCanOnlyBeAcceptedOnceAndWrongOwnerCannotBeEntrusted()
+        public void ActiveOrderCanOnlyBeAcceptedOnce()
         {
             var fixture = new Fixture();
             Assert.That(fixture.Accept().Success, Is.True);
@@ -187,6 +187,22 @@ namespace Signal.Core.Tests
             Assert.That(replay.Success, Is.False);
             Assert.That(fixture.Ownership.TryGetOwner(fixture.JacketId, out EconomicActorId owner), Is.True);
             Assert.That(owner, Is.EqualTo(fixture.Customer));
+        }
+
+        [Test]
+        public void AcceptanceRejectsAnItemWhoseRegisteredOwnerIsNotTheIssuer()
+        {
+            var fixture = new Fixture();
+            Assert.That(fixture.Ownership.TryTransferOwnership(
+                fixture.JacketId, fixture.Customer, EconomicActorId.Player), Is.True);
+
+            CustomerRepairOrderResult result = fixture.Accept();
+
+            Assert.That(result.Status, Is.EqualTo(CustomerRepairOrderStatus.OwnershipMismatch));
+            Assert.That(fixture.CustomerInventory.TryGetItemInstance(fixture.JacketId, out _), Is.True);
+            Assert.That(fixture.PlayerInventory.TryGetItemInstance(fixture.JacketId, out _), Is.False);
+            Assert.That(fixture.Orders.TryGetState(fixture.OrderId, out CustomerRepairOrderState order), Is.True);
+            Assert.That(order.Phase, Is.EqualTo(CustomerRepairOrderPhase.Offered));
         }
 
         [Test]
