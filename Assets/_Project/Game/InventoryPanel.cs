@@ -720,11 +720,13 @@ namespace Signal.Game
                 {
                     PlacedItem item = _pockets.GetPocket(i).Items[0];
                     ItemVisual visual = VisualFor(item.Type);
-                    _pocketLabels[i].text = "P" + (i + 1);
+                    _pocketLabels[i].text = visual.Icon != null
+                        ? "P" + (i + 1)
+                        : "P" + (i + 1) + "\n" + visual.Label;
                     _pocketLabels[i].color = TitleColor;
                     _pocketImages[i].sprite = visual.Icon;
-                    _pocketImages[i].color = visual.Icon != null ? Color.white : visual.Color;
-                    _pocketImages[i].gameObject.SetActive(true);
+                    _pocketImages[i].color = Color.white;
+                    _pocketImages[i].gameObject.SetActive(visual.Icon != null);
                     _pocketButtons[i].interactable = true;
                 }
                 else
