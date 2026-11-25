@@ -363,8 +363,6 @@ namespace Signal.Game
                 _parcelContainer = null;
                 return false;
             }
-            if (!preferBackpack && TryPlaceParcelInBackpack(parcelState))
-                return true;
             return false;
         }
 
