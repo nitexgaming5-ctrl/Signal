@@ -456,11 +456,11 @@ namespace Signal.Game
         private bool CanRepairTarget(Guid itemInstanceId)
         {
             if (!_assetOwnership.TryGetOwner(itemInstanceId, out EconomicActorId owner)) return false;
-            if (owner == EconomicActorId.Player) return true;
-            return firstCustomerRepairOrder != null &&
+            if (firstCustomerRepairOrder != null &&
                 _customerRepairOrders.TryGetState(firstCustomerRepairOrder.Id, out CustomerRepairOrderState order) &&
-                order.Phase == CustomerRepairOrderPhase.Active && order.ItemInstanceId == itemInstanceId &&
-                owner == order.Issuer;
+                order.Phase == CustomerRepairOrderPhase.Active)
+                return order.ItemInstanceId == itemInstanceId && owner == order.Issuer;
+            return owner == EconomicActorId.Player;
         }
 
         private string AcceptCustomerContract()
