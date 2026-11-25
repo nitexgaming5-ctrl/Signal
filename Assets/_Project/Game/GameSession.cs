@@ -877,7 +877,7 @@ namespace Signal.Game
             GUILayout.Label("Shop sale transactions: " + (_shopSaleTransactions != null ? _shopSaleTransactions.Count.ToString() : "0"));
             GUILayout.Space(8f);
             GUILayout.Label("ITEM TESTING");
-            if (GUILayout.Button("Open item spawner (" + _allItemDefinitions.Count + " catalogue items)"))
+            if (GUILayout.Button("Open item spawner (" + (_debugItemSpawnerPanel != null ? _debugItemSpawnerPanel.ItemCount : _allItemDefinitions.Count) + " catalogue items)"))
                 _debugItemSpawnerPanel.SetOpen(true);
 
             GUILayout.Space(8f);
