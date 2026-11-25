@@ -75,7 +75,10 @@ namespace Signal.Game
         private GridInventory _storage;
         private PlayerEquipmentLoadout _playerEquipment;
         private PortableStorageBook _portableStorage;
+        private PortableBackpackWorldBook _backpackWorldBook;
         private Guid? _equippedBackpackInstanceId;
+        private EquippedItem? _droppedBackpackItem;
+        private GameObject _droppedBackpackVisual;
         private ItemKnowledgeBook _itemKnowledge;
         private PlayerDiscoveryLedger _playerDiscoveries;
         private NpcAgendaProgressBook _npcAgendaProgress;
@@ -160,6 +163,7 @@ namespace Signal.Game
             _storage = new GridInventory(8, 6);
             _playerEquipment = new PlayerEquipmentLoadout();
             _portableStorage = new PortableStorageBook();
+            _backpackWorldBook = new PortableBackpackWorldBook();
             _assetOwnership = new AssetOwnershipBook();
             _economicTransactions = new EconomicTransactionLedger();
             _economicContainers = new EconomicContainerRegistry();
@@ -238,7 +242,8 @@ namespace Signal.Game
             _itemViewer = gameObject.AddComponent<ItemViewerPanel>();
             _itemViewer.Bind(_allItemDefinitions, _itemKnowledge);
             _panel = gameObject.AddComponent<InventoryPanel>();
-            _panel.Bind(_inventory, _allItemDefinitions, _itemViewer.Open, TryEquipPlayerItem, TryUnequipPlayerSlot);
+            _panel.Bind(_inventory, _allItemDefinitions, _itemViewer.Open, TryEquipPlayerItem, TryUnequipPlayerSlot,
+                _playerEquipment, DropPlayerBackpack);
             _debugItemSpawnerPanel = gameObject.AddComponent<DebugItemSpawnerPanel>();
             _debugItemSpawnerPanel.Bind(_allItemDefinitions, SpawnDebugItem);
             _containerPanel = gameObject.AddComponent<SearchableContainerPanel>();
@@ -858,6 +863,7 @@ namespace Signal.Game
             }
             bool nearSearchableContainer = _city.TryGetNearbySearchableContainer(playerPosition,
                 out string nearbyContainerId, out string nearbyContainerLabel);
+            bool nearDroppedBackpack = TryGetNearbyDroppedBackpack(playerPosition, out Guid nearbyBackpackId);
             ResidentPropertyContainerDefinition nearbyProperty = FindNearbyResidentProperty(playerPosition);
             if (nearbyProperty != null)
             {
@@ -870,6 +876,8 @@ namespace Signal.Game
             bool hasScenarioPrompt = false;
             if (nearSearchableContainer)
                 cityPrompt = "E  Search " + nearbyContainerLabel;
+            if (nearDroppedBackpack)
+                cityPrompt = "E  Pick up backpack";
             if (nearDirtyCashContact)
                 cityPrompt = "E  Talk";
             if (nearContractCustomer && nearRepairOrderCustomer)
@@ -932,7 +940,9 @@ namespace Signal.Game
             else if (storageOpen)
                 _hud.SetPrompt("ESC  Close storage");
             else if (inventoryOpen)
-                _hud.SetPrompt(string.Empty);
+                _hud.SetPrompt("B  Drop backpack");
+            else if (nearDroppedBackpack)
+                _hud.SetPrompt("E  Pick up backpack");
             else if (hasScenarioPrompt && !nearSearchableContainer && !nearDirtyCashContact &&
                 !nearContractCustomer && !nearUpgradeSupplier)
                 _hud.SetPrompt(cityPrompt);
@@ -1201,6 +1211,9 @@ namespace Signal.Game
             _playerEquipment.Clear();
             _portableStorage.Clear();
             _equippedBackpackInstanceId = null;
+            _droppedBackpackItem = null;
+            if (_droppedBackpackVisual != null) Destroy(_droppedBackpackVisual);
+            _droppedBackpackVisual = null;
             PlayerCharacterVisual visual = _room != null && _room.Player != null
                 ? _room.Player.GetComponent<PlayerCharacterVisual>() : null;
             if (visual != null)
@@ -1263,6 +1276,93 @@ namespace Signal.Game
                         visual.SetBackpackEquipped(true);
                 }
             }
+        }
+
+        private bool DropPlayerBackpack()
+        {
+            if (!_equippedBackpackInstanceId.HasValue || _playerEquipment == null ||
+                !_playerEquipment.TryTakeEquipped(EquipmentSlot.Accessory1, out EquippedItem equipped) ||
+                equipped.Item.ItemInstanceId != _equippedBackpackInstanceId.Value)
+                return false;
+            Vector2 position = _room != null && _room.Player != null ? (Vector2)_room.Player.position : Vector2.zero;
+            if (!_backpackWorldBook.TryDrop(equipped.Item.ItemInstanceId, position.x, position.y))
+            {
+                _playerEquipment.TryRestoreEquipped(equipped.Item.ItemInstanceId, equipped.Item.Type,
+                    equipped.Item.State, equipped.Slot, equipped.ArmorModifier, equipped.HeatProtectionModifier);
+                Say("The backpack could not be dropped. It remains equipped.", 4f);
+                return false;
+            }
+            _droppedBackpackItem = equipped;
+            _equippedBackpackInstanceId = null;
+            PlayerCharacterVisual visual = _room != null && _room.Player != null ? _room.Player.GetComponent<PlayerCharacterVisual>() : null;
+            if (visual != null) visual.SetBackpackEquipped(false);
+            SpawnDroppedBackpackVisual(position);
+            if (_panel != null) _panel.SetOpen(false);
+            Say("Backpack dropped. Its contents stay inside. Press E beside it to pick it up.", 5f);
+            return true;
+        }
+
+        private bool TryGetNearbyDroppedBackpack(Vector2 playerPosition, out Guid backpackId)
+        {
+            backpackId = Guid.Empty;
+            if (_backpackWorldBook == null) return false;
+            foreach (PortableBackpackWorldState state in _backpackWorldBook.GetAll())
+            {
+                if (state.Status != PortableBackpackWorldStatus.Dropped) continue;
+                if ((playerPosition - new Vector2(state.WorldX, state.WorldY)).sqrMagnitude > 2.25f) continue;
+                backpackId = state.BackpackInstanceId;
+                return true;
+            }
+            return false;
+        }
+
+        private bool RecoverDroppedBackpack(Guid backpackId)
+        {
+            if (!_droppedBackpackItem.HasValue || _droppedBackpackItem.Value.Item.ItemInstanceId != backpackId ||
+                !_backpackWorldBook.TryRecover(backpackId)) return false;
+            EquippedItem dropped = _droppedBackpackItem.Value;
+            if (!_playerEquipment.TryRestoreEquipped(backpackId, dropped.Item.Type, dropped.Item.State,
+                dropped.Slot, dropped.ArmorModifier, dropped.HeatProtectionModifier))
+            {
+                Vector2 pos = _droppedBackpackVisual != null ? (Vector2)_droppedBackpackVisual.transform.position : (Vector2)_room.Player.position;
+                _backpackWorldBook.TryDrop(backpackId, pos.x, pos.y);
+                Say("The backpack could not be equipped. It remains on the ground.", 4f);
+                return false;
+            }
+            _droppedBackpackItem = null;
+            _equippedBackpackInstanceId = backpackId;
+            if (_droppedBackpackVisual != null) Destroy(_droppedBackpackVisual);
+            _droppedBackpackVisual = null;
+            PlayerCharacterVisual visual = _room != null && _room.Player != null ? _room.Player.GetComponent<PlayerCharacterVisual>() : null;
+            if (visual != null) visual.SetBackpackEquipped(true);
+            Say("Backpack picked up and equipped. Your stored items are accessible again.", 5f);
+            return true;
+        }
+
+        private void SpawnDroppedBackpackVisual(Vector2 position)
+        {
+            if (_droppedBackpackVisual != null) Destroy(_droppedBackpackVisual);
+            _droppedBackpackVisual = new GameObject("DroppedBackpack");
+            _droppedBackpackVisual.transform.position = new Vector3(position.x, position.y, 0f);
+            _droppedBackpackVisual.transform.localScale = new Vector3(0.52f, 0.34f, 1f);
+            SpriteRenderer renderer = _droppedBackpackVisual.AddComponent<SpriteRenderer>();
+            renderer.sprite = PixelSprites.Solid(new Color32(0x8B, 0x5E, 0x3C, 0xFF));
+            renderer.sortingOrder = 8;
+        }
+
+        private static SavedEquippedItem ToSavedEquippedItem(EquippedItem equipped, AssetOwnershipBook ownership)
+        {
+            EconomicActorId owner = ownership != null && ownership.TryGetOwner(equipped.Item.ItemInstanceId, out EconomicActorId registered)
+                ? registered : EconomicActorId.Player;
+            return new SavedEquippedItem
+            {
+                instanceId = equipped.Item.ItemInstanceId.ToString(), typeId = equipped.Item.Type.Id.ToString(),
+                ownerActorId = owner.Value, slot = (int)equipped.Slot,
+                armorModifier = equipped.ArmorModifier, heatProtectionModifier = equipped.HeatProtectionModifier,
+                quality = (int)equipped.Item.State.Quality, condition = (int)equipped.Item.State.Condition,
+                authenticity = (int)equipped.Item.State.Authenticity, ownership = (int)equipped.Item.State.Ownership,
+                portableBackpack = true
+            };
         }
 
         private ItemDefinition FindItemDefinition(Guid typeId)
@@ -1519,6 +1619,9 @@ namespace Signal.Game
                                                _customerRepairOrders, _servicePaymentTransactions);
             PlayerDevelopmentSaveMapper.Capture(_playerDevelopment, data);
             CaptureEquipment(data);
+            if (_droppedBackpackItem.HasValue)
+                data.droppedBackpack = ToSavedEquippedItem(_droppedBackpackItem.Value, _assetOwnership);
+            PortableBackpackWorldSaveMapper.Capture(_backpackWorldBook, data);
             SearchableContainerSaveMapper.Capture(_searchableContainers, data);
 
             try
@@ -1541,6 +1644,7 @@ namespace Signal.Game
                 return;
             }
 
+            if (_panel != null) _panel.SetOpen(false);
             if (_containerPanel != null) _containerPanel.Close();
             if (_dirtyCashPanel != null) _dirtyCashPanel.Close();
             if (_customerContractPanel != null) _customerContractPanel.Close();
@@ -1560,6 +1664,14 @@ namespace Signal.Game
                 return;
             }
             RestoreEquipment(data);
+            PortableBackpackWorldSaveMapper.Apply(data, _backpackWorldBook, _portableStorage);
+            if (_equippedBackpackInstanceId.HasValue &&
+                !_backpackWorldBook.TryGet(_equippedBackpackInstanceId.Value, out _))
+                _backpackWorldBook.TryRegisterEquipped(_equippedBackpackInstanceId.Value, _portableStorage);
+            if (_droppedBackpackItem.HasValue &&
+                _backpackWorldBook.TryGet(_droppedBackpackItem.Value.Item.ItemInstanceId, out PortableBackpackWorldState droppedState) &&
+                droppedState.Status == PortableBackpackWorldStatus.Dropped)
+                SpawnDroppedBackpackVisual(new Vector2(droppedState.WorldX, droppedState.WorldY));
             _playerDevelopment = PlayerDevelopmentSaveMapper.Restore(data, _playerDevelopmentCatalog.GetSkillIds(),
                 _playerDevelopmentCatalog.StartingSkillPoints, _playerDevelopmentCatalog.MaximumSkillRank,
                 _playerDevelopmentCatalog.PointsPerRank);
