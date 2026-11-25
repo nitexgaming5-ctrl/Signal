@@ -323,7 +323,8 @@ namespace Signal.Game
                 _miloScenario = gameObject.AddComponent<MiloParcelOpportunityController>();
                 _miloScenario.Bind(_inventory, parcelItem.ToItemType(),
                     _playerDiscoveries, _playerRelationships, _itemKnowledge, _clock, _city,
-                    _miloOpportunity, message => Say(message, 8f));
+                    _miloOpportunity, message => Say(message, 8f), _playerPockets,
+                    () => _equippedBackpackInstanceId.HasValue && !_droppedBackpackItem.HasValue);
             }
 
             _workspace = gameObject.AddComponent<WorkbenchWorkspace>();
