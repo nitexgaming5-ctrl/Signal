@@ -36,6 +36,7 @@ namespace Signal.Game
         private RectTransform _root;
         private RectTransform _contactItems;
         private RectTransform _playerItems;
+        private RectTransform _pocketItems;
         private Text _contactTitle;
         private Text _playerTitle;
         private Text _offerText;
@@ -49,6 +50,8 @@ namespace Signal.Game
         private Button _confirmClean;
 
         private GridInventory _playerInventory;
+        private readonly List<GridInventory> _pocketInventories = new List<GridInventory>();
+        private bool _backpackAccessible = true;
         private GridInventory _contactInventory;
         private AssetOwnershipBook _ownership;
         private ItemDefinition _dirtyCash;
@@ -106,10 +109,30 @@ namespace Signal.Game
 
         public void SetPlayerInventory(GridInventory inventory)
         {
-            if (inventory == null || ReferenceEquals(_playerInventory, inventory)) return;
+            SetPlayerInventories(inventory, null, inventory != null);
+        }
+
+        public void SetPlayerInventories(GridInventory backpack, IReadOnlyList<GridInventory> pockets,
+            bool backpackAccessible)
+        {
+            if (backpack == null) throw new ArgumentNullException(nameof(backpack));
             if (_playerInventory != null) _playerInventory.Changed -= OnInventoryChanged;
-            _playerInventory = inventory;
+            for (int i = 0; i < _pocketInventories.Count; i++)
+                _pocketInventories[i].Changed -= OnInventoryChanged;
+
+            _playerInventory = backpack;
             _playerInventory.Changed += OnInventoryChanged;
+            _pocketInventories.Clear();
+            if (pockets != null)
+                for (int i = 0; i < pockets.Count; i++)
+                {
+                    GridInventory pocket = pockets[i];
+                    if (pocket == null || ReferenceEquals(pocket, _playerInventory) ||
+                        _pocketInventories.Contains(pocket)) continue;
+                    _pocketInventories.Add(pocket);
+                    pocket.Changed += OnInventoryChanged;
+                }
+            _backpackAccessible = backpackAccessible;
             _selectedPlayerStack = Guid.Empty;
             if (IsOpen) Refresh();
         }
@@ -134,6 +157,8 @@ namespace Signal.Game
         private void OnDestroy()
         {
             if (_playerInventory != null) _playerInventory.Changed -= OnInventoryChanged;
+            for (int i = 0; i < _pocketInventories.Count; i++)
+                _pocketInventories[i].Changed -= OnInventoryChanged;
             if (_contactInventory != null) _contactInventory.Changed -= OnInventoryChanged;
         }
 
@@ -168,8 +193,13 @@ namespace Signal.Game
         private bool TryGetSelected(out PlacedItem selected)
         {
             selected = default;
-            return _selectedPlayerStack != Guid.Empty &&
-                _playerInventory.TryGetItemInstance(_selectedPlayerStack, out selected);
+            if (_selectedPlayerStack == Guid.Empty) return false;
+            if (_backpackAccessible &&
+                _playerInventory.TryGetItemInstance(_selectedPlayerStack, out selected)) return true;
+            for (int i = 0; i < _pocketInventories.Count; i++)
+                if (_pocketInventories[i].TryGetItemInstance(_selectedPlayerStack, out selected))
+                    return true;
+            return false;
         }
 
         private bool IsPlayerOwned(PlacedItem item)
@@ -196,14 +226,21 @@ namespace Signal.Game
             if (!IsOpen) return;
             Clear(_contactItems);
             Clear(_playerItems);
+            Clear(_pocketItems);
 
             foreach (PlacedItem item in _contactInventory.Items)
                 DrawItem(item, _contactItems, false);
-            foreach (PlacedItem item in _playerInventory.Items)
-                DrawItem(item, _playerItems, true);
+            if (_backpackAccessible)
+                foreach (PlacedItem item in _playerInventory.Items)
+                    DrawItem(item, _playerItems, true);
+            for (int pocketIndex = 0; pocketIndex < _pocketInventories.Count && pocketIndex < PlayerPocketBook.PocketCount; pocketIndex++)
+                foreach (PlacedItem item in _pocketInventories[pocketIndex].Items)
+                    DrawItemAt(item, _pocketItems, true, pocketIndex, 0);
 
             _contactTitle.text = "CONTACT INVENTORY  ·  " + _contactInventory.Width + " × " + _contactInventory.Height;
-            _playerTitle.text = "YOUR CARRIED INVENTORY  ·  " + _playerInventory.Width + " × " + _playerInventory.Height;
+            _playerTitle.text = _backpackAccessible
+                ? "BACKPACK STORAGE  ·  " + _playerInventory.Width + " × " + _playerInventory.Height
+                : "BACKPACK INACCESSIBLE  ·  PERSONAL POCKETS REMAIN AVAILABLE";
 
             bool selectedExists = TryGetSelected(out PlacedItem selected);
             if (!selectedExists) _selectedPlayerStack = Guid.Empty;
@@ -249,6 +286,11 @@ namespace Signal.Game
 
         private void DrawItem(PlacedItem item, RectTransform parent, bool selectable)
         {
+            DrawItemAt(item, parent, selectable, item.X, item.Y);
+        }
+
+        private void DrawItemAt(PlacedItem item, RectTransform parent, bool selectable, int x, int y)
+        {
             string label = DisplayName(item.Type);
             Color color = _colors.TryGetValue(item.Type.Id, out Color found) ? found : Palette[5];
             bool selected = selectable && item.ItemInstanceId == _selectedPlayerStack;
@@ -264,9 +306,9 @@ namespace Signal.Game
             button.targetGraphic = image;
             button.interactable = selectable;
             SetTopLeft(go.GetComponent<RectTransform>(),
-                item.X * CellSize + 2f, item.Y * CellSize + 2f,
+                x * CellSize + 2f, y * CellSize + 2f,
                 item.FootprintWidth * CellSize - 4f, item.FootprintHeight * CellSize - 4f);
-            Text text = NewText(go.transform, label + (item.Count > 1 ? "\nx" + item.Count : string.Empty),
+            Text text = NewText(go.transform, label + (item.Count > 1 ? "\\nx" + item.Count : string.Empty),
                 11, TextAnchor.MiddleCenter, new Color32(14, 17, 22, 255));
             Stretch(text.rectTransform);
             if (selectable)
@@ -333,11 +375,17 @@ namespace Signal.Game
             SetTopLeft(playerPanel.rectTransform, 550f, 70f, 526f, 420f);
             _playerTitle = NewText(playerPanel.transform, "YOUR CARRIED INVENTORY", 16, TextAnchor.MiddleLeft, TextColor);
             SetTopLeft(_playerTitle.rectTransform, 16f, 12f, 490f, 28f);
-            RectTransform playerGrid = NewRect("Grid", playerPanel.transform);
-            SetTopLeft(playerGrid, 20f, 52f, 6f * CellSize, 4f * CellSize);
-            BuildCells(playerGrid, 6, 4);
-            _playerItems = NewRect("Items", playerGrid);
+            RectTransform playerGrid = NewRect("BackpackGrid", playerPanel.transform);
+            SetTopLeft(playerGrid, 20f, 52f, 8f * CellSize, 6f * CellSize);
+            BuildCells(playerGrid, 8, 6);
+            _playerItems = NewRect("BackpackItems", playerGrid);
             Stretch(_playerItems);
+
+            RectTransform pocketGrid = NewRect("PersonalPockets", playerPanel.transform);
+            SetTopLeft(pocketGrid, 20f, 322f, PlayerPocketBook.PocketCount * CellSize, CellSize);
+            BuildCells(pocketGrid, PlayerPocketBook.PocketCount, 1);
+            _pocketItems = NewRect("PocketItems", pocketGrid);
+            Stretch(_pocketItems);
 
             _fenceTab = NewButton(_root, "FENCE OFFER", 28f, 510f, 170f, 38f);
             _fenceTab.onClick.AddListener(() => SetMode(ServiceMode.Fence));
