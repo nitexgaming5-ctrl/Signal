@@ -114,6 +114,33 @@ namespace Signal.Core
             return result.Success && result.Moved == item.Count;
         }
 
+        /// <summary>
+        /// Moves a stack directly to another pocket. If both pockets are occupied, their
+        /// complete stacks are exchanged atomically without changing stable item identity or state.
+        /// </summary>
+        public bool TryMoveBetweenPockets(int sourcePocketIndex, int destinationPocketIndex)
+        {
+            if (sourcePocketIndex == destinationPocketIndex ||
+                !TryGetPocket(sourcePocketIndex, out GridInventory source) ||
+                !TryGetPocket(destinationPocketIndex, out GridInventory destination) ||
+                source.Items.Count != 1)
+                return false;
+
+            PlacedItem moving = source.Items[0];
+            if (moving.ItemInstanceId == Guid.Empty || moving.Rotated ||
+                moving.Type.Width != 1 || moving.Type.Height != 1)
+                return false;
+
+            if (destination.Items.Count == 0)
+            {
+                InventoryTransferResult result = InventoryTransfer.MoveStack(
+                    source, destination, moving.ItemInstanceId);
+                return result.Success && result.Moved == moving.Count;
+            }
+
+            return GridInventory.TrySwapSingleItemStacks(source, destination);
+        }
+
         public void Clear()
         {
             for (int i = 0; i < PocketCount; i++) _pockets[i].Clear();
