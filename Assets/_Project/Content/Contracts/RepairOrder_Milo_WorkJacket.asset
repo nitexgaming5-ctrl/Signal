@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f4c6a8e0b1d43f5a7c9e2b4d6f80123, type: 3}
+  m_Name: RepairOrder_Milo_WorkJacket
+  m_EditorClassIdentifier: Signal.Game::Signal.Game.CustomerRepairOrderDefinition
+  id: 60000000-0000-4000-8000-000000000001
+  displayName: Restore My Work Jacket
+  description: The jacket I wear every day is badly worn. Could you patch it up and bring it back in good condition?
+  issuerNpcId: milo
+  entrustedItem: {fileID: 11400000, guid: b6e7a9c1d3f5428db0a6c7e9f1d25384, type: 2}
+  cleanCardReward: 35
+  startingCondition: 2
+  requiredReturnCondition: 0
