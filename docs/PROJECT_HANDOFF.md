@@ -119,3 +119,10 @@ Committed but not yet Unity-verified:
 - Pockets are registered as player economic containers. Repair-order acceptance, retail purchase, searchable loot pickup, Dirty Cash exchange output and Milo's parcel can route to available pocket capacity.
 - Eight new Core tests are added; expected suite total is 494, pending Unity compile and test execution. The last user-confirmed baseline was 486/486 after P-03.4a.
 - Customer Contract now lists pocket-held goods and can fulfil from the pocket's actual GridInventory. When no backpack is accessible, Retail and Dirty Cash panels switch to an empty carry view rather than exposing the dropped bag's cargo; they do not yet enumerate pocket-held items. Workbench/production and home-storage transfer still require an equipped backpack. Further service-panel integration and clothing visual overlays remain before P-03 completion.
+
+## Latest P-03 UI follow-up — pending Unity verification (2026-11-25)
+- User confirmed **494/494 EditMode tests passed** for P-03.4b before the latest UI-only follow-up.
+- Backpack items can now be dragged directly onto one of the three personal pocket cells; invalid, rotated or oversized items remain in the source inventory because PlayerPocketBook validates the transfer.
+- Press E while hovering an equippable item in a pocket to equip it. This uses the pocket itself as the source container and works without an equipped backpack.
+- SearchableContainerPanel rebuilds its player-side grid to match the actual active inventory dimensions on each open. The equipped backpack's 8×6 grid should now visually match the underlying storage instead of showing the stale 6×4 layout.
+- Next: pull latest, compile and rerun EditMode tests, then Play Mode verify drag/drop, pocket equipment and bin-search 8×6 alignment. Do not claim the latest UI fixes are verified until the user confirms.
