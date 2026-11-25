@@ -7,7 +7,7 @@ Last reconciled: **2026-11-25**. This is the short status board. Session history
 - Unity **6000.6.9f1**, 2D URP. Active architecture: `Signal.Core` (plain C#) + `Signal.Game` (Unity integration). Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
 - Working branch: `chore/collaboration-workflow-and-audit`. Keep `main` untouched.
 - Application version: **0.01**. Save snapshots are deliberately unversioned; there is no schema-version field, version gate or automatic migration chain. Older experimental saves may be incompatible after data-shape changes.
-- Latest user-reported full EditMode result: **437/437 passed (2026-11-25)** after the B-05 customer-contract outcome integration and survival-item catalogue/importer work. The two new debug-spawner tests added after that run still require Unity verification.
+- Latest user-reported full EditMode result: **439/439 passed (2026-11-25)**, including the debug item spawner and its EditMode cleanup fix. The latest B-05 NPC→player relationship work adds three focused tests; these still require a fresh Unity run (expected 442/442 if no other tests changed).
 - The user reports the First Workshop and repair/trading flow working in Play Mode. The Work Jacket still needs to be acquired through scavenging to complete the repair loop.
 
 ## Active initiative — Direction B: First Workshop and Repair (B-01 to B-04)
@@ -50,7 +50,7 @@ Specialist references: [Architecture](ARCHITECTURE.md), [Data Model](DATA_MODEL.
 
 ## Current verification and next action
 
-**EditMode:** the user reports **434/434 passed** after the first B-05 persistence slice and test correction. The latest B-05-04 customer outcome tests and item UI/importer changes have not yet been run in Unity; rerun the full suite on current HEAD.
+**EditMode:** the user reports **439/439 passed** on the item-spawner fix. The latest B-05 NPC→player relationship implementation adds three focused tests and has not yet been run in Unity; rerun the full suite on current HEAD.
 
 **Play Mode:** the user reports the First Workshop and repair/trading features work well. The Work Jacket was not found in scavenging, so its loot availability is being made deterministic for testing.
 
@@ -64,19 +64,25 @@ The guaranteed Work Jacket entry is explicitly temporary test scaffolding and sh
 
 ## Active initiative — B-05 Global NPC Awareness & Affinity
 
-The user approved a shared social foundation for every current and future NPC. Relationship ownership is intentionally split: `PlayerRelationshipBook` is the existing player→NPC authority and is already persisted; `NpcSocialWorld` owns NPC→NPC relationships and per-NPC knowledge. Both use the same `NpcRelationship` value model.
+B-05 is a generic NPC framework phase, not a character/cast-writing phase. Rhea, Milo and the existing Dirty Cash contact are framework/test residents only. Do not add residents, invent backstories or author the final cast until the main storyline and intended cast have been deliberately designed.
 
-**Implemented in the current branch (Unity verification pending):**
-- `SaveData` captures each registered NPC’s personal knowledge, including event identity, original actor, latest source, observation/told origin, confidence, event location/coordinates and occurred/learned timestamps.
-- Directed NPC→NPC familiarity/trust/affinity is captured independently for each observer→target pair.
-- F5/F9 restores social state after scene residents are registered. Unknown residents, invalid source references and malformed values are skipped and counted in `LoadReport`.
-- Loading clears previous NPC knowledge/relationships and the transient event journal before applying the save. The journal is not serialized as private memory; positions and perception remain rebuilt from the live scene.
-- `NpcSocialWorld.AdjustRelationship` is the validated directed NPC mutation path. Scheduled encounters use it for familiarity only; trust and affinity do not drift from ambient meetings.
-- `PlayerRelationshipBook` and its existing save format remain unchanged. Agenda gates/outcomes already read/write that generic player→NPC book; the social encounter system uses the generic NPC→NPC world for all registered residents.
-- Added focused tests for sourced knowledge and directional relationship round-trip, transient journal exclusion, unknown residents, relationship dimensions and non-finite values.
+Relationship ownership is explicitly directional:
+- Player→NPC: existing `PlayerRelationshipBook`, unchanged.
+- NPC→NPC: each observer's relationship map inside `NpcAgentState` / `NpcSocialWorld`.
+- NPC→player: a separate per-NPC opinion stored on `NpcAgentState` / `NpcSocialWorld`.
+- All three directions use the same `NpcRelationship` value model, but never share storage authority or register the player as an NPC.
 
-Task specification: `tasks/LIVELIHOOD-B-05-GLOBAL-NPC-AWARENESS-AFFINITY.md`. The user reports **437/437** after the customer-outcome integration and survival-item importer. The debug-spawner integration and its two new tests are newer and still need Unity compilation and a fresh full-suite run.
+**Implemented in the current branch (latest directionality slice awaits Unity verification):**
+- Shared local perception, individual sourced knowledge, explicit knowledge sharing and directed NPC-to-NPC relationships.
+- F5/F9 persistence for each NPC's personal knowledge and directed NPC-to-NPC relationships.
+- New independent NPC→player opinion with neutral per-NPC default and validated get/set/adjust APIs.
+- F5/F9 persistence for NPC→player opinion, validated against registered stable NPC IDs and finite bounded values. Restore clears prior timeline state and rebuilds the transient event journal/presence separately.
+- Customer contracts now support authored outcomes in both directions: player→issuer through PlayerRelationshipBook and issuer→player through the issuer's own NpcAgentState. Both apply only after successful goods transfer, payment and contract completion; replay cannot award twice.
+- Added tests for independent directionality, persistence round-trip, contract success/replay and target validation. These latest tests have not run in Unity.
 
+The user reports **439/439** after the debug item spawner fix. The latest slice adds three tests, so expect **442/442** if no other test files changed. Do not claim that result until the user runs the Unity suite.
+
+Task specification: `tasks/LIVELIHOOD-B-05-GLOBAL-NPC-AWARENESS-AFFINITY.md`.
 
 ## Developer debug item spawner
 
@@ -87,7 +93,7 @@ Task specification: `tasks/LIVELIHOOD-B-05-GLOBAL-NPC-AWARENESS-AFFINITY.md`. Th
 - The current GitHub source contains no separate ItemDefinition named Wool. If Wool exists only in a local uncommitted asset, it will appear once added to a source catalogue the session loads; the spawner does not fabricate a duplicate definition.
 - Two focused EditMode tests cover panel binding/open-close and routing a selected definition through the spawn callback.
 - **EditMode cleanup fix:** `DebugItemSpawnerPanel.RefreshTiles` now uses deferred `Destroy` while playing and `DestroyImmediate` outside Play Mode. This avoids Unity's edit-mode destruction warning/error when the panel rebuilds its tiles during EditMode tests; runtime behaviour remains deferred and safe.
- The user's latest 437/437 run predates these tests; expected count is 439 if no other tests are added, but Unity verification is pending.
+ The user subsequently confirmed **439/439** after the EditMode cleanup fix. The latest B-05 directionality tests are newer and remain pending; expected current suite count is 442 if no other tests were added.
 
 ## Repository hazards and deferred scope
 
