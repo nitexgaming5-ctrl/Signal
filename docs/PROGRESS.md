@@ -52,11 +52,11 @@ Specialist references: [Architecture](ARCHITECTURE.md), [Data Model](DATA_MODEL.
 
 ## Current verification and next action
 
-**EditMode:** the user confirms **478/478 passed (2026-11-25)** after the P-03 backpack-equipped integration slice.
+**EditMode:** the user confirms **486/486 passed (2026-11-25)** after P-03.4a. P-03.4b adds eight Core tests; expected total is **494**, pending Unity execution.
 
 **Play Mode:** the user reports the First Workshop, repair/trading features and B-06 entrusted repair-order loop work correctly.
 
-**Active initiative:** P-03 Equipment, Wearables & Portable Backpack. Core seven-slot loadout plus first Game integration are committed: E equips prototype gear, 1–7 unequip ordinary slots, Canvas Backpack attaches the existing 8×6 grid to its stable identity, and equipped state is saved/restored through F5/F9. The 8×6 player grid is a temporary testing convenience; final no-backpack state is 2–3 pockets. Physical backpack drop/pickup is the next sub-phase. User confirmed **478/478 EditMode tests passed** after this slice. See [P-03 task card](tasks/PLAYER-P-03-EQUIPMENT-BACKPACK.md). B-07 Neighbourhood Expansion remains intact; W-01 remains separate.
+**Active initiative:** P-03 Equipment, Wearables & Portable Backpack. Seven equipment slots, equipped backpack identity, physical B/drop + E/recovery, F5/F9 backpack world state and three persistent 1×1 personal pockets are integrated. The character UI displays real pocket contents; P moves a hovered 1×1 backpack item into a pocket and clicking an occupied pocket moves it back. Selected item receipts route into available pockets. User confirmed 486/486 after P-03.4a; eight new Core tests bring the expected total to 494, pending Unity execution. Remaining work: service-panel pocket coverage, clothing overlays and full Play Mode acceptance. See [P-03 task card](tasks/PLAYER-P-03-EQUIPMENT-BACKPACK.md). B-07 Neighbourhood Expansion remains intact; W-01 remains separate.
 
 The guaranteed Work Jacket entry is explicitly temporary test scaffolding and should be removed or changed back to a low-weight normal entry once the repair loop is fully validated.
 
