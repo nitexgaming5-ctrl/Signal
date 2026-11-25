@@ -486,8 +486,11 @@ namespace Signal.Game
             if (!IsNearRepairOrderCustomer(_room.PlayerBody.position)) return "Move closer to the customer.";
             if (firstCustomerRepairOrder == null || _contractReceiverInventory == null)
                 return "The repair order is unavailable.";
+            if (!_customerRepairOrders.TryGetState(firstCustomerRepairOrder.Id, out CustomerRepairOrderState activeOrder) ||
+                !TryGetPlayerItem(activeOrder.ItemInstanceId, out GridInventory sourceInventory, out _))
+                return "The entrusted jacket is not in accessible carried storage. Recover your backpack or move the jacket into a personal pocket.";
             CustomerRepairOrderResult result = CustomerRepairOrderService.TryReturn(firstCustomerRepairOrder.Id,
-                firstCustomerRepairOrder.EntrustedItem.ToItemType(), _inventory, _contractReceiverInventory,
+                firstCustomerRepairOrder.EntrustedItem.ToItemType(), sourceInventory, _contractReceiverInventory,
                 _economicContainers, _assetOwnership, _stats.CleanMoney, _economicAccounts,
                 _servicePaymentTransactions, _customerRepairOrders, _clock.Day, _clock.MinuteOfDay);
             if (result.Success)
@@ -537,12 +540,14 @@ namespace Signal.Game
                 return "The customer request is unavailable.";
             if (!_economicAccounts.TryGetAccount(firstCustomerContract.IssuerActor, out CleanMoneyAccount payer))
                 return "The customer's CARD account is unavailable.";
+            if (!TryGetPlayerItem(itemInstanceId, out GridInventory sourceInventory, out _))
+                return "That stack is not in accessible carried storage. Recover your backpack or use a personal pocket.";
 
             CustomerContractFulfilmentResult result = CustomerContractService.TryFulfil(
                 firstCustomerContract.Id, itemInstanceId, firstCustomerContract.RequiredItem.ToItemType(),
                 firstCustomerContract.RequiredQuantity, firstCustomerContract.AcceptStolenGoods,
                 firstCustomerContract.CleanCardReward, _contractReceiverActor, firstCustomerContract.IssuerActor,
-                _inventory, _contractReceiverInventory, _assetOwnership, _assetTransfers,
+                sourceInventory, _contractReceiverInventory, _assetOwnership, _assetTransfers,
                 _economicTransactions, _stats.CleanMoney, payer, _customerContracts,
                 _clock.Day, _clock.MinuteOfDay, _playerRelationships,
                 firstCustomerContract.IssuerNpcId,
@@ -1923,7 +1928,9 @@ namespace Signal.Game
             if (!_economicAccounts.TryGetAccount(contactActor, out CleanMoneyAccount contactAccount))
                 return "The contact's account is unavailable.";
 
-            DirtyCashCleaningResult result = DirtyCashCleaningService.TryClean(_inventory, cashInstanceId,
+            if (!TryGetPlayerItem(cashInstanceId, out GridInventory cashInventory, out _))
+                return "That Dirty Cash stack is not in accessible carried storage.";
+            DirtyCashCleaningResult result = DirtyCashCleaningService.TryClean(cashInventory, cashInstanceId,
                 dirtyCashContactOffer.DirtyCashItem.ToItemType(), EconomicActorId.Player, _assetOwnership,
                 _stats.CleanMoney, contactAccount, contactActor, dirtyCashContactOffer.CleaningFeePercent,
                 _dirtyCashCleanings,
@@ -2001,8 +2008,8 @@ namespace Signal.Game
                 return "Business configuration error: " + businessError;
             if (!business.IsOpen(_clock.MinuteOfDay))
                 return "The business is closed.";
-            if (!_inventory.TryGetItemInstance(itemInstanceId, out PlacedItem selected))
-                return "That inventory stack is no longer available.";
+            if (!TryGetPlayerItem(itemInstanceId, out GridInventory sourceInventory, out PlacedItem selected))
+                return "That stack is not in accessible carried storage.";
             if (!_assetOwnership.TryGetOwner(itemInstanceId, out EconomicActorId owner) ||
                 owner != EconomicActorId.Player)
                 return "You do not own that item.";
@@ -2015,7 +2022,7 @@ namespace Signal.Game
                 return "That stack no longer contains the requested quantity.";
 
             FulfilResult result = Shop.TryFulfilExact(new ShopOrder(selected.Type, quantity, unitPrice),
-                itemInstanceId, business.BusinessId, EconomicActorId.Player, _inventory, _assetOwnership,
+                itemInstanceId, business.BusinessId, EconomicActorId.Player, sourceInventory, _assetOwnership,
                 _stats.CleanMoney, _shopSaleTransactions, _clock.Day, _clock.MinuteOfDay);
             if (result == FulfilResult.Done)
                 return "Sold " + quantity + " " + definition.DisplayName +
