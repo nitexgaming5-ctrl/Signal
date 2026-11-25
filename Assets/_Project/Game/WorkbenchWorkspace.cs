@@ -28,6 +28,7 @@ namespace Signal.Game
         private RectTransform _surface;
         private bool _built;
         private GridInventory _inventory;
+        private readonly List<GridInventory> _inventories = new List<GridInventory>();
         private AssetOwnershipBook _ownership;
         private IReadOnlyList<RecipeDefinition> _recipes;
         private Func<RecipeDefinition, bool> _isRecipeUnlocked;
@@ -65,6 +66,8 @@ namespace Signal.Game
             if (ownership == null) throw new ArgumentNullException(nameof(ownership));
             _motor = motor;
             _inventory = inventory;
+            _inventories.Clear();
+            _inventories.Add(inventory);
             _ownership = ownership;
             _recipes = recipes ?? Array.Empty<RecipeDefinition>();
             _isRecipeUnlocked = isRecipeUnlocked ?? throw new ArgumentNullException(nameof(isRecipeUnlocked));
@@ -76,6 +79,24 @@ namespace Signal.Game
             _canRepair = canRepair ?? throw new ArgumentNullException(nameof(canRepair));
             _repair = repair ?? throw new ArgumentNullException(nameof(repair));
             _canRepairTarget = canRepairTarget;
+        }
+
+        public void SetCarriedInventories(IReadOnlyList<GridInventory> inventories)
+        {
+            _inventories.Clear();
+            if (inventories != null)
+                for (int i = 0; i < inventories.Count; i++)
+                {
+                    GridInventory inventory = inventories[i];
+                    if (inventory == null || _inventories.Contains(inventory)) continue;
+                    _inventories.Add(inventory);
+                }
+            _inventory = _inventories.Count > 0 ? _inventories[0] : null;
+            if (IsOpen)
+            {
+                RefreshProduction();
+                RefreshRepair();
+            }
         }
 
         public void Open()
@@ -335,35 +356,37 @@ namespace Signal.Game
         private bool TryFindRepairTarget(ItemType? type, out PlacedItem item)
         {
             item = default;
-            if (!type.HasValue || _inventory == null || _ownership == null) return false;
-            foreach (PlacedItem candidate in _inventory.Items)
-            {
-                if (candidate.Type != type.Value) continue;
-                bool eligible = _canRepairTarget != null
-                    ? _canRepairTarget(candidate.ItemInstanceId)
-                    : _ownership.TryGetOwner(candidate.ItemInstanceId, out EconomicActorId owner) && owner == EconomicActorId.Player;
-                if (!eligible) continue;
-                item = candidate;
-                return true;
-            }
+            if (!type.HasValue || _ownership == null) return false;
+            for (int inventoryIndex = 0; inventoryIndex < _inventories.Count; inventoryIndex++)
+                foreach (PlacedItem candidate in _inventories[inventoryIndex].Items)
+                {
+                    if (candidate.Type != type.Value) continue;
+                    bool eligible = _canRepairTarget != null
+                        ? _canRepairTarget(candidate.ItemInstanceId)
+                        : _ownership.TryGetOwner(candidate.ItemInstanceId, out EconomicActorId owner) && owner == EconomicActorId.Player;
+                    if (!eligible) continue;
+                    item = candidate;
+                    return true;
+                }
             return false;
         }
 
         private bool TryFindOwnedItem(ItemType? type, out PlacedItem item)
         {
             item = default;
-            if (!type.HasValue || _inventory == null || _ownership == null)
+            if (!type.HasValue || _ownership == null)
                 return false;
 
-            foreach (PlacedItem candidate in _inventory.Items)
-            {
-                if (candidate.Type != type.Value ||
-                    !_ownership.TryGetOwner(candidate.ItemInstanceId, out EconomicActorId owner) ||
-                    owner != EconomicActorId.Player)
-                    continue;
-                item = candidate;
-                return true;
-            }
+            for (int inventoryIndex = 0; inventoryIndex < _inventories.Count; inventoryIndex++)
+                foreach (PlacedItem candidate in _inventories[inventoryIndex].Items)
+                {
+                    if (candidate.Type != type.Value ||
+                        !_ownership.TryGetOwner(candidate.ItemInstanceId, out EconomicActorId owner) ||
+                        owner != EconomicActorId.Player)
+                        continue;
+                    item = candidate;
+                    return true;
+                }
             return false;
         }
 
@@ -419,11 +442,12 @@ namespace Signal.Game
             foreach (KeyValuePair<ItemType, int> requirement in required)
             {
                 long total = 0;
-                foreach (PlacedItem item in _inventory.Items)
-                    if (item.Type == requirement.Key &&
-                        _ownership.TryGetOwner(item.ItemInstanceId, out EconomicActorId owner) &&
-                        owner == EconomicActorId.Player)
-                        total += item.Count;
+                for (int inventoryIndex = 0; inventoryIndex < _inventories.Count; inventoryIndex++)
+                    foreach (PlacedItem item in _inventories[inventoryIndex].Items)
+                        if (item.Type == requirement.Key &&
+                            _ownership.TryGetOwner(item.ItemInstanceId, out EconomicActorId owner) &&
+                            owner == EconomicActorId.Player)
+                            total += item.Count;
                 if (total < requirement.Value) return false;
             }
             return true;
