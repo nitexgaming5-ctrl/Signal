@@ -7,12 +7,30 @@ namespace Signal.Core
     public sealed class PlayerPocketBook
     {
         public const int PocketCount = 3;
+        public const int OrdinaryPocketCount = 2;
+        public const int HiddenPocketIndex = 2;
         private readonly GridInventory[] _pockets =
         {
             new GridInventory(1, 1),
             new GridInventory(1, 1),
             new GridInventory(1, 1)
         };
+
+        /// <summary>Only P1 and P2 are exposed to ordinary searches. P3 is concealed.</summary>
+        public bool IsExposedToOrdinarySearch(int pocketIndex)
+        {
+            if (pocketIndex < 0 || pocketIndex >= PocketCount) throw new ArgumentOutOfRangeException(nameof(pocketIndex));
+            return pocketIndex < OrdinaryPocketCount;
+        }
+
+        /// <summary>Returns items discoverable by a routine inventory search; hidden-pocket contents are omitted.</summary>
+        public IReadOnlyList<PlacedItem> GetItemsVisibleToOrdinarySearch()
+        {
+            var visible = new List<PlacedItem>();
+            for (int i = 0; i < OrdinaryPocketCount; i++)
+                visible.AddRange(_pockets[i].Items);
+            return visible;
+        }
 
         public GridInventory GetPocket(int index)
         {
