@@ -88,6 +88,15 @@ namespace Signal.Game
 
         private RoomBootstrap _room;
         private PlayerMotor2D _motor;
+        private PlayerDevelopmentState _playerDevelopment;
+        private PlayerDevelopmentPanel _playerDevelopmentPanel;
+
+        // Prototype content IDs; the final skill catalogue remains a data/content decision.
+        private static readonly string[] ProvisionalPlayerSkillIds =
+            { "repair", "production", "trading", "scavenging", "social" };
+        private const int PrototypeStartingSkillPoints = 8;
+        private const int PrototypeMaximumSkillRank = 5;
+        private const int PrototypePointsPerSkillRank = 1;
         private InventoryPanel _panel;
         private ItemViewerPanel _itemViewer;
         private DebugItemSpawnerPanel _debugItemSpawnerPanel;
@@ -183,6 +192,10 @@ namespace Signal.Game
             _room = roomObject.AddComponent<RoomBootstrap>();
             _room.Build(camera);
             _motor = _room.Player.GetComponent<PlayerMotor2D>();
+            _playerDevelopment = new PlayerDevelopmentState(ProvisionalPlayerSkillIds,
+                PrototypeStartingSkillPoints, PrototypeMaximumSkillRank, PrototypePointsPerSkillRank);
+            _playerDevelopmentPanel = gameObject.AddComponent<PlayerDevelopmentPanel>();
+            _playerDevelopmentPanel.Bind(_playerDevelopment);
 
             _city = gameObject.AddComponent<CityBlockBootstrap>();
             _city.Build(_room.Player, _room.PlayerBody, camera, _clock, npcDefinitions);
@@ -335,7 +348,11 @@ namespace Signal.Game
                     firstCustomerRepairOrder.IssuerActor, firstCustomerRepairOrder.EntrustedItem.ToItemType().Id,
                     firstCustomerRepairOrder.CleanCardReward, firstCustomerRepairOrder.RequiredReturnCondition))
                     Debug.LogError("GameSession: the first customer repair order could not be registered.");
-                EnsureCustomerRepairItem();
+                _playerDevelopment = PlayerDevelopmentSaveMapper.Restore(data, ProvisionalPlayerSkillIds,
+                PrototypeStartingSkillPoints, PrototypeMaximumSkillRank, PrototypePointsPerSkillRank);
+            if (_playerDevelopmentPanel != null)
+                _playerDevelopmentPanel.Bind(_playerDevelopment);
+            EnsureCustomerRepairItem();
             }
         }
 
@@ -718,7 +735,13 @@ namespace Signal.Game
                 _debugMenuOpen = !_debugMenuOpen;
                 if (!_debugMenuOpen && _debugItemSpawnerPanel != null)
                     _debugItemSpawnerPanel.SetOpen(false);
+                if (_debugMenuOpen && _playerDevelopmentPanel != null)
+                    _playerDevelopmentPanel.SetOpen(false);
             }
+
+            if (keyboard != null && keyboard.f2Key.wasPressedThisFrame && !_debugMenuOpen &&
+                _playerDevelopmentPanel != null)
+                _playerDevelopmentPanel.SetOpen(!_playerDevelopmentPanel.IsOpen);
 
             bool workspaceOpen = _workspace != null && _workspace.IsOpen;
             bool inventoryOpen = _panel != null && _panel.IsOpen;
@@ -776,7 +799,8 @@ namespace Signal.Game
 
             bool scenarioChoiceOpen = _miloScenario != null && _miloScenario.HasPendingChoice;
             _motor.enabled = !inventoryOpen && !workspaceOpen && !storageOpen && !itemViewerOpen &&
-                !scenarioChoiceOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !repairOrderOpen && !upgradeOpen && !agendaOpen && !itemSpawnerOpen && !_debugMenuOpen;
+                !scenarioChoiceOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !repairOrderOpen && !upgradeOpen && !agendaOpen && !itemSpawnerOpen && !_debugMenuOpen &&
+                (_playerDevelopmentPanel == null || !_playerDevelopmentPanel.IsOpen);
 
             Vector2 playerPosition = _room.Player.position;
             bool nearWorkbench = _room.Workbench != null &&
@@ -1257,6 +1281,7 @@ namespace Signal.Game
                                                _contractReceiverInventory, _contractReceiverActor.Value,
                                                _npcAgendaProgress, _city != null ? _city.SocialWorld : null,
                                                _customerRepairOrders, _servicePaymentTransactions);
+            PlayerDevelopmentSaveMapper.Capture(_playerDevelopment, data);
             SearchableContainerSaveMapper.Capture(_searchableContainers, data);
 
             try
