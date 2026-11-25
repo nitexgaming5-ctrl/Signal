@@ -53,6 +53,10 @@ namespace Signal.Core.Tests
             var pockets = new PlayerPocketBook();
             Assert.That(pockets.TryAdd(Item(2, 1), Guid.NewGuid(), 1, ItemInstanceState.Default, out _), Is.False);
             Assert.That(pockets.TryAdd(Item(1, 2), Guid.NewGuid(), 1, ItemInstanceState.Default, out _), Is.False);
+            var rotatedSource = new GridInventory(1, 1);
+            ItemType rotatedType = Item();
+            rotatedSource.Place(rotatedType, 0, 0, true, itemInstanceId: Guid.NewGuid());
+            Assert.That(pockets.TryAdd(rotatedSource.Items[0], out _), Is.False);
             for (int i = 0; i < 3; i++)
                 Assert.That(pockets.TryAdd(Item(), Guid.NewGuid(), 1, ItemInstanceState.Default, out _), Is.True);
             Assert.That(pockets.TryAdd(Item(), Guid.NewGuid(), 1, ItemInstanceState.Default, out _), Is.False);
