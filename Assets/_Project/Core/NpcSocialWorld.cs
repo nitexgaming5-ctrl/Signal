@@ -54,6 +54,34 @@ namespace Signal.Core
             return npc.Remember(knowledge);
         }
 
+        /// <summary>Returns one NPC's own opinion of the player, independent of player-to-NPC state.</summary>
+        public NpcRelationship GetPlayerRelationship(string npcId)
+        {
+            if (!_npcs.TryGetValue(npcId, out NpcAgentState npc))
+                throw new KeyNotFoundException("NPC is not registered: " + npcId);
+            return npc.PlayerRelationship;
+        }
+
+        public void SetPlayerRelationship(string npcId, NpcRelationship relationship)
+        {
+            if (!_npcs.TryGetValue(npcId, out NpcAgentState npc))
+                throw new KeyNotFoundException("NPC is not registered: " + npcId);
+            npc.SetPlayerRelationship(relationship);
+        }
+
+        public void AdjustPlayerRelationship(string npcId, float familiarityDelta = 0f,
+            float trustDelta = 0f, float affinityDelta = 0f)
+        {
+            ValidateRelationshipDelta(familiarityDelta, nameof(familiarityDelta));
+            ValidateRelationshipDelta(trustDelta, nameof(trustDelta));
+            ValidateRelationshipDelta(affinityDelta, nameof(affinityDelta));
+            NpcRelationship current = GetPlayerRelationship(npcId);
+            SetPlayerRelationship(npcId, new NpcRelationship(
+                current.Familiarity + familiarityDelta,
+                current.Trust + trustDelta,
+                current.Affinity + affinityDelta));
+        }
+
         public void MoveNpc(string id, string locationId, float x, float y)
         {
             if (!_npcs.TryGetValue(id, out NpcAgentState state))
