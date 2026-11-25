@@ -2,11 +2,19 @@ using System;
 using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace Signal.Game.Tests
 {
     public sealed class DebugItemSpawnerPanelTests
     {
+        [TearDown]
+        public void TearDown()
+        {
+            if (EventSystem.current != null)
+                UnityEngine.Object.DestroyImmediate(EventSystem.current.gameObject);
+        }
+
         [Test]
         public void BindBuildsCatalogueAndStartsClosed()
         {
