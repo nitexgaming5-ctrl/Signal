@@ -34,6 +34,9 @@ namespace Signal.Game
         [SerializeField, Range(-1f, 1f)] private float playerFamiliarityDelta;
         [SerializeField, Range(-1f, 1f)] private float playerTrustDelta;
         [SerializeField, Range(-1f, 1f)] private float playerAffinityDelta;
+        [SerializeField, Range(-1f, 1f)] private float issuerFamiliarityDelta;
+        [SerializeField, Range(-1f, 1f)] private float issuerTrustDelta;
+        [SerializeField, Range(-1f, 1f)] private float issuerAffinityDelta;
 
         public Guid Id => Guid.TryParse(id, out Guid value) ? value : Guid.Empty;
         public string DisplayName => displayName;
@@ -48,6 +51,9 @@ namespace Signal.Game
         public float PlayerFamiliarityDelta => playerFamiliarityDelta;
         public float PlayerTrustDelta => playerTrustDelta;
         public float PlayerAffinityDelta => playerAffinityDelta;
+        public float IssuerFamiliarityDelta => issuerFamiliarityDelta;
+        public float IssuerTrustDelta => issuerTrustDelta;
+        public float IssuerAffinityDelta => issuerAffinityDelta;
         public bool AcceptStolenGoods => goodsEligibility == ContractGoodsEligibility.PlayerOwnedIncludingStolen;
 
         public bool TryValidate(out string error)
@@ -61,9 +67,10 @@ namespace Signal.Game
             }
             if (!ValidRelationshipDelta(playerFamiliarityDelta) ||
                 !ValidRelationshipDelta(playerTrustDelta) ||
-                !ValidRelationshipDelta(playerAffinityDelta))
+                !ValidRelationshipDelta(playerAffinityDelta) || !ValidRelationshipDelta(issuerFamiliarityDelta) ||
+                !ValidRelationshipDelta(issuerTrustDelta) || !ValidRelationshipDelta(issuerAffinityDelta))
             {
-                error = "Relationship outcome deltas must be finite and between -1 and 1.";
+                error = "Player and issuer relationship outcome deltas must be finite and between -1 and 1.";
                 return false;
             }
             if (!Enum.IsDefined(typeof(ContractGoodsEligibility), goodsEligibility) ||
