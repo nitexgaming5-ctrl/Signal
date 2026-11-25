@@ -463,7 +463,7 @@ namespace Signal.Game
             _characterRoot = NewRect("CharacterPanel", _root);
             _gridRect = NewRect("Grid", _root);
             _backpackTitle = NewText("BackpackStorageTitle", _root, "BACKPACK STORAGE", 14, TextAnchor.MiddleLeft, TitleColor);
-            _emptyState = NewText("NoBackpack", _root, "BACKPACK STORAGE IS INACCESSIBLE\nPick up your backpack to access its contents.", 18, TextAnchor.MiddleCenter, TitleColor);
+            _emptyState = NewText("NoBackpack", _root, "BACKPACK STORAGE IS UNAVAILABLE\nEquip or recover a backpack to access its contents.", 18, TextAnchor.MiddleCenter, TitleColor);
             _cellsRoot = NewRect("Cells", _gridRect);
             Stretch(_cellsRoot);
             _itemsRoot = NewRect("Items", _gridRect);
