@@ -169,3 +169,7 @@ Committed but not yet Unity-verified:
 
 
 - Next implementation action: continue P-03.5 with workbench repair and production across accessible backpack/pocket grids, then audit other direct inventory assumptions. Do not start B-07 or W-01 until P-03 is closed.
+
+
+- P-03.5 now also includes multi-grid workbench repair and production: repair target/kit may occupy separate accessible grids; recipe inputs may span backpack/pockets and outputs route to a capacity-approved accessible grid. Two focused EditMode tests were added, but Unity compile/full-suite verification is still pending.
+- Continue the direct backpack-grid assumption audit in search/loot and customer/service panels before wearable visuals and P-03 closeout.
