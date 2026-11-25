@@ -189,9 +189,53 @@ namespace Signal.Core.Tests
             Assert.That(owner, Is.EqualTo(fixture.Customer));
         }
 
-        private static void KeepTypeHelperReferenced()
+        [Test]
+        public void ActiveEntrustedOrderAndOriginalOwnershipSurviveSaveLoad()
         {
-            _ = new ItemType(Guid.NewGuid(), 1, 1, 1);
+            var fixture = new Fixture();
+            Assert.That(fixture.Accept().Success, Is.True);
+
+            var stats = new PlayerStats();
+            var storage = new GridInventory(8, 6);
+            var clock = new GameClock();
+            var heat = new HeatMeter();
+            var rent = new RentLedger(50, 7);
+            SaveData data = SaveMapper.Capture(stats, fixture.PlayerInventory, storage, clock, heat, rent,
+                "Hideout", 0f, 0f, assetOwnership: fixture.Ownership,
+                economicTransactions: fixture.Transactions,
+                contractReceiverInventory: fixture.CustomerInventory,
+                contractReceiverActorId: fixture.Customer.Value,
+                customerRepairOrders: fixture.Orders);
+
+            var loadedInventory = new GridInventory(8, 6);
+            var loadedCustomerInventory = new GridInventory(8, 6);
+            var loadedStorage = new GridInventory(8, 6);
+            var loadedOwnership = new AssetOwnershipBook();
+            var loadedTransactions = new EconomicTransactionLedger();
+            var loadedOrders = new CustomerRepairOrderBook();
+            Assert.That(loadedOrders.TryRegisterOffer(fixture.OrderId, fixture.Customer, fixture.Jacket.Id, 35), Is.True);
+            var known = new System.Collections.Generic.Dictionary<Guid, ItemType>
+            {
+                [fixture.Jacket.Id] = fixture.Jacket,
+                [fixture.BasicKit.Id] = fixture.BasicKit,
+                [fixture.ReinforcedKit.Id] = fixture.ReinforcedKit
+            };
+            LoadReport report = SaveMapper.Apply(data, new PlayerStats(), loadedInventory, loadedStorage,
+                new GameClock(), new HeatMeter(), new RentLedger(50, 7),
+                id => known.TryGetValue(id, out ItemType type) ? type : (ItemType?)null,
+                assetOwnership: loadedOwnership, economicTransactions: loadedTransactions,
+                contractReceiverInventory: loadedCustomerInventory, customerRepairOrders: loadedOrders);
+
+            Assert.That(report.Success, Is.True);
+            Assert.That(report.SkippedCustomerRepairOrders, Is.Zero);
+            Assert.That(loadedOrders.TryGetState(fixture.OrderId, out CustomerRepairOrderState restored), Is.True);
+            Assert.That(restored.Phase, Is.EqualTo(CustomerRepairOrderPhase.Active));
+            Assert.That(restored.ItemInstanceId, Is.EqualTo(fixture.JacketId));
+            Assert.That(loadedInventory.TryGetItemInstance(fixture.JacketId, out _), Is.True);
+            Assert.That(loadedCustomerInventory.TryGetItemInstance(fixture.JacketId, out _), Is.False);
+            Assert.That(loadedOwnership.TryGetOwner(fixture.JacketId, out EconomicActorId owner), Is.True);
+            Assert.That(owner, Is.EqualTo(fixture.Customer));
         }
+
     }
 }
