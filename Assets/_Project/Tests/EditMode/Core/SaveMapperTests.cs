@@ -765,6 +765,8 @@ namespace Signal.Core.Tests
                 eventLocationId = "Street", origin = (int)NpcKnowledgeOrigin.DirectObservation, confidence = 1f, occurredDay = 1, learnedDay = 1 });
             data.npcSocialRelationships.Add(new SavedNpcSocialRelationship { observerNpcId = "milo", otherNpcId = "removed-resident",
                 familiarity = 0.5f, trust = 0.5f, affinity = 0f });
+            data.npcPlayerRelationships.Add(new SavedNpcPlayerRelationship { npcId = "removed-resident",
+                familiarity = 0.5f, trust = 0.5f, affinity = 0f });
             var world = new NpcSocialWorld();
             world.RegisterNpc("milo", "Street", 0f, 0f, 8f);
             LoadReport report = SaveMapper.Apply(data, new World().Stats, new GridInventory(), null,
@@ -772,6 +774,7 @@ namespace Signal.Core.Tests
             Assert.That(report.Success, Is.True);
             Assert.That(report.SkippedNpcKnowledge, Is.EqualTo(1));
             Assert.That(report.SkippedNpcSocialRelationships, Is.EqualTo(1));
+            Assert.That(report.SkippedNpcPlayerRelationships, Is.EqualTo(1));
             Assert.That(world.BuildPerceptionFor("milo", 8f).KnownEvents, Is.Empty);
         }
         [Test]
