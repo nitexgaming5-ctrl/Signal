@@ -1,6 +1,6 @@
 # P-03 — Equipment, Wearables & Portable Backpack
 
-**Status:** P-03.3 backpack drop/recovery and fresh-start cleanup are user-verified. User confirmed 486/486 after P-03.4a. P-03.4b now implements three persistent 1×1 pockets, UI transfer controls, and pocket-aware routing for selected item-receive flows. Eight new Core tests are added; expected total 494 is pending Unity execution. P-03 remains active.
+**Status (2026-11-26):** User confirmed **500/500 EditMode tests passing** after direct pocket-to-pocket moves/swaps. Backpack drop/recovery, three persistent pockets, hidden-pocket visibility contract, pocket/backpack transfers and pocket swaps are implemented. P-03 remains active: pocket-aware service-panel coverage, wearable visuals, and full Play Mode acceptance are outstanding.
 **Track:** Player Development
 **Dependency:** P-01 modular player visual and P-02 Armor/Heat Protection modifier contract.
 
@@ -278,3 +278,19 @@ Implement three actual 1×1 personal pocket slots, separate from the backpack's 
 - Added three EditMode tests for move-to-empty, occupied-pocket swap identity/state preservation, and invalid-move non-mutation.
 - Unity compilation, EditMode execution and Play Mode verification are pending. The last user-confirmed suite remains 494/494; expected total after these three tests is 500, subject to the user's run.
 - Play Mode check: with the backpack equipped and then again with it dropped, drag P1 onto empty P3; then drag P3 onto occupied P2 and confirm the two item stacks exchange positions. Confirm P3 remains marked HIDDEN and the routine-search visibility rule remains P1/P2 only.
+
+
+## Verified checkpoint — 500/500 (2026-11-26)
+
+- User confirmed the complete Unity EditMode suite passes at **500/500** after the direct pocket-to-pocket move/swap implementation.
+- This verifies the automated suite only; it does not by itself certify all P-03 Play Mode scenarios.
+- Direct pocket moves/swaps preserve stable item identity, stack quantity, condition, quality, authenticity and ownership. P1/P2 remain ordinary; P3 remains player-accessible but excluded from ordinary-search enumeration.
+
+## Remaining P-03 delivery sequence
+
+1. **Pocket-aware service integration:** complete an inventory-access audit and remove assumptions that the 8×6 backpack grid is the only player-carried container. First cover Retail SELL and Dirty Cash item selection; then home storage, workbench/production inputs and outputs, and any other item-consuming/producing panels. Transfers and transactions must remain atomic across the actual source/destination pocket or backpack grid. Never expose cargo inside a dropped backpack.
+2. **Wearable presentation:** add actual equipped-item visuals for Head, Torso, Legs and Feet where the supplied Body_A pack and authored item sprites support them. Do not fabricate unavailable art; document unsupported slots/variants and keep equipment state authoritative even when no overlay exists. Accessories and backpack visuals should remain distinct layers.
+3. **Remove temporary debug bootstrap:** remove the fresh-session debug backpack/cargo seeding once it is no longer needed for acceptance testing. Keep debug item spawning available as a deliberate test tool; do not turn the debug loadout into permanent starting gear.
+4. **End-to-end Play Mode acceptance:** run the complete backpack lifecycle, pockets, save/load, customer/retail/Dirty Cash/workbench/storage interactions, and wearable equip/unequip scenarios in the active HideoutSlice scene. Record only user-reported Unity results.
+
+Recommended next implementation slice: **P-03.5 — pocket-aware service-panel integration**, beginning with a focused audit of Retail SELL and Dirty Cash selection. This is the next dependency before visual polish because items must be usable consistently regardless of which carried container holds them.
