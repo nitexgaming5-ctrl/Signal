@@ -993,22 +993,6 @@ namespace Signal.Game
                 return;
             }
 
-            if (keyboard.bKey.wasPressedThisFrame && _equippedBackpackInstanceId.HasValue &&
-                !workspaceOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
-                !dirtyCashOpen && !contractOpen && !repairOrderOpen && !upgradeOpen && !agendaOpen)
-            {
-                DropPlayerBackpack();
-                return;
-            }
-
-            if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
-                !dirtyCashOpen && !contractOpen && !repairOrderOpen && !upgradeOpen && !agendaOpen &&
-                nearDroppedBackpack && keyboard.eKey.wasPressedThisFrame)
-            {
-                RecoverDroppedBackpack(nearbyBackpackId);
-                return;
-            }
-
             if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
                 !dirtyCashOpen && !contractOpen && !repairOrderOpen && !upgradeOpen && !agendaOpen &&
                 nearRepairOrderCustomer && keyboard.fKey.wasPressedThisFrame)
