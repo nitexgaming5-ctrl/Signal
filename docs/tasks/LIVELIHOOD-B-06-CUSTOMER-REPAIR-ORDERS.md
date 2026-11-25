@@ -1,6 +1,6 @@
 # B-06 — Customer Repair Orders
 
-**Status:** First implementation slice committed; Unity compilation, EditMode execution and Play Mode acceptance are pending.
+**Status:** Implemented and user-verified; 456/456 EditMode tests passed and the in-game acceptance loop passed on 2026-11-25.
 
 ## Goal
 
@@ -42,7 +42,7 @@ This is a generic service foundation using Milo only as the current framework/te
 - Assets/_Project/Scenes/HideoutSlice.unity — active scene assignment.
 - Assets/_Project/Core/SaveData.cs — order and service-payment persistence.
 
-## Focused EditMode coverage added
+## Focused EditMode coverage added and included in the verified 456/456 suite
 
 Eleven tests cover:
 - ownership remains with Milo during acceptance and repair;
@@ -57,9 +57,9 @@ Eleven tests cover:
 - active order/entrusted ownership save-load;
 - completed service payment and returned item save-load.
 
-Expected suite count is 456 if the previous 445-test baseline is unchanged. This is a forecast only; the user must run Unity Test Runner before the result is called verified.
+**Verification confirmed by user (2026-11-25): 456/456 full EditMode tests passed, and the in-game acceptance → repair → exact-item return/payment loop passed.**
 
-## Play Mode acceptance
+## Play Mode acceptance — completed and user-verified
 
 - Open Milo's repair order with F; accept the Worn jacket.
 - Inspect inventory/ownership: the same jacket is carried, but its owner is still Milo.
