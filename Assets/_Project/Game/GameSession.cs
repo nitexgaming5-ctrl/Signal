@@ -873,7 +873,8 @@ namespace Signal.Game
                 nearbyContainerLabel = nearbyProperty.DisplayName;
             }
             bool nearAgendaInteraction = CanStartAgendaInteraction(playerPosition);
-            string cityPrompt = _city.GetPrompt(playerPosition);
+            string worldPrompt = _city.GetPrompt(playerPosition);
+            string cityPrompt = worldPrompt;
             bool hasScenarioPrompt = false;
             if (nearSearchableContainer)
                 cityPrompt = "E  Search " + nearbyContainerLabel;
@@ -942,8 +943,8 @@ namespace Signal.Game
                 _hud.SetPrompt("ESC  Close storage");
             else if (nearDroppedBackpack)
                 _hud.SetPrompt("E  Pick up backpack");
-            else if (_droppedBackpackItem.HasValue && IsWorldTransitionPrompt(cityPrompt))
-                _hud.SetPrompt(cityPrompt);
+            else if (_droppedBackpackItem.HasValue && IsWorldTransitionPrompt(worldPrompt))
+                _hud.SetPrompt(FormatWorldTransitionPrompt(worldPrompt));
             else if (_droppedBackpackItem.HasValue)
                 _hud.SetPrompt("Backpack dropped — recover it before item interactions");
             else if (inventoryOpen && _equippedBackpackInstanceId.HasValue)
@@ -1116,18 +1117,26 @@ namespace Signal.Game
 
         private static bool IsWorldTransitionPrompt(string prompt)
         {
-            if (string.IsNullOrWhiteSpace(prompt) ||
-                !prompt.TrimStart().StartsWith("E", StringComparison.OrdinalIgnoreCase))
+            if (string.IsNullOrWhiteSpace(prompt))
                 return false;
 
-            // CityBlock may use different wording for the same door depending on
-            // the current place (for example, "Exit building" rather than
-            // "Return to street"). Keep navigation prompts visible while the
-            // backpack is dropped without exposing item-based interactions.
+            // CityBlock prompt text is not guaranteed to include the key prefix.
+            // Identify the transition by its action wording, then add the E hint
+            // when displaying it while the backpack is dropped.
             return prompt.IndexOf("enter", StringComparison.OrdinalIgnoreCase) >= 0 ||
                 prompt.IndexOf("exit", StringComparison.OrdinalIgnoreCase) >= 0 ||
                 prompt.IndexOf("leave", StringComparison.OrdinalIgnoreCase) >= 0 ||
                 prompt.IndexOf("return", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private static string FormatWorldTransitionPrompt(string prompt)
+        {
+            if (string.IsNullOrWhiteSpace(prompt))
+                return "E  Exit building";
+
+            return prompt.TrimStart().StartsWith("E", StringComparison.OrdinalIgnoreCase)
+                ? prompt
+                : "E  " + prompt.Trim();
         }
 
         private void TickClock()
