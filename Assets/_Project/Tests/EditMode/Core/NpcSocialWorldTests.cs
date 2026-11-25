@@ -36,7 +36,7 @@ namespace Signal.Core.Tests
             Assert.That(world.GetPlayerRelationship("rhea").Trust, Is.EqualTo(0.7f).Within(0.0001f));
             Assert.That(world.GetPlayerRelationship("rhea").Affinity, Is.EqualTo(-0.1f).Within(0.0001f));
             Assert.That(world.GetPlayerRelationship("milo").Familiarity, Is.Zero);
-            Assert.Throws<System.KeyNotFoundException>(() => world.GetPlayerRelationship("missing"));
+            Assert.Throws<System.Collections.Generic.KeyNotFoundException>(() => world.GetPlayerRelationship("missing"));
             Assert.Throws<System.ArgumentOutOfRangeException>(() =>
                 world.AdjustPlayerRelationship("rhea", affinityDelta: float.NaN));
         }
