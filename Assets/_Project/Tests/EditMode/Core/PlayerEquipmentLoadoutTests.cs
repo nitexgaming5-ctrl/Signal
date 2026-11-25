@@ -1,0 +1,166 @@
+using System;
+using NUnit.Framework;
+
+namespace Signal.Core.Tests
+{
+    public sealed class PlayerEquipmentLoadoutTests
+    {
+        private static ItemType CreateType(int width = 1, int height = 1, int maxStack = 1)
+        {
+            return new ItemType(Guid.NewGuid(), width, height, maxStack);
+        }
+
+        [Test]
+        public void LoadoutSupportsExactlyFourClothingAndThreeAccessorySlots()
+        {
+            var loadout = new PlayerEquipmentLoadout();
+            Assert.That(Enum.GetValues(typeof(EquipmentSlot)).Length, Is.EqualTo(7));
+            Assert.That(loadout.Count, Is.Zero);
+            foreach (EquipmentSlot slot in Enum.GetValues(typeof(EquipmentSlot)))
+                Assert.That(loadout.IsOccupied(slot), Is.False);
+        }
+
+        [Test]
+        public void EquipTransfersExactSingleItemAndPreservesItsStableIdentityAndState()
+        {
+            var inventory = new GridInventory(2, 2);
+            ItemType type = CreateType();
+            Guid id = Guid.NewGuid();
+            var state = new ItemInstanceState(ItemQuality.High, ItemCondition.Good,
+                ItemAuthenticity.Genuine, ItemOwnershipStatus.Legitimate);
+            Assert.That(inventory.Place(type, 0, 0, false, 1, id, state), Is.Not.Null);
+
+            var loadout = new PlayerEquipmentLoadout();
+            Assert.That(loadout.TryEquip(inventory, id, EquipmentSlot.Torso, 2, 1), Is.True);
+            Assert.That(inventory.TryGetItemInstance(id, out _), Is.False);
+            Assert.That(loadout.TryGet(EquipmentSlot.Torso, out EquippedItem equipped), Is.True);
+            Assert.That(equipped.Item.ItemInstanceId, Is.EqualTo(id));
+            Assert.That(equipped.Item.State, Is.EqualTo(state));
+            Assert.That(equipped.ArmorModifier, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void EquipRejectsOccupiedSlotUnknownItemAndStackedItemsWithoutChangingInventory()
+        {
+            var inventory = new GridInventory(3, 2);
+            ItemType single = CreateType();
+            ItemType stackable = CreateType(maxStack: 5);
+            Guid first = Guid.NewGuid();
+            Guid stacked = Guid.NewGuid();
+            Assert.That(inventory.Place(single, 0, 0, false, 1, first), Is.Not.Null);
+            Assert.That(inventory.Place(stackable, 1, 0, false, 2, stacked), Is.Not.Null);
+
+            var loadout = new PlayerEquipmentLoadout();
+            Assert.That(loadout.TryEquip(inventory, first, EquipmentSlot.Head), Is.True);
+            Assert.That(loadout.TryEquip(inventory, stacked, EquipmentSlot.Head), Is.False);
+            Assert.That(loadout.TryEquip(inventory, Guid.NewGuid(), EquipmentSlot.Feet), Is.False);
+            Assert.That(inventory.TryGetItemInstance(stacked, out PlacedItem remains), Is.True);
+            Assert.That(remains.Count, Is.EqualTo(2));
+            Assert.That(loadout.Count, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void SamePhysicalItemCannotBeEquippedInTwoSlots()
+        {
+            var inventory = new GridInventory(1, 1);
+            Guid id = Guid.NewGuid();
+            Assert.That(inventory.Place(CreateType(), 0, 0, false, 1, id), Is.Not.Null);
+            var loadout = new PlayerEquipmentLoadout();
+            Assert.That(loadout.TryEquip(inventory, id, EquipmentSlot.Accessory1), Is.True);
+            Assert.That(loadout.TryEquip(inventory, id, EquipmentSlot.Accessory2), Is.False);
+            Assert.That(loadout.Count, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void UnequipReturnsExactItemAndLeavesLoadoutUntouchedWhenInventoryIsFull()
+        {
+            var source = new GridInventory(1, 1);
+            Guid equippedId = Guid.NewGuid();
+            Assert.That(source.Place(CreateType(), 0, 0, false, 1, equippedId), Is.Not.Null);
+            var loadout = new PlayerEquipmentLoadout();
+            Assert.That(loadout.TryEquip(source, equippedId, EquipmentSlot.Legs), Is.True);
+
+            var full = new GridInventory(1, 1);
+            Guid blockerId = Guid.NewGuid();
+            Assert.That(full.Place(CreateType(), 0, 0, false, 1, blockerId), Is.Not.Null);
+            Assert.That(loadout.TryUnequip(full, EquipmentSlot.Legs), Is.False);
+            Assert.That(loadout.IsOccupied(EquipmentSlot.Legs), Is.True);
+            Assert.That(full.TryGetItemInstance(blockerId, out _), Is.True);
+
+            full.Clear();
+            Assert.That(loadout.TryUnequip(full, EquipmentSlot.Legs), Is.True);
+            Assert.That(full.TryGetItemInstance(equippedId, out _), Is.True);
+            Assert.That(loadout.IsOccupied(EquipmentSlot.Legs), Is.False);
+        }
+
+        [Test]
+        public void EquipmentModifiersAggregateAcrossAllSevenSlotsAndClampSafely()
+        {
+            var inventory = new GridInventory(7, 1);
+            var loadout = new PlayerEquipmentLoadout();
+            EquipmentSlot[] slots = (EquipmentSlot[])Enum.GetValues(typeof(EquipmentSlot));
+            for (int i = 0; i < slots.Length; i++)
+            {
+                Guid id = Guid.NewGuid();
+                Assert.That(inventory.Place(CreateType(), i, 0, false, 1, id), Is.Not.Null);
+                Assert.That(loadout.TryEquip(inventory, id, slots[i], 1, 2), Is.True);
+            }
+
+            EffectiveCharacterAttributes effective =
+                loadout.CalculateEffectiveAttributes(new PlayerAttributeSet(3, 4));
+            Assert.That(effective.Armor, Is.EqualTo(10));
+            Assert.That(effective.HeatProtection, Is.EqualTo(18));
+
+            var clamped = new PlayerEquipmentLoadout();
+            var overflowInventory = new GridInventory(1, 1);
+            Guid overflowId = Guid.NewGuid();
+            Assert.That(overflowInventory.Place(CreateType(), 0, 0, false, 1, overflowId), Is.Not.Null);
+            Assert.That(clamped.TryEquip(overflowInventory, overflowId, EquipmentSlot.Head, int.MaxValue, 0), Is.True);
+            Assert.That(clamped.CalculateEffectiveAttributes(new PlayerAttributeSet(10, 0)).Armor,
+                Is.EqualTo(int.MaxValue));
+        }
+
+        [Test]
+        public void BackpackContentsRemainBoundToStableBackpackIdentity()
+        {
+            var storage = new PortableStorageBook();
+            Guid backpackId = Guid.NewGuid();
+            Assert.That(storage.TryRegister(backpackId, 5, 4), Is.True);
+            Assert.That(storage.TryRegister(backpackId, 5, 4), Is.False);
+            Assert.That(storage.TryGetContents(backpackId, out GridInventory contents), Is.True);
+
+            Guid cargoId = Guid.NewGuid();
+            Assert.That(contents.Place(CreateType(), 0, 0, false, 1, cargoId), Is.Not.Null);
+            Assert.That(storage.TryGetContents(backpackId, out GridInventory sameContents), Is.True);
+            Assert.That(sameContents.TryGetItemInstance(cargoId, out _), Is.True);
+            Assert.That(storage.TryRemoveEmpty(backpackId), Is.False);
+        }
+
+        [Test]
+        public void EmptyBackpackStorageCanBeRemovedButNonEmptyStorageCannotBeDiscarded()
+        {
+            var storage = new PortableStorageBook();
+            Guid emptyBackpack = Guid.NewGuid();
+            Guid loadedBackpack = Guid.NewGuid();
+            Assert.That(storage.TryRegister(emptyBackpack, 4, 3), Is.True);
+            Assert.That(storage.TryRegister(loadedBackpack, 4, 3), Is.True);
+            Assert.That(storage.TryGetContents(loadedBackpack, out GridInventory contents), Is.True);
+            Assert.That(contents.Place(CreateType(), 0, 0), Is.Not.Null);
+
+            Assert.That(storage.TryRemoveEmpty(loadedBackpack), Is.False);
+            Assert.That(storage.TryRemoveEmpty(emptyBackpack), Is.True);
+            Assert.That(storage.TryGetContents(emptyBackpack, out _), Is.False);
+            Assert.That(storage.TryGetContents(loadedBackpack, out _), Is.True);
+        }
+
+        [Test]
+        public void InvalidBackpackIdentityOrDimensionsAreRejected()
+        {
+            var storage = new PortableStorageBook();
+            Assert.That(storage.TryRegister(Guid.Empty, 4, 3), Is.False);
+            Assert.That(storage.TryRegister(Guid.NewGuid(), 0, 3), Is.False);
+            Assert.That(storage.TryRegister(Guid.NewGuid(), 4, -1), Is.False);
+            Assert.That(storage.Count, Is.Zero);
+        }
+    }
+}
