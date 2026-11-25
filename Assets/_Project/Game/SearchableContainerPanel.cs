@@ -107,6 +107,7 @@ namespace Signal.Game
             _container = container;
             _containerDisplayName = string.IsNullOrWhiteSpace(displayName) ? "CONTAINER" : displayName.ToUpperInvariant();
             _playerInventory = playerInventory;
+            RebuildPlayerGrid(_playerInventory.Width, _playerInventory.Height);
             _lastClickId = Guid.Empty;
             _lastClickTime = -10f;
             _container.Inventory.Changed += OnInventoryChanged;
@@ -473,9 +474,18 @@ namespace Signal.Game
             _dropPreview.gameObject.SetActive(false);
 
             BuildGridCells(_containerCells, 8, 6);
-            BuildGridCells(_playerCells, 6, 4);
             _built = true;
             _root.gameObject.SetActive(false);
+        }
+
+        private void RebuildPlayerGrid(int width, int height)
+        {
+            if (_playerGrid == null || _playerCells == null || width <= 0 || height <= 0)
+                return;
+
+            ClearChildren(_playerCells);
+            _playerGrid.sizeDelta = new Vector2(width * CellSize, height * CellSize);
+            BuildGridCells(_playerCells, width, height);
         }
 
         private void BuildGridCells(RectTransform parent, int width, int height)
