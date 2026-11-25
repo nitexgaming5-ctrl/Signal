@@ -1,6 +1,6 @@
 # B-05 — Global NPC Awareness & Affinity
 
-**Status:** Approved; shared awareness, all relationship directions, customer-contract outcomes and generic agenda integration implemented. User reports 439/439 before these latest slices; new tests await Unity verification.  
+**Status:** Implemented and user-verified; shared awareness, all relationship directions, customer-contract outcomes and generic agenda integration complete. User reports 445/445 EditMode tests passed (2026-11-25).  
 **Approved:** 2026-11-24  
 **Priority:** High — shared social foundation  
 **Pilot content:** Rhea and Milo; neither may receive bespoke runtime logic  
@@ -31,7 +31,7 @@ Residents remember what they personally witness or are explicitly told, form ind
 - `NpcKnowledge`: observation/told source, event identity, confidence and context.
 - `NpcPerception`: character-scoped decision snapshot.
 - PlayerRelationshipBook and its existing SavedPlayerRelationship save path for player-to-NPC state.
-- NpcSocialWorld and NpcAgentState for NPC-to-NPC state and per-NPC knowledge; these are the B-05 persistence gap.
+- NpcSocialWorld and NpcAgentState for NPC-to-NPC state, NPC-to-player opinion and per-NPC knowledge.
 - Existing explicit knowledge sharing and controlled scheduled social encounters.
 
 Preserve these existing owners and extend them rather than introducing parallel authority. Add new types only when the existing APIs cannot safely represent the approved behavior.
@@ -57,7 +57,7 @@ Preserve these existing owners and extend them rather than introducing parallel 
 - Do not expose the global event journal through NPC perception or utility decisions.
 
 ### B05-03 — Persistence and composition
-**Implementation status:** Durable NPC memory and directed relationship save/restore committed; user reports 434/434 EditMode tests passing on 2026-11-24.
+**Implementation status:** Durable NPC memory and directed NPC-to-NPC relationship save/restore implemented; included in the user's later 445/445 full EditMode result.
 - Preserve the existing player-to-NPC save path unchanged.
 - Persist durable NPC knowledge and directed NPC-to-NPC relationship state using stable NPC/event IDs.
 - Restore after NPC definitions and social world are registered; skip malformed or removed content records safely.
@@ -65,17 +65,17 @@ Preserve these existing owners and extend them rather than introducing parallel 
 - Keep the current unversioned 0.01 save policy; do not introduce a save-version/migration framework.
 
 ### B05-04 — Shared gameplay integration
-**Implementation status:** Generic agenda integration already uses player relationship gates/outcomes. First customer-contract outcome hook now applies authored player→issuer relationship deltas after successful fulfilment; Unity verification pending.
+**Implementation status:** Generic agenda integration and customer-contract outcomes are implemented and included in the user's 445/445 full EditMode result.
 - Ensure agenda relationship conditions and outcomes query/mutate the canonical service.
 - Ensure scheduled encounters update familiarity through the same service.
 - Ensure witnessed world events and explicit information-sharing use the same knowledge path.
 - Customer contracts may author player→issuer familiarity/trust/affinity deltas. Apply them only after goods transfer, payment and contract completion succeed; the completed contract state prevents replay.
 - `CustomerContractDefinition` validates finite player→issuer deltas in [-1, 1]. `CustomerContractService` applies them through the canonical `PlayerRelationshipBook`, scoped to the paying resident's NPC ID.
-- The generic contract hook currently targets the player→issuer relationship book. Milo's current contract keeps all three deltas at zero until the separate NPC→player opinion owner is designed; a customer's successful delivery should not be misrepresented as the player's trust in that customer.
+- Customer contracts can author separate player→issuer and issuer→player outcomes. Each direction is routed to its canonical owner; the issuer→player outcome is not misrepresented as the player's trust in the customer.
 - Add a minimal generic player-facing response/condition hook only where needed to prove affinity matters; do not invent a broad friendship, romance, faction or reputation system.
 
 ### B05-05 — NPC-to-player directionality
-**Implementation status:** Implemented; focused tests added, Unity verification pending.
+**Implementation status:** Implemented; included in the user's 445/445 full EditMode result (2026-11-25).
 - Each NpcAgentState owns a separate opinion of the player using the shared NpcRelationship value model. Neutral defaults are independent per NPC.
 - NpcSocialWorld exposes validated get/set/adjust operations without registering the player as an NPC or overloading PlayerRelationshipBook.
 - SaveData persists one NPC→player relationship per registered NPC. Restore validates stable NPC IDs and bounded finite values; clearing social state resets opinions to neutral before restore.
@@ -102,17 +102,17 @@ Preserve these existing owners and extend them rather than introducing parallel 
 
 ## Acceptance criteria
 
-- [ ] Player→NPC, NPC→player and NPC→NPC relationships retain explicit ownership boundaries while sharing the same directed NpcRelationship value model.
+- [x] Player→NPC, NPC→player and NPC→NPC relationships retain explicit ownership boundaries while sharing the same directed NpcRelationship value model.
 - [ ] Familiarity, trust and affinity remain separate and directional.
 - [ ] Every registered NPC has an individual knowledge store.
 - [ ] Observation is local and communication/discovery is explicit and sourced.
 - [ ] No NPC can query the global event journal for private information.
 - [ ] No automatic city-wide gossip or ambient affinity farming exists.
 - [ ] Agenda, perception, encounters and witness observations use the shared services.
-- [ ] Durable relationship and knowledge state round-trips through the current save.
-- [ ] Generic Game composition works for arbitrary authored NPC definitions.
-- [ ] Authored customer outcomes update the player's and issuer's respective opinions exactly once and only after successful delivery/payment.
-- [ ] Focused tests and full EditMode suite pass; user confirms Play Mode loop.
+- [x] Durable relationship and knowledge state round-trips through the current save.
+- [x] Generic Game composition works for arbitrary authored NPC definitions.
+- [x] Authored customer outcomes update the player's and issuer's respective opinions exactly once and only after successful delivery/payment.
+- [x] Focused tests and full EditMode suite pass (445/445 user-reported); Play Mode scenario coverage remains a separate acceptance item.
 
 ## Explicit exclusions
 
