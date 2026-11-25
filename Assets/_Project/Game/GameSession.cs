@@ -29,6 +29,7 @@ namespace Signal.Game
         [Header("Livelihood — first workshop slice")]
         [SerializeField] private RecipeDefinition[] startingWorkshopRecipes;
         [SerializeField] private CustomerContractDefinition firstCustomerContract;
+        [SerializeField] private CustomerRepairOrderDefinition firstCustomerRepairOrder;
         [SerializeField] private WorkshopUpgradeDefinition firstWorkshopUpgrade;
 
         [Header("Livelihood — repair and restoration")]
@@ -63,6 +64,7 @@ namespace Signal.Game
         private DirtyCashCleaningTransactionLedger _dirtyCashCleanings;
         private ProductionTransactionLedger _productionTransactions;
         private CustomerContractBook _customerContracts;
+        private CustomerRepairOrderBook _customerRepairOrders;
         private WorkshopProgressionBook _workshopProgression;
         private GridInventory _contractReceiverInventory;
         private EconomicActorId _contractReceiverActor;
@@ -93,6 +95,7 @@ namespace Signal.Game
         private RetailPanel _retailPanel;
         private DirtyCashContactPanel _dirtyCashPanel;
         private CustomerContractPanel _customerContractPanel;
+        private CustomerRepairOrderPanel _customerRepairOrderPanel;
         private WorkshopUpgradePanel _workshopUpgradePanel;
         private GameObject _installedUpgradeVisual;
         private SearchableContainerPanel _containerPanel;
@@ -123,6 +126,7 @@ namespace Signal.Game
         public DirtyCashCleaningTransactionLedger DirtyCashCleanings => _dirtyCashCleanings;
         public ProductionTransactionLedger ProductionTransactions => _productionTransactions;
         public CustomerContractBook CustomerContracts => _customerContracts;
+        public CustomerRepairOrderBook CustomerRepairOrders => _customerRepairOrders;
         public WorkshopProgressionBook WorkshopProgression => _workshopProgression;
         public CriminalProgressionTrack CriminalProgression => _criminalProgression;
         public CrimeOutcomeLedger CrimeOutcomes => _crimeOutcomes;
@@ -147,6 +151,7 @@ namespace Signal.Game
             _dirtyCashCleanings = new DirtyCashCleaningTransactionLedger();
             _productionTransactions = new ProductionTransactionLedger();
             _customerContracts = new CustomerContractBook();
+            _customerRepairOrders = new CustomerRepairOrderBook();
             _workshopProgression = new WorkshopProgressionBook();
             _contactInventory = new GridInventory(8, 6);
             _economicContainers.TryRegister(_contactInventory, DirtyCashContactActorId);
@@ -230,6 +235,12 @@ namespace Signal.Game
                     _allItemDefinitions, GetCustomerDisplayName(), AcceptCustomerContract, FulfilCustomerContract,
                     GetCustomerContractPhase);
             }
+            if (firstCustomerRepairOrder != null && _contractReceiverInventory != null)
+            {
+                _customerRepairOrderPanel = gameObject.AddComponent<CustomerRepairOrderPanel>();
+                _customerRepairOrderPanel.Bind(firstCustomerRepairOrder, GetCustomerDisplayName(),
+                    AcceptCustomerRepairOrder, ReturnCustomerRepairOrder, GetCustomerRepairOrderPhase);
+            }
 
             if (firstWorkshopUpgrade != null)
             {
@@ -272,7 +283,7 @@ namespace Signal.Game
             ItemType? reinforcedKitType = reinforcedPatchKitItem != null ? reinforcedPatchKitItem.ToItemType() : (ItemType?)null;
             _workspace.Bind(_motor, _inventory, _assetOwnership, _workshopRecipes,
                 IsRecipeUnlocked, ProduceRecipe, repairTargetType, basicKitType, reinforcedKitType,
-                _itemKnowledge, CanRepairAtWorkbench, RepairItem);
+                _itemKnowledge, CanRepairAtWorkbench, RepairItem, CanRepairTarget);
             RefreshWorkshopUpgradeVisual();
             _hud.ShowMessage("Your hideout is ready. The street is just outside.", 5f);
         }
