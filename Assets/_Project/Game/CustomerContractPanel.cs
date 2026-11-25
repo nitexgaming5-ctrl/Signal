@@ -23,6 +23,7 @@ namespace Signal.Game
         private CustomerContractDefinition _definition;
         private string _issuerDisplayName;
         private GridInventory _inventory;
+        private PlayerPocketBook _pockets;
         private AssetOwnershipBook _ownership;
         private Func<string> _accept;
         private Func<Guid, string> _fulfil;
@@ -43,11 +44,12 @@ namespace Signal.Game
         public void Bind(CustomerContractDefinition definition, GridInventory inventory,
             AssetOwnershipBook ownership, IReadOnlyList<ItemDefinition> itemDefinitions,
             string issuerDisplayName, Func<string> accept, Func<Guid, string> fulfil,
-            Func<CustomerContractPhase> phase)
+            Func<CustomerContractPhase> phase, PlayerPocketBook pockets = null)
         {
             _definition = definition ?? throw new ArgumentNullException(nameof(definition));
             _issuerDisplayName = string.IsNullOrWhiteSpace(issuerDisplayName) ? definition.DisplayName : issuerDisplayName;
             _inventory = inventory ?? throw new ArgumentNullException(nameof(inventory));
+            _pockets = pockets;
             _ownership = ownership ?? throw new ArgumentNullException(nameof(ownership));
             _accept = accept ?? throw new ArgumentNullException(nameof(accept));
             _fulfil = fulfil ?? throw new ArgumentNullException(nameof(fulfil));
@@ -65,6 +67,9 @@ namespace Signal.Game
             }
 
             _inventory.Changed += OnInventoryChanged;
+            if (_pockets != null)
+                for (int i = 0; i < PlayerPocketBook.PocketCount; i++)
+                    _pockets.GetPocket(i).Changed += OnPocketChanged;
             BuildIfNeeded();
             Close();
         }
@@ -96,6 +101,9 @@ namespace Signal.Game
         private void OnDestroy()
         {
             if (_inventory != null) _inventory.Changed -= OnInventoryChanged;
+            if (_pockets != null)
+                for (int i = 0; i < PlayerPocketBook.PocketCount; i++)
+                    _pockets.GetPocket(i).Changed -= OnPocketChanged;
         }
 
         private void Update()
@@ -105,6 +113,11 @@ namespace Signal.Game
         }
 
         private void OnInventoryChanged(GridInventory inventory)
+        {
+            if (IsOpen) Refresh();
+        }
+
+        private void OnPocketChanged(GridInventory inventory)
         {
             if (IsOpen) Refresh();
         }
@@ -138,9 +151,18 @@ namespace Signal.Game
                 {
                     bool owned = _ownership.TryGetOwner(item.ItemInstanceId, out EconomicActorId owner) &&
                         owner == EconomicActorId.Player;
-                    Button button = CreateItemButton(item, owned);
+                    CreateItemButton(item, owned);
                     if (item.ItemInstanceId == _selectedItem) selectedValid = true;
                 }
+                if (_pockets != null)
+                    for (int pocketIndex = 0; pocketIndex < PlayerPocketBook.PocketCount; pocketIndex++)
+                        foreach (PlacedItem item in _pockets.GetPocket(pocketIndex).Items)
+                        {
+                            bool owned = _ownership.TryGetOwner(item.ItemInstanceId, out EconomicActorId owner) &&
+                                owner == EconomicActorId.Player;
+                            CreateItemButton(item, owned);
+                            if (item.ItemInstanceId == _selectedItem) selectedValid = true;
+                        }
                 if (!selectedValid) _selectedItem = Guid.Empty;
                 _selected.text = _selectedItem == Guid.Empty ? "No stack selected." : "Selected: " + SelectedName();
                 _fulfilButton.interactable = _selectedItem != Guid.Empty;
@@ -176,6 +198,10 @@ namespace Signal.Game
         {
             if (_inventory.TryGetItemInstance(_selectedItem, out PlacedItem item))
                 return DisplayName(item.Type.Id) + " × " + item.Count;
+            if (_pockets != null)
+                for (int i = 0; i < PlayerPocketBook.PocketCount; i++)
+                    if (_pockets.GetPocket(i).TryGetItemInstance(_selectedItem, out item))
+                        return DisplayName(item.Type.Id) + " × " + item.Count + " (Pocket " + (i + 1) + ")";
             return "Unavailable";
         }
 
