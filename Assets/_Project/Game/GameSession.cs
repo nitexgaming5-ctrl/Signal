@@ -1562,6 +1562,7 @@ namespace Signal.Game
                     _equippedBackpackInstanceId = null;
                     _portableStorage.TryUnregister(item.ItemInstanceId);
                     _playerEquipment.TryUnequip(_inventory, definition.EquipmentSlot);
+                    RefreshCarryPanelInventories();
                     if (visual != null) visual.SetBackpackEquipped(false);
                     Say("Backpack world state could not be registered. Nothing was changed.", 4f);
                     return false;
