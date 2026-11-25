@@ -61,6 +61,8 @@ namespace Signal.Game
         private PlayerPocketBook _pockets;
         private Func<Guid, bool> _moveItemToPocket;
         private Func<int, bool> _movePocketToBackpack;
+        private Func<int, bool> _equipPocketItem;
+        private Guid _dragItemInstanceId;
         private readonly Button[] _pocketButtons = new Button[PlayerPocketBook.PocketCount];
         private readonly Text[] _pocketLabels = new Text[PlayerPocketBook.PocketCount];
         private readonly List<Text> _equipmentLabels = new List<Text>();
@@ -95,7 +97,7 @@ namespace Signal.Game
             PlayerEquipmentLoadout equipment = null, Func<bool> dropBackpack = null,
             Func<bool> hasBackpack = null, Func<bool> canAccessGrid = null,
             PlayerPocketBook pockets = null, Func<Guid, bool> moveItemToPocket = null,
-            Func<int, bool> movePocketToBackpack = null)
+            Func<int, bool> movePocketToBackpack = null, Func<int, bool> equipPocketItem = null)
         {
             if (inventory == null)
                 throw new ArgumentNullException(nameof(inventory));
@@ -116,6 +118,7 @@ namespace Signal.Game
             _pockets = pockets;
             _moveItemToPocket = moveItemToPocket;
             _movePocketToBackpack = movePocketToBackpack;
+            _equipPocketItem = equipPocketItem;
             _inventory.Changed += OnInventoryChanged;
             if (_pockets != null)
                 for (int i = 0; i < PlayerPocketBook.PocketCount; i++)
@@ -231,6 +234,28 @@ namespace Signal.Game
                 }
             }
 
+            // Equipment can be equipped directly from either the accessible backpack grid
+            // or a personal pocket. Pockets remain usable without an equipped backpack.
+            if (!_dragging && keyboard != null && keyboard.eKey.wasPressedThisFrame)
+            {
+                bool canAccessGrid = _canAccessGrid == null || _canAccessGrid();
+                if (canAccessGrid && inGrid &&
+                    _inventory.TryGetItemAt(hoverX, hoverY, out PlacedItem equipTarget))
+                {
+                    if (_equipItem != null && _equipItem(equipTarget))
+                        Refresh();
+                    return;
+                }
+
+                if (TryGetPocketIndex(screen, out int equipPocketIndex) &&
+                    _pockets != null && _pockets.GetPocket(equipPocketIndex).Items.Count > 0)
+                {
+                    _equipPocketItem?.Invoke(equipPocketIndex);
+                    Refresh();
+                    return;
+                }
+            }
+
             if (_canAccessGrid != null && !_canAccessGrid())
                 return;
 
@@ -239,14 +264,6 @@ namespace Signal.Game
             {
                 _moveItemToPocket?.Invoke(pocketTarget.ItemInstanceId);
                 Refresh();
-                return;
-            }
-
-            if (!_dragging && keyboard != null && keyboard.eKey.wasPressedThisFrame && inGrid &&
-                _inventory.TryGetItemAt(hoverX, hoverY, out PlacedItem equipTarget))
-            {
-                if (_equipItem != null && _equipItem(equipTarget))
-                    Refresh();
                 return;
             }
 
@@ -285,13 +302,37 @@ namespace Signal.Game
             if (mouse.leftButton.wasReleasedThisFrame)
             {
                 int id = _dragId;
+                Guid itemInstanceId = _dragItemInstanceId;
                 bool rotated = _dragRotated;
+                bool dropIntoPocket = !canDrop && !rotated &&
+                    TryGetPocketIndex(screen, out int pocketIndex);
 
                 EndDrag();
 
                 if (canDrop)
                     _inventory.TryMove(id, targetX, targetY, rotated);
+                else if (dropIntoPocket && itemInstanceId != Guid.Empty)
+                    _moveItemToPocket?.Invoke(itemInstanceId);
+
+                Refresh();
             }
+        }
+
+        private bool TryGetPocketIndex(Vector2 screen, out int pocketIndex)
+        {
+            pocketIndex = -1;
+            for (int i = 0; i < _pocketButtons.Length; i++)
+            {
+                Button button = _pocketButtons[i];
+                if (button == null || !button.gameObject.activeInHierarchy)
+                    continue;
+                if (RectTransformUtility.RectangleContainsScreenPoint(button.GetComponent<RectTransform>(), screen, null))
+                {
+                    pocketIndex = i;
+                    return true;
+                }
+            }
+            return false;
         }
 
         private bool TryGetHoverCell(Vector2 screen, out int cellX, out int cellY, out Vector2 local)
@@ -311,6 +352,7 @@ namespace Signal.Game
         {
             _dragging = true;
             _dragId = item.InstanceId;
+            _dragItemInstanceId = item.ItemInstanceId;
             _dragType = item.Type;
             _dragRotated = item.Rotated;
             _grabX = cellX - item.X;
