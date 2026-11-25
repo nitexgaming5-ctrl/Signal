@@ -91,3 +91,12 @@ Committed but not yet Unity-verified:
 - Debug-spawned backpacks auto-equip on an empty start so the test flow can begin without hidden starting cargo.
 - Existing save files are preserved; F9 may restore older test inventory contents. No save deletion/reset is performed.
 - No Unity test or Play Mode result is claimed. Next verification: start fresh without F9, confirm empty/inaccessible backpack storage, debug-spawn Canvas Backpack and confirm auto-equip, then test drop/recovery and save/load.
+
+
+## P-03.4a — social interactions without a backpack (2026-11-25)
+- GameSession no longer globally blocks E/F interactions when the player has no equipped backpack. NPC conversations, agenda interactions, customer-request review/acceptance and city navigation should remain usable.
+- Physical item receipt is guarded before transaction execution: repair-order acceptance, shop purchase, searchable loot pickup, Dirty Cash exchange reward and production output return an explicit capacity warning when no backpack is equipped. The rejected operation should not consume payment/inputs or change ownership.
+- Shop browsing and container inspection remain available. Home storage transfers and workbench use are still blocked without a backpack until real pocket storage exists.
+- HUD now preserves NPC/mission prompts instead of replacing them with a generic no-backpack message.
+- No new automated tests were added. Latest user-confirmed suite was 486/486 before this code change; fresh Unity compilation, EditMode run and Play Mode test remain required.
+- Next: P-03.4b functional three-slot 1×1 pockets, save/load, character UI, drop persistence and shared capacity routing. Current three pocket cells are still placeholders.
