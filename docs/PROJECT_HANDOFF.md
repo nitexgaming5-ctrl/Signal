@@ -46,7 +46,7 @@ Committed but not yet Unity-verified:
 - F2 opens Player Development when other major panels are closed. F1 remains the existing debug menu.
 
 
-## P-03 first implementation slice (2026-11-25)
+## P-03 first Core implementation slice (historical; superseded by the second slice below)
 
 - Core seven-slot PlayerEquipmentLoadout is committed with exact item-instance transfer, slot uniqueness and effective Armor/Heat Protection aggregation.
 - PortableStorageBook associates independent GridInventory contents with a stable backpack item instance ID; non-empty storage cannot be discarded.
