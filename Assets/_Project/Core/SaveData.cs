@@ -104,6 +104,15 @@ namespace Signal.Core
     }
 
     [Serializable]
+    public sealed class SavedNpcPlayerRelationship
+    {
+        public string npcId;
+        public float familiarity;
+        public float trust;
+        public float affinity;
+    }
+
+    [Serializable]
     public sealed class SavedAssetOwner
     {
         public string instanceId;
@@ -300,6 +309,7 @@ namespace Signal.Core
         public List<SavedNpcAgendaStageProgress> npcAgendaProgress = new List<SavedNpcAgendaStageProgress>();
         public List<SavedNpcKnowledge> npcKnowledge = new List<SavedNpcKnowledge>();
         public List<SavedNpcSocialRelationship> npcSocialRelationships = new List<SavedNpcSocialRelationship>();
+        public List<SavedNpcPlayerRelationship> npcPlayerRelationships = new List<SavedNpcPlayerRelationship>();
     }
 
     public sealed class LoadReport
@@ -327,6 +337,7 @@ namespace Signal.Core
         public int SkippedNpcAgendaProgress { get; set; }
         public int SkippedNpcKnowledge { get; set; }
         public int SkippedNpcSocialRelationships { get; set; }
+        public int SkippedNpcPlayerRelationships { get; set; }
         public OpportunityState RestoredOpportunity { get; set; }
     }
 
@@ -406,7 +417,7 @@ namespace Signal.Core
             CaptureCustomerContracts(customerContracts, data.customerContracts);
             CaptureWorkshopProgression(workshopProgression, data.acquiredWorkshopUpgradeIds);
             CaptureNpcAgendaProgress(npcAgendaProgress, data.npcAgendaProgress);
-            CaptureNpcSocialWorld(socialWorld, data.npcKnowledge, data.npcSocialRelationships);
+            CaptureNpcSocialWorld(socialWorld, data.npcKnowledge, data.npcSocialRelationships, data.npcPlayerRelationships);
 
             return data;
         }
@@ -497,6 +508,7 @@ namespace Signal.Core
             if (socialWorld != null) socialWorld.ClearForRestore();
             int skippedNpcKnowledge = RestoreNpcKnowledge(data.npcKnowledge, socialWorld);
             int skippedNpcRelationships = RestoreNpcSocialRelationships(data.npcSocialRelationships, socialWorld);
+            int skippedNpcPlayerRelationships = RestoreNpcPlayerRelationships(data.npcPlayerRelationships, socialWorld);
             OpportunityState restoredOpportunity = RestoreOpportunity(data.opportunity);
 
             return new LoadReport
@@ -523,6 +535,7 @@ namespace Signal.Core
                 SkippedNpcAgendaProgress = skippedAgendaProgress,
                 SkippedNpcKnowledge = skippedNpcKnowledge,
                 SkippedNpcSocialRelationships = skippedNpcRelationships,
+                SkippedNpcPlayerRelationships = skippedNpcPlayerRelationships,
                 RestoredOpportunity = restoredOpportunity
             };
         }
@@ -531,7 +544,8 @@ namespace Signal.Core
 
         private static void CaptureNpcSocialWorld(NpcSocialWorld world,
             List<SavedNpcKnowledge> knowledgeDestination,
-            List<SavedNpcSocialRelationship> relationshipDestination)
+            List<SavedNpcSocialRelationship> relationshipDestination,
+            List<SavedNpcPlayerRelationship> playerRelationshipDestination)
         {
             if (world == null) return;
             IList<string> npcIds = world.GetNpcIds();
@@ -559,6 +573,13 @@ namespace Signal.Core
                         familiarity = entry.Value.Familiarity, trust = entry.Value.Trust, affinity = entry.Value.Affinity
                     });
                 }
+                playerRelationshipDestination.Add(new SavedNpcPlayerRelationship
+                {
+                    npcId = npcId,
+                    familiarity = npc.PlayerRelationship.Familiarity,
+                    trust = npc.PlayerRelationship.Trust,
+                    affinity = npc.PlayerRelationship.Affinity
+                });
             }
         }
 
@@ -604,6 +625,25 @@ namespace Signal.Core
                     !destination.TryGetNpc(entry.observerNpcId, out NpcAgentState _) || !destination.TryGetNpc(entry.otherNpcId, out NpcAgentState _))
                 { skipped++; continue; }
                 destination.SetRelationship(entry.observerNpcId, entry.otherNpcId,
+                    new NpcRelationship(entry.familiarity, entry.trust, entry.affinity));
+            }
+            return skipped;
+        }
+
+        private static int RestoreNpcPlayerRelationships(List<SavedNpcPlayerRelationship> saved, NpcSocialWorld destination)
+        {
+            if (destination == null) return 0;
+            int skipped = 0;
+            if (saved == null) return skipped;
+            foreach (SavedNpcPlayerRelationship entry in saved)
+            {
+                if (entry == null || string.IsNullOrWhiteSpace(entry.npcId) ||
+                    !IsFinite(entry.familiarity) || entry.familiarity < 0f || entry.familiarity > 1f ||
+                    !IsFinite(entry.trust) || entry.trust < 0f || entry.trust > 1f ||
+                    !IsFinite(entry.affinity) || entry.affinity < -1f || entry.affinity > 1f ||
+                    !destination.TryGetNpc(entry.npcId, out NpcAgentState _))
+                { skipped++; continue; }
+                destination.SetPlayerRelationship(entry.npcId,
                     new NpcRelationship(entry.familiarity, entry.trust, entry.affinity));
             }
             return skipped;
