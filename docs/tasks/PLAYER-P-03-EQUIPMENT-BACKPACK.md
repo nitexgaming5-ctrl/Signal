@@ -226,12 +226,12 @@ Implement three actual 1×1 personal pocket slots, separate from the backpack's 
 3. Try spawning or receiving an item with a 2×1 or 1×2 footprint without a backpack. Confirm it is rejected without losing the source item or taking payment.
 4. Press F5, restart/load with F9, and confirm all pocket stacks return with the same item IDs, quantities and states.
 5. Accept Milo's parcel opportunity without a backpack while a pocket is free. Confirm the parcel appears in that pocket and can be returned/delivered; with all pockets full, acceptance must fail without changing the opportunity.
-6. Accept a customer contract without a backpack. Confirm the panel lists pocket-held goods and that a qualifying player-owned pocket stack can be handed over. The remaining scenarios below follow as numbered steps.
-6. Open a searchable container and take a 1×1 item with no backpack. Confirm it enters the first free pocket and ownership is Player. Fill all pockets and confirm the next pickup leaves the container item untouched.
-7. Browse a shop without a backpack and buy a 1×1 item with a free pocket. Confirm payment and item receipt both succeed; with full pockets, confirm no CARD is debited.
-8. Equip the Canvas Backpack. Move a 1×1 item from backpack storage to a pocket with P; click the occupied pocket to move it back. Confirm exact identity and quantity in both directions.
-9. Drop the backpack with B. Confirm pockets remain visible/usable, backpack grid is inaccessible, and cargo remains in the dropped bag. Save/load while dropped, then recover and verify both pocket and backpack contents.
-10. Accept the entrusted repair order without a backpack with a free pocket; verify the jacket enters that pocket. Equip a backpack and move it into backpack storage before attempting the workbench repair flow.
+6. Accept a customer contract without a backpack. Confirm the panel lists pocket-held goods and that a qualifying player-owned pocket stack can be handed over.
+7. Open a searchable container and take a 1×1 item with no backpack. Confirm it enters the first free pocket and ownership is Player. Fill all pockets and confirm the next pickup leaves the container item untouched.
+8. Browse a shop without a backpack and buy a 1×1 item with a free pocket. Confirm payment and item receipt both succeed; with full pockets, confirm no CARD is debited.
+9. Equip the Canvas Backpack. Move a 1×1 item from backpack storage to a pocket with P; click the occupied pocket to move it back. Confirm exact identity and quantity in both directions.
+10. Drop the backpack with B. Confirm pockets remain visible/usable, backpack grid is inaccessible, and cargo remains in the dropped bag. Save/load while dropped, then recover and verify both pocket and backpack contents.
+11. Accept the entrusted repair order without a backpack with a free pocket; verify the jacket enters that pocket. Equip a backpack and move it into backpack storage before attempting the workbench repair flow.
 
 ### Known follow-up limits
 - Home-storage transfer and workbench/production still depend on the backpack grid; production is not available without a backpack.
