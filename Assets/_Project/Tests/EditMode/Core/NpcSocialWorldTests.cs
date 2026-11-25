@@ -24,6 +24,24 @@ namespace Signal.Core.Tests
                 new NpcRelationship(float.NaN, 0.5f, 0f));
         }
         [Test]
+        public void NpcOpinionOfPlayerIsIndependentAndDirectional()
+        {
+            var world = new NpcSocialWorld();
+            world.RegisterNpc("rhea", "CornerShop", 0f, 0f, 8f);
+            world.RegisterNpc("milo", "Street", 0f, 0f, 8f);
+
+            world.AdjustPlayerRelationship("rhea", familiarityDelta: 0.3f, trustDelta: 0.2f, affinityDelta: -0.1f);
+
+            Assert.That(world.GetPlayerRelationship("rhea").Familiarity, Is.EqualTo(0.3f).Within(0.0001f));
+            Assert.That(world.GetPlayerRelationship("rhea").Trust, Is.EqualTo(0.7f).Within(0.0001f));
+            Assert.That(world.GetPlayerRelationship("rhea").Affinity, Is.EqualTo(-0.1f).Within(0.0001f));
+            Assert.That(world.GetPlayerRelationship("milo").Familiarity, Is.Zero);
+            Assert.Throws<System.KeyNotFoundException>(() => world.GetPlayerRelationship("missing"));
+            Assert.Throws<System.ArgumentOutOfRangeException>(() =>
+                world.AdjustPlayerRelationship("rhea", affinityDelta: float.NaN));
+        }
+
+        [Test]
         public void NearbyNpcsMustShareLocation()
         {
             var world = new NpcSocialWorld();
