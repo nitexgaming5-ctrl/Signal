@@ -56,7 +56,7 @@ Specialist references: [Architecture](ARCHITECTURE.md), [Data Model](DATA_MODEL.
 
 **Play Mode:** the user reports the First Workshop and repair/trading features work well. B-06 entrusted jacket is seeded in Milo's inventory; B-06 Play Mode acceptance is pending.
 
-**Next B-06 acceptance:** compile the current branch in Unity, run the full EditMode suite (ten focused repair-order tests added; expected 455/455 from the previous 445 baseline), then exercise acceptance → workshop repair → exact-item return → customer debit/player credit → replay rejection and F5/F9 persistence. B-04 scavenging repair acceptance remains a separate existing loop.
+**Next B-06 acceptance:** compile the current branch in Unity, run the full EditMode suite (eleven focused repair-order tests added; expected 456/456 from the previous 445 baseline), then exercise acceptance → workshop repair → exact-item return → customer debit/player credit → replay rejection and F5/F9 persistence. B-04 scavenging repair acceptance remains a separate existing loop.
 
 The guaranteed Work Jacket entry is explicitly temporary test scaffolding and should be removed or changed back to a low-weight normal entry once the repair loop is fully validated.
 
@@ -137,5 +137,5 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 - Acceptance moves the exact item into player custody while Milo remains its registered owner. The shared workbench repairs that active entrusted target with a player-owned Basic Patch Kit; Worn becomes Good.
 - Returning the exact item moves it back to Milo and atomically transfers 35 clean CARD from Milo to the player. A dedicated ServicePaymentTransactionLedger records the payment separately from physical asset transfers. Failed returns roll back item movement and both balances; one active customer job is enforced across contract and repair-order acceptance.
 - F5/F9 persists order phase, item location/owner, accounts and service-payment history.
-- Ten focused EditMode tests added for ownership, repair, payment, replay, insufficient funds, player-account overflow, receiver capacity and active/completed save/load. Expected suite count **455** from the prior 445 baseline; Unity compilation and execution are pending.
+- Eleven focused EditMode tests added for ownership, repair, payment, replay, insufficient funds, player-account overflow, missing issuer account, receiver capacity and active/completed save/load. Expected suite count **456** from the prior 445 baseline; Unity compilation and execution are pending.
 - Task card: tasks/LIVELIHOOD-B-06-CUSTOMER-REPAIR-ORDERS.md.
