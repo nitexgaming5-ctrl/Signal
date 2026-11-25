@@ -300,6 +300,7 @@ namespace Signal.Core
     {
         public string instanceId;
         public string typeId;
+        public string ownerActorId;
         public int slot;
         public int armorModifier;
         public int heatProtectionModifier;
