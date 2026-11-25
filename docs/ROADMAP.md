@@ -137,8 +137,8 @@ B-05 preserves three distinct directions: player→NPC in `PlayerRelationshipBoo
 
 The user has approved intercalating character development before returning to the B-07 neighbourhood-expansion work. This is a parallel track; it does not renumber or replace B-07.
 
-- **P-01 — Character Foundation & Appearance:** customize the existing player; replace the RoomBootstrap placeholder sprite with a modular animated character using the supplied resource pack; persist appearance IDs; prepare clothing/armor visual layers without implementing the full equipment loadout.
-- **P-02 — Attributes & Skills:** exactly two attributes (Armor and Heat Protection); fixed freely distributed starting skill-point budget; additional points from important one-time gameplay milestones; manual allocation and free redistribution at any time. The proposed skill catalogue remains provisional.
+- **P-01 — Character Foundation & Appearance:** first implementation slice committed. Modular Body_A renderer, idle/walk directional animation, resource-pack importer and fallback visual are in place; Unity import/verification pending. Full appearance choices and wardrobe remain constrained by the supplied pack's single base body.
+- **P-02 — Attributes & Skills:** Core attributes, skill ranks, milestone ledger, save mapping, authored provisional catalog and F2 debug allocation panel are committed. Prototype tuning is 8 starting points, rank cap 5, 1 point/rank. Unity verification pending; final skill effects remain open.
 - **P-03 — Equipment & Clothing:** future phase for authoritative wearable slots, physical item identity/custody, visual overlays and Armor/Heat Protection modifiers.
 
 Detailed P-01/P-02 task specifications are prepared but implementation is not authorized yet. See [P-01](tasks/PLAYER-P-01-CHARACTER-FOUNDATION-APPEARANCE.md) and [P-02](tasks/PLAYER-P-02-ATTRIBUTES-SKILLS.md).
