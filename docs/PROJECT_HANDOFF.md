@@ -77,3 +77,8 @@ Committed but not yet Unity-verified:
 - While the bag is dropped, item-driven E/F interactions are temporarily blocked so workbench/shop/container flows cannot access the backpack's still-registered 8×6 grid. World navigation remains available: E at building/hideout doors and exits still transitions locations, with the matching HUD prompt. Movement, pickup, F5/F9 and sleep remain available. Replace this conservative gate with pocket-aware inventory routing when the real pocket inventory is implemented.
 
 - HUD prompt follow-up: the exact-string door allowlist missed alternate wording such as “E Exit building”. `IsWorldTransitionPrompt` now recognizes E-prefixed enter/exit/leave/return prompts case-insensitively. This corrects prompt visibility without allowing item-based interactions while the backpack is dropped. Unity verification is pending.
+
+## Latest correction — dropped-backpack exit HUD and API warning (2026-11-25)
+- User clarified that the building exit interaction worked while the backpack was dropped, but the HUD did not display “press E”. The latest GameSession change preserves the raw CityBlock transition prompt before nearby interaction text can override it, recognises enter/exit/leave/return wording without requiring an existing E prefix, and displays an explicit E hint.
+- InventoryPanel now uses `FindAnyObjectByType<EventSystem>()` instead of the obsolete `FindObjectOfType<EventSystem>()` API.
+- User confirmed **486/486 EditMode tests passing** after pulling the prior implementation. Because these two cleanup commits were made afterward, Unity recompilation, another 486-test run and Play Mode confirmation remain pending.
