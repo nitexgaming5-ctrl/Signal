@@ -253,7 +253,7 @@ namespace Signal.Game
             _panel.Bind(_inventory, _allItemDefinitions, _itemViewer.Open, TryEquipPlayerItem, TryUnequipPlayerSlot,
                 _playerEquipment, DropPlayerBackpack, () => _equippedBackpackInstanceId.HasValue,
                 () => _equippedBackpackInstanceId.HasValue && !_droppedBackpackItem.HasValue,
-                _playerPockets, MoveItemToPocket, MovePocketToBackpack, EquipPocketItem);
+                _playerPockets, MoveItemToPocket, MovePocketToBackpack, EquipPocketItem, MovePocketToBackpackAt);
             _debugItemSpawnerPanel = gameObject.AddComponent<DebugItemSpawnerPanel>();
             _debugItemSpawnerPanel.Bind(_allItemDefinitions, SpawnDebugItem);
             _containerPanel = gameObject.AddComponent<SearchableContainerPanel>();
@@ -2843,6 +2843,22 @@ namespace Signal.Game
             if (_playerPockets == null || !_playerPockets.TryMoveTo(_inventory, pocketIndex))
             {
                 Say("There is no item in that pocket, or the backpack has no free space.", 4f);
+                return false;
+            }
+            Say("Moved item into backpack storage.");
+            return true;
+        }
+
+        private bool MovePocketToBackpackAt(int pocketIndex, int x, int y)
+        {
+            if (!_equippedBackpackInstanceId.HasValue || _droppedBackpackItem.HasValue)
+            {
+                Say("Equip a backpack before moving pocket items into backpack storage.", 4f);
+                return false;
+            }
+            if (_playerPockets == null || !_playerPockets.TryMoveToAt(_inventory, pocketIndex, x, y))
+            {
+                Say("That backpack space is occupied or outside the grid. The pocket item was kept.", 4f);
                 return false;
             }
             Say("Moved item into backpack storage.");
