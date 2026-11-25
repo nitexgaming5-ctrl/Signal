@@ -16,32 +16,23 @@ Signal is a top-down 2D urban RPG built on Unity 6000.6.9f1.
 ## Current verified baseline
 - Working branch: `chore/collaboration-workflow-and-audit`; keep `main` untouched.
 - Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
-- User confirmed **456/456 EditMode tests passed** on 2026-11-25 and reported the B-06 in-game repair-order loop passed.
+- User confirmed **476/476 EditMode tests passed** after the first P-03 Core equipment/backpack slice (2026-11-25). The next P-03 integration slice added two focused tests; expected current total is 478 pending Unity verification.
 - B-06 Customer Repair Orders is complete: entrusted item custody remains distinct from ownership; exact item return and 35 CARD payment are atomic and replay-protected.
 - B-04 repair/trading and the First Workshop have also been reported working in Play Mode.
 - Unity remains the authority for compile, test and Play Mode verification. Never infer a pass from source edits.
 
-## Current design initiative — Player Development
-The user wants character/skills customization intercalated before returning to the B-07 roadmap. This is a parallel track; B-07 remains Neighbourhood Expansion.
+## Player Development — P-01/P-02 implemented; P-03 active
+The user chose the Player Development track before returning to B-07. B-07 remains Neighbourhood Expansion.
 
-Confirmed:
-- Customize the existing player rather than introducing a new-game class/background flow.
-- Fixed starting skill-point budget, freely distributed.
-- Additional points from important milestones.
-- Manual point allocation and free redistribution at any time.
-- Exactly two attributes: Armor and Heat Protection.
-- Heat Protection retains its name and protects against cold-related environmental exposure only.
-- Clothing and armor should have both visual and gameplay effects. Full equipment loadout is a later P-03 phase.
+Confirmed: existing player character, fixed starting skill-point budget, milestone-earned points, free respecialization, exactly Armor and Heat Protection attributes, and cold-only environmental meaning for Heat Protection. P-01/P-02 first implementation is committed and user-verified at 467/467. The modular Body_A character pack is imported locally; P-03 equipment is the active next phase.
 
-P-01 and P-02 specifications are prepared. No implementation has been authorized. The current player is created in `RoomBootstrap.CreatePlayer()`; `PlayerMotor2D` currently owns movement input/velocity; `GameSession` is the composition root. Core remains plain C# and Game owns Unity presentation/content.
-
-Candidate skills (Repair, Production, Trading, Scavenging, Social), starting budget amount, rank caps/costs and milestone rewards remain provisional/open.
+Candidate skills (Repair, Production, Trading, Scavenging, Social), starting budget amount, rank caps/costs and milestone rewards remain provisional/open. Activity-specific skill effects and actual milestone triggers remain future integration.
 
 ## Separate future phase — W-01 Weather
 Dynamic seasonal weather is planned: temperature changes, rain, storms, snow and blizzards. Player exposure consequences are cold-focused and gradual. Heat Protection mitigates cold exposure; shelter supports recovery. No hot-weather/overheating gameplay is planned. W-01 is separate from P-01/P-02 and is not authorized for implementation.
 
 ## Next action
-Continue P-03 Equipment, Wearables & Portable Backpack. The seven-slot layout is approved: Head, Torso, Legs, Feet and three generic accessory slots. The backpack is a physical accessory/container whose contents remain attached to its stable item identity when equipped, dropped or recovered. The first Core foundation is committed; Unity verification and Game/save/UI/world integration remain pending. See docs/tasks/PLAYER-P-03-EQUIPMENT-BACKPACK.md. Keep B-07 and W-01 as separate roadmap tracks.
+Verify the current P-03 backpack-equipped integration in Unity (expected 478 EditMode tests). The user approved seven slots: Head, Torso, Legs, Feet and three generic accessories. The temporary 8×6 test grid is attached to the equipped Canvas Backpack identity and persists with it through F5/F9. Final no-backpack inventory is 2–3 personal pockets. After verification, implement physical backpack drop/pickup, then enforce the pocket fallback. See docs/tasks/PLAYER-P-03-EQUIPMENT-BACKPACK.md. Keep B-07 and W-01 as separate roadmap tracks.
 
 
 ## Latest implementation — P-01/P-02 first slice (2026-11-25)
