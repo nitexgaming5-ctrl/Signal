@@ -73,6 +73,7 @@ namespace Signal.Game
         private GridInventory _contactInventory;
         private GridInventory _inventory;
         private GridInventory _storage;
+        private GridInventory _emptyCarryInventory;
         private PlayerPocketBook _playerPockets;
         private PlayerEquipmentLoadout _playerEquipment;
         private PortableStorageBook _portableStorage;
@@ -163,6 +164,7 @@ namespace Signal.Game
             // the final no-backpack inventory will be reduced to 2-3 personal pockets.
             _inventory = new GridInventory(8, 6);
             _storage = new GridInventory(8, 6);
+            _emptyCarryInventory = new GridInventory(1, 1);
             _playerPockets = new PlayerPocketBook();
             _playerEquipment = new PlayerEquipmentLoadout();
             _portableStorage = new PortableStorageBook();
@@ -334,6 +336,7 @@ namespace Signal.Game
             _workspace.Bind(_motor, _inventory, _assetOwnership, _workshopRecipes,
                 IsRecipeUnlocked, ProduceRecipe, repairTargetType, basicKitType, reinforcedKitType,
                 _itemKnowledge, CanRepairAtWorkbench, RepairItem, CanRepairTarget);
+            RefreshCarryPanelInventories();
             RefreshWorkshopUpgradeVisual();
             _hud.ShowMessage("Your hideout is ready. The street is just outside.", 5f);
         }
@@ -1400,6 +1403,7 @@ namespace Signal.Game
             }
             _droppedBackpackItem = equipped;
             _equippedBackpackInstanceId = null;
+            RefreshCarryPanelInventories();
             PlayerCharacterVisual visual = _room != null && _room.Player != null ? _room.Player.GetComponent<PlayerCharacterVisual>() : null;
             if (visual != null) visual.SetBackpackEquipped(false);
             SpawnDroppedBackpackVisual(position);
@@ -1438,6 +1442,7 @@ namespace Signal.Game
             }
             _droppedBackpackItem = null;
             _equippedBackpackInstanceId = backpackId;
+            RefreshCarryPanelInventories();
             if (_droppedBackpackVisual != null) Destroy(_droppedBackpackVisual);
             _droppedBackpackVisual = null;
             PlayerCharacterVisual visual = _room != null && _room.Player != null ? _room.Player.GetComponent<PlayerCharacterVisual>() : null;
@@ -1542,6 +1547,7 @@ namespace Signal.Game
                 }
 
                 _equippedBackpackInstanceId = item.ItemInstanceId;
+                RefreshCarryPanelInventories();
                 PlayerCharacterVisual visual = _room != null && _room.Player != null
                     ? _room.Player.GetComponent<PlayerCharacterVisual>() : null;
                 if (visual != null)
@@ -1808,6 +1814,7 @@ namespace Signal.Game
             }
             RestoreEquipment(data);
             int skippedPocketItems = PlayerPocketSaveMapper.Apply(data, _playerPockets, ResolveType, _assetOwnership);
+            RefreshCarryPanelInventories();
             PortableBackpackWorldSaveMapper.Apply(data, _backpackWorldBook, _portableStorage);
             if (_equippedBackpackInstanceId.HasValue &&
                 !_backpackWorldBook.TryGet(_equippedBackpackInstanceId.Value, out _))
@@ -2560,6 +2567,15 @@ namespace Signal.Game
             return nearest;
         }
 
+        private void RefreshCarryPanelInventories()
+        {
+            GridInventory accessible = _equippedBackpackInstanceId.HasValue && !_droppedBackpackItem.HasValue
+                ? _inventory : _emptyCarryInventory;
+            if (_customerContractPanel != null) _customerContractPanel.SetPlayerInventory(accessible);
+            if (_dirtyCashPanel != null) _dirtyCashPanel.SetPlayerInventory(accessible);
+            if (_retailPanel != null) _retailPanel.SetInventory(accessible);
+        }
+
         private GridInventory GetCarryInventory(ItemType type)
         {
             if (_equippedBackpackInstanceId.HasValue && !_droppedBackpackItem.HasValue &&
@@ -2582,7 +2598,8 @@ namespace Signal.Game
 
         private bool TryGetPlayerItem(Guid itemInstanceId, out GridInventory source, out PlacedItem item)
         {
-            if (_inventory != null && _inventory.TryGetItemInstance(itemInstanceId, out item))
+            bool backpackAccessible = _equippedBackpackInstanceId.HasValue && !_droppedBackpackItem.HasValue;
+            if (backpackAccessible && _inventory != null && _inventory.TryGetItemInstance(itemInstanceId, out item))
             { source = _inventory; return true; }
             if (_playerPockets != null)
             {
