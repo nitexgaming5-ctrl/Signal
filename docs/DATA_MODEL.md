@@ -74,3 +74,40 @@ The current `SaveData` snapshot persists:
 - Business catalogue entries are authored unlimited availability; they are not a finite physical shop inventory.
 - Contract rewards debit a real resident account; do not mint money or create a business account.
 - Save the stable IDs and domain state required to reconstruct relationships; rebuild Unity references and runtime container registrations from authored content/live objects.
+
+
+## Planned Player Development data model (not implemented)
+
+The following is the approved design target for P-01/P-02, not a statement that these runtime types already exist.
+
+### Authored definitions (Game)
+
+- `CharacterAppearanceDefinition`: stable appearance option ID and compatible modular sprite-part references.
+- `CharacterAnimationSetDefinition`: animation/action frame metadata, directional coverage, pivots/alignment and per-action draw-order recipes.
+- `SkillDefinition`: stable skill ID, display metadata and authored rank/progression metadata.
+- `MilestoneDefinition`: stable milestone ID, point reward and source/trigger context. A milestone must correspond to a successfully completed gameplay event.
+
+### Runtime domains (Core)
+
+- `PlayerCharacterProfile`: stable appearance selection IDs; no Unity object references.
+- `PlayerAttributeSet`: exactly two base attributes, Armor and Heat Protection.
+- `PlayerSkillBook`: skill ID to rank state.
+- `PlayerSkillProgression`: fixed starting point budget, earned/unspent point accounting and validated spend/redistribution.
+- `PlayerMilestoneLedger`: stable one-time milestone award identities and amounts.
+- `CharacterAttributeCalculator`: pure calculation of effective Armor/Heat Protection from base values plus supplied equipment modifiers. Actual loadout and item mapping belong to the later equipment phase.
+
+Candidate skills (Repair, Production, Trading, Scavenging, Social) are not yet a locked catalogue. Starting budget, rank caps, costs and milestone rewards remain tuning decisions.
+
+### Persistence target
+
+Future SaveData additions should store only stable IDs and primitive values:
+- player appearance selection IDs;
+- base Armor and Heat Protection;
+- skill ranks and canonical point totals;
+- one-time milestone award records.
+
+Do not serialize ScriptableObject, Sprite, Texture, Animator, GameObject or prefab references. Current-build round-trip tests are mandatory. Build 0.01 has no save-schema version or migration chain, so older experimental saves may be incompatible after these DTO changes.
+
+## Planned weather data model (W-01; not implemented)
+
+W-01 is a separate future phase. Its likely Core state includes a shared weather snapshot (season, temperature/band, precipitation kind/intensity, wind, severity, pattern identity and transition timing), deterministic world weather progression, and player cold-exposure state. The Game layer supplies authored seasonal patterns and presentation. Weather must consume effective Heat Protection through a value/calculation interface; it must not inspect specific clothing item IDs. No hot-weather exposure model is planned.
