@@ -199,5 +199,43 @@ namespace Signal.Core.Tests
         }
 
 
+        [Test]
+        public void MultiGridOutputFailureRestoresEveryIngredientGridAndOwnership()
+        {
+            ItemType input = Item();
+            ItemType oversizedOutput = Item(width: 2, height: 2);
+            var backpack = new GridInventory(1, 1);
+            var pocket = new GridInventory(1, 1);
+            backpack.Place(input, 0, 0);
+            pocket.Place(input, 0, 0);
+            Guid backpackId = backpack.Items[0].ItemInstanceId;
+            Guid pocketId = pocket.Items[0].ItemInstanceId;
+            var ownership = new AssetOwnershipBook();
+            ownership.TryRegister(backpackId, EconomicActorId.Player);
+            ownership.TryRegister(pocketId, EconomicActorId.Player);
+            var containers = new EconomicContainerRegistry();
+            containers.TryRegister(backpack, EconomicActorId.Player);
+            containers.TryRegister(pocket, EconomicActorId.Player);
+            var history = new ProductionTransactionLedger();
+            var recipe = new Recipe(new[] { new Ingredient(input, 2) },
+                new Ingredient(oversizedOutput, 1));
+
+            ProductionResult result = ProductionService.TryProduce(Guid.NewGuid(), recipe,
+                new[] { backpack, pocket }, pocket, EconomicActorId.Player, containers,
+                ownership, history, 1, 600);
+
+            Assert.That(result.Status, Is.EqualTo(ProductionStatus.NoSpaceForOutput));
+            Assert.That(backpack.TryGetItemInstance(backpackId, out PlacedItem backpackItem), Is.True);
+            Assert.That(backpackItem.Count, Is.EqualTo(1));
+            Assert.That(pocket.TryGetItemInstance(pocketId, out PlacedItem pocketItem), Is.True);
+            Assert.That(pocketItem.Count, Is.EqualTo(1));
+            Assert.That(ownership.TryGetOwner(backpackId, out EconomicActorId backpackOwner), Is.True);
+            Assert.That(backpackOwner, Is.EqualTo(EconomicActorId.Player));
+            Assert.That(ownership.TryGetOwner(pocketId, out EconomicActorId pocketOwner), Is.True);
+            Assert.That(pocketOwner, Is.EqualTo(EconomicActorId.Player));
+            Assert.That(history.Count, Is.Zero);
+        }
+
+
     }
 }
