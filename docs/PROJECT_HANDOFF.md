@@ -152,3 +152,10 @@ Committed but not yet Unity-verified:
 ## Latest test correction (2026-11-26)
 
 - `MovesPocketItemToExactBackpackDropCell` failed because its test fixture attempted to place a 2×1 item into a 1×1 pocket. The fixture now uses a valid 1×1 item and still checks exact backpack coordinates. Production validation is unchanged. Pull commit `9a1244c` and rerun EditMode tests; do not claim a pass until Unity confirms it.
+
+
+## Latest P-03 pocket interaction update (2026-11-26)
+- Direct pocket-to-pocket drag-and-drop is now implemented. Dropping onto an empty pocket moves the stack; dropping onto an occupied pocket swaps the stacks atomically.
+- Pocket transfers work with no backpack equipped and while the backpack is dropped. Stable item identity, stack count, item state and ownership are preserved. P3 remains the hidden pocket; this change does not alter ordinary-search visibility.
+- Added three EditMode tests. Latest user-confirmed baseline is 494/494; expected suite is now 500, awaiting user Unity execution. No compile/test/Play Mode result is claimed.
+- Next check: pull latest branch, run EditMode suite, then in Play Mode drag P1 to empty P3 and swap occupied P2/P3, both with an equipped backpack and without one. Confirm UI refreshes and P3 still shows HIDDEN.
