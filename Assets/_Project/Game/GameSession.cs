@@ -406,6 +406,8 @@ namespace Signal.Game
             if (!IsNearRepairOrderCustomer(_room.PlayerBody.position)) return "Move closer to the customer.";
             if (firstCustomerRepairOrder == null || _contractReceiverInventory == null)
                 return "The repair order is unavailable.";
+            if (_customerContracts != null && _customerContracts.HasActiveContract)
+                return "Complete your active customer request before accepting a repair order.";
             CustomerRepairOrderResult result = CustomerRepairOrderService.TryAccept(firstCustomerRepairOrder.Id,
                 firstCustomerRepairOrder.EntrustedItem.ToItemType(), _contractReceiverInventory, _inventory,
                 _economicContainers, _assetOwnership, _customerRepairOrders, _clock.Day, _clock.MinuteOfDay);
@@ -463,6 +465,8 @@ namespace Signal.Game
         {
             if (!IsNearContractCustomer(_room.PlayerBody.position))
                 return "Move closer to the customer.";
+            if (_customerRepairOrders != null && _customerRepairOrders.HasActiveOrder)
+                return "Finish the entrusted repair order before accepting another customer job.";
             if (firstCustomerContract == null ||
                 !_customerContracts.TryAccept(firstCustomerContract.Id, _clock.Day, _clock.MinuteOfDay))
                 return "You already have an active request, or this offer is no longer available.";
