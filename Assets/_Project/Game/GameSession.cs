@@ -712,11 +712,12 @@ namespace Signal.Game
             bool containerOpen = _containerPanel != null && _containerPanel.IsOpen;
             bool dirtyCashOpen = _dirtyCashPanel != null && _dirtyCashPanel.IsOpen;
             bool contractOpen = _customerContractPanel != null && _customerContractPanel.IsOpen;
+            bool repairOrderOpen = _customerRepairOrderPanel != null && _customerRepairOrderPanel.IsOpen;
             bool upgradeOpen = _workshopUpgradePanel != null && _workshopUpgradePanel.IsOpen;
             bool agendaOpen = _npcAgendaPanel != null && _npcAgendaPanel.IsOpen;
             bool itemSpawnerOpen = _debugItemSpawnerPanel != null && _debugItemSpawnerPanel.IsOpen;
             if (_panel != null)
-                _panel.enabled = !_debugMenuOpen && !workspaceOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen;
+                _panel.enabled = !_debugMenuOpen && !workspaceOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !repairOrderOpen && !upgradeOpen && !agendaOpen;
             if (_storagePanel != null)
                 _storagePanel.enabled = !_debugMenuOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen;
             if (_containerPanel != null)
@@ -747,13 +748,14 @@ namespace Signal.Game
             UpdateNpcInteractionPause(
                 agendaOpen ? _npcAgendaPanel.ActiveNpcId :
                 retailOpen ? _retailPanel.ActiveOwnerNpcId :
+                repairOrderOpen && firstCustomerRepairOrder != null ? firstCustomerRepairOrder.IssuerNpcId :
                 contractOpen && firstCustomerContract != null ? firstCustomerContract.IssuerNpcId :
                 upgradeOpen && firstWorkshopUpgrade != null ? firstWorkshopUpgrade.PayeeNpcId :
                 dirtyCashOpen ? DirtyCashContactNpcId : null);
 
             bool scenarioChoiceOpen = _miloScenario != null && _miloScenario.HasPendingChoice;
             _motor.enabled = !inventoryOpen && !workspaceOpen && !storageOpen && !itemViewerOpen &&
-                !scenarioChoiceOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen && !itemSpawnerOpen && !_debugMenuOpen;
+                !scenarioChoiceOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !repairOrderOpen && !upgradeOpen && !agendaOpen && !itemSpawnerOpen && !_debugMenuOpen;
 
             Vector2 playerPosition = _room.Player.position;
             bool nearWorkbench = _room.Workbench != null &&
@@ -763,6 +765,7 @@ namespace Signal.Game
             BusinessDefinition nearbyBusiness = FindNearbyBusiness(playerPosition);
             bool nearDirtyCashContact = _city.IsResidentWithin(DirtyCashContactNpcId, playerPosition, InteractionDistance);
             bool nearContractCustomer = IsNearContractCustomer(playerPosition);
+            bool nearRepairOrderCustomer = IsNearRepairOrderCustomer(playerPosition);
             bool nearUpgradeSupplier = IsNearFirstUpgradeSupplier(playerPosition);
             if (nearContractCustomer && nearUpgradeSupplier)
             {
@@ -792,8 +795,12 @@ namespace Signal.Game
                 cityPrompt = "E  Search " + nearbyContainerLabel;
             if (nearDirtyCashContact)
                 cityPrompt = "E  Talk";
-            if (nearContractCustomer)
+            if (nearContractCustomer && nearRepairOrderCustomer)
+                cityPrompt = "E  Customer request   /   F  Repair order";
+            else if (nearContractCustomer)
                 cityPrompt = "E  Customer request";
+            else if (nearRepairOrderCustomer)
+                cityPrompt = "F  Repair order";
             if (nearUpgradeSupplier)
                 cityPrompt = "E  Talk to " + _city.GetResidentDisplayName(firstWorkshopUpgrade.PayeeNpcId);
             if (_miloScenario != null)
@@ -823,7 +830,9 @@ namespace Signal.Game
             if (!hasScenarioPrompt && !nearSearchableContainer && !nearDirtyCashContact &&
                 !nearContractCustomer && !nearUpgradeSupplier && nearAgendaInteraction)
                 cityPrompt = "E  Talk";
-            if (contractOpen)
+            if (repairOrderOpen)
+                _hud.SetPrompt("ESC  Close repair order");
+            else if (contractOpen)
                 _hud.SetPrompt("ESC  Close customer request");
             else if (upgradeOpen)
                 _hud.SetPrompt("ESC  Close workshop offer");
