@@ -33,6 +33,7 @@ namespace Signal.Core
     {
         private readonly List<ServicePaymentTransaction> _transactions = new List<ServicePaymentTransaction>();
         private readonly HashSet<Guid> _transactionIds = new HashSet<Guid>();
+        private readonly HashSet<Guid> _orderIds = new HashSet<Guid>();
         private readonly IReadOnlyList<ServicePaymentTransaction> _readOnlyTransactions;
 
         public ServicePaymentTransactionLedger()
@@ -51,9 +52,11 @@ namespace Signal.Core
                 !transaction.Payer.IsValid || !transaction.Payee.IsValid ||
                 transaction.Payer == transaction.Payee || transaction.Amount < 1 ||
                 transaction.Day < 1 || transaction.MinuteOfDay < 0 || transaction.MinuteOfDay >= 1440 ||
-                !_transactionIds.Add(transaction.TransactionId))
+                _transactionIds.Contains(transaction.TransactionId) || _orderIds.Contains(transaction.OrderId))
                 return false;
             _transactions.Add(transaction);
+            _transactionIds.Add(transaction.TransactionId);
+            _orderIds.Add(transaction.OrderId);
             return true;
         }
 
@@ -65,6 +68,7 @@ namespace Signal.Core
                 if (_transactions[i].TransactionId != transactionId) continue;
                 _transactions.RemoveAt(i);
                 _transactionIds.Remove(transactionId);
+                _orderIds.Remove(_transactions[i].OrderId);
                 return true;
             }
             return false;
@@ -74,6 +78,7 @@ namespace Signal.Core
         {
             _transactions.Clear();
             _transactionIds.Clear();
+            _orderIds.Clear();
         }
     }
 }
