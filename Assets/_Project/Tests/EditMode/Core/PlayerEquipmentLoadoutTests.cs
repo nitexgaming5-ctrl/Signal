@@ -165,6 +165,7 @@ namespace Signal.Core.Tests
             var storage = new PortableStorageBook();
             Guid backpackId = Guid.NewGuid();
             Assert.That(storage.TryRegister(backpackId, mainInventory), Is.True);
+            Assert.That(storage.TryRegister(Guid.NewGuid(), mainInventory), Is.False);
             Assert.That(storage.TryGetContents(backpackId, out GridInventory attached), Is.True);
             Assert.That(attached, Is.SameAs(mainInventory));
             Assert.That(attached.TryGetItemInstance(cargoId, out _), Is.True);
