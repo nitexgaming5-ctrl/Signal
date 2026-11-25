@@ -111,3 +111,26 @@ Do not serialize ScriptableObject, Sprite, Texture, Animator, GameObject or pref
 ## Planned weather data model (W-01; not implemented)
 
 W-01 is a separate future phase. Its likely Core state includes a shared weather snapshot (season, temperature/band, precipitation kind/intensity, wind, severity, pattern identity and transition timing), deterministic world weather progression, and player cold-exposure state. The Game layer supplies authored seasonal patterns and presentation. Weather must consume effective Heat Protection through a value/calculation interface; it must not inspect specific clothing item IDs. No hot-weather exposure model is planned.
+
+
+## Player Development — implemented first-slice model
+
+The following Core types now exist:
+- `PlayerAttributeSet`: base Armor and Heat Protection.
+- `EffectiveCharacterAttributes` and `CharacterAttributeCalculator`: pure calculation seam combining base values with supplied equipment modifiers; P-03 still owns the loadout.
+- `PlayerSkillBook`: stable skill ID/rank map.
+- `PlayerSkillProgression`: configurable starting points, rank cap, point cost, earned milestone points and unspent/allocated accounting.
+- `PlayerMilestoneLedger`: one-time stable milestone awards with source identity.
+- `PlayerDevelopmentState`: aggregate of attributes, skills, milestones and progression.
+- `PlayerDevelopmentSaveMapper`: persists primitive values and stable IDs; no Unity object references.
+
+The current authored Game catalog is a prototype: 8 starting points, maximum rank 5 and one point per rank. The five entries (Repair, Production, Trading, Scavenging, Social) are marked provisional. These values and entries are content data, not final balance. Activity-specific effects are not yet connected; each skill's actual effect contract remains to be defined.
+
+## Player appearance — implemented first-slice presentation
+
+- `PlayerCharacterVisual` composes five SpriteRenderer layers (Legs, Arm_L, Chest, Arm_R, Head) from the Body_A sheets.
+- Current runtime animation set: Idle and Walk, with Down/Side/Top directional sheets, shared frame selection and side mirroring.
+- `CharacterPackImporter` imports the user-supplied ZIP to Resources; the resource archive itself is not committed.
+- RoomBootstrap retains Rigidbody2D/PlayerMotor2D and falls back to the existing teal placeholder if required sheets are not imported.
+
+P-03 still owns actual clothing/armor item slots, physical item identity/custody, equipment modifiers and wearable appearance. The supplied pack has one modular base body and is not a complete wardrobe.
