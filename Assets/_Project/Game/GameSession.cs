@@ -538,9 +538,14 @@ namespace Signal.Game
             if (repairTargetItem == null || basicPatchKitItem == null || reinforcedPatchKitItem == null)
                 return "Repair content is not configured. No items were consumed.";
 
-            RepairResult result = RepairService.TryRepair(targetInstanceId, kitInstanceId,
+            EconomicActorId targetOwner = EconomicActorId.Player;
+            if (_customerRepairOrders != null && firstCustomerRepairOrder != null &&
+                _customerRepairOrders.TryGetState(firstCustomerRepairOrder.Id, out CustomerRepairOrderState order) &&
+                order.Phase == CustomerRepairOrderPhase.Active && order.ItemInstanceId == targetInstanceId)
+                targetOwner = order.Issuer;
+            RepairResult result = RepairService.TryRepairForOwner(targetInstanceId, kitInstanceId,
                 repairTargetItem.ToItemType(), basicPatchKitItem.ToItemType(), reinforcedPatchKitItem.ToItemType(),
-                _inventory, EconomicActorId.Player, _economicContainers, _assetOwnership,
+                _inventory, EconomicActorId.Player, targetOwner, _economicContainers, _assetOwnership,
                 _itemKnowledge, _clock.Day, _clock.MinuteOfDay);
 
             if (result.Success)
