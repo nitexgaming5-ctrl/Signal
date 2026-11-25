@@ -44,7 +44,7 @@ This is a generic service foundation using Milo only as the current framework/te
 
 ## Focused EditMode coverage added
 
-Nine tests cover:
+Ten tests cover:
 - ownership remains with Milo during acceptance and repair;
 - exact item return, issuer debit, player credit and one payment transaction;
 - replay rejection;
@@ -55,7 +55,7 @@ Nine tests cover:
 - active order/entrusted ownership save-load;
 - completed service payment and returned item save-load.
 
-Expected suite count is 454 if the previous 445-test baseline is unchanged. This is a forecast only; the user must run Unity Test Runner before the result is called verified.
+Expected suite count is 455 if the previous 445-test baseline is unchanged. This is a forecast only; the user must run Unity Test Runner before the result is called verified.
 
 ## Play Mode acceptance
 
