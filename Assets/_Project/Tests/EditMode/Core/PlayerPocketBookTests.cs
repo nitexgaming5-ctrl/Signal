@@ -28,6 +28,7 @@ namespace Signal.Core.Tests
             Assert.That(pockets.TryFindAvailablePocket(Item(), out int index, out _), Is.True);
             Assert.That(index, Is.EqualTo(0));
             Assert.That(pockets.TryFindAvailablePocket(Item(2, 1), out _, out _), Is.False);
+            Assert.That(pockets.TryFindAvailablePocket(Item(), out _, out _, true), Is.False);
         }
 
         [Test]
