@@ -296,6 +296,21 @@ namespace Signal.Core
     }
 
     [Serializable]
+    public sealed class SavedEquippedItem
+    {
+        public string instanceId;
+        public string typeId;
+        public int slot;
+        public int armorModifier;
+        public int heatProtectionModifier;
+        public int quality;
+        public int condition;
+        public int authenticity;
+        public int ownership;
+        public bool portableBackpack;
+    }
+
+    [Serializable]
     public sealed class SavedPlayerSkillRank
     {
         public string skillId;
@@ -359,6 +374,7 @@ namespace Signal.Core
         public int playerStartingSkillPoints;
         public List<SavedPlayerSkillRank> playerSkillRanks = new List<SavedPlayerSkillRank>();
         public List<SavedPlayerMilestoneAward> playerMilestoneAwards = new List<SavedPlayerMilestoneAward>();
+        public List<SavedEquippedItem> equippedItems = new List<SavedEquippedItem>();
     }
 
     public sealed class LoadReport
