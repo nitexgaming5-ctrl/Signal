@@ -7,7 +7,7 @@ Last reconciled: **2026-11-26**. This is the short status board. Session history
 - Unity **6000.6.9f1**, 2D URP. Active architecture: `Signal.Core` (plain C#) + `Signal.Game` (Unity integration). Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
 - Working branch: `chore/collaboration-workflow-and-audit`. Keep `main` untouched.
 - Application version: **0.01**. Save snapshots are deliberately unversioned; there is no schema-version field, version gate or automatic migration chain. Older experimental saves may be incompatible after data-shape changes.
-- Latest user-reported full EditMode result: **486/486 passed (2026-11-25)** after P-03.4a. P-03.4b adds eight Core tests; expected total is **494**, pending Unity compilation and test execution. B-05/B-06 and the backpack drop/recovery/fresh-start UI are user-verified.
+- Latest user-reported full EditMode result: **500/500 passed (2026-11-26)** after direct pocket-to-pocket move/swap support. P-03.5 has since added two focused EditMode tests and changed Retail, Dirty Cash, storage, search and workbench inventory routing; these new source changes are not yet Unity-verified. B-05/B-06 and the earlier backpack lifecycle are user-verified.
 - The user reports the First Workshop and B-04 repair/trading loop working in Play Mode. B-06 uses a separate Worn jacket seeded in Milo's inventory for the entrusted-service test.
 
 ## Completed livelihood foundations — B-01 to B-06
