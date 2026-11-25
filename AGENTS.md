@@ -121,3 +121,12 @@ NEXT:
 ```
 
 The report must distinguish what was committed, what was tested, what the user verified and what remains to be checked.
+
+
+## Current implementation verification boundary — 2026-11-25
+
+The user-confirmed baseline remains **456/456 EditMode tests** before the current P-01/P-02 implementation slice. Eleven focused Player Development tests have since been added (expected suite total **467**), but the user has not yet run Unity compilation, the full suite or Play Mode for this slice. Never describe 467/467 as passing until the user confirms it.
+
+P-01 includes a modular Body_A character renderer and an Editor ZIP importer. The original supplied ZIP is not in the repository: in Unity, run **Signal → Import World Build Character Pack...** and select the user's supplied World Build Character Pack ZIP. The renderer keeps the teal placeholder fallback until those Resources sheets are present.
+
+P-02 includes Armor/Heat Protection Core attributes, skill ranks, point progression, milestone idempotency, free respecialization, SaveData mapping, a provisional catalog and an F2 debug panel. Current catalog values (8 starting points, rank cap 5, one point/rank) and the five candidate skills are provisional. Skill-specific activity effects are not wired until their gameplay effects are defined. B-07 remains Neighbourhood Expansion; W-01 remains a separate future phase.
