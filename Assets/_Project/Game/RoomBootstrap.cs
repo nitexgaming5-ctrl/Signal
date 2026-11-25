@@ -151,10 +151,6 @@ namespace Signal.Game
             playerObject.transform.position = new Vector3(roomWidth / 2f, roomHeight / 2f, 0f);
             playerObject.transform.localScale = new Vector3(0.75f, 0.9f, 1f);
 
-            var sprite = playerObject.AddComponent<SpriteRenderer>();
-            sprite.sprite = PixelSprites.Solid(new Color32(0x3E, 0xC9, 0xB9, 0xFF));
-            sprite.sortingOrder = 10;
-
             var body = playerObject.AddComponent<Rigidbody2D>();
             body.bodyType = RigidbodyType2D.Dynamic;
             body.gravityScale = 0f;
@@ -164,6 +160,16 @@ namespace Signal.Game
 
             playerObject.AddComponent<BoxCollider2D>();
             playerObject.AddComponent<PlayerMotor2D>();
+
+            PlayerCharacterVisual characterVisual = playerObject.AddComponent<PlayerCharacterVisual>();
+            if (!characterVisual.IsReady)
+            {
+                var fallback = new GameObject("CharacterPackMissing");
+                fallback.transform.SetParent(playerObject.transform, false);
+                var fallbackRenderer = fallback.AddComponent<SpriteRenderer>();
+                fallbackRenderer.sprite = PixelSprites.Solid(new Color32(0x3E, 0xC9, 0xB9, 0xFF));
+                fallbackRenderer.sortingOrder = 10;
+            }
 
             Player = playerObject.transform;
             PlayerBody = body;
