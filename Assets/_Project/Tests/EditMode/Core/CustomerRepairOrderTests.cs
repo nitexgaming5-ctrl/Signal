@@ -107,6 +107,8 @@ namespace Signal.Core.Tests
             Assert.That(fixture.CustomerAccount.Balance, Is.EqualTo(65));
             Assert.That(fixture.PlayerAccount.Balance, Is.EqualTo(45));
             Assert.That(fixture.Payments.Count, Is.EqualTo(1));
+            Assert.That(fixture.AssetTransactions.Count, Is.Zero,
+                "A CARD service payment is not an ownership-changing asset transfer.");
             ServicePaymentTransaction transaction = fixture.Payments.Transactions[0];
             Assert.That(transaction.ItemInstanceId, Is.EqualTo(fixture.JacketId));
             Assert.That(transaction.OrderId, Is.EqualTo(fixture.OrderId));
