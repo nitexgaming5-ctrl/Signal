@@ -137,3 +137,15 @@ When documents disagree, use the newest explicit decision and current implementa
 - `tasks/PLAYER-P-01-CHARACTER-FOUNDATION-APPEARANCE.md` — replace the existing player's placeholder visual with a modular animated appearance system; preserve movement and save appearance IDs.
 - `tasks/PLAYER-P-02-ATTRIBUTES-SKILLS.md` — exactly Armor and Heat Protection; fixed freely allocated starting skill points; milestone awards; free redistribution.
 - `tasks/WEATHER-W-01-DYNAMIC-WEATHER-COLD-EXPOSURE-DESIGN.md` — separate future weather phase. Heat Protection keeps its name and applies to cold exposure only.
+
+
+## Player Development implementation files
+
+- `Assets/_Project/Core/PlayerDevelopment.cs` — attributes, skill ranks, point progression, milestone ledger and save mapping.
+- `Assets/_Project/Game/PlayerDevelopmentCatalog.cs` and `Assets/_Project/Resources/PlayerDevelopment/DefaultPlayerDevelopmentCatalog.asset` — editable provisional skill definitions and prototype progression tuning.
+- `Assets/_Project/Game/PlayerDevelopmentPanel.cs` — F2 debug allocation UI.
+- `Assets/_Project/Game/PlayerCharacterVisual.cs` — modular Body_A player renderer.
+- `Assets/_Project/Editor/CharacterPackImporter.cs` — imports the supplied ZIP through the Unity Editor menu.
+- `Assets/_Project/Tests/EditMode/Core/PlayerDevelopmentTests.cs` — eleven focused tests.
+
+**Verification:** last user-confirmed full suite was 456/456 before this slice; expected total now 467. Unity verification is pending. See `docs/PROGRESS.md` for the exact import and test checklist.
