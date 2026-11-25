@@ -87,6 +87,7 @@ namespace Signal.Game
         private PlayerMotor2D _motor;
         private InventoryPanel _panel;
         private ItemViewerPanel _itemViewer;
+        private DebugItemSpawnerPanel _debugItemSpawnerPanel;
         private StoragePanel _storagePanel;
         private HudPanel _hud;
         private RetailPanel _retailPanel;
@@ -197,6 +198,8 @@ namespace Signal.Game
             _itemViewer.Bind(_allItemDefinitions, _itemKnowledge);
             _panel = gameObject.AddComponent<InventoryPanel>();
             _panel.Bind(_inventory, _allItemDefinitions, _itemViewer.Open);
+            _debugItemSpawnerPanel = gameObject.AddComponent<DebugItemSpawnerPanel>();
+            _debugItemSpawnerPanel.Bind(_allItemDefinitions, SpawnDebugItem);
             _containerPanel = gameObject.AddComponent<SearchableContainerPanel>();
             _containerPanel.Bind(_allItemDefinitions, TakeSearchableItem, TakeSearchableItemAt, _itemViewer.Open);
             _storagePanel = gameObject.AddComponent<StoragePanel>();
@@ -563,7 +566,11 @@ namespace Signal.Game
 
             Keyboard keyboard = Keyboard.current;
             if (keyboard != null && keyboard.f1Key.wasPressedThisFrame)
+            {
                 _debugMenuOpen = !_debugMenuOpen;
+                if (!_debugMenuOpen && _debugItemSpawnerPanel != null)
+                    _debugItemSpawnerPanel.SetOpen(false);
+            }
 
             bool workspaceOpen = _workspace != null && _workspace.IsOpen;
             bool inventoryOpen = _panel != null && _panel.IsOpen;
@@ -575,6 +582,7 @@ namespace Signal.Game
             bool contractOpen = _customerContractPanel != null && _customerContractPanel.IsOpen;
             bool upgradeOpen = _workshopUpgradePanel != null && _workshopUpgradePanel.IsOpen;
             bool agendaOpen = _npcAgendaPanel != null && _npcAgendaPanel.IsOpen;
+            bool itemSpawnerOpen = _debugItemSpawnerPanel != null && _debugItemSpawnerPanel.IsOpen;
             if (_panel != null)
                 _panel.enabled = !_debugMenuOpen && !workspaceOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen;
             if (_storagePanel != null)
@@ -613,7 +621,7 @@ namespace Signal.Game
 
             bool scenarioChoiceOpen = _miloScenario != null && _miloScenario.HasPendingChoice;
             _motor.enabled = !inventoryOpen && !workspaceOpen && !storageOpen && !itemViewerOpen &&
-                !scenarioChoiceOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen && !_debugMenuOpen;
+                !scenarioChoiceOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !upgradeOpen && !agendaOpen && !itemSpawnerOpen && !_debugMenuOpen;
 
             Vector2 playerPosition = _room.Player.position;
             bool nearWorkbench = _room.Workbench != null &&
@@ -868,6 +876,11 @@ namespace Signal.Game
             GUILayout.Label("Retail transactions: " + (_retailTransactions != null ? _retailTransactions.Count.ToString() : "0"));
             GUILayout.Label("Shop sale transactions: " + (_shopSaleTransactions != null ? _shopSaleTransactions.Count.ToString() : "0"));
             GUILayout.Space(8f);
+            GUILayout.Label("ITEM TESTING");
+            if (GUILayout.Button("Open item spawner (" + _allItemDefinitions.Count + " catalogue items)"))
+                _debugItemSpawnerPanel.SetOpen(true);
+
+            GUILayout.Space(8f);
 
             if (GUILayout.Button(_city.DebugSimulationPaused ? "Resume all NPC schedules" : "Pause all NPC schedules"))
                 _city.DebugSetNpcSimulationPaused(!_city.DebugSimulationPaused);
@@ -919,6 +932,29 @@ namespace Signal.Game
             GUILayout.Space(8f);
             GUILayout.Label("F1 closes this menu. Debug controls do not represent player abilities.");
             GUILayout.EndArea();
+        }
+
+        private string SpawnDebugItem(ItemDefinition definition)
+        {
+            if (definition == null)
+                return "That item definition is unavailable.";
+
+            ItemType type;
+            try
+            {
+                type = definition.ToItemType();
+            }
+            catch (InvalidOperationException)
+            {
+                return "This item has no valid stable ID.";
+            }
+
+            int remaining = _inventory.Add(type, 1, definition.DefaultInstanceState);
+            if (remaining > 0)
+                return "Inventory full. No " + definition.DisplayName + " was added.";
+
+            RegisterUnownedPlayerAssets(_inventory);
+            return "Added " + definition.DisplayName + " to your inventory.";
         }
 
         private void DebugForceRheaHome()
