@@ -996,6 +996,16 @@ namespace Signal.Game
                 return;
             }
 
+            if (_droppedBackpackItem.HasValue)
+            {
+                if (keyboard.f5Key.wasPressedThisFrame) SaveGame();
+                if (keyboard.f9Key.wasPressedThisFrame) LoadGame();
+                if (keyboard.f6Key.wasPressedThisFrame) Sleep();
+                if (keyboard.eKey.wasPressedThisFrame || keyboard.fKey.wasPressedThisFrame)
+                    Say("Your backpack is on the ground. Recover it before using item-based interactions.", 3f);
+                return;
+            }
+
             if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
                 !dirtyCashOpen && !contractOpen && !repairOrderOpen && !upgradeOpen && !agendaOpen &&
                 nearRepairOrderCustomer && keyboard.fKey.wasPressedThisFrame)
