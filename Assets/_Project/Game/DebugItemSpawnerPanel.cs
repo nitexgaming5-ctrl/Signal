@@ -22,7 +22,6 @@ namespace Signal.Game
         private static readonly Color AccentColor = new Color32(0x3E, 0xE6, 0xD2, 0xFF);
 
         private readonly List<ItemDefinition> _definitions = new List<ItemDefinition>();
-        private readonly List<GameObject> _tiles = new List<GameObject>();
         private Func<ItemDefinition, string> _spawn;
         private Font _font;
         private bool _open;
@@ -181,7 +180,7 @@ namespace Signal.Game
             _content.sizeDelta = Vector2.zero;
 
             GridLayoutGroup grid = contentObject.GetComponent<GridLayoutGroup>();
-            grid.cellSize = new Vector2(184f, 112f);
+            grid.cellSize = new Vector2(180f, 112f);
             grid.spacing = new Vector2(12f, 12f);
             grid.padding = new RectOffset(12, 12, 12, 12);
             grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
