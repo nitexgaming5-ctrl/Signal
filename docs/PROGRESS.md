@@ -7,12 +7,12 @@ Last reconciled: **2026-11-25**. This is the short status board. Session history
 - Unity **6000.6.9f1**, 2D URP. Active architecture: `Signal.Core` (plain C#) + `Signal.Game` (Unity integration). Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
 - Working branch: `chore/collaboration-workflow-and-audit`. Keep `main` untouched.
 - Application version: **0.01**. Save snapshots are deliberately unversioned; there is no schema-version field, version gate or automatic migration chain. Older experimental saves may be incompatible after data-shape changes.
-- Latest user-reported full EditMode result: **445/445 passed (2026-11-25)**, including B-05 NPC→player directionality, generic agenda integration, contract outcomes and persistence. B-05 is now user-verified.
+- Latest user-reported full EditMode result: **456/456 passed (2026-11-25)**, including B-05 NPC→player directionality, generic agenda integration, contract outcomes and persistence. B-05 is now user-verified.
 - The user reports the First Workshop and B-04 repair/trading loop working in Play Mode. B-06 uses a separate Worn jacket seeded in Milo's inventory for the entrusted-service test.
 
-## Completed livelihood foundations — B-01 to B-05; active B-06 implementation
+## Completed livelihood foundations — B-01 to B-06
 
-The first workshop, customer contract, practical hideout upgrade, repair/restoration loop and generic NPC awareness/relationship foundation are implemented. B-05 is now verified at 445/445 EditMode tests. B-06 Customer Repair Orders is now approved and in its first implementation slice; Unity verification is pending.
+The first workshop, customer contract, practical hideout upgrade, repair/restoration loop, generic NPC awareness/relationship foundation and customer repair orders are implemented. The user confirmed **456/456 EditMode tests** and successful B-06 in-game testing on 2026-11-25.
 
 **Player outcome:** make physical goods at the hideout, fulfil one authored customer request for clean CARD, then purchase a practical upgrade that unlocks another recipe.
 
@@ -54,9 +54,9 @@ Specialist references: [Architecture](ARCHITECTURE.md), [Data Model](DATA_MODEL.
 
 **EditMode:** the user reports **445/445 passed** on current HEAD (2026-11-25). B-05's six new directionality/agenda tests are included in that result.
 
-**Play Mode:** the user reports the First Workshop and repair/trading features work well. B-06 entrusted jacket is seeded in Milo's inventory; B-06 Play Mode acceptance is pending.
+**Play Mode:** the user reports the First Workshop, repair/trading features and B-06 entrusted repair-order loop work correctly.
 
-**Next B-06 acceptance:** compile the current branch in Unity, run the full EditMode suite (eleven focused repair-order tests added; expected 456/456 from the previous 445 baseline), then exercise acceptance → workshop repair → exact-item return → customer debit/player credit → replay rejection and F5/F9 persistence. B-04 scavenging repair acceptance remains a separate existing loop.
+**Next design initiative:** Player Development. P-01 and P-02 task specifications are prepared; no implementation has been authorized. Keep B-07 Neighbourhood Expansion intact as a separate Direction B roadmap phase. W-01 Dynamic Weather & Cold Exposure is a separate future design phase.
 
 The guaranteed Work Jacket entry is explicitly temporary test scaffolding and should be removed or changed back to a low-weight normal entry once the repair loop is fully validated.
 
@@ -139,3 +139,15 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 - F5/F9 persists order phase, item location/owner, accounts and service-payment history.
 - Eleven focused EditMode tests added for ownership, repair, payment, replay, insufficient funds, player-account overflow, missing issuer account, receiver capacity and active/completed save/load. Expected suite count **456** from the prior 445 baseline; Unity compilation and execution are pending.
 - Task card: tasks/LIVELIHOOD-B-06-CUSTOMER-REPAIR-ORDERS.md.
+
+
+## Player Development and weather design preparation (2026-11-25)
+
+- The user chose to intercalate character/skills customization before returning to the B-07 roadmap. B-07 remains Neighbourhood Expansion; Player Development is a parallel track and does not renumber Direction B.
+- P-01 Character Foundation & Appearance and P-02 Attributes & Skills specifications have been created. The current player is dynamically created by `RoomBootstrap.CreatePlayer()` with a placeholder SpriteRenderer; `PlayerMotor2D` currently owns input/velocity and has no formal animation/facing contract; `GameSession` is the composition root.
+- Confirmed player design: customize the existing player; fixed starting skill-point budget freely distributed; additional points awarded for important milestones; points manually spent; free redistribution at any time.
+- Exactly two attributes are approved: Armor and Heat Protection. Heat Protection keeps its name and protects against cold-related exposure only. No hot-weather/overheating mechanics are planned.
+- Clothing and armor are intended to have visual and gameplay effects. Full authoritative equipment/loadout is reserved for P-03; P-01 prepares visual layer seams and P-02 prepares attribute modifier calculation.
+- Candidate skills Repair, Production, Trading, Scavenging and Social remain provisional; numeric starting budget, rank caps/costs and milestone rewards remain open.
+- W-01 Dynamic Weather & Cold Exposure is documented as a separate future phase: dynamic seasonal weather including temperature changes, rain, storms, snow and blizzards; gradual cold exposure; shelter and effective Heat Protection reduce exposure. No implementation is authorized.
+- No gameplay code, assets, scenes, packages or tests were changed in this documentation milestone.
