@@ -54,24 +54,41 @@ namespace Signal.Core
             EconomicContainerRegistry containers, AssetOwnershipBook ownership,
             ItemKnowledgeBook knowledge, int day, int minuteOfDay)
         {
+            return TryRepairForOwner(targetInstanceId, kitInstanceId, targetType, basicKitType,
+                reinforcedKitType, inventory, inventory, operatorActor, targetOwner, containers,
+                ownership, knowledge, day, minuteOfDay);
+        }
+
+        /// <summary>Repairs an item and consumes its kit even when they occupy different accessible carried grids.</summary>
+        public static RepairResult TryRepairForOwner(Guid targetInstanceId, Guid kitInstanceId,
+            ItemType targetType, ItemType basicKitType, ItemType reinforcedKitType,
+            GridInventory targetInventory, GridInventory kitInventory,
+            EconomicActorId operatorActor, EconomicActorId targetOwner,
+            EconomicContainerRegistry containers, AssetOwnershipBook ownership,
+            ItemKnowledgeBook knowledge, int day, int minuteOfDay)
+        {
             if (targetInstanceId == Guid.Empty || kitInstanceId == Guid.Empty || targetInstanceId == kitInstanceId ||
                 !IsValid(targetType) || !IsValid(basicKitType) || !IsValid(reinforcedKitType) ||
                 targetType.Id == basicKitType.Id || targetType.Id == reinforcedKitType.Id ||
                 basicKitType.Id == reinforcedKitType.Id || targetType.MaxStack != 1 ||
                 basicKitType.MaxStack != 1 || reinforcedKitType.MaxStack != 1 ||
-                inventory == null || operatorActor != EconomicActorId.Player || !targetOwner.IsValid || containers == null ||
+                targetInventory == null || kitInventory == null ||
+                operatorActor != EconomicActorId.Player || !targetOwner.IsValid || containers == null ||
                 ownership == null || knowledge == null || day < 1 || minuteOfDay < 0 || minuteOfDay >= 1440)
                 return new RepairResult(RepairStatus.InvalidRequest);
 
-            if (!containers.TryGetCustodian(inventory, out EconomicActorId custodian) || custodian != operatorActor)
+            if (!containers.TryGetCustodian(targetInventory, out EconomicActorId targetCustodian) ||
+                targetCustodian != operatorActor ||
+                !containers.TryGetCustodian(kitInventory, out EconomicActorId kitCustodian) ||
+                kitCustodian != operatorActor)
                 return new RepairResult(RepairStatus.ContainerNotOwned);
 
-            if (!inventory.TryGetItemInstance(targetInstanceId, out PlacedItem target))
+            if (!targetInventory.TryGetItemInstance(targetInstanceId, out PlacedItem target))
                 return new RepairResult(RepairStatus.TargetNotFound);
             if (target.Type != targetType || target.Count != 1 || target.Type.MaxStack != 1)
                 return new RepairResult(RepairStatus.UnsupportedTarget);
 
-            if (!inventory.TryGetItemInstance(kitInstanceId, out PlacedItem kit))
+            if (!kitInventory.TryGetItemInstance(kitInstanceId, out PlacedItem kit))
                 return new RepairResult(RepairStatus.KitNotFound);
             bool isBasicKit = kit.Type == basicKitType;
             bool isReinforcedKit = kit.Type == reinforcedKitType;
@@ -88,20 +105,24 @@ namespace Signal.Core
 
             ItemInstanceState repairedState = new ItemInstanceState(target.State.Quality, resultingCondition,
                 target.State.Authenticity, target.State.Ownership);
-            InventorySnapshot before = inventory.CreateSnapshot();
+            InventorySnapshot targetBefore = targetInventory.CreateSnapshot();
+            InventorySnapshot kitBefore = ReferenceEquals(targetInventory, kitInventory)
+                ? targetBefore : kitInventory.CreateSnapshot();
 
-            if (!inventory.TryRemoveItemInstance(kitInstanceId, 1))
+            if (!kitInventory.TryRemoveItemInstance(kitInstanceId, 1))
                 return new RepairResult(RepairStatus.InventoryConflict);
 
             if (!ownership.TryRemove(kitInstanceId, operatorActor))
             {
-                inventory.Restore(before);
+                targetInventory.Restore(targetBefore);
+                if (!ReferenceEquals(targetInventory, kitInventory)) kitInventory.Restore(kitBefore);
                 return new RepairResult(RepairStatus.OwnershipMismatch);
             }
 
-            if (!inventory.TryUpdateItemState(targetInstanceId, repairedState))
+            if (!targetInventory.TryUpdateItemState(targetInstanceId, repairedState))
             {
-                inventory.Restore(before);
+                targetInventory.Restore(targetBefore);
+                if (!ReferenceEquals(targetInventory, kitInventory)) kitInventory.Restore(kitBefore);
                 ownership.TryRegister(kitInstanceId, operatorActor);
                 return new RepairResult(RepairStatus.InventoryConflict);
             }
