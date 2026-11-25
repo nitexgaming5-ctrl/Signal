@@ -206,6 +206,54 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void CompletedServicePaymentTransactionSurvivesSaveLoad()
+        {
+            var fixture = new Fixture();
+            Assert.That(fixture.Accept().Success, Is.True);
+            Assert.That(fixture.Repair().Success, Is.True);
+            CustomerRepairOrderResult returned = fixture.Return();
+            Assert.That(returned.Success, Is.True);
+
+            SaveData data = SaveMapper.Capture(new PlayerStats(), fixture.PlayerInventory,
+                new GridInventory(8, 6), new GameClock(), new HeatMeter(), new RentLedger(50, 7),
+                "Hideout", 0f, 0f, assetOwnership: fixture.Ownership,
+                economicTransactions: fixture.Transactions,
+                contractReceiverInventory: fixture.CustomerInventory,
+                contractReceiverActorId: fixture.Customer.Value,
+                customerRepairOrders: fixture.Orders);
+
+            var loadedPlayerInventory = new GridInventory(8, 6);
+            var loadedCustomerInventory = new GridInventory(8, 6);
+            var loadedOwnership = new AssetOwnershipBook();
+            var loadedTransactions = new EconomicTransactionLedger();
+            var loadedOrders = new CustomerRepairOrderBook();
+            Assert.That(loadedOrders.TryRegisterOffer(fixture.OrderId, fixture.Customer, fixture.Jacket.Id, 35), Is.True);
+            var known = new System.Collections.Generic.Dictionary<Guid, ItemType>
+            {
+                [fixture.Jacket.Id] = fixture.Jacket,
+                [fixture.ReinforcedKit.Id] = fixture.ReinforcedKit
+            };
+            LoadReport report = SaveMapper.Apply(data, new PlayerStats(), loadedPlayerInventory,
+                new GridInventory(8, 6), new GameClock(), new HeatMeter(), new RentLedger(50, 7),
+                id => known.TryGetValue(id, out ItemType type) ? type : (ItemType?)null,
+                assetOwnership: loadedOwnership, economicTransactions: loadedTransactions,
+                contractReceiverInventory: loadedCustomerInventory, customerRepairOrders: loadedOrders);
+
+            Assert.That(report.Success, Is.True);
+            Assert.That(report.SkippedCustomerRepairOrders, Is.Zero);
+            Assert.That(report.SkippedEconomicTransactions, Is.Zero);
+            Assert.That(loadedOrders.TryGetState(fixture.OrderId, out CustomerRepairOrderState restored), Is.True);
+            Assert.That(restored.Phase, Is.EqualTo(CustomerRepairOrderPhase.Completed));
+            Assert.That(restored.PaymentTransactionId, Is.EqualTo(returned.Transaction.TransactionId));
+            Assert.That(loadedTransactions.Count, Is.EqualTo(1));
+            Assert.That(loadedTransactions.Transactions[0].Reason, Is.EqualTo(AssetTransferReason.ServicePayment));
+            Assert.That(loadedTransactions.Transactions[0].TransactionId, Is.EqualTo(restored.PaymentTransactionId));
+            Assert.That(loadedCustomerInventory.TryGetItemInstance(fixture.JacketId, out _), Is.True);
+            Assert.That(loadedOwnership.TryGetOwner(fixture.JacketId, out EconomicActorId owner), Is.True);
+            Assert.That(owner, Is.EqualTo(fixture.Customer));
+        }
+
+        [Test]
         public void ActiveEntrustedOrderAndOriginalOwnershipSurviveSaveLoad()
         {
             var fixture = new Fixture();
