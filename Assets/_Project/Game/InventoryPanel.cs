@@ -52,6 +52,13 @@ namespace Signal.Game
         private Action<PlacedItem> _inspectItem;
         private Func<PlacedItem, bool> _equipItem;
         private Func<EquipmentSlot, bool> _unequipItem;
+        private PlayerEquipmentLoadout _equipment;
+        private Func<bool> _dropBackpack;
+        private Func<bool> _canAccessGrid;
+        private readonly List<Text> _equipmentLabels = new List<Text>();
+        private Button _dropButton;
+        private Text _emptyState;
+        private RectTransform _characterRoot;
         private Font _font;
         private bool _built;
         private bool _open;
@@ -75,7 +82,8 @@ namespace Signal.Game
         public bool IsOpen => _open;
 
         public void Bind(GridInventory inventory, IReadOnlyList<ItemDefinition> definitions, Action<PlacedItem> inspectItem = null,
-            Func<PlacedItem, bool> equipItem = null, Func<EquipmentSlot, bool> unequipItem = null)
+            Func<PlacedItem, bool> equipItem = null, Func<EquipmentSlot, bool> unequipItem = null,
+            PlayerEquipmentLoadout equipment = null, Func<bool> dropBackpack = null, Func<bool> canAccessGrid = null)
         {
             if (inventory == null)
                 throw new ArgumentNullException(nameof(inventory));
@@ -89,6 +97,9 @@ namespace Signal.Game
             _inspectItem = inspectItem;
             _equipItem = equipItem;
             _unequipItem = unequipItem;
+            _equipment = equipment;
+            _dropBackpack = dropBackpack;
+            _canAccessGrid = canAccessGrid;
             _inventory.Changed += OnInventoryChanged;
 
             _visuals.Clear();
@@ -348,8 +359,13 @@ namespace Signal.Game
 
             ClearChildren(_itemsRoot);
 
-            foreach (PlacedItem item in _inventory.Items)
-                CreateItemView(item);
+            bool canAccess = _canAccessGrid == null || _canAccessGrid();
+            if (_gridRect != null) _gridRect.gameObject.SetActive(canAccess);
+            if (_emptyState != null) _emptyState.gameObject.SetActive(!canAccess);
+            if (canAccess)
+                foreach (PlacedItem item in _inventory.Items)
+                    CreateItemView(item);
+            RefreshCharacterPanel();
         }
 
         private void CreateItemView(PlacedItem item)
@@ -427,7 +443,9 @@ namespace Signal.Game
             _title = NewText("Title", _root, "INVENTORY   [E] equip   [1-7] unequip slot   [LMB] move   [RMB] inspect   [R] rotate", 16,
                              TextAnchor.MiddleLeft, TitleColor);
 
+            _characterRoot = NewRect("CharacterPanel", _root);
             _gridRect = NewRect("Grid", _root);
+            _emptyState = NewText("NoBackpack", _root, "BACKPACK STORAGE IS INACCESSIBLE\\nPick up your backpack to access its contents.", 18, TextAnchor.MiddleCenter, TitleColor);
             _cellsRoot = NewRect("Cells", _gridRect);
             Stretch(_cellsRoot);
             _itemsRoot = NewRect("Items", _gridRect);
@@ -441,6 +459,7 @@ namespace Signal.Game
             Stretch(_ghostLabel.rectTransform);
             _ghost.gameObject.SetActive(false);
 
+            BuildCharacterPanel();
             _built = true;
         }
 
@@ -451,9 +470,13 @@ namespace Signal.Game
             float gridWidth = _inventory.Width * cellSize;
             float gridHeight = _inventory.Height * cellSize;
 
-            _root.sizeDelta = new Vector2(gridWidth + Padding * 2f, gridHeight + Padding * 2f + TitleHeight);
-            SetTopLeft(_title.rectTransform, Padding, Padding * 0.5f, gridWidth, TitleHeight);
-            SetTopLeft(_gridRect, Padding, Padding + TitleHeight, gridWidth, gridHeight);
+            const float characterWidth = 220f;
+            float contentWidth = characterWidth + 24f + gridWidth;
+            _root.sizeDelta = new Vector2(contentWidth + Padding * 2f, Mathf.Max(gridHeight, 430f) + Padding * 2f + TitleHeight);
+            SetTopLeft(_title.rectTransform, Padding, Padding * 0.5f, contentWidth, TitleHeight);
+            SetTopLeft(_characterRoot, Padding, Padding + TitleHeight, characterWidth, Mathf.Max(gridHeight, 430f));
+            SetTopLeft(_gridRect, Padding + characterWidth + 24f, Padding + TitleHeight, gridWidth, gridHeight);
+            SetTopLeft(_emptyState.rectTransform, Padding + characterWidth + 24f, Padding + TitleHeight, gridWidth, gridHeight);
 
             for (int y = 0; y < _inventory.Height; y++)
             {
@@ -463,6 +486,70 @@ namespace Signal.Game
                     SetTopLeft(cell.rectTransform, x * cellSize + 1f, y * cellSize + 1f, cellSize - 2f, cellSize - 2f);
                 }
             }
+        }
+
+        private void BuildCharacterPanel()
+        {
+            Image background = NewImage("CharacterBackground", _characterRoot, new Color32(0x18, 0x1D, 0x25, 0xFF));
+            Stretch(background.rectTransform);
+            NewText("CharacterTitle", _characterRoot, "CHARACTER", 16, TextAnchor.MiddleLeft, TitleColor)
+                .rectTransform.anchoredPosition = new Vector2(10f, -8f);
+            Text equipmentTitle = NewText("EquipmentTitle", _characterRoot, "EQUIPMENT", 12, TextAnchor.MiddleLeft, FallbackColor);
+            SetTopLeft(equipmentTitle.rectTransform, 10f, 38f, 190f, 20f);
+            EquipmentSlot[] slots = { EquipmentSlot.Head, EquipmentSlot.Torso, EquipmentSlot.Legs,
+                EquipmentSlot.Feet, EquipmentSlot.Accessory1, EquipmentSlot.Accessory2, EquipmentSlot.Accessory3 };
+            for (int i = 0; i < slots.Length; i++)
+            {
+                Text label = NewText("Slot_" + slots[i], _characterRoot, slots[i] + ": —", 13,
+                    TextAnchor.MiddleLeft, TitleColor);
+                SetTopLeft(label.rectTransform, 12f, 62f + i * 25f, 196f, 22f);
+                _equipmentLabels.Add(label);
+            }
+
+            Text pocketsTitle = NewText("PocketsTitle", _characterRoot, "PERSONAL POCKETS", 12,
+                TextAnchor.MiddleLeft, FallbackColor);
+            SetTopLeft(pocketsTitle.rectTransform, 10f, 252f, 196f, 20f);
+            for (int i = 0; i < 3; i++)
+            {
+                Image pocket = NewImage("Pocket_" + (i + 1), _characterRoot, CellColor);
+                SetTopLeft(pocket.rectTransform, 10f + i * 66f, 278f, 60f, 54f);
+                Text pocketLabel = NewText("PocketLabel", pocket.transform, "P" + (i + 1), 12,
+                    TextAnchor.MiddleCenter, FallbackColor);
+                Stretch(pocketLabel.rectTransform);
+            }
+
+            GameObject buttonObject = new GameObject("DropBackpackButton", typeof(RectTransform), typeof(Image), typeof(Button));
+            buttonObject.transform.SetParent(_characterRoot, false);
+            Image buttonImage = buttonObject.GetComponent<Image>();
+            buttonImage.color = new Color32(0x8B, 0x4A, 0x2B, 0xFF);
+            _dropButton = buttonObject.GetComponent<Button>();
+            _dropButton.targetGraphic = buttonImage;
+            _dropButton.onClick.AddListener(() => _dropBackpack?.Invoke());
+            SetTopLeft(buttonObject.GetComponent<RectTransform>(), 10f, 356f, 196f, 42f);
+            Text buttonLabel = NewText("ButtonLabel", buttonObject.transform, "DROP BACKPACK  [B]", 13,
+                TextAnchor.MiddleCenter, Color.white);
+            Stretch(buttonLabel.rectTransform);
+        }
+
+        private void RefreshCharacterPanel()
+        {
+            if (_equipment == null || _equipmentLabels.Count == 0) return;
+            EquipmentSlot[] slots = { EquipmentSlot.Head, EquipmentSlot.Torso, EquipmentSlot.Legs,
+                EquipmentSlot.Feet, EquipmentSlot.Accessory1, EquipmentSlot.Accessory2, EquipmentSlot.Accessory3 };
+            for (int i = 0; i < slots.Length; i++)
+            {
+                string value = "—";
+                if (_equipment.TryGet(slots[i], out EquippedItem equipped))
+                {
+                    ItemVisual visual = VisualFor(equipped.Item.Type);
+                    value = string.IsNullOrWhiteSpace(visual.Label) ? "Equipped" : visual.Label;
+                }
+                _equipmentLabels[i].text = slots[i] + ": " + value;
+            }
+            bool hasBackpack = _equipment.TryGet(EquipmentSlot.Accessory1, out EquippedItem accessory) &&
+                _visuals.TryGetValue(accessory.Item.Type.Id, out ItemVisual visualForAccessory) &&
+                string.Equals(visualForAccessory.Label, "Canvas Backpack", StringComparison.OrdinalIgnoreCase);
+            if (_dropButton != null) _dropButton.interactable = hasBackpack;
         }
 
         private static void ClearChildren(RectTransform parent)
