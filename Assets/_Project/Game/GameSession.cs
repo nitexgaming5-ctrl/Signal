@@ -2606,9 +2606,8 @@ namespace Signal.Game
             string displayName = _residentPropertyDefinitions.TryGetValue(containerId,
                 out ResidentPropertyContainerDefinition propertyDefinition)
                 ? propertyDefinition.DisplayName : null;
-            GridInventory visibleCarryInventory = _equippedBackpackInstanceId.HasValue && !_droppedBackpackItem.HasValue
-                ? _inventory : _emptyCarryInventory;
-            _containerPanel.Open(container, visibleCarryInventory, displayName);
+            _containerPanel.Open(container, _inventory, GetPocketInventories(),
+                IsBackpackAccessible(), displayName);
         }
 
         private SearchableContainer FindSearchableContainer(string containerId)
