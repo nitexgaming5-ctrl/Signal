@@ -1,6 +1,6 @@
 # P-03 — Equipment, Wearables & Portable Backpack
 
-**Status (2026-11-26):** User confirmed **500/500 EditMode tests passing** after direct pocket-to-pocket moves/swaps. Backpack drop/recovery, three persistent pockets, hidden-pocket visibility contract, pocket/backpack transfers and pocket swaps are implemented. P-03 remains active: pocket-aware service-panel coverage, wearable visuals, and full Play Mode acceptance are outstanding.
+**Status (2026-11-26):** User confirmed **500/500 EditMode tests passing** after direct pocket-to-pocket moves/swaps. Backpack drop/recovery, three persistent pockets, hidden-pocket visibility contract, pocket/backpack transfers and pocket swaps are implemented. P-03.5 implementation is now underway: Retail SELL enumerates accessible backpack and pocket inventories; Dirty Cash fence/cleaning selection displays and resolves pocket-held stacks; home storage lists every accessible carried inventory and routes locker withdrawals through carry-capacity selection. These source changes are committed but still require Unity compilation, EditMode execution and Play Mode acceptance. P-03 remains active: workbench/production integration, wearable visuals, debug-loadout cleanup and full Play Mode acceptance are outstanding.
 **Track:** Player Development
 **Dependency:** P-01 modular player visual and P-02 Armor/Heat Protection modifier contract.
 
@@ -294,3 +294,12 @@ Implement three actual 1×1 personal pocket slots, separate from the backpack's 
 4. **End-to-end Play Mode acceptance:** run the complete backpack lifecycle, pockets, save/load, customer/retail/Dirty Cash/workbench/storage interactions, and wearable equip/unequip scenarios in the active HideoutSlice scene. Record only user-reported Unity results.
 
 Recommended next implementation slice: **P-03.5 — pocket-aware service-panel integration**, beginning with a focused audit of Retail SELL and Dirty Cash selection. This is the next dependency before visual polish because items must be usable consistently regardless of which carried container holds them.
+
+
+### P-03.5 implementation checkpoint — service panels and hideout storage (2026-11-26)
+
+- Retail SELL now enumerates all accessible carried grids (equipped backpack plus P1/P2/P3), resolves sale by stable item ID through GameSession's source-inventory lookup, and refreshes when any carried grid changes.
+- Dirty Cash fence/cleaning panel now displays the 8×6 backpack grid only while the backpack is accessible, always displays the three personal pockets separately, and resolves selected stack IDs across those source inventories. The existing exchange/cleaning transaction services still receive the actual source grid from GameSession; no dropped-backpack cargo is enumerated.
+- Home Storage now lists items from every accessible carried grid. STORE transfers from the exact source grid; TAKE chooses a destination through GameSession's carry-capacity helper, so a pocket can receive an item when the backpack is absent/full (subject to the existing item-footprint rules).
+- These changes preserve existing transaction services and stable item identity. They are source-level implementation only: Unity compile, EditMode tests and Play Mode scenarios have not yet been run by the user.
+- Next: extend the same source-inventory model to workbench repair and production inputs/outputs, then audit other direct inventory assumptions.
