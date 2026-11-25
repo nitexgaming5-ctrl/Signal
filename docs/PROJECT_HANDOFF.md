@@ -148,3 +148,7 @@ Committed but not yet Unity-verified:
 - Dragging a backpack item onto a pocket now targets that exact pocket. The automatic first-free-pocket shortcut was removed. Dragging a pocket item onto the backpack grid moves it to the exact target cell.
 - Pocket item icons are rendered from ItemDefinition.Icon when present, with a name fallback when absent.
 - New Core coverage added for hidden-pocket visibility. Current expected EditMode count is 497 (two exact-transfer tests plus one hidden-pocket test beyond the prior 494 baseline); pending Unity compile and execution. No pass is claimed yet.
+
+## Latest test correction (2026-11-26)
+
+- `MovesPocketItemToExactBackpackDropCell` failed because its test fixture attempted to place a 2×1 item into a 1×1 pocket. The fixture now uses a valid 1×1 item and still checks exact backpack coordinates. Production validation is unchanged. Pull commit `9a1244c` and rerun EditMode tests; do not claim a pass until Unity confirms it.
