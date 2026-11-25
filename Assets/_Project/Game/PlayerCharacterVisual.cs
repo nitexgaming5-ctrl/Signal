@@ -42,7 +42,7 @@ namespace Signal.Game
                 ApplyPose(false);
                 var backpack = new GameObject("Visual_Backpack");
                 backpack.transform.SetParent(transform, false);
-                backpack.transform.localScale = Vector3.one * VisualScale;
+                backpack.transform.localScale = new Vector3(0.42f, 0.62f, 1f);
                 backpack.transform.localPosition = new Vector3(0f, 0.18f, 0.05f);
                 _backpackRenderer = backpack.AddComponent<SpriteRenderer>();
                 _backpackRenderer.sprite = PixelSprites.Solid(new Color32(0x8B, 0x5E, 0x3C, 0xFF));
