@@ -306,3 +306,12 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 - Added an atomic Core single-stack swap primitive and PlayerPocketBook.TryMoveBetweenPockets. Stable item IDs, quantities, item state and ownership are preserved; both pocket grids are updated before change notifications fire.
 - Added three EditMode tests covering move-to-empty, occupied-pocket swap preservation, and invalid-move non-mutation. User's latest confirmed baseline is 494/494; expected current total is 500, pending Unity execution.
 - No Unity compile, EditMode or Play Mode result is claimed by this implementation pass.
+
+
+## P-03 checkpoint — 500/500 EditMode tests confirmed (2026-11-26)
+
+- User confirmed the full Unity EditMode suite passes **500/500** after direct pocket-to-pocket move/swap support.
+- Pocket items can be dragged directly to another pocket. Empty destinations receive the stack; occupied destinations swap stacks. Stable item IDs, counts, condition, quality, authenticity and ownership state are preserved.
+- Pocket dragging remains available without a backpack and while the backpack is dropped. P1/P2 ordinary-search visibility and P3 hidden-pocket exclusion remain unchanged.
+- **Next:** P-03.5 pocket-aware service-panel integration. Audit and support pocket-held items in Retail SELL and Dirty Cash selection first, then home storage and workbench/production inputs and outputs. Preserve atomic transactions and never expose dropped-backpack cargo.
+- Remaining P-03 work also includes wearable overlays constrained by the supplied Body_A art, removal of temporary fresh-session debug loadout seeding, and full Play Mode acceptance. The 500/500 result verifies EditMode tests only; no unreported Play Mode scenario is marked passed.
