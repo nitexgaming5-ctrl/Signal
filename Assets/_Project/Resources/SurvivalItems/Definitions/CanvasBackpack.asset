@@ -16,8 +16,8 @@ MonoBehaviour:
   description: A practical canvas backpack. Its contents stay with the bag when it is dropped.
   category: Equipment
   baseValue: 45
-  defaultQuality: 1
-  defaultCondition: 1
+  defaultQuality: 0
+  defaultCondition: 0
   defaultAuthenticity: 0
   defaultOwnership: 0
   id: a3d4e5f6-0718-4b2c-9d0e-1f2a3b4c5d61
