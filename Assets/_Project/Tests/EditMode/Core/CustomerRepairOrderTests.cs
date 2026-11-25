@@ -23,19 +23,19 @@ namespace Signal.Core.Tests
             public readonly ItemKnowledgeBook Knowledge = new ItemKnowledgeBook();
             public readonly Guid OrderId = Guid.NewGuid();
             public readonly Guid JacketId;
-            public readonly Guid ReinforcedKitId;
+            public readonly Guid BasicKitId;
 
             public Fixture()
             {
-                var jacketState = new ItemInstanceState(ItemQuality.Fine, ItemCondition.Damaged,
+                var jacketState = new ItemInstanceState(ItemQuality.Fine, ItemCondition.Worn,
                     ItemAuthenticity.Genuine, ItemOwnershipStatus.Legitimate);
                 CustomerInventory.Place(Jacket, 0, 0, state: jacketState);
                 JacketId = CustomerInventory.Items[0].ItemInstanceId;
                 Ownership.TryRegister(JacketId, Customer);
 
-                PlayerInventory.Place(ReinforcedKit, 0, 0);
-                ReinforcedKitId = PlayerInventory.Items[0].ItemInstanceId;
-                Ownership.TryRegister(ReinforcedKitId, EconomicActorId.Player);
+                PlayerInventory.Place(BasicKit, 0, 0);
+                BasicKitId = PlayerInventory.Items[0].ItemInstanceId;
+                Ownership.TryRegister(BasicKitId, EconomicActorId.Player);
 
                 Containers.TryRegister(CustomerInventory, Customer);
                 Containers.TryRegister(PlayerInventory, EconomicActorId.Player);
@@ -47,7 +47,7 @@ namespace Signal.Core.Tests
                     Containers, Ownership, Orders, 1, 100);
 
             public RepairResult Repair() =>
-                RepairService.TryRepairForOwner(JacketId, ReinforcedKitId, Jacket, BasicKit, ReinforcedKit,
+                RepairService.TryRepairForOwner(JacketId, BasicKitId, Jacket, BasicKit, ReinforcedKit,
                     PlayerInventory, EconomicActorId.Player, Customer, Containers, Ownership, Knowledge, 1, 300);
 
             public CustomerRepairOrderResult Return(int minute = 500) =>
@@ -233,7 +233,7 @@ namespace Signal.Core.Tests
             var known = new System.Collections.Generic.Dictionary<Guid, ItemType>
             {
                 [fixture.Jacket.Id] = fixture.Jacket,
-                [fixture.ReinforcedKit.Id] = fixture.ReinforcedKit
+                [fixture.BasicKit.Id] = fixture.BasicKit
             };
             LoadReport report = SaveMapper.Apply(data, new PlayerStats(), loadedPlayerInventory,
                 new GridInventory(8, 6), new GameClock(), new HeatMeter(), new RentLedger(50, 7),
