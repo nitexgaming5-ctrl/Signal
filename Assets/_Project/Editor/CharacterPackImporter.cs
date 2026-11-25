@@ -23,7 +23,8 @@ namespace Signal.Game.Editor
             string fullDestinationRoot = Path.GetFullPath(DestinationRoot);
             Directory.CreateDirectory(fullDestinationRoot);
 
-            using (ZipArchive archive = ZipFile.OpenRead(archivePath))
+            using (var archiveStream = File.OpenRead(archivePath))
+            using (var archive = new ZipArchive(archiveStream, ZipArchiveMode.Read))
             {
                 foreach (ZipArchiveEntry entry in archive.Entries)
                 {
