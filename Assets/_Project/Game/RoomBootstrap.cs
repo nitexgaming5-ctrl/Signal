@@ -149,7 +149,7 @@ namespace Signal.Game
             var playerObject = new GameObject("Player");
             playerObject.transform.SetParent(transform, false);
             playerObject.transform.position = new Vector3(roomWidth / 2f, roomHeight / 2f, 0f);
-            playerObject.transform.localScale = new Vector3(0.75f, 0.9f, 1f);
+            playerObject.transform.localScale = new Vector3(0.75f, 0.75f, 1f);
 
             var body = playerObject.AddComponent<Rigidbody2D>();
             body.bodyType = RigidbodyType2D.Dynamic;
@@ -158,7 +158,9 @@ namespace Signal.Game
             body.interpolation = RigidbodyInterpolation2D.Interpolate;
             body.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
 
-            playerObject.AddComponent<BoxCollider2D>();
+            var playerCollider = playerObject.AddComponent<BoxCollider2D>();
+            playerCollider.size = new Vector2(0.8f, 1.1f);
+            playerCollider.offset = new Vector2(0f, 0.05f);
             playerObject.AddComponent<PlayerMotor2D>();
 
             PlayerCharacterVisual characterVisual = playerObject.AddComponent<PlayerCharacterVisual>();
