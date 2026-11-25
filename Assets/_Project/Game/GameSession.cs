@@ -238,7 +238,7 @@ namespace Signal.Game
             _itemViewer = gameObject.AddComponent<ItemViewerPanel>();
             _itemViewer.Bind(_allItemDefinitions, _itemKnowledge);
             _panel = gameObject.AddComponent<InventoryPanel>();
-            _panel.Bind(_inventory, _allItemDefinitions, _itemViewer.Open, TryEquipPlayerItem);
+            _panel.Bind(_inventory, _allItemDefinitions, _itemViewer.Open, TryEquipPlayerItem, TryUnequipPlayerSlot);
             _debugItemSpawnerPanel = gameObject.AddComponent<DebugItemSpawnerPanel>();
             _debugItemSpawnerPanel.Bind(_allItemDefinitions, SpawnDebugItem);
             _containerPanel = gameObject.AddComponent<SearchableContainerPanel>();
@@ -1337,6 +1337,28 @@ namespace Signal.Game
                     " / Heat Protection " + effective.HeatProtection + ".", 4f);
             }
 
+            return true;
+        }
+
+        private bool TryUnequipPlayerSlot(EquipmentSlot slot)
+        {
+            if (_playerEquipment == null || !_playerEquipment.TryGet(slot, out EquippedItem equipped))
+                return false;
+
+            if (_equippedBackpackInstanceId.HasValue &&
+                equipped.Item.ItemInstanceId == _equippedBackpackInstanceId.Value)
+            {
+                Say("The backpack will be removable when physical drop and pickup are implemented.", 4f);
+                return false;
+            }
+
+            if (!_playerEquipment.TryUnequip(_inventory, slot))
+            {
+                Say("There is no room in your inventory for that equipment.", 4f);
+                return false;
+            }
+
+            Say("Unequipped " + slot + ".", 3f);
             return true;
         }
 
