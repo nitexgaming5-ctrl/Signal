@@ -340,6 +340,7 @@ namespace Signal.Game
             _workspace.Bind(_motor, _inventory, _assetOwnership, _workshopRecipes,
                 IsRecipeUnlocked, ProduceRecipe, repairTargetType, basicKitType, reinforcedKitType,
                 _itemKnowledge, CanRepairAtWorkbench, RepairItem, CanRepairTarget);
+            _workspace.SetCarriedInventories(GetAccessibleCarryInventories());
             RefreshCarryPanelInventories();
             RefreshWorkshopUpgradeVisual();
             InitializeDebugStartingLoadout();
@@ -697,16 +698,22 @@ namespace Signal.Game
 
         private string ProduceRecipe(Guid recipeId)
         {
-            if (!_equippedBackpackInstanceId.HasValue)
-                return "Not enough space for produced goods. Equip a backpack before producing items.";
             if (!_city.IsAtHome || _room.Workbench == null ||
                 Vector2.Distance(_room.PlayerBody.position, _room.Workbench.position) > 2.15f)
                 return "Use the production station in your hideout.";
             RecipeDefinition definition = FindRecipeDefinition(recipeId);
             if (definition == null || !IsRecipeUnlocked(definition) || !definition.TryValidate(out _))
                 return "That recipe is unavailable.";
+
+            ItemType outputType = definition.Output.item.ToItemType();
+            GridInventory outputInventory = GetCarryInventory(outputType, false,
+                definition.Output.item.DefaultInstanceState, allowStackTopUp: true);
+            if (outputInventory == null)
+                return "Not enough space in your backpack or personal pockets for the produced goods. Ingredients were not consumed.";
+
             ProductionResult result = ProductionService.TryProduce(recipeId, definition.ToRecipe(),
-                _inventory, EconomicActorId.Player, _economicContainers, _assetOwnership, _productionTransactions,
+                GetAccessibleCarryInventories(), outputInventory, EconomicActorId.Player,
+                _economicContainers, _assetOwnership, _productionTransactions,
                 _clock.Day, _clock.MinuteOfDay, definition.Output.item.DefaultInstanceState);
             if (result.Success)
                 return "Produced " + definition.Output.count + " " + definition.Output.item.DisplayName + ".";
@@ -2797,6 +2804,7 @@ namespace Signal.Game
             if (_storagePanel != null)
                 _storagePanel.SetCarriedInventories(carriedInventories,
                     item => GetCarryInventory(item.Type, item.Rotated, item.State));
+            if (_workspace != null) _workspace.SetCarriedInventories(carriedInventories);
         }
 
         private GridInventory GetCarryInventory(ItemType type, bool rotated = false,
