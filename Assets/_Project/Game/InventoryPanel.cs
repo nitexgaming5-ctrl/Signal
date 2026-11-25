@@ -315,8 +315,9 @@ namespace Signal.Game
                 bool rotated = _dragRotated;
                 bool fromPocket = _draggingFromPocket;
                 int sourcePocket = _dragPocketIndex;
+                int targetPocket = -1;
                 bool dropIntoPocket = !fromPocket && !canDrop && !rotated &&
-                    TryGetPocketIndex(screen, out int targetPocket);
+                    TryGetPocketIndex(screen, out targetPocket);
 
                 EndDrag();
 
