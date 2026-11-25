@@ -1173,10 +1173,14 @@ namespace Signal.Game
             foreach (EquippedItem equipped in _playerEquipment.Items)
             {
                 ItemDefinition definition = FindItemDefinition(equipped.Item.Type.Id);
+                string ownerActorId = _assetOwnership != null &&
+                    _assetOwnership.TryGetOwner(equipped.Item.ItemInstanceId, out EconomicActorId owner)
+                    ? owner.Value : EconomicActorId.Player.Value;
                 data.equippedItems.Add(new SavedEquippedItem
                 {
                     instanceId = equipped.Item.ItemInstanceId.ToString(),
                     typeId = equipped.Item.Type.Id.ToString(),
+                    ownerActorId = ownerActorId,
                     slot = (int)equipped.Slot,
                     armorModifier = equipped.ArmorModifier,
                     heatProtectionModifier = equipped.HeatProtectionModifier,
@@ -1246,7 +1250,11 @@ namespace Signal.Game
                 }
 
                 if (!_assetOwnership.TryGetOwner(instanceId, out _))
-                    _assetOwnership.TryRegister(instanceId, EconomicActorId.Player);
+                {
+                    EconomicActorId owner = string.IsNullOrWhiteSpace(saved.ownerActorId)
+                        ? EconomicActorId.Player : new EconomicActorId(saved.ownerActorId);
+                    _assetOwnership.TryRegister(instanceId, owner);
+                }
 
                 if (saved.portableBackpack)
                 {
