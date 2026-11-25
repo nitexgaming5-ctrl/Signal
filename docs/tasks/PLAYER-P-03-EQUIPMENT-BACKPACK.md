@@ -72,14 +72,14 @@ Accessory slots are generic. Do not reserve all three for hardcoded item categor
 
 ### Remaining integration
 - Enforce 2–3 personal pockets when no backpack is equipped and make the 8×6 grid accessible only through the backpack.
-- Add a dedicated equipment/loadout presentation with drag/drop and readable slot state.
-- Wire the new Core world-state book into GameSession and F5/F9 orchestration; instantiate a physical dropped-bag world object at the saved position and recover the same item instance through interaction. Reuse the existing custody/ownership authority; do not create a parallel loot-container system.
+- Expand the new character sidebar into a fully functional equipment/pocket screen. Seven equipment slots are displayed; the three pocket cells are currently visual placeholders and still need their own small inventory model and item-transfer controls.
+- Finish the GameSession backpack lifecycle integration by validating the new B/UI drop and E pickup flow in Unity. The Core world-state book, saved dropped item identity, F5/F9 state, world placeholder and auto-equip recovery are now wired. Reuse the existing custody/ownership authority; do not create a parallel loot-container system.
 - Add actual wearable sprite overlays for head/torso/legs/feet and equipment variants. The supplied Body_A pack is only a base body; do not invent a full wardrobe from missing sprites.
 - Author more clothing/armor content after the core loop is validated.
 
 ## Next Play Mode test game — Backpack lifecycle acceptance
 
-Run this only after the GameSession/world-object integration is committed and the EditMode suite is green.
+Run this after the current GameSession/world-object integration is pulled and the expected 486 EditMode tests are green.
 
 ### Setup
 
@@ -90,10 +90,10 @@ Run this only after the GameSession/world-object integration is committed and th
 
 ### Scenario A — drop and recover in one session
 
-1. Use the backpack's in-game drop interaction.
+1. Press B or click **DROP BACKPACK** in the character sidebar.
 2. Confirm the backpack appears at the player's drop position and the player no longer has access to its large grid.
 3. Confirm the small personal pockets remain usable and can hold only their authored capacity.
-4. Move away, return, and recover the dropped backpack through its interaction prompt.
+4. Move away, return, and press E beside the dropped backpack. It should be picked up and automatically re-equipped.
 5. Confirm the same backpack is equipped and every cargo item returns in the same condition, quality, authenticity, quantity and identity.
 
 ### Scenario B — save while dropped
@@ -123,7 +123,7 @@ Run this only after the GameSession/world-object integration is committed and th
 ### Acceptance criteria
 
 - One backpack identity maps to exactly one world/equipment state and exactly one contents grid.
-- The large inventory is inaccessible whenever the backpack is dropped; personal pockets remain usable.
+- The inventory grid is hidden and pointer interaction is blocked whenever the backpack is dropped. Other item-consuming/producing interactions still need a complete active-inventory audit; the final pocket inventory remains pending.
 - Dropped position and state survive F5/F9.
 - Recovery restores access to the exact contents; no cargo loss, duplication, state reset or ownership mutation.
 - The user reports the full EditMode count and all four Play Mode scenarios passing before P-03.3 is marked complete.
@@ -153,3 +153,15 @@ Run this only after the GameSession/world-object integration is committed and th
 - Equipped item records (identity, type, owner, slot, modifiers and item state) are captured/restored through F5/F9. The 8×6 inventory contents continue through the existing inventory save mapper.
 - Added focused tests for attaching an existing grid and restoring an equipped item without requiring a free inventory cell. The user subsequently confirmed **478/478 EditMode tests passing**.
 - Not yet complete: no-backpack 2–3 pocket restriction, final equipment panel, visual clothing overlays, or physical backpack drop/pickup.
+
+
+## P-03.3 Game integration — backpack drop, pickup and character sidebar (2026-11-25)
+
+- Added exact equipped-item extraction to PlayerEquipmentLoadout so a backpack can leave the equipment slot without being returned into its own contents grid. The physical backpack identity, item state and owner remain unchanged.
+- GameSession now tracks the backpack's Equipped/Dropped world state, creates a visible ground placeholder at the drop position, and supports recovery with E. Recovery equips the same backpack instance automatically.
+- Added B as the direct drop key and a clickable **DROP BACKPACK [B]** button in the inventory character sidebar.
+- Reworked the inventory presentation into a left character/equipment panel and right **BACKPACK STORAGE** grid. Seven equipment slots are listed; three personal-pocket cells are currently visual placeholders, not yet backed by a functional pocket inventory.
+- While the backpack is dropped, the backpack grid is hidden and pointer item interaction with that grid is blocked. The player can still move to the bag and press E to recover it. The wider audit of every item-based gameplay interaction against dropped storage remains part of the pocket/active-inventory phase.
+- F5 captures the backpack world state and, when dropped, the exact item definition, stable instance ID, owner, modifiers and item state. F9 restores the bag at its saved world position and respawns its ground placeholder; recovery equips it.
+- Added a focused Core test for extracting an equipped item without copying it into an inventory. The user's confirmed baseline was 485/485; **486/486 is expected after this test**, pending Unity compilation and EditMode execution. No Unity or Play Mode result is claimed by this repository pass.
+- Next user test: equip → place cargo → B/button drop → confirm grid hidden → E pickup/auto-equip → F5 while dropped → F9 → recover; then repeat F5/F9 while equipped. Check cargo identity/state and ownership throughout.
