@@ -217,14 +217,14 @@ namespace Signal.Game
             if (choice == null || _progress.IsStageCompleted(npcId, threadId, stageId))
                 return false;
 
-            if (choice.Action == NpcAgendaChoiceAction.OpenWorkshopUpgradeOffer &&
-                !_openWorkshopUpgradeOffer(choice.WorkshopUpgradeOffer))
-                return false;
             bool hasRelationshipOutcome = choice.FamiliarityDelta != 0f ||
                 choice.TrustDelta != 0f || choice.AffinityDelta != 0f;
             if (hasRelationshipOutcome &&
                 choice.RelationshipOutcomePerspective == NpcAgendaRelationshipPerspective.NpcToPlayer &&
                 (_socialWorld == null || !_socialWorld.TryGetNpc(npcId, out NpcAgentState _)))
+                return false;
+            if (choice.Action == NpcAgendaChoiceAction.OpenWorkshopUpgradeOffer &&
+                !_openWorkshopUpgradeOffer(choice.WorkshopUpgradeOffer))
                 return false;
 
             if (!choice.CompleteStageOnChoice)
