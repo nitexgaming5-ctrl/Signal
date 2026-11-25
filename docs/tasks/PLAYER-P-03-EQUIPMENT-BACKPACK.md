@@ -1,6 +1,6 @@
 # P-03 — Equipment, Wearables & Portable Backpack
 
-**Status (2026-11-26):** User confirmed **500/500 EditMode tests passing** after direct pocket-to-pocket moves/swaps. Backpack drop/recovery, three persistent pockets, hidden-pocket visibility contract, pocket/backpack transfers and pocket swaps are implemented. P-03.5 implementation is now underway: Retail SELL enumerates accessible backpack and pocket inventories; Dirty Cash fence/cleaning selection displays and resolves pocket-held stacks; home storage lists every accessible carried inventory and routes locker withdrawals through carry-capacity selection. These source changes are committed but still require Unity compilation, EditMode execution and Play Mode acceptance. P-03 remains active: workbench/production integration, wearable visuals, debug-loadout cleanup and full Play Mode acceptance are outstanding.
+**Status (2026-11-26):** User confirmed **500/500 EditMode tests passing** after direct pocket-to-pocket moves/swaps. Backpack drop/recovery, three persistent pockets, hidden-pocket visibility contract, pocket/backpack transfers and pocket swaps are implemented. P-03.5 source integration now covers Retail SELL, Dirty Cash fence/cleaning selection, Home Storage, workbench repair and production across accessible backpack/pocket grids. Two targeted EditMode tests were added for split-grid repair and production; the full suite has not yet been run against these changes. P-03 remains active: broader direct-grid audit, wearable visuals, debug-loadout cleanup and full Play Mode acceptance are outstanding.
 **Track:** Player Development
 **Dependency:** P-01 modular player visual and P-02 Armor/Heat Protection modifier contract.
 
@@ -303,3 +303,15 @@ Recommended next implementation slice: **P-03.5 — pocket-aware service-panel i
 - Home Storage now lists items from every accessible carried grid. STORE transfers from the exact source grid; TAKE chooses a destination through GameSession's carry-capacity helper, so a pocket can receive an item when the backpack is absent/full (subject to the existing item-footprint rules).
 - These changes preserve existing transaction services and stable item identity. They are source-level implementation only: Unity compile, EditMode tests and Play Mode scenarios have not yet been run by the user.
 - Next: extend the same source-inventory model to workbench repair and production inputs/outputs, then audit other direct inventory assumptions.
+
+
+### P-03.5 implementation checkpoint — service panels, storage and workbench (2026-11-26)
+
+- Retail SELL enumerates owned accepted stacks across the accessible backpack and P1/P2/P3, resolves the exact source grid by stable item instance ID, and refreshes on carried-grid changes.
+- Dirty Cash fence/cleaning selection displays the accessible 8×6 backpack grid and three separate personal pockets. Selection resolves against the true source grid before invoking the existing atomic exchange/cleaning services. Dropped-backpack cargo is never enumerated.
+- Home Storage lists every accessible carried grid. STORE transfers from the exact source grid; TAKE uses GameSession's carry-capacity selector to choose the backpack or a suitable pocket.
+- Workbench repair target and patch-kit discovery now spans all accessible carried grids. RepairService accepts separate target and kit inventories, so the jacket can remain in the backpack while a pocket-held kit is consumed (and vice versa).
+- ProductionService now supports transactional ingredient consumption across multiple accessible grids and a separately selected output grid. It snapshots all participating grids and restores them plus ownership registrations on failure. GameSession chooses output capacity through the same backpack/pocket carry selector; producing no longer requires an equipped backpack when the pockets can receive the output.
+- Added targeted EditMode coverage for repair with target and kit in separate grids, and production consuming ingredients across backpack/pocket grids with output routed to a pocket.
+- All of the above is source-level work only. The user must run Unity compilation and the full EditMode suite before any verification claim; Play Mode acceptance remains outstanding.
+- Next: audit other direct backpack-grid assumptions (including search/loot and customer/service panels), then move to wearable presentation, temporary debug-loadout cleanup and end-to-end P-03 acceptance.
