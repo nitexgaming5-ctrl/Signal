@@ -69,6 +69,15 @@ namespace Signal.Game
             Close();
         }
 
+        public void SetPlayerInventory(GridInventory inventory)
+        {
+            if (inventory == null || ReferenceEquals(_inventory, inventory)) return;
+            if (_inventory != null) _inventory.Changed -= OnInventoryChanged;
+            _inventory = inventory;
+            _inventory.Changed += OnInventoryChanged;
+            if (IsOpen) Refresh();
+        }
+
         public void Open()
         {
             if (_root == null) BuildIfNeeded();
