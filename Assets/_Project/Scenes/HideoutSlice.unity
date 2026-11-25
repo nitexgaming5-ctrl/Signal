@@ -265,6 +265,7 @@ MonoBehaviour:
   startingWorkshopRecipes:
   - {fileID: 11400000, guid: cc000000000000000000000000000001, type: 2}
   firstCustomerContract: {fileID: 11400000, guid: dd000000000000000000000000000001, type: 2}
+  firstCustomerRepairOrder: {fileID: 11400000, guid: 4a6c8e0f2b5d47a9c1e3f5b7d9a10234, type: 2}
   firstWorkshopUpgrade: {fileID: 11400000, guid: ee000000000000000000000000000001, type: 2}
   repairTargetItem: {fileID: 11400000, guid: b6e7a9c1d3f5428db0a6c7e9f1d25384, type: 2}
   basicPatchKitItem: {fileID: 11400000, guid: aa000000000000000000000000000005, type: 2}
