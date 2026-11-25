@@ -14,6 +14,7 @@ namespace Signal.Game
         private const int FrameWidth = 96;
         private const int FrameHeight = 128;
         private const float PixelsPerUnit = 96f;
+        private const float VisualScale = 1.8f; // Enlarge artwork without changing player physics.
         private static readonly string[] Parts = { "Legs", "Arm_L", "Chest", "Arm_R", "Head" };
 
         private readonly Dictionary<string, SpriteRenderer> _renderers =
@@ -120,6 +121,7 @@ namespace Signal.Game
             {
                 var layer = new GameObject("Visual_" + part);
                 layer.transform.SetParent(transform, false);
+                layer.transform.localScale = Vector3.one * VisualScale;
                 var renderer = layer.AddComponent<SpriteRenderer>();
                 renderer.sortingOrder = 10;
                 _renderers.Add(part, renderer);
