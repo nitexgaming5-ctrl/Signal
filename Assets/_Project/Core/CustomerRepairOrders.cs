@@ -205,6 +205,8 @@ namespace Signal.Core
             if (!orders.TryGetState(orderId, out CustomerRepairOrderState order) ||
                 order.Phase != CustomerRepairOrderPhase.Offered || orders.HasActiveOrder)
                 return Result(CustomerRepairOrderStatus.OfferUnavailable);
+            if (requiredItem.Id != order.ItemDefinitionId)
+                return Result(CustomerRepairOrderStatus.WrongItem);
             if (!containers.TryGetCustodian(issuerInventory, out EconomicActorId issuerCustodian) ||
                 issuerCustodian != order.Issuer ||
                 !containers.TryGetCustodian(playerInventory, out EconomicActorId playerCustodian) ||
