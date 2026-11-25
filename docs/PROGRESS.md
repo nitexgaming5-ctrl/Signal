@@ -224,3 +224,8 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 - F5/F9 now capture/restore the dropped item identity/state/owner/modifiers and its world coordinates, then recreate the dropped visual. Recovery after restore re-equips the same item.
 - Added one focused EditMode test for exact equipped-item extraction. Previous user-confirmed suite was 485/485; expected total is **486**, pending Unity compilation and test execution. No Play Mode acceptance is claimed yet.
 - User test sequence: equip and load cargo, B/button drop, verify inaccessible grid, E pickup/auto-equip, F5 while dropped, F9 and recover, then repeat save/load while equipped. Verify cargo identity/state/ownership.
+
+### Dropped-backpack access guard
+
+- While the backpack is dropped, GameSession now applies a conservative temporary gate to normal E/F interactions that could inspect, consume or receive items. Movement, pickup, F5/F9 and sleep remain available. This prevents workbench/shop/container flows from indirectly exposing the dropped bag's 8×6 contents.
+- This is deliberately temporary until the 2–3 pocket inventory is functional; then gameplay systems should route through the active carried inventory rather than globally blocking interactions.
