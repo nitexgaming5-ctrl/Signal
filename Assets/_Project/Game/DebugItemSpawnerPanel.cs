@@ -223,7 +223,13 @@ namespace Signal.Game
                 return;
 
             for (int i = _content.childCount - 1; i >= 0; i--)
-                Destroy(_content.GetChild(i).gameObject);
+            {
+                GameObject tile = _content.GetChild(i).gameObject;
+                if (Application.isPlaying)
+                    Destroy(tile);
+                else
+                    DestroyImmediate(tile);
+            }
 
             string query = (_filter ?? string.Empty).Trim();
             int shown = 0;
