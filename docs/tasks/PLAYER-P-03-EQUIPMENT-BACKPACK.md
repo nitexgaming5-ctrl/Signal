@@ -226,6 +226,7 @@ Implement three actual 1×1 personal pocket slots, separate from the backpack's 
 3. Try spawning or receiving an item with a 2×1 or 1×2 footprint without a backpack. Confirm it is rejected without losing the source item or taking payment.
 4. Press F5, restart/load with F9, and confirm all pocket stacks return with the same item IDs, quantities and states.
 5. Accept Milo's parcel opportunity without a backpack while a pocket is free. Confirm the parcel appears in that pocket and can be returned/delivered; with all pockets full, acceptance must fail without changing the opportunity.
+6. Accept a customer contract without a backpack. Confirm the panel lists pocket-held goods and that a qualifying player-owned pocket stack can be handed over. The remaining scenarios below follow as numbered steps.
 6. Open a searchable container and take a 1×1 item with no backpack. Confirm it enters the first free pocket and ownership is Player. Fill all pockets and confirm the next pickup leaves the container item untouched.
 7. Browse a shop without a backpack and buy a 1×1 item with a free pocket. Confirm payment and item receipt both succeed; with full pockets, confirm no CARD is debited.
 8. Equip the Canvas Backpack. Move a 1×1 item from backpack storage to a pocket with P; click the occupied pocket to move it back. Confirm exact identity and quantity in both directions.
@@ -234,5 +235,5 @@ Implement three actual 1×1 personal pocket slots, separate from the backpack's 
 
 ### Known follow-up limits
 - Home-storage transfer and workbench/production still depend on the backpack grid; production is not available without a backpack.
-- Some service panels (notably retail SELL and Dirty Cash item selection) are still bound directly to _inventory; pocket-held items are not yet listed in every legacy panel.
+- Customer Contract now lists pocket-held goods, so a player can accept and fulfil a qualifying request without a backpack. When the backpack is absent/dropped, Retail and Dirty Cash panels switch to an empty carry view rather than exposing the hidden backpack cargo; pocket-held items are not yet enumerated in Retail SELL or Dirty Cash selection.
 - P-03 is not complete: full pocket-aware service-panel coverage, equipment/clothing visual overlays and end-to-end Play Mode acceptance remain.
