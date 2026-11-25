@@ -1,6 +1,6 @@
 # P-03 — Equipment, Wearables & Portable Backpack
 
-**Status:** Equipped-backpack integration verified by the user at 478/478. P-03.3 Core world-state foundation committed with seven focused tests; Unity verification pending. Physical Game drop/pickup and pocket switching remain the next integration work.
+**Status:** P-03.3 backpack drop/recovery and fresh-start cleanup are user-verified; latest user-confirmed EditMode baseline is 486/486. P-03.4a restores social/mission interactions without a backpack and adds explicit capacity guards for physical item receipts. Functional three-slot pocket storage and pocket-aware item routing remain next; P-03 is not complete.
 **Track:** Player Development
 **Dependency:** P-01 modular player visual and P-02 Armor/Heat Protection modifier contract.
 
@@ -173,3 +173,27 @@ Run this after the current GameSession/world-object integration is pulled and th
 - GameSession now preserves the raw CityBlock world-transition prompt separately from nearby interaction overrides. During dropped-backpack mode, the HUD recognises enter/exit/leave/return wording and adds `E` if the authored prompt does not include it. Item-interaction blocking remains unchanged.
 - Replaced obsolete `FindObjectOfType<EventSystem>()` with `FindAnyObjectByType<EventSystem>()` in InventoryPanel to remove CS0618.
 - User reports **486/486 EditMode tests passing** after pulling the previous implementation. The latest prompt/API cleanup commits are newer than that test run; recompile and rerun tests, then verify the visible E exit prompt in Play Mode. No verification of these latest changes is claimed yet.
+
+
+## P-03.4a — Backpack-independent interaction and safe item receipt (2026-11-25)
+
+### Approved interaction rule
+A backpack is a capacity upgrade, not a prerequisite for participating in the city. Without one, the player can still talk to NPCs, open and accept customer requests, use agenda conversations, make dialogue choices, and navigate buildings. The global E/F early-return gate has been removed.
+
+### Physical item capacity guards
+Until the three personal pockets are implemented, the current no-backpack state has no functional carry slots. Operations that would place physical items into carried inventory now fail safely with an explicit "Not enough space / equip a backpack" message:
+- accepting the entrusted repair-order jacket;
+- buying merchandise from a business;
+- taking items from searchable containers;
+- receiving Dirty Cash from the illicit exchange;
+- receiving production output.
+
+Home-storage transfers and workbench access are blocked without a backpack because those flows currently depend on the large inventory grid. Retail browsing, container inspection, customer-contract review/acceptance and NPC dialogue remain available. Existing atomic Core services remain authoritative; the Game guards run before invoking them, so a rejected receive does not debit money, transfer ownership or consume inputs.
+
+### P-03.4a verification
+- Source change is committed in GameSession. No automated test was added in this subphase.
+- Latest user-confirmed full suite remains **486/486** before this change; Unity compile, EditMode rerun and Play Mode verification of no-backpack dialogue/mission flows are pending.
+- Test: start without backpack; talk to an ordinary resident; open an agenda conversation; open and accept the customer request; open the repair order and attempt acceptance (must show capacity warning and leave the order/item unchanged); browse a shop and attempt purchase (must show warning and preserve CARD); inspect a searchable container and attempt to take an item (must show warning and preserve item/ownership); equip backpack and repeat the physical item flows successfully.
+
+### Next P-03.4b — functional personal pockets
+Implement three actual 1×1 personal pocket slots, separate from the backpack's 8×6 contents grid. The pocket inventory must persist through F5/F9, remain accessible when the backpack is dropped, and participate in item-receive capacity checks. UI must show real pocket contents and support moving items between pockets and backpack. Do not treat the current placeholder cells as functional storage.
