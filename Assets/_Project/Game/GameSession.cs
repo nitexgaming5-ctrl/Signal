@@ -73,6 +73,9 @@ namespace Signal.Game
         private GridInventory _contactInventory;
         private GridInventory _inventory;
         private GridInventory _storage;
+        private PlayerEquipmentLoadout _playerEquipment;
+        private PortableStorageBook _portableStorage;
+        private Guid? _equippedBackpackInstanceId;
         private ItemKnowledgeBook _itemKnowledge;
         private PlayerDiscoveryLedger _playerDiscoveries;
         private NpcAgendaProgressBook _npcAgendaProgress;
@@ -137,6 +140,9 @@ namespace Signal.Game
         public CriminalProgressionTrack CriminalProgression => _criminalProgression;
         public CrimeOutcomeLedger CrimeOutcomes => _crimeOutcomes;
         public PlayerDevelopmentState PlayerDevelopment => _playerDevelopment;
+        public PlayerEquipmentLoadout PlayerEquipment => _playerEquipment;
+        public PortableStorageBook PortableStorage => _portableStorage;
+        public bool HasEquippedBackpack => _equippedBackpackInstanceId.HasValue;
 
         public bool TryAwardPlayerMilestone(string milestoneId, int points, string sourceId)
         {
@@ -148,8 +154,12 @@ namespace Signal.Game
         private void Start()
         {
             _stats = new PlayerStats(startingMoney);
-            _inventory = new GridInventory();
+            // Temporary expanded test grid. P-03 will make this grid physically belong to the equipped backpack;
+            // the final no-backpack inventory will be reduced to 2-3 personal pockets.
+            _inventory = new GridInventory(8, 6);
             _storage = new GridInventory(8, 6);
+            _playerEquipment = new PlayerEquipmentLoadout();
+            _portableStorage = new PortableStorageBook();
             _assetOwnership = new AssetOwnershipBook();
             _economicTransactions = new EconomicTransactionLedger();
             _economicContainers = new EconomicContainerRegistry();
@@ -228,7 +238,7 @@ namespace Signal.Game
             _itemViewer = gameObject.AddComponent<ItemViewerPanel>();
             _itemViewer.Bind(_allItemDefinitions, _itemKnowledge);
             _panel = gameObject.AddComponent<InventoryPanel>();
-            _panel.Bind(_inventory, _allItemDefinitions, _itemViewer.Open);
+            _panel.Bind(_inventory, _allItemDefinitions, _itemViewer.Open, TryEquipPlayerItem);
             _debugItemSpawnerPanel = gameObject.AddComponent<DebugItemSpawnerPanel>();
             _debugItemSpawnerPanel.Bind(_allItemDefinitions, SpawnDebugItem);
             _containerPanel = gameObject.AddComponent<SearchableContainerPanel>();
@@ -1153,6 +1163,66 @@ namespace Signal.Game
             GUILayout.Space(8f);
             GUILayout.Label("F1 closes this menu. Debug controls do not represent player abilities.");
             GUILayout.EndArea();
+        }
+
+        private bool TryEquipPlayerItem(PlacedItem item)
+        {
+            if (_playerEquipment == null || item.ItemInstanceId == Guid.Empty)
+                return false;
+
+            ItemDefinition definition = null;
+            foreach (ItemDefinition candidate in _allItemDefinitions)
+            {
+                if (candidate == null)
+                    continue;
+                try
+                {
+                    if (candidate.ToItemType().Id == item.Type.Id)
+                    {
+                        definition = candidate;
+                        break;
+                    }
+                }
+                catch (InvalidOperationException) { }
+            }
+
+            if (definition == null || !definition.Equippable)
+                return false;
+
+            if (definition.PortableBackpack && _equippedBackpackInstanceId.HasValue)
+            {
+                Say("You already have a backpack equipped.", 3f);
+                return false;
+            }
+
+            if (!_playerEquipment.TryEquip(_inventory, item.ItemInstanceId, definition.EquipmentSlot,
+                definition.ArmorModifier, definition.HeatProtectionModifier))
+            {
+                Say("That equipment slot is occupied or the item cannot be equipped.", 3f);
+                return false;
+            }
+
+            if (definition.PortableBackpack)
+            {
+                if (!_portableStorage.TryRegister(item.ItemInstanceId, _inventory))
+                {
+                    _playerEquipment.TryUnequip(_inventory, definition.EquipmentSlot);
+                    Say("The backpack could not attach its inventory. Nothing was changed.", 4f);
+                    return false;
+                }
+
+                _equippedBackpackInstanceId = item.ItemInstanceId;
+                Say("Backpack equipped. Your expanded inventory is now carried inside it.", 5f);
+            }
+            else
+            {
+                EffectiveCharacterAttributes effective =
+                    _playerEquipment.CalculateEffectiveAttributes(new PlayerAttributeSet());
+                Say("Equipped " + definition.DisplayName + ". Armor " + effective.Armor +
+                    " / Heat Protection " + effective.HeatProtection + ".", 4f);
+            }
+
+            return true;
         }
 
         private string SpawnDebugItem(ItemDefinition definition)
