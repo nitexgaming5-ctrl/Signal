@@ -325,3 +325,13 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 - Dropped-backpack contents remain excluded because the accessible inventory list includes the backpack only while equipped/accessibly carried, plus the three pockets at all times.
 - These are source changes only. Unity compile, EditMode tests and Play Mode acceptance are pending; do not report the previous 500/500 as verification of this new code.
 - Next: make workbench repair and production consume accessible backpack/pocket inputs and route outputs safely; audit other direct-grid assumptions. Wearable visuals wait for the user's actual sprite assets.
+
+
+## P-03.5 implementation update — workbench and production included (2026-11-26)
+
+- Retail SELL, Dirty Cash selection and Home Storage now use all accessible carried grids (backpack when accessible plus P1/P2/P3), while excluding dropped-backpack cargo.
+- Workbench repair discovery spans all accessible grids. RepairService can consume a patch kit from a different grid than the target item, preserving item ownership and rolling back both grids on failure.
+- ProductionService can consume recipe ingredients across multiple accessible grids and place the output into a separately selected capacity-approved grid. The transaction snapshots all participating inventories and restores inventory/ownership state if output placement or history commit fails.
+- GameSession routes repair, production output, storage withdrawal, retail sale and Dirty Cash operations through actual source/destination grids.
+- Two targeted EditMode tests were added for split-grid repair and multi-grid production. Unity compilation and the full suite have not yet been run against these changes. The last user-confirmed full-suite result remains 500/500 before this implementation.
+- Next: audit remaining backpack-only assumptions in search/loot, customer/service panels and other inventory consumers. Then wearable visuals, debug-loadout cleanup and full Play Mode acceptance.
