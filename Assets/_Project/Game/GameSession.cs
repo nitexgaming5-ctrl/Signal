@@ -1545,8 +1545,16 @@ namespace Signal.Game
                 catch (InvalidOperationException) { }
             }
 
-            if (definition == null || !definition.Equippable)
+            if (definition == null)
+            {
+                Say("This item has no equipment definition.", 3f);
                 return false;
+            }
+            if (!definition.Equippable)
+            {
+                Say("This item cannot be equipped.", 3f);
+                return false;
+            }
 
             if (definition.PortableBackpack && _equippedBackpackInstanceId.HasValue)
             {
