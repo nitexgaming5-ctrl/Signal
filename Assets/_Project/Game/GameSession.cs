@@ -1874,14 +1874,10 @@ namespace Signal.Game
                 return "Select one player-owned stolen stack of exactly " + acceptedQuantity + " " +
                     acceptedItem.DisplayName + " items.";
 
-            GridInventory rewardInventory = sourceInventory == _inventory
-                ? GetCarryInventory(cashItem.ToItemType()) ?? _inventory
-                : sourceInventory;
             IllicitExchangeResult result = IllicitExchangeService.TryExchange(sourceInventory, _contactInventory,
                 selected.ItemInstanceId, acceptedType, acceptedQuantity, cashItem.ToItemType(),
                 dirtyCashUnits, DirtyCashContactActorId,
-                _assetOwnership, _economicTransactions, _illicitExchanges, _clock.Day, _clock.MinuteOfDay,
-                rewardInventory);
+                _assetOwnership, _economicTransactions, _illicitExchanges, _clock.Day, _clock.MinuteOfDay);
             if (result.Success)
                 return "Exchange complete. Received " + dirtyCashUnits + " Dirty Cash units.";
             switch (result.Status)
