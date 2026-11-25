@@ -287,6 +287,16 @@ namespace Signal.Game.Tests
             };
             Assert.That(agenda.TryValidate(out string outcomeError), Is.False);
             Assert.That(outcomeError, Does.Contain("Discovery"));
+
+            NpcAgendaChoiceDefinition repeatableOutcome = Choice("repeatable", NpcAgendaChoiceAction.DialogueOnly, complete: false);
+            repeatableOutcome.FamiliarityDelta = 0.1f;
+            agenda.Threads = new[]
+            {
+                Thread("valid-thread", 0, Stage("valid-stage",
+                    NpcAgendaActivityRequirement.Any, repeatableOutcome))
+            };
+            Assert.That(agenda.TryValidate(out string repeatableError), Is.False);
+            Assert.That(repeatableError, Does.Contain("Repeatable"));
         }
 
         [Test]
