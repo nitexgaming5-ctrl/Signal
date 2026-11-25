@@ -251,7 +251,7 @@ namespace Signal.Core
         public static CustomerRepairOrderResult TryReturn(Guid orderId, ItemType requiredItem,
             GridInventory playerInventory, GridInventory issuerInventory, EconomicContainerRegistry containers,
             AssetOwnershipBook ownership, CleanMoneyAccount playerAccount, CleanMoneyAccount issuerAccount,
-            EconomicTransactionLedger transactions, CustomerRepairOrderBook orders, int day, int minuteOfDay)
+            ServicePaymentTransactionLedger transactions, CustomerRepairOrderBook orders, int day, int minuteOfDay)
         {
             if (orderId == Guid.Empty || !ValidItem(requiredItem) || playerInventory == null ||
                 issuerInventory == null || ReferenceEquals(playerInventory, issuerInventory) || containers == null ||
