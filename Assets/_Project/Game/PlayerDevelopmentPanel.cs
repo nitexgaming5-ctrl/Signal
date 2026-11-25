@@ -7,21 +7,24 @@ namespace Signal.Game
     /// <summary>Compact F2 debug panel for inspecting and testing player development during the slice.</summary>
     public sealed class PlayerDevelopmentPanel : MonoBehaviour
     {
-        private static readonly string[] SkillIds = { "repair", "production", "trading", "scavenging", "social" };
-        private static readonly string[] SkillNames = { "Repair", "Production", "Trading", "Scavenging", "Social" };
-
         private PlayerDevelopmentState _state;
+        private PlayerDevelopmentCatalog _catalog;
         private bool _isOpen;
-        private Rect _window = new Rect(24f, 72f, 360f, 430f);
+        private Rect _window = new Rect(24f, 72f, 390f, 470f);
 
         public bool IsOpen => _isOpen;
 
-        public void Bind(PlayerDevelopmentState state) => _state = state;
+        public void Bind(PlayerDevelopmentState state, PlayerDevelopmentCatalog catalog)
+        {
+            _state = state;
+            _catalog = catalog;
+        }
+
         public void SetOpen(bool open) => _isOpen = open;
 
         private void OnGUI()
         {
-            if (!_isOpen || _state == null)
+            if (!_isOpen || _state == null || _catalog == null)
                 return;
             _window = GUI.Window(73021, _window, DrawWindow, "PLAYER DEVELOPMENT  •  F2");
         }
@@ -32,27 +35,27 @@ namespace Signal.Game
             GUILayout.Label("Armor: " + _state.Attributes.Armor);
             GUILayout.Label("Heat Protection: " + _state.Attributes.HeatProtection + "  (cold exposure)");
             GUILayout.Space(8f);
-            GUILayout.Label("SKILLS  •  Provisional catalogue");
+            GUILayout.Label("SKILLS" + (HasProvisionalSkills() ? "  •  PROVISIONAL CATALOGUE" : string.Empty));
             GUILayout.Label("Unspent points: " + _state.Progression.UnspentPoints +
                 " / " + _state.Progression.TotalPoints);
             GUILayout.Space(4f);
 
-            for (int i = 0; i < SkillIds.Length; i++)
+            foreach (PlayerSkillDefinition skill in _catalog.Skills)
             {
-                string skillId = SkillIds[i];
-                if (!_state.Skills.Contains(skillId))
+                if (skill == null || !_state.Skills.Contains(skill.Id))
                     continue;
                 GUILayout.BeginHorizontal();
-                GUILayout.Label(SkillNames[i] + "  Rank " + _state.Skills.GetRank(skillId), GUILayout.Width(185f));
+                GUILayout.Label(skill.DisplayName + "  Rank " + _state.Skills.GetRank(skill.Id),
+                    GUILayout.Width(215f));
                 if (GUILayout.Button("−", GUILayout.Width(34f)))
-                    DecreaseRank(skillId);
+                    DecreaseRank(skill.Id);
                 if (GUILayout.Button("+", GUILayout.Width(34f)))
-                    _state.Progression.TrySpendRank(_state.Skills, skillId);
+                    _state.Progression.TrySpendRank(_state.Skills, skill.Id);
                 GUILayout.EndHorizontal();
             }
 
             GUILayout.Space(8f);
-            GUILayout.Label("Milestone points come from completed gameplay events.");
+            GUILayout.Label("Milestone points are awarded by completed gameplay events.");
             GUILayout.Label("Respecialization is free and returns every allocated point.");
             if (GUILayout.Button("Reset all skill allocations"))
                 _state.Progression.Respecialize(_state.Skills);
@@ -60,6 +63,14 @@ namespace Signal.Game
                 _isOpen = false;
 
             GUI.DragWindow(new Rect(0f, 0f, 10000f, 24f));
+        }
+
+        private bool HasProvisionalSkills()
+        {
+            foreach (PlayerSkillDefinition skill in _catalog.Skills)
+                if (skill != null && skill.IsProvisional)
+                    return true;
+            return false;
         }
 
         private void DecreaseRank(string skillId)
