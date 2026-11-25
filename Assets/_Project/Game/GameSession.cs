@@ -2607,9 +2607,18 @@ namespace Signal.Game
             if (_equippedBackpackInstanceId.HasValue && !_droppedBackpackItem.HasValue &&
                 CanReceiveOneStack(_inventory, type, rotated, state, allowStackTopUp))
                 return _inventory;
-            return _playerPockets != null &&
-                _playerPockets.TryFindAvailablePocket(type, out _, out GridInventory pocket, rotated)
-                ? pocket : null;
+            if (_playerPockets == null) return null;
+            if (_playerPockets.TryFindAvailablePocket(type, out _, out GridInventory pocket, rotated))
+                return pocket;
+            if (allowStackTopUp && state.HasValue && !rotated && type.Width == 1 && type.Height == 1)
+                for (int i = 0; i < PlayerPocketBook.PocketCount; i++)
+                    foreach (PlacedItem existing in _playerPockets.GetPocket(i).Items)
+                        if (existing.Type == type && existing.State == state.Value &&
+                            existing.Count < type.MaxStack &&
+                            _assetOwnership.TryGetOwner(existing.ItemInstanceId, out EconomicActorId owner) &&
+                            owner == EconomicActorId.Player)
+                            return _playerPockets.GetPocket(i);
+            return null;
         }
 
         private bool CanReceiveOneStack(GridInventory inventory, ItemType type, bool rotated,
