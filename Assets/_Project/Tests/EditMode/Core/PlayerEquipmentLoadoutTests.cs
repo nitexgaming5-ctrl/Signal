@@ -137,6 +137,25 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void BackpackCanAttachTheExistingMainGridWithoutCopyingOrLosingItems()
+        {
+            var mainInventory = new GridInventory(8, 6);
+            Guid cargoId = Guid.NewGuid();
+            Assert.That(mainInventory.Place(CreateType(), 0, 0, false, 1, cargoId), Is.Not.Null);
+
+            var storage = new PortableStorageBook();
+            Guid backpackId = Guid.NewGuid();
+            Assert.That(storage.TryRegister(backpackId, mainInventory), Is.True);
+            Assert.That(storage.TryGetContents(backpackId, out GridInventory attached), Is.True);
+            Assert.That(attached, Is.SameAs(mainInventory));
+            Assert.That(attached.TryGetItemInstance(cargoId, out _), Is.True);
+
+            Guid laterCargoId = Guid.NewGuid();
+            Assert.That(attached.Place(CreateType(), 1, 0, false, 1, laterCargoId), Is.Not.Null);
+            Assert.That(mainInventory.TryGetItemInstance(laterCargoId, out _), Is.True);
+        }
+
+        [Test]
         public void EmptyBackpackStorageCanBeRemovedButNonEmptyStorageCannotBeDiscarded()
         {
             var storage = new PortableStorageBook();
