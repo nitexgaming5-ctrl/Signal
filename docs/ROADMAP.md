@@ -73,7 +73,7 @@ Knowledge remains local or explicitly communicated; there is no omniscience, aut
 
 The payment uses a dedicated ServicePaymentTransactionLedger, separate from ownership-changing asset transfers. The return operation is atomic across the two inventories, player/customer balances, payment history and order completion; replay is blocked. Active order and payment history are included in F5/F9. Only one customer job may be active across the existing contract and repair-order flows. No new story NPCs are introduced.
 
-Nine focused EditMode tests cover custody/ownership, successful payment, replay, failed returns, inventory/funds rollback and save/load. Expected suite total is 454 from the user's previous 445 baseline; Unity execution is pending. See [B-06 task card](tasks/LIVELIHOOD-B-06-CUSTOMER-REPAIR-ORDERS.md).
+Ten focused EditMode tests cover custody/ownership, successful payment, replay, failed returns, insufficient funds, player-account overflow, receiver capacity and save/load. Expected suite total is 455 from the user's previous 445 baseline; Unity execution is pending. See [B-06 task card](tasks/LIVELIHOOD-B-06-CUSTOMER-REPAIR-ORDERS.md).
 
 ### B-07 — Neighbourhood expansion
 
