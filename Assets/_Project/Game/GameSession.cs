@@ -359,6 +359,97 @@ namespace Signal.Game
             return CustomerContractPhase.Offered;
         }
 
+        private CustomerRepairOrderPhase GetCustomerRepairOrderPhase()
+        {
+            return firstCustomerRepairOrder != null &&
+                _customerRepairOrders.TryGetState(firstCustomerRepairOrder.Id, out CustomerRepairOrderState state)
+                ? state.Phase : CustomerRepairOrderPhase.Offered;
+        }
+
+        private bool IsNearRepairOrderCustomer(Vector2 playerPosition)
+        {
+            return firstCustomerRepairOrder != null && _contractReceiverInventory != null && _city != null &&
+                _city.IsResidentWithin(firstCustomerRepairOrder.IssuerNpcId, playerPosition, InteractionDistance);
+        }
+
+        private void EnsureCustomerRepairItem()
+        {
+            if (firstCustomerRepairOrder == null || _contractReceiverInventory == null ||
+                !_customerRepairOrders.TryGetState(firstCustomerRepairOrder.Id, out CustomerRepairOrderState order) ||
+                order.Phase != CustomerRepairOrderPhase.Offered)
+                return;
+            ItemType type = firstCustomerRepairOrder.EntrustedItem.ToItemType();
+            foreach (PlacedItem existing in _contractReceiverInventory.Items)
+                if (existing.Type == type && _assetOwnership.TryGetOwner(existing.ItemInstanceId, out EconomicActorId existingOwner) &&
+                    existingOwner == firstCustomerRepairOrder.IssuerActor)
+                    return;
+
+            ItemInstanceState defaults = firstCustomerRepairOrder.EntrustedItem.DefaultInstanceState;
+            var state = new ItemInstanceState(defaults.Quality, firstCustomerRepairOrder.StartingCondition,
+                defaults.Authenticity, ItemOwnershipStatus.Legitimate);
+            PlacedItem? placed = _contractReceiverInventory.Place(type, 0, 0, state: state);
+            if (!placed.HasValue || !_assetOwnership.TryRegister(placed.Value.ItemInstanceId, firstCustomerRepairOrder.IssuerActor))
+                Debug.LogError("GameSession: could not seed the customer's entrusted Work Jacket.");
+        }
+
+        private string AcceptCustomerRepairOrder()
+        {
+            if (!IsNearRepairOrderCustomer(_room.PlayerBody.position)) return "Move closer to the customer.";
+            if (firstCustomerRepairOrder == null || _contractReceiverInventory == null)
+                return "The repair order is unavailable.";
+            CustomerRepairOrderResult result = CustomerRepairOrderService.TryAccept(firstCustomerRepairOrder.Id,
+                firstCustomerRepairOrder.EntrustedItem.ToItemType(), _contractReceiverInventory, _inventory,
+                _economicContainers, _assetOwnership, _customerRepairOrders, _clock.Day, _clock.MinuteOfDay);
+            if (result.Success)
+            {
+                if (_workspace != null) _workspace.Refresh();
+                return "Entrusted jacket received. It remains the customer's property. Repair it at your hideout workbench.";
+            }
+            switch (result.Status)
+            {
+                case CustomerRepairOrderStatus.ItemNotFound: return "The customer's jacket is unavailable.";
+                case CustomerRepairOrderStatus.ItemNotRepairable: return "The customer's jacket does not need this repair.";
+                case CustomerRepairOrderStatus.OwnershipMismatch: return "The customer ownership record could not be verified.";
+                case CustomerRepairOrderStatus.InventoryFull: return "Your inventory has no room for the jacket.";
+                default: return "The repair order could not be accepted. No ownership changed.";
+            }
+        }
+
+        private string ReturnCustomerRepairOrder()
+        {
+            if (!IsNearRepairOrderCustomer(_room.PlayerBody.position)) return "Move closer to the customer.";
+            if (firstCustomerRepairOrder == null || _contractReceiverInventory == null ||
+                !_economicAccounts.TryGetAccount(firstCustomerRepairOrder.IssuerActor, out CleanMoneyAccount payer))
+                return "The customer payment account is unavailable.";
+            CustomerRepairOrderResult result = CustomerRepairOrderService.TryReturn(firstCustomerRepairOrder.Id,
+                firstCustomerRepairOrder.EntrustedItem.ToItemType(), _inventory, _contractReceiverInventory,
+                _economicContainers, _assetOwnership, _stats.CleanMoney, payer, _economicTransactions,
+                _customerRepairOrders, _clock.Day, _clock.MinuteOfDay);
+            if (result.Success)
+            {
+                if (_workspace != null) _workspace.Refresh();
+                return "Jacket returned. Received " + firstCustomerRepairOrder.CleanCardReward +
+                    " clean CARD. Service payment recorded.";
+            }
+            switch (result.Status)
+            {
+                case CustomerRepairOrderStatus.ItemNotRestored: return "Restore the jacket to " + firstCustomerRepairOrder.RequiredReturnCondition + " before returning it.";
+                case CustomerRepairOrderStatus.InsufficientFunds: return "The customer cannot currently afford the agreed service fee.";
+                case CustomerRepairOrderStatus.InventoryFull: return "The customer has no room to receive the jacket.";
+                default: return "Return failed safely. The jacket and both CARD balances were left unchanged.";
+            }
+        }
+
+        private bool CanRepairTarget(Guid itemInstanceId)
+        {
+            if (!_assetOwnership.TryGetOwner(itemInstanceId, out EconomicActorId owner)) return false;
+            if (owner == EconomicActorId.Player) return true;
+            return firstCustomerRepairOrder != null &&
+                _customerRepairOrders.TryGetState(firstCustomerRepairOrder.Id, out CustomerRepairOrderState order) &&
+                order.Phase == CustomerRepairOrderPhase.Active && order.ItemInstanceId == itemInstanceId &&
+                owner == order.Issuer;
+        }
+
         private string AcceptCustomerContract()
         {
             if (!IsNearContractCustomer(_room.PlayerBody.position))
