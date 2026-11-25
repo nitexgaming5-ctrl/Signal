@@ -28,6 +28,8 @@ namespace Signal.Game
 
         private readonly Dictionary<Guid, ItemVisual> _visuals = new Dictionary<Guid, ItemVisual>();
         private GridInventory _playerInventory;
+        private readonly List<GridInventory> _pocketInventories = new List<GridInventory>();
+        private bool _backpackAccessible = true;
         private SearchableContainer _container;
         private string _containerDisplayName;
         private Func<Guid, bool> _takeFirstFit;
@@ -48,6 +50,7 @@ namespace Signal.Game
         private RectTransform _playerGrid;
         private RectTransform _playerCells;
         private RectTransform _playerItems;
+        private RectTransform _pocketItems;
         private Text _containerTitle;
         private Text _playerTitle;
         private Text _status;
@@ -99,19 +102,35 @@ namespace Signal.Game
 
         public void Open(SearchableContainer container, GridInventory playerInventory, string displayName = null)
         {
-            if (container == null || playerInventory == null)
-                throw new ArgumentNullException(container == null ? nameof(container) : nameof(playerInventory));
+            Open(container, playerInventory, null, true, displayName);
+        }
+
+        public void Open(SearchableContainer container, GridInventory backpackInventory,
+            IReadOnlyList<GridInventory> pockets, bool backpackAccessible, string displayName = null)
+        {
+            if (container == null || backpackInventory == null)
+                throw new ArgumentNullException(container == null ? nameof(container) : nameof(backpackInventory));
 
             Unsubscribe();
             CancelDrag();
             _container = container;
             _containerDisplayName = string.IsNullOrWhiteSpace(displayName) ? "CONTAINER" : displayName.ToUpperInvariant();
-            _playerInventory = playerInventory;
-            RebuildPlayerGrid(_playerInventory.Width, _playerInventory.Height);
+            _playerInventory = backpackInventory;
+            _backpackAccessible = backpackAccessible;
+            _pocketInventories.Clear();
+            if (pockets != null)
+                for (int i = 0; i < pockets.Count && i < PlayerPocketBook.PocketCount; i++)
+                    if (pockets[i] != null && !_pocketInventories.Contains(pockets[i]))
+                        _pocketInventories.Add(pockets[i]);
+            RebuildPlayerGrid(_backpackAccessible ? _playerInventory.Width : 1,
+                _backpackAccessible ? _playerInventory.Height : 1);
+            _playerGrid.gameObject.SetActive(_backpackAccessible);
             _lastClickId = Guid.Empty;
             _lastClickTime = -10f;
             _container.Inventory.Changed += OnInventoryChanged;
             _playerInventory.Changed += OnInventoryChanged;
+            for (int i = 0; i < _pocketInventories.Count; i++)
+                _pocketInventories[i].Changed += OnInventoryChanged;
             _open = true;
             _searching = _container.HasSearchStarted && !_container.IsSearchComplete;
             _revealTimer = 0f;
@@ -138,6 +157,8 @@ namespace Signal.Game
         {
             if (_container != null) _container.Inventory.Changed -= OnInventoryChanged;
             if (_playerInventory != null) _playerInventory.Changed -= OnInventoryChanged;
+            for (int i = 0; i < _pocketInventories.Count; i++)
+                _pocketInventories[i].Changed -= OnInventoryChanged;
         }
 
         private void OnInventoryChanged(GridInventory inventory)
@@ -370,15 +391,23 @@ namespace Signal.Game
             if (!_open || _container == null || _playerInventory == null) return;
             ClearChildren(_containerItems);
             ClearChildren(_playerItems);
+            ClearChildren(_pocketItems);
 
             foreach (PlacedItem item in _container.Inventory.Items)
                 if (_container.IsDiscovered(item.ItemInstanceId))
                     CreateItemView(item, _containerItems, _dragging && item.ItemInstanceId == _draggedItemId);
 
-            foreach (PlacedItem item in _playerInventory.Items)
-                CreateItemView(item, _playerItems, _dragging && _dragFromPlayer && item.ItemInstanceId == _draggedItemId);
+            if (_backpackAccessible)
+                foreach (PlacedItem item in _playerInventory.Items)
+                    CreateItemView(item, _playerItems, _dragging && _dragFromPlayer && item.ItemInstanceId == _draggedItemId);
 
-            _playerTitle.text = "CARRIED INVENTORY";
+            for (int pocketIndex = 0; pocketIndex < _pocketInventories.Count; pocketIndex++)
+                foreach (PlacedItem item in _pocketInventories[pocketIndex].Items)
+                    CreateItemViewAt(item, _pocketItems, false, pocketIndex, 0);
+
+            _playerTitle.text = _backpackAccessible
+                ? "BACKPACK STORAGE + PERSONAL POCKETS"
+                : "PERSONAL POCKETS  ·  BACKPACK INACCESSIBLE";
             _status.text = _container.IsSearchComplete ? "Search complete" :
                 _container.HasSearchStarted ? (_searching ? "Searching..." : "Search paused — reopening resumes") :
                 "Contents are concealed";
@@ -393,13 +422,18 @@ namespace Signal.Game
 
         private void CreateItemView(PlacedItem item, RectTransform parent, bool dim)
         {
+            CreateItemViewAt(item, parent, dim, item.X, item.Y);
+        }
+
+        private void CreateItemViewAt(PlacedItem item, RectTransform parent, bool dim, int x, int y)
+        {
             ItemVisual visual = VisualFor(item.Type);
             Color color = visual.Color;
             if (dim) color.a = 0.25f;
             Image image = NewImage("Item_" + item.ItemInstanceId, parent, color);
-            SetTopLeft(image.rectTransform, item.X * CellSize + 2f, item.Y * CellSize + 2f,
+            SetTopLeft(image.rectTransform, x * CellSize + 2f, y * CellSize + 2f,
                 item.FootprintWidth * CellSize - 4f, item.FootprintHeight * CellSize - 4f);
-            string label = visual.Label + (item.Count > 1 ? "\nx" + item.Count : string.Empty);
+            string label = visual.Label + (item.Count > 1 ? "\\nx" + item.Count : string.Empty);
             Text text = NewText("Label", image.transform, label, 12, TextAnchor.MiddleCenter, InkColor);
             Stretch(text.rectTransform);
         }
@@ -457,12 +491,18 @@ namespace Signal.Game
             Center(right.rectTransform, new Vector2(255f, -22f), new Vector2(470f, 470f));
             _playerTitle = NewText("PlayerTitle", right.transform, "CARRIED INVENTORY", 16, TextAnchor.MiddleLeft, TitleColor);
             SetTopLeft(_playerTitle.rectTransform, 18f, 12f, 420f, 30f);
-            _playerGrid = NewRect("Grid", right.transform);
-            SetTopLeft(_playerGrid, 24f, 54f, 6f * CellSize, 4f * CellSize);
+            _playerGrid = NewRect("BackpackGrid", right.transform);
+            SetTopLeft(_playerGrid, 24f, 54f, 8f * CellSize, 6f * CellSize);
             _playerCells = NewRect("Cells", _playerGrid);
             Stretch(_playerCells);
             _playerItems = NewRect("Items", _playerGrid);
             Stretch(_playerItems);
+
+            RectTransform pocketGrid = NewRect("PersonalPockets", right.transform);
+            SetTopLeft(pocketGrid, 24f, 340f, PlayerPocketBook.PocketCount * CellSize, CellSize);
+            BuildGridCells(pocketGrid, PlayerPocketBook.PocketCount, 1);
+            _pocketItems = NewRect("PocketItems", pocketGrid);
+            Stretch(_pocketItems);
 
             _dragGhost = NewImage("DragGhost", _root, Color.white);
             Center(_dragGhost.rectTransform, Vector2.zero, new Vector2(CellSize, CellSize));
