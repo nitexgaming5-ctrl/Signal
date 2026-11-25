@@ -58,7 +58,7 @@ The current implementation status, branch head, verification and next action liv
 - The connected hideout, street, corner bakery and apartment foundations exist.
 - Inventory, item identity/state, knowledge, save/load, ownership transfers, clean accounts, retail, scavenging, theft, Dirty Cash, NPC routines and contextual narrative opportunity foundations exist.
 - The First Workshop B-01 to B-03 foundation and starter content are committed: Fabric Roll/Thread Spool/Adhesive Tube/Fastener Pack → Basic Patch Kit; Milo requests one kit for 40 CARD; Rhea sells the Compact Sewing Machine for 90 CARD after contract completion; the upgrade unlocks Reinforced Patch Kit.
-- The latest user-reported full EditMode result before B-06 was **445/445 passed on 2026-11-25**, including B-05 directionality, generic agenda integration, contract outcomes and persistence.
+- The user has since confirmed **456/456 EditMode tests passed on 2026-11-25**, including B-06 customer repair orders, and reported the B-06 in-game loop passing.
 - B-01–B-05 foundations are implemented; B-05 is user-verified. The user reports the First Workshop and repair/trading flow working in Play Mode.
 - B-06 Customer Repair Orders is now in its first implementation slice. Eleven focused tests have been added; expected suite count is 456 from the 445 baseline, but Unity compilation and test execution are pending.
 
@@ -67,9 +67,10 @@ The current implementation status, branch head, verification and next action liv
 1. **B-01 to B-03 — First Workshop:** implemented; authored physical production, one customer contract and a practical hideout upgrade.
 2. **B-04 — Repair, restoration and textile business:** implemented; the user reports the repair/trading flow working in Play Mode.
 3. **B-05 — Global NPC awareness and affinity:** implemented and user-verified at 445/445 EditMode tests. All three relationship directions remain separate; no new story cast was authored.
-4. **B-06 — Customer Repair Orders:** active implementation. Milo entrusts a Worn Work Jacket; the player repairs it, returns the exact item and receives a separately recorded clean CARD service payment. See tasks/LIVELIHOOD-B-06-CUSTOMER-REPAIR-ORDERS.md.
-5. **B-07 — Livelihood expansion:** future placeholder; choose another coherent activity only after B-06 verification.
-6. **Neighbourhood expansion and crime depth:** continue as separate, scenario-led design reusing the shared city, item and economy foundations.
+4. **B-06 — Customer Repair Orders:** implemented and user-verified at 456/456 EditMode tests plus in-game acceptance. Milo entrusts a Worn Work Jacket; the player repairs it, returns the exact item and receives a separately recorded clean CARD service payment. See tasks/LIVELIHOOD-B-06-CUSTOMER-REPAIR-ORDERS.md.
+5. **B-07 — Neighbourhood Expansion:** original Direction B roadmap phase remains intact; develop when the neighbourhood has enough meaningful interactions to justify more connected space.
+6. **Player Development (parallel track):** P-01 character foundation/appearance and P-02 Armor/Heat Protection, skills and milestone points are designed but not implemented. See the two PLAYER task cards.
+7. **W-01 — Dynamic Weather & Cold Exposure:** separate future system; seasonal rain/storm/snow and gradual cold exposure using Heat Protection. No hot-weather mechanics.
 
 B-06's first code slice is committed, but current-HEAD Unity compilation, full EditMode verification (456 expected from the prior 445 baseline) and the end-to-end Play Mode transaction/save-load loop remain pending. Do not add story NPCs until the main storyline and intended cast are designed.
 
@@ -129,3 +130,10 @@ The agent should use the task and the nature of the change to select relevant re
 - **Player knowledge** and **NPC knowledge** are partial beliefs, not the hidden truth of the world.
 
 When documents disagree, use the newest explicit decision and current implementation as evidence, then repair the stale documentation. Never let an obsolete task card silently override the current source of truth.
+
+
+## Player Development and Weather design documents
+
+- `tasks/PLAYER-P-01-CHARACTER-FOUNDATION-APPEARANCE.md` — replace the existing player's placeholder visual with a modular animated appearance system; preserve movement and save appearance IDs.
+- `tasks/PLAYER-P-02-ATTRIBUTES-SKILLS.md` — exactly Armor and Heat Protection; fixed freely allocated starting skill points; milestone awards; free redistribution.
+- `tasks/WEATHER-W-01-DYNAMIC-WEATHER-COLD-EXPOSURE-DESIGN.md` — separate future weather phase. Heat Protection keeps its name and applies to cold exposure only.
