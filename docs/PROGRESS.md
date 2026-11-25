@@ -10,9 +10,9 @@ Last reconciled: **2026-11-25**. This is the short status board. Session history
 - Latest user-reported full EditMode result: **445/445 passed (2026-11-25)**, including B-05 NPC→player directionality, generic agenda integration, contract outcomes and persistence. B-05 is now user-verified.
 - The user reports the First Workshop and repair/trading flow working in Play Mode. The Work Jacket still needs to be acquired through scavenging to complete the repair loop.
 
-## Completed livelihood foundations — B-01 to B-05
+## Completed livelihood foundations — B-01 to B-05; active B-06 implementation
 
-The first workshop, customer contract, practical hideout upgrade, repair/restoration loop and generic NPC awareness/relationship foundation are implemented. B-05 is now verified at 445/445 EditMode tests. The next roadmap phase is B-06 Livelihood Expansion; its activity and scope must be selected before gameplay implementation.
+The first workshop, customer contract, practical hideout upgrade, repair/restoration loop and generic NPC awareness/relationship foundation are implemented. B-05 is now verified at 445/445 EditMode tests. B-06 Customer Repair Orders is now approved and in its first implementation slice; Unity verification is pending.
 
 **Player outcome:** make physical goods at the hideout, fulfil one authored customer request for clean CARD, then purchase a practical upgrade that unlocks another recipe.
 
@@ -37,7 +37,7 @@ Implementation and authored content are committed. Do not rebuild these systems 
 |---|---|
 | World | Hideout, Street, CornerShop, Apartment and one persistent session |
 | Inventory/items | Grid inventory, stable stack GUIDs, quality/condition/authenticity/ownership, item knowledge and inspection |
-| Economy | Resident CARD accounts, ownership/custody, atomic transfers, fixed-price merchandise, fixed or condition-based authored buyback offers (Unity verification pending) |
+| Economy | Resident CARD accounts, ownership/custody, atomic transfers, fixed-price merchandise, condition-based buyback offers, separate service-payment ledger |
 | Workshop | Actor-aware production, one-active contract, physical fulfilment, issuer-paid reward, upgrade/recipe unlock |
 | Scavenging/crime | One-time searchable physical bins, resident-owned containers, theft outcomes and witness-scoped knowledge |
 | NPCs | Shared social world, local perception, individual knowledge, authored schedules, generic presenter and agenda threads |
@@ -54,13 +54,9 @@ Specialist references: [Architecture](ARCHITECTURE.md), [Data Model](DATA_MODEL.
 
 **EditMode:** the user reports **445/445 passed** on current HEAD (2026-11-25). B-05's six new directionality/agenda tests are included in that result.
 
-**Play Mode:** the user reports the First Workshop and repair/trading features work well. The Work Jacket was not found in scavenging, so its loot availability is being made deterministic for testing.
+**Play Mode:** the user reports the First Workshop and repair/trading features work well. B-06 entrusted jacket is seeded in Milo's inventory; B-06 Play Mode acceptance is pending.
 
-**Current patch acceptance:**
-1. Verify player movement feels right at the new 6 units/second speed (1.5× the previous 4).
-2. Open a newly generated Street bin using `LootProfile_A`; it should contain a Work Jacket for repair testing. Existing generated bins retain their saved contents, so use a fresh/reset test bin or a fresh test save.
-3. Confirm interaction pauses freeze NPC movement without blocking clock-driven schedule/activity changes; verify the resident replans toward the latest destination when the panel closes. Explicit debug-time movement must bypass only the short dialogue grace timer, not panel pauses, simulation pauses or a paused game clock.
-4. Run the full EditMode suite and the combined B-01–B-04 Play Mode loop again.
+**Next B-06 acceptance:** compile the current branch in Unity, run the full EditMode suite (nine focused repair-order tests added; expected 454/454 from the previous 445 baseline), then exercise acceptance → workshop repair → exact-item return → customer debit/player credit → replay rejection and F5/F9 persistence. B-04 scavenging repair acceptance remains a separate existing loop.
 
 The guaranteed Work Jacket entry is explicitly temporary test scaffolding and should be removed or changed back to a low-weight normal entry once the repair loop is fully validated.
 
@@ -103,7 +99,7 @@ Task specification: `tasks/LIVELIHOOD-B-05-GLOBAL-NPC-AWARENESS-AFFINITY.md`.
 
 
 - `Assets/_Project/Content/Items/` and `Assets/_Project/Content/items/` differ only by case and may collide on Windows. New authored content currently uses distinct folders such as `Content/WorkshopItems/`; preserve GUIDs and do not merge/rename those folders outside Unity Editor.
-- Deliberately deferred: universal supply/demand, automatic NPC shopping, finite stock simulation, market-wide/time-/demand-driven price changes, passive income, production timers/queues, procedural/multiple contracts, partial-stack contract delivery, customer-owned repairs, random repair failure, broad relationship rewards, police response, global rumour cascades and new districts. Selective authored condition-based buyback is the approved narrow exception.
+- Deliberately deferred: universal supply/demand, automatic NPC shopping, finite stock simulation, market-wide/time-/demand-driven price changes, passive income, production timers/queues, procedural or concurrent customer jobs, partial-stack contract delivery, repair queues/random failure, broad relationship rewards, police response, global rumour cascades and new districts. Selective authored condition-based buyback is the approved narrow exception.
 
 ## Documentation maintenance
 
@@ -115,12 +111,11 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 - This is a focused test/readability correction; no runtime behavior or public API was changed. Unity verification remains required.
 
 
-## Current B-05 integration — customer relationship outcomes
+## B-05 relationship outcome integration (completed)
 
-- Customer contracts now support authored player→issuer familiarity, trust and affinity deltas. The GameSession passes the issuer's stable NPC ID and authored values into the generic Core fulfilment service.
-- Player→issuer relationship changes occur only after the exact item transfer, customer payment and contract completion all succeed. The contract's Completed state blocks replay, so the outcome cannot be applied twice.
-- The generic contract hook currently targets the player→issuer relationship book. Milo's current contract keeps all deltas at zero until the separate NPC→player opinion owner is designed; a customer's successful delivery should not be misrepresented as the player's trust in that customer.
-- Added regression tests for one-time issuer-only changes and invalid delta rejection. Unity verification is pending.
+- Customer contracts route authored player→issuer and issuer→player outcomes to their distinct canonical owners. Both apply only after successful transfer/payment/completion and cannot be replayed.
+- Generic agenda gates and choices can read/write either player→NPC or NPC→player perspective; repeatable choices cannot farm relationship deltas.
+- These changes are included in the user's confirmed 445/445 full EditMode result.
 
 ## Free Pixel Survival Items Pack — local licensed import
 
@@ -132,3 +127,15 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 - Unity import/compile/Play Mode verification remains pending.
 
 
+
+
+
+## Active initiative — B-06 Customer Repair Orders
+
+- The user approved the entrusted-item repair service. Existing Milo is the first framework/test issuer; no new NPC cast or story content is added.
+- The authored order seeds one Worn Work Jacket into Milo's registered inventory. F opens the repair-order panel; E remains the existing customer-contract interaction.
+- Acceptance moves the exact item into player custody while Milo remains its registered owner. The shared workbench repairs that active entrusted target with a player-owned Basic Patch Kit; Worn becomes Good.
+- Returning the exact item moves it back to Milo and atomically transfers 35 clean CARD from Milo to the player. A dedicated ServicePaymentTransactionLedger records the payment separately from physical asset transfers. Failed returns roll back item movement and both balances; one active customer job is enforced across contract and repair-order acceptance.
+- F5/F9 persists order phase, item location/owner, accounts and service-payment history.
+- Nine focused EditMode tests added for ownership, repair, payment, replay, insufficient funds, receiver capacity and active/completed save/load. Expected suite count **454** from the prior 445 baseline; Unity compilation and execution are pending.
+- Task card: tasks/LIVELIHOOD-B-06-CUSTOMER-REPAIR-ORDERS.md.
