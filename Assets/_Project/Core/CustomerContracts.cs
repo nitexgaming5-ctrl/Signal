@@ -209,7 +209,9 @@ namespace Signal.Core
             EconomicTransactionLedger economicTransactions, CleanMoneyAccount playerAccount,
             CleanMoneyAccount payerAccount, CustomerContractBook contracts, int day, int minuteOfDay,
             PlayerRelationshipBook relationships = null, string relationshipNpcId = null,
-            float familiarityDelta = 0f, float trustDelta = 0f, float affinityDelta = 0f)
+            float familiarityDelta = 0f, float trustDelta = 0f, float affinityDelta = 0f,
+            NpcSocialWorld npcSocialWorld = null, string npcOpinionNpcId = null,
+            float npcFamiliarityDelta = 0f, float npcTrustDelta = 0f, float npcAffinityDelta = 0f)
         {
             if (contractId == Guid.Empty || itemInstanceId == Guid.Empty || requiredQuantity < 1 ||
                 reward < 1 || !receiverActor.IsValid || !payerActor.IsValid ||
@@ -220,6 +222,11 @@ namespace Signal.Core
                 contracts == null || day < 1 || minuteOfDay < 0 || minuteOfDay >= 1440 ||
                 !ValidRelationshipDelta(familiarityDelta) || !ValidRelationshipDelta(trustDelta) ||
                 !ValidRelationshipDelta(affinityDelta) ||
+                !ValidRelationshipDelta(npcFamiliarityDelta) || !ValidRelationshipDelta(npcTrustDelta) ||
+                !ValidRelationshipDelta(npcAffinityDelta) ||
+                ((npcFamiliarityDelta != 0f || npcTrustDelta != 0f || npcAffinityDelta != 0f) &&
+                 (npcSocialWorld == null || string.IsNullOrWhiteSpace(npcOpinionNpcId) ||
+                  payerActor.Value != "resident:" + npcOpinionNpcId)) ||
                 ((familiarityDelta != 0f || trustDelta != 0f || affinityDelta != 0f) &&
                  (relationships == null || string.IsNullOrWhiteSpace(relationshipNpcId) ||
                   payerActor.Value != "resident:" + relationshipNpcId)))
@@ -273,6 +280,9 @@ namespace Signal.Core
 
             if (familiarityDelta != 0f || trustDelta != 0f || affinityDelta != 0f)
                 relationships.Adjust(relationshipNpcId, familiarityDelta, trustDelta, affinityDelta);
+            if (npcFamiliarityDelta != 0f || npcTrustDelta != 0f || npcAffinityDelta != 0f)
+                npcSocialWorld.AdjustPlayerRelationship(npcOpinionNpcId,
+                    npcFamiliarityDelta, npcTrustDelta, npcAffinityDelta);
 
             return new CustomerContractFulfilmentResult(CustomerContractFulfilmentStatus.Completed,
                 transfer.Transaction, reward);
