@@ -9,6 +9,7 @@ Definitions describe what something is and belong in Game-layer ScriptableObject
 - **ItemDefinition:** stable Guid, display name/description/category, base reference value, footprint, max stack, optional icon and default ItemInstanceState.
 - **RecipeDefinition:** stable Guid, display name/description, explicit Immediate timing, ItemDefinition input entries and one ItemDefinition output with positive quantities.
 - **CustomerContractDefinition:** stable Guid, customer/issuer NPC ID, required ItemDefinition/quantity, fixed clean CARD reward, goods eligibility and whole-stack delivery mode.
+- **CustomerRepairOrderDefinition:** stable Guid, issuer NPC ID, entrusted ItemDefinition, fixed clean CARD service fee, starting condition and required return condition.
 - **WorkshopUpgradeDefinition:** stable Guid, description, unlocked recipe, installed prop prefab/offset, acquisition mode, prerequisite, positive CARD cost and resident payee NPC ID.
 - **NpcCharacterDefinition:** stable NPC ID, display name, public role, awareness/movement settings, starting clean balance, utility routine profile, destinations, appearance and dialogue.
 - **NpcAgendaDefinition:** stable NPC ID, prioritized independent threads, sequential stages, activity/place/discovery/relationship/opportunity/contract/upgrade conditions and typed player choices. Workshop offer choices reference existing WorkshopUpgradeDefinition assets.
@@ -29,11 +30,14 @@ New ScriptableObjects generate their stable Guid once. Never change it after con
 - **NpcAgendaProgressBook:** completed NPC/thread/stage IDs and selected choice IDs; dialogue content remains in Game ScriptableObjects.
 - **CleanMoneyAccount / EconomicAccountBook:** clean CARD integer balances by actor. Dirty Cash is never an account field.
 - **AssetOwnershipBook / EconomicContainerRegistry:** asset owner and container custodian are distinct registries.
-- **AssetTransferService / EconomicTransactionLedger:** atomic physical ownership-changing transfer and append-only transaction history.
+- **AssetTransferService / EconomicTransactionLedger:** atomic physical ownership-changing transfer and append-only asset transaction history.
+- **CustomerRepairOrderBook / CustomerRepairOrderService:** one active entrusted-item repair order; item custody moves between registered inventories while AssetOwnershipBook continues to identify the resident as owner. Return atomically restores the item to the issuer, debits issuer CARD, credits player CARD and completes the order.
+- **ServicePaymentTransactionLedger:** append-only clean CARD service fees, linked to the order and entrusted item but separate from physical asset transfers; one payment per order ID.
 - **RetailTransactionLedger / ShopSaleTransactionLedger:** authored catalogue purchases and player sell-to-shop operations are separate from physical asset transfer.
 - **Dirty Cash ledgers:** illicit exchange and cleaning histories are distinct from clean retail.
 - **ProductionService / ProductionTransactionLedger:** actor-owned production and operator/time/recipe/output history.
 - **CustomerContractBook:** one active authored contract state, acceptance/completion time, reward/payer and delivery transaction identity.
+- **CustomerRepairOrderBook:** authored order lifecycle, exact entrusted item instance, acceptance/completion time and payment transaction identity.
 - **WorkshopProgressionBook:** acquired upgrade IDs; recipe definitions remain authored content.
 - **SearchableContainer:** stable identity, generated inventory, reveal order, search-started state and discovered count.
 - **CrimeOutcomeLedger / CriminalProgressionTrack / HeatMeter:** semantic crime outcomes, global criminal progression and current heat are separate concepts.
@@ -50,6 +54,7 @@ The current `SaveData` snapshot persists:
 - searchable container generation/content/reveal state;
 - criminal progression and crime outcomes, including selected witness observation identity;
 - physical Dirty Cash contact inventory and illicit exchange/cleaning ledgers;
+- customer repair-order lifecycle and service-payment transactions, alongside the entrusted item's inventory location and unchanged resident ownership;
 - production transactions/operator, customer contract lifecycle, acquired workshop upgrade IDs, issuer receiver inventory and receiver actor identity;
 - completed NPC agenda stage/choice progress by stable NPC/thread/stage IDs.
 
