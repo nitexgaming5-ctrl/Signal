@@ -155,6 +155,10 @@ namespace Signal.Core
                 _contents.ContainsKey(backpackInstanceId))
                 return false;
 
+            foreach (GridInventory registeredContents in _contents.Values)
+                if (ReferenceEquals(registeredContents, existingContents))
+                    return false;
+
             _contents.Add(backpackInstanceId, existingContents);
             return true;
         }
