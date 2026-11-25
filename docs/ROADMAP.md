@@ -55,7 +55,7 @@ These are approved direction placeholders, not implementation permission for un-
 
 ### B-04 — Repair and restoration
 
-**Status: approved design and implementation committed; Unity verification pending.** See [LIVELIHOOD-B-04](tasks/LIVELIHOOD-B-04-REPAIR-RESTORATION.md) and [Decision 0006](decisions/0006-hybrid-buyback-and-textile-business.md).
+**Status: implemented and user-reported working in Play Mode; included in the later 445/445 full EditMode result.** See [LIVELIHOOD-B-04](tasks/LIVELIHOOD-B-04-REPAIR-RESTORATION.md) and [Decision 0006](decisions/0006-hybrid-buyback-and-textile-business.md).
 
 The approved first loop uses Rhea as a textile buyer/supplier, a Worn unstackable Work Jacket from an existing scavenging loot profile, fixed-price raw repair materials, and one per-condition buyback schedule for that jacket. The existing hideout workbench/Compact Sewing Machine and Basic/Reinforced Patch Kits provide the repair path. Repairs change Condition only, preserve stable identity and all other state/provenance, refresh the player's Condition knowledge as direct inspection and persist through the current unversioned save round trip.
 
