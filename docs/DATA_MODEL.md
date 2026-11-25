@@ -142,3 +142,12 @@ P-03 still owns actual clothing/armor item slots, physical item identity/custody
 - EquippedItem retains the exact PlacedItem and authored Armor/Heat Protection modifiers. PlayerEquipmentLoadout transfers exact single item instances between GridInventory and a slot, rejects duplicate identity/occupied slots, and aggregates effective attributes. It does not change AssetOwnershipBook.
 - PortableStorageBook maps a stable backpack item instance GUID to its own GridInventory. Contents are attached to the physical backpack identity rather than to the player or equipment slot.
 - GameSession integration, SaveData DTOs, visual wearables, UI and world drop/pickup are still pending. The world representation must reuse existing economic/container custody authorities and preserve the same backpack identity and nested contents.
+
+
+## Equipped items and backpack association — P-03 second slice
+
+- Game `ItemDefinition` now optionally authors `Equippable`, `EquipmentSlot`, Armor and Heat Protection modifiers, and portable-backpack dimensions. Core remains Unity-free.
+- `SavedEquippedItem` stores stable item instance ID, definition ID, owner actor ID, slot, modifiers, item state and portable-backpack marker.
+- `GameSession` captures/restores equipped items alongside the existing `GridInventory` save path. The current backpack implementation binds the existing 8×6 player grid to the backpack instance ID without copying; this keeps current contents intact and avoids a parallel inventory representation.
+- Temporary test grid is 8×6. Final no-backpack state is approved as 2–3 personal pockets; restriction and active-grid switching await the physical backpack drop/pickup slice.
+- Prototype item assets: Canvas Backpack (Accessory 1), Padded Work Jacket (Armor +2, Heat Protection +1), Insulated Coat (Armor +0, Heat Protection +3). Modifiers are test fixtures only.
