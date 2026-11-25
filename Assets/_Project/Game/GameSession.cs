@@ -197,7 +197,8 @@ namespace Signal.Game
             _clock.DayStarted += OnDayStarted;
 
             BuildCatalog();
-            GiveStartingItems();
+            // Fresh sessions start with no debug cargo. The 8x6 grid becomes accessible only
+            // when a portable backpack is equipped; debug-spawned backpacks auto-equip below.
             RegisterUnownedPlayerAssets(_inventory);
 
             Camera camera = Camera.main;
@@ -244,7 +245,7 @@ namespace Signal.Game
             _panel = gameObject.AddComponent<InventoryPanel>();
             _panel.Bind(_inventory, _allItemDefinitions, _itemViewer.Open, TryEquipPlayerItem, TryUnequipPlayerSlot,
                 _playerEquipment, DropPlayerBackpack, () => _equippedBackpackInstanceId.HasValue,
-                () => !_droppedBackpackItem.HasValue);
+                () => _equippedBackpackInstanceId.HasValue && !_droppedBackpackItem.HasValue);
             _debugItemSpawnerPanel = gameObject.AddComponent<DebugItemSpawnerPanel>();
             _debugItemSpawnerPanel.Bind(_allItemDefinitions, SpawnDebugItem);
             _containerPanel = gameObject.AddComponent<SearchableContainerPanel>();
@@ -943,10 +944,12 @@ namespace Signal.Game
                 _hud.SetPrompt("ESC  Close storage");
             else if (nearDroppedBackpack)
                 _hud.SetPrompt("E  Pick up backpack");
-            else if (_droppedBackpackItem.HasValue && IsWorldTransitionPrompt(worldPrompt))
+            else if (!_equippedBackpackInstanceId.HasValue && IsWorldTransitionPrompt(worldPrompt))
                 _hud.SetPrompt(FormatWorldTransitionPrompt(worldPrompt));
-            else if (_droppedBackpackItem.HasValue)
-                _hud.SetPrompt("Backpack dropped — recover it before item interactions");
+            else if (!_equippedBackpackInstanceId.HasValue)
+                _hud.SetPrompt(_droppedBackpackItem.HasValue
+                    ? "Backpack dropped — recover it before item interactions"
+                    : "No backpack equipped — equip one to carry items");
             else if (inventoryOpen && _equippedBackpackInstanceId.HasValue)
                 _hud.SetPrompt("B  Drop backpack");
             else if (inventoryOpen)
@@ -1001,24 +1004,28 @@ namespace Signal.Game
                 return;
             }
 
-            if (_droppedBackpackItem.HasValue)
+            if (!_equippedBackpackInstanceId.HasValue)
             {
                 if (keyboard.f5Key.wasPressedThisFrame) SaveGame();
                 if (keyboard.f9Key.wasPressedThisFrame) LoadGame();
                 if (keyboard.f6Key.wasPressedThisFrame) Sleep();
                 if (keyboard.eKey.wasPressedThisFrame)
                 {
-                    // World navigation is not an item interaction: allow doors/exits while the bag is dropped.
-                    if (IsWorldTransitionPrompt(cityPrompt) && _city.TryInteract(playerPosition))
+                    // World navigation remains available without a carried inventory.
+                    if (IsWorldTransitionPrompt(worldPrompt) && _city.TryInteract(playerPosition))
                     {
                         Say("Location: " + _city.CurrentPlace, 3f);
                         return;
                     }
 
-                    Say("Your backpack is on the ground. Recover it before using item-based interactions.", 3f);
+                    Say(_droppedBackpackItem.HasValue
+                        ? "Your backpack is on the ground. Recover it before using item-based interactions."
+                        : "You need to equip a backpack before using item-based interactions.", 3f);
                 }
                 else if (keyboard.fKey.wasPressedThisFrame)
-                    Say("Your backpack is on the ground. Recover it before using item-based interactions.", 3f);
+                    Say(_droppedBackpackItem.HasValue
+                        ? "Your backpack is on the ground. Recover it before using item-based interactions."
+                        : "You need to equip a backpack before using item-based interactions.", 3f);
                 return;
             }
 
@@ -2528,21 +2535,6 @@ namespace Signal.Game
             foreach (PlacedItem item in inventory.Items)
                 if (!_assetOwnership.TryGetOwner(item.ItemInstanceId, out _))
                     _assetOwnership.TryRegister(item.ItemInstanceId, EconomicActorId.Player);
-        }
-
-        private void GiveStartingItems()
-        {
-            if (items == null)
-                return;
-
-            foreach (ItemDefinition definition in items)
-            {
-                if (definition == null)
-                    continue;
-
-                ItemType type = definition.ToItemType();
-                _inventory.Add(type, type.MaxStack, definition.DefaultInstanceState);
-            }
         }
 
         private ItemType? ResolveType(Guid id)
