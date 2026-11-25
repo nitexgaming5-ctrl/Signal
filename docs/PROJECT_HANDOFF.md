@@ -16,7 +16,7 @@ Signal is a top-down 2D urban RPG built on Unity 6000.6.9f1.
 ## Current verified baseline
 - Working branch: `chore/collaboration-workflow-and-audit`; keep `main` untouched.
 - Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
-- User confirmed **500/500 EditMode tests passing** after direct pocket-to-pocket moves/swaps (2026-11-26). P-03.5 source changes since that checkpoint cover Retail SELL, Dirty Cash selection and Home Storage across accessible pockets/backpack; those new changes are not yet Unity-verified. Play Mode acceptance remains outstanding.
+- User confirmed **500/500 EditMode tests passing** after direct pocket-to-pocket moves/swaps (2026-11-26). P-03.5 source changes since that checkpoint cover Retail SELL, Dirty Cash selection, Home Storage, Searchable Container pocket display, workbench repair and multi-grid production across accessible pockets/backpack; two targeted EditMode tests were added, but these changes are not yet Unity-verified. Play Mode acceptance remains outstanding.
 - B-06 Customer Repair Orders is complete: entrusted item custody remains distinct from ownership; exact item return and 35 CARD payment are atomic and replay-protected.
 - B-04 repair/trading and the First Workshop have also been reported working in Play Mode.
 - Unity remains the authority for compile, test and Play Mode verification. Never infer a pass from source edits.
@@ -32,7 +32,7 @@ Candidate skills (Repair, Production, Trading, Scavenging, Social), starting bud
 Dynamic seasonal weather is planned: temperature changes, rain, storms, snow and blizzards. Player exposure consequences are cold-focused and gradual. Heat Protection mitigates cold exposure; shelter supports recovery. No hot-weather/overheating gameplay is planned. W-01 is separate from P-01/P-02 and is not authorized for implementation.
 
 ## Next action — P-03.5 pocket-aware service-panel integration
-The user has confirmed **500/500 EditMode tests passing** on 2026-11-26. Resume the original P-03 Equipment & Backpack track. The next coherent slice is an audit and integration pass for item operations that still assume the 8×6 backpack grid is the only player inventory: start with Retail SELL and Dirty Cash item selection, then home storage and workbench/production inputs/outputs. Preserve atomic transactions, stable item identity/ownership, and strict inaccessibility of dropped-backpack cargo. See the P-03 task card for the complete remaining sequence.
+The user has confirmed **500/500 EditMode tests passing** on 2026-11-26. Resume the original P-03 Equipment & Backpack track. The current P-03.5 implementation already integrates Retail SELL, Dirty Cash selection, Home Storage, Searchable Container pocket display, workbench repair and multi-grid production. Continue auditing any remaining 8×6-backpack-only assumptions, preserve atomic transactions and stable item identity/ownership, and keep dropped-backpack cargo strictly inaccessible. See the P-03 task card for the complete remaining sequence.
 
 Current implementation:
 - Seven equipment slots are approved; Canvas Backpack occupies Accessory 1 and owns the 8×6 contents grid.
@@ -42,7 +42,7 @@ Current implementation:
 - NPC conversations and customer-contract acceptance are available without a backpack. CustomerContractPanel can list and fulfil pocket-held goods. Physical item receipt routes to pockets for repair-order acceptance, shop purchase, searchable-container pickup and Milo's parcel.
 - When no backpack is accessible, Retail and Dirty Cash panels use an empty carry view rather than exposing the dropped backpack's cargo. Pocket-held items are not yet listed in Retail SELL or Dirty Cash selection.
 - Home-storage transfer and workbench/production still require an equipped backpack. Clothing sprite overlays and broader service-panel pocket support remain future P-03 work.
-- The user-confirmed EditMode suite is 500/500. Remaining P-03 work: pocket-aware service panels/home storage/workbench, wearable visuals, remove temporary debug starting-loadout seeding, and full Play Mode acceptance. Keep B-07 and W-01 as separate roadmap tracks.
+- The user-confirmed EditMode suite is 500/500. Remaining P-03 work: finish the direct-grid assumption audit, wearable visuals, remove temporary debug starting-loadout seeding, and full Play Mode acceptance. Keep B-07 and W-01 as separate roadmap tracks.
 
 
 ## Latest implementation — P-01/P-02 first slice (2026-11-25)
