@@ -6,7 +6,11 @@ Signal is a top-down urban RPG about making a precarious living in one shared ci
 
 This roadmap describes the direction and dependencies. Current implementation and verification are authoritative in `PROGRESS.md`; detailed approved player-facing rules live in `DESIGN.md`.
 
-## Active initiative — Direction B: First Workshop (B-01 to B-03)
+## Completed sequence — Direction B: First Workshop through Global NPC Awareness (B-01 to B-05)
+
+B-01–B-04 establish the player-operated workshop, one active customer contract, practical hideout upgrade, repair/restoration and the first textile buyer/supplier loop. B-05 adds generic individual NPC awareness and all three independent relationship directions. The user confirmed **445/445 EditMode tests passing on 2026-11-25**. These foundations are the baseline for the next livelihood activity; do not rebuild them without a concrete defect.
+
+**Next: B-06 — Livelihood Expansion (design pending).** Select one additional coherent activity and define its complete player-facing loop before implementation. The existing roadmap intentionally does not prescribe a profession simulator or a new NPC cast.
 
 **Player outcome:** produce useful physical goods in the hideout, fulfil one authored customer request, receive clean CARD and invest in a practical upgrade that unlocks another recipe.
 
@@ -31,7 +35,7 @@ Approved model:
 
 The implementation foundation and starter content for all three packages are committed. The active scene references the catalogue, two recipes, contract, upgrade prefab and resident definitions. The active task cards provide file-level acceptance criteria.
 
-**Verification update (2026-11-24):** the user's last full report was **417/417 EditMode tests passing**, before the B-04 hybrid pricing, textile assets, counter geometry, repair service/UI and new tests. It is a historical baseline only; current HEAD needs a fresh full suite. The workbench, selling and Milo's customer-request flow were confirmed in Play Mode. Remaining First Workshop acceptance is the full Rhea dialogue/supplier interaction, machine installation, second recipe production and save/reload loop.
+**Verification update (2026-11-25):** the user reports **445/445 EditMode tests passing** on current HEAD. B-01–B-05 code and the B-05 relationship/agenda integration are included in that result. Continue to treat Play Mode acceptance separately from EditMode verification; do not infer unreported gameplay checks.
 
 ### Exit criteria
 
@@ -59,13 +63,13 @@ The catalogue model is hybrid but bounded: merchandise remains fixed-price; each
 
 ### B-05 — Global NPC awareness & affinity
 
-**Status: shared framework implemented; current verification pending.** Every registered NPC has individual sourced knowledge, directed NPC-to-NPC relationships and a separate opinion of the player. The player's opinion of each NPC remains in `PlayerRelationshipBook`; NPC opinions of the player and NPC-to-NPC relationships live with each `NpcAgentState` inside `NpcSocialWorld`. All three directions use the same `NpcRelationship` value model and persist independently through F5/F9. Customer-contract definitions can author outcomes in either direction, applied only after successful delivery, payment and completion.
+**Status: implemented and user-verified; 445/445 EditMode tests passed (2026-11-25).** Every registered NPC has individual sourced knowledge, directed NPC-to-NPC relationships and a separate opinion of the player. The player's opinion of each NPC remains in `PlayerRelationshipBook`; NPC opinions of the player and NPC-to-NPC relationships live with each `NpcAgentState` inside `NpcSocialWorld`. All three directions use the same `NpcRelationship` value model and persist independently through F5/F9. Customer-contract definitions can author outcomes in either direction, applied only after successful delivery, payment and completion.
 
 Knowledge remains local or explicitly communicated; there is no omniscience, automatic city-wide gossip, ambient trust/affinity farming or universal reputation. **This phase builds reusable NPC infrastructure, not the cast:** Rhea, Milo and the existing Dirty Cash contact are framework/test residents only. Do not add residents, personalities, backstories or story content until the main storyline and cast are deliberately designed. See [B-05 task card](tasks/LIVELIHOOD-B-05-GLOBAL-NPC-AWARENESS-AFFINITY.md).
 
 ### B-06 — Livelihood expansion
 
-Choose one additional coherent activity such as material processing, food preparation, repair service, trade or an authored NPC-owned production business. Build one complete loop at a time. Do not build a generic profession simulator.
+**Status: next design phase; activity not yet selected.** Candidate directions include entrusted-item repair service, material processing, food preparation or an authored NPC-owned production business. Evaluate each against existing workshop, repair, contract, inventory and relationship foundations. Build one complete loop at a time; do not build a generic profession simulator or add story NPCs before the storyline/cast is designed.
 
 ### B-07 — Neighbourhood expansion
 
@@ -123,4 +127,4 @@ Completed task specifications and their verification snapshots are archived unde
 
 ## Active social foundation — B-05 Global NPC Awareness & Affinity
 
-B-05 preserves three distinct directions: player→NPC in `PlayerRelationshipBook`; NPC→NPC and NPC→player on each `NpcAgentState` in `NpcSocialWorld`. Each uses the shared `NpcRelationship` value model. Individual knowledge and all NPC-owned relationship directions persist through F5/F9. Customer contracts now support authored outcomes for both the player's impression of the issuer and the issuer's impression of the player. The user confirmed **439/439** before this latest directionality slice; its new focused tests still require a fresh Unity run. No new story NPCs are to be authored during this framework phase.
+B-05 preserves three distinct directions: player→NPC in `PlayerRelationshipBook`; NPC→NPC and NPC→player on each `NpcAgentState` in `NpcSocialWorld`. Each uses the shared `NpcRelationship` value model. Individual knowledge and all NPC-owned relationship directions persist through F5/F9. Customer contracts now support authored outcomes for both the player's impression of the issuer and the issuer's impression of the player. The user confirmed **445/445** after the NPC→player and generic agenda integration. No new story NPCs were authored during this framework phase.
