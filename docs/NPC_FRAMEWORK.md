@@ -26,7 +26,8 @@ NPCs are individuals inside one shared city simulation. They occupy the same pla
 - Do not broadcast rumours automatically across the city.
 - Ambient scheduled encounters currently provide restrained NPC→NPC familiarity/social contact; trust and affinity changes belong to explicit player actions or authored scenarios.
 - PlayerRelationshipBook owns player→NPC impressions. Each NpcAgentState owns that NPC's opinion of the player plus its directed relationships with other NPCs. Do not register the player as an NPC or merge these owners.
-- Customer contracts may author issuer→player outcomes, applied only after successful delivery, payment and contract completion. Future agenda/scenario integrations must use generic NPC IDs and authored deltas, never character-specific runtime branches.
+- Customer contracts may author issuer→player outcomes, applied only after successful delivery, payment and contract completion.
+- Generic agenda stages can select whether relationship gates read player→NPC or NPC→player state. Generic agenda choices can author outcomes in either direction; repeatable choices cannot award relationship changes. All paths use generic NPC IDs, never character-specific runtime branches.
 - Current residents such as Rhea, Milo and the Dirty Cash contact are test/framework content. Do not expand the cast or write new character backstories before the main storyline and cast are designed.
 - Keep one generic `NpcPresenter`; character-specific narrative belongs in authored definitions and agenda content.
 - Add persistence only for meaningful durable state with stable IDs and current-build round-trip tests.
