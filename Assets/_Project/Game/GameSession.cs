@@ -2818,19 +2818,18 @@ namespace Signal.Game
             return false;
         }
 
-        private bool MoveItemToPocket(Guid itemInstanceId)
+        private bool MoveItemToPocket(Guid itemInstanceId, int pocketIndex)
         {
             if (_playerPockets == null || _inventory == null ||
                 !_inventory.TryGetItemInstance(itemInstanceId, out _))
                 return false;
-            for (int i = 0; i < PlayerPocketBook.PocketCount; i++)
-                if (_playerPockets.TryMoveFrom(_inventory, itemInstanceId, i))
-                {
-                    Say("Moved item to personal pocket " + (i + 1) + ".");
-                    return true;
-                }
-            Say("No free pocket, or the item is too large for a personal pocket.", 4f);
-            return false;
+            if (!_playerPockets.TryMoveFrom(_inventory, itemInstanceId, pocketIndex))
+            {
+                Say("That pocket is occupied, or the item is too large for a personal pocket.", 4f);
+                return false;
+            }
+            Say("Moved item to personal pocket " + (pocketIndex + 1) + ".");
+            return true;
         }
 
         private bool MovePocketToBackpack(int pocketIndex)
