@@ -24,6 +24,9 @@ namespace Signal.Core.Tests
             EffectiveCharacterAttributes effective = CharacterAttributeCalculator.Calculate(attributes, 3, -1);
             Assert.That(effective.Armor, Is.EqualTo(5));
             Assert.That(effective.HeatProtection, Is.EqualTo(3));
+            EffectiveCharacterAttributes clamped = CharacterAttributeCalculator.Calculate(
+                new PlayerAttributeSet(int.MaxValue, 0), 1, -1);
+            Assert.That(clamped.Armor, Is.EqualTo(int.MaxValue));
             Assert.That(attributes.Armor, Is.EqualTo(2));
             Assert.That(attributes.HeatProtection, Is.EqualTo(4));
         }
@@ -84,6 +87,7 @@ namespace Signal.Core.Tests
             Assert.That(state.Progression.TryAwardMilestone(state.Milestones, "first-contract", 3, "contract-1"), Is.True);
             Assert.That(state.Progression.TryAwardMilestone(state.Milestones, "first-contract", 3, "contract-1"), Is.False);
             Assert.That(state.Progression.TryAwardMilestone(state.Milestones, "zero", 0, "event"), Is.False);
+            Assert.That(state.Progression.TryAwardMilestone(state.Milestones, "missing-source", 2, string.Empty), Is.False);
             Assert.That(state.Progression.TotalPoints, Is.EqualTo(5));
             Assert.That(state.Milestones.TotalAwardedPoints, Is.EqualTo(3));
         }
