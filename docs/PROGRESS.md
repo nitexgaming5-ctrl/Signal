@@ -151,3 +151,15 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 - Candidate skills Repair, Production, Trading, Scavenging and Social remain provisional; numeric starting budget, rank caps/costs and milestone rewards remain open.
 - W-01 Dynamic Weather & Cold Exposure is documented as a separate future phase: dynamic seasonal weather including temperature changes, rain, storms, snow and blizzards; gradual cold exposure; shelter and effective Heat Protection reduce exposure. No implementation is authorized.
 - No gameplay code, assets, scenes, packages or tests were changed in this documentation milestone.
+
+
+## Player Development implementation slice — 2026-11-25
+
+- **P-01 code committed:** modular five-part Body_A player visual, shared idle/walk frame clock, Down/Side/Top facing and side mirroring. RoomBootstrap preserves existing physics/movement and uses a fallback placeholder until the supplied ZIP is imported.
+- **Character resource import:** Unity menu `Signal > Import World Build Character Pack...` extracts all Body_A PNG sheets into Resources and configures pixel-art texture settings. The archive is not checked into the repository; the user must select their supplied ZIP once in the Unity Editor. The supplied pack provides one modular base body, not a full clothing/armor wardrobe.
+- **P-02 code committed:** Armor and Heat Protection Core attributes; pure effective-attribute modifier calculator; skill book; configurable point progression; one-time milestone ledger; free respecialization; SaveData capture/restore; authored provisional skill catalog; F2 debug allocation panel.
+- Prototype catalog tuning is currently **8 starting points, rank cap 5, 1 point per rank**. These are editable prototype defaults, not final balance. Repair, Production, Trading, Scavenging and Social remain provisional. Skill ranks are persisted and allocated, but activity-specific skill effects have not been wired pending approval of their exact effects.
+- GameSession exposes `TryAwardPlayerMilestone`; no automatic milestone awards have been attached to activities yet. Only successful, stable-ID gameplay events should call it.
+- Eleven focused EditMode tests were added for attributes, modifier calculation, allocation, overspending, rank cap, respecialization, milestone idempotency, save/load and invalid data handling.
+- **Verification boundary:** the user-confirmed 456/456 baseline predates this code slice. Expected current suite count is **467**, but Unity compilation, tests and Play Mode have not yet been run. Do not mark this slice verified until the user reports the results.
+- B-07 Neighbourhood Expansion remains the original Direction B phase; Player Development is intercalated as a parallel track. W-01 remains a separate future weather/cold-exposure phase.
