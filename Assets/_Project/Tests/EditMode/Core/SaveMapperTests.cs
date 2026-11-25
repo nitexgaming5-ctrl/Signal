@@ -718,12 +718,15 @@ namespace Signal.Core.Tests
                 "milo", "Street", 1f, 2f, 4f, 2, 620));
             sourceWorld.SetRelationship("rhea", "milo", new NpcRelationship(0.8f, 0.7f, -0.2f));
             sourceWorld.SetRelationship("milo", "rhea", new NpcRelationship(0.2f, 0.4f, 0.6f));
+            sourceWorld.SetPlayerRelationship("rhea", new NpcRelationship(0.6f, 0.8f, 0.3f));
+            sourceWorld.SetPlayerRelationship("milo", new NpcRelationship(0.1f, 0.2f, -0.4f));
             Assert.That(sourceWorld.ShareKnowledge("milo", "rhea", "parcel-1", 2, 630), Is.True);
             var source = new World();
             SaveData data = SaveMapper.Capture(source.Stats, source.Inventory, null, source.Clock,
                 source.Heat, source.Rent, "Hideout", 0f, 0f, socialWorld: sourceWorld);
             Assert.That(data.npcKnowledge.Count, Is.EqualTo(2));
             Assert.That(data.npcSocialRelationships.Count, Is.EqualTo(2));
+            Assert.That(data.npcPlayerRelationships.Count, Is.EqualTo(3));
             var restoredWorld = new NpcSocialWorld();
             restoredWorld.RegisterNpc("milo", "Street", 0f, 0f, 8f);
             restoredWorld.RegisterNpc("rhea", "CornerShop", 0f, 0f, 8f);
@@ -739,6 +742,10 @@ namespace Signal.Core.Tests
             Assert.That(restoredWorld.EventCount, Is.Zero, "The transient world journal must be cleared and not restored.");
             Assert.That(restoredWorld.BuildPerceptionFor("rhea", 8f).KnowsEvent("stale-event"), Is.False);
             Assert.That(restoredWorld.GetRelationship("rhea", "customer").Affinity, Is.Zero);
+            Assert.That(restoredWorld.GetPlayerRelationship("rhea").Familiarity, Is.EqualTo(0.6f).Within(0.0001f));
+            Assert.That(restoredWorld.GetPlayerRelationship("rhea").Trust, Is.EqualTo(0.8f).Within(0.0001f));
+            Assert.That(restoredWorld.GetPlayerRelationship("rhea").Affinity, Is.EqualTo(0.3f).Within(0.0001f));
+            Assert.That(restoredWorld.GetPlayerRelationship("milo").Affinity, Is.EqualTo(-0.4f).Within(0.0001f));
             NpcKnowledge sharedKnowledge = restoredWorld.BuildPerceptionFor("rhea", 8f).FindEvent("parcel-1");
             Assert.That(sharedKnowledge, Is.Not.Null);
             Assert.That(sharedKnowledge.Origin, Is.EqualTo(NpcKnowledgeOrigin.ToldByAnotherNpc));
@@ -777,6 +784,7 @@ namespace Signal.Core.Tests
             Assert.That(data.storageItems, Is.Not.Null);
             Assert.That(data.playerDiscoveries, Is.Not.Null);
             Assert.That(data.npcAgendaProgress, Is.Not.Null);
+            Assert.That(data.npcPlayerRelationships, Is.Not.Null);
         }
 
     }
