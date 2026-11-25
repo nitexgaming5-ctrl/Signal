@@ -104,3 +104,32 @@ No universal quest framework rewrite, procedural contract board, multiple active
 - Service-payment history is distinct from ownership-changing asset-transfer history. Failed return leaves both inventories, both balances, payment history and order phase unchanged. A completed order cannot pay twice.
 - Only one customer job may be active across ordinary customer contracts and repair orders. F5/F9 persists the active/completed order, item location/owner, balances and service-payment history.
 - No repair queue, duration, quality roll, automatic pricing, concurrent customer jobs or new NPC cast is included in this first service slice.
+
+
+## Player Development — approved direction (design stage)
+
+The user has approved a parallel Player Development track. It customizes the existing player; it does not introduce a new-game character class/background flow.
+
+### Character foundation and skills
+
+- Character creation means customizing the existing player character.
+- Starting skills are freely chosen from a fixed starting skill-point budget.
+- Further skill points are awarded for important gameplay milestones, not repetitive use-based grinding.
+- Skill points are manually allocated to improve skills.
+- The player may freely redistribute all allocated skill points at any time, without cost, cooldown or penalty.
+- The player has exactly two attributes: **Armor** and **Heat Protection**. Do not add generic Strength/Endurance/Dexterity/Intelligence/Charisma attributes.
+- Armor is the physical-protection attribute.
+- Heat Protection retains this exact name and protects against cold-related environmental exposure (low temperatures, wind chill and cold-weather precipitation). Despite its name, hot-weather exposure, overheating and heat damage are not planned.
+- Clothing and armor are intended to provide both visual customization and gameplay modifiers. The authoritative equipment/loadout implementation is a later dedicated phase; appearance rendering must be designed to support it without duplicating inventory items.
+- The candidate skill names Repair, Production, Trading, Scavenging and Social remain provisional until the user approves the final catalogue. Skill ranks, starting budget, point costs and milestone rewards are not yet numerically balanced.
+
+### Dynamic weather and cold exposure direction
+
+- Weather is intended to be dynamic across seasons, with changing temperatures, rain, storms, snow and blizzards.
+- Player survival effects are focused on cold events. No hot-weather/overheating mechanics are planned.
+- Cold exposure is gradual, affected by temperature, wind, rain/snow, outdoor duration, shelter and effective Heat Protection.
+- Ordinary rain is not an instant damage event. Severe sustained exposure may eventually have meaningful consequences, subject to W-01 detailed design.
+- Weather is a shared world state across connected locations; interiors/shelter protect the player and enable recovery.
+- W-01 is a separate future system and is not part of P-01/P-02 implementation.
+
+Detailed specifications: `tasks/PLAYER-P-01-CHARACTER-FOUNDATION-APPEARANCE.md`, `tasks/PLAYER-P-02-ATTRIBUTES-SKILLS.md`, and `tasks/WEATHER-W-01-DYNAMIC-WEATHER-COLD-EXPOSURE-DESIGN.md`.
