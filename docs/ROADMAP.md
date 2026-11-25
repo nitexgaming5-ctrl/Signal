@@ -10,7 +10,7 @@ This roadmap describes the direction and dependencies. Current implementation an
 
 B-01–B-04 establish the player-operated workshop, one active customer contract, practical hideout upgrade, repair/restoration and the first textile buyer/supplier loop. B-05 adds generic individual NPC awareness and all three independent relationship directions. The user confirmed **445/445 EditMode tests passing on 2026-11-25**. These foundations are the baseline for the next livelihood activity; do not rebuild them without a concrete defect.
 
-**Next: B-06 — Livelihood Expansion (design pending).** Select one additional coherent activity and define its complete player-facing loop before implementation. The existing roadmap intentionally does not prescribe a profession simulator or a new NPC cast.
+**Next: B-06 — Customer Repair Orders.** The user approved an entrusted-item repair service using the existing Milo framework resident. First implementation is committed; Unity compilation, EditMode and Play Mode verification remain pending. See [B-06 task card](tasks/LIVELIHOOD-B-06-CUSTOMER-REPAIR-ORDERS.md).
 
 **Player outcome:** produce useful physical goods in the hideout, fulfil one authored customer request, receive clean CARD and invest in a practical upgrade that unlocks another recipe.
 
@@ -67,9 +67,13 @@ The catalogue model is hybrid but bounded: merchandise remains fixed-price; each
 
 Knowledge remains local or explicitly communicated; there is no omniscience, automatic city-wide gossip, ambient trust/affinity farming or universal reputation. **This phase builds reusable NPC infrastructure, not the cast:** Rhea, Milo and the existing Dirty Cash contact are framework/test residents only. Do not add residents, personalities, backstories or story content until the main storyline and cast are deliberately designed. See [B-05 task card](tasks/LIVELIHOOD-B-05-GLOBAL-NPC-AWARENESS-AFFINITY.md).
 
-### B-06 — Livelihood expansion
+### B-06 — Customer repair orders
 
-**Status: next design phase; activity not yet selected.** Candidate directions include entrusted-item repair service, material processing, food preparation or an authored NPC-owned production business. Evaluate each against existing workshop, repair, contract, inventory and relationship foundations. Build one complete loop at a time; do not build a generic profession simulator or add story NPCs before the storyline/cast is designed.
+**Status: first implementation slice committed; Unity verification pending.** The existing Milo framework resident entrusts one Worn Work Jacket. The player accepts it into custody (ownership remains Milo's), repairs it with the existing workbench/Basic Patch Kit flow, returns the same physical instance and receives 35 clean CARD from Milo's resident account.
+
+The payment uses a dedicated ServicePaymentTransactionLedger, separate from ownership-changing asset transfers. The return operation is atomic across the two inventories, player/customer balances, payment history and order completion; replay is blocked. Active order and payment history are included in F5/F9. Only one customer job may be active across the existing contract and repair-order flows. No new story NPCs are introduced.
+
+Nine focused EditMode tests cover custody/ownership, successful payment, replay, failed returns, inventory/funds rollback and save/load. Expected suite total is 454 from the user's previous 445 baseline; Unity execution is pending. See [B-06 task card](tasks/LIVELIHOOD-B-06-CUSTOMER-REPAIR-ORDERS.md).
 
 ### B-07 — Neighbourhood expansion
 
