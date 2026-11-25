@@ -28,6 +28,16 @@ namespace Signal.Game.Editor
                 foreach (ZipArchiveEntry entry in archive.Entries)
                 {
                     string entryName = entry.FullName.Replace('\\', '/');
+                    if (entryName == "Character/Terms.txt")
+                    {
+                        string termsPath = Path.GetFullPath("Assets/_Project/Art/CharacterPackTerms.txt");
+                        Directory.CreateDirectory(Path.GetDirectoryName(termsPath));
+                        using (Stream input = entry.Open())
+                        using (FileStream output = File.Create(termsPath))
+                            input.CopyTo(output);
+                        continue;
+                    }
+
                     if (!entryName.StartsWith(RequiredPrefix) ||
                         !entryName.EndsWith(".png", System.StringComparison.OrdinalIgnoreCase))
                         continue;
