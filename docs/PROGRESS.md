@@ -163,3 +163,10 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 - Eleven focused EditMode tests were added for attributes, modifier calculation, allocation, overspending, rank cap, respecialization, milestone idempotency, save/load and invalid data handling.
 - **Verification boundary:** the user-confirmed 456/456 baseline predates this code slice. Expected current suite count is **467**, but Unity compilation, tests and Play Mode have not yet been run. Do not mark this slice verified until the user reports the results.
 - B-07 Neighbourhood Expansion remains the original Direction B phase; Player Development is intercalated as a parallel track. W-01 remains a separate future weather/cold-exposure phase.
+
+
+## 2026-11-25 — Player character visual scale adjustment
+
+- Increased the modular character's five visual sprite layers to **1.8×** their previous local scale.
+- Applied scaling to the visual child layers only. The player root transform, Rigidbody2D, BoxCollider2D, movement speed, interaction range and camera configuration are unchanged; gameplay collision/physics sizing is preserved.
+- User should verify the larger appearance in Play Mode. Unity compilation and visual verification are pending.
