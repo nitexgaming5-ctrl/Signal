@@ -448,6 +448,8 @@ namespace Signal.Game
             if (!IsNearRepairOrderCustomer(_room.PlayerBody.position)) return "Move closer to the customer.";
             if (firstCustomerRepairOrder == null || _contractReceiverInventory == null)
                 return "The repair order is unavailable.";
+            if (!_equippedBackpackInstanceId.HasValue)
+                return "Not enough space to receive the customer's jacket. Equip a backpack first. The order was not accepted.";
             if (_customerContracts != null && _customerContracts.HasActiveContract)
                 return "Complete your active customer request before accepting a repair order.";
             CustomerRepairOrderResult result = CustomerRepairOrderService.TryAccept(firstCustomerRepairOrder.Id,
@@ -560,6 +562,8 @@ namespace Signal.Game
 
         private string ProduceRecipe(Guid recipeId)
         {
+            if (!_equippedBackpackInstanceId.HasValue)
+                return "Not enough space for produced goods. Equip a backpack before producing items.";
             if (!_city.IsAtHome || _room.Workbench == null ||
                 Vector2.Distance(_room.PlayerBody.position, _room.Workbench.position) > 2.15f)
                 return "Use the production station in your hideout.";
@@ -944,12 +948,8 @@ namespace Signal.Game
                 _hud.SetPrompt("ESC  Close storage");
             else if (nearDroppedBackpack)
                 _hud.SetPrompt("E  Pick up backpack");
-            else if (!_equippedBackpackInstanceId.HasValue && IsWorldTransitionPrompt(worldPrompt))
+            else if (IsWorldTransitionPrompt(worldPrompt) && !_equippedBackpackInstanceId.HasValue)
                 _hud.SetPrompt(FormatWorldTransitionPrompt(worldPrompt));
-            else if (!_equippedBackpackInstanceId.HasValue)
-                _hud.SetPrompt(_droppedBackpackItem.HasValue
-                    ? "Backpack dropped — recover it before item interactions"
-                    : "No backpack equipped — equip one to carry items");
             else if (inventoryOpen && _equippedBackpackInstanceId.HasValue)
                 _hud.SetPrompt("B  Drop backpack");
             else if (inventoryOpen)
@@ -1001,31 +1001,6 @@ namespace Signal.Game
                 nearDroppedBackpack && keyboard.eKey.wasPressedThisFrame)
             {
                 RecoverDroppedBackpack(nearbyBackpackId);
-                return;
-            }
-
-            if (!_equippedBackpackInstanceId.HasValue)
-            {
-                if (keyboard.f5Key.wasPressedThisFrame) SaveGame();
-                if (keyboard.f9Key.wasPressedThisFrame) LoadGame();
-                if (keyboard.f6Key.wasPressedThisFrame) Sleep();
-                if (keyboard.eKey.wasPressedThisFrame)
-                {
-                    // World navigation remains available without a carried inventory.
-                    if (IsWorldTransitionPrompt(worldPrompt) && _city.TryInteract(playerPosition))
-                    {
-                        Say("Location: " + _city.CurrentPlace, 3f);
-                        return;
-                    }
-
-                    Say(_droppedBackpackItem.HasValue
-                        ? "Your backpack is on the ground. Recover it before using item-based interactions."
-                        : "You need to equip a backpack before using item-based interactions.", 3f);
-                }
-                else if (keyboard.fKey.wasPressedThisFrame)
-                    Say(_droppedBackpackItem.HasValue
-                        ? "Your backpack is on the ground. Recover it before using item-based interactions."
-                        : "You need to equip a backpack before using item-based interactions.", 3f);
                 return;
             }
 
@@ -1091,9 +1066,19 @@ namespace Signal.Game
                     _retailPanel.Open(nearbyBusiness);
             }
             else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !repairOrderOpen && !upgradeOpen && !agendaOpen && nearWorkbench && keyboard.eKey.wasPressedThisFrame)
-                _workspace.Open();
+            {
+                if (!_equippedBackpackInstanceId.HasValue)
+                    Say("You can use the workbench once you have a backpack to carry tools and materials.", 4f);
+                else
+                    _workspace.Open();
+            }
             else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !repairOrderOpen && !upgradeOpen && !agendaOpen && nearStorage && keyboard.eKey.wasPressedThisFrame)
-                _storagePanel.SetOpen(true);
+            {
+                if (!_equippedBackpackInstanceId.HasValue)
+                    Say("Not enough carried space to move items from home storage. Equip a backpack first.", 4f);
+                else
+                    _storagePanel.SetOpen(true);
+            }
             else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
                      !dirtyCashOpen && !contractOpen && !repairOrderOpen && !upgradeOpen && !agendaOpen && !nearDirtyCashContact && !nearContractCustomer && !nearUpgradeSupplier && !nearSearchableContainer && nearbyBusiness == null && !nearWorkbench && !nearStorage &&
                      cityPrompt.Length > 0 && keyboard.eKey.wasPressedThisFrame)
@@ -1862,6 +1847,8 @@ namespace Signal.Game
 
         private string ExchangeWithContact(Guid selectedItemInstanceId)
         {
+            if (!_equippedBackpackInstanceId.HasValue)
+                return "Not enough space to receive Dirty Cash. Equip a backpack first. Nothing was exchanged.";
             if (!IsNearDirtyCashContact())
                 return "Move closer to the contact.";
             if (dirtyCashContactOffer == null || !dirtyCashContactOffer.TryValidate(out _))
@@ -1945,6 +1932,8 @@ namespace Signal.Game
 
         private string PurchaseFromBusiness(BusinessDefinition business, ItemDefinition item)
         {
+            if (!_equippedBackpackInstanceId.HasValue)
+                return "Not enough space to receive this item. Equip a backpack before purchasing. No payment was taken.";
             if (business == null || item == null)
                 return "The business is unavailable.";
             if (!business.TryValidate(out string businessError))
@@ -2438,6 +2427,12 @@ namespace Signal.Game
         private bool TransferSearchableItem(Guid itemInstanceId, EconomicActorId actor,
             bool positioned, int x, int y, bool rotated)
         {
+            if (!_equippedBackpackInstanceId.HasValue)
+            {
+                Say("Not enough space to take this item. Equip a backpack first. Nothing was transferred.", 4f);
+                return false;
+            }
+
             bool isTheft = _residentPropertyDefinitions.TryGetValue(_activeSearchableContainer.ContainerId,
                 out ResidentPropertyContainerDefinition property);
             string witnessNpcId = null;
