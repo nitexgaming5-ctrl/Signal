@@ -21,6 +21,9 @@ namespace Signal.Game
         private const string OpportunityId = "milo-parcel";
 
         private GridInventory _inventory;
+        private PlayerPocketBook _pockets;
+        private Func<bool> _hasBackpack;
+        private GridInventory _parcelContainer;
         private ItemType _parcelType;
         private PlayerDiscoveryLedger _discoveries;
         private PlayerRelationshipBook _relationships;
@@ -77,13 +80,16 @@ namespace Signal.Game
         public void Bind(GridInventory inventory, ItemType parcelType,
             PlayerDiscoveryLedger discoveries, PlayerRelationshipBook relationships,
             ItemKnowledgeBook itemKnowledge, GameClock clock, CityBlockBootstrap city,
-            OpportunityState state, Action<string> say)
+            OpportunityState state, Action<string> say,
+            PlayerPocketBook pockets = null, Func<bool> hasBackpack = null)
         {
             if (inventory == null || discoveries == null || relationships == null ||
                 itemKnowledge == null || clock == null || city == null || state == null || say == null)
                 throw new ArgumentNullException("Milo parcel scenario dependencies must all be provided.");
 
             _inventory = inventory;
+            _pockets = pockets;
+            _hasBackpack = hasBackpack;
             _parcelType = parcelType;
             _discoveries = discoveries;
             _relationships = relationships;
@@ -340,40 +346,38 @@ namespace Signal.Game
             var parcelState = new ItemInstanceState(ItemQuality.Standard, ItemCondition.Good,
                 ItemAuthenticity.Genuine, ItemOwnershipStatus.Stolen);
 
-            for (int y = 0; y < _inventory.Height; y++)
+            bool preferBackpack = _hasBackpack == null || _hasBackpack();
+            if (preferBackpack && TryPlaceParcelInBackpack(parcelState))
+                return true;
+            if (_pockets != null && _pockets.TryAdd(_parcelType, _state.ParcelInstanceId, 1,
+                parcelState, out int pocketIndex))
             {
-                for (int x = 0; x < _inventory.Width; x++)
+                _parcelContainer = _pockets.GetPocket(pocketIndex);
+                if (_state.TryAccept(_state.ParcelInstanceId, _clock.Day, _clock.MinuteOfDay))
                 {
-                    int? localId = _inventory.Place(_parcelType, x, y, false, 1,
-                        _state.ParcelInstanceId, parcelState);
-                    if (!localId.HasValue)
-                        continue;
-
-                    if (_state.TryAccept(_state.ParcelInstanceId, _clock.Day, _clock.MinuteOfDay))
-                    {
-                        RefreshWorldProps();
-                        return true;
-                    }
-
-                    _inventory.Remove(localId.Value);
-                    return false;
+                    RefreshWorldProps();
+                    return true;
                 }
+                _parcelContainer.TryRemoveItemInstance(_state.ParcelInstanceId);
+                _parcelContainer = null;
+                return false;
             }
-
+            if (!preferBackpack && TryPlaceParcelInBackpack(parcelState))
+                return true;
             return false;
         }
 
         private string ReturnParcel()
         {
-            if (!_inventory.TryGetItemInstance(_state.ParcelInstanceId, out PlacedItem parcel))
+            if (!TryFindParcelInventory(out GridInventory parcelInventory, out PlacedItem parcel))
                 return "You no longer have the parcel to return.";
 
-            if (!_inventory.Remove(parcel.InstanceId))
+            if (!parcelInventory.Remove(parcel.InstanceId))
                 return "You couldn't return the parcel.";
 
             if (!_state.TryReturnParcel(_clock.Day, _clock.MinuteOfDay))
             {
-                RestoreParcelToInventory(parcel);
+                RestoreParcelToInventory(parcel, parcelInventory);
                 return "The parcel could not be returned just now.";
             }
 
@@ -383,20 +387,20 @@ namespace Signal.Game
 
         private string DeliverParcel()
         {
-            if (!_inventory.TryGetItemInstance(_state.ParcelInstanceId, out PlacedItem parcel))
+            if (!TryFindParcelInventory(out GridInventory parcelInventory, out PlacedItem parcel))
                 return "You don't have the parcel with you.";
 
             bool onTime = _clock.Day == _state.LastAcceptedDay;
             bool intact = parcel.State.Condition != ItemCondition.Damaged;
             bool witnessed = _city.IsAnyResidentWithin(DropOffPosition, 6.5f, MiloId);
 
-            if (!_inventory.Remove(parcel.InstanceId))
+            if (!parcelInventory.Remove(parcel.InstanceId))
                 return "You couldn't leave the parcel here.";
 
             if (!_state.TryResolveDelivered(_clock.Day, _clock.MinuteOfDay,
                 onTime, intact, witnessed))
             {
-                RestoreParcelToInventory(parcel);
+                RestoreParcelToInventory(parcel, parcelInventory);
                 return "The drop-off could not be completed.";
             }
 
@@ -416,8 +420,44 @@ namespace Signal.Game
             return "The parcel is delivered, but " + string.Join(", ", outcomes) + ".\nMilo: I appreciate you seeing it through. I'll have to deal with the complications.";
         }
 
-        private bool RestoreParcelToInventory(PlacedItem parcel)
+        private bool TryPlaceParcelInBackpack(ItemInstanceState parcelState)
         {
+            for (int y = 0; y < _inventory.Height; y++)
+                for (int x = 0; x < _inventory.Width; x++)
+                {
+                    int? localId = _inventory.Place(_parcelType, x, y, false, 1,
+                        _state.ParcelInstanceId, parcelState);
+                    if (!localId.HasValue) continue;
+                    _parcelContainer = _inventory;
+                    if (_state.TryAccept(_state.ParcelInstanceId, _clock.Day, _clock.MinuteOfDay))
+                    { RefreshWorldProps(); return true; }
+                    _inventory.Remove(localId.Value);
+                    _parcelContainer = null;
+                    return false;
+                }
+            return false;
+        }
+
+        private bool TryFindParcelInventory(out GridInventory inventory, out PlacedItem parcel)
+        {
+            if (_inventory.TryGetItemInstance(_state.ParcelInstanceId, out parcel))
+            { inventory = _inventory; _parcelContainer = inventory; return true; }
+            if (_pockets != null)
+                for (int i = 0; i < PlayerPocketBook.PocketCount; i++)
+                    if (_pockets.GetPocket(i).TryGetItemInstance(_state.ParcelInstanceId, out parcel))
+                    { inventory = _pockets.GetPocket(i); _parcelContainer = inventory; return true; }
+            inventory = null;
+            parcel = default;
+            return false;
+        }
+
+        private bool RestoreParcelToInventory(PlacedItem parcel, GridInventory preferred)
+        {
+            if (preferred != null && preferred.Place(parcel.Type, 0, 0, parcel.Rotated,
+                parcel.Count, parcel.ItemInstanceId, parcel.State).HasValue)
+                return true;
+            if (_pockets != null && _pockets.TryAdd(parcel, out int _))
+                return true;
             for (int y = 0; y < _inventory.Height; y++)
                 for (int x = 0; x < _inventory.Width; x++)
                     if (_inventory.Place(parcel.Type, x, y, parcel.Rotated, parcel.Count,
