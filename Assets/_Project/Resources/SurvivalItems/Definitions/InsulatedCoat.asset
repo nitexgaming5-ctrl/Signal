@@ -16,8 +16,8 @@ MonoBehaviour:
   description: A thick coat focused on environmental cold protection. Prototype modifiers.
   category: Equipment
   baseValue: 40
-  defaultQuality: 1
-  defaultCondition: 1
+  defaultQuality: 0
+  defaultCondition: 0
   defaultAuthenticity: 0
   defaultOwnership: 0
   id: c5f60718-293a-4d4e-9f20-3b4c5d6e7f83
