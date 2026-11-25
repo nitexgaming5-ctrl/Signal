@@ -290,21 +290,33 @@ namespace Signal.Game
 
         private void InitializeLivelihoodWorld()
         {
-            if (firstCustomerContract == null)
+            if (firstCustomerContract == null && firstCustomerRepairOrder == null)
                 return;
-            if (!firstCustomerContract.TryValidate(out string error))
+            string issuerNpcId = firstCustomerContract != null
+                ? firstCustomerContract.IssuerNpcId : firstCustomerRepairOrder.IssuerNpcId;
+            if (firstCustomerContract != null && !firstCustomerContract.TryValidate(out string contractError))
             {
-                Debug.LogError("GameSession: invalid first customer contract: " + error);
+                Debug.LogError("GameSession: invalid first customer contract: " + contractError);
                 return;
             }
-            if (!_city.HasResident(firstCustomerContract.IssuerNpcId))
+            if (firstCustomerRepairOrder != null && !firstCustomerRepairOrder.TryValidate(out string repairError))
             {
-                Debug.LogError("GameSession: contract issuer '" + firstCustomerContract.IssuerNpcId +
+                Debug.LogError("GameSession: invalid first customer repair order: " + repairError);
+                return;
+            }
+            if (firstCustomerRepairOrder != null && firstCustomerRepairOrder.IssuerNpcId != issuerNpcId)
+            {
+                Debug.LogError("GameSession: the first contract and repair order must share an issuer inventory in this slice.");
+                return;
+            }
+            if (!_city.HasResident(issuerNpcId))
+            {
+                Debug.LogError("GameSession: customer issuer '" + issuerNpcId +
                     "' is not present in the shared city.");
                 return;
             }
 
-            _contractReceiverActor = firstCustomerContract.IssuerActor;
+            _contractReceiverActor = new EconomicActorId("resident:" + issuerNpcId);
             _contractReceiverInventory = new GridInventory(8, 6);
             if (!_economicContainers.TryRegister(_contractReceiverInventory, _contractReceiverActor))
             {
@@ -312,8 +324,16 @@ namespace Signal.Game
                 _contractReceiverInventory = null;
                 return;
             }
-            if (!_customerContracts.TryRegisterOffer(firstCustomerContract.Id))
+            if (firstCustomerContract != null && !_customerContracts.TryRegisterOffer(firstCustomerContract.Id))
                 Debug.LogError("GameSession: the first customer contract could not be registered.");
+            if (firstCustomerRepairOrder != null)
+            {
+                if (!_customerRepairOrders.TryRegisterOffer(firstCustomerRepairOrder.Id,
+                    firstCustomerRepairOrder.IssuerActor, firstCustomerRepairOrder.EntrustedItem.ToItemType().Id,
+                    firstCustomerRepairOrder.CleanCardReward))
+                    Debug.LogError("GameSession: the first customer repair order could not be registered.");
+                EnsureCustomerRepairItem();
+            }
         }
 
         private string GetCustomerDisplayName()
