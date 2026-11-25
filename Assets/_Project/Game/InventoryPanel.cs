@@ -439,7 +439,11 @@ namespace Signal.Game
             canvas.sortingOrder = 100;
 
             if (FindObjectOfType<EventSystem>() == null)
-                new GameObject("InventoryEventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
+            {
+                GameObject eventSystemObject = new GameObject("InventoryEventSystem",
+                    typeof(EventSystem), typeof(InputSystemUIInputModule));
+                eventSystemObject.GetComponent<InputSystemUIInputModule>().AssignDefaultActions();
+            }
 
             var scaler = canvasObject.GetComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
