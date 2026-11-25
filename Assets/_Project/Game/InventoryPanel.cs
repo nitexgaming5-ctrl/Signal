@@ -62,6 +62,7 @@ namespace Signal.Game
         private Func<Guid, int, bool> _moveItemToPocket;
         private Func<int, bool> _movePocketToBackpack;
         private Func<int, int, int, bool> _movePocketToBackpackAt;
+        private Func<int, int, bool> _movePocketToPocket;
         private Func<int, bool> _equipPocketItem;
         private bool _draggingFromPocket;
         private int _dragPocketIndex = -1;
@@ -102,7 +103,8 @@ namespace Signal.Game
             Func<bool> hasBackpack = null, Func<bool> canAccessGrid = null,
             PlayerPocketBook pockets = null, Func<Guid, int, bool> moveItemToPocket = null,
             Func<int, bool> movePocketToBackpack = null, Func<int, bool> equipPocketItem = null,
-            Func<int, int, int, bool> movePocketToBackpackAt = null)
+            Func<int, int, int, bool> movePocketToBackpackAt = null,
+            Func<int, int, bool> movePocketToPocket = null)
         {
             if (inventory == null)
                 throw new ArgumentNullException(nameof(inventory));
@@ -124,6 +126,7 @@ namespace Signal.Game
             _moveItemToPocket = moveItemToPocket;
             _movePocketToBackpack = movePocketToBackpack;
             _movePocketToBackpackAt = movePocketToBackpackAt;
+            _movePocketToPocket = movePocketToPocket;
             _equipPocketItem = equipPocketItem;
             _inventory.Changed += OnInventoryChanged;
             if (_pockets != null)
@@ -263,7 +266,7 @@ namespace Signal.Game
             }
 
             bool backpackAccessible = _canAccessGrid == null || _canAccessGrid();
-            if (!_dragging && backpackAccessible && mouse.leftButton.wasPressedThisFrame &&
+            if (!_dragging && mouse.leftButton.wasPressedThisFrame &&
                 TryGetPocketIndex(screen, out int sourcePocketIndex) &&
                 _pockets != null && _pockets.GetPocket(sourcePocketIndex).Items.Count > 0)
             {
@@ -316,8 +319,8 @@ namespace Signal.Game
                 bool fromPocket = _draggingFromPocket;
                 int sourcePocket = _dragPocketIndex;
                 int targetPocket = -1;
-                bool dropIntoPocket = !fromPocket && !canDrop && !rotated &&
-                    TryGetPocketIndex(screen, out targetPocket);
+                bool dropIntoPocket = !canDrop && !rotated &&
+                    TryGetPocketIndex(screen, out targetPocket) && (!fromPocket || targetPocket != sourcePocket);
 
                 EndDrag();
 
@@ -328,8 +331,13 @@ namespace Signal.Game
                     else
                         _inventory.TryMove(id, targetX, targetY, rotated);
                 }
-                else if (dropIntoPocket && itemInstanceId != Guid.Empty)
-                    _moveItemToPocket?.Invoke(itemInstanceId, targetPocket);
+                else if (dropIntoPocket)
+                {
+                    if (fromPocket)
+                        _movePocketToPocket?.Invoke(sourcePocket, targetPocket);
+                    else if (itemInstanceId != Guid.Empty)
+                        _moveItemToPocket?.Invoke(itemInstanceId, targetPocket);
+                }
 
                 Refresh();
             }
