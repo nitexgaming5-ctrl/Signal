@@ -7,7 +7,7 @@ Last reconciled: **2026-11-25**. This is the short status board. Session history
 - Unity **6000.6.9f1**, 2D URP. Active architecture: `Signal.Core` (plain C#) + `Signal.Game` (Unity integration). Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
 - Working branch: `chore/collaboration-workflow-and-audit`. Keep `main` untouched.
 - Application version: **0.01**. Save snapshots are deliberately unversioned; there is no schema-version field, version gate or automatic migration chain. Older experimental saves may be incompatible after data-shape changes.
-- Latest user-reported full EditMode result: **486/486 passed (2026-11-25)**. B-05 social directionality/agenda integration, B-06 repair orders, and P-03 backpack equipment/drop/recovery/fresh-start UI have been user-verified. Newer P-03.4a interaction changes are awaiting a fresh Unity compile/test run.
+- Latest user-reported full EditMode result: **486/486 passed (2026-11-25)** after P-03.4a. P-03.4b adds eight Core tests; expected total is **494**, pending Unity compilation and test execution. B-05/B-06 and the backpack drop/recovery/fresh-start UI are user-verified.
 - The user reports the First Workshop and B-04 repair/trading loop working in Play Mode. B-06 uses a separate Worn jacket seeded in Milo's inventory for the entrusted-service test.
 
 ## Completed livelihood foundations — B-01 to B-06
@@ -255,3 +255,14 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 - No-backpack HUD no longer overwrites useful NPC/mission prompts with a generic backpack warning.
 - No new tests were added in this subphase. The last user-confirmed suite is 486/486 before these code changes; Unity compile, EditMode rerun and Play Mode checks remain pending.
 - Next: P-03.4b functional three-slot 1×1 pocket storage, persistence, UI and pocket-aware routing. Pockets remain placeholders; do not mark P-03 complete.
+
+
+## P-03.4b — functional personal pockets (2026-11-25)
+- Added PlayerPocketBook: exactly three independent 1×1 pockets, each holding one stack of one 1×1 item. Larger footprints cannot be stored in pockets.
+- Added exact-stack transfer between backpack and pockets using InventoryTransfer, preserving stable item identity, count and instance state. These are internal player-container moves; ownership remains Player.
+- Registered pocket grids with EconomicContainerRegistry as Player containers.
+- Added SavedPocketItem and PlayerPocketSaveMapper; GameSession F5/F9 now captures/restores pocket index, stable item identity, stack quantity, item condition/quality/authenticity/ownership state and owner.
+- Character inventory UI now displays actual pocket contents. Hover a backpack item and press P to move it to the first free pocket; click an occupied pocket to move it into backpack storage (or inspect if no backpack is available).
+- Item-receive routing now supports pockets for repair-order acceptance, retail purchase, searchable-container pickups and Dirty Cash exchange rewards. Milo's parcel opportunity can be accepted and tracked in pockets without a backpack; parcels inside a dropped backpack remain inaccessible.
+- Added eight focused Core tests for pocket capacity, footprint rules, identity/state-preserving transfers, failed-transfer atomicity and save/load validation. User confirmed 486/486 after P-03.4a; expected new total is 494, pending Unity execution. No Unity compile/test/Play Mode result is claimed.
+- Known limits: home-storage transfer and workbench/production still require the backpack; Retail SELL and Dirty Cash selection panels still enumerate only the backpack grid; other legacy panels may need pocket-source adapters. P-03 remains active.
