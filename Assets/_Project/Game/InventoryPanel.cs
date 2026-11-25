@@ -623,14 +623,14 @@ namespace Signal.Game
                 {
                     PlacedItem item = _pockets.GetPocket(i).Items[0];
                     ItemVisual visual = VisualFor(item.Type);
-                    _pocketLabels[i].text = "P" + (i + 1) + "\\n" + visual.Label +
-                        (item.Count > 1 ? "\\nx" + item.Count : string.Empty);
+                    _pocketLabels[i].text = "P" + (i + 1) + "\n" + visual.Label +
+                        (item.Count > 1 ? "\nx" + item.Count : string.Empty);
                     _pocketLabels[i].color = TitleColor;
                     _pocketButtons[i].interactable = true;
                 }
                 else
                 {
-                    _pocketLabels[i].text = "P" + (i + 1) + "\\nEMPTY";
+                    _pocketLabels[i].text = "P" + (i + 1) + "\nEMPTY";
                     _pocketLabels[i].color = FallbackColor;
                     _pocketButtons[i].interactable = false;
                 }
