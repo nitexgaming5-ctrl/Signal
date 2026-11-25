@@ -36,7 +36,7 @@ namespace Signal.Game
                 (startingCondition != ItemCondition.Damaged && startingCondition != ItemCondition.Worn) ||
                 requiredReturnCondition != ItemCondition.Good)
             {
-                error = "Assign a stable ID, display name, issuer, single-instance item, positive CARD reward and a Worn/Damaged starting condition and Good return condition.";
+                error = "Assign a stable ID, display name, issuer and single-instance item, a positive CARD reward, a Worn or Damaged starting condition, and a Good return condition.";
                 return false;
             }
             try
