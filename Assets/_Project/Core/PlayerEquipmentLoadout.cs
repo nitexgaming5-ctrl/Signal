@@ -65,7 +65,7 @@ namespace Signal.Core
         public bool TryRestoreEquipped(Guid itemInstanceId, ItemType type, ItemInstanceState state,
             EquipmentSlot slot, int armorModifier = 0, int heatProtectionModifier = 0)
         {
-            if (itemInstanceId == Guid.Empty || type == null || !IsValidSlot(slot) ||
+            if (itemInstanceId == Guid.Empty || type.Id == Guid.Empty || !IsValidSlot(slot) ||
                 _equipped.ContainsKey(slot) || ContainsInstance(itemInstanceId))
                 return false;
 
