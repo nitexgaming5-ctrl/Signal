@@ -61,6 +61,24 @@ namespace Signal.Core
             return true;
         }
 
+        /// <summary>Restores a previously equipped single item from save data without requiring a free inventory cell.</summary>
+        public bool TryRestoreEquipped(Guid itemInstanceId, ItemType type, ItemInstanceState state,
+            EquipmentSlot slot, int armorModifier = 0, int heatProtectionModifier = 0)
+        {
+            if (itemInstanceId == Guid.Empty || type == null || !IsValidSlot(slot) ||
+                _equipped.ContainsKey(slot) || ContainsInstance(itemInstanceId))
+                return false;
+
+            var staging = new GridInventory(type.Width, type.Height);
+            if (!staging.Place(type, 0, 0, false, 1, itemInstanceId, state).HasValue ||
+                !staging.TryGetItemInstance(itemInstanceId, out PlacedItem item) ||
+                !staging.TryRemoveItemInstance(itemInstanceId, 1))
+                return false;
+
+            _equipped.Add(slot, new EquippedItem(slot, item, armorModifier, heatProtectionModifier));
+            return true;
+        }
+
         /// <summary>Returns the exact equipped item to the inventory; if it cannot fit, nothing changes.</summary>
         public bool TryUnequip(GridInventory destination, EquipmentSlot slot)
         {
