@@ -2469,7 +2469,7 @@ namespace Signal.Game
 
             if (!_activeSearchableContainer.Inventory.TryGetItemInstance(itemInstanceId, out PlacedItem incoming))
                 return false;
-            GridInventory receivingInventory = GetCarryInventory(incoming.Type);
+            GridInventory receivingInventory = GetCarryInventory(incoming.Type, positioned ? rotated : incoming.Rotated);
             if (receivingInventory == null)
             {
                 Say("Not enough space. Your personal pockets are full or this item is too large. Nothing was transferred.", 4f);
@@ -2584,22 +2584,22 @@ namespace Signal.Game
             if (_retailPanel != null) _retailPanel.SetInventory(accessible);
         }
 
-        private GridInventory GetCarryInventory(ItemType type)
+        private GridInventory GetCarryInventory(ItemType type, bool rotated = false)
         {
             if (_equippedBackpackInstanceId.HasValue && !_droppedBackpackItem.HasValue &&
-                CanReceiveOneStack(_inventory, type))
+                CanReceiveOneStack(_inventory, type, rotated))
                 return _inventory;
             return _playerPockets != null &&
-                _playerPockets.TryFindAvailablePocket(type, out _, out GridInventory pocket)
+                _playerPockets.TryFindAvailablePocket(type, out _, out GridInventory pocket, rotated)
                 ? pocket : null;
         }
 
-        private static bool CanReceiveOneStack(GridInventory inventory, ItemType type)
+        private static bool CanReceiveOneStack(GridInventory inventory, ItemType type, bool rotated)
         {
             if (inventory == null) return false;
             for (int y = 0; y < inventory.Height; y++)
                 for (int x = 0; x < inventory.Width; x++)
-                    if (inventory.CanPlace(type, x, y, false))
+                    if (inventory.CanPlace(type, x, y, rotated))
                         return true;
             return false;
         }
