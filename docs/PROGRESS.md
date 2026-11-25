@@ -333,7 +333,7 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 - Workbench repair discovery spans all accessible grids. RepairService can consume a patch kit from a different grid than the target item, preserving item ownership and rolling back both grids on failure.
 - ProductionService can consume recipe ingredients across multiple accessible grids and place the output into a separately selected capacity-approved grid. The transaction snapshots all participating inventories and restores inventory/ownership state if output placement or history commit fails.
 - GameSession routes repair, production output, storage withdrawal, retail sale and Dirty Cash operations through actual source/destination grids.
-- Two targeted EditMode tests were added for split-grid repair and multi-grid production. Unity compilation and the full suite have not yet been run against these changes. The last user-confirmed full-suite result remains 500/500 before this implementation.
+- Three targeted EditMode tests were added for split-grid repair and multi-grid production. Unity compilation and the full suite have not yet been run against these changes. The last user-confirmed full-suite result remains 500/500 before this implementation.
 - Next: audit remaining backpack-only assumptions in search/loot, customer/service panels and other inventory consumers. Then wearable visuals, debug-loadout cleanup and full Play Mode acceptance.
 
 - Searchable Container now displays the backpack only when accessible and shows P1/P2/P3 separately, marking P3 HIDDEN. Loot pickup remains capacity-aware and dropped-backpack cargo stays hidden.
