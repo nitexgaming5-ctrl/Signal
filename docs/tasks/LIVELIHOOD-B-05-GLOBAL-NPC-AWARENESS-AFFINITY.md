@@ -1,6 +1,6 @@
 # B-05 — Global NPC Awareness & Affinity
 
-**Status:** Approved; B05-01–03 implemented and user-reported 434/434; first B05-04 integration committed, verification pending  
+**Status:** Approved; B05-01–04 and NPC→player ownership implemented. User reports 439/439 before the latest directionality slice; its new tests await Unity verification.  
 **Approved:** 2026-11-24  
 **Priority:** High — shared social foundation  
 **Pilot content:** Rhea and Milo; neither may receive bespoke runtime logic  
@@ -74,18 +74,26 @@ Preserve these existing owners and extend them rather than introducing parallel 
 - The generic contract hook currently targets the player→issuer relationship book. Milo's current contract keeps all three deltas at zero until the separate NPC→player opinion owner is designed; a customer's successful delivery should not be misrepresented as the player's trust in that customer.
 - Add a minimal generic player-facing response/condition hook only where needed to prove affinity matters; do not invent a broad friendship, romance, faction or reputation system.
 
-### B05-05 — Verification
-**Implementation status:** User reports 434/434 EditMode tests passing after B05-01–03. New customer relationship outcome regression tests are committed and await the next Unity run.
+### B05-05 — NPC-to-player directionality
+**Implementation status:** Implemented; focused tests added, Unity verification pending.
+- Each NpcAgentState owns a separate opinion of the player using the shared NpcRelationship value model. Neutral defaults are independent per NPC.
+- NpcSocialWorld exposes validated get/set/adjust operations without registering the player as an NPC or overloading PlayerRelationshipBook.
+- SaveData persists one NPC→player relationship per registered NPC. Restore validates stable NPC IDs and bounded finite values; clearing social state resets opinions to neutral before restore.
+- Customer contracts can author issuer→player familiarity/trust/affinity changes, applied once only after successful delivery, payment and completion. The existing player→issuer path remains separate.
+- Added Core directionality, SaveMapper round-trip and contract success/replay/target-validation tests.
+
+### B05-06 — Verification
+**Implementation status:** The user reports 439/439 EditMode tests passing after the debug item spawner fix. The new B05-05 tests have not yet run in Unity; expected total is 442 if no other tests were added.
 - Core tests: directed independence, separate dimensions, bounded values, mutation idempotency, local observation, source/confidence retention, no journal leakage, explicit-only transmission and no gossip cascade.
 - Game tests: arbitrary authored NPC definitions receive identical social state wiring; no Rhea/Milo branches.
-- Save tests: player↔NPC and NPC↔NPC relationships, durable knowledge, malformed records and unknown IDs round-trip safely.
-- Contract tests: authored issuer relationship outcomes apply only on successful fulfilment, affect only the issuer, reject invalid deltas and cannot be replayed.
+- Save tests: player→NPC, NPC→player and NPC→NPC relationships, durable knowledge, malformed records and unknown IDs round-trip safely.
+- Contract tests: authored outcomes in both directions apply only on successful fulfilment, affect only the intended issuer, reject invalid deltas/targets and cannot be replayed.
 - Play Mode: Rhea and Milo learn different facts from different circumstances; a third/fallback authored resident uses the same system; relationship/knowledge state survives F5/F9.
 - Run the full EditMode suite and report exact user/CI result. Do not claim Unity verification before it runs.
 
 ## Acceptance criteria
 
-- [ ] Player-to-NPC and NPC-to-NPC relationships retain their explicit ownership boundaries while sharing the same directed NpcRelationship value model.
+- [ ] Player→NPC, NPC→player and NPC→NPC relationships retain explicit ownership boundaries while sharing the same directed NpcRelationship value model.
 - [ ] Familiarity, trust and affinity remain separate and directional.
 - [ ] Every registered NPC has an individual knowledge store.
 - [ ] Observation is local and communication/discovery is explicit and sourced.
@@ -94,7 +102,7 @@ Preserve these existing owners and extend them rather than introducing parallel 
 - [ ] Agenda, perception, encounters and witness observations use the shared services.
 - [ ] Durable relationship and knowledge state round-trips through the current save.
 - [ ] Generic Game composition works for arbitrary authored NPC definitions.
-- [ ] Authored customer outcomes update the issuer's player relationship exactly once and only after successful delivery/payment.
+- [ ] Authored customer outcomes update the player's and issuer's respective opinions exactly once and only after successful delivery/payment.
 - [ ] Focused tests and full EditMode suite pass; user confirms Play Mode loop.
 
 ## Explicit exclusions
@@ -106,6 +114,6 @@ No global reputation score, friendship/romance/loyalty system, faction standing,
 This is a unification and completion of existing foundations, not permission to replace working NPC routines, agenda progression, event pacing, navigation, or scenario lifecycles. Preserve current behaviour unless a change is required by the rules above and covered by regression tests.
 
 
-## Directionality gap — next B-05 design decision
+## Story and cast boundary
 
-`PlayerRelationshipBook` is explicitly the player→NPC authority. It cannot represent an NPC's own opinion of the player, and it must not be inverted or overloaded to do so. `NpcSocialWorld` currently owns NPC→NPC relationships. The remaining B-05 outcome—each resident holding a distinct opinion of the player—needs a third, direction-specific owner without registering the player as an NPC. The natural candidate is a player-relationship value stored on each `NpcAgentState` and persisted with that NPC's social state. Confirm this ownership before implementing it; customer contracts and authored agendas can then update the NPC→player direction through generic content.
+B-05 is framework work, not cast production. Rhea, Milo and the existing Dirty Cash contact are test/framework residents. Do not create additional NPCs, invent backstories, expand the resident roster or write new character-specific scenarios until the main storyline and intended cast have been deliberately designed. All systems must remain generic so the eventual authored cast can use them without bespoke code.
