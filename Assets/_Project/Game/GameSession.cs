@@ -1299,6 +1299,12 @@ namespace Signal.Game
                 Say("You already have a backpack equipped.", 3f);
                 return false;
             }
+            if (definition.PortableBackpack &&
+                (definition.BackpackWidth != _inventory.Width || definition.BackpackHeight != _inventory.Height))
+            {
+                Say("This prototype backpack capacity does not match the current test inventory grid.", 4f);
+                return false;
+            }
 
             if (!_playerEquipment.TryEquip(_inventory, item.ItemInstanceId, definition.EquipmentSlot,
                 definition.ArmorModifier, definition.HeatProtectionModifier))
@@ -1325,8 +1331,8 @@ namespace Signal.Game
             }
             else
             {
-                EffectiveCharacterAttributes effective =
-                    _playerEquipment.CalculateEffectiveAttributes(new PlayerAttributeSet());
+                EffectiveCharacterAttributes effective = _playerEquipment.CalculateEffectiveAttributes(
+                    _playerDevelopment != null ? _playerDevelopment.Attributes : new PlayerAttributeSet());
                 Say("Equipped " + definition.DisplayName + ". Armor " + effective.Armor +
                     " / Heat Protection " + effective.HeatProtection + ".", 4f);
             }
