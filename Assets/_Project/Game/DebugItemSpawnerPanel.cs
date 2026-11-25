@@ -46,13 +46,25 @@ namespace Signal.Game
 
             _spawn = spawn;
             _definitions.Clear();
+            var registeredIds = new HashSet<Guid>();
             if (definitions != null)
             {
                 for (int i = 0; i < definitions.Count; i++)
                 {
                     ItemDefinition definition = definitions[i];
-                    if (definition != null && !_definitions.Contains(definition))
-                        _definitions.Add(definition);
+                    if (definition == null)
+                        continue;
+
+                    try
+                    {
+                        if (registeredIds.Add(definition.ToItemType().Id))
+                            _definitions.Add(definition);
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        Debug.LogWarning("DebugItemSpawnerPanel: skipping '" + definition.name +
+                            "' because it has no valid stable item ID.");
+                    }
                 }
             }
 
