@@ -1,6 +1,6 @@
 # Progress — current repository truth
 
-Last reconciled: **2026-11-24**. This is the short status board. Session history is in [the November log](progress/LOG-2026-11.md); approved rules and implementation detail live in the linked decision/task documents.
+Last reconciled: **2026-11-25**. This is the short status board. Session history is in [the November log](progress/LOG-2026-11.md); approved rules and implementation detail live in the linked decision/task documents.
 
 ## Project baseline
 
@@ -83,7 +83,7 @@ Task specification: `tasks/LIVELIHOOD-B-05-GLOBAL-NPC-AWARENESS-AFFINITY.md`. Th
 - F1 opens the existing developer debug menu. Its Open item spawner action opens a searchable, scrollable catalogue panel with item icons, category, grid footprint and stack limit.
 - Clicking an entry adds one instance to the real player inventory using that definition's default instance state. The existing inventory capacity/stack rules apply; full inventory returns a visible message and does not silently discard the item.
 - Successful spawns are registered as player-owned through the existing ownership book and are ordinary inventory items, so the existing save/load path handles them.
-- The picker uses the same shared item-definition catalogue as inventory, inspection, shops and containers. That includes the 100 local survival-pack definitions plus definitions referenced by the scene, recipes, contracts, businesses, loot profiles, resident property and special-item fields. Prototype ITEM_A/B/C definitions are included when assigned in the scene's item catalogue.
+- The picker uses the same shared item-definition catalogue as inventory, inspection, shops and containers. That includes the 100 local survival-pack definitions plus definitions referenced by the scene, recipes, contracts, businesses, loot profiles, resident property and special-item fields. The active HideoutSlice scene explicitly assigns ITEM_A/B/C; the Work Jacket is registered through the repair target and loot/business content.
 - The current GitHub source contains no separate ItemDefinition named Wool. If Wool exists only in a local uncommitted asset, it will appear once added to a source catalogue the session loads; the spawner does not fabricate a duplicate definition.
 - Two focused EditMode tests cover panel binding/open-close and routing a selected definition through the spawn callback. The user's latest 437/437 run predates these tests; expected count is 439 if no other tests are added, but Unity verification is pending.
 
