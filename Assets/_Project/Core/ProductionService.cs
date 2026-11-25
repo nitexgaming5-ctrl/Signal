@@ -30,12 +30,14 @@ namespace Signal.Core
     {
         private readonly struct Removal
         {
-            public Removal(Guid instanceId, int quantity, int originalCount)
+            public Removal(GridInventory inventory, Guid instanceId, int quantity, int originalCount)
             {
+                Inventory = inventory;
                 InstanceId = instanceId;
                 Quantity = quantity;
                 OriginalCount = originalCount;
             }
+            public GridInventory Inventory { get; }
             public Guid InstanceId { get; }
             public int Quantity { get; }
             public int OriginalCount { get; }
@@ -46,12 +48,36 @@ namespace Signal.Core
             AssetOwnershipBook ownership, ProductionTransactionLedger history, int day, int minuteOfDay,
             ItemInstanceState? outputState = null)
         {
-            if (recipeId == Guid.Empty || recipe == null || inventory == null || !operatorActor.IsValid ||
-                containers == null || ownership == null || history == null ||
-                day < 1 || minuteOfDay < 0 || minuteOfDay >= 1440)
+            if (inventory == null)
+                return new ProductionResult(ProductionStatus.InvalidRequest, null);
+            return TryProduce(recipeId, recipe, new[] { inventory }, inventory, operatorActor,
+                containers, ownership, history, day, minuteOfDay, outputState);
+        }
+
+        /// <summary>Consumes ingredients across accessible carried grids and places output in one capacity-approved grid.</summary>
+        public static ProductionResult TryProduce(Guid recipeId, Recipe recipe,
+            IReadOnlyList<GridInventory> inventories, GridInventory outputInventory,
+            EconomicActorId operatorActor, EconomicContainerRegistry containers,
+            AssetOwnershipBook ownership, ProductionTransactionLedger history, int day, int minuteOfDay,
+            ItemInstanceState? outputState = null)
+        {
+            if (recipeId == Guid.Empty || recipe == null || inventories == null || inventories.Count == 0 ||
+                outputInventory == null || !operatorActor.IsValid || containers == null || ownership == null ||
+                history == null || day < 1 || minuteOfDay < 0 || minuteOfDay >= 1440)
                 return new ProductionResult(ProductionStatus.InvalidRequest, null);
 
-            if (!containers.TryGetCustodian(inventory, out EconomicActorId custodian) || custodian != operatorActor)
+            var accessible = new List<GridInventory>();
+            for (int i = 0; i < inventories.Count; i++)
+            {
+                GridInventory candidate = inventories[i];
+                if (candidate == null || accessible.Contains(candidate)) continue;
+                if (!containers.TryGetCustodian(candidate, out EconomicActorId custodian) || custodian != operatorActor)
+                    return new ProductionResult(ProductionStatus.OwnershipMismatch, null);
+                accessible.Add(candidate);
+            }
+            if (accessible.Count == 0 || !accessible.Contains(outputInventory) ||
+                !containers.TryGetCustodian(outputInventory, out EconomicActorId outputCustodian) ||
+                outputCustodian != operatorActor)
                 return new ProductionResult(ProductionStatus.OwnershipMismatch, null);
 
             var required = new Dictionary<ItemType, int>();
@@ -80,13 +106,14 @@ namespace Signal.Core
                 int needed = required[type];
                 long carried = 0;
                 long owned = 0;
-                foreach (PlacedItem item in inventory.Items)
-                {
-                    if (item.Type != type) continue;
-                    carried += item.Count;
-                    if (ownership.TryGetOwner(item.ItemInstanceId, out EconomicActorId owner) && owner == operatorActor)
-                        owned += item.Count;
-                }
+                for (int inventoryIndex = 0; inventoryIndex < accessible.Count; inventoryIndex++)
+                    foreach (PlacedItem item in accessible[inventoryIndex].Items)
+                    {
+                        if (item.Type != type) continue;
+                        carried += item.Count;
+                        if (ownership.TryGetOwner(item.ItemInstanceId, out EconomicActorId owner) && owner == operatorActor)
+                            owned += item.Count;
+                    }
 
                 if (owned < needed)
                     return new ProductionResult(carried < needed
@@ -94,83 +121,85 @@ namespace Signal.Core
                         : ProductionStatus.OwnershipMismatch, null);
 
                 int remaining = needed;
-                foreach (PlacedItem item in inventory.Items)
-                {
-                    if (remaining == 0) break;
-                    if (item.Type != type ||
-                        !ownership.TryGetOwner(item.ItemInstanceId, out EconomicActorId owner) ||
-                        owner != operatorActor)
-                        continue;
+                for (int inventoryIndex = 0; inventoryIndex < accessible.Count && remaining > 0; inventoryIndex++)
+                    foreach (PlacedItem item in accessible[inventoryIndex].Items)
+                    {
+                        if (remaining == 0) break;
+                        if (item.Type != type ||
+                            !ownership.TryGetOwner(item.ItemInstanceId, out EconomicActorId owner) ||
+                            owner != operatorActor)
+                            continue;
 
-                    int take = Math.Min(item.Count, remaining);
-                    removals.Add(new Removal(item.ItemInstanceId, take, item.Count));
-                    remaining -= take;
-                }
+                        int take = Math.Min(item.Count, remaining);
+                        removals.Add(new Removal(accessible[inventoryIndex], item.ItemInstanceId, take, item.Count));
+                        remaining -= take;
+                    }
                 if (remaining != 0)
                     return new ProductionResult(ProductionStatus.MissingInputs, null);
             }
 
             ItemInstanceState producedState = outputState ?? ItemInstanceState.Default;
-            // Add() tops up matching stacks first. Never merge into an asset owned by another actor.
-            foreach (PlacedItem item in inventory.Items)
+            foreach (PlacedItem item in outputInventory.Items)
             {
                 if (item.Type != recipe.Output.Type || item.State != producedState) continue;
                 if (!ownership.TryGetOwner(item.ItemInstanceId, out EconomicActorId owner) || owner != operatorActor)
                     return new ProductionResult(ProductionStatus.OwnershipMismatch, null);
             }
 
-            InventorySnapshot before = inventory.CreateSnapshot();
+            var snapshots = new Dictionary<GridInventory, InventorySnapshot>();
             var removedOwners = new List<Guid>();
             var addedOwners = new List<Guid>();
+            for (int i = 0; i < accessible.Count; i++)
+                snapshots.Add(accessible[i], accessible[i].CreateSnapshot());
+            var priorOutputIds = new HashSet<Guid>();
+            foreach (PlacedItem item in snapshots[outputInventory].Items)
+                priorOutputIds.Add(item.ItemInstanceId);
 
             foreach (Removal removal in removals)
             {
-                if (!inventory.TryRemoveItemInstance(removal.InstanceId, removal.Quantity))
-                    return RollBack(ProductionStatus.InvalidRequest, inventory, before,
-                        ownership, operatorActor, removedOwners, addedOwners);
+                if (!removal.Inventory.TryRemoveItemInstance(removal.InstanceId, removal.Quantity))
+                    return RollBack(ProductionStatus.InvalidRequest, snapshots, ownership,
+                        operatorActor, removedOwners, addedOwners);
 
                 if (removal.Quantity == removal.OriginalCount)
                 {
                     if (!ownership.TryRemove(removal.InstanceId, operatorActor))
-                        return RollBack(ProductionStatus.OwnershipMismatch, inventory, before,
-                            ownership, operatorActor, removedOwners, addedOwners);
+                        return RollBack(ProductionStatus.OwnershipMismatch, snapshots, ownership,
+                            operatorActor, removedOwners, addedOwners);
                     removedOwners.Add(removal.InstanceId);
                 }
             }
 
-            int leftover = inventory.Add(recipe.Output.Type, recipe.Output.Count, producedState);
-            if (leftover > 0)
-                return RollBack(ProductionStatus.NoSpaceForOutput, inventory, before,
-                    ownership, operatorActor, removedOwners, addedOwners);
+            if (outputInventory.Add(recipe.Output.Type, recipe.Output.Count, producedState) > 0)
+                return RollBack(ProductionStatus.NoSpaceForOutput, snapshots, ownership,
+                    operatorActor, removedOwners, addedOwners);
 
-            var priorIds = new HashSet<Guid>();
-            foreach (PlacedItem item in before.Items) priorIds.Add(item.ItemInstanceId);
-
-            foreach (PlacedItem item in inventory.Items)
+            foreach (PlacedItem item in outputInventory.Items)
             {
-                if (priorIds.Contains(item.ItemInstanceId)) continue;
+                if (priorOutputIds.Contains(item.ItemInstanceId)) continue;
                 if (!ownership.TryRegister(item.ItemInstanceId, operatorActor))
-                    return RollBack(ProductionStatus.OwnershipMismatch, inventory, before,
-                        ownership, operatorActor, removedOwners, addedOwners);
+                    return RollBack(ProductionStatus.OwnershipMismatch, snapshots, ownership,
+                        operatorActor, removedOwners, addedOwners);
                 addedOwners.Add(item.ItemInstanceId);
             }
 
             var transaction = new ProductionTransaction(Guid.NewGuid(), recipeId,
                 recipe.Output.Type.Id, recipe.Output.Count, operatorActor, day, minuteOfDay);
             if (!history.TryRecord(transaction))
-                return RollBack(ProductionStatus.HistoryConflict, inventory, before,
-                    ownership, operatorActor, removedOwners, addedOwners);
+                return RollBack(ProductionStatus.HistoryConflict, snapshots, ownership,
+                    operatorActor, removedOwners, addedOwners);
 
             return new ProductionResult(ProductionStatus.Completed, transaction);
         }
 
-        private static ProductionResult RollBack(ProductionStatus status, GridInventory inventory,
-            InventorySnapshot before, AssetOwnershipBook ownership, EconomicActorId operatorActor,
-            List<Guid> removedOwners, List<Guid> addedOwners)
+        private static ProductionResult RollBack(ProductionStatus status,
+            Dictionary<GridInventory, InventorySnapshot> snapshots, AssetOwnershipBook ownership,
+            EconomicActorId operatorActor, List<Guid> removedOwners, List<Guid> addedOwners)
         {
             for (int i = addedOwners.Count - 1; i >= 0; i--)
                 ownership.TryRemove(addedOwners[i], operatorActor);
-            inventory.Restore(before);
+            foreach (KeyValuePair<GridInventory, InventorySnapshot> snapshot in snapshots)
+                snapshot.Key.Restore(snapshot.Value);
             for (int i = 0; i < removedOwners.Count; i++)
                 ownership.TryRegister(removedOwners[i], operatorActor);
             return new ProductionResult(status, null);
