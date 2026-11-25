@@ -17,6 +17,7 @@ namespace Signal.Core.Tests
             public readonly EconomicTransactionLedger Transactions = new EconomicTransactionLedger();
             public readonly CustomerContractBook Contracts = new CustomerContractBook();
             public readonly PlayerRelationshipBook Relationships = new PlayerRelationshipBook();
+            public readonly NpcSocialWorld SocialWorld = new NpcSocialWorld();
             public readonly EconomicActorId Customer = new EconomicActorId("resident:customer");
             public readonly CleanMoneyAccount PlayerAccount = new CleanMoneyAccount(10);
             public readonly CleanMoneyAccount CustomerAccount = new CleanMoneyAccount(100);
@@ -24,6 +25,7 @@ namespace Signal.Core.Tests
 
             public Fixture(int count = 2, ItemInstanceState? state = null)
             {
+                SocialWorld.RegisterNpc("customer", "CornerShop", 0f, 0f, 8f);
                 PlayerInventory.Place(Goods, 0, 0, count: count, state: state);
                 Ownership.TryRegister(PlayerInventory.Items[0].ItemInstanceId, EconomicActorId.Player);
                 Containers.TryRegister(PlayerInventory, EconomicActorId.Player);
@@ -37,13 +39,15 @@ namespace Signal.Core.Tests
 
             public CustomerContractFulfilmentResult Fulfil(int quantity = 2, int reward = 20, bool acceptStolen = false,
                 float familiarityDelta = 0f, float trustDelta = 0f, float affinityDelta = 0f,
-                string relationshipNpcId = "customer")
+                string relationshipNpcId = "customer",
+                float issuerFamiliarityDelta = 0f, float issuerTrustDelta = 0f, float issuerAffinityDelta = 0f)
             {
                 return CustomerContractService.TryFulfil(ContractId, PlayerInventory.Items[0].ItemInstanceId,
                     Goods, quantity, acceptStolen, reward, Customer, Customer, PlayerInventory,
                     CustomerInventory, Ownership, Transfers, Transactions, PlayerAccount, CustomerAccount,
                     Contracts, 1, 200, Relationships, relationshipNpcId,
-                    familiarityDelta, trustDelta, affinityDelta);
+                    familiarityDelta, trustDelta, affinityDelta, SocialWorld, relationshipNpcId,
+                    issuerFamiliarityDelta, issuerTrustDelta, issuerAffinityDelta);
             }
         }
 
@@ -115,6 +119,55 @@ namespace Signal.Core.Tests
             Assert.That(fixture.Relationships.Get("customer").Familiarity, Is.EqualTo(0.15f).Within(0.0001f));
             Assert.That(fixture.Relationships.Get("customer").Trust, Is.EqualTo(0.6f).Within(0.0001f));
             Assert.That(fixture.Relationships.Get("customer").Affinity, Is.EqualTo(0.2f).Within(0.0001f));
+        }
+
+        [Test]
+        public void SuccessfulContractUpdatesIssuerOpinionOfPlayerOnce()
+        {
+            var fixture = new Fixture();
+
+            CustomerContractFulfilmentResult result = fixture.Fulfil(
+                issuerFamiliarityDelta: 0.25f, issuerTrustDelta: 0.15f, issuerAffinityDelta: 0.2f);
+
+            Assert.That(result.Success, Is.True);
+            Assert.That(fixture.SocialWorld.GetPlayerRelationship("customer").Familiarity,
+                Is.EqualTo(0.25f).Within(0.0001f));
+            Assert.That(fixture.SocialWorld.GetPlayerRelationship("customer").Trust,
+                Is.EqualTo(0.65f).Within(0.0001f));
+            Assert.That(fixture.SocialWorld.GetPlayerRelationship("customer").Affinity,
+                Is.EqualTo(0.2f).Within(0.0001f));
+            Assert.That(fixture.Relationships.Get("customer").Familiarity, Is.Zero,
+                "The issuer's opinion must not mutate the player's separate opinion.");
+
+            CustomerContractFulfilmentResult replay = CustomerContractService.TryFulfil(
+                fixture.ContractId, Guid.NewGuid(), fixture.Goods, 2, false, 20,
+                fixture.Customer, fixture.Customer, fixture.PlayerInventory, fixture.CustomerInventory,
+                fixture.Ownership, fixture.Transfers, fixture.Transactions, fixture.PlayerAccount,
+                fixture.CustomerAccount, fixture.Contracts, 1, 201, npcSocialWorld: fixture.SocialWorld,
+                npcOpinionNpcId: "customer", npcFamiliarityDelta: 0.25f,
+                npcTrustDelta: 0.15f, npcAffinityDelta: 0.2f);
+            Assert.That(replay.Success, Is.False);
+            Assert.That(fixture.SocialWorld.GetPlayerRelationship("customer").Familiarity,
+                Is.EqualTo(0.25f).Within(0.0001f));
+        }
+
+        [Test]
+        public void IssuerOpinionOutcomeMustTargetPayerAndHaveSocialWorld()
+        {
+            var fixture = new Fixture();
+            CustomerContractFulfilmentResult missingWorld = CustomerContractService.TryFulfil(
+                fixture.ContractId, fixture.PlayerInventory.Items[0].ItemInstanceId, fixture.Goods, 2, false, 20,
+                fixture.Customer, fixture.Customer, fixture.PlayerInventory, fixture.CustomerInventory,
+                fixture.Ownership, fixture.Transfers, fixture.Transactions, fixture.PlayerAccount,
+                fixture.CustomerAccount, fixture.Contracts, 1, 200, npcOpinionNpcId: "customer",
+                npcFamiliarityDelta: 0.1f);
+            Assert.That(missingWorld.Status, Is.EqualTo(CustomerContractFulfilmentStatus.InvalidRequest));
+            Assert.That(fixture.PlayerInventory.CountOf(fixture.Goods), Is.EqualTo(2));
+
+            CustomerContractFulfilmentResult wrongTarget = fixture.Fulfil(
+                issuerFamiliarityDelta: 0.1f, relationshipNpcId: "someone-else");
+            Assert.That(wrongTarget.Status, Is.EqualTo(CustomerContractFulfilmentStatus.InvalidRequest));
+            Assert.That(fixture.PlayerInventory.CountOf(fixture.Goods), Is.EqualTo(2));
         }
 
         [Test]
