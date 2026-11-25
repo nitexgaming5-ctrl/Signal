@@ -1525,6 +1525,8 @@ namespace Signal.Game
                 RegisterRecipeCatalog(firstWorkshopUpgrade.UnlockedRecipe);
             if (firstCustomerContract != null && firstCustomerContract.RequiredItem != null)
                 RegisterItemCatalog(firstCustomerContract.RequiredItem);
+            if (firstCustomerRepairOrder != null && firstCustomerRepairOrder.EntrustedItem != null)
+                RegisterItemCatalog(firstCustomerRepairOrder.EntrustedItem);
 
             if (businesses != null)
             {
