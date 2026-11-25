@@ -214,3 +214,13 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 - Added seven EditMode tests. The previous user-confirmed suite was 478/478; **485 is the expected count pending Unity compilation and test execution**, not yet verified.
 - This is a Core foundation only. GameSession integration, physical world object, interaction, active-inventory switching, no-backpack pockets and full F5/F9 wiring remain next. No Play Mode acceptance is claimed.
 - Next test game is specified in the P-03 task card; it must validate equipped → dropped → save/load while dropped → recovered → save/load while equipped, with cargo identity/content unchanged throughout.
+
+## P-03.3 Game integration — backpack drop and pickup (2026-11-25)
+
+- Added `PlayerEquipmentLoadout.TryTakeEquipped` so the backpack is removed from the equipment slot without being placed into its own storage grid.
+- GameSession now tracks Equipped/Dropped state, spawns a visible ground placeholder, drops with **B**, and recovers with **E** nearby. Recovery automatically equips the same stable backpack item instance.
+- Added a clickable **DROP BACKPACK [B]** button and a character/equipment sidebar beside the right-hand BACKPACK STORAGE grid. Seven equipment slots are shown; three pocket cells are visual placeholders only, with functional pocket storage still pending.
+- Dropping closes the inventory, hides the backpack grid and blocks pointer interaction with its contents. A full audit/gating of all other item-based interactions while storage is dropped remains necessary alongside the active pocket-inventory work.
+- F5/F9 now capture/restore the dropped item identity/state/owner/modifiers and its world coordinates, then recreate the dropped visual. Recovery after restore re-equips the same item.
+- Added one focused EditMode test for exact equipped-item extraction. Previous user-confirmed suite was 485/485; expected total is **486**, pending Unity compilation and test execution. No Play Mode acceptance is claimed yet.
+- User test sequence: equip and load cargo, B/button drop, verify inaccessible grid, E pickup/auto-equip, F5 while dropped, F9 and recover, then repeat save/load while equipped. Verify cargo identity/state/ownership.
