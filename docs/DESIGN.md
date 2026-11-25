@@ -133,3 +133,8 @@ The user has approved a parallel Player Development track. It customizes the exi
 - W-01 is a separate future system and is not part of P-01/P-02 implementation.
 
 Detailed specifications: `tasks/PLAYER-P-01-CHARACTER-FOUNDATION-APPEARANCE.md`, `tasks/PLAYER-P-02-ATTRIBUTES-SKILLS.md`, and `tasks/WEATHER-W-01-DYNAMIC-WEATHER-COLD-EXPOSURE-DESIGN.md`.
+
+
+## Player Development implementation status (2026-11-25)
+
+The first P-01/P-02 implementation slice is committed but awaits Unity import/compile/test/Play Mode verification. P-01 adds a modular Body_A renderer and a Unity ZIP importer. P-02 adds the two-attribute Core model, point-based skill ranks, one-time milestone ledger, free respecialization, save mapping, a provisional authored catalog and an F2 debug panel. Prototype tuning (8 starting points, rank cap 5, one point per rank) and the five candidate skills remain provisional. No activity-specific skill effects or equipment loadout are implemented in this slice.
