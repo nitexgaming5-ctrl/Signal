@@ -740,6 +740,11 @@ namespace Signal.Game
                 _dirtyCashPanel.Close();
                 dirtyCashOpen = false;
             }
+            if (_debugMenuOpen && repairOrderOpen)
+            {
+                _customerRepairOrderPanel.Close();
+                repairOrderOpen = false;
+            }
             if (_debugMenuOpen && upgradeOpen)
             {
                 _workshopUpgradePanel.Close();
