@@ -42,3 +42,14 @@ Dynamic seasonal weather is planned: temperature changes, rain, storms, snow and
 
 ## Next action
 Review/approve the P-01/P-02 specifications before implementation. Keep W-01 as a separate future design phase. Do not change gameplay code, assets or scenes until the user approves the implementation scope.
+
+
+## Latest implementation — P-01/P-02 first slice (2026-11-25)
+
+Committed but not yet Unity-verified:
+- P-01: modular five-part Body_A player visual with Idle/Walk and Down/Side/Top direction handling. RoomBootstrap retains physics/movement and falls back to the teal placeholder until assets are imported.
+- To import the supplied archive in Unity: use **Signal → Import World Build Character Pack...**, select `World Build - Character Pack - 0.2(1).zip`, then enter Play Mode. This imports PNG sheets into Resources and preserves the bundled terms. The pack provides a single modular base body, not a full clothing/armor catalogue.
+- P-02: Armor/Heat Protection base attributes, pure equipment modifier seam, point-based skill ranks, one-time milestone ledger, free respecialization, SaveData mapping, provisional catalog and F2 debug panel.
+- Current prototype catalog: 8 starting points, rank cap 5, 1 point per rank. Candidate skills remain provisional. Activity-specific effects are not yet wired.
+- Eleven focused tests were added. Previous user-verified baseline was 456/456 before this change; expected current total is 467. Unity compile, full EditMode suite and Play Mode must be run before calling this verified.
+- F2 opens Player Development when other major panels are closed. F1 remains the existing debug menu.
