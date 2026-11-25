@@ -738,10 +738,14 @@ namespace Signal.Game
                 _customerRepairOrders.TryGetState(firstCustomerRepairOrder.Id, out CustomerRepairOrderState order) &&
                 order.Phase == CustomerRepairOrderPhase.Active && order.ItemInstanceId == targetInstanceId)
                 targetOwner = order.Issuer;
+            if (!TryGetPlayerItem(targetInstanceId, out GridInventory targetInventory, out _) ||
+                !TryGetPlayerItem(kitInstanceId, out GridInventory kitInventory, out _))
+                return "The target or patch kit is no longer in accessible carried storage.";
+
             RepairResult result = RepairService.TryRepairForOwner(targetInstanceId, kitInstanceId,
                 repairTargetItem.ToItemType(), basicPatchKitItem.ToItemType(), reinforcedPatchKitItem.ToItemType(),
-                _inventory, EconomicActorId.Player, targetOwner, _economicContainers, _assetOwnership,
-                _itemKnowledge, _clock.Day, _clock.MinuteOfDay);
+                targetInventory, kitInventory, EconomicActorId.Player, targetOwner, _economicContainers,
+                _assetOwnership, _itemKnowledge, _clock.Day, _clock.MinuteOfDay);
 
             if (result.Success)
                 return "Work Jacket restored to " + result.ResultingCondition + ".";
