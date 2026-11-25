@@ -384,6 +384,12 @@ namespace Signal.Game
             RectTransform pocketGrid = NewRect("PersonalPockets", playerPanel.transform);
             SetTopLeft(pocketGrid, 20f, 322f, PlayerPocketBook.PocketCount * CellSize, CellSize);
             BuildCells(pocketGrid, PlayerPocketBook.PocketCount, 1);
+            if (pocketGrid.childCount > PlayerPocketBook.HiddenPocketIndex)
+                pocketGrid.GetChild(PlayerPocketBook.HiddenPocketIndex).GetComponent<Image>().color =
+                    new Color32(105, 55, 59, 255);
+            Text pocketLabel = NewText(playerPanel.transform, "P1  ·  P2  ·  P3 HIDDEN", 12,
+                TextAnchor.MiddleLeft, Muted);
+            SetTopLeft(pocketLabel.rectTransform, 20f, 304f, 260f, 18f);
             _pocketItems = NewRect("PocketItems", pocketGrid);
             Stretch(_pocketItems);
 
