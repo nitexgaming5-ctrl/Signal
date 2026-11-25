@@ -16,7 +16,7 @@ Signal is a top-down 2D urban RPG built on Unity 6000.6.9f1.
 ## Current verified baseline
 - Working branch: `chore/collaboration-workflow-and-audit`; keep `main` untouched.
 - Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
-- User confirmed **486/486 EditMode tests passed** after P-03.4a (2026-11-25). P-03.4b adds eight focused Core tests; expected current total is 494, pending Unity compilation and EditMode execution.
+- User confirmed **500/500 EditMode tests passing** after direct pocket-to-pocket moves/swaps (2026-11-26). This is the current full-suite automated-test checkpoint; Play Mode acceptance for the remaining P-03 scenarios is still outstanding.
 - B-06 Customer Repair Orders is complete: entrusted item custody remains distinct from ownership; exact item return and 35 CARD payment are atomic and replay-protected.
 - B-04 repair/trading and the First Workshop have also been reported working in Play Mode.
 - Unity remains the authority for compile, test and Play Mode verification. Never infer a pass from source edits.
@@ -31,8 +31,8 @@ Candidate skills (Repair, Production, Trading, Scavenging, Social), starting bud
 ## Separate future phase — W-01 Weather
 Dynamic seasonal weather is planned: temperature changes, rain, storms, snow and blizzards. Player exposure consequences are cold-focused and gradual. Heat Protection mitigates cold exposure; shelter supports recovery. No hot-weather/overheating gameplay is planned. W-01 is separate from P-01/P-02 and is not authorized for implementation.
 
-## Next action
-Pull the latest P-03.4b commits, compile in Unity and run the full EditMode suite (expected **494/494**). Then run the P-03.4b Play Mode test game in docs/tasks/PLAYER-P-03-EQUIPMENT-BACKPACK.md: three pocket capacity, save/load, pocket-aware customer contract, Milo parcel, searchable loot, retail purchase, backpack/pocket transfer, dropped-backpack persistence and repair-order receipt.
+## Next action — P-03.5 pocket-aware service-panel integration
+The user has confirmed **500/500 EditMode tests passing** on 2026-11-26. Resume the original P-03 Equipment & Backpack track. The next coherent slice is an audit and integration pass for item operations that still assume the 8×6 backpack grid is the only player inventory: start with Retail SELL and Dirty Cash item selection, then home storage and workbench/production inputs/outputs. Preserve atomic transactions, stable item identity/ownership, and strict inaccessibility of dropped-backpack cargo. See the P-03 task card for the complete remaining sequence.
 
 Current implementation:
 - Seven equipment slots are approved; Canvas Backpack occupies Accessory 1 and owns the 8×6 contents grid.
@@ -40,9 +40,9 @@ Current implementation:
 - Exactly three independent 1×1 personal pockets now exist, each holding one stack of a 1×1 item. P moves a hovered backpack item into the first free pocket; clicking a pocket item moves it back into the equipped backpack.
 - F5/F9 persists pocket items separately from backpack contents. Pocket item identity, quantity, state and owner are restored.
 - NPC conversations and customer-contract acceptance are available without a backpack. CustomerContractPanel can list and fulfil pocket-held goods. Physical item receipt routes to pockets for repair-order acceptance, shop purchase, searchable-container pickup and Milo's parcel.
-- When no backpack is accessible, Retail and Dirty Cash panels use an empty carry view rather than exposing the dropped backpack's cargo. Pocket-held items are not yet listed in those panels.
+- When no backpack is accessible, Retail and Dirty Cash panels use an empty carry view rather than exposing the dropped backpack's cargo. Pocket-held items are not yet listed in Retail SELL or Dirty Cash selection.
 - Home-storage transfer and workbench/production still require an equipped backpack. Clothing sprite overlays and broader service-panel pocket support remain future P-03 work.
-- No Unity compile/test result is claimed for the new P-03.4b changes yet. Keep B-07 and W-01 as separate roadmap tracks.
+- The user-confirmed EditMode suite is 500/500. Remaining P-03 work: pocket-aware service panels/home storage/workbench, wearable visuals, remove temporary debug starting-loadout seeding, and full Play Mode acceptance. Keep B-07 and W-01 as separate roadmap tracks.
 
 
 ## Latest implementation — P-01/P-02 first slice (2026-11-25)
@@ -159,3 +159,10 @@ Committed but not yet Unity-verified:
 - Pocket transfers work with no backpack equipped and while the backpack is dropped. Stable item identity, stack count, item state and ownership are preserved. P3 remains the hidden pocket; this change does not alter ordinary-search visibility.
 - Added three EditMode tests. Latest user-confirmed baseline is 494/494; expected suite is now 500, awaiting user Unity execution. No compile/test/Play Mode result is claimed.
 - Next check: pull latest branch, run EditMode suite, then in Play Mode drag P1 to empty P3 and swap occupied P2/P3, both with an equipped backpack and without one. Confirm UI refreshes and P3 still shows HIDDEN.
+
+
+## P-03 checkpoint update — 2026-11-26
+- User confirmed **500/500 EditMode tests passing** after direct pocket-to-pocket move/swap support.
+- Direct pocket moves to empty slots and swaps with occupied slots work through the shared pocket model; identity, count and item state are preserved. P3's ordinary-search exclusion remains unchanged.
+- Next implementation slice is P-03.5: audit and integrate Retail SELL and Dirty Cash selection with pocket-held items, then home storage and workbench/production. Dropped backpack cargo must remain inaccessible in every panel.
+- Remaining after service integration: wearable overlays constrained by supplied art, removal of temporary fresh-session debug loadout seeding, and full Play Mode acceptance. The 500/500 result is EditMode verification, not a claim that those Play Mode scenarios have passed.
