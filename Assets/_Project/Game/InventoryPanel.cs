@@ -403,7 +403,7 @@ namespace Signal.Game
             _root.pivot = new Vector2(0.5f, 0.5f);
             _root.anchoredPosition = Vector2.zero;
 
-            _title = NewText("Title", _root, "INVENTORY   [Tab] close   [LMB] move   [RMB] inspect   [R] rotate", 16,
+            _title = NewText("Title", _root, "INVENTORY   [Tab] close   [E] equip   [LMB] move   [RMB] inspect   [R] rotate", 16,
                              TextAnchor.MiddleLeft, TitleColor);
 
             _gridRect = NewRect("Grid", _root);
