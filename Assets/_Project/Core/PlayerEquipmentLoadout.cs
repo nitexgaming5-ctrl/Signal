@@ -135,6 +135,7 @@ namespace Signal.Core
 
         public bool TryGetContents(Guid backpackInstanceId, out GridInventory contents)
         {
+            contents = null;
             return backpackInstanceId != Guid.Empty && _contents.TryGetValue(backpackInstanceId, out contents);
         }
 
