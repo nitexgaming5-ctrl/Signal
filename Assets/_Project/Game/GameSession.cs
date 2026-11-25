@@ -1245,6 +1245,9 @@ namespace Signal.Game
                     continue;
                 }
 
+                if (!_assetOwnership.TryGetOwner(instanceId, out _))
+                    _assetOwnership.TryRegister(instanceId, EconomicActorId.Player);
+
                 if (saved.portableBackpack)
                 {
                     _equippedBackpackInstanceId = instanceId;
