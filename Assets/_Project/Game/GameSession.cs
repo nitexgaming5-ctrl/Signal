@@ -998,7 +998,7 @@ namespace Signal.Game
                     keyboard.digit4Key.wasPressedThisFrame ? 4 : 0;
                 if (choice > 0 && _miloScenario.HandleChoice(choice, out string choiceMessage))
                 {
-                    RegisterUnownedPlayerAssets(_inventory);
+                    RegisterUnownedAccessibleAssets();
                     Say(choiceMessage, 8f);
                     return;
                 }
@@ -1049,7 +1049,7 @@ namespace Signal.Game
                 !nearSearchableContainer && keyboard.eKey.wasPressedThisFrame &&
                 _miloScenario != null && _miloScenario.TryInteract(playerPosition, _city.CurrentPlace, out string scenarioPromptMessage))
             {
-                RegisterUnownedPlayerAssets(_inventory);
+                RegisterUnownedAccessibleAssets();
                 Say(scenarioPromptMessage, 8f);
             }
             else if (!workspaceOpen && !inventoryOpen && !storageOpen && !itemViewerOpen && !retailOpen && !containerOpen &&
@@ -1102,7 +1102,7 @@ namespace Signal.Game
                 if (_miloScenario != null &&
                     _miloScenario.TryInteract(playerPosition, _city.CurrentPlace, out string scenarioMessage))
                 {
-                    RegisterUnownedPlayerAssets(_inventory);
+                    RegisterUnownedAccessibleAssets();
                     Say(scenarioMessage, 8f);
                 }
                 else if (TryOpenAgendaConversation(playerPosition))
@@ -2664,6 +2664,15 @@ namespace Signal.Game
             foreach (PlacedItem item in inventory.Items)
                 if (!_assetOwnership.TryGetOwner(item.ItemInstanceId, out _))
                     _assetOwnership.TryRegister(item.ItemInstanceId, EconomicActorId.Player);
+        }
+
+        private void RegisterUnownedAccessibleAssets()
+        {
+            if (_equippedBackpackInstanceId.HasValue && !_droppedBackpackItem.HasValue)
+                RegisterUnownedPlayerAssets(_inventory);
+            if (_playerPockets != null)
+                for (int i = 0; i < PlayerPocketBook.PocketCount; i++)
+                    RegisterUnownedPlayerAssets(_playerPockets.GetPocket(i));
         }
 
         private ItemType? ResolveType(Guid id)
