@@ -85,7 +85,9 @@ Task specification: `tasks/LIVELIHOOD-B-05-GLOBAL-NPC-AWARENESS-AFFINITY.md`. Th
 - Successful spawns are registered as player-owned through the existing ownership book and are ordinary inventory items, so the existing save/load path handles them.
 - The picker uses the same shared item-definition catalogue as inventory, inspection, shops and containers. That includes the 100 local survival-pack definitions plus definitions referenced by the scene, recipes, contracts, businesses, loot profiles, resident property and special-item fields. The active HideoutSlice scene explicitly assigns ITEM_A/B/C; the Work Jacket is registered through the repair target and loot/business content.
 - The current GitHub source contains no separate ItemDefinition named Wool. If Wool exists only in a local uncommitted asset, it will appear once added to a source catalogue the session loads; the spawner does not fabricate a duplicate definition.
-- Two focused EditMode tests cover panel binding/open-close and routing a selected definition through the spawn callback. The user's latest 437/437 run predates these tests; expected count is 439 if no other tests are added, but Unity verification is pending.
+- Two focused EditMode tests cover panel binding/open-close and routing a selected definition through the spawn callback.
+- **EditMode cleanup fix:** `DebugItemSpawnerPanel.RefreshTiles` now uses deferred `Destroy` while playing and `DestroyImmediate` outside Play Mode. This avoids Unity's edit-mode destruction warning/error when the panel rebuilds its tiles during EditMode tests; runtime behaviour remains deferred and safe.
+ The user's latest 437/437 run predates these tests; expected count is 439 if no other tests are added, but Unity verification is pending.
 
 ## Repository hazards and deferred scope
 
