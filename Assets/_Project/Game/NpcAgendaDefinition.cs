@@ -266,8 +266,9 @@ namespace Signal.Game
                             return false;
                         }
                         if (!choice.CompleteStageOnChoice &&
-                            choice.Action != NpcAgendaChoiceAction.DialogueOnly &&
-                            choice.Action != NpcAgendaChoiceAction.OpenWorkshopUpgradeOffer)
+                            (choice.Action != NpcAgendaChoiceAction.DialogueOnly &&
+                             choice.Action != NpcAgendaChoiceAction.OpenWorkshopUpgradeOffer ||
+                             choice.FamiliarityDelta != 0f || choice.TrustDelta != 0f || choice.AffinityDelta != 0f))
                         {
                             error = "Repeatable choice " + choice.ChoiceId +
                                 " cannot apply a one-time discovery or relationship outcome.";
