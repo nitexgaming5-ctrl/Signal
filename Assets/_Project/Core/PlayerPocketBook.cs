@@ -85,6 +85,17 @@ namespace Signal.Core
             return result.Success && result.Moved > 0;
         }
 
+        public bool TryMoveToAt(GridInventory destination, int pocketIndex, int x, int y)
+        {
+            if (destination == null || !TryGetPocket(pocketIndex, out GridInventory source) ||
+                source.Items.Count != 1)
+                return false;
+            PlacedItem item = source.Items[0];
+            InventoryTransferResult result = InventoryTransfer.MoveStackAt(
+                source, destination, item.ItemInstanceId, x, y, false);
+            return result.Success && result.Moved == item.Count;
+        }
+
         public void Clear()
         {
             for (int i = 0; i < PocketCount; i++) _pockets[i].Clear();
