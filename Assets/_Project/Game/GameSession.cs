@@ -1619,6 +1619,22 @@ namespace Signal.Game
                 return "Inventory full. No " + displayName + " was added.";
 
             RegisterUnownedPlayerAssets(_inventory);
+
+            // The debug spawner is the bootstrap path for a fresh, empty character.
+            // Auto-equip a spawned backpack so its own storage becomes accessible immediately.
+            if (definition.PortableBackpack && !_equippedBackpackInstanceId.HasValue)
+            {
+                foreach (PlacedItem spawned in _inventory.Items)
+                {
+                    if (spawned.Type.Id != type.Id)
+                        continue;
+                    if (TryEquipPlayerItem(spawned))
+                        return "Added and equipped " + displayName + ".";
+                    break;
+                }
+                return "Added " + displayName + ", but it could not be equipped.";
+            }
+
             return "Added " + displayName + " to your inventory.";
         }
 
