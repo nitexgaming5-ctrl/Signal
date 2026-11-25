@@ -740,7 +740,12 @@ namespace Signal.Game
             }
 
             if (keyboard != null && keyboard.f2Key.wasPressedThisFrame && !_debugMenuOpen &&
-                _playerDevelopmentPanel != null)
+                _playerDevelopmentPanel != null &&
+                (_panel == null || !_panel.IsOpen) &&
+                (_storagePanel == null || !_storagePanel.IsOpen) &&
+                (_workspace == null || !_workspace.IsOpen) &&
+                (_containerPanel == null || !_containerPanel.IsOpen) &&
+                (_retailPanel == null || !_retailPanel.IsOpen))
                 _playerDevelopmentPanel.SetOpen(!_playerDevelopmentPanel.IsOpen);
 
             bool workspaceOpen = _workspace != null && _workspace.IsOpen;
