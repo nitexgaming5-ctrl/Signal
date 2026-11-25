@@ -1760,23 +1760,6 @@ namespace Signal.Game
                 : "Sale failed. Your items and CARD balance were left unchanged.";
         }
 
-        private ItemDefinition FindItemDefinition(Guid itemDefinitionId)
-        {
-            for (int i = 0; i < _allItemDefinitions.Count; i++)
-            {
-                ItemDefinition definition = _allItemDefinitions[i];
-                if (definition == null)
-                    continue;
-                try
-                {
-                    if (definition.ToItemType().Id == itemDefinitionId)
-                        return definition;
-                }
-                catch (InvalidOperationException) { }
-            }
-            return null;
-        }
-
         private void BuildCatalog()
         {
             _catalog.Clear();
