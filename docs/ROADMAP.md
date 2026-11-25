@@ -59,7 +59,9 @@ The catalogue model is hybrid but bounded: merchandise remains fixed-price; each
 
 ### B-05 — Global NPC awareness & affinity
 
-**Approved for implementation.** Unify the existing social foundations into one canonical, persistent system used by every NPC and the player. Each actor has individual sourced knowledge and directed relationships; familiarity, trust and affinity remain separate. Knowledge is acquired through local observation, explicit communication or authored discovery. No omniscience, automatic city-wide gossip, ambient affinity farming or universal reputation. Rhea and Milo are test content, not special cases. See [B-05 task card](tasks/LIVELIHOOD-B-05-GLOBAL-NPC-AWARENESS-AFFINITY.md).
+**Status: shared framework implemented; current verification pending.** Every registered NPC has individual sourced knowledge, directed NPC-to-NPC relationships and a separate opinion of the player. The player's opinion of each NPC remains in `PlayerRelationshipBook`; NPC opinions of the player and NPC-to-NPC relationships live with each `NpcAgentState` inside `NpcSocialWorld`. All three directions use the same `NpcRelationship` value model and persist independently through F5/F9. Customer-contract definitions can author outcomes in either direction, applied only after successful delivery, payment and completion.
+
+Knowledge remains local or explicitly communicated; there is no omniscience, automatic city-wide gossip, ambient trust/affinity farming or universal reputation. **This phase builds reusable NPC infrastructure, not the cast:** Rhea, Milo and the existing Dirty Cash contact are framework/test residents only. Do not add residents, personalities, backstories or story content until the main storyline and cast are deliberately designed. See [B-05 task card](tasks/LIVELIHOOD-B-05-GLOBAL-NPC-AWARENESS-AFFINITY.md).
 
 ### B-06 — Livelihood expansion
 
@@ -121,4 +123,4 @@ Completed task specifications and their verification snapshots are archived unde
 
 ## Active social foundation — B-05 Global NPC Awareness & Affinity
 
-Approved shared NPC awareness/affinity work is tracked in `tasks/LIVELIHOOD-B-05-GLOBAL-NPC-AWARENESS-AFFINITY.md`. The implementation preserves `PlayerRelationshipBook` as player→NPC state and `NpcSocialWorld` as NPC→NPC state, while persisting individual knowledge and directed NPC relationships through F5/F9. Runtime changes and focused tests are committed; Unity verification remains pending.
+B-05 preserves three distinct directions: player→NPC in `PlayerRelationshipBook`; NPC→NPC and NPC→player on each `NpcAgentState` in `NpcSocialWorld`. Each uses the shared `NpcRelationship` value model. Individual knowledge and all NPC-owned relationship directions persist through F5/F9. Customer contracts now support authored outcomes for both the player's impression of the issuer and the issuer's impression of the player. The user confirmed **439/439** before this latest directionality slice; its new focused tests still require a fresh Unity run. No new story NPCs are to be authored during this framework phase.
