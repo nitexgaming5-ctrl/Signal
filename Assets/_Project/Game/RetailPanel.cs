@@ -67,6 +67,13 @@ namespace Signal.Game
             _root.SetActive(false);
         }
 
+        public void SetInventory(GridInventory inventory)
+        {
+            if (inventory == null || ReferenceEquals(_inventory, inventory)) return;
+            _inventory = inventory;
+            if (IsOpen && _showSell) RefreshCatalogue();
+        }
+
         public void Open(BusinessDefinition business)
         {
             if (business == null)
