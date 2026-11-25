@@ -40,6 +40,7 @@ namespace Signal.Game
         private Button _sellTab;
         private BusinessDefinition _business;
         private GridInventory _inventory;
+        private readonly List<GridInventory> _inventories = new List<GridInventory>();
         private IReadOnlyList<ItemDefinition> _itemDefinitions;
         private AssetOwnershipBook _ownership;
         private readonly List<SellableStack> _sellableStacks = new List<SellableStack>();
@@ -60,6 +61,8 @@ namespace Signal.Game
             _purchase = purchase ?? throw new ArgumentNullException(nameof(purchase));
             _sell = sell ?? throw new ArgumentNullException(nameof(sell));
             _inventory = inventory ?? throw new ArgumentNullException(nameof(inventory));
+            _inventories.Clear();
+            _inventories.Add(_inventory);
             _itemDefinitions = itemDefinitions ?? throw new ArgumentNullException(nameof(itemDefinitions));
             _ownership = ownership ?? throw new ArgumentNullException(nameof(ownership));
             _closed = closed;
@@ -69,8 +72,21 @@ namespace Signal.Game
 
         public void SetInventory(GridInventory inventory)
         {
-            if (inventory == null || ReferenceEquals(_inventory, inventory)) return;
-            _inventory = inventory;
+            if (inventory == null) return;
+            SetInventories(new[] { inventory });
+        }
+
+        public void SetInventories(IReadOnlyList<GridInventory> inventories)
+        {
+            _inventories.Clear();
+            if (inventories != null)
+                for (int i = 0; i < inventories.Count; i++)
+                {
+                    GridInventory inventory = inventories[i];
+                    if (inventory == null || _inventories.Contains(inventory)) continue;
+                    _inventories.Add(inventory);
+                }
+            _inventory = _inventories.Count > 0 ? _inventories[0] : null;
             if (IsOpen && _showSell) RefreshCatalogue();
         }
 
@@ -175,23 +191,27 @@ namespace Signal.Game
         private void RefreshSellRows()
         {
             _sellableStacks.Clear();
-            foreach (PlacedItem stack in _inventory.Items)
+            for (int inventoryIndex = 0; inventoryIndex < _inventories.Count; inventoryIndex++)
             {
-                if (!_ownership.TryGetOwner(stack.ItemInstanceId, out EconomicActorId owner) ||
-                    owner != EconomicActorId.Player)
-                    continue;
-
-                ItemDefinition definition = FindDefinition(stack.Type.Id);
-                if (definition == null ||
-                    !_business.TryGetBuybackOffer(definition, stack.State, out int unitPrice))
-                    continue;
-
-                _sellableStacks.Add(new SellableStack
+                GridInventory inventory = _inventories[inventoryIndex];
+                foreach (PlacedItem stack in inventory.Items)
                 {
-                    Stack = stack,
-                    Definition = definition,
-                    UnitPrice = unitPrice
-                });
+                    if (!_ownership.TryGetOwner(stack.ItemInstanceId, out EconomicActorId owner) ||
+                        owner != EconomicActorId.Player)
+                        continue;
+
+                    ItemDefinition definition = FindDefinition(stack.Type.Id);
+                    if (definition == null ||
+                        !_business.TryGetBuybackOffer(definition, stack.State, out int unitPrice))
+                        continue;
+
+                    _sellableStacks.Add(new SellableStack
+                    {
+                        Stack = stack,
+                        Definition = definition,
+                        UnitPrice = unitPrice
+                    });
+                }
             }
 
             int total = _sellableStacks.Count;
