@@ -1235,10 +1235,10 @@ namespace Signal.Game
             if (visual != null)
                 visual.SetBackpackEquipped(false);
 
-            if (data == null || data.equippedItems == null)
+            if (data == null)
                 return;
 
-            foreach (SavedEquippedItem saved in data.equippedItems)
+            foreach (SavedEquippedItem saved in data.equippedItems ?? new List<SavedEquippedItem>())
             {
                 if (saved == null || !Guid.TryParse(saved.instanceId, out Guid instanceId) ||
                     !Guid.TryParse(saved.typeId, out Guid typeId) ||
@@ -1291,6 +1291,43 @@ namespace Signal.Game
                     if (visual != null)
                         visual.SetBackpackEquipped(true);
                 }
+            }
+
+            SavedEquippedItem droppedSaved = data.droppedBackpack;
+            if (droppedSaved != null && droppedSaved.portableBackpack &&
+                Guid.TryParse(droppedSaved.instanceId, out Guid droppedId) &&
+                Guid.TryParse(droppedSaved.typeId, out Guid droppedTypeId) &&
+                Enum.IsDefined(typeof(ItemQuality), droppedSaved.quality) &&
+                Enum.IsDefined(typeof(ItemCondition), droppedSaved.condition) &&
+                Enum.IsDefined(typeof(ItemAuthenticity), droppedSaved.authenticity) &&
+                Enum.IsDefined(typeof(ItemOwnershipStatus), droppedSaved.ownership) &&
+                !_equippedBackpackInstanceId.HasValue &&
+                _portableStorage.TryRegister(droppedId, _inventory))
+            {
+                ItemType? droppedType = ResolveType(droppedTypeId);
+                if (droppedType.HasValue)
+                {
+                    var droppedState = new ItemInstanceState((ItemQuality)droppedSaved.quality,
+                        (ItemCondition)droppedSaved.condition, (ItemAuthenticity)droppedSaved.authenticity,
+                        (ItemOwnershipStatus)droppedSaved.ownership);
+                    var staging = new GridInventory(droppedType.Value.Width, droppedType.Value.Height);
+                    if (staging.Place(droppedType.Value, 0, 0, false, 1, droppedId, droppedState).HasValue &&
+                        staging.TryGetItemInstance(droppedId, out PlacedItem droppedPlaced))
+                    {
+                        _droppedBackpackItem = new EquippedItem(EquipmentSlot.Accessory1, droppedPlaced,
+                            droppedSaved.armorModifier, droppedSaved.heatProtectionModifier);
+                        if (!_assetOwnership.TryGetOwner(droppedId, out _))
+                        {
+                            EconomicActorId owner = string.IsNullOrWhiteSpace(droppedSaved.ownerActorId)
+                                ? EconomicActorId.Player : new EconomicActorId(droppedSaved.ownerActorId);
+                            _assetOwnership.TryRegister(droppedId, owner);
+                        }
+                    }
+                    else
+                        _portableStorage.TryUnregister(droppedId);
+                }
+                else
+                    _portableStorage.TryUnregister(droppedId);
             }
         }
 
