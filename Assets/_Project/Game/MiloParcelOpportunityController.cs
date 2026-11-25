@@ -441,7 +441,8 @@ namespace Signal.Game
 
         private bool TryFindParcelInventory(out GridInventory inventory, out PlacedItem parcel)
         {
-            if (_inventory.TryGetItemInstance(_state.ParcelInstanceId, out parcel))
+            bool backpackAccessible = _hasBackpack == null || _hasBackpack();
+            if (backpackAccessible && _inventory.TryGetItemInstance(_state.ParcelInstanceId, out parcel))
             { inventory = _inventory; _parcelContainer = inventory; return true; }
             if (_pockets != null)
                 for (int i = 0; i < PlayerPocketBook.PocketCount; i++)
@@ -454,16 +455,21 @@ namespace Signal.Game
 
         private bool RestoreParcelToInventory(PlacedItem parcel, GridInventory preferred)
         {
-            if (preferred != null && preferred.Place(parcel.Type, 0, 0, parcel.Rotated,
-                parcel.Count, parcel.ItemInstanceId, parcel.State).HasValue)
-                return true;
+            if (preferred != null)
+                for (int y = 0; y < preferred.Height; y++)
+                    for (int x = 0; x < preferred.Width; x++)
+                        if (preferred.Place(parcel.Type, x, y, parcel.Rotated, parcel.Count,
+                            parcel.ItemInstanceId, parcel.State).HasValue)
+                            return true;
             if (_pockets != null && _pockets.TryAdd(parcel, out int _))
                 return true;
-            for (int y = 0; y < _inventory.Height; y++)
-                for (int x = 0; x < _inventory.Width; x++)
-                    if (_inventory.Place(parcel.Type, x, y, parcel.Rotated, parcel.Count,
-                        parcel.ItemInstanceId, parcel.State).HasValue)
-                        return true;
+            bool backpackAccessible = _hasBackpack == null || _hasBackpack();
+            if (backpackAccessible)
+                for (int y = 0; y < _inventory.Height; y++)
+                    for (int x = 0; x < _inventory.Width; x++)
+                        if (_inventory.Place(parcel.Type, x, y, parcel.Rotated, parcel.Count,
+                            parcel.ItemInstanceId, parcel.State).HasValue)
+                            return true;
             return false;
         }
 
