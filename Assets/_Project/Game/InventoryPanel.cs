@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Signal.Core;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.UI;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace Signal.Game
@@ -422,12 +424,15 @@ namespace Signal.Game
             if (_font == null)
                 _font = Font.CreateDynamicFontFromOSFont("Arial", 16);
 
-            var canvasObject = new GameObject("InventoryCanvas", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler));
+            var canvasObject = new GameObject("InventoryCanvas", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
             canvasObject.transform.SetParent(transform, false);
 
             var canvas = canvasObject.GetComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 100;
+
+            if (FindObjectOfType<EventSystem>() == null)
+                new GameObject("InventoryEventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
 
             var scaler = canvasObject.GetComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
@@ -492,8 +497,8 @@ namespace Signal.Game
         {
             Image background = NewImage("CharacterBackground", _characterRoot, new Color32(0x18, 0x1D, 0x25, 0xFF));
             Stretch(background.rectTransform);
-            NewText("CharacterTitle", _characterRoot, "CHARACTER", 16, TextAnchor.MiddleLeft, TitleColor)
-                .rectTransform.anchoredPosition = new Vector2(10f, -8f);
+            Text characterTitle = NewText("CharacterTitle", _characterRoot, "CHARACTER", 16, TextAnchor.MiddleLeft, TitleColor);
+            SetTopLeft(characterTitle.rectTransform, 10f, 8f, 190f, 24f);
             Text equipmentTitle = NewText("EquipmentTitle", _characterRoot, "EQUIPMENT", 12, TextAnchor.MiddleLeft, FallbackColor);
             SetTopLeft(equipmentTitle.rectTransform, 10f, 38f, 190f, 20f);
             EquipmentSlot[] slots = { EquipmentSlot.Head, EquipmentSlot.Torso, EquipmentSlot.Legs,
