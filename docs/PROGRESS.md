@@ -56,7 +56,7 @@ Specialist references: [Architecture](ARCHITECTURE.md), [Data Model](DATA_MODEL.
 
 **Play Mode:** the user reports the First Workshop, repair/trading features and B-06 entrusted repair-order loop work correctly.
 
-**Next design initiative:** Player Development. P-01 and P-02 task specifications are prepared; no implementation has been authorized. Keep B-07 Neighbourhood Expansion intact as a separate Direction B roadmap phase. W-01 Dynamic Weather & Cold Exposure is a separate future design phase.
+**Active initiative:** P-03 Equipment, Wearables & Portable Backpack. The first Core foundation is committed: seven equipment slots, exact-instance equip/unequip, modifier aggregation and backpack contents keyed by stable backpack identity. Unity verification and Game/save/UI/world-drop integration remain pending. See [P-03 task card](tasks/PLAYER-P-03-EQUIPMENT-BACKPACK.md). B-07 Neighbourhood Expansion remains intact; W-01 remains separate.
 
 The guaranteed Work Jacket entry is explicitly temporary test scaffolding and should be removed or changed back to a low-weight normal entry once the repair loop is fully validated.
 
@@ -170,3 +170,13 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 - Increased the modular character's five visual sprite layers to **1.8×** their previous local scale.
 - Applied scaling to the visual child layers only. The player root transform, Rigidbody2D, BoxCollider2D, movement speed, interaction range and camera configuration are unchanged; gameplay collision/physics sizing is preserved.
 - User should verify the larger appearance in Play Mode. Unity compilation and visual verification are pending.
+
+
+## P-03 first implementation slice — 2026-11-25
+
+- Added Core seven-slot equipment loadout: Head, Torso, Legs, Feet and three generic accessory slots. Equipment transfers preserve exact item identity/state and do not change ownership.
+- Added summed Armor/Heat Protection modifiers using the existing effective-attribute value model.
+- Added PortableStorageBook keyed by stable backpack item instance ID. Backpack contents remain in an independent GridInventory and a non-empty container cannot be discarded.
+- Added nine focused EditMode tests and Unity metadata for new files.
+- This is a Core foundation only: no Game item definitions, UI, F5/F9 persistence, wearable visuals or dropped-world backpack object yet. The user's 467/467 verification predates these nine tests; expected suite is 476, pending Unity.
+- Task card: tasks/PLAYER-P-03-EQUIPMENT-BACKPACK.md.
