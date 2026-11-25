@@ -79,7 +79,7 @@ namespace Signal.Core
         {
             if (orderId == Guid.Empty || !issuer.IsValid || issuer == EconomicActorId.Player ||
                 itemDefinitionId == Guid.Empty || reward < 1 ||
-                (requiredReturnCondition != ItemCondition.Good && requiredReturnCondition != ItemCondition.Pristine) ||
+                requiredReturnCondition != ItemCondition.Good ||
                 _states.ContainsKey(orderId))
                 return false;
             _states.Add(orderId, new CustomerRepairOrderState(orderId, issuer, itemDefinitionId, reward, requiredReturnCondition));
