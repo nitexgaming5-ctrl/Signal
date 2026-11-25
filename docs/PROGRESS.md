@@ -81,7 +81,7 @@ Relationship ownership is explicitly directional:
 - F5/F9 persistence for NPC→player opinion, validated against registered stable NPC IDs and finite bounded values. Restore clears prior timeline state and rebuilds the transient event journal/presence separately.
 - Customer contracts now support authored outcomes in both directions: player→issuer through PlayerRelationshipBook and issuer→player through the issuer's own NpcAgentState. Both apply only after successful goods transfer, payment and contract completion; replay cannot award twice.
 - Generic agenda stages can gate on either relationship perspective, and agenda choices can award one-time outcomes in either direction. GameSession passes the shared NpcSocialWorld to the generic director; repeatable choices are forbidden from applying relationship deltas.
-- Added tests for independent directionality, persistence round-trip, contract success/replay/target validation, agenda gates/outcomes and repeatable-choice safeguards. These latest tests have not run in Unity.
+- Added tests for independent directionality, persistence round-trip, contract success/replay/target validation, agenda gates/outcomes and repeatable-choice safeguards. These tests are included in the user's confirmed 445/445 full EditMode result.
 
 The user has now confirmed **445/445 EditMode tests passed (2026-11-25)** on the current B-05 implementation.
 
