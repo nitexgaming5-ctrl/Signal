@@ -7,7 +7,7 @@ Last reconciled: **2026-11-25**. This is the short status board. Session history
 - Unity **6000.6.9f1**, 2D URP. Active architecture: `Signal.Core` (plain C#) + `Signal.Game` (Unity integration). Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
 - Working branch: `chore/collaboration-workflow-and-audit`. Keep `main` untouched.
 - Application version: **0.01**. Save snapshots are deliberately unversioned; there is no schema-version field, version gate or automatic migration chain. Older experimental saves may be incompatible after data-shape changes.
-- Latest user-reported full EditMode result: **476/476 passed (2026-11-25)**, including B-05 NPC→player directionality, generic agenda integration, contract outcomes and persistence. B-05 is now user-verified.
+- Latest user-reported full EditMode result: **478/478 passed (2026-11-25)**, including the P-03 backpack-equipped integration and its two additional Core tests., including B-05 NPC→player directionality, generic agenda integration, contract outcomes and persistence. B-05 is now user-verified.
 - The user reports the First Workshop and B-04 repair/trading loop working in Play Mode. B-06 uses a separate Worn jacket seeded in Milo's inventory for the entrusted-service test.
 
 ## Completed livelihood foundations — B-01 to B-06
@@ -52,11 +52,11 @@ Specialist references: [Architecture](ARCHITECTURE.md), [Data Model](DATA_MODEL.
 
 ## Current verification and next action
 
-**EditMode:** the user most recently reports **476/476 passed** before the current P-03 backpack-equipped integration slice. Two additional focused tests were added afterward; expected current total is **478**, pending Unity execution.
+**EditMode:** the user confirms **478/478 passed (2026-11-25)** after the P-03 backpack-equipped integration slice.
 
 **Play Mode:** the user reports the First Workshop, repair/trading features and B-06 entrusted repair-order loop work correctly.
 
-**Active initiative:** P-03 Equipment, Wearables & Portable Backpack. Core seven-slot loadout plus first Game integration are committed: E equips prototype gear, 1–7 unequip ordinary slots, Canvas Backpack attaches the existing 8×6 grid to its stable identity, and equipped state is saved/restored through F5/F9. The 8×6 player grid is a temporary testing convenience; final no-backpack state is 2–3 pockets. Physical backpack drop/pickup is the next sub-phase. User's last verified baseline was 476/476 before two new tests; expected current suite is 478 pending Unity. See [P-03 task card](tasks/PLAYER-P-03-EQUIPMENT-BACKPACK.md). B-07 Neighbourhood Expansion remains intact; W-01 remains separate.
+**Active initiative:** P-03 Equipment, Wearables & Portable Backpack. Core seven-slot loadout plus first Game integration are committed: E equips prototype gear, 1–7 unequip ordinary slots, Canvas Backpack attaches the existing 8×6 grid to its stable identity, and equipped state is saved/restored through F5/F9. The 8×6 player grid is a temporary testing convenience; final no-backpack state is 2–3 pockets. Physical backpack drop/pickup is the next sub-phase. User confirmed **478/478 EditMode tests passed** after this slice. See [P-03 task card](tasks/PLAYER-P-03-EQUIPMENT-BACKPACK.md). B-07 Neighbourhood Expansion remains intact; W-01 remains separate.
 
 The guaranteed Work Jacket entry is explicitly temporary test scaffolding and should be removed or changed back to a low-weight normal entry once the repair loop is fully validated.
 
