@@ -1606,6 +1606,15 @@ namespace Signal.Game
 
             string displayName = string.IsNullOrWhiteSpace(definition.DisplayName)
                 ? definition.name : definition.DisplayName;
+            if (!_equippedBackpackInstanceId.HasValue && !definition.PortableBackpack)
+            {
+                var pocketItem = new PlacedItem(1, Guid.NewGuid(), type, 0, 0, false, 1, definition.DefaultInstanceState);
+                if (!_playerPockets.TryAdd(pocketItem, out _))
+                    return "Your three personal pockets are full, or this item is too large.";
+                _assetOwnership.TryRegister(pocketItem.ItemInstanceId, EconomicActorId.Player);
+                return "Added " + displayName + " to your personal pockets.";
+            }
+
             int remaining = _inventory.Add(type, 1, definition.DefaultInstanceState);
             if (remaining > 0)
                 return "Inventory full. No " + displayName + " was added.";
@@ -2548,6 +2557,61 @@ namespace Signal.Game
                 nearest = definition;
             }
             return nearest;
+        }
+
+        private GridInventory GetCarryInventory(ItemType type)
+        {
+            if (_equippedBackpackInstanceId.HasValue && !_droppedBackpackItem.HasValue)
+                return _inventory;
+            return _playerPockets != null &&
+                _playerPockets.TryFindAvailablePocket(type, out _, out GridInventory pocket)
+                ? pocket : null;
+        }
+
+        private bool TryGetPlayerItem(Guid itemInstanceId, out GridInventory source, out PlacedItem item)
+        {
+            if (_inventory != null && _inventory.TryGetItemInstance(itemInstanceId, out item))
+            { source = _inventory; return true; }
+            if (_playerPockets != null)
+            {
+                for (int i = 0; i < PlayerPocketBook.PocketCount; i++)
+                    if (_playerPockets.GetPocket(i).TryGetItemInstance(itemInstanceId, out item))
+                    { source = _playerPockets.GetPocket(i); return true; }
+            }
+            source = null;
+            item = default;
+            return false;
+        }
+
+        private bool MoveItemToPocket(Guid itemInstanceId)
+        {
+            if (_playerPockets == null || _inventory == null ||
+                !_inventory.TryGetItemInstance(itemInstanceId, out _))
+                return false;
+            for (int i = 0; i < PlayerPocketBook.PocketCount; i++)
+                if (_playerPockets.TryMoveFrom(_inventory, itemInstanceId, i))
+                {
+                    Say("Moved item to personal pocket " + (i + 1) + ".");
+                    return true;
+                }
+            Say("No free pocket, or the item is too large for a personal pocket.", 4f);
+            return false;
+        }
+
+        private bool MovePocketToBackpack(int pocketIndex)
+        {
+            if (!_equippedBackpackInstanceId.HasValue || _droppedBackpackItem.HasValue)
+            {
+                Say("Equip a backpack before moving pocket items into backpack storage.", 4f);
+                return false;
+            }
+            if (_playerPockets == null || !_playerPockets.TryMoveTo(_inventory, pocketIndex))
+            {
+                Say("There is no item in that pocket, or the backpack has no free space.", 4f);
+                return false;
+            }
+            Say("Moved item into backpack storage.");
+            return true;
         }
 
         private void RegisterUnownedPlayerAssets(GridInventory inventory)
