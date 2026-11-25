@@ -148,6 +148,8 @@ namespace Signal.Core
                     !Guid.TryParse(saved.instanceId, out Guid instanceId) || instanceId == Guid.Empty)
                 { skipped++; continue; }
 
+                if (ownership != null && ownership.TryGetOwner(instanceId, out _))
+                { skipped++; continue; }
                 ItemType? type = resolve != null ? resolve(typeId) : null;
                 ItemInstanceState state;
                 EconomicActorId owner = EconomicActorId.Player;
