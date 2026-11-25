@@ -34,9 +34,9 @@ namespace Signal.Game
                 !Enum.IsDefined(typeof(ItemCondition), startingCondition) ||
                 !Enum.IsDefined(typeof(ItemCondition), requiredReturnCondition) ||
                 (startingCondition != ItemCondition.Damaged && startingCondition != ItemCondition.Worn) ||
-                (requiredReturnCondition != ItemCondition.Good && requiredReturnCondition != ItemCondition.Pristine))
+                requiredReturnCondition != ItemCondition.Good)
             {
-                error = "Assign a stable ID, display name, issuer, single-instance item, positive CARD reward and valid repair conditions.";
+                error = "Assign a stable ID, display name, issuer, single-instance item, positive CARD reward and a Worn/Damaged starting condition and Good return condition.";
                 return false;
             }
             try
