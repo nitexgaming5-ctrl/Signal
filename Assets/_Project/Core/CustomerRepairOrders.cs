@@ -221,21 +221,26 @@ namespace Signal.Core
                 return Result(CustomerRepairOrderStatus.ContainerMismatch);
 
             PlacedItem item = default;
-            bool found = false;
+            bool foundMatchingType = false;
+            bool foundIssuerOwnedItem = false;
+            bool foundRepairableItem = false;
             foreach (PlacedItem candidate in issuerInventory.Items)
-                if (candidate.Type == requiredItem)
-                {
-                    item = candidate;
-                    found = true;
-                    break;
-                }
-            if (!found) return Result(CustomerRepairOrderStatus.ItemNotFound);
-            if (item.Count != 1 || item.Type.MaxStack != 1)
-                return Result(CustomerRepairOrderStatus.WrongItem);
-            if (item.State.Condition != ItemCondition.Damaged && item.State.Condition != ItemCondition.Worn)
-                return Result(CustomerRepairOrderStatus.ItemNotRepairable);
-            if (!ownership.TryGetOwner(item.ItemInstanceId, out EconomicActorId owner) || owner != order.Issuer)
-                return Result(CustomerRepairOrderStatus.OwnershipMismatch);
+            {
+                if (candidate.Type != requiredItem) continue;
+                foundMatchingType = true;
+                if (candidate.Count != 1 || candidate.Type.MaxStack != 1) continue;
+                if (!ownership.TryGetOwner(candidate.ItemInstanceId, out EconomicActorId owner) || owner != order.Issuer)
+                    continue;
+                foundIssuerOwnedItem = true;
+                if (candidate.State.Condition != ItemCondition.Damaged && candidate.State.Condition != ItemCondition.Worn)
+                    continue;
+                foundRepairableItem = true;
+                item = candidate;
+                break;
+            }
+            if (!foundMatchingType) return Result(CustomerRepairOrderStatus.ItemNotFound);
+            if (!foundIssuerOwnedItem) return Result(CustomerRepairOrderStatus.OwnershipMismatch);
+            if (!foundRepairableItem) return Result(CustomerRepairOrderStatus.ItemNotRepairable);
 
             InventorySnapshot issuerBefore = issuerInventory.CreateSnapshot();
             InventorySnapshot playerBefore = playerInventory.CreateSnapshot();
