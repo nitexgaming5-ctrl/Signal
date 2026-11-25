@@ -18,5 +18,5 @@ MonoBehaviour:
   issuerNpcId: milo
   entrustedItem: {fileID: 11400000, guid: b6e7a9c1d3f5428db0a6c7e9f1d25384, type: 2}
   cleanCardReward: 35
-  startingCondition: 2
+  startingCondition: 1
   requiredReturnCondition: 0
