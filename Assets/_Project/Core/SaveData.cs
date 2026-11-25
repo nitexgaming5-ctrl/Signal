@@ -245,6 +245,19 @@ namespace Signal.Core
     }
 
     [Serializable]
+    public sealed class SavedCustomerRepairOrder
+    {
+        public string orderId;
+        public int phase;
+        public string itemInstanceId;
+        public int acceptedDay;
+        public int acceptedMinuteOfDay;
+        public int completedDay;
+        public int completedMinuteOfDay;
+        public string paymentTransactionId;
+    }
+
+    [Serializable]
     public sealed class SavedDirtyCashCleaningTransaction
     {
         public string transactionId;
@@ -303,6 +316,7 @@ namespace Signal.Core
         public List<SavedDirtyCashCleaningTransaction> dirtyCashCleaningTransactions = new List<SavedDirtyCashCleaningTransaction>();
         public List<SavedProductionTransaction> productionTransactions = new List<SavedProductionTransaction>();
         public List<SavedCustomerContract> customerContracts = new List<SavedCustomerContract>();
+        public List<SavedCustomerRepairOrder> customerRepairOrders = new List<SavedCustomerRepairOrder>();
         public List<string> acquiredWorkshopUpgradeIds = new List<string>();
         public List<SavedItem> contractReceiverItems = new List<SavedItem>();
         public string contractReceiverActorId;
@@ -332,6 +346,7 @@ namespace Signal.Core
         public int SkippedDirtyCashCleaningTransactions { get; set; }
         public int SkippedProductionTransactions { get; set; }
         public int SkippedCustomerContracts { get; set; }
+        public int SkippedCustomerRepairOrders { get; set; }
         public int SkippedWorkshopUpgradeIds { get; set; }
         public int SkippedContractReceiverItems { get; set; }
         public int SkippedNpcAgendaProgress { get; set; }
@@ -370,7 +385,8 @@ namespace Signal.Core
                                        GridInventory contractReceiverInventory = null,
                                        string contractReceiverActorId = null,
                                        NpcAgendaProgressBook npcAgendaProgress = null,
-                                       NpcSocialWorld socialWorld = null)
+                                       NpcSocialWorld socialWorld = null,
+                                       CustomerRepairOrderBook customerRepairOrders = null)
         {
             if (stats == null) throw new ArgumentNullException(nameof(stats));
             if (inventory == null) throw new ArgumentNullException(nameof(inventory));
@@ -415,6 +431,7 @@ namespace Signal.Core
             CaptureDirtyCashCleanings(dirtyCashCleanings, data.dirtyCashCleaningTransactions);
             CaptureProductionTransactions(productionTransactions, data.productionTransactions);
             CaptureCustomerContracts(customerContracts, data.customerContracts);
+            CaptureCustomerRepairOrders(customerRepairOrders, data.customerRepairOrders);
             CaptureWorkshopProgression(workshopProgression, data.acquiredWorkshopUpgradeIds);
             CaptureNpcAgendaProgress(npcAgendaProgress, data.npcAgendaProgress);
             CaptureNpcSocialWorld(socialWorld, data.npcKnowledge, data.npcSocialRelationships, data.npcPlayerRelationships);
@@ -448,7 +465,8 @@ namespace Signal.Core
                                        WorkshopProgressionBook workshopProgression = null,
                                        GridInventory contractReceiverInventory = null,
                                        NpcAgendaProgressBook npcAgendaProgress = null,
-                                       NpcSocialWorld socialWorld = null)
+                                       NpcSocialWorld socialWorld = null,
+                                       CustomerRepairOrderBook customerRepairOrders = null)
         {
             if (stats == null) throw new ArgumentNullException(nameof(stats));
             if (inventory == null) throw new ArgumentNullException(nameof(inventory));
@@ -503,6 +521,7 @@ namespace Signal.Core
             int skippedDirtyCashCleanings = RestoreDirtyCashCleanings(data.dirtyCashCleaningTransactions, dirtyCashCleanings);
             int skippedProduction = RestoreProductionTransactions(data.productionTransactions, productionTransactions);
             int skippedContracts = RestoreCustomerContracts(data.customerContracts, customerContracts);
+            int skippedRepairOrders = RestoreCustomerRepairOrders(data.customerRepairOrders, customerRepairOrders);
             int skippedUpgrades = RestoreWorkshopProgression(data.acquiredWorkshopUpgradeIds, workshopProgression);
             int skippedAgendaProgress = RestoreNpcAgendaProgress(data.npcAgendaProgress, npcAgendaProgress);
             if (socialWorld != null) socialWorld.ClearForRestore();
@@ -530,6 +549,7 @@ namespace Signal.Core
                 SkippedDirtyCashCleaningTransactions = skippedDirtyCashCleanings,
                 SkippedProductionTransactions = skippedProduction,
                 SkippedCustomerContracts = skippedContracts,
+                SkippedCustomerRepairOrders = skippedRepairOrders,
                 SkippedWorkshopUpgradeIds = skippedUpgrades,
                 SkippedContractReceiverItems = skippedContractReceiver,
                 SkippedNpcAgendaProgress = skippedAgendaProgress,
@@ -1060,6 +1080,44 @@ namespace Signal.Core
                 if (!destination.RestoreState(contractId, (CustomerContractPhase)entry.phase,
                     entry.acceptedDay, entry.acceptedMinuteOfDay, entry.completedDay,
                     entry.completedMinuteOfDay, deliveryId, entry.reward, payer)) skipped++;
+            }
+            return skipped;
+        }
+
+        private static void CaptureCustomerRepairOrders(CustomerRepairOrderBook orders,
+            List<SavedCustomerRepairOrder> destination)
+        {
+            if (orders == null) return;
+            foreach (CustomerRepairOrderState state in orders.States)
+                destination.Add(new SavedCustomerRepairOrder
+                {
+                    orderId = state.OrderId.ToString(),
+                    phase = (int)state.Phase,
+                    itemInstanceId = state.ItemInstanceId.ToString(),
+                    acceptedDay = state.AcceptedDay,
+                    acceptedMinuteOfDay = state.AcceptedMinuteOfDay,
+                    completedDay = state.CompletedDay,
+                    completedMinuteOfDay = state.CompletedMinuteOfDay,
+                    paymentTransactionId = state.PaymentTransactionId.ToString()
+                });
+        }
+
+        private static int RestoreCustomerRepairOrders(List<SavedCustomerRepairOrder> saved,
+            CustomerRepairOrderBook destination)
+        {
+            if (destination == null) return 0;
+            destination.ResetToOffers();
+            int skipped = 0;
+            if (saved == null) return skipped;
+            foreach (SavedCustomerRepairOrder entry in saved)
+            {
+                if (entry == null || !Guid.TryParse(entry.orderId, out Guid orderId))
+                { skipped++; continue; }
+                Guid.TryParse(entry.itemInstanceId, out Guid itemId);
+                Guid.TryParse(entry.paymentTransactionId, out Guid paymentId);
+                if (!destination.RestoreState(orderId, (CustomerRepairOrderPhase)entry.phase,
+                    itemId, entry.acceptedDay, entry.acceptedMinuteOfDay,
+                    entry.completedDay, entry.completedMinuteOfDay, paymentId)) skipped++;
             }
             return skipped;
         }
