@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Signal.Core;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
