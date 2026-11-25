@@ -82,6 +82,64 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void SaveMapperRoundTripsPocketContentsAndPlayerOwnership()
+        {
+            var pockets = new PlayerPocketBook();
+            var ownership = new AssetOwnershipBook();
+            var data = new SaveData();
+            ItemType type = Item();
+            Guid id = Guid.NewGuid();
+            var state = new ItemInstanceState(ItemQuality.Exceptional, ItemCondition.Damaged,
+                ItemAuthenticity.Counterfeit, ItemOwnershipStatus.Stolen);
+            Assert.That(pockets.TryAdd(type, id, 2, state, out int index), Is.True);
+            Assert.That(index, Is.EqualTo(0));
+            Assert.That(ownership.TryRegister(id, EconomicActorId.Player), Is.True);
+
+            PlayerPocketSaveMapper.Capture(pockets, ownership, data);
+            var restored = new PlayerPocketBook();
+            var restoredOwnership = new AssetOwnershipBook();
+            int skipped = PlayerPocketSaveMapper.Apply(data, restored,
+                candidate => candidate == type.Id ? type : (ItemType?)null, restoredOwnership);
+
+            Assert.That(skipped, Is.EqualTo(0));
+            PlacedItem item = restored.GetPocket(0).Items[0];
+            Assert.That(item.ItemInstanceId, Is.EqualTo(id));
+            Assert.That(item.Count, Is.EqualTo(2));
+            Assert.That(item.State, Is.EqualTo(state));
+            Assert.That(restoredOwnership.TryGetOwner(id, out EconomicActorId owner), Is.True);
+            Assert.That(owner, Is.EqualTo(EconomicActorId.Player));
+        }
+
+        [Test]
+        public void SaveMapperSkipsDuplicatePocketSlotAndMalformedEntries()
+        {
+            var data = new SaveData();
+            ItemType type = Item();
+            Guid id = Guid.NewGuid();
+            data.pocketItems.Add(new SavedPocketItem
+            {
+                pocketIndex = 0, typeId = type.Id.ToString(), instanceId = id.ToString(),
+                count = 1, quality = (int)ItemQuality.Standard, condition = (int)ItemCondition.Good,
+                authenticity = (int)ItemAuthenticity.Genuine, ownership = (int)ItemOwnershipStatus.Legitimate
+            });
+            data.pocketItems.Add(new SavedPocketItem
+            {
+                pocketIndex = 0, typeId = type.Id.ToString(), instanceId = Guid.NewGuid().ToString(),
+                count = 1, quality = (int)ItemQuality.Standard, condition = (int)ItemCondition.Good,
+                authenticity = (int)ItemAuthenticity.Genuine, ownership = (int)ItemOwnershipStatus.Legitimate
+            });
+            data.pocketItems.Add(new SavedPocketItem { pocketIndex = 4, typeId = "bad", instanceId = "bad" });
+
+            var restored = new PlayerPocketBook();
+            int skipped = PlayerPocketSaveMapper.Apply(data, restored,
+                candidate => candidate == type.Id ? type : (ItemType?)null, new AssetOwnershipBook());
+
+            Assert.That(skipped, Is.EqualTo(2));
+            Assert.That(restored.GetPocket(0).Items.Count, Is.EqualTo(1));
+            Assert.That(restored.GetPocket(0).Items[0].ItemInstanceId, Is.EqualTo(id));
+        }
+
+        [Test]
         public void FailedPocketTransferLeavesBothInventoriesUnchanged()
         {
             var pockets = new PlayerPocketBook();
