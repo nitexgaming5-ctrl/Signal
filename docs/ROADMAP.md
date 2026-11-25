@@ -137,11 +137,11 @@ B-05 preserves three distinct directions: player→NPC in `PlayerRelationshipBoo
 
 The user has approved intercalating character development before returning to the B-07 neighbourhood-expansion work. This is a parallel track; it does not renumber or replace B-07.
 
-- **P-01 — Character Foundation & Appearance:** first implementation slice committed. Modular Body_A renderer, idle/walk directional animation, resource-pack importer and fallback visual are in place; Unity import/verification pending. Full appearance choices and wardrobe remain constrained by the supplied pack's single base body.
-- **P-02 — Attributes & Skills:** Core attributes, skill ranks, milestone ledger, save mapping, authored provisional catalog and F2 debug allocation panel are committed. Prototype tuning is 8 starting points, rank cap 5, 1 point/rank. Unity verification pending; final skill effects remain open.
-- **P-03 — Equipment & Clothing:** future phase for authoritative wearable slots, physical item identity/custody, visual overlays and Armor/Heat Protection modifiers.
+- **P-01 — Character Foundation & Appearance:** modular Body_A renderer, directional idle/walk animation, resource-pack importer and fallback are implemented. User imported the pack and confirmed the enlarged character works. Full wardrobe remains constrained by the pack's single base body.
+- **P-02 — Attributes & Skills:** Core attributes, skill ranks, milestone ledger, save mapping, provisional catalog and F2 allocation panel are implemented. User confirmed 467/467 after this track's first slice. Prototype tuning is 8 starting points, rank cap 5, 1 point/rank; activity-specific skill effects and actual milestone triggers remain open.
+- **P-03 — Equipment & Clothing:** active implementation. Seven slots are approved (Head, Torso, Legs, Feet, three generic accessories). Core loadout and portable-storage foundation are in place. First Game slice adds Canvas Backpack, Padded Work Jacket and Insulated Coat test items, E-to-equip, numbered unequip for ordinary slots, an 8×6 temporary test grid, backpack identity binding and F5/F9 equipment persistence. User confirmed 476/476 before two additional tests; expected current total is 478 pending Unity verification. Physical backpack drop/pickup and final 2–3 pocket no-backpack state are next.
 
-Detailed P-01/P-02 task specifications are prepared but implementation is not authorized yet. See [P-01](tasks/PLAYER-P-01-CHARACTER-FOUNDATION-APPEARANCE.md) and [P-02](tasks/PLAYER-P-02-ATTRIBUTES-SKILLS.md).
+See [P-01](tasks/PLAYER-P-01-CHARACTER-FOUNDATION-APPEARANCE.md), [P-02](tasks/PLAYER-P-02-ATTRIBUTES-SKILLS.md) and [P-03](tasks/PLAYER-P-03-EQUIPMENT-BACKPACK.md).
 
 ## Separate future world-simulation track — W-01
 
