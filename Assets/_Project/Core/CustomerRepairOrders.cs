@@ -306,10 +306,10 @@ namespace Signal.Core
 
             var transaction = new ServicePaymentTransaction(Guid.NewGuid(), orderId,
                 item.ItemInstanceId, order.Issuer, EconomicActorId.Player, order.Reward, day, minuteOfDay);
-            if (!transactions.TryRecord(transaction) ||
-                !orders.TryComplete(orderId, transaction.TransactionId, day, minuteOfDay))
+            bool recorded = transactions.TryRecord(transaction);
+            if (!recorded || !orders.TryComplete(orderId, transaction.TransactionId, day, minuteOfDay))
             {
-                if (transactions.Contains(transaction.TransactionId))
+                if (recorded)
                     transactions.TryRemove(transaction.TransactionId);
                 issuerAccount.RestoreSilently(issuerBalanceBefore);
                 playerAccount.RestoreSilently(playerBalanceBefore);
