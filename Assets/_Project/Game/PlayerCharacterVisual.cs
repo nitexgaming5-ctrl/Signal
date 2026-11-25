@@ -29,6 +29,7 @@ namespace Signal.Game
         private int _lastFrame = -1;
         private string _lastAppliedKey;
         private bool _lastAppliedFacingLeft;
+        private SpriteRenderer _backpackRenderer;
 
         public bool IsReady => _ready;
 
@@ -37,7 +38,17 @@ namespace Signal.Game
             _body = GetComponent<Rigidbody2D>();
             _ready = LoadRequiredSheets();
             if (_ready)
+            {
                 ApplyPose(false);
+                var backpack = new GameObject("Visual_Backpack");
+                backpack.transform.SetParent(transform, false);
+                backpack.transform.localScale = Vector3.one * VisualScale;
+                backpack.transform.localPosition = new Vector3(0f, 0.18f, 0.05f);
+                _backpackRenderer = backpack.AddComponent<SpriteRenderer>();
+                _backpackRenderer.sprite = PixelSprites.Solid(new Color32(0x8B, 0x5E, 0x3C, 0xFF));
+                _backpackRenderer.sortingOrder = 9;
+                _backpackRenderer.enabled = false;
+            }
         }
 
         private void Update()
@@ -73,6 +84,12 @@ namespace Signal.Game
                 _lastAppliedKey = key;
                 _lastAppliedFacingLeft = _facingLeft;
             }
+        }
+
+        public void SetBackpackEquipped(bool equipped)
+        {
+            if (_backpackRenderer != null)
+                _backpackRenderer.enabled = equipped;
         }
 
         private bool LoadRequiredSheets()
