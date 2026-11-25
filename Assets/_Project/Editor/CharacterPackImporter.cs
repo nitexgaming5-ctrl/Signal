@@ -47,6 +47,22 @@ namespace Signal.Game.Editor
             }
 
             AssetDatabase.Refresh();
+            string[] importedAssets = AssetDatabase.FindAssets("t:Texture2D", new[] { DestinationRoot });
+            foreach (string assetGuid in importedAssets)
+            {
+                string assetPath = AssetDatabase.GUIDToAssetPath(assetGuid);
+                TextureImporter importer = AssetImporter.GetAtPath(assetPath) as TextureImporter;
+                if (importer == null)
+                    continue;
+                importer.textureType = TextureImporterType.Default;
+                importer.filterMode = FilterMode.Point;
+                importer.mipmapEnabled = false;
+                importer.textureCompression = TextureImporterCompression.Uncompressed;
+                importer.maxTextureSize = 4096;
+                importer.alphaIsTransparency = true;
+                importer.SaveAndReimport();
+            }
+
             EditorUtility.DisplayDialog("Signal Character Pack",
                 "Imported " + imported + " PNG sheets into " + DestinationRoot +
                 ". Enter Play Mode to see the modular character.", "Great");
