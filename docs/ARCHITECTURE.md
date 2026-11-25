@@ -34,6 +34,7 @@ Dependency direction is Game → Core. Do not add gameplay to `Assets/_Project/_
 | Workshop upgrades | `WorkshopProgressionBook`, `WorkshopUpgradeService` | WorkshopUpgradeDefinition, installed prop, workbench panel |
 | Searchable containers | `SearchableContainer` and persistent discovery state | ContainerLootProfile, SearchableContainerPanel, GameSession |
 | Crime | `CrimeOutcomeLedger`, `CriminalProgressionTrack`, transfer semantics | ResidentPropertyContainerDefinition and local witness selection |
+| Player development (planned) | PlayerCharacterProfile, PlayerAttributeSet, PlayerSkillBook, milestone ledger and pure attribute calculator (not implemented) | appearance/skill/milestone definitions, CharacterVisualRig and PlayerDevelopmentPanel (planned) |
 | NPC/social | `NpcSocialWorld`, perception, knowledge, utility brain and encounters | NpcCharacterDefinition, NpcPresenter, CityBlockBootstrap |
 | Narrative opportunity | discovery, relationship and opportunity Core models | authored scenario controllers such as MiloParcelOpportunityController |
 | Save/load | Save DTOs, SaveMapper and dedicated mappers | SaveFileStore and GameSession |
@@ -68,3 +69,18 @@ Test current-build save/load round trips whenever persistent state changes. Olde
 - Avoid FindObjectOfType, GameObject.Find and new singletons; pass dependencies through serialized references or constructors.
 - Split large classes only where it improves clarity and reduces coupling without changing behavior; do so in a coherent, tested initiative.
 - Do not add packages or third-party code without user approval.
+
+
+## Planned Player Development integration (P-01/P-02; not implemented)
+
+- Preserve `RoomBootstrap` as the existing player composition entry point initially. Its current `CreatePlayer()` builds a placeholder SpriteRenderer, Rigidbody2D, BoxCollider2D and PlayerMotor2D.
+- P-01 replaces the visual placeholder with a Game-layer modular rig. It must not replace movement/physics or move Unity types into Core.
+- `PlayerMotor2D` currently reads input and writes velocity but does not expose a formal facing/animation contract. P-01 should introduce the smallest explicit movement/action state contract needed by the visual driver; avoid coupling the motor to SpriteRenderer or authored sprite assets.
+- `GameSession` remains the composition root and passes authored definitions/profile state into the player/visual setup. Avoid a new singleton or scene-wide object search.
+- Core owns persistent appearance IDs, the two base attributes (Armor, Heat Protection), skill ranks/points and one-time milestone awards. Game owns ScriptableObject definitions, Sprite composition, UI and event wiring.
+- P-02's attribute calculator is pure Core logic. P-03 later supplies equipment modifiers from an authoritative loadout; W-01 later consumes effective Heat Protection. Neither P-02 nor the renderer should depend on a specific weather implementation.
+- SaveData/SaveMapper persist stable IDs and primitive values only. Build 0.01 has no schema version/migration chain; current-build round-trip tests are required.
+
+## Planned weather integration (W-01; separate and not implemented)
+
+W-01 owns the shared world weather state and player cold-exposure simulation. It is driven by GameClock and composed by GameSession/world bootstrap. Core owns deterministic weather/exposure rules; Game owns authored seasonal patterns and weather presentation. It reads effective Heat Protection through a value interface and must not branch on item IDs or depend on the character renderer. Only cold-related exposure is planned; no hot-weather system.
