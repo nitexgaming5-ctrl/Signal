@@ -248,7 +248,7 @@ namespace Signal.Game
                 _npcAgendaDirector = new NpcAgendaInteractionDirector(agendaDefinitions,
                     _npcAgendaProgress, _playerDiscoveries, _playerRelationships,
                     IsAgendaContractCompleted, IsAgendaUpgradeAcquired, IsAgendaOpportunityInPhase,
-                    OpenAgendaWorkshopOffer, () => _clock.Day, () => _clock.MinuteOfDay);
+                    OpenAgendaWorkshopOffer, () => _clock.Day, () => _clock.MinuteOfDay, _city.SocialWorld);
             }
             catch (ArgumentException exception)
             {
