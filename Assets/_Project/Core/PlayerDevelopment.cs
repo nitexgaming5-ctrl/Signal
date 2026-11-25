@@ -80,7 +80,7 @@ namespace Signal.Core
             return !string.IsNullOrWhiteSpace(skillId) && _ranks.ContainsKey(skillId);
         }
 
-        public bool TrySetRank(string skillId, int rank)
+        internal bool TrySetRank(string skillId, int rank)
         {
             if (string.IsNullOrWhiteSpace(skillId) || rank < 0 || !_ranks.ContainsKey(skillId))
                 return false;
@@ -99,7 +99,7 @@ namespace Signal.Core
             }
         }
 
-        public void Reset()
+        internal void Reset()
         {
             var keys = new List<string>(_ranks.Keys);
             foreach (string key in keys)
@@ -144,7 +144,7 @@ namespace Signal.Core
             return !string.IsNullOrWhiteSpace(milestoneId) && _awards.ContainsKey(milestoneId);
         }
 
-        public bool TryAward(string milestoneId, int points, string sourceId)
+        internal bool TryAward(string milestoneId, int points, string sourceId)
         {
             if (string.IsNullOrWhiteSpace(milestoneId) || points <= 0 || _awards.ContainsKey(milestoneId))
                 return false;
@@ -238,8 +238,14 @@ namespace Signal.Core
             destination.playerArmor = state.Attributes.Armor;
             destination.playerHeatProtection = state.Attributes.HeatProtection;
             destination.playerStartingSkillPoints = state.Progression.StartingPoints;
-            destination.playerSkillRanks.Clear();
-            destination.playerMilestoneAwards.Clear();
+            if (destination.playerSkillRanks == null)
+                destination.playerSkillRanks = new List<SavedPlayerSkillRank>();
+            else
+                destination.playerSkillRanks.Clear();
+            if (destination.playerMilestoneAwards == null)
+                destination.playerMilestoneAwards = new List<SavedPlayerMilestoneAward>();
+            else
+                destination.playerMilestoneAwards.Clear();
 
             foreach (KeyValuePair<string, int> rank in state.Skills.Ranks)
                 destination.playerSkillRanks.Add(new SavedPlayerSkillRank { skillId = rank.Key, rank = rank.Value });
@@ -276,14 +282,21 @@ namespace Signal.Core
 
             if (source.playerSkillRanks != null)
             {
+                var desiredRanks = new SortedDictionary<string, int>(StringComparer.Ordinal);
                 foreach (SavedPlayerSkillRank saved in source.playerSkillRanks)
                 {
                     if (saved == null || !state.Skills.Contains(saved.skillId) || saved.rank < 0)
                         continue;
                     int targetRank = Math.Min(saved.rank, state.Progression.MaxRank);
-                    while (state.Skills.GetRank(saved.skillId) < targetRank)
+                    if (!desiredRanks.TryGetValue(saved.skillId, out int existing) || targetRank > existing)
+                        desiredRanks[saved.skillId] = targetRank;
+                }
+
+                foreach (KeyValuePair<string, int> desired in desiredRanks)
+                {
+                    while (state.Skills.GetRank(desired.Key) < desired.Value)
                     {
-                        if (!state.Progression.TrySpendRank(state.Skills, saved.skillId))
+                        if (!state.Progression.TrySpendRank(state.Skills, desired.Key))
                             break;
                     }
                 }
