@@ -483,7 +483,8 @@ namespace Signal.Core
                                        GridInventory contractReceiverInventory = null,
                                        NpcAgendaProgressBook npcAgendaProgress = null,
                                        NpcSocialWorld socialWorld = null,
-                                       CustomerRepairOrderBook customerRepairOrders = null)
+                                       CustomerRepairOrderBook customerRepairOrders = null,
+                                       ServicePaymentTransactionLedger servicePaymentTransactions = null)
         {
             if (stats == null) throw new ArgumentNullException(nameof(stats));
             if (inventory == null) throw new ArgumentNullException(nameof(inventory));
