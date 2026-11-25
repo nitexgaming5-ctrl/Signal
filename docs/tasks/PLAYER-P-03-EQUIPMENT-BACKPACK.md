@@ -257,3 +257,14 @@ Implement three actual 1×1 personal pocket slots, separate from the backpack's 
 - Pocket-to-backpack drag/drop is now supported. Dragging an occupied pocket onto a valid backpack cell transfers the exact item stack to that precise cell, preserving stable instance identity and item state. Invalid/occupied destinations leave the item in its pocket. The existing click action remains available for inspecting a pocket item.
 - Added Core coverage for exact-position pocket transfer and atomic failure when the target cell is occupied. These tests have been added but have NOT yet been run in Unity; the last user-confirmed baseline remains 494/494.
 - User clarified the intended pocket layout: two ordinary personal pockets plus one hidden pocket, with the hidden pocket intended to preserve at least one object from police/search confiscation. This changes the current three-equivalent-pocket design. Do not implement hidden-pocket search/concealment rules until the user explicitly confirms the proposed rules. Proposed baseline for confirmation: all three pockets remain player-accessible; only the first two are exposed to ordinary inventory searches; the hidden slot is excluded from routine police searches and preserves its single 1x1 item. A special thorough/strip search could be a separate future rule if desired.
+
+## Pocket roles and interaction follow-up (2026-11-26)
+
+- Pocket layout is now explicitly asymmetric: P1 and P2 are ordinary pockets; P3 is the hidden pocket.
+- Ordinary-search visibility is represented in PlayerPocketBook: routine searches can enumerate P1/P2 contents only. P3 remains player-accessible but is omitted from ordinary-search results. Advanced detection methods (scanner, dogs, thorough search) are intentionally undefined and out of scope until separately designed.
+- The inventory UI marks P3 with a muted light-red background and a “HIDDEN” label.
+- Backpack-to-pocket drag/drop now targets the exact pocket cell under the pointer. The old first-free-pocket shortcut has been removed, so the player chooses P1, P2 or P3.
+- Pocket-to-backpack drag/drop uses the exact backpack cell under the pointer and preserves the item instance/state; invalid drops leave the item in its pocket.
+- Pocket item visuals use the matching ItemDefinition icon when available, with a text fallback when no icon is authored.
+- Added Core coverage for ordinary-search visibility and hidden-pocket exclusion. New tests are pending Unity execution.
+- Important integration boundary: the current project does not yet have a complete police-search/confiscation flow. The new visibility API is the canonical rule for routine-search enumeration; when the police-search system is implemented, it must use this API rather than scanning all three pocket inventories directly.
