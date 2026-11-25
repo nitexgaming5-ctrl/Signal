@@ -293,3 +293,7 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 - Pocket cells render ItemDefinition icons where available, otherwise a readable text fallback.
 - Added a focused Core test for ordinary-search visibility. Unity compilation and test execution are pending; last user-confirmed baseline remains 494/494 before these additions.
 - Police search/confiscation is not yet a complete implemented gameplay flow. Future routine police-search code must query `GetItemsVisibleToOrdinarySearch()` and must not directly enumerate all pocket grids.
+
+### P-03 exact pocket-to-backpack test correction — 2026-11-26
+
+- Fixed `MovesPocketItemToExactBackpackDropCell`: its fixture incorrectly created a 2×1 item, which cannot legally enter a 1×1 pocket. The test now uses a valid 1×1 pocket item and continues to assert placement at the exact requested backpack coordinates. Production transfer validation is unchanged; larger/rotated items remain ineligible for pockets.
