@@ -1371,6 +1371,7 @@ namespace Signal.Game
 
         private bool RecoverDroppedBackpack(Guid backpackId)
         {
+            bool inventoryWasOpen = _panel != null && _panel.IsOpen;
             if (!_droppedBackpackItem.HasValue || _droppedBackpackItem.Value.Item.ItemInstanceId != backpackId ||
                 !_backpackWorldBook.TryRecover(backpackId)) return false;
             EquippedItem dropped = _droppedBackpackItem.Value;
@@ -1388,6 +1389,7 @@ namespace Signal.Game
             _droppedBackpackVisual = null;
             PlayerCharacterVisual visual = _room != null && _room.Player != null ? _room.Player.GetComponent<PlayerCharacterVisual>() : null;
             if (visual != null) visual.SetBackpackEquipped(true);
+            if (inventoryWasOpen && _panel != null) _panel.SetOpen(true);
             Say("Backpack picked up and equipped. Your stored items are accessible again.", 5f);
             return true;
         }
