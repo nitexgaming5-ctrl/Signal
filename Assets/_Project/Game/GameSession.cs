@@ -1165,6 +1165,111 @@ namespace Signal.Game
             GUILayout.EndArea();
         }
 
+        private void CaptureEquipment(SaveData data)
+        {
+            if (data == null || _playerEquipment == null)
+                return;
+
+            foreach (EquippedItem equipped in _playerEquipment.Items)
+            {
+                ItemDefinition definition = FindItemDefinition(equipped.Item.Type.Id);
+                data.equippedItems.Add(new SavedEquippedItem
+                {
+                    instanceId = equipped.Item.ItemInstanceId.ToString(),
+                    typeId = equipped.Item.Type.Id.ToString(),
+                    slot = (int)equipped.Slot,
+                    armorModifier = equipped.ArmorModifier,
+                    heatProtectionModifier = equipped.HeatProtectionModifier,
+                    quality = (int)equipped.Item.State.Quality,
+                    condition = (int)equipped.Item.State.Condition,
+                    authenticity = (int)equipped.Item.State.Authenticity,
+                    ownership = (int)equipped.Item.State.Ownership,
+                    portableBackpack = definition != null && definition.PortableBackpack
+                });
+            }
+        }
+
+        private void RestoreEquipment(SaveData data)
+        {
+            if (_playerEquipment == null || _portableStorage == null)
+                return;
+
+            _playerEquipment.Clear();
+            _portableStorage.Clear();
+            _equippedBackpackInstanceId = null;
+            PlayerCharacterVisual visual = _room != null && _room.Player != null
+                ? _room.Player.GetComponent<PlayerCharacterVisual>() : null;
+            if (visual != null)
+                visual.SetBackpackEquipped(false);
+
+            if (data == null || data.equippedItems == null)
+                return;
+
+            foreach (SavedEquippedItem saved in data.equippedItems)
+            {
+                if (saved == null || !Guid.TryParse(saved.instanceId, out Guid instanceId) ||
+                    !Guid.TryParse(saved.typeId, out Guid typeId) ||
+                    !Enum.IsDefined(typeof(EquipmentSlot), saved.slot) ||
+                    !Enum.IsDefined(typeof(ItemQuality), saved.quality) ||
+                    !Enum.IsDefined(typeof(ItemCondition), saved.condition) ||
+                    !Enum.IsDefined(typeof(ItemAuthenticity), saved.authenticity) ||
+                    !Enum.IsDefined(typeof(ItemOwnershipStatus), saved.ownership))
+                    continue;
+
+                ItemDefinition definition = FindItemDefinition(typeId);
+                if (definition == null || !definition.Equippable ||
+                    (int)definition.EquipmentSlot != saved.slot ||
+                    definition.PortableBackpack != saved.portableBackpack)
+                    continue;
+
+                ItemType? resolved = ResolveType(typeId);
+                if (!resolved.HasValue)
+                    continue;
+
+                var state = new ItemInstanceState((ItemQuality)saved.quality,
+                    (ItemCondition)saved.condition, (ItemAuthenticity)saved.authenticity,
+                    (ItemOwnershipStatus)saved.ownership);
+
+                if (saved.portableBackpack)
+                {
+                    if (_equippedBackpackInstanceId.HasValue ||
+                        !_portableStorage.TryRegister(instanceId, _inventory))
+                        continue;
+                }
+
+                if (!_playerEquipment.TryRestoreEquipped(instanceId, resolved.Value, state,
+                    (EquipmentSlot)saved.slot, saved.armorModifier, saved.heatProtectionModifier))
+                {
+                    if (saved.portableBackpack)
+                        _portableStorage.TryUnregister(instanceId);
+                    continue;
+                }
+
+                if (saved.portableBackpack)
+                {
+                    _equippedBackpackInstanceId = instanceId;
+                    if (visual != null)
+                        visual.SetBackpackEquipped(true);
+                }
+            }
+        }
+
+        private ItemDefinition FindItemDefinition(Guid typeId)
+        {
+            foreach (ItemDefinition definition in _allItemDefinitions)
+            {
+                if (definition == null)
+                    continue;
+                try
+                {
+                    if (definition.ToItemType().Id == typeId)
+                        return definition;
+                }
+                catch (InvalidOperationException) { }
+            }
+            return null;
+        }
+
         private bool TryEquipPlayerItem(PlacedItem item)
         {
             if (_playerEquipment == null || item.ItemInstanceId == Guid.Empty)
@@ -1212,6 +1317,10 @@ namespace Signal.Game
                 }
 
                 _equippedBackpackInstanceId = item.ItemInstanceId;
+                PlayerCharacterVisual visual = _room != null && _room.Player != null
+                    ? _room.Player.GetComponent<PlayerCharacterVisual>() : null;
+                if (visual != null)
+                    visual.SetBackpackEquipped(true);
                 Say("Backpack equipped. Your expanded inventory is now carried inside it.", 5f);
             }
             else
@@ -1370,6 +1479,7 @@ namespace Signal.Game
                                                _npcAgendaProgress, _city != null ? _city.SocialWorld : null,
                                                _customerRepairOrders, _servicePaymentTransactions);
             PlayerDevelopmentSaveMapper.Capture(_playerDevelopment, data);
+            CaptureEquipment(data);
             SearchableContainerSaveMapper.Capture(_searchableContainers, data);
 
             try
@@ -1410,6 +1520,7 @@ namespace Signal.Game
                 Say("Load failed: " + report.Error);
                 return;
             }
+            RestoreEquipment(data);
             _playerDevelopment = PlayerDevelopmentSaveMapper.Restore(data, _playerDevelopmentCatalog.GetSkillIds(),
                 _playerDevelopmentCatalog.StartingSkillPoints, _playerDevelopmentCatalog.MaximumSkillRank,
                 _playerDevelopmentCatalog.PointsPerRank);
