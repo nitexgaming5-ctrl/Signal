@@ -338,11 +338,14 @@ namespace Signal.Game
 
         private string GetCustomerDisplayName()
         {
-            if (_city != null && firstCustomerContract != null)
+            string npcId = firstCustomerContract != null ? firstCustomerContract.IssuerNpcId :
+                firstCustomerRepairOrder != null ? firstCustomerRepairOrder.IssuerNpcId : null;
+            if (_city != null && !string.IsNullOrWhiteSpace(npcId))
                 foreach (NpcPresenter resident in _city.DebugResidents)
-                    if (resident != null && resident.NpcId == firstCustomerContract.IssuerNpcId)
+                    if (resident != null && resident.NpcId == npcId)
                         return resident.DisplayName;
-            return firstCustomerContract != null ? firstCustomerContract.DisplayName : "Customer";
+            if (firstCustomerContract != null) return firstCustomerContract.DisplayName;
+            return firstCustomerRepairOrder != null ? firstCustomerRepairOrder.DisplayName : "Customer";
         }
 
         private bool IsNearContractCustomer(Vector2 playerPosition)
