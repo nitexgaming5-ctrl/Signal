@@ -230,3 +230,5 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 - While the backpack is dropped, GameSession now applies a conservative temporary gate to normal E/F interactions that could inspect, consume or receive items. Movement, pickup, F5/F9 and sleep remain available. This prevents workbench/shop/container flows from indirectly exposing the dropped bag's 8×6 contents.
 - This is deliberately temporary until the 2–3 pocket inventory is functional; then gameplay systems should route through the active carried inventory rather than globally blocking interactions.
 - Follow-up correction: dropped-backpack mode permits E at authored building/hideout doors and interior exits, and retains the navigation prompt. The temporary gate blocks item interactions, not world transitions.
+
+- HUD follow-up: the initial navigation allowlist matched only five exact door labels, so an authored prompt such as “E Exit building” could still be hidden even though the E interaction worked. Replaced the brittle exact-string list with a case-insensitive E-action check for enter/exit/leave/return wording. Unity verification remains pending.
