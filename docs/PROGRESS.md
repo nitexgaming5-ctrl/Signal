@@ -52,7 +52,7 @@ Specialist references: [Architecture](ARCHITECTURE.md), [Data Model](DATA_MODEL.
 
 ## Current verification and next action
 
-**EditMode:** the user reports **445/445 passed** on current HEAD (2026-11-25). B-05's six new directionality/agenda tests are included in that result.
+**EditMode:** the user reports **456/456 passed** on current HEAD (2026-11-25), including the eleven B-06 customer repair-order tests.
 
 **Play Mode:** the user reports the First Workshop, repair/trading features and B-06 entrusted repair-order loop work correctly.
 
@@ -137,7 +137,7 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 - Acceptance moves the exact item into player custody while Milo remains its registered owner. The shared workbench repairs that active entrusted target with a player-owned Basic Patch Kit; Worn becomes Good.
 - Returning the exact item moves it back to Milo and atomically transfers 35 clean CARD from Milo to the player. A dedicated ServicePaymentTransactionLedger records the payment separately from physical asset transfers. Failed returns roll back item movement and both balances; one active customer job is enforced across contract and repair-order acceptance.
 - F5/F9 persists order phase, item location/owner, accounts and service-payment history.
-- Eleven focused EditMode tests added for ownership, repair, payment, replay, insufficient funds, player-account overflow, missing issuer account, receiver capacity and active/completed save/load. Expected suite count **456** from the prior 445 baseline; Unity compilation and execution are pending.
+- Eleven focused EditMode tests cover ownership, repair, payment, replay, insufficient funds, player-account overflow, missing issuer account, receiver capacity and active/completed save/load. The user confirmed the full suite at **456/456** and reported the in-game flow passing.
 - Task card: tasks/LIVELIHOOD-B-06-CUSTOMER-REPAIR-ORDERS.md.
 
 
