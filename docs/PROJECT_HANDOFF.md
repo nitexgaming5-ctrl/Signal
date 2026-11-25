@@ -74,4 +74,4 @@ Committed but not yet Unity-verified:
 
 ### Dropped-storage access rule
 
-- While the bag is dropped, normal E/F item interactions are temporarily blocked at GameSession level so existing workbench/shop/container flows cannot access the backpack's still-registered 8×6 grid behind the UI. Movement, pickup, F5/F9 and sleep remain available. Replace this conservative global gate with pocket-aware inventory routing when the real pocket inventory is implemented.
+- While the bag is dropped, item-driven E/F interactions are temporarily blocked so workbench/shop/container flows cannot access the backpack's still-registered 8×6 grid. World navigation remains available: E at building/hideout doors and exits still transitions locations, with the matching HUD prompt. Movement, pickup, F5/F9 and sleep remain available. Replace this conservative gate with pocket-aware inventory routing when the real pocket inventory is implemented.
