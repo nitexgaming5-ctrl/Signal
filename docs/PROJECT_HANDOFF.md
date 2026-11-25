@@ -62,3 +62,12 @@ Committed but not yet Unity-verified:
 - Inventory: hover item + E to equip; number keys 1–7 unequip ordinary slots. Backpack cannot yet be unequipped; that action belongs to the physical drop/pickup phase.
 - Equipped identity/state/owner/modifiers persist through F5/F9. The existing 8×6 grid is attached to the backpack's stable identity without copying contents. A placeholder silhouette appears on the character.
 - Next: Unity verify, then implement physical backpack drop/pickup and the 2–3 pocket fallback. Do not mark P-03 complete yet.
+
+## Latest implementation — P-03.3 backpack drop and recovery (2026-11-25)
+
+- P-03.3 now includes GameSession wiring: **B** drops the equipped backpack at the player's position; **E** beside the dropped bag recovers and automatically equips the same item instance.
+- The character/inventory screen now has a left equipment sidebar (seven slots, three visual pocket placeholders) and a right BACKPACK STORAGE grid. A clickable **DROP BACKPACK [B]** button is available while equipped.
+- F5/F9 capture and restore the dropped item's stable identity/state/owner/modifiers and world coordinates; the ground placeholder is recreated after load.
+- Dropping closes the inventory and hides/blocks interaction with the backpack grid. The three pockets are not functional storage yet, and every other item-based interaction still needs an active-inventory accessibility audit.
+- One additional Core test was added. The user-confirmed baseline was 485/485; expected current suite is **486**, pending user Unity compile/EditMode run. No Play Mode verification is claimed.
+- Next: pull, compile, run EditMode (expected 486), then execute the documented drop/recover/save-load test game. Fix any compile/test errors before further expansion. P-03 remains incomplete until real 2–3 pocket inventory, item interaction gating, clothing visuals and full Play Mode acceptance are complete.
