@@ -204,3 +204,13 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 
 - Removed the redundant second `FindItemDefinition(Guid)` method from `GameSession`. The existing earlier resolver remains the single canonical implementation and continues to search the registered item-definition catalogue.
 - This resolves the reported CS0111 duplicate-member declaration. Repository source was updated; Unity compilation and EditMode tests have not been run by the assistant and remain pending user verification.
+
+
+## P-03.3 Core backpack world-state foundation — 2026-11-25
+
+- Added `PortableBackpackWorldBook` with explicit Equipped/Dropped states and persistent world coordinates. A backpack can only enter this registry if the matching `PortableStorageBook` contents grid already exists under the same stable item instance ID.
+- Drop/recover transitions change only the physical state; the same contents grid and cargo item identities remain attached to the backpack.
+- Added `SavedPortableBackpack` plus a focused save mapper that rejects malformed, duplicate, invalid or unbacked records.
+- Added seven EditMode tests. The previous user-confirmed suite was 478/478; **485 is the expected count pending Unity compilation and test execution**, not yet verified.
+- This is a Core foundation only. GameSession integration, physical world object, interaction, active-inventory switching, no-backpack pockets and full F5/F9 wiring remain next. No Play Mode acceptance is claimed.
+- Next test game is specified in the P-03 task card; it must validate equipped → dropped → save/load while dropped → recovered → save/load while equipped, with cargo identity/content unchanged throughout.
