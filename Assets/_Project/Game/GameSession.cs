@@ -1608,10 +1608,10 @@ namespace Signal.Game
                 ? definition.name : definition.DisplayName;
             if (!_equippedBackpackInstanceId.HasValue && !definition.PortableBackpack)
             {
-                var pocketItem = new PlacedItem(1, Guid.NewGuid(), type, 0, 0, false, 1, definition.DefaultInstanceState);
-                if (!_playerPockets.TryAdd(pocketItem, out _))
+                Guid pocketItemId = Guid.NewGuid();
+                if (!_playerPockets.TryAdd(type, pocketItemId, 1, definition.DefaultInstanceState, out _))
                     return "Your three personal pockets are full, or this item is too large.";
-                _assetOwnership.TryRegister(pocketItem.ItemInstanceId, EconomicActorId.Player);
+                _assetOwnership.TryRegister(pocketItemId, EconomicActorId.Player);
                 return "Added " + displayName + " to your personal pockets.";
             }
 
