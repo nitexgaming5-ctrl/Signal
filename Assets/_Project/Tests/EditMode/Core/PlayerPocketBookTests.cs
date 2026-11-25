@@ -37,8 +37,9 @@ namespace Signal.Core.Tests
             Assert.That(pockets.IsExposedToOrdinarySearch(1), Is.True);
             Assert.That(pockets.IsExposedToOrdinarySearch(2), Is.False);
             Assert.That(pockets.GetItemsVisibleToOrdinarySearch().Count, Is.EqualTo(2));
-            Assert.That(pockets.GetItemsVisibleToOrdinarySearch().Exists(
-                item => item.ItemInstanceId == pockets.GetPocket(2).Items[0].ItemInstanceId), Is.False);
+            Guid hiddenId = pockets.GetPocket(2).Items[0].ItemInstanceId;
+            Assert.That(pockets.GetItemsVisibleToOrdinarySearch()[0].ItemInstanceId, Is.Not.EqualTo(hiddenId));
+            Assert.That(pockets.GetItemsVisibleToOrdinarySearch()[1].ItemInstanceId, Is.Not.EqualTo(hiddenId));
         }
 
         [Test]
