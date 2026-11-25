@@ -1,6 +1,6 @@
 # P-03 — Equipment, Wearables & Portable Backpack
 
-**Status:** Core foundation plus first Game integration slice committed; Unity verification pending. Physical backpack drop/pickup remains the next sub-phase.
+**Status:** Core foundation and backpack-equipped Game integration verified by the user at 478/478 EditMode tests. Physical backpack drop/pickup remains the next sub-phase.
 **Track:** Player Development
 **Dependency:** P-01 modular player visual and P-02 Armor/Heat Protection modifier contract.
 
@@ -81,7 +81,7 @@ Accessory slots are generic. Do not reserve all three for hardcoded item categor
 - The 2–3 pocket no-backpack fallback is not enforced yet; the temporary 8×6 grid remains available for testing.
 - A dedicated equipment/loadout panel and final wearable sprite overlays are not implemented. The current backpack silhouette is deliberately placeholder art.
 - Physical backpack drop/pickup is not implemented yet. Backpack unequip is blocked until that physical transfer exists.
-- No Unity compilation or EditMode test run has been performed by the repository-edit pass. The user confirmed **476/476** before the two additional P-03 tests; expected current total is **478**, pending Unity execution.
+- No Unity compilation or EditMode test run has been performed by the repository-edit pass. The user confirmed **478/478 EditMode tests passing** after the two additional P-03 tests.
 - P-03 is not complete until the 2–3 pocket fallback, equipped backpack, physical drop/pickup with exact contents, visual equipment and full EditMode/Play Mode acceptance are verified.
 
 
@@ -92,5 +92,5 @@ Accessory slots are generic. Do not reserve all three for hardcoded item categor
 - Inventory hover + E equips the item. Number keys 1–7 unequip ordinary equipment slots; the backpack remains equipped until the physical drop/pickup phase exists.
 - Equipping the backpack binds its stable instance ID to the existing 8×6 GridInventory without copying or moving contents. A placeholder silhouette appears behind the player.
 - Equipped item records (identity, type, owner, slot, modifiers and item state) are captured/restored through F5/F9. The 8×6 inventory contents continue through the existing inventory save mapper.
-- Added focused tests for attaching an existing grid and restoring an equipped item without requiring a free inventory cell. Previous user-confirmed 476/476 baseline + 2 new tests = **478 expected**, pending Unity execution.
+- Added focused tests for attaching an existing grid and restoring an equipped item without requiring a free inventory cell. The user subsequently confirmed **478/478 EditMode tests passing**.
 - Not yet complete: no-backpack 2–3 pocket restriction, final equipment panel, visual clothing overlays, or physical backpack drop/pickup.
