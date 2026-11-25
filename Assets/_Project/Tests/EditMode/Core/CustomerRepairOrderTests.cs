@@ -20,6 +20,7 @@ namespace Signal.Core.Tests
             public readonly CustomerRepairOrderBook Orders = new CustomerRepairOrderBook();
             public readonly CleanMoneyAccount PlayerAccount = new CleanMoneyAccount(10);
             public readonly CleanMoneyAccount CustomerAccount = new CleanMoneyAccount(100);
+            public readonly EconomicAccountBook Accounts = new EconomicAccountBook();
             public readonly ItemKnowledgeBook Knowledge = new ItemKnowledgeBook();
             public readonly Guid OrderId = Guid.NewGuid();
             public readonly Guid JacketId;
@@ -39,6 +40,8 @@ namespace Signal.Core.Tests
 
                 Containers.TryRegister(CustomerInventory, Customer);
                 Containers.TryRegister(PlayerInventory, EconomicActorId.Player);
+                Accounts.TryRegister(EconomicActorId.Player, PlayerAccount);
+                Accounts.TryRegister(Customer, CustomerAccount);
                 Orders.TryRegisterOffer(OrderId, Customer, Jacket.Id, 35);
             }
 
@@ -52,7 +55,7 @@ namespace Signal.Core.Tests
 
             public CustomerRepairOrderResult Return(int minute = 500) =>
                 CustomerRepairOrderService.TryReturn(OrderId, Jacket, PlayerInventory, CustomerInventory,
-                    Containers, Ownership, PlayerAccount, CustomerAccount, Payments, Orders, 1, minute);
+                    Containers, Ownership, PlayerAccount, Accounts, Payments, Orders, 1, minute);
         }
 
         [Test]
