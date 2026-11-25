@@ -271,3 +271,10 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 - User confirmed **494/494 EditMode tests passed** for the functional-pocket implementation.
 - Follow-up UI fixes committed: drag-and-drop a backpack item directly onto a personal pocket; equip equippable items directly from a pocket with E; size the searchable-container player grid from the active GridInventory dimensions (8×6 for the current backpack rather than the old hardcoded 6×4 display).
 - The UI follow-up is not yet Unity-verified. Next: pull latest, compile, run EditMode suite, then Play Mode test pocket drops, pocket equipment, invalid footprint rejection and searchable-bin 8×6 visual alignment.
+
+## Debug-only fresh-session starting loadout (2026-11-26)
+- Added a temporary GameSession startup bootstrap for Play Mode testing. Each fresh session finds a compatible portable backpack definition (8×6), creates a unique backpack item instance, equips it through the normal equipment/storage/world-state path, then seeds up to three non-backpack items with distinct grid footprints into the backpack.
+- The seed items are selected from the loaded item catalogue, sorted largest footprint first, and placed through normal GridInventory placement. Ownership is registered to the Player. Existing item definitions and save schemas are unchanged.
+- This is explicitly debug/test scaffolding, not intended starting gear or final game balance. Remove this helper before establishing the real new-game starting inventory.
+- If no compatible backpack is available, the helper logs a warning and leaves the session otherwise unchanged. If fewer than three distinct item footprints exist in the catalogue, it seeds however many are available.
+- No Unity compile, EditMode or Play Mode result is claimed for this commit. User should pull and confirm the character spawns with an equipped backpack and 2–3 differently-sized items visible in its 8×6 grid.
