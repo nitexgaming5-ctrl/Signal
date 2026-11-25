@@ -226,7 +226,8 @@ namespace Signal.Core
                 !ValidRelationshipDelta(npcAffinityDelta) ||
                 ((npcFamiliarityDelta != 0f || npcTrustDelta != 0f || npcAffinityDelta != 0f) &&
                  (npcSocialWorld == null || string.IsNullOrWhiteSpace(npcOpinionNpcId) ||
-                  payerActor.Value != "resident:" + npcOpinionNpcId)) ||
+                  payerActor.Value != "resident:" + npcOpinionNpcId ||
+                  !npcSocialWorld.TryGetNpc(npcOpinionNpcId, out NpcAgentState _))) ||
                 ((familiarityDelta != 0f || trustDelta != 0f || affinityDelta != 0f) &&
                  (relationships == null || string.IsNullOrWhiteSpace(relationshipNpcId) ||
                   payerActor.Value != "resident:" + relationshipNpcId)))
