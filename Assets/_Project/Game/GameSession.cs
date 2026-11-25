@@ -1528,6 +1528,11 @@ namespace Signal.Game
                 Say("You already have a backpack equipped.", 3f);
                 return false;
             }
+            if (definition.PortableBackpack && _droppedBackpackItem.HasValue)
+            {
+                Say("Recover your dropped backpack before equipping another.", 4f);
+                return false;
+            }
             if (definition.PortableBackpack &&
                 (definition.BackpackWidth != _inventory.Width || definition.BackpackHeight != _inventory.Height))
             {
@@ -1619,6 +1624,8 @@ namespace Signal.Game
 
             string displayName = string.IsNullOrWhiteSpace(definition.DisplayName)
                 ? definition.name : definition.DisplayName;
+            if (definition.PortableBackpack && _droppedBackpackItem.HasValue)
+                return "Recover your dropped backpack before spawning another.";
             if (!_equippedBackpackInstanceId.HasValue && !definition.PortableBackpack)
             {
                 Guid pocketItemId = Guid.NewGuid();
