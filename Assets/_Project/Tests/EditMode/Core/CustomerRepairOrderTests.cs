@@ -165,6 +165,28 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void ReturnRejectsMissingIssuerAccountWithoutMovingOrPaying()
+        {
+            var fixture = new Fixture();
+            Assert.That(fixture.Accept().Success, Is.True);
+            Assert.That(fixture.Repair().Success, Is.True);
+            var incompleteAccounts = new EconomicAccountBook();
+            Assert.That(incompleteAccounts.TryRegister(EconomicActorId.Player, fixture.PlayerAccount), Is.True);
+
+            CustomerRepairOrderResult result = CustomerRepairOrderService.TryReturn(fixture.OrderId,
+                fixture.Jacket, fixture.PlayerInventory, fixture.CustomerInventory, fixture.Containers,
+                fixture.Ownership, fixture.PlayerAccount, incompleteAccounts, fixture.Payments,
+                fixture.Orders, 1, 500);
+
+            Assert.That(result.Status, Is.EqualTo(CustomerRepairOrderStatus.CustomerAccountUnavailable));
+            Assert.That(fixture.PlayerInventory.TryGetItemInstance(fixture.JacketId, out _), Is.True);
+            Assert.That(fixture.CustomerInventory.TryGetItemInstance(fixture.JacketId, out _), Is.False);
+            Assert.That(fixture.CustomerAccount.Balance, Is.EqualTo(100));
+            Assert.That(fixture.PlayerAccount.Balance, Is.EqualTo(10));
+            Assert.That(fixture.Payments.Count, Is.Zero);
+        }
+
+        [Test]
         public void PlayerAccountOverflowRejectsReturnWithoutMovingOrCharging()
         {
             var fixture = new Fixture();
