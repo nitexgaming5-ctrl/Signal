@@ -243,7 +243,8 @@ namespace Signal.Game
             _itemViewer.Bind(_allItemDefinitions, _itemKnowledge);
             _panel = gameObject.AddComponent<InventoryPanel>();
             _panel.Bind(_inventory, _allItemDefinitions, _itemViewer.Open, TryEquipPlayerItem, TryUnequipPlayerSlot,
-                _playerEquipment, DropPlayerBackpack, () => !_droppedBackpackItem.HasValue);
+                _playerEquipment, DropPlayerBackpack, () => _equippedBackpackInstanceId.HasValue,
+                () => !_droppedBackpackItem.HasValue);
             _debugItemSpawnerPanel = gameObject.AddComponent<DebugItemSpawnerPanel>();
             _debugItemSpawnerPanel.Bind(_allItemDefinitions, SpawnDebugItem);
             _containerPanel = gameObject.AddComponent<SearchableContainerPanel>();
