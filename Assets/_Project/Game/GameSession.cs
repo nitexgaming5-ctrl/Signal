@@ -393,11 +393,13 @@ namespace Signal.Game
             ItemInstanceState defaults = firstCustomerRepairOrder.EntrustedItem.DefaultInstanceState;
             var state = new ItemInstanceState(defaults.Quality, firstCustomerRepairOrder.StartingCondition,
                 defaults.Authenticity, ItemOwnershipStatus.Legitimate);
-            PlacedItem? placed = null;
-            for (int y = 0; y < _contractReceiverInventory.Height && !placed.HasValue; y++)
-                for (int x = 0; x < _contractReceiverInventory.Width && !placed.HasValue; x++)
-                    placed = _contractReceiverInventory.Place(type, x, y, state: state);
-            if (!placed.HasValue || !_assetOwnership.TryRegister(placed.Value.ItemInstanceId, firstCustomerRepairOrder.IssuerActor))
+            int? placedInstanceId = null;
+            for (int y = 0; y < _contractReceiverInventory.Height && !placedInstanceId.HasValue; y++)
+                for (int x = 0; x < _contractReceiverInventory.Width && !placedInstanceId.HasValue; x++)
+                    placedInstanceId = _contractReceiverInventory.Place(type, x, y, state: state);
+            if (!placedInstanceId.HasValue ||
+                !_contractReceiverInventory.TryGet(placedInstanceId.Value, out PlacedItem placed) ||
+                !_assetOwnership.TryRegister(placed.ItemInstanceId, firstCustomerRepairOrder.IssuerActor))
                 Debug.LogError("GameSession: could not seed the customer's entrusted Work Jacket.");
         }
 
