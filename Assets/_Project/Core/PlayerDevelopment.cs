@@ -46,8 +46,15 @@ namespace Signal.Core
             if (baseAttributes == null)
                 throw new ArgumentNullException(nameof(baseAttributes));
             return new EffectiveCharacterAttributes(
-                baseAttributes.Armor + equipmentArmorModifier,
-                baseAttributes.HeatProtection + equipmentHeatProtectionModifier);
+                AddClamped(baseAttributes.Armor, equipmentArmorModifier),
+                AddClamped(baseAttributes.HeatProtection, equipmentHeatProtectionModifier));
+        }
+
+        private static int AddClamped(int baseValue, int modifier)
+        {
+            long result = (long)baseValue + modifier;
+            if (result <= 0) return 0;
+            return result >= int.MaxValue ? int.MaxValue : (int)result;
         }
     }
 
@@ -146,7 +153,8 @@ namespace Signal.Core
 
         internal bool TryAward(string milestoneId, int points, string sourceId)
         {
-            if (string.IsNullOrWhiteSpace(milestoneId) || points <= 0 || _awards.ContainsKey(milestoneId))
+            if (string.IsNullOrWhiteSpace(milestoneId) || points <= 0 ||
+                string.IsNullOrWhiteSpace(sourceId) || _awards.ContainsKey(milestoneId))
                 return false;
             _awards.Add(milestoneId, new PlayerMilestoneAward(milestoneId, points, sourceId));
             return true;
@@ -192,7 +200,8 @@ namespace Signal.Core
 
         public bool TryAwardMilestone(PlayerMilestoneLedger ledger, string milestoneId, int points, string sourceId)
         {
-            if (ledger == null || points <= 0 || string.IsNullOrWhiteSpace(milestoneId))
+            if (ledger == null || points <= 0 || string.IsNullOrWhiteSpace(milestoneId) ||
+                string.IsNullOrWhiteSpace(sourceId))
                 return false;
             if (!ledger.TryAward(milestoneId, points, sourceId))
                 return false;
