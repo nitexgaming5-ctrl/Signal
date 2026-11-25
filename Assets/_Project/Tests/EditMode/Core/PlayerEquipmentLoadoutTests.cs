@@ -26,7 +26,7 @@ namespace Signal.Core.Tests
             var inventory = new GridInventory(2, 2);
             ItemType type = CreateType();
             Guid id = Guid.NewGuid();
-            var state = new ItemInstanceState(ItemQuality.High, ItemCondition.Good,
+            var state = new ItemInstanceState(ItemQuality.Exceptional, ItemCondition.Good,
                 ItemAuthenticity.Genuine, ItemOwnershipStatus.Legitimate);
             Assert.That(inventory.Place(type, 0, 0, false, 1, id, state), Is.Not.Null);
 
