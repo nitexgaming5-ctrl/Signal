@@ -92,3 +92,15 @@ No universal quest framework rewrite, procedural contract board, multiple active
 - NPC-to-NPC relationships are directional and keep familiarity, trust and affinity separate. Player-to-NPC relationships remain in the existing `PlayerRelationshipBook`; NPC-to-NPC relationships remain in `NpcSocialWorld`.
 - Personal knowledge is sourced and confidence-weighted. Direct observation and explicit communication/discovery are valid acquisition paths; the world event journal is not private NPC memory and is never a decision-making shortcut.
 - Durable personal knowledge and NPC-to-NPC relationships survive save/load. Position, proximity and perception are reconstructed from the active scene.
+
+
+## B-06 — Customer repair orders
+
+- A customer may entrust one exact physical item to the player for repair. The existing Milo framework resident is the first authored test issuer; do not add new story residents or backstories.
+- Accepting the order transfers custody from the issuer's inventory to the player's carried inventory, not asset ownership. The issuer remains the registered owner for the entire job.
+- The entrusted item is repaired through the existing hideout workbench and RepairService. Only a player-owned patch kit is consumed; the active order authorizes repair of its exact issuer-owned item.
+- The first order uses Milo's Worn Work Jacket, one Basic Patch Kit, a Good return condition and a fixed 35 clean CARD service fee.
+- Returning the same item instance moves it back into the issuer's inventory and performs one atomic payment: debit the issuer's existing resident account, credit the player, record a ServicePaymentTransaction and complete the order.
+- Service-payment history is distinct from ownership-changing asset-transfer history. Failed return leaves both inventories, both balances, payment history and order phase unchanged. A completed order cannot pay twice.
+- Only one customer job may be active across ordinary customer contracts and repair orders. F5/F9 persists the active/completed order, item location/owner, balances and service-payment history.
+- No repair queue, duration, quality roll, automatic pricing, concurrent customer jobs or new NPC cast is included in this first service slice.
