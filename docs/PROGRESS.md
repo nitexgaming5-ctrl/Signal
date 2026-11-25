@@ -324,7 +324,7 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 - Home Storage now lists backpack and pocket contents. STORE uses the exact source grid; TAKE routes through carry-capacity selection, including pockets when the backpack is unavailable or full.
 - Dropped-backpack contents remain excluded because the accessible inventory list includes the backpack only while equipped/accessibly carried, plus the three pockets at all times.
 - These are source changes only. Unity compile, EditMode tests and Play Mode acceptance are pending; do not report the previous 500/500 as verification of this new code.
-- Next: make workbench repair and production consume accessible backpack/pocket inputs and route outputs safely; audit other direct-grid assumptions. Wearable visuals wait for the user's actual sprite assets.
+- Next: audit remaining direct-grid assumptions in customer/service panels and any other item consumers. Wearable visuals wait for the user's actual sprite assets.
 
 
 ## P-03.5 implementation update — workbench and production included (2026-11-26)
