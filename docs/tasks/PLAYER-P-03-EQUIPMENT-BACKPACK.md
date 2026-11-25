@@ -1,6 +1,6 @@
 # P-03 — Equipment, Wearables & Portable Backpack
 
-**Status:** Core equipment/backpack foundation committed; Unity verification and Game integration pending.
+**Status:** Core foundation plus first Game integration slice committed; Unity verification pending. Physical backpack drop/pickup remains the next sub-phase.
 **Track:** Player Development
 **Dependency:** P-01 modular player visual and P-02 Armor/Heat Protection modifier contract.
 
@@ -39,6 +39,13 @@ Accessory slots are generic. Do not reserve all three for hardcoded item categor
 11. Do not introduce weight, movement penalties, pursuit penalties, or automatic backpack dropping without a separate approved rule. The player chooses when to abandon it.
 12. No new NPCs, backstories or story-specific content.
 
+## Inventory direction confirmed
+
+- Final no-backpack state: only 2–3 small personal pockets. This is the intended end-state, not implemented yet.
+- With a backpack equipped: the existing large tabbed grid is the backpack's contents.
+- Dropping the backpack removes access to that large grid from the player; the physical bag retains every item. Recovering/equipping it restores access to the same contents.
+- For the current implementation/test pass, the player grid is temporarily enlarged to 8×6. It remains accessible without a backpack until the physical drop/pickup sub-phase is completed. Do not mistake this test convenience for final inventory design.
+
 ## Architecture
 
 ### Core (implemented first slice)
@@ -47,15 +54,22 @@ Accessory slots are generic. Do not reserve all three for hardcoded item categor
 - PlayerEquipmentLoadout: validated equip/unequip, slot uniqueness and effective-attribute aggregation.
 - PortableStorageBook: maps stable backpack item instance IDs to independent GridInventory contents; refuses duplicate identities and refuses to discard a non-empty backpack container.
 
-### Remaining integration
-- Game EquipmentItemDefinition or equivalent authored metadata: compatible slot(s), Armor modifier, Heat Protection modifier, backpack dimensions, and visual part/sprite references. Keep definitions in Game; Core must not depend on Unity.
-- GameSession composition, item catalogue registration and F5/F9 persistence for all seven slots and nested backpack contents.
-- UI: equipment panel, drag/drop between inventory and slots, backpack grid, item inspection and clear failure feedback.
-- Physical world representation: dropped backpack is a world container with the same stable backpack ID and contents. Reuse existing container registration, custody and save mechanisms; do not create a parallel loot-container authority.
-- PlayerCharacterVisual integration: wearable layers/overlays must follow the existing body-part renderer and animation direction/frame contract. The supplied Body_A pack is only a base body; do not invent a full wardrobe from missing sprites.
-- Authored starter wearable content and visual assets are a separate content pass.
+### Implemented in the second slice
+- `ItemDefinition` now has optional equipment metadata: compatible slot, Armor/Heat Protection modifiers, backpack flag and backpack grid dimensions.
+- `GameSession` loads the three prototype items from `Resources/SurvivalItems/Definitions` through the existing Resources catalogue discovery.
+- Inventory interaction: hover an item and press E to equip; press 1–7 to unequip the corresponding non-backpack slot. The backpack cannot yet be unequipped because the physical drop flow is the next sub-phase.
+- The prototype player inventory is expanded to 8×6 for testing. Equipping the Canvas Backpack binds that exact backpack instance ID to the existing inventory grid without copying any contents.
+- F5/F9 now capture/restore equipped item identity, type, slot, modifiers, item state, owner actor and backpack association. The current grid's items were already handled by the existing inventory save path.
+- A provisional backpack silhouette is shown behind the character when equipped; this is a placeholder, not final backpack art.
 
-## First implementation slice committed
+### Remaining integration
+- Enforce 2–3 personal pockets when no backpack is equipped and make the 8×6 grid accessible only through the backpack.
+- Add a dedicated equipment/loadout presentation with drag/drop and readable slot state.
+- Implement physical backpack drop/pickup using the existing world-container and custody authorities. Preserve the exact backpack ID and contents; do not create a parallel loot-container system.
+- Add actual wearable sprite overlays for head/torso/legs/feet and equipment variants. The supplied Body_A pack is only a base body; do not invent a full wardrobe from missing sprites.
+- Author more clothing/armor content after the core loop is validated.
+
+## First Core implementation slice committed
 
 - Added PlayerEquipmentLoadout.cs in Core with the seven slots, exact-instance equip/unequip transfers, slot uniqueness, and Armor/Heat Protection aggregation.
 - Added PortableStorageBook keyed by backpack stable item ID. Contents remain in their own GridInventory; non-empty storage cannot be discarded.
@@ -67,3 +81,14 @@ Accessory slots are generic. Do not reserve all three for hardcoded item categor
 - No Game item-definition metadata, equipment UI, visual wearable overlays, GameSession composition, SaveData persistence or dropped-world backpack object yet.
 - No Unity compilation or EditMode test run has been performed by the repository-edit pass. User's last verified full suite was 467/467 before P-03 tests; expected count is 476 if no other tests were added. Treat this as an expectation, not a passing result.
 - P-03 is not complete until equipped items and nested backpack contents round-trip through F5/F9, the dropped backpack can be picked up with its exact contents, visual equipment is shown, and the full EditMode/Play Mode acceptance passes.
+
+
+## Second implementation slice — backpack equipped (2026-11-25)
+
+- Increased the temporary player test grid from 6×4 to 8×6. This is explicitly provisional; final no-backpack inventory remains 2–3 pockets.
+- Added equipment metadata to ItemDefinition and three prototype test assets: Canvas Backpack (Accessory 1, 8×6), Padded Work Jacket (Torso, Armor +2 / Heat Protection +1), and Insulated Coat (Torso, Armor +0 / Heat Protection +3). Modifier values are test tuning, not final balance.
+- Inventory hover + E equips the item. Number keys 1–7 unequip ordinary equipment slots; the backpack remains equipped until the physical drop/pickup phase exists.
+- Equipping the backpack binds its stable instance ID to the existing 8×6 GridInventory without copying or moving contents. A placeholder silhouette appears behind the player.
+- Equipped item records (identity, type, owner, slot, modifiers and item state) are captured/restored through F5/F9. The 8×6 inventory contents continue through the existing inventory save mapper.
+- Added focused tests for attaching an existing grid and restoring an equipped item without requiring a free inventory cell. Previous user-confirmed 476/476 baseline + 2 new tests = **478 expected**, pending Unity execution.
+- Not yet complete: no-backpack 2–3 pocket restriction, final equipment panel, visual clothing overlays, or physical backpack drop/pickup.
