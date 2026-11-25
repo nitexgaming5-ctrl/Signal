@@ -82,3 +82,12 @@ Committed but not yet Unity-verified:
 - User clarified that the building exit interaction worked while the backpack was dropped, but the HUD did not display “press E”. The latest GameSession change preserves the raw CityBlock transition prompt before nearby interaction text can override it, recognises enter/exit/leave/return wording without requiring an existing E prefix, and displays an explicit E hint.
 - InventoryPanel now uses `FindAnyObjectByType<EventSystem>()` instead of the obsolete `FindObjectOfType<EventSystem>()` API.
 - User confirmed **486/486 EditMode tests passing** after pulling the prior implementation. Because these two cleanup commits were made afterward, Unity recompilation, another 486-test run and Play Mode confirmation remain pending.
+
+
+## P-03 fresh-start inventory cleanup — 2026-11-25
+- New sessions no longer seed the player inventory from the configured item definitions. Those definitions remain the catalogue source.
+- The temporary 8×6 grid is inaccessible until a backpack is equipped. When the bag is dropped, its cargo remains with that physical bag; recovery restores access to the same contents.
+- Item-driven E/F interactions are temporarily blocked when no backpack is equipped, while building navigation, recovery, sleep and save/load remain usable.
+- Debug-spawned backpacks auto-equip on an empty start so the test flow can begin without hidden starting cargo.
+- Existing save files are preserved; F9 may restore older test inventory contents. No save deletion/reset is performed.
+- No Unity test or Play Mode result is claimed. Next verification: start fresh without F9, confirm empty/inaccessible backpack storage, debug-spawn Canvas Backpack and confirm auto-equip, then test drop/recovery and save/load.
