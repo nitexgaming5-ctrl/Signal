@@ -1,6 +1,6 @@
 # B-05 — Global NPC Awareness & Affinity
 
-**Status:** Approved; B05-01–04 and NPC→player ownership implemented. User reports 439/439 before the latest directionality slice; its new tests await Unity verification.  
+**Status:** Approved; shared awareness, all relationship directions, customer-contract outcomes and generic agenda integration implemented. User reports 439/439 before these latest slices; new tests await Unity verification.  
 **Approved:** 2026-11-24  
 **Priority:** High — shared social foundation  
 **Pilot content:** Rhea and Milo; neither may receive bespoke runtime logic  
@@ -82,12 +82,21 @@ Preserve these existing owners and extend them rather than introducing parallel 
 - Customer contracts can author issuer→player familiarity/trust/affinity changes, applied once only after successful delivery, payment and completion. The existing player→issuer path remains separate.
 - Added Core directionality, SaveMapper round-trip and contract success/replay/target-validation tests.
 
-### B05-06 — Verification
-**Implementation status:** The user reports 439/439 EditMode tests passing after the debug item spawner fix. The new B05-05 tests have not yet run in Unity; expected total is 442 if no other tests were added.
+### B05-06 — Generic agenda integration
+**Implementation status:** Implemented; focused tests added, Unity verification pending.
+- Agenda stages can author their relationship-gate perspective as player→NPC or NPC→player while retaining the same familiarity/trust/affinity thresholds.
+- Agenda choices can author one-time relationship outcomes in either direction. The director routes each outcome through its canonical owner.
+- GameSession supplies the shared NpcSocialWorld to the generic agenda director. No character-specific branches or new resident content were added.
+- Repeatable choices cannot apply relationship outcomes, preventing ambient/revisitable dialogue from farming familiarity, trust or affinity.
+- Added tests for NPC-opinion gates, NPC-opinion outcomes, fail-closed behaviour when the NPC social state is unavailable, and repeatable-outcome validation.
+
+### B05-07 — Verification
+**Implementation status:** The user reports 439/439 EditMode tests passing after the debug item spawner fix. The B05-05 and B05-06 additions contribute six new tests; they have not yet run in Unity. Expected full-suite total is 445 if no other tests were added.
 - Core tests: directed independence, separate dimensions, bounded values, mutation idempotency, local observation, source/confidence retention, no journal leakage, explicit-only transmission and no gossip cascade.
 - Game tests: arbitrary authored NPC definitions receive identical social state wiring; no Rhea/Milo branches.
 - Save tests: player→NPC, NPC→player and NPC→NPC relationships, durable knowledge, malformed records and unknown IDs round-trip safely.
 - Contract tests: authored outcomes in both directions apply only on successful fulfilment, affect only the intended issuer, reject invalid deltas/targets and cannot be replayed.
+- Agenda tests: generic gates and one-time outcomes can use either relationship perspective; repeatable choices cannot farm relationship values.
 - Play Mode: Rhea and Milo learn different facts from different circumstances; a third/fallback authored resident uses the same system; relationship/knowledge state survives F5/F9.
 - Run the full EditMode suite and report exact user/CI result. Do not claim Unity verification before it runs.
 
