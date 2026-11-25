@@ -170,7 +170,8 @@ namespace Signal.Core.Tests
         {
             var pockets = new PlayerPocketBook();
             var backpack = new GridInventory(3, 2);
-            ItemType type = Item(2, 1);
+            // Pocket contents must be 1x1; this test verifies exact destination placement.
+            ItemType type = Item(1, 1);
             Guid id = Guid.NewGuid();
             Assert.That(pockets.TryAdd(type, id, 1, ItemInstanceState.Default, out int pocketIndex), Is.True);
 
