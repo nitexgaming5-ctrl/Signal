@@ -296,6 +296,21 @@ namespace Signal.Core
     }
 
     [Serializable]
+    public sealed class SavedPlayerSkillRank
+    {
+        public string skillId;
+        public int rank;
+    }
+
+    [Serializable]
+    public sealed class SavedPlayerMilestoneAward
+    {
+        public string milestoneId;
+        public int points;
+        public string sourceId;
+    }
+
+    [Serializable]
     public sealed class SaveData
     {
         public int money;
@@ -338,6 +353,12 @@ namespace Signal.Core
         public List<SavedNpcKnowledge> npcKnowledge = new List<SavedNpcKnowledge>();
         public List<SavedNpcSocialRelationship> npcSocialRelationships = new List<SavedNpcSocialRelationship>();
         public List<SavedNpcPlayerRelationship> npcPlayerRelationships = new List<SavedNpcPlayerRelationship>();
+        public bool playerDevelopmentInitialized;
+        public int playerArmor;
+        public int playerHeatProtection;
+        public int playerStartingSkillPoints;
+        public List<SavedPlayerSkillRank> playerSkillRanks = new List<SavedPlayerSkillRank>();
+        public List<SavedPlayerMilestoneAward> playerMilestoneAwards = new List<SavedPlayerMilestoneAward>();
     }
 
     public sealed class LoadReport
