@@ -59,7 +59,7 @@ namespace Signal.Game
         private Func<bool> _hasBackpack;
         private Func<bool> _canAccessGrid;
         private PlayerPocketBook _pockets;
-        private Func<Guid, bool> _moveItemToPocket;
+        private Func<Guid, int, bool> _moveItemToPocket;
         private Func<int, bool> _movePocketToBackpack;
         private Func<int, int, int, bool> _movePocketToBackpackAt;
         private Func<int, bool> _equipPocketItem;
@@ -100,7 +100,7 @@ namespace Signal.Game
             Func<PlacedItem, bool> equipItem = null, Func<EquipmentSlot, bool> unequipItem = null,
             PlayerEquipmentLoadout equipment = null, Func<bool> dropBackpack = null,
             Func<bool> hasBackpack = null, Func<bool> canAccessGrid = null,
-            PlayerPocketBook pockets = null, Func<Guid, bool> moveItemToPocket = null,
+            PlayerPocketBook pockets = null, Func<Guid, int, bool> moveItemToPocket = null,
             Func<int, bool> movePocketToBackpack = null, Func<int, bool> equipPocketItem = null,
             Func<int, int, int, bool> movePocketToBackpackAt = null)
         {
@@ -273,13 +273,6 @@ namespace Signal.Game
             if (!backpackAccessible && !_dragging)
                 return;
 
-            if (!_dragging && keyboard != null && keyboard.pKey.wasPressedThisFrame && inGrid &&
-                _inventory.TryGetItemAt(hoverX, hoverY, out PlacedItem pocketTarget))
-            {
-                _moveItemToPocket?.Invoke(pocketTarget.ItemInstanceId);
-                Refresh();
-                return;
-            }
 
             if (!_dragging)
             {
@@ -335,7 +328,7 @@ namespace Signal.Game
                         _inventory.TryMove(id, targetX, targetY, rotated);
                 }
                 else if (dropIntoPocket && itemInstanceId != Guid.Empty)
-                    _moveItemToPocket?.Invoke(itemInstanceId);
+                    _moveItemToPocket?.Invoke(itemInstanceId, targetPocket);
 
                 Refresh();
             }
@@ -581,7 +574,7 @@ namespace Signal.Game
             _root.pivot = new Vector2(0.5f, 0.5f);
             _root.anchoredPosition = Vector2.zero;
 
-            _title = NewText("Title", _root, "CHARACTER & INVENTORY   [E] equip hovered item/pocket   Drag 1x1 items to pockets   [1-7] unequip   [B] drop backpack", 16,
+            _title = NewText("Title", _root, "CHARACTER & INVENTORY   [E] equip   Drag items to a chosen pocket   Drag pocket items back to backpack   [1-7] unequip   [B] drop backpack", 16,
                              TextAnchor.MiddleLeft, TitleColor);
 
             _characterRoot = NewRect("CharacterPanel", _root);
@@ -654,7 +647,10 @@ namespace Signal.Game
             SetTopLeft(pocketsTitle.rectTransform, 10f, 252f, 196f, 20f);
             for (int i = 0; i < PlayerPocketBook.PocketCount; i++)
             {
-                Image pocket = NewImage("Pocket_" + (i + 1), _characterRoot, CellColor);
+                Color pocketColor = i == PlayerPocketBook.HiddenPocketIndex
+                    ? new Color32(0x7A, 0x32, 0x3A, 0xFF)
+                    : CellColor;
+                Image pocket = NewImage("Pocket_" + (i + 1), _characterRoot, pocketColor);
                 pocket.raycastTarget = true;
                 Button pocketButton = pocket.gameObject.AddComponent<Button>();
                 pocketButton.targetGraphic = pocket;
@@ -671,7 +667,8 @@ namespace Signal.Game
                 pocketItemImage.raycastTarget = false;
                 SetTopLeft(pocketItemImage.rectTransform, 12f, 13f, 36f, 36f);
                 _pocketImages[i] = pocketItemImage;
-                Text pocketLabel = NewText("PocketLabel", pocket.transform, "P" + (i + 1), 10,
+                string pocketName = i == PlayerPocketBook.HiddenPocketIndex ? "P3 · HIDDEN" : "P" + (i + 1);
+                Text pocketLabel = NewText("PocketLabel", pocket.transform, pocketName, 10,
                     TextAnchor.UpperCenter, TitleColor);
                 SetTopLeft(pocketLabel.rectTransform, 1f, 1f, 58f, 14f);
                 _pocketLabels[i] = pocketLabel;
@@ -731,7 +728,7 @@ namespace Signal.Game
                 }
                 else
                 {
-                    _pocketLabels[i].text = "P" + (i + 1);
+                    _pocketLabels[i].text = i == PlayerPocketBook.HiddenPocketIndex ? "P3 · HIDDEN" : "P" + (i + 1);
                     _pocketLabels[i].color = FallbackColor;
                     _pocketImages[i].sprite = null;
                     _pocketImages[i].gameObject.SetActive(false);
