@@ -145,6 +145,39 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void MovesPocketItemToExactBackpackDropCell()
+        {
+            var pockets = new PlayerPocketBook();
+            var backpack = new GridInventory(3, 2);
+            ItemType type = Item(2, 1);
+            Guid id = Guid.NewGuid();
+            Assert.That(pockets.TryAdd(type, id, 1, ItemInstanceState.Default, out int pocketIndex), Is.True);
+
+            Assert.That(pockets.TryMoveToAt(backpack, pocketIndex, 1, 1), Is.True);
+            Assert.That(pockets.GetPocket(pocketIndex).Items, Is.Empty);
+            Assert.That(backpack.TryGetItemInstance(id, out PlacedItem moved), Is.True);
+            Assert.That(moved.X, Is.EqualTo(1));
+            Assert.That(moved.Y, Is.EqualTo(1));
+            Assert.That(moved.Type, Is.EqualTo(type));
+        }
+
+        [Test]
+        public void FailedExactPocketDropKeepsItemInPocket()
+        {
+            var pockets = new PlayerPocketBook();
+            var backpack = new GridInventory(2, 2);
+            ItemType type = Item(1, 1);
+            Guid pocketId = Guid.NewGuid();
+            Guid blockerId = Guid.NewGuid();
+            Assert.That(pockets.TryAdd(type, pocketId, 1, ItemInstanceState.Default, out int pocketIndex), Is.True);
+            backpack.Place(type, 0, 0, itemInstanceId: blockerId);
+
+            Assert.That(pockets.TryMoveToAt(backpack, pocketIndex, 0, 0), Is.False);
+            Assert.That(pockets.GetPocket(pocketIndex).Items[0].ItemInstanceId, Is.EqualTo(pocketId));
+            Assert.That(backpack.Items.Count, Is.EqualTo(1));
+        }
+
+        [Test]
         public void FailedPocketTransferLeavesBothInventoriesUnchanged()
         {
             var pockets = new PlayerPocketBook();
