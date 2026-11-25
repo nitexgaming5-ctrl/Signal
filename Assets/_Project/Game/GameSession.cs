@@ -1152,7 +1152,8 @@ namespace Signal.Game
                 report.SkippedIllicitExchangeTransactions + report.SkippedDirtyCashCleaningTransactions +
                 skippedContainers + report.SkippedProductionTransactions + report.SkippedCustomerContracts +
                 report.SkippedWorkshopUpgradeIds + report.SkippedContractReceiverItems +
-                report.SkippedNpcAgendaProgress > 0
+                report.SkippedNpcAgendaProgress + report.SkippedNpcKnowledge +
+                report.SkippedNpcSocialRelationships + report.SkippedNpcPlayerRelationships > 0
                 ? "Loaded at " + data.worldPlace + ". Some saved item or discovery details could not be restored."
                 : "Loaded at " + data.worldPlace + ".");
         }
