@@ -58,19 +58,20 @@ The current implementation status, branch head, verification and next action liv
 - The connected hideout, street, corner bakery and apartment foundations exist.
 - Inventory, item identity/state, knowledge, save/load, ownership transfers, clean accounts, retail, scavenging, theft, Dirty Cash, NPC routines and contextual narrative opportunity foundations exist.
 - The First Workshop B-01 to B-03 foundation and starter content are committed: Fabric Roll/Thread Spool/Adhesive Tube/Fastener Pack → Basic Patch Kit; Milo requests one kit for 40 CARD; Rhea sells the Compact Sewing Machine for 90 CARD after contract completion; the upgrade unlocks Reinforced Patch Kit.
-- The latest user-reported full EditMode result is **417/417 passed on 2026-11-24**, before all B-04 code/content/test additions. It is not verification of current HEAD; a fresh full run is required.
-- The current B-04 hybrid buyback and repair service/UI tests are authored but unverified in Unity. Remaining First Workshop acceptance covers Rhea's three agenda threads, Compact Sewing Machine purchase/installation, Reinforced Patch Kit production and F5/F9 persistence.
+- The latest user-reported full EditMode result before B-06 was **445/445 passed on 2026-11-25**, including B-05 directionality, generic agenda integration, contract outcomes and persistence.
+- B-01–B-05 foundations are implemented; B-05 is user-verified. The user reports the First Workshop and repair/trading flow working in Play Mode.
+- B-06 Customer Repair Orders is now in its first implementation slice. Nine focused tests have been added; expected suite count is 454 from the 445 baseline, but Unity compilation and test execution are pending.
 
 ### Current and future strategic direction
 
-1. **B-01 to B-03 — First Workshop:** make authored physical goods, fulfil one customer request and improve the hideout workshop. This is the active vertical slice.
-2. **B-04 — Repair, restoration and textile business:** design, hybrid pricing, Rhea/Work Jacket content, Core repair service and workbench UI are committed; current-HEAD Unity verification and end-to-end Play Mode acceptance remain.
-3. **B-05 — Social life and recurring customers:** future design placeholder; deepen player-driven relationships and authored requests.
-4. **B-06 — Livelihood expansion:** choose another coherent legitimate activity, not a universal profession simulator.
-5. **B-07 — Neighbourhood expansion:** add connected geography only when existing places have meaningful reasons to revisit.
-6. **Crime depth and long-term progression:** continue as separate, scenario-led design that reuses the shared city, item and economy foundations.
+1. **B-01 to B-03 — First Workshop:** implemented; authored physical production, one customer contract and a practical hideout upgrade.
+2. **B-04 — Repair, restoration and textile business:** implemented; the user reports the repair/trading flow working in Play Mode.
+3. **B-05 — Global NPC awareness and affinity:** implemented and user-verified at 445/445 EditMode tests. All three relationship directions remain separate; no new story cast was authored.
+4. **B-06 — Customer Repair Orders:** active implementation. Milo entrusts a Worn Work Jacket; the player repairs it, returns the exact item and receives a separately recorded clean CARD service payment. See tasks/LIVELIHOOD-B-06-CUSTOMER-REPAIR-ORDERS.md.
+5. **B-07 — Livelihood expansion:** future placeholder; choose another coherent activity only after B-06 verification.
+6. **Neighbourhood expansion and crime depth:** continue as separate, scenario-led design reusing the shared city, item and economy foundations.
 
-B-05 to B-07 remain future placeholders. B-04 design and implementation are committed; the remaining gate is current-HEAD Unity verification and combined First Workshop/textile repair Play Mode acceptance, not another design approval.
+B-06's first code slice is committed, but current-HEAD Unity compilation, full EditMode verification (454 expected from the prior 445 baseline) and the end-to-end Play Mode transaction/save-load loop remain pending. Do not add story NPCs until the main storyline and intended cast are designed.
 
 ## How to navigate this repository
 
