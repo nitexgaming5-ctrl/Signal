@@ -20,6 +20,8 @@ namespace Signal.Game
         private static readonly Color AccentColor = new Color32(202, 163, 91, 255);
 
         private GridInventory _carried;
+        private readonly List<GridInventory> _carriedInventories = new List<GridInventory>();
+        private Func<PlacedItem, GridInventory> _carryDestination;
         private GridInventory _stored;
         private Action<PlacedItem> _inspectItem;
         private ItemKnowledgeBook _itemKnowledge;
@@ -37,10 +39,13 @@ namespace Signal.Game
             if (carried == null) throw new ArgumentNullException(nameof(carried));
             if (stored == null) throw new ArgumentNullException(nameof(stored));
 
-            if (_carried != null) _carried.Changed -= OnInventoryChanged;
+            for (int i = 0; i < _carriedInventories.Count; i++)
+                _carriedInventories[i].Changed -= OnInventoryChanged;
             if (_stored != null) _stored.Changed -= OnInventoryChanged;
 
             _carried = carried;
+            _carriedInventories.Clear();
+            _carriedInventories.Add(carried);
             _stored = stored;
             _inspectItem = inspectItem;
             if (_itemKnowledge != null)
@@ -73,6 +78,25 @@ namespace Signal.Game
             BuildIfNeeded();
             Refresh();
             SetOpen(false);
+        }
+
+        public void SetCarriedInventories(IReadOnlyList<GridInventory> inventories,
+            Func<PlacedItem, GridInventory> carryDestination)
+        {
+            for (int i = 0; i < _carriedInventories.Count; i++)
+                _carriedInventories[i].Changed -= OnInventoryChanged;
+            _carriedInventories.Clear();
+            if (inventories != null)
+                for (int i = 0; i < inventories.Count; i++)
+                {
+                    GridInventory inventory = inventories[i];
+                    if (inventory == null || _carriedInventories.Contains(inventory)) continue;
+                    _carriedInventories.Add(inventory);
+                    inventory.Changed += OnInventoryChanged;
+                }
+            _carried = _carriedInventories.Count > 0 ? _carriedInventories[0] : null;
+            _carryDestination = carryDestination;
+            if (IsOpen) Refresh();
         }
 
         public void SetOpen(bool open)
@@ -191,7 +215,10 @@ namespace Signal.Game
             if (_rows == null || _carried == null || _stored == null) return;
             ClearRows();
 
-            int count = _carried.Items.Count + _stored.Items.Count;
+            int carriedCount = 0;
+            for (int i = 0; i < _carriedInventories.Count; i++)
+                carriedCount += _carriedInventories[i].Items.Count;
+            int count = carriedCount + _stored.Items.Count;
             if (count == 0)
             {
                 AddEmptyRow();
@@ -199,8 +226,9 @@ namespace Signal.Game
                 return;
             }
 
-            _status.text = "Each row is one distinct stack. Different states stay separate; transfers preserve identity.";
-            AddInventoryRows(_carried, true);
+            _status.text = "Backpack and all personal pockets are accessible here. Transfers preserve item identity.";
+            for (int i = 0; i < _carriedInventories.Count; i++)
+                AddInventoryRows(_carriedInventories[i], true);
             AddInventoryRows(_stored, false);
         }
 
@@ -208,10 +236,10 @@ namespace Signal.Game
         {
             // Refresh is triggered by inventory change events, so this read-only pass is stable.
             foreach (PlacedItem item in inventory.Items)
-                AddItemRow(item, carried);
+                AddItemRow(item, inventory, carried);
         }
 
-        private void AddItemRow(PlacedItem item, bool carried)
+        private void AddItemRow(PlacedItem item, GridInventory source, bool carried)
         {
             RectTransform row = Panel(_rows, "ItemStack_" + item.ItemInstanceId.ToString("N"), RowColor);
             LayoutElement rowLayout = row.gameObject.AddComponent<LayoutElement>();
@@ -242,8 +270,13 @@ namespace Signal.Game
             string action = carried ? "STORE" : "TAKE";
             Button transfer = MakeButton(row, action, new Vector2(100f, 42f));
             transfer.gameObject.AddComponent<LayoutElement>().preferredWidth = 100f;
-            transfer.onClick.AddListener(() => Transfer(item, carried ? _carried : _stored,
-                carried ? _stored : _carried, carried ? "Stored" : "Taken"));
+            transfer.onClick.AddListener(() =>
+            {
+                GridInventory destination = carried
+                    ? _stored
+                    : (_carryDestination != null ? _carryDestination(item) : _carried);
+                Transfer(item, carried ? source : _stored, destination, carried ? "Stored" : "Taken");
+            });
         }
 
         private string FormatKnownState(Guid itemInstanceId)
@@ -265,6 +298,11 @@ namespace Signal.Game
 
         private void Transfer(PlacedItem item, GridInventory source, GridInventory destination, string verb)
         {
+            if (source == null || destination == null)
+            {
+                _status.text = "No accessible carry space for that item. The locker item was kept.";
+                return;
+            }
             InventoryTransferResult result = InventoryTransfer.MoveStack(source, destination, item.ItemInstanceId);
             string name = _names.TryGetValue(item.Type.Id, out string displayName) ? displayName : "item";
 
