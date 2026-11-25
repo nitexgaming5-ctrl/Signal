@@ -348,11 +348,7 @@ namespace Signal.Game
                     firstCustomerRepairOrder.IssuerActor, firstCustomerRepairOrder.EntrustedItem.ToItemType().Id,
                     firstCustomerRepairOrder.CleanCardReward, firstCustomerRepairOrder.RequiredReturnCondition))
                     Debug.LogError("GameSession: the first customer repair order could not be registered.");
-                _playerDevelopment = PlayerDevelopmentSaveMapper.Restore(data, ProvisionalPlayerSkillIds,
-                PrototypeStartingSkillPoints, PrototypeMaximumSkillRank, PrototypePointsPerSkillRank);
-            if (_playerDevelopmentPanel != null)
-                _playerDevelopmentPanel.Bind(_playerDevelopment);
-            EnsureCustomerRepairItem();
+                EnsureCustomerRepairItem();
             }
         }
 
@@ -1327,6 +1323,10 @@ namespace Signal.Game
                 Say("Load failed: " + report.Error);
                 return;
             }
+            _playerDevelopment = PlayerDevelopmentSaveMapper.Restore(data, ProvisionalPlayerSkillIds,
+                PrototypeStartingSkillPoints, PrototypeMaximumSkillRank, PrototypePointsPerSkillRank);
+            if (_playerDevelopmentPanel != null)
+                _playerDevelopmentPanel.Bind(_playerDevelopment);
             EnsureCustomerRepairItem();
             RefreshWorkshopUpgradeVisual();
             if (_workspace != null)
