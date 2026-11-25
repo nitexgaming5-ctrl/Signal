@@ -66,9 +66,10 @@ namespace Signal.Core
             for (int i = 0; i < _transactions.Count; i++)
             {
                 if (_transactions[i].TransactionId != transactionId) continue;
+                Guid orderId = _transactions[i].OrderId;
                 _transactions.RemoveAt(i);
                 _transactionIds.Remove(transactionId);
-                _orderIds.Remove(_transactions[i].OrderId);
+                _orderIds.Remove(orderId);
                 return true;
             }
             return false;
