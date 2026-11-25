@@ -583,7 +583,7 @@ namespace Signal.Game
             _root.pivot = new Vector2(0.5f, 0.5f);
             _root.anchoredPosition = Vector2.zero;
 
-            _title = NewText("Title", _root, "CHARACTER & INVENTORY   [E] equip   Drag items to a chosen pocket   Drag pocket items back to backpack   [1-7] unequip   [B] drop backpack", 16,
+            _title = NewText("Title", _root, "CHARACTER & INVENTORY   [E] equip   Drag items to a chosen pocket   Drag between pockets to move/swap   Drag pocket items to backpack   [1-7] unequip   [B] drop backpack", 16,
                              TextAnchor.MiddleLeft, TitleColor);
 
             _characterRoot = NewRect("CharacterPanel", _root);
