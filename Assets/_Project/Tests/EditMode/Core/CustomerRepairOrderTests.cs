@@ -136,7 +136,7 @@ namespace Signal.Core.Tests
             Assert.That(fixture.CustomerInventory.TryGetItemInstance(fixture.JacketId, out _), Is.False);
             Assert.That(fixture.CustomerAccount.Balance, Is.EqualTo(100));
             Assert.That(fixture.PlayerAccount.Balance, Is.EqualTo(10));
-            Assert.That(fixture.Transactions.Count, Is.Zero);
+            Assert.That(fixture.Payments.Count, Is.Zero);
         }
 
         [Test]
@@ -155,7 +155,7 @@ namespace Signal.Core.Tests
             Assert.That(fixture.CustomerInventory.TryGetItemInstance(fixture.JacketId, out _), Is.False);
             Assert.That(fixture.CustomerAccount.Balance, Is.EqualTo(10));
             Assert.That(fixture.PlayerAccount.Balance, Is.EqualTo(10));
-            Assert.That(fixture.Transactions.Count, Is.Zero);
+            Assert.That(fixture.Payments.Count, Is.Zero);
             Assert.That(fixture.Orders.TryGetState(fixture.OrderId, out CustomerRepairOrderState order), Is.True);
             Assert.That(order.Phase, Is.EqualTo(CustomerRepairOrderPhase.Active));
         }
@@ -176,7 +176,7 @@ namespace Signal.Core.Tests
             Assert.That(fixture.PlayerInventory.TryGetItemInstance(fixture.JacketId, out _), Is.True);
             Assert.That(fixture.CustomerAccount.Balance, Is.EqualTo(100));
             Assert.That(fixture.PlayerAccount.Balance, Is.EqualTo(10));
-            Assert.That(fixture.Transactions.Count, Is.Zero);
+            Assert.That(fixture.Payments.Count, Is.Zero);
         }
 
         [Test]
