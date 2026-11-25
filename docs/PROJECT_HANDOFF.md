@@ -139,3 +139,12 @@ Committed but not yet Unity-verified:
 - Pocket-to-backpack drag/drop is now supported. Dragging an occupied pocket onto a valid backpack cell transfers the exact item stack to that precise cell, preserving stable instance identity and item state. Invalid/occupied destinations leave the item in its pocket. The existing click action remains available for inspecting a pocket item.
 - Added Core coverage for exact-position pocket transfer and atomic failure when the target cell is occupied. These tests have been added but have NOT yet been run in Unity; the last user-confirmed baseline remains 494/494.
 - User clarified the intended pocket layout: two ordinary personal pockets plus one hidden pocket, with the hidden pocket intended to preserve at least one object from police/search confiscation. This changes the current three-equivalent-pocket design. Do not implement hidden-pocket search/concealment rules until the user explicitly confirms the proposed rules. Proposed baseline for confirmation: all three pockets remain player-accessible; only the first two are exposed to ordinary inventory searches; the hidden slot is excluded from routine police searches and preserves its single 1x1 item. A special thorough/strip search could be a separate future rule if desired.
+
+## Latest P-03 pocket-role changes (2026-11-26)
+
+- P1/P2 are ordinary pockets; P3 is the hidden pocket. P3 is tinted light red and labelled HIDDEN in the inventory UI.
+- Ordinary-search enumeration is exposed by `PlayerPocketBook.GetItemsVisibleToOrdinarySearch()` and excludes P3. Player can still access and move items in P3 normally.
+- Routine police-search/confiscation gameplay is not yet a complete system. When implemented, it must use the ordinary-search API; do not enumerate all three pocket grids directly. Advanced scanners/dogs/thorough searches remain undecided.
+- Dragging a backpack item onto a pocket now targets that exact pocket. The automatic first-free-pocket shortcut was removed. Dragging a pocket item onto the backpack grid moves it to the exact target cell.
+- Pocket item icons are rendered from ItemDefinition.Icon when present, with a name fallback when absent.
+- New Core coverage added for hidden-pocket visibility. Current expected EditMode count is 497 (two exact-transfer tests plus one hidden-pocket test beyond the prior 494 baseline); pending Unity compile and execution. No pass is claimed yet.
