@@ -37,6 +37,9 @@ namespace Signal.Game
         private RectTransform _contactItems;
         private RectTransform _playerItems;
         private RectTransform _pocketItems;
+        private RectTransform _playerGrid;
+        private RectTransform _pocketGrid;
+        private Text _pocketLabel;
         private Text _contactTitle;
         private Text _playerTitle;
         private Text _offerText;
@@ -227,6 +230,10 @@ namespace Signal.Game
             Clear(_contactItems);
             Clear(_playerItems);
             Clear(_pocketItems);
+            _playerGrid.gameObject.SetActive(_backpackAccessible);
+            SetTopLeft(_pocketGrid, 20f, _backpackAccessible ? 322f : 60f,
+                PlayerPocketBook.PocketCount * CellSize, CellSize);
+            SetTopLeft(_pocketLabel.rectTransform, 20f, _backpackAccessible ? 304f : 42f, 260f, 18f);
 
             foreach (PlacedItem item in _contactInventory.Items)
                 DrawItem(item, _contactItems, false);
@@ -381,16 +388,16 @@ namespace Signal.Game
             _playerItems = NewRect("BackpackItems", playerGrid);
             Stretch(_playerItems);
 
-            RectTransform pocketGrid = NewRect("PersonalPockets", playerPanel.transform);
-            SetTopLeft(pocketGrid, 20f, 322f, PlayerPocketBook.PocketCount * CellSize, CellSize);
-            BuildCells(pocketGrid, PlayerPocketBook.PocketCount, 1);
-            if (pocketGrid.childCount > PlayerPocketBook.HiddenPocketIndex)
-                pocketGrid.GetChild(PlayerPocketBook.HiddenPocketIndex).GetComponent<Image>().color =
+            _pocketGrid = NewRect("PersonalPockets", playerPanel.transform);
+            SetTopLeft(_pocketGrid, 20f, 322f, PlayerPocketBook.PocketCount * CellSize, CellSize);
+            BuildCells(_pocketGrid, PlayerPocketBook.PocketCount, 1);
+            if (_pocketGrid.childCount > PlayerPocketBook.HiddenPocketIndex)
+                _pocketGrid.GetChild(PlayerPocketBook.HiddenPocketIndex).GetComponent<Image>().color =
                     new Color32(105, 55, 59, 255);
-            Text pocketLabel = NewText(playerPanel.transform, "P1  ·  P2  ·  P3 HIDDEN", 12,
+            _pocketLabel = NewText(playerPanel.transform, "P1  ·  P2  ·  P3 HIDDEN", 12,
                 TextAnchor.MiddleLeft, Muted);
-            SetTopLeft(pocketLabel.rectTransform, 20f, 304f, 260f, 18f);
-            _pocketItems = NewRect("PocketItems", pocketGrid);
+            SetTopLeft(_pocketLabel.rectTransform, 20f, 304f, 260f, 18f);
+            _pocketItems = NewRect("PocketItems", _pocketGrid);
             Stretch(_pocketItems);
 
             _fenceTab = NewButton(_root, "FENCE OFFER", 28f, 510f, 170f, 38f);
