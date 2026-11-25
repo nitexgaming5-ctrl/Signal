@@ -79,6 +79,15 @@ namespace Signal.Core
             return true;
         }
 
+        /// <summary>Removes an equipped item from the loadout without placing it in an inventory.</summary>
+        public bool TryTakeEquipped(EquipmentSlot slot, out EquippedItem equipped)
+        {
+            if (!_equipped.TryGetValue(slot, out equipped))
+                return false;
+            _equipped.Remove(slot);
+            return true;
+        }
+
         /// <summary>Returns the exact equipped item to the inventory; if it cannot fit, nothing changes.</summary>
         public bool TryUnequip(GridInventory destination, EquipmentSlot slot)
         {
