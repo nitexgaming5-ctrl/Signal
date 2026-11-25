@@ -76,11 +76,13 @@ Accessory slots are generic. Do not reserve all three for hardcoded item categor
 - Added nine focused EditMode tests covering slot count, exact identity/state transfer, invalid/stacked items, duplicate slot identity, capacity failure/rollback, modifier aggregation/clamping, backpack identity/content continuity and safe empty-container removal.
 - Added Unity .meta files for both new source files.
 
-## Not yet implemented / verified
+## Verification and remaining work
 
-- No Game item-definition metadata, equipment UI, visual wearable overlays, GameSession composition, SaveData persistence or dropped-world backpack object yet.
-- No Unity compilation or EditMode test run has been performed by the repository-edit pass. User's last verified full suite was 467/467 before P-03 tests; expected count is 476 if no other tests were added. Treat this as an expectation, not a passing result.
-- P-03 is not complete until equipped items and nested backpack contents round-trip through F5/F9, the dropped backpack can be picked up with its exact contents, visual equipment is shown, and the full EditMode/Play Mode acceptance passes.
+- The 2–3 pocket no-backpack fallback is not enforced yet; the temporary 8×6 grid remains available for testing.
+- A dedicated equipment/loadout panel and final wearable sprite overlays are not implemented. The current backpack silhouette is deliberately placeholder art.
+- Physical backpack drop/pickup is not implemented yet. Backpack unequip is blocked until that physical transfer exists.
+- No Unity compilation or EditMode test run has been performed by the repository-edit pass. The user confirmed **476/476** before the two additional P-03 tests; expected current total is **478**, pending Unity execution.
+- P-03 is not complete until the 2–3 pocket fallback, equipped backpack, physical drop/pickup with exact contents, visual equipment and full EditMode/Play Mode acceptance are verified.
 
 
 ## Second implementation slice — backpack equipped (2026-11-25)
