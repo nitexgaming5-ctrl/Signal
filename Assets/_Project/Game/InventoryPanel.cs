@@ -51,6 +51,7 @@ namespace Signal.Game
         private GridInventory _inventory;
         private Action<PlacedItem> _inspectItem;
         private Func<PlacedItem, bool> _equipItem;
+        private Func<EquipmentSlot, bool> _unequipItem;
         private Font _font;
         private bool _built;
         private bool _open;
@@ -74,7 +75,7 @@ namespace Signal.Game
         public bool IsOpen => _open;
 
         public void Bind(GridInventory inventory, IReadOnlyList<ItemDefinition> definitions, Action<PlacedItem> inspectItem = null,
-            Func<PlacedItem, bool> equipItem = null)
+            Func<PlacedItem, bool> equipItem = null, Func<EquipmentSlot, bool> unequipItem = null)
         {
             if (inventory == null)
                 throw new ArgumentNullException(nameof(inventory));
@@ -87,6 +88,7 @@ namespace Signal.Game
             _inventory = inventory;
             _inspectItem = inspectItem;
             _equipItem = equipItem;
+            _unequipItem = unequipItem;
             _inventory.Changed += OnInventoryChanged;
 
             _visuals.Clear();
@@ -171,6 +173,25 @@ namespace Signal.Game
         {
             Vector2 screen = mouse.position.ReadValue();
             bool inGrid = TryGetHoverCell(screen, out int hoverX, out int hoverY, out Vector2 local);
+
+            if (!_dragging && keyboard != null)
+            {
+                EquipmentSlot? unequipSlot = null;
+                if (keyboard.digit1Key.wasPressedThisFrame) unequipSlot = EquipmentSlot.Head;
+                else if (keyboard.digit2Key.wasPressedThisFrame) unequipSlot = EquipmentSlot.Torso;
+                else if (keyboard.digit3Key.wasPressedThisFrame) unequipSlot = EquipmentSlot.Legs;
+                else if (keyboard.digit4Key.wasPressedThisFrame) unequipSlot = EquipmentSlot.Feet;
+                else if (keyboard.digit5Key.wasPressedThisFrame) unequipSlot = EquipmentSlot.Accessory1;
+                else if (keyboard.digit6Key.wasPressedThisFrame) unequipSlot = EquipmentSlot.Accessory2;
+                else if (keyboard.digit7Key.wasPressedThisFrame) unequipSlot = EquipmentSlot.Accessory3;
+
+                if (unequipSlot.HasValue)
+                {
+                    _unequipItem?.Invoke(unequipSlot.Value);
+                    Refresh();
+                    return;
+                }
+            }
 
             if (!_dragging && keyboard != null && keyboard.eKey.wasPressedThisFrame && inGrid &&
                 _inventory.TryGetItemAt(hoverX, hoverY, out PlacedItem equipTarget))
@@ -403,7 +424,7 @@ namespace Signal.Game
             _root.pivot = new Vector2(0.5f, 0.5f);
             _root.anchoredPosition = Vector2.zero;
 
-            _title = NewText("Title", _root, "INVENTORY   [Tab] close   [E] equip   [LMB] move   [RMB] inspect   [R] rotate", 16,
+            _title = NewText("Title", _root, "INVENTORY   [E] equip   [1-7] unequip slot   [LMB] move   [RMB] inspect   [R] rotate", 16,
                              TextAnchor.MiddleLeft, TitleColor);
 
             _gridRect = NewRect("Grid", _root);
