@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using Signal.Core;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 
 namespace Signal.Game
@@ -107,6 +109,8 @@ namespace Signal.Game
             if (_root != null)
                 return;
 
+            EnsureEventSystem();
+
             _font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             if (_font == null)
                 _font = Font.CreateDynamicFontFromOSFont("Arial", 16);
@@ -188,6 +192,19 @@ namespace Signal.Game
 
             _statusText = NewText("Status", rootRect, _status, 14, TextAnchor.MiddleLeft, AccentColor);
             SetTopLeft(_statusText.rectTransform, 22f, 664f, 996f, 32f);
+        }
+
+        private static void EnsureEventSystem()
+        {
+            if (EventSystem.current == null)
+            {
+                var eventSystemObject = new GameObject("SignalEventSystem", typeof(EventSystem));
+                eventSystemObject.AddComponent<InputSystemUIInputModule>();
+                return;
+            }
+
+            if (EventSystem.current.GetComponent<BaseInputModule>() == null)
+                EventSystem.current.gameObject.AddComponent<InputSystemUIInputModule>();
         }
 
         private void RefreshTiles()
