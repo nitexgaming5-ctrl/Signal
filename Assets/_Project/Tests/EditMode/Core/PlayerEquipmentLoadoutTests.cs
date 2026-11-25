@@ -121,6 +121,25 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void RestoreEquippedBackpackDoesNotRequireAnInventoryCellAndKeepsStableIdentity()
+        {
+            var loadout = new PlayerEquipmentLoadout();
+            ItemType backpackType = CreateType(2, 2);
+            Guid backpackId = Guid.NewGuid();
+            var state = new ItemInstanceState(ItemQuality.Fine, ItemCondition.Good,
+                ItemAuthenticity.Genuine, ItemOwnershipStatus.Legitimate);
+
+            Assert.That(loadout.TryRestoreEquipped(backpackId, backpackType, state,
+                EquipmentSlot.Accessory1, 0, 0), Is.True);
+            Assert.That(loadout.TryGet(EquipmentSlot.Accessory1, out EquippedItem equipped), Is.True);
+            Assert.That(equipped.Item.ItemInstanceId, Is.EqualTo(backpackId));
+            Assert.That(equipped.Item.State, Is.EqualTo(state));
+            Assert.That(loadout.ContainsInstance(backpackId), Is.True);
+            Assert.That(loadout.TryRestoreEquipped(backpackId, backpackType, state,
+                EquipmentSlot.Accessory2), Is.False);
+        }
+
+        [Test]
         public void BackpackContentsRemainBoundToStableBackpackIdentity()
         {
             var storage = new PortableStorageBook();
