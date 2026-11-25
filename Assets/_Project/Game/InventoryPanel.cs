@@ -438,7 +438,7 @@ namespace Signal.Game
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 100;
 
-            if (FindObjectOfType<EventSystem>() == null)
+            if (FindAnyObjectByType<EventSystem>() == null)
             {
                 GameObject eventSystemObject = new GameObject("InventoryEventSystem",
                     typeof(EventSystem), typeof(InputSystemUIInputModule));
