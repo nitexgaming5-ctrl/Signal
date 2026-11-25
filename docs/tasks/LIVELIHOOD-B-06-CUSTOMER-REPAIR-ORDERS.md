@@ -50,6 +50,7 @@ Ten tests cover:
 - replay rejection;
 - unrepaired item cannot be returned or paid;
 - insufficient funds rollback;
+- player CARD overflow rejection;
 - full receiver inventory rollback;
 - duplicate acceptance and wrong-owner rejection;
 - active order/entrusted ownership save-load;
