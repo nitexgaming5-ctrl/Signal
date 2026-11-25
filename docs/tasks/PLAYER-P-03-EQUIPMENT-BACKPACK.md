@@ -77,6 +77,57 @@ Accessory slots are generic. Do not reserve all three for hardcoded item categor
 - Add actual wearable sprite overlays for head/torso/legs/feet and equipment variants. The supplied Body_A pack is only a base body; do not invent a full wardrobe from missing sprites.
 - Author more clothing/armor content after the core loop is validated.
 
+## Next Play Mode test game — Backpack lifecycle acceptance
+
+Run this only after the GameSession/world-object integration is committed and the EditMode suite is green.
+
+### Setup
+
+1. Start a fresh test save in the hideout.
+2. Use the debug item spawner to add one Canvas Backpack and several identifiable cargo items with different footprints/states (for example, a Basic Patch Kit and a Work Jacket).
+3. Open the inventory, place the cargo in distinct cells, and equip the Canvas Backpack with E.
+4. Confirm the backpack silhouette appears and the large grid still contains the exact cargo.
+
+### Scenario A — drop and recover in one session
+
+1. Use the backpack's in-game drop interaction.
+2. Confirm the backpack appears at the player's drop position and the player no longer has access to its large grid.
+3. Confirm the small personal pockets remain usable and can hold only their authored capacity.
+4. Move away, return, and recover the dropped backpack through its interaction prompt.
+5. Confirm the same backpack is equipped and every cargo item returns in the same condition, quality, authenticity, quantity and identity.
+
+### Scenario B — save while dropped
+
+1. Equip the backpack, ensure at least two cargo items are inside, then drop it.
+2. Move a few tiles away and press F5.
+3. Restart the Play Mode session (or reload the scene) and press F9.
+4. Confirm the backpack is still on the ground at the saved position; it must not reappear equipped or duplicate.
+5. Recover it and verify all cargo is present exactly once.
+
+### Scenario C — save while equipped
+
+1. With the backpack recovered/equipped and cargo still inside, press F5.
+2. Restart/reload and press F9.
+3. Confirm the backpack is equipped, its visual is present, and its same cargo is accessible.
+4. Drop and recover it once more to ensure restored state did not break the lifecycle.
+
+### Scenario D — custody and edge cases
+
+- Attempt to equip a second backpack while one is equipped; reject without losing either item.
+- Attempt to recover a backpack that is already equipped; reject harmlessly.
+- Attempt to drop a backpack while its inventory UI is open; the UI must close safely and no drag operation may be left active.
+- Confirm ordinary clothing/accessory equipment remains equipped when the backpack is dropped.
+- Confirm the backpack's owner remains unchanged by dropping/recovering; custody changes, ownership does not.
+- Confirm no duplicate world object appears after repeated F9 loads.
+
+### Acceptance criteria
+
+- One backpack identity maps to exactly one world/equipment state and exactly one contents grid.
+- The large inventory is inaccessible whenever the backpack is dropped; personal pockets remain usable.
+- Dropped position and state survive F5/F9.
+- Recovery restores access to the exact contents; no cargo loss, duplication, state reset or ownership mutation.
+- The user reports the full EditMode count and all four Play Mode scenarios passing before P-03.3 is marked complete.
+
 ## First Core implementation slice committed
 
 - Added PlayerEquipmentLoadout.cs in Core with the seven slots, exact-instance equip/unequip transfers, slot uniqueness, and Armor/Heat Protection aggregation.
