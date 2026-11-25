@@ -147,6 +147,32 @@ namespace Signal.Core
             return true;
         }
 
+        /// <summary>Atomically exchanges the sole 1x1 stack in two one-cell inventories.</summary>
+        internal static bool TrySwapSingleItemStacks(GridInventory first, GridInventory second)
+        {
+            if (first == null || second == null || ReferenceEquals(first, second) ||
+                first._items.Count != 1 || second._items.Count != 1)
+                return false;
+
+            PlacedItem firstItem = first._items[0];
+            PlacedItem secondItem = second._items[0];
+            if (firstItem.ItemInstanceId == Guid.Empty || secondItem.ItemInstanceId == Guid.Empty ||
+                firstItem.ItemInstanceId == secondItem.ItemInstanceId ||
+                firstItem.Rotated || secondItem.Rotated ||
+                firstItem.Type.Width != 1 || firstItem.Type.Height != 1 ||
+                secondItem.Type.Width != 1 || secondItem.Type.Height != 1)
+                return false;
+
+            first._items[0] = new PlacedItem(first._nextInstanceId++, secondItem.ItemInstanceId,
+                secondItem.Type, 0, 0, false, secondItem.Count, secondItem.State);
+            second._items[0] = new PlacedItem(second._nextInstanceId++, firstItem.ItemInstanceId,
+                firstItem.Type, 0, 0, false, firstItem.Count, firstItem.State);
+
+            first.Changed?.Invoke(first);
+            second.Changed?.Invoke(second);
+            return true;
+        }
+
         internal bool TryPlaceTransferred(PlacedItem item)
         {
             if (item.ItemInstanceId == Guid.Empty || item.Count < 1 || item.Count > item.Type.MaxStack)
