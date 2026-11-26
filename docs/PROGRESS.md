@@ -89,3 +89,14 @@ W-01 is separate and inactive. Intended direction: seasonal temperature/weather,
 - The dropped backpack's actual storage grid and contents are untouched.
 - Commits: e8c57416a279af7bc6d0acaa69ba5e421a98d87b (searchable panel isolation), c61532aad7e8102872c622e1beb9ed7f6bb10283 (Dirty Cash isolation), 73be827f6382cb92d0dddbe66bed9b955c79e269 (GameSession panel bindings), a037dca3ca6ae61526ee065b0fd4c5bab987024b (pointer hit-test guard).
 - Verification pending: no Unity compile or test result is claimed. User must test B-drop → Rhea wardrobe → street bin/container, then recover the same backpack and confirm its original cargo is intact.
+
+
+## 2026-11-26 — P-03 searchable-container pocket drag/drop
+
+- User identified that searchable-container panels (e.g. Rhea's wardrobe) displayed pocket items but did not provide working drag-and-drop to/from pockets.
+- Implemented exact-pocket drop targets for discovered container items and pocket-item drag into exact cells in the active container. Also preserved backpack rearrangement and added backpack↔pocket moves while the backpack is accessible.
+- Container↔pocket movement uses AssetTransferService, so stable instance IDs, item state, ownership/custody and transaction history remain authoritative. Taking resident property still follows the existing theft/witness path; returning an item transfers ownership to the container's actor. Invalid/occupied/oversized pocket drops fail safely.
+- Added two EditMode regression tests for container→pocket and pocket→container transfer integrity.
+- User confirmed **504/504** before the two new tests. Current expected suite total is **506**, pending Unity verification. No new pass is claimed.
+- Source commits: 2224a3baffffb3f7dfdc5c0e7aa0dffba10fdbb3 (panel interaction), f35ef49ce7dca66707ffc3ad243788fece0aa3c8 (GameSession transfer callbacks), 9e4c20fe275562c3249ce8aef9551cc0b2653fe9 (UI hint), 46d34a89bcb1336f4c1a628f72b1e1dcd7bf551c (backpack/pocket interaction continuity), ae853be9e0d1ce8c83ec6c3446cb50937ac8ccb0 (drag-origin handling), ee7850dab68dc0eb2ca06cd52e555690414db7e7 (regression tests).
+- Next: pull, run Unity EditMode tests, then Play Mode test pocket→wardrobe, wardrobe→pocket, pocket→street-container and street-container→pocket. Repeat with backpack dropped; verify cargo isolation and recovery remain intact.
