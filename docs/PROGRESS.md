@@ -344,3 +344,12 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 - Updated the temporary fresh-Play-Mode loadout to include a Worn Work Jacket, one Basic Patch Kit, and one complete recipe set (Fabric Roll, Thread Spool, Adhesive Tube), in addition to the equipped Canvas Backpack and three extra distinct-footprint test items.
 - This supports immediate repair testing and crafting a replacement Basic Patch Kit without relying on shop stock or scavenging. It remains debug-only scaffolding, not permanent starting gear.
 - Commit: `858097a06aba6b70a672549b8e61aa4b09847083`. Unity compilation and Play Mode verification pending.
+
+
+## 2026-11-26 — NPC sprite rendering smoke test
+
+- User confirmed **503/503 EditMode tests passed**. This is the new user-reported checkpoint; the NPC visual-only source changes below have not yet been compiled or tested in Unity.
+- Added `NpcSpriteSheetImporter` with menu `Signal > Import NPC Rendering Test Sprites...`. It extracts only the three full sprite sheets from the supplied `signal_npc_sprites.zip` into `Assets/_Project/Resources/NpcSprites` and configures readable, uncompressed, point-filtered textures. No art binaries are committed to the repository.
+- Added `NpcSpriteSheetVisual` to slice the supplied 48×72, 6×12 sheets at runtime (32 PPU), animate Idle/Walk in four directions, and follow the existing NPC transform. It changes rendering only.
+- City bootstrap adds exactly three generic visual-test residents when all three imported sheets are present. Their appearance assignments are randomly shuffled each session; their movement/schedules use the existing generic NPC systems. No named cast, unique dialogue, social mechanics, player visuals or equipment behaviour was changed.
+- After pulling, run `Signal > Import NPC Rendering Test Sprites...` and select the supplied `signal_npc_sprites.zip`, then enter Play Mode. Verify three generic residents appear and walk around the city. Existing NPCs remain unchanged.
