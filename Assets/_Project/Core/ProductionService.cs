@@ -149,6 +149,7 @@ namespace Signal.Core
             var snapshots = new Dictionary<GridInventory, InventorySnapshot>();
             var removedOwners = new List<Guid>();
             var addedOwners = new List<Guid>();
+            var changedInventories = new HashSet<GridInventory>();
             for (int i = 0; i < accessible.Count; i++)
                 snapshots.Add(accessible[i], accessible[i].CreateSnapshot());
             var priorOutputIds = new HashSet<Guid>();
@@ -157,9 +158,11 @@ namespace Signal.Core
 
             foreach (Removal removal in removals)
             {
-                if (!removal.Inventory.TryRemoveItemInstance(removal.InstanceId, removal.Quantity))
+                if (!removal.Inventory.TryRemoveItemInstanceSilently(removal.InstanceId, removal.Quantity))
                     return RollBack(ProductionStatus.InvalidRequest, snapshots, ownership,
                         operatorActor, removedOwners, addedOwners);
+
+                changedInventories.Add(removal.Inventory);
 
                 if (removal.Quantity == removal.OriginalCount)
                 {
@@ -170,7 +173,8 @@ namespace Signal.Core
                 }
             }
 
-            if (outputInventory.Add(recipe.Output.Type, recipe.Output.Count, producedState) > 0)
+            int outputLeftover = outputInventory.AddSilently(recipe.Output.Type, recipe.Output.Count, producedState, out bool outputChanged);
+            if (outputLeftover > 0)
                 return RollBack(ProductionStatus.NoSpaceForOutput, snapshots, ownership,
                     operatorActor, removedOwners, addedOwners);
 
@@ -183,12 +187,18 @@ namespace Signal.Core
                 addedOwners.Add(item.ItemInstanceId);
             }
 
+            if (outputChanged)
+                changedInventories.Add(outputInventory);
+
             var transaction = new ProductionTransaction(Guid.NewGuid(), recipeId,
                 recipe.Output.Type.Id, recipe.Output.Count, operatorActor, day, minuteOfDay);
             if (!history.TryRecord(transaction))
                 return RollBack(ProductionStatus.HistoryConflict, snapshots, ownership,
                     operatorActor, removedOwners, addedOwners);
 
+            // Publish only after ingredients, output ownership and production history commit.
+            foreach (GridInventory changedInventory in changedInventories)
+                changedInventory.NotifyChanged();
             return new ProductionResult(ProductionStatus.Completed, transaction);
         }
 
@@ -199,7 +209,7 @@ namespace Signal.Core
             for (int i = addedOwners.Count - 1; i >= 0; i--)
                 ownership.TryRemove(addedOwners[i], operatorActor);
             foreach (KeyValuePair<GridInventory, InventorySnapshot> snapshot in snapshots)
-                snapshot.Key.Restore(snapshot.Value);
+                snapshot.Key.RestoreSilently(snapshot.Value);
             for (int i = 0; i < removedOwners.Count; i++)
                 ownership.TryRegister(removedOwners[i], operatorActor);
             return new ProductionResult(status, null);
