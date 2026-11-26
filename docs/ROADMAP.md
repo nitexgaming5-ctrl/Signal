@@ -63,3 +63,10 @@ Crime consequences, police response, additional lawful/illicit activities, inves
 - No universal supply/demand, automatic NPC shopping, passive income, global gossip or per-frame NPC decision scoring.
 - Do not add story residents/backstories before the main storyline/cast is designed.
 - Unity Editor is the authority for compile, EditMode and Play Mode verification.
+
+
+## P-03 — dropped backpack isolation regression (2026-11-26)
+
+- **Source fix committed; verification pending.** SearchableContainerPanel no longer retains or hit-tests the live backpack inventory while the bag is dropped. GameSession and DirtyCashContactPanel now receive/use only accessible backpack references or an isolated empty grid. Personal pockets and automatic loot routing remain available.
+- Preserve the dropped bag's stable identity and exact contents; the fix does not mutate its storage.
+- Required next gate before P-03 closeout: Unity EditMode run, then Play Mode acceptance using B to drop the bag, opening Rhea's wardrobe and a street bin/searchable container, and recovering the same bag with its cargo intact.
