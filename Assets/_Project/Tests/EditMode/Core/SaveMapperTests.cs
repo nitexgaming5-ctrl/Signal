@@ -842,5 +842,20 @@ namespace Signal.Core.Tests
             Assert.That(ownership.Count, Is.Zero);
         }
 
+        [Test]
+        public void ApplyRejectsAliasedInventoryRolesBeforeClearingAnyGrid()
+        {
+            var world = new World();
+            ItemType existing = Item(1, 1, 1);
+            world.Inventory.Place(existing, 0, 0);
+            var data = new SaveData();
+
+            Assert.Throws<ArgumentException>(() => SaveMapper.Apply(data, world.Stats,
+                world.Inventory, world.Inventory, world.Clock, world.Heat, world.Rent, Resolver(existing)));
+
+            Assert.That(world.Inventory.Items.Count, Is.EqualTo(1));
+            Assert.That(world.Inventory.Items[0].Type, Is.EqualTo(existing));
+        }
+
     }
 }
