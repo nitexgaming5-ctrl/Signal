@@ -147,3 +147,11 @@ Reviewed remaining Game-layer inventory mutations. The remaining direct creation
 No additional unreviewed compound transaction was identified in the Game-layer files inspected. This is a source review only; Unity runtime acceptance remains necessary.
 
 Updated expected current EditMode suite total: **531** (last explicit numeric user-reported pass remains 506/506; 25 tests added since that baseline). Pending Unity verification.
+
+
+### Phase 4 follow-up — GameSession item creation paths
+
+- Player/customer item seeding now uses silent placement, registers the item owner, then publishes the inventory change. Failed ownership registration removes the silent placement.
+- Debug spawner item creation registers ownership before the pocket/inventory change is published; failed pocket insertion removes the provisional owner record.
+- Debug starting backpack creation and Milo parcel backpack placement now avoid publishing an item before the associated placement/opportunity state is established.
+- These are source-level changes only and add no new gameplay rules. Expected EditMode suite remains **531**, pending Unity verification.
