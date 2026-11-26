@@ -323,6 +323,41 @@ namespace Signal.Core.Tests
             Assert.That(destination.Items, Is.Empty);
             Assert.That(ledger.Count, Is.Zero);
         }
+
+        [Test]
+        public void ObserversSeeOwnershipAndLedgerAlreadyCommittedWhenTransferNotifies()
+        {
+            var source = new GridInventory(2, 1);
+            var destination = new GridInventory(2, 1);
+            ItemType type = Item();
+            source.Place(type, 0, 0, count: 3);
+            Guid itemId = source.Items[0].ItemInstanceId;
+
+            var ownership = new AssetOwnershipBook();
+            Assert.That(ownership.TryRegister(itemId, Player), Is.True);
+            var ledger = new EconomicTransactionLedger();
+            var containers = new EconomicContainerRegistry();
+            Assert.That(containers.TryRegister(source, Player), Is.True);
+            Assert.That(containers.TryRegister(destination, Milo), Is.True);
+
+            bool observerSawFullyCommittedState = false;
+            destination.Changed += _ =>
+            {
+                observerSawFullyCommittedState =
+                    source.Items.Count == 0 &&
+                    destination.TryGetItemInstance(itemId, out PlacedItem transferred) &&
+                    transferred.Count == 3 &&
+                    ownership.TryGetOwner(itemId, out EconomicActorId currentOwner) &&
+                    currentOwner == Milo &&
+                    ledger.Count == 1;
+            };
+
+            AssetTransferResult result = Service(ownership, containers, ledger).TransferStack(
+                source, destination, itemId, Player, Milo, AssetTransferReason.Gift, 1, 700);
+
+            Assert.That(result.Success, Is.True);
+            Assert.That(observerSawFullyCommittedState, Is.True);
+        }
     }
 }
 
