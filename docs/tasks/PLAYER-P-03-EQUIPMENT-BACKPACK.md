@@ -132,3 +132,15 @@ The user has paused sprite creation and wearable/wardrobe presentation. P-03.6 i
 - Added two EditMode regression tests covering container→pocket and pocket→container ownership/identity/state/cell placement.
 - User-confirmed baseline immediately before these two tests: **504/504**. Expected current suite: **506 tests**, pending Unity run. No 506 pass is claimed.
 - Play Mode acceptance is still required for Rhea's wardrobe and a street searchable container, both with backpack equipped and dropped.
+
+
+### P-03 searchable-container rearrangement follow-up (2026-11-26)
+
+- User confirmed the previous searchable-container drag/drop baseline: **506/506**.
+- Added pocket→pocket moves and occupied-pocket swaps directly inside the searchable-container panel, using the existing PlayerPocketBook.TryMoveBetweenPockets callback. Stable item IDs and instance state are preserved.
+- Added same-container rearrangement: discovered items can be dragged to another valid cell within the currently open wardrobe, bin, or any other searchable container. This is an in-place grid move; it does not create a new ownership transfer.
+- Added backpack→container exact-cell placement, using AssetTransferService so custody and ownership move from the player to the destination container actor consistently with pocket→container placement.
+- These paths are implemented in the shared SearchableContainerPanel, not per-container special cases.
+- Added three EditMode regression tests: in-container repositioning, pocket move/swap, and backpack→container transfer. Expected suite total is **509**, pending Unity verification; 506/506 remains the last user-confirmed pass.
+- Source commits: 6ad663c32d77de09527bb6ecd49740270ded1596, 924f7cbc8032266809420df8b361954fd7462d84, 05f03a9d88e580ffac5f5e5f106bea6efe60d173.
+- Next gate: run EditMode suite (expected 509), then Play Mode test pocket↔pocket, container↔container reorganisation, backpack→container, and pocket→container in both Rhea's wardrobe and a street container. Repeat with the backpack dropped to confirm its cargo remains inaccessible.
