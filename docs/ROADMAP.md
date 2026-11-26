@@ -78,3 +78,12 @@ Crime consequences, police response, additional lawful/illicit activities, inves
 - Ownership, custody and transaction history flow through AssetTransferService; resident-property theft outcomes remain intact.
 - Two regression tests added. User-confirmed baseline was 504/504 before those additions; current expected suite total is 506, pending Unity verification.
 - Required acceptance: Rhea wardrobe and street container, both directions, exact pocket targeting, rejection of occupied/oversized drops, and repeat with backpack dropped before recovery.
+
+
+### P-03 searchable-container rearrangement follow-up (2026-11-26)
+
+- User confirmed 506/506 on the preceding revision.
+- Shared container UI now supports pocket↔pocket move/swap, same-container item rearrangement, and backpack→container placement at an exact cell. Applies to all searchable containers.
+- Three EditMode regression tests added; expected suite total **509**, pending Unity verification.
+- Commits: 6ad663c32d77de09527bb6ecd49740270ded1596, 924f7cbc8032266809420df8b361954fd7462d84, 05f03a9d88e580ffac5f5e5f106bea6efe60d173.
+- Acceptance: run 509 EditMode tests; Play Mode verify all new paths in wardrobe and street container, including dropped-backpack isolation.
