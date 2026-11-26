@@ -30,7 +30,7 @@ namespace Signal.Core
             EconomicActorId fromActor, EconomicActorId toActor, AssetTransferReason reason, int day, int minuteOfDay)
         {
             return TransferStackCore(source, destination, itemInstanceId, fromActor, toActor, reason, day, minuteOfDay,
-                () => InventoryTransfer.MoveStackSilently(source, destination, itemInstanceId));
+                () => InventoryTransfer.MoveStackSilently(source, destination, itemInstanceId), true);
         }
 
         public AssetTransferResult TransferStackAt(GridInventory source, GridInventory destination, Guid itemInstanceId,
@@ -38,12 +38,29 @@ namespace Signal.Core
             AssetTransferReason reason, int day, int minuteOfDay)
         {
             return TransferStackCore(source, destination, itemInstanceId, fromActor, toActor, reason, day, minuteOfDay,
-                () => InventoryTransfer.MoveStackAtSilently(source, destination, itemInstanceId, destinationX, destinationY, rotated));
+                () => InventoryTransfer.MoveStackAtSilently(source, destination, itemInstanceId, destinationX, destinationY, rotated), true);
+        }
+
+        internal AssetTransferResult TransferStackDeferred(GridInventory source, GridInventory destination,
+            Guid itemInstanceId, EconomicActorId fromActor, EconomicActorId toActor,
+            AssetTransferReason reason, int day, int minuteOfDay)
+        {
+            return TransferStackCore(source, destination, itemInstanceId, fromActor, toActor, reason, day, minuteOfDay,
+                () => InventoryTransfer.MoveStackSilently(source, destination, itemInstanceId), false);
+        }
+
+        internal AssetTransferResult TransferStackAtDeferred(GridInventory source, GridInventory destination,
+            Guid itemInstanceId, int destinationX, int destinationY, bool rotated,
+            EconomicActorId fromActor, EconomicActorId toActor, AssetTransferReason reason, int day, int minuteOfDay)
+        {
+            return TransferStackCore(source, destination, itemInstanceId, fromActor, toActor, reason, day, minuteOfDay,
+                () => InventoryTransfer.MoveStackAtSilently(source, destination, itemInstanceId,
+                    destinationX, destinationY, rotated), false);
         }
 
         private AssetTransferResult TransferStackCore(GridInventory source, GridInventory destination, Guid itemInstanceId,
             EconomicActorId fromActor, EconomicActorId toActor, AssetTransferReason reason, int day, int minuteOfDay,
-            Func<InventoryTransferResult> move)
+            Func<InventoryTransferResult> move, bool notify)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (destination == null) throw new ArgumentNullException(nameof(destination));
@@ -95,9 +112,12 @@ namespace Signal.Core
                 source.RestoreSilently(sourceBefore); destination.RestoreSilently(destinationBefore);
                 return new AssetTransferResult(AssetTransferStatus.TransferFailed, null);
             }
-            // Publish only after physical location, item state, ownership and ledger agree.
-            source.NotifyChanged();
-            destination.NotifyChanged();
+            // Deferred callers publish after their wider transaction (e.g. contract/payment) commits.
+            if (notify)
+            {
+                source.NotifyChanged();
+                destination.NotifyChanged();
+            }
             return new AssetTransferResult(AssetTransferStatus.Completed, transaction);
         }
     }
