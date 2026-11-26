@@ -255,5 +255,30 @@ namespace Signal.Core.Tests
             Assert.That(fixture.Contracts.TryAccept(fixture.ContractId, 1, 300), Is.False);
             Assert.That(fixture.Contracts.ActiveContractId, Is.EqualTo(System.Guid.Empty));
         }
+        [Test]
+        public void ContractObserversSeeGoodsPaymentAndContractStateCommittedTogether()
+        {
+            var fixture = new Fixture();
+            Guid itemId = fixture.PlayerInventory.Items[0].ItemInstanceId;
+            bool observerSawCommittedState = false;
+            fixture.PlayerInventory.Changed += _ =>
+            {
+                observerSawCommittedState =
+                    fixture.PlayerInventory.Items.Count == 0 &&
+                    fixture.CustomerInventory.TryGetItemInstance(itemId, out _) &&
+                    fixture.PlayerAccount.Balance == 30 &&
+                    fixture.CustomerAccount.Balance == 80 &&
+                    fixture.Contracts.ActiveContractId == Guid.Empty &&
+                    fixture.Transactions.Count == 1 &&
+                    fixture.Ownership.TryGetOwner(itemId, out EconomicActorId owner) &&
+                    owner == fixture.Customer;
+            };
+
+            CustomerContractFulfilmentResult result = fixture.Fulfil();
+
+            Assert.That(result.Success, Is.True);
+            Assert.That(observerSawCommittedState, Is.True);
+        }
+
     }
 }
