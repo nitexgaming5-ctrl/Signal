@@ -132,3 +132,18 @@ Regression tests added for infinite/overflowed drag geometry and invalid rotatio
 - Additional tests since that report: 3 searchable-container rearrangement tests, 13 Phase 1 transaction/grid tests, 4 Phase 2 identity tests and 3 Phase 3 drag-math tests.
 - Expected current EditMode suite total: **529**, pending Unity verification. This is not a claimed pass.
 - Phase 1–3 source changes are implemented. Phase 4 remains: audit every remaining Core/Game inventory mutation and persistence integration, then perform full Unity EditMode and Play Mode acceptance.
+
+
+### Phase 2 additional guardrails
+
+- SaveMapper now rejects aliased role arguments (e.g. the same GridInventory supplied as both player inventory and home storage) before clearing any grid. This prevents one save slot from silently overwriting another.
+- SearchableContainerSaveMapper skips duplicate destination container IDs/references so the same runtime container cannot be reset and restored twice in one pass.
+- Added one regression test for each guard.
+
+### Phase 4 — direct mutation call-site sweep (source review)
+
+Reviewed remaining Game-layer inventory mutations. The remaining direct creation calls are controlled bootstrap/seeding/debug paths: container loot generation, authored resident-property stock, Milo's parcel creation/restoration, debug item spawning and the legacy inventory demo bootstrap. Runtime GameSession paths register newly created player/container assets after those creation flows. UI panels otherwise route cross-inventory moves through the transfer services; in-grid rearrangement remains a single-grid GridInventory operation.
+
+No additional unreviewed compound transaction was identified in the Game-layer files inspected. This is a source review only; Unity runtime acceptance remains necessary.
+
+Updated expected current EditMode suite total: **531** (last explicit numeric user-reported pass remains 506/506; 25 tests added since that baseline). Pending Unity verification.
