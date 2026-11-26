@@ -172,5 +172,72 @@ namespace Signal.Core.Tests
             Assert.That(revealed, Is.EqualTo(id));
         }
 
+
+        [Test]
+        public void DiscoveredContainerItemCanTransferIntoAnExactPersonalPocket()
+        {
+            var container = new SearchableContainer("rhea-wardrobe");
+            var pocket = new GridInventory(1, 1);
+            ItemType type = Item();
+            var state = new ItemInstanceState(ItemQuality.Fine, ItemCondition.Worn,
+                ItemAuthenticity.Genuine, ItemOwnershipStatus.Legitimate);
+            container.Inventory.Place(type, 0, 0, state: state);
+            Guid itemId = container.Inventory.Items[0].ItemInstanceId;
+
+            var resident = new EconomicActorId("resident:rhea");
+            var ownership = new AssetOwnershipBook();
+            Assert.That(ownership.TryRegister(itemId, resident), Is.True);
+            var containers = new EconomicContainerRegistry();
+            Assert.That(containers.TryRegister(container.Inventory, resident), Is.True);
+            Assert.That(containers.TryRegister(pocket, EconomicActorId.Player), Is.True);
+            var ledger = new EconomicTransactionLedger();
+
+            AssetTransferResult result = new AssetTransferService(ownership, containers, ledger).TransferStack(
+                container.Inventory, pocket, itemId, resident, EconomicActorId.Player,
+                AssetTransferReason.Scavenging, 1, 600);
+
+            Assert.That(result.Success, Is.True);
+            Assert.That(container.Inventory.Items, Is.Empty);
+            Assert.That(pocket.Items.Count, Is.EqualTo(1));
+            Assert.That(pocket.Items[0].ItemInstanceId, Is.EqualTo(itemId));
+            Assert.That(pocket.Items[0].State, Is.EqualTo(state));
+            Assert.That(ownership.TryGetOwner(itemId, out EconomicActorId owner), Is.True);
+            Assert.That(owner, Is.EqualTo(EconomicActorId.Player));
+            Assert.That(ledger.Count, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void PersonalPocketItemCanBePlacedBackIntoAnExactContainerCell()
+        {
+            var container = new SearchableContainer("rhea-wardrobe");
+            var pocket = new GridInventory(1, 1);
+            ItemType type = Item();
+            var state = new ItemInstanceState(ItemQuality.Fine, ItemCondition.Good,
+                ItemAuthenticity.Genuine, ItemOwnershipStatus.Legitimate);
+            pocket.Place(type, 0, 0, state: state);
+            Guid itemId = pocket.Items[0].ItemInstanceId;
+
+            var resident = new EconomicActorId("resident:rhea");
+            var ownership = new AssetOwnershipBook();
+            Assert.That(ownership.TryRegister(itemId, EconomicActorId.Player), Is.True);
+            var containers = new EconomicContainerRegistry();
+            Assert.That(containers.TryRegister(pocket, EconomicActorId.Player), Is.True);
+            Assert.That(containers.TryRegister(container.Inventory, resident), Is.True);
+            var ledger = new EconomicTransactionLedger();
+
+            AssetTransferResult result = new AssetTransferService(ownership, containers, ledger).TransferStackAt(
+                pocket, container.Inventory, itemId, 2, 1, false,
+                EconomicActorId.Player, resident, AssetTransferReason.Other, 1, 610);
+
+            Assert.That(result.Success, Is.True);
+            Assert.That(pocket.Items, Is.Empty);
+            Assert.That(container.Inventory.TryGetItemInstance(itemId, out PlacedItem placed), Is.True);
+            Assert.That(placed.X, Is.EqualTo(2));
+            Assert.That(placed.Y, Is.EqualTo(1));
+            Assert.That(placed.State, Is.EqualTo(state));
+            Assert.That(ownership.TryGetOwner(itemId, out EconomicActorId owner), Is.True);
+            Assert.That(owner, Is.EqualTo(resident));
+            Assert.That(ledger.Count, Is.EqualTo(1));
+        }
     }
 }
