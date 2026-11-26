@@ -10,7 +10,7 @@ Signal is a top-down 2D urban RPG built around one connected city, a lived-in hi
 - Active architecture: `Signal.Core` (plain C#, no UnityEngine) + `Signal.Game` (Unity integration, UI and authored ScriptableObjects).
 - Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
 - Working branch: `chore/collaboration-workflow-and-audit`; keep `main` untouched.
-- Latest user-reported full EditMode run: **456/456 passed on 2026-11-25**. The user also confirmed B-06's in-game acceptance/repair/return-payment loop. Treat this as the current verified baseline; require fresh Unity verification after subsequent gameplay changes.
+- Latest user-confirmed full EditMode run: **504/504 passed (2026-11-26)** after the Play Mode-only guard for temporary NPC visual-test residents. One automatic-pocket-routing regression test was committed afterward; expected current suite is **505**, not yet user-confirmed. B-06's in-game acceptance/repair/return-payment loop is also user-confirmed. Require fresh Unity verification after subsequent gameplay changes.
 - `Assets/_Project/_Prototype/` and `Main.unity` are legacy reference only; do not extend the old architecture.
 
 ## How to understand the project
@@ -93,7 +93,7 @@ Existing approved decisions remain binding unless the user changes them. If two 
 
 - Unity Editor is the authority for project compilation and tests. Do not run `dotnet`, `msbuild` or standalone .NET builds for this Unity project.
 - Separate code inspection, Unity compilation, EditMode results and Play Mode verification. Never claim a check that was not run.
-- The **417/417 result dated 2026-11-24** is the latest user-verified full EditMode baseline and predates all B-04 hybrid pricing, textile asset, counter geometry, repair service, UI and test additions. Any later change touching compiled runtime or tests requires a fresh suite; do not report the old result as current-HEAD verification.
+- The latest user-confirmed full suite is **504/504 (2026-11-26)**. One additional automatic-pocket-routing regression test was committed afterward; expected current total is 505 and remains unverified. Any later change touching compiled runtime or tests requires a fresh Unity run; do not report 505/505 until the user confirms it.
 - For content-only changes, inspect ScriptableObject references, serialized fields, scene wiring and build inclusion; still ask for an Editor import/Play Mode check when Unity itself was unavailable.
 - Add focused regression tests for changed rules and current-build save round-trip tests for persistent state. Do not introduce save-version/migration machinery in build 0.01.
 - Do not change packages or Project Settings merely to suppress errors.
@@ -130,3 +130,8 @@ The user-confirmed baseline remains **456/456 EditMode tests** before the curren
 P-01 includes a modular Body_A character renderer and an Editor ZIP importer. The original supplied ZIP is not in the repository: in Unity, run **Signal → Import World Build Character Pack...** and select the user's supplied World Build Character Pack ZIP. The renderer keeps the teal placeholder fallback until those Resources sheets are present.
 
 P-02 includes Armor/Heat Protection Core attributes, skill ranks, point progression, milestone idempotency, free respecialization, SaveData mapping, a provisional catalog and an F2 debug panel. Current catalog values (8 starting points, rank cap 5, one point/rank) and the five candidate skills are provisional. Skill-specific activity effects are not wired until their gameplay effects are defined. B-07 remains Neighbourhood Expansion; W-01 remains a separate future phase.
+
+
+## Explicit user pause — character art and wearables (2026-11-26)
+
+The user has ended the current sprite/art effort and directed the project back to roadmap and functional development. Do not create or regenerate sprites/templates, implement wearable overlays, build a wardrobe preview/panel, or continue character-art exploration/import work unless explicitly re-authorised. P-03.6 is parked; proceed with non-art P-03 verification/closeout and then the approved roadmap.
