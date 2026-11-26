@@ -268,7 +268,7 @@ namespace Signal.Core.Tests
             var ledger = new IllicitExchangeTransactionLedger();
             var economicLedger = new EconomicTransactionLedger();
             bool observerSawCommittedState = false;
-            player.Changed += _ =>
+            player.Changed += changedInventory =>
             {
                 observerSawCommittedState =
                     player.CountOf(accepted) == 0 &&
