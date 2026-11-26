@@ -369,3 +369,8 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 - Completed a source-level P-03.5 audit across Retail, Dirty Cash, Home Storage, Workbench repair/production, customer contracts/repair orders, searchable containers, and GameSession transfer/pickup flows. Accessible backpack + pockets are passed to the panels/services; dropped backpack cargo is excluded. No remaining direct-grid-only blocker was found in the reviewed paths.
 - Next: P-03.6 wearable presentation, pending actual imported player sprite/resource paths. Keep temporary repair-debug starting loadout until final P-03 cleanup. Do not guess local Resources asset names.
 - Commit: `bfcaecf0a98daabd17bf58abbeb14538959a38b9`. User's latest confirmed EditMode result remains 503/503; this roaming adjustment and remaining Play Mode acceptance need Unity verification.
+
+
+- Follow-up to outdoor NPC rendering-test report: the three walkers now relocate from their schedule-derived initial point onto a clearance-safe Street position before their first route, avoiding bench/furniture spawn overlap. Subsequent roam targets are sampled from the actual walkable Street region using the pathfinder's clearance and avoid clustering near other residents. They continue to use the existing pathfinder and retry when no safe target is found.
+- This is a source-level robustness fix; Unity compile and Play Mode confirmation are pending. The latest user-confirmed EditMode baseline remains 503/503 from before this rendering-only change.
+- Commits: c000c6158535544f1bdc9dbc806000f87a0a571c, 8365baa42116c5f2819d4f229dedb2488db48de9.
