@@ -826,7 +826,9 @@ namespace Signal.Game
         /// </summary>
         private void SpawnVisualTestResidents()
         {
-            if (!NpcSpriteSheetVisual.AreAssetsAvailable)
+            // These three walkers exist only to preview the temporary sprite sheets in Play Mode.
+            // EditMode bootstrap tests must see only the authored/fallback gameplay residents.
+            if (!Application.isPlaying || !NpcSpriteSheetVisual.AreAssetsAvailable)
                 return;
 
             int[] appearances = { 0, 1, 2 };
