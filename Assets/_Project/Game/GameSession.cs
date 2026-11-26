@@ -257,7 +257,8 @@ namespace Signal.Game
             _debugItemSpawnerPanel = gameObject.AddComponent<DebugItemSpawnerPanel>();
             _debugItemSpawnerPanel.Bind(_allItemDefinitions, SpawnDebugItem);
             _containerPanel = gameObject.AddComponent<SearchableContainerPanel>();
-            _containerPanel.Bind(_allItemDefinitions, TakeSearchableItem, TakeSearchableItemAt, _itemViewer.Open);
+            _containerPanel.Bind(_allItemDefinitions, TakeSearchableItem, TakeSearchableItemAt, _itemViewer.Open,
+                TakeSearchableItemToPocket, PutPocketItemIntoSearchableContainer);
             _storagePanel = gameObject.AddComponent<StoragePanel>();
             _storagePanel.Bind(_inventory, _storage, _allItemDefinitions, _itemViewer.Open, _itemKnowledge);
             _storagePanel.SetCarriedInventories(GetAccessibleCarryInventories(),
@@ -2713,6 +2714,68 @@ namespace Signal.Game
             if (!_searchableActors.TryGetValue(_activeSearchableContainer.ContainerId, out EconomicActorId actor))
                 return false;
             return TransferSearchableItem(itemInstanceId, actor, true, x, y, rotated);
+        }
+
+        private bool TakeSearchableItemToPocket(Guid itemInstanceId, int pocketIndex)
+        {
+            if (_activeSearchableContainer == null ||
+                !_activeSearchableContainer.IsDiscovered(itemInstanceId) ||
+                _playerPockets == null || !_playerPockets.TryGetPocket(pocketIndex, out GridInventory pocket) ||
+                !_searchableActors.TryGetValue(_activeSearchableContainer.ContainerId, out EconomicActorId actor))
+                return false;
+            if (!_activeSearchableContainer.Inventory.TryGetItemInstance(itemInstanceId, out PlacedItem incoming) ||
+                incoming.Rotated || incoming.Type.Width != 1 || incoming.Type.Height != 1 ||
+                !pocket.CanPlaceTransferred(incoming, 0, 0, false))
+            {
+                Say("That personal pocket is occupied or the item is too large. Nothing was transferred.", 4f);
+                return false;
+            }
+
+            bool isTheft = _residentPropertyDefinitions.TryGetValue(_activeSearchableContainer.ContainerId,
+                out ResidentPropertyContainerDefinition property);
+            string witnessNpcId = null;
+            if (isTheft && _city.TryGetNearestResidentWithin(property.InteractionPosition,
+                property.WitnessRadius, out string nearbyWitness))
+                witnessNpcId = nearbyWitness;
+
+            AssetTransferResult result = _assetTransfers.TransferStack(
+                _activeSearchableContainer.Inventory, pocket, itemInstanceId, actor, EconomicActorId.Player,
+                isTheft ? AssetTransferReason.Theft : AssetTransferReason.Scavenging,
+                _clock.Day, _clock.MinuteOfDay);
+            if (!result.Success)
+            {
+                Say("The item could not be moved into that pocket. Nothing was transferred.", 4f);
+                return false;
+            }
+            if (isTheft) RecordTheft(property, result.Transaction, witnessNpcId);
+            else Say("Item moved into personal pocket " + (pocketIndex + 1) + ".");
+            return true;
+        }
+
+        private bool PutPocketItemIntoSearchableContainer(Guid itemInstanceId, int x, int y, bool rotated)
+        {
+            if (_activeSearchableContainer == null ||
+                !_searchableActors.TryGetValue(_activeSearchableContainer.ContainerId, out EconomicActorId actor) ||
+                _playerPockets == null)
+                return false;
+
+            GridInventory source = null;
+            for (int i = 0; i < PlayerPocketBook.PocketCount; i++)
+                if (_playerPockets.GetPocket(i).TryGetItemInstance(itemInstanceId, out _))
+                { source = _playerPockets.GetPocket(i); break; }
+            if (source == null) return false;
+
+            AssetTransferResult result = _assetTransfers.TransferStackAt(source,
+                _activeSearchableContainer.Inventory, itemInstanceId, x, y, rotated,
+                EconomicActorId.Player, actor, AssetTransferReason.Other,
+                _clock.Day, _clock.MinuteOfDay);
+            if (!result.Success)
+            {
+                Say("That container space is occupied or the item could not be stored. Nothing was transferred.", 4f);
+                return false;
+            }
+            Say("Item placed in " + _activeSearchableContainer.ContainerId + ".");
+            return true;
         }
 
         private bool TransferSearchableItem(Guid itemInstanceId, EconomicActorId actor,
