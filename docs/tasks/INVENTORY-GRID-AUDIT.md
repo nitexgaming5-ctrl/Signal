@@ -90,3 +90,45 @@ The searchable-container follow-up immediately preceding this audit added three 
 - No Unity compilation, EditMode test run or Play Mode run has been performed by the assistant.
 - Current expected EditMode suite total: **522**, pending user verification.
 - Do not treat the audit as complete; persistence, UI and remaining integration sweeps are still open.
+
+
+## Phase 2 — Persistence and global item identity (implemented, verification pending)
+
+### Finding: saved item IDs could be duplicated across physical inventories
+
+Each GridInventory rejected duplicate stable IDs only within itself. SaveMapper restored the player inventory, home storage, contact inventory and contract receiver independently, so a malformed save could place the same physical item ID in multiple grids. Equipment restore and searchable-container restore also needed to check identities already restored elsewhere. Ownership records could additionally survive as orphans even when no physical item with that ID was restored.
+
+Implemented:
+- SaveMapper now shares one restored-ID set across player inventory, home storage, contact inventory and contract receiver. Each record must contain a valid, non-empty GUID; duplicate records are skipped before placement.
+- Asset ownership restoration now accepts only owner records whose item IDs actually exist in those restored inventories. Missing owner records are still registered using the existing per-container fallback actor.
+- GameSession equipment restore rejects IDs already present in restored inventories or earlier equipment entries. Dropped-backpack restore uses the same ownership-book guard.
+- PlayerPocketSaveMapper already used the ownership book to reject duplicates; the new restore order preserves that protection.
+- SearchableContainerSaveMapper now accepts the existing ownership book, rejects IDs already restored in another location, and shares a seen-ID set across all searchable containers in the save.
+- Searchable container registration after load continues to assign the correct container actor to newly restored unique items.
+
+Regression tests added:
+- Duplicate item ID across player inventory and home storage: only the first physical instance restores.
+- Orphaned ownership record with no physical item: skipped.
+- Searchable-container item ID already owned by another inventory: skipped.
+- Duplicate item ID across two searchable containers: only the first restores.
+
+## Phase 3 — UI drag math and inaccessible-grid interaction (implemented, verification pending)
+
+### Finding: hidden backpack grid could still be considered as a pointer target
+
+InventoryPanel previously performed the grid hit test before checking backpack accessibility. When a backpack was dropped, pocket dragging could still calculate a target against the hidden grid and show a misleading placement preview, even though the final callback would reject the transfer.
+
+Implemented:
+- Backpack accessibility now gates whether the grid counts as a valid drop target.
+- Pointer-local coordinates are still sampled independently so the pocket drag ghost continues following the cursor while the backpack grid is hidden.
+- InventoryDragMath rejects infinite cell sizes and grid pixel dimensions that overflow float range.
+- RotateGrabOffsetClockwise rejects non-positive item footprints rather than returning meaningless offsets.
+
+Regression tests added for infinite/overflowed drag geometry and invalid rotation footprints.
+
+## Updated verification state
+
+- Last explicit numeric user-reported pass: **506/506**.
+- Additional tests since that report: 3 searchable-container rearrangement tests, 13 Phase 1 transaction/grid tests, 4 Phase 2 identity tests and 3 Phase 3 drag-math tests.
+- Expected current EditMode suite total: **529**, pending Unity verification. This is not a claimed pass.
+- Phase 1–3 source changes are implemented. Phase 4 remains: audit every remaining Core/Game inventory mutation and persistence integration, then perform full Unity EditMode and Play Mode acceptance.
