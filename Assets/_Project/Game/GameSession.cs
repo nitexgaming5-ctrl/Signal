@@ -258,7 +258,8 @@ namespace Signal.Game
             _debugItemSpawnerPanel.Bind(_allItemDefinitions, SpawnDebugItem);
             _containerPanel = gameObject.AddComponent<SearchableContainerPanel>();
             _containerPanel.Bind(_allItemDefinitions, TakeSearchableItem, TakeSearchableItemAt, _itemViewer.Open,
-                TakeSearchableItemToPocket, PutPocketItemIntoSearchableContainer);
+                TakeSearchableItemToPocket, PutPocketItemIntoSearchableContainer,
+                PutBackpackItemIntoSearchableContainer, MovePocketToPocket);
             _storagePanel = gameObject.AddComponent<StoragePanel>();
             _storagePanel.Bind(_inventory, _storage, _allItemDefinitions, _itemViewer.Open, _itemKnowledge);
             _storagePanel.SetCarriedInventories(GetAccessibleCarryInventories(),
@@ -2766,6 +2767,26 @@ namespace Signal.Game
             if (source == null) return false;
 
             AssetTransferResult result = _assetTransfers.TransferStackAt(source,
+                _activeSearchableContainer.Inventory, itemInstanceId, x, y, rotated,
+                EconomicActorId.Player, actor, AssetTransferReason.Other,
+                _clock.Day, _clock.MinuteOfDay);
+            if (!result.Success)
+            {
+                Say("That container space is occupied or the item could not be stored. Nothing was transferred.", 4f);
+                return false;
+            }
+            Say("Item placed in " + _activeSearchableContainer.ContainerId + ".");
+            return true;
+        }
+
+        private bool PutBackpackItemIntoSearchableContainer(Guid itemInstanceId, int x, int y, bool rotated)
+        {
+            if (_activeSearchableContainer == null || !IsBackpackAccessible() ||
+                !_searchableActors.TryGetValue(_activeSearchableContainer.ContainerId, out EconomicActorId actor) ||
+                !_inventory.TryGetItemInstance(itemInstanceId, out _))
+                return false;
+
+            AssetTransferResult result = _assetTransfers.TransferStackAt(_inventory,
                 _activeSearchableContainer.Inventory, itemInstanceId, x, y, rotated,
                 EconomicActorId.Player, actor, AssetTransferReason.Other,
                 _clock.Day, _clock.MinuteOfDay);
