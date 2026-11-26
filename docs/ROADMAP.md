@@ -129,3 +129,8 @@ The first Unity compile after the audit exposed two integration issues:
 - In several Changed-event tests, the lambda parameter was named `_`. In C#, that identifier shadowed the intended `out _` discard, causing the compiler to try passing the event's GridInventory argument as an out PlacedItem/EconomicActorId. Those event parameters now use a named identifier, restoring true discard semantics.
 
 This addresses the compiler diagnostics supplied by the user. A fresh Unity compile and test run is still required; no new test pass is claimed.
+
+
+## 2026-11-27 — P-03.7 Stack System & Inventory Interaction
+
+The inventory/grid audit is now user-verified complete (**531/531 EditMode tests and Play Mode acceptance passed**). The next active P-03 foundation task is stack interaction: quantity labels, split half/one, quick-transfer, partial transfers, compatible merges and persistent stack lineage. See `docs/tasks/PLAYER-P-03-7-STACK-SYSTEM.md` for the approved identity, ownership, input and acceptance contracts. Do not proceed to unrelated roadmap work until this phase is integrated and verified.
