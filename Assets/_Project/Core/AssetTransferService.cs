@@ -30,7 +30,7 @@ namespace Signal.Core
             EconomicActorId fromActor, EconomicActorId toActor, AssetTransferReason reason, int day, int minuteOfDay)
         {
             return TransferStackCore(source, destination, itemInstanceId, fromActor, toActor, reason, day, minuteOfDay,
-                () => InventoryTransfer.MoveStack(source, destination, itemInstanceId));
+                () => InventoryTransfer.MoveStackSilently(source, destination, itemInstanceId));
         }
 
         public AssetTransferResult TransferStackAt(GridInventory source, GridInventory destination, Guid itemInstanceId,
@@ -38,7 +38,7 @@ namespace Signal.Core
             AssetTransferReason reason, int day, int minuteOfDay)
         {
             return TransferStackCore(source, destination, itemInstanceId, fromActor, toActor, reason, day, minuteOfDay,
-                () => InventoryTransfer.MoveStackAt(source, destination, itemInstanceId, destinationX, destinationY, rotated));
+                () => InventoryTransfer.MoveStackAtSilently(source, destination, itemInstanceId, destinationX, destinationY, rotated));
         }
 
         private AssetTransferResult TransferStackCore(GridInventory source, GridInventory destination, Guid itemInstanceId,
@@ -74,17 +74,17 @@ namespace Signal.Core
             {
                 var stolenState = new ItemInstanceState(item.State.Quality, item.State.Condition,
                     item.State.Authenticity, ItemOwnershipStatus.Stolen);
-                if (!destination.TryUpdateItemState(itemInstanceId, stolenState))
+                if (!destination.TryUpdateItemStateSilently(itemInstanceId, stolenState))
                 {
-                    source.Restore(sourceBefore);
-                    destination.Restore(destinationBefore);
+                    source.RestoreSilently(sourceBefore);
+                    destination.RestoreSilently(destinationBefore);
                     return new AssetTransferResult(AssetTransferStatus.TransferFailed, null);
                 }
             }
 
             if (!_ownership.TryTransferOwnership(itemInstanceId, fromActor, toActor))
             {
-                source.Restore(sourceBefore); destination.Restore(destinationBefore);
+                source.RestoreSilently(sourceBefore); destination.RestoreSilently(destinationBefore);
                 return new AssetTransferResult(AssetTransferStatus.TransferFailed, null);
             }
             var transaction = new EconomicTransaction(Guid.NewGuid(), item.ItemInstanceId, item.Type.Id, item.Count,
@@ -92,9 +92,12 @@ namespace Signal.Core
             if (!_ledger.TryRecord(transaction))
             {
                 _ownership.TryTransferOwnership(itemInstanceId, toActor, fromActor);
-                source.Restore(sourceBefore); destination.Restore(destinationBefore);
+                source.RestoreSilently(sourceBefore); destination.RestoreSilently(destinationBefore);
                 return new AssetTransferResult(AssetTransferStatus.TransferFailed, null);
             }
+            // Publish only after physical location, item state, ownership and ledger agree.
+            source.NotifyChanged();
+            destination.NotifyChanged();
             return new AssetTransferResult(AssetTransferStatus.Completed, transaction);
         }
     }
