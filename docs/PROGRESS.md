@@ -353,3 +353,11 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 - Added `NpcSpriteSheetVisual` to slice the supplied 48×72, 6×12 sheets at runtime (32 PPU), animate Idle/Walk in four directions, and follow the existing NPC transform. It changes rendering only.
 - City bootstrap adds exactly three generic visual-test residents when all three imported sheets are present. Their appearance assignments are randomly shuffled each session; their movement/schedules use the existing generic NPC systems. No named cast, unique dialogue, social mechanics, player visuals or equipment behaviour was changed.
 - After pulling, run `Signal > Import NPC Rendering Test Sprites...` and select the supplied `signal_npc_sprites.zip`, then enter Play Mode. Verify three generic residents appear and walk around the city. Existing NPCs remain unchanged.
+
+
+## 2026-11-26 — NPC rendering-test walkers restricted to outdoors
+
+- User confirmed **503/503 EditMode tests passing**.
+- The three temporary sprite-sheet test residents now stay in the outdoor Street navigation region for all schedule activities; their work/rest/social/home destinations are all street positions and their navigation place is forced to `Street`.
+- They continue using existing generic NPC schedules/pathfinding. No interior visits and no changes to named residents or gameplay.
+- Commits: `6a12aca89c4127291128153f371918078e9a5180`, `c9fbfb9210f4b1b78aa9bacffe4ce311e547029d`. Unity compile/visual check pending.
