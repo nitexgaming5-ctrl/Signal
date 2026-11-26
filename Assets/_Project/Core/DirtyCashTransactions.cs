@@ -162,14 +162,14 @@ namespace Signal.Core
 
             InventorySnapshot playerBefore = playerInventory.CreateSnapshot();
             InventorySnapshot contactBefore = contactInventory.CreateSnapshot();
-            InventoryTransferResult moved = InventoryTransfer.MoveStack(playerInventory, contactInventory, itemInstanceId);
+            InventoryTransferResult moved = InventoryTransfer.MoveStackSilently(playerInventory, contactInventory, itemInstanceId);
             if (!moved.Success)
                 return new IllicitExchangeResult(IllicitExchangeStatus.TransferFailed, null);
             if (moved.Moved != acceptedQuantity)
                 return new IllicitExchangeResult(IllicitExchangeStatus.ContactStorageFull, null);
             if (!ownership.TryTransferOwnership(itemInstanceId, EconomicActorId.Player, contactActor))
             {
-                playerInventory.Restore(playerBefore); contactInventory.Restore(contactBefore);
+                playerInventory.RestoreSilently(playerBefore); contactInventory.RestoreSilently(contactBefore);
                 return new IllicitExchangeResult(IllicitExchangeStatus.OwnershipMismatch, null);
             }
 
@@ -177,12 +177,12 @@ namespace Signal.Core
             for (int y = 0; y < playerInventory.Height && !rewardLocalId.HasValue; y++)
                 for (int x = 0; x < playerInventory.Width && !rewardLocalId.HasValue; x++)
                     if (playerInventory.CanPlace(dirtyCash, x, y, false))
-                        rewardLocalId = playerInventory.Place(dirtyCash, x, y, false, dirtyCashUnits);
+                        rewardLocalId = playerInventory.PlaceSilently(dirtyCash, x, y, false, dirtyCashUnits);
             if (!rewardLocalId.HasValue ||
                 !playerInventory.TryGet(rewardLocalId.Value, out PlacedItem reward) ||
                 !ownership.TryRegister(reward.ItemInstanceId, EconomicActorId.Player))
             {
-                playerInventory.Restore(playerBefore); contactInventory.Restore(contactBefore);
+                playerInventory.RestoreSilently(playerBefore); contactInventory.RestoreSilently(contactBefore);
                 ownership.TryTransferOwnership(itemInstanceId, contactActor, EconomicActorId.Player);
                 return new IllicitExchangeResult(IllicitExchangeStatus.RewardInventoryFull, null);
             }
@@ -193,7 +193,7 @@ namespace Signal.Core
             {
                 ownership.TryRemove(reward.ItemInstanceId, EconomicActorId.Player);
                 ownership.TryTransferOwnership(itemInstanceId, contactActor, EconomicActorId.Player);
-                playerInventory.Restore(playerBefore); contactInventory.Restore(contactBefore);
+                playerInventory.RestoreSilently(playerBefore); contactInventory.RestoreSilently(contactBefore);
                 return new IllicitExchangeResult(IllicitExchangeStatus.TransferFailed, null);
             }
 
@@ -204,9 +204,11 @@ namespace Signal.Core
                 economicLedger.TryRemove(economicTransaction.TransactionId);
                 ownership.TryRemove(reward.ItemInstanceId, EconomicActorId.Player);
                 ownership.TryTransferOwnership(itemInstanceId, contactActor, EconomicActorId.Player);
-                playerInventory.Restore(playerBefore); contactInventory.Restore(contactBefore);
+                playerInventory.RestoreSilently(playerBefore); contactInventory.RestoreSilently(contactBefore);
                 return new IllicitExchangeResult(IllicitExchangeStatus.TransferFailed, null);
             }
+            playerInventory.NotifyChanged();
+            contactInventory.NotifyChanged();
             return new IllicitExchangeResult(IllicitExchangeStatus.Completed, transaction);
         }
     }
@@ -243,10 +245,10 @@ namespace Signal.Core
             InventorySnapshot before = inventory.CreateSnapshot();
             int balanceBefore = cleanAccount.Balance;
             int feeBalanceBefore = feeAccount.Balance;
-            if (!inventory.TryRemoveItemInstance(cashInstanceId, item.Count) ||
+            if (!inventory.TryRemoveItemInstanceSilently(cashInstanceId, item.Count) ||
                 !ownership.TryRemove(cashInstanceId, cleaner))
             {
-                inventory.Restore(before);
+                inventory.RestoreSilently(before);
                 return new DirtyCashCleaningResult(DirtyCashCleaningStatus.TransactionFailed, null);
             }
             if (!cleanAccount.TryCredit(payout) || (feeAmount > 0 && !feeAccount.TryCredit(feeAmount)))
@@ -268,6 +270,7 @@ namespace Signal.Core
                 ownership.TryRegister(cashInstanceId, cleaner);
                 return new DirtyCashCleaningResult(DirtyCashCleaningStatus.TransactionFailed, null);
             }
+            inventory.NotifyChanged();
             return new DirtyCashCleaningResult(DirtyCashCleaningStatus.Completed, transaction);
         }
     }
