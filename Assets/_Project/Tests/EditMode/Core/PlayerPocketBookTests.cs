@@ -53,6 +53,32 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void AutomaticPocketFallbackUsesFirstSuitableEmptyPocketInOrder()
+        {
+            var pockets = new PlayerPocketBook();
+            ItemType type = Item();
+
+            Assert.That(pockets.TryAdd(type, Guid.NewGuid(), 1, ItemInstanceState.Default, out int first), Is.True);
+            Assert.That(first, Is.EqualTo(0));
+            Assert.That(pockets.TryFindAvailablePocket(type, out int second, out GridInventory secondPocket), Is.True);
+            Assert.That(second, Is.EqualTo(1));
+            Assert.That(secondPocket, Is.SameAs(pockets.GetPocket(1)));
+
+            Assert.That(pockets.TryAdd(type, Guid.NewGuid(), 1, ItemInstanceState.Default, out int secondAdded), Is.True);
+            Assert.That(secondAdded, Is.EqualTo(1));
+            Assert.That(pockets.TryFindAvailablePocket(type, out int third, out GridInventory thirdPocket), Is.True);
+            Assert.That(third, Is.EqualTo(2));
+            Assert.That(thirdPocket, Is.SameAs(pockets.GetPocket(2)));
+
+            Assert.That(pockets.TryAdd(type, Guid.NewGuid(), 1, ItemInstanceState.Default, out int thirdAdded), Is.True);
+            Assert.That(thirdAdded, Is.EqualTo(2));
+            Assert.That(pockets.TryFindAvailablePocket(type, out _, out _), Is.False);
+            Assert.That(pockets.GetPocket(0).Items.Count, Is.EqualTo(1));
+            Assert.That(pockets.GetPocket(1).Items.Count, Is.EqualTo(1));
+            Assert.That(pockets.GetPocket(2).Items.Count, Is.EqualTo(1));
+        }
+
+        [Test]
         public void AddPreservesStableIdentityCountAndState()
         {
             var pockets = new PlayerPocketBook();
