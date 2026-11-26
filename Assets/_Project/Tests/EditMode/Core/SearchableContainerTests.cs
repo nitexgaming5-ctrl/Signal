@@ -321,5 +321,28 @@ namespace Signal.Core.Tests
             Assert.That(owner, Is.EqualTo(resident));
             Assert.That(ledger.Count, Is.EqualTo(1));
         }
+        [Test]
+        public void SaveMapperRejectsContainerItemIdentityAlreadyOwnedInAnotherInventory()
+        {
+            Guid typeId = Guid.NewGuid();
+            Guid itemId = Guid.NewGuid();
+            var type = new ItemType(typeId, 1, 1, 5);
+            var source = new SearchableContainer("saved-wardrobe-identity");
+            Assert.That(source.Inventory.Place(type, 0, 0, false, 1, itemId).HasValue, Is.True);
+            Assert.That(source.TryInitializeSearchOrder(new[] { itemId }), Is.True);
+            var data = new SaveData();
+            SearchableContainerSaveMapper.Capture(new[] { source }, data);
+
+            var ownership = new AssetOwnershipBook();
+            Assert.That(ownership.TryRegister(itemId, EconomicActorId.Player), Is.True);
+            var restored = new SearchableContainer("saved-wardrobe-identity");
+
+            int skipped = SearchableContainerSaveMapper.Apply(data, new[] { restored },
+                id => id == typeId ? type : (ItemType?)null, ownership);
+
+            Assert.That(skipped, Is.GreaterThanOrEqualTo(1));
+            Assert.That(restored.Inventory.TryGetItemInstance(itemId, out _), Is.False);
+        }
+
     }
 }
