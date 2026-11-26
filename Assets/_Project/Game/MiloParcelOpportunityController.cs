@@ -424,13 +424,17 @@ namespace Signal.Game
             for (int y = 0; y < _inventory.Height; y++)
                 for (int x = 0; x < _inventory.Width; x++)
                 {
-                    int? localId = _inventory.Place(_parcelType, x, y, false, 1,
+                    int? localId = _inventory.PlaceSilently(_parcelType, x, y, false, 1,
                         _state.ParcelInstanceId, parcelState);
                     if (!localId.HasValue) continue;
                     _parcelContainer = _inventory;
                     if (_state.TryAccept(_state.ParcelInstanceId, _clock.Day, _clock.MinuteOfDay))
-                    { RefreshWorldProps(); return true; }
-                    _inventory.Remove(localId.Value);
+                    {
+                        _inventory.NotifyChanged();
+                        RefreshWorldProps();
+                        return true;
+                    }
+                    _inventory.TryRemoveItemInstanceSilently(_state.ParcelInstanceId);
                     _parcelContainer = null;
                     return false;
                 }
