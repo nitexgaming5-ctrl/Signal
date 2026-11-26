@@ -122,3 +122,14 @@ W-01 is separate and inactive. Intended direction: seasonal temperature/weather,
 - Task card: docs/tasks/INVENTORY-GRID-AUDIT.md.
 - Phase 2 still open: audit save/load ordering, global stable-ID uniqueness, ownership/location reconciliation, equipped/dropped backpack restoration. Then audit UI drag math and remaining integration mutation call sites.
 - No Unity compile, EditMode run or Play Mode run has been performed by the assistant.
+
+
+### Inventory & Grid Audit — Phases 2–3 (2026-11-26)
+
+- Persistence audit found that identical stable item IDs could be restored into multiple independent inventories because each grid validated uniqueness only locally. SaveMapper now shares a single restored-ID set across player inventory, home storage, contact inventory and contract receiver. Malformed/empty IDs and cross-grid duplicates are skipped.
+- Asset ownership restore now ignores orphaned owner records for IDs with no restored physical item, while retaining fallback owner registration for valid restored items.
+- Equipment and dropped-backpack restore now reject IDs already present in the ownership book. Pocket restore already had this guard. SearchableContainerSaveMapper now receives the existing ownership book and rejects duplicates against previously restored locations and across searchable containers.
+- UI audit found InventoryPanel could still treat the hidden backpack grid as a drop target while the backpack was inaccessible. Accessibility now gates drop targeting, while cursor-local coordinates continue updating so pocket drag ghosts follow the cursor.
+- InventoryDragMath now rejects infinite/overflowed grid pixel dimensions and invalid rotation footprint dimensions.
+- Added 4 persistence/identity tests and 3 drag-math tests. Cumulative additions since the last explicit user-reported 506/506 baseline: 23 tests; expected current suite total **529**, pending Unity verification.
+- Phase 4 remains: sweep every remaining Core/Game inventory mutation and persistence route; then run Unity EditMode and Play Mode acceptance. No tests are claimed passed by the assistant.
