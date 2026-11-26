@@ -91,3 +91,15 @@ SearchableContainerPanel previously rendered pocket contents but only implemente
 User-confirmed suite baseline before these tests: **504/504**. Expected current total: **506**, not yet run in Unity. Source commits: 2224a3baffffb3f7dfdc5c0e7aa0dffba10fdbb3, f35ef49ce7dca66707ffc3ad243788fece0aa3c8, 9e4c20fe275562c3249ce8aef9551cc0b2653fe9, 46d34a89bcb1336f4c1a628f72b1e1dcd7bf551c, ae853be9e0d1ce8c83ec6c3446cb50937ac8ccb0, ee7850dab68dc0eb2ca06cd52e555690414db7e7.
 
 Next gate: run Unity tests and Play Mode acceptance in Rhea's wardrobe and a street searchable container. Test both transfer directions, exact pocket selection, occupied/oversized rejection, and repeat with backpack dropped; then recover and confirm original cargo remains intact.
+
+
+### Latest P-03 searchable-container interaction update (2026-11-26)
+
+User confirmed **506/506** on the previous revision. The shared searchable-container panel now supports:
+- Pocket→pocket moves and swaps while a container is open.
+- Repositioning already-discovered items within the same container grid.
+- Backpack→exact-container-cell placement, with ownership/custody handled by AssetTransferService.
+
+Three new EditMode regression tests bring the expected suite total to **509**; Unity verification is pending. Do not claim 509/509 until the user runs it. Commits: 6ad663c32d77de09527bb6ecd49740270ded1596, 924f7cbc8032266809420df8b361954fd7462d84, 05f03a9d88e580ffac5f5e5f106bea6efe60d173.
+
+Next: run EditMode (expected 509), then Play Mode test pocket moves/swaps, container reorganisation, backpack→container and pocket→container in both Rhea's wardrobe and a street container. Repeat with the backpack dropped and verify the dropped bag's contents remain isolated.
