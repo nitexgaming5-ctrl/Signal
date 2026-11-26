@@ -67,7 +67,7 @@ namespace Signal.Core
             InventorySnapshot inventoryBefore = inventory.CreateSnapshot();
             bool fullStack = order.Quantity == selected.Count;
 
-            if (!inventory.TryRemoveItemInstance(itemInstanceId, order.Quantity))
+            if (!inventory.TryRemoveItemInstanceSilently(itemInstanceId, order.Quantity))
                 return FulfilResult.NotEnoughStock;
 
             bool ownershipRemoved = false;
@@ -76,14 +76,14 @@ namespace Signal.Core
                 ownershipRemoved = ownership.TryRemove(itemInstanceId, seller);
                 if (!ownershipRemoved)
                 {
-                    inventory.Restore(inventoryBefore);
+                    inventory.RestoreSilently(inventoryBefore);
                     return FulfilResult.InvalidOrder;
                 }
             }
 
             if (!account.TryCredit(total))
             {
-                inventory.Restore(inventoryBefore);
+                inventory.RestoreSilently(inventoryBefore);
                 if (ownershipRemoved)
                     ownership.TryRegister(itemInstanceId, seller);
                 return FulfilResult.InvalidOrder;
@@ -94,13 +94,14 @@ namespace Signal.Core
                 selected.State, day, minuteOfDay);
             if (!ledger.TryRecord(transaction))
             {
-                inventory.Restore(inventoryBefore);
+                inventory.RestoreSilently(inventoryBefore);
                 account.Restore(balanceBefore);
                 if (ownershipRemoved)
                     ownership.TryRegister(itemInstanceId, seller);
                 return FulfilResult.InvalidOrder;
             }
 
+            inventory.NotifyChanged();
             return FulfilResult.Done;
         }
 
@@ -119,15 +120,16 @@ namespace Signal.Core
                 return FulfilResult.NotEnoughStock;
 
             InventorySnapshot before = inventory.CreateSnapshot();
-            if (!inventory.TryRemove(order.Item, order.Quantity))
+            if (!inventory.TryRemoveSilently(order.Item, order.Quantity))
                 return FulfilResult.NotEnoughStock;
 
             if (!stats.TryEarn((int)order.Total))
             {
-                inventory.Restore(before);
+                inventory.RestoreSilently(before);
                 return FulfilResult.InvalidOrder;
             }
 
+            inventory.NotifyChanged();
             return FulfilResult.Done;
         }
     }
