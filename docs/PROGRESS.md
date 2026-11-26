@@ -159,3 +159,13 @@ The first Unity compile after the audit exposed two integration issues:
 - In several Changed-event tests, the lambda parameter was named `_`. In C#, that identifier shadowed the intended `out _` discard, causing the compiler to try passing the event's GridInventory argument as an out PlacedItem/EconomicActorId. Those event parameters now use a named identifier, restoring true discard semantics.
 
 This addresses the compiler diagnostics supplied by the user. A fresh Unity compile and test run is still required; no new test pass is claimed.
+
+
+## 2026-11-27 — Inventory audit verified; P-03.7 Stack System started
+
+- User confirmed the full inventory/grid architecture audit: **531/531 EditMode tests passed** and Play Mode acceptance passed. This closes the audit's outstanding verification requirement; no Unity verification is claimed independently by the assistant.
+- User approved P-03.7 Stack System & Inventory Interaction, including LMB drag, Shift+LMB quick-transfer, RMB inspect, Shift+RMB split half, and Ctrl+RMB split one.
+- Existing foundations confirmed in source: `ItemType.MaxStack`, `GridInventory.Add` compatible-state stacking, immutable `ItemInstanceState`, snapshots and stable stack IDs. Missing foundations include explicit split/merge/quantity transfer operations, lineage records and player-facing quantity controls.
+- Created `docs/tasks/PLAYER-P-03-7-STACK-SYSTEM.md`. Implementation is sequenced as Core operations/lineage, ownership-aware transfers, UI controls, then universal service integration and acceptance.
+- Identity contract: whole move preserves ID; split keeps source ID and assigns a fresh ID to the new portion; merge keeps destination ID and retires the consumed source ID with persistent lineage. Merges require identical item type and complete instance state. Ownership-changing partial merges must be atomic and rejected if one-owner-per-stack cannot be preserved unambiguously.
+- Next: implement and test P-03.7a Core operations before wiring UI. Existing item stack-size asset values remain unchanged pending separate balance decisions.
