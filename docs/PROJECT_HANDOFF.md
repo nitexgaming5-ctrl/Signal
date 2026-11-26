@@ -164,3 +164,15 @@ This addresses the compiler diagnostics supplied by the user. A fresh Unity comp
 - Identity contract: full move preserves ID; split preserves source ID and creates a fresh ID for the split portion; merge preserves destination ID, retires emptied source ID and records persistent lineage. Merge compatibility requires same definition and exact `ItemInstanceState`.
 - Ownership is per stack ID. Never merge across actor ownership by simply discarding an ID; implement the whole ownership/lineage operation atomically or reject ambiguous cases.
 - Start with P-03.7a Core operations + regression tests, then P-03.7b ownership-aware transfer, P-03.7c UI and P-03.7d universal integrations. Do not change authored `maxStack` values or start wearable sprite work.
+
+
+## P-03.7a — Core stack operations implemented (Unity verification pending)
+
+- Added `StackOperations.CanMerge`, atomic exact-quantity `Split` and capacity-limited `Merge` in `Signal.Core`.
+- Split retains the original stable ID on the remainder and gives the new portion a fresh GUID; item state is copied exactly.
+- Merge retains the destination stable ID, reduces/removes the source stack, and records source→destination lineage in `StackLineageBook`. Duplicate operation IDs reject and roll back the physical mutation.
+- Merge compatibility requires the same ItemType and complete ItemInstanceState; MaxStack limits are enforced.
+- Added nine Core tests covering split, merge, state mismatch, partial capacity, quantity conservation, observer timing and duplicate operation protection.
+- These are physical Core primitives only. Ownership/economic transaction integration and persistence are deliberately not wired yet; Game/UI must not call them directly until P-03.7b supplies the ownership-aware orchestration.
+- Commits: `513de74e7b92cad36a0baa5d7cc0d7f2852cabd8`, `b2a47e4c2978f8018ff5ee181f37c2c87f6a8af6`, `afffd44646322173d217b086a3ce76e6a7343580`.
+- No Unity compile or test result is claimed. Next: review and harden P-03.7a, then integrate ownership and persistent lineage in P-03.7b before UI work.
