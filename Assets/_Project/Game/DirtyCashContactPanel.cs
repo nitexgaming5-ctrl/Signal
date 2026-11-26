@@ -123,7 +123,9 @@ namespace Signal.Game
             for (int i = 0; i < _pocketInventories.Count; i++)
                 _pocketInventories[i].Changed -= OnInventoryChanged;
 
-            _playerInventory = backpack;
+            // A dropped backpack is not a carried inventory. Do not keep its live grid reference
+            // inside this panel, even though rendering also checks _backpackAccessible.
+            _playerInventory = backpackAccessible ? backpack : new GridInventory(1, 1);
             _playerInventory.Changed += OnInventoryChanged;
             _pocketInventories.Clear();
             if (pockets != null)
