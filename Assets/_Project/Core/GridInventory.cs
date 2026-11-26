@@ -99,7 +99,8 @@ namespace Signal.Core
             return placed;
         }
 
-        internal int? PlaceSilently(ItemType type, int x, int y, bool rotated = false, int count = 1,
+        /// <summary>Places an item without publishing Changed. Call NotifyChanged after the enclosing transaction commits.</summary>
+        public int? PlaceSilently(ItemType type, int x, int y, bool rotated = false, int count = 1,
             Guid? itemInstanceId = null, ItemInstanceState? state = null)
         {
             if (!type.IsValid || count < 1 || count > type.MaxStack)
@@ -162,7 +163,8 @@ namespace Signal.Core
             return true;
         }
 
-        internal bool TryRemoveItemInstanceSilently(Guid itemInstanceId)
+        /// <summary>Removes an exact item identity without publishing Changed. Call NotifyChanged after commit.</summary>
+        public bool TryRemoveItemInstanceSilently(Guid itemInstanceId)
         {
             int index = _items.FindIndex(item => item.ItemInstanceId == itemInstanceId);
             if (index < 0)
@@ -396,7 +398,8 @@ namespace Signal.Core
             _nextInstanceId = snapshot.NextInstanceId;
         }
 
-        internal void NotifyChanged()
+        /// <summary>Publishes the Changed event after a caller-managed multi-step inventory transaction commits.</summary>
+        public void NotifyChanged()
         {
             Changed?.Invoke(this);
         }
@@ -477,7 +480,8 @@ namespace Signal.Core
             return leftover;
         }
 
-        internal int AddSilently(ItemType type, int count, ItemInstanceState state, out bool changed)
+        /// <summary>Adds stack quantities without publishing Changed. Call NotifyChanged after commit when changed is true.</summary>
+        public int AddSilently(ItemType type, int count, ItemInstanceState state, out bool changed)
         {
             changed = false;
             if (count < 1)
