@@ -342,6 +342,28 @@ namespace Signal.Game
                         !_dragRotated && _pocketInventories[targetPocket].CanPlaceTransferred(_draggedItem, 0, 0, false);
                 }
             }
+            else if (_dragFromPlayer)
+            {
+                // Preserve backpack rearrangement and allow explicit backpack → pocket moves.
+                if (inPlayer)
+                {
+                    targetGrid = _playerGrid;
+                    inTarget = true;
+                    targetX = playerX - _grabX;
+                    targetY = playerY - _grabY;
+                    canDrop = _playerInventory.CanMove(_draggedItem.InstanceId, targetX, targetY, _dragRotated);
+                }
+                else if (inPocket)
+                {
+                    targetPocket = pocketX;
+                    targetGrid = _pocketGrid;
+                    inTarget = true;
+                    targetX = pocketX;
+                    targetY = 0;
+                    canDrop = targetPocket >= 0 && targetPocket < _pocketInventories.Count &&
+                        !_dragRotated && _pocketInventories[targetPocket].CanPlaceTransferred(_draggedItem, 0, 0, false);
+                }
+            }
             else if (_dragFromPocket)
             {
                 // Personal pocket → searchable container (or backpack, if equipped).
@@ -381,6 +403,14 @@ namespace Signal.Game
                             _takeToPocket?.Invoke(itemId, targetPocket);
                         else
                             _takeAt?.Invoke(itemId, targetX, targetY, rotated);
+                    }
+                    else if (fromPlayer && targetGrid == _playerGrid)
+                    {
+                        _playerInventory.TryMove(localInstanceId, targetX, targetY, rotated);
+                    }
+                    else if (fromPlayer && targetPocket >= 0 && targetPocket < _pocketInventories.Count)
+                    {
+                        InventoryTransfer.MoveStack(_playerInventory, _pocketInventories[targetPocket], itemId);
                     }
                     else if (fromPocket && targetGrid == _containerGrid)
                     {
