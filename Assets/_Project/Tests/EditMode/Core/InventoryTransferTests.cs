@@ -89,26 +89,25 @@ namespace Signal.Core.Tests
         }
 
         [Test]
-        public void MoveAllRollsBackBothInventoriesIfSourceChangesDuringTransfer()
+        public void MoveAllNotifiesObserversOnlyAfterBothInventoriesCommit()
         {
             ItemType type = Item();
             var carried = new GridInventory();
             var storage = new GridInventory(2, 2);
             carried.Add(type, 2);
-            bool changed = false;
+            bool observerSawCommittedState = false;
             storage.Changed += _ =>
             {
-                if (changed) return;
-                changed = true;
-                carried.Clear();
+                observerSawCommittedState = carried.CountOf(type) == 0 && storage.CountOf(type) == 2;
             };
 
             InventoryTransferResult result = InventoryTransfer.MoveAll(carried, storage, type);
 
-            Assert.That(result.Success, Is.False);
-            Assert.That(result.Moved, Is.Zero);
-            Assert.That(carried.CountOf(type), Is.EqualTo(2));
-            Assert.That(storage.CountOf(type), Is.Zero);
+            Assert.That(result.Success, Is.True);
+            Assert.That(result.Moved, Is.EqualTo(2));
+            Assert.That(observerSawCommittedState, Is.True);
+            Assert.That(carried.CountOf(type), Is.Zero);
+            Assert.That(storage.CountOf(type), Is.EqualTo(2));
         }
 
         [Test]
@@ -160,28 +159,29 @@ namespace Signal.Core.Tests
         }
 
         [Test]
-        public void MoveStackRollsBackBothInventoriesIfSourceChangesDuringTransfer()
+        public void MoveStackNotifiesObserversOnlyAfterBothInventoriesCommit()
         {
             ItemType type = Item();
             var carried = new GridInventory();
             var storage = new GridInventory(2, 2);
             carried.Add(type, 2);
             Guid identity = carried.Items[0].ItemInstanceId;
-            bool changed = false;
+            bool observerSawCommittedState = false;
             storage.Changed += _ =>
             {
-                if (changed) return;
-                changed = true;
-                carried.Clear();
+                observerSawCommittedState = carried.Items.Count == 0 &&
+                    storage.TryGetItemInstance(identity, out PlacedItem transferred) &&
+                    transferred.Count == 2;
             };
 
             InventoryTransferResult result = InventoryTransfer.MoveStack(carried, storage, identity);
 
-            Assert.That(result.Success, Is.False);
-            Assert.That(result.Moved, Is.Zero);
-            Assert.That(carried.Items.Count, Is.EqualTo(1));
-            Assert.That(carried.Items[0].ItemInstanceId, Is.EqualTo(identity));
-            Assert.That(storage.Items, Is.Empty);
+            Assert.That(result.Success, Is.True);
+            Assert.That(result.Moved, Is.EqualTo(2));
+            Assert.That(observerSawCommittedState, Is.True);
+            Assert.That(carried.Items, Is.Empty);
+            Assert.That(storage.Items.Count, Is.EqualTo(1));
+            Assert.That(storage.Items[0].ItemInstanceId, Is.EqualTo(identity));
         }
 
         [Test]
