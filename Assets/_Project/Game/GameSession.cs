@@ -399,14 +399,14 @@ namespace Signal.Game
             // a Worn Work Jacket, one ready-to-use Basic Patch Kit, and one full
             // recipe's worth of materials to craft another kit.
             int added = 0;
-            var seededDefinitions = new HashSet<Guid>();
+            var seededDefinitions = new HashSet<ItemDefinition>();
             ItemInstanceState wornJacketState = new ItemInstanceState(ItemQuality.Standard,
                 ItemCondition.Worn, ItemAuthenticity.Genuine, ItemOwnershipStatus.Legitimate);
 
             if (TryAddDebugStartingItem(repairTargetItem, wornJacketState))
             {
                 added++;
-                if (repairTargetItem != null) seededDefinitions.Add(repairTargetItem.Id);
+                if (repairTargetItem != null) seededDefinitions.Add(repairTargetItem);
             }
             else
                 Debug.LogWarning("Debug starting loadout: the Work Jacket could not be seeded.", this);
@@ -425,7 +425,7 @@ namespace Signal.Game
                 if (TryAddDebugStartingItem(material))
                 {
                     added++;
-                    seededDefinitions.Add(material.Id);
+                    seededDefinitions.Add(material);
                 }
                 else
                     Debug.LogWarning("Debug starting loadout: could not seed " + material.DisplayName + ".", this);
@@ -434,7 +434,7 @@ namespace Signal.Game
             if (TryAddDebugStartingItem(basicPatchKitItem))
             {
                 added++;
-                if (basicPatchKitItem != null) seededDefinitions.Add(basicPatchKitItem.Id);
+                if (basicPatchKitItem != null) seededDefinitions.Add(basicPatchKitItem);
             }
             else
                 Debug.LogWarning("Debug starting loadout: the Basic Patch Kit could not be seeded.", this);
@@ -445,7 +445,7 @@ namespace Signal.Game
             var seenFootprints = new HashSet<string>(StringComparer.Ordinal);
             foreach (ItemDefinition definition in _allItemDefinitions)
             {
-                if (definition == null || definition.PortableBackpack || seededDefinitions.Contains(definition.Id))
+                if (definition == null || definition.PortableBackpack || seededDefinitions.Contains(definition))
                     continue;
 
                 ItemType type;
