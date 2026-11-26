@@ -42,7 +42,7 @@ Current implementation:
 - NPC conversations and customer-contract acceptance are available without a backpack. CustomerContractPanel can list and fulfil pocket-held goods. Physical item receipt routes to pockets for repair-order acceptance, shop purchase, searchable-container pickup and Milo's parcel.
 - When no backpack is accessible, Retail and Dirty Cash panels use an empty carry view rather than exposing the dropped backpack's cargo. Pocket-held items are not yet listed in Retail SELL or Dirty Cash selection.
 - Home-storage transfer and workbench/production still require an equipped backpack. Clothing sprite overlays and broader service-panel pocket support remain future P-03 work.
-- The user-confirmed EditMode suite is 500/500. Remaining P-03 work: finish the direct-grid assumption audit, wearable visuals, remove temporary debug starting-loadout seeding, and full Play Mode acceptance. Keep B-07 and W-01 as separate roadmap tracks.
+- The user-confirmed EditMode suite is 503/503. Remaining P-03 work: finish the direct-grid assumption audit, wearable visuals, remove temporary debug starting-loadout seeding, and full Play Mode acceptance. Keep B-07 and W-01 as separate roadmap tracks.
 
 
 ## Latest implementation — P-01/P-02 first slice (2026-11-25)
