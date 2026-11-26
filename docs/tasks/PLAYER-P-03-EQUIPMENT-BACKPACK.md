@@ -323,3 +323,10 @@ Recommended next implementation slice: **P-03.5 — pocket-aware service-panel i
 - The jacket instance is explicitly Worn, so a Basic Patch Kit can restore it to Good. The separate recipe materials let the player craft a replacement kit and test production without first shopping or scavenging.
 - Three additional distinct-footprint catalogue items are still added for general backpack placement/transfer testing. This remains temporary debug-only startup scaffolding; it is not permanent new-game starting inventory and must be removed during P-03 closeout.
 - Source change committed; Unity compilation, EditMode and Play Mode verification are pending.
+
+
+### Outdoor-only rendering test residents (2026-11-26)
+
+- The three temporary sprite-sheet walkers now use street positions for Work, Rest, Social and Home schedule destinations and a street-only navigation-place override. They cannot schedule routes into the CornerShop, Apartment or Hideout interiors.
+- Their generic schedules and pathfinding remain active. No named NPC or gameplay behaviour was changed.
+- User confirmed the existing suite at 503/503; this routing adjustment still requires Unity compile and Play Mode visual confirmation.
