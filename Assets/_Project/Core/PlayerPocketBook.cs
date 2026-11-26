@@ -45,6 +45,11 @@ namespace Signal.Core
             return true;
         }
 
+        /// <summary>
+        /// Finds the first empty pocket in stable P1-to-P3 order. Automatic item receipts use
+        /// this deterministic fallback only after the accessible backpack cannot accept the item.
+        /// Manual player transfers must continue to use the explicitly selected pocket index.
+        /// </summary>
         public bool TryFindAvailablePocket(ItemType type, out int index, out GridInventory pocket, bool rotated = false)
         {
             if (!rotated && type.Width == 1 && type.Height == 1)
@@ -58,6 +63,7 @@ namespace Signal.Core
             return false;
         }
 
+        /// <summary>Adds an item to the first suitable pocket in P1-to-P3 order.</summary>
         public bool TryAdd(ItemType type, Guid itemInstanceId, int count, ItemInstanceState state, out int pocketIndex)
         {
             pocketIndex = -1;
