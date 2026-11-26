@@ -244,19 +244,21 @@ namespace Signal.Core
 
             InventorySnapshot issuerBefore = issuerInventory.CreateSnapshot();
             InventorySnapshot playerBefore = playerInventory.CreateSnapshot();
-            InventoryTransferResult movement = InventoryTransfer.MoveStack(issuerInventory, playerInventory, item.ItemInstanceId);
+            InventoryTransferResult movement = InventoryTransfer.MoveStackSilently(issuerInventory, playerInventory, item.ItemInstanceId);
             if (!movement.Success || movement.Moved != 1)
             {
-                issuerInventory.Restore(issuerBefore);
-                playerInventory.Restore(playerBefore);
+                issuerInventory.RestoreSilently(issuerBefore);
+                playerInventory.RestoreSilently(playerBefore);
                 return Result(movement.Success ? CustomerRepairOrderStatus.InventoryFull : CustomerRepairOrderStatus.TransferFailed);
             }
             if (!orders.TryAccept(orderId, item.ItemInstanceId, day, minuteOfDay))
             {
-                issuerInventory.Restore(issuerBefore);
-                playerInventory.Restore(playerBefore);
+                issuerInventory.RestoreSilently(issuerBefore);
+                playerInventory.RestoreSilently(playerBefore);
                 return Result(CustomerRepairOrderStatus.OrderConflict);
             }
+            issuerInventory.NotifyChanged();
+            playerInventory.NotifyChanged();
             return new CustomerRepairOrderResult(CustomerRepairOrderStatus.Completed, null, item.ItemInstanceId);
         }
 
@@ -307,11 +309,11 @@ namespace Signal.Core
             int playerBalanceBefore = playerAccount.Balance;
             int issuerBalanceBefore = issuerAccount.Balance;
 
-            InventoryTransferResult movement = InventoryTransfer.MoveStack(playerInventory, issuerInventory, item.ItemInstanceId);
+            InventoryTransferResult movement = InventoryTransfer.MoveStackSilently(playerInventory, issuerInventory, item.ItemInstanceId);
             if (!movement.Success || movement.Moved != 1)
             {
-                playerInventory.Restore(playerBefore);
-                issuerInventory.Restore(issuerBefore);
+                playerInventory.RestoreSilently(playerBefore);
+                issuerInventory.RestoreSilently(issuerBefore);
                 return Result(movement.Success ? CustomerRepairOrderStatus.InventoryFull : CustomerRepairOrderStatus.TransferFailed);
             }
 
@@ -319,8 +321,8 @@ namespace Signal.Core
             {
                 issuerAccount.RestoreSilently(issuerBalanceBefore);
                 playerAccount.RestoreSilently(playerBalanceBefore);
-                playerInventory.Restore(playerBefore);
-                issuerInventory.Restore(issuerBefore);
+                playerInventory.RestoreSilently(playerBefore);
+                issuerInventory.RestoreSilently(issuerBefore);
                 return Result(CustomerRepairOrderStatus.TransactionConflict);
             }
 
@@ -333,11 +335,14 @@ namespace Signal.Core
                     transactions.TryRemove(transaction.TransactionId);
                 issuerAccount.RestoreSilently(issuerBalanceBefore);
                 playerAccount.RestoreSilently(playerBalanceBefore);
-                playerInventory.Restore(playerBefore);
-                issuerInventory.Restore(issuerBefore);
+                playerInventory.RestoreSilently(playerBefore);
+                issuerInventory.RestoreSilently(issuerBefore);
                 return Result(CustomerRepairOrderStatus.TransactionConflict);
             }
 
+            // Publish after item return, account balances, payment history and order state commit.
+            playerInventory.NotifyChanged();
+            issuerInventory.NotifyChanged();
             return new CustomerRepairOrderResult(CustomerRepairOrderStatus.Completed,
                 transaction, item.ItemInstanceId);
         }
