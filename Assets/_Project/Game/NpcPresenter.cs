@@ -130,11 +130,19 @@ namespace Signal.Game
 
             _debugStreetOnly = true;
             _currentPlace = "Street";
-            _destination = transform.position;
             _travelRoute.Clear();
             _nextTravelWaypoint = 0;
             NavigationFailed = false;
             _debugRoamPauseRemaining = 0f;
+
+            // A scheduled social/rest position may overlap a bench or another obstacle.
+            // Relocate the visual-test walker onto known-clear street ground before its
+            // first path request; otherwise pathfinding can fail repeatedly from that spot.
+            if (_city != null && _city.TryGetRandomStreetRoamPoint(
+                NpcId, transform.position, false, out Vector2 startingPoint))
+                transform.position = new Vector3(startingPoint.x, startingPoint.y, transform.position.z);
+
+            _destination = transform.position;
             SyncSocialPosition();
             UpdateLocationVisibility();
             TryPlanNextDebugRoamTarget();
@@ -389,31 +397,28 @@ namespace Signal.Game
                 _currentPlace != "Street" || _travelRoute.Count > 0)
                 return;
 
-            // Sample broadly across the outdoor street. The city pathfinder rejects
-            // candidates blocked by buildings, trees, benches and other navigation obstacles.
-            for (int attempt = 0; attempt < 18; attempt++)
+            // Ask the city for a point that is already clearance-safe and separated
+            // from other residents. This avoids repeatedly selecting blocked bench,
+            // building or furniture cells and prevents the three walkers clustering.
+            if (!_city.TryGetRandomStreetRoamPoint(
+                NpcId, transform.position, true, out Vector2 candidate))
             {
-                Vector2 candidate = new Vector2(
-                    Random.Range(-6.0f, 25.5f),
-                    Random.Range(-24.0f, -1.5f));
-                if (Vector2.Distance(candidate, transform.position) < 3.5f)
-                    continue;
-
-                List<NpcTravelWaypoint> route = _city.BuildNpcTravelRoute(
-                    "Street", transform.position, "Street", candidate);
-                if (route == null || route.Count == 0)
-                    continue;
-
-                _destination = candidate;
-                _travelRoute.AddRange(route);
-                _nextTravelWaypoint = 0;
-                NavigationFailed = false;
+                _debugRoamPauseRemaining = 0.35f;
                 return;
             }
 
-            // Retry shortly rather than parking permanently if all sampled points
-            // happen to fall on blocked cells.
-            _debugRoamPauseRemaining = 0.35f;
+            List<NpcTravelWaypoint> route = _city.BuildNpcTravelRoute(
+                "Street", transform.position, "Street", candidate);
+            if (route == null || route.Count == 0)
+            {
+                _debugRoamPauseRemaining = 0.35f;
+                return;
+            }
+
+            _destination = candidate;
+            _travelRoute.AddRange(route);
+            _nextTravelWaypoint = 0;
+            NavigationFailed = false;
         }
 
         private bool TryPlanRouteToDestination()
