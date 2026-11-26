@@ -133,3 +133,12 @@ W-01 is separate and inactive. Intended direction: seasonal temperature/weather,
 - InventoryDragMath now rejects infinite/overflowed grid pixel dimensions and invalid rotation footprint dimensions.
 - Added 4 persistence/identity tests and 3 drag-math tests. Cumulative additions since the last explicit user-reported 506/506 baseline: 23 tests; expected current suite total **529**, pending Unity verification.
 - Phase 4 remains: sweep every remaining Core/Game inventory mutation and persistence route; then run Unity EditMode and Play Mode acceptance. No tests are claimed passed by the assistant.
+
+
+### Inventory & Grid Audit — additional restore guards and source sweep (2026-11-26)
+
+- SaveMapper now rejects aliased inventory-role arguments before clearing any grid. SearchableContainerSaveMapper skips duplicate destination container IDs/references so one runtime container cannot be restored twice in one pass.
+- Added two regression tests for these guards.
+- Source-level Game-layer sweep classified remaining direct inventory mutations as controlled creation/bootstrap/debug flows: container loot generation, authored resident-property stock, Milo parcel creation/restoration, debug item spawning and legacy inventory demo bootstrap. Interactive UI paths use central transfer services for cross-grid movement; single-grid rearrangement uses GridInventory.
+- Expected current EditMode total is now **531**: 25 tests beyond the last explicit user-reported 506/506 baseline. Pending Unity verification; no pass claimed.
+- Remaining acceptance: run 531 EditMode tests, then Play Mode save/load with duplicate/malformed test saves where feasible, equipped/dropped backpack, pockets and searchable containers. Verify repair, production, retail, shop sale and customer contract flows after transaction notification changes.
