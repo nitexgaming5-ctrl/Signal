@@ -116,3 +116,14 @@ Thirteen Phase 1 tests were added, plus three searchable-container tests from th
 Task card: docs/tasks/INVENTORY-GRID-AUDIT.md.
 
 Next: Phase 2 persistence and identity reconciliation (save/load ordering, duplicate stable IDs across inventories/equipment, ownership vs physical location, equipped/dropped backpack recovery); then Phase 3 UI drag/drop math and Phase 4 remaining integration mutation sweep. No Unity compile/test or Play Mode run was performed by the assistant.
+
+
+### Inventory & Grid Audit update — Phases 2–3
+
+Persistence hardening now rejects duplicate stable item IDs across player inventory, home storage, contact inventory and contract receiver during SaveMapper restore. Orphaned ownership records are skipped. Equipment/dropped backpack restore checks the already-restored ownership book; pocket restore already did so; searchable-container restore now checks existing ownership and uses a shared seen-ID set across all saved containers.
+
+UI/drag-math hardening: InventoryPanel no longer considers an inaccessible backpack grid a valid drag destination, while the drag ghost still tracks the pointer when the grid is hidden. InventoryDragMath rejects infinite/overflowed cell geometry and invalid rotation footprints.
+
+Added four persistence tests and three drag-math tests. Together with the prior P-03 and Phase 1 tests, there are 23 tests beyond the last explicit user-reported 506/506 baseline. Expected current total **529**, pending Unity verification. No 529 pass is claimed.
+
+Task card: docs/tasks/INVENTORY-GRID-AUDIT.md. Phase 4 remains: sweep remaining Core/Game mutation call sites and save/load paths, then full Unity EditMode and Play Mode verification.
