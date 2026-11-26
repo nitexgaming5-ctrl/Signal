@@ -103,3 +103,16 @@ User confirmed **506/506** on the previous revision. The shared searchable-conta
 Three new EditMode regression tests bring the expected suite total to **509**; Unity verification is pending. Do not claim 509/509 until the user runs it. Commits: 6ad663c32d77de09527bb6ecd49740270ded1596, 924f7cbc8032266809420df8b361954fd7462d84, 05f03a9d88e580ffac5f5e5f106bea6efe60d173.
 
 Next: run EditMode (expected 509), then Play Mode test pocket moves/swaps, container reorganisation, backpack→container and pocket→container in both Rhea's wardrobe and a street container. Repeat with the backpack dropped and verify the dropped bag's contents remain isolated.
+
+
+## Current checkpoint — Inventory & Grid Architecture Audit (2026-11-26)
+
+User approved a stability audit before further major development. The audit is deliberately conservative: preserve gameplay behaviour and fix only concrete defects or missing regression coverage.
+
+Phase 1 code hardening is implemented. Cross-inventory transfers and compound inventory operations now publish Changed events only after the complete operation has committed. Silent mutation/restore primitives are used by ordinary transfers, ownership transfers, production, repair, crafting, customer contracts, repair orders, Dirty Cash, retail purchases, shop sales and equipment equip/unequip. Rollbacks no longer announce transient failed state. ItemType validity is enforced at grid boundaries, and inventory snapshots reject restoration into grids with mismatched dimensions.
+
+Thirteen Phase 1 tests were added, plus three searchable-container tests from the immediately preceding follow-up. Last explicit numeric user-reported baseline: **506/506**. Expected current total: **522**, pending Unity verification. Do not claim 522 passed until the user runs it.
+
+Task card: docs/tasks/INVENTORY-GRID-AUDIT.md.
+
+Next: Phase 2 persistence and identity reconciliation (save/load ordering, duplicate stable IDs across inventories/equipment, ownership vs physical location, equipped/dropped backpack recovery); then Phase 3 UI drag/drop math and Phase 4 remaining integration mutation sweep. No Unity compile/test or Play Mode run was performed by the assistant.
