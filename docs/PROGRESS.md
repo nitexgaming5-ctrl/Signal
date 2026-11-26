@@ -377,3 +377,11 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 
 
 - P-03 automatic receipt rule confirmed: incoming physical items continue to use the first suitable available space, backpack first, then P1 → P2 → P3. No destination prompt. Manual moves remain exact-pocket/player-directed; dropped backpack cargo remains inaccessible. Added Core contract comments and a regression test for deterministic first-empty-pocket fallback. Previous user-confirmed suite: 503/503; expected 504 after this addition, pending Unity run.
+
+
+## 2026-11-26 — EditMode regression: visual-test residents
+
+- Reviewed the uploaded Unity Test Runner XML: **500/504 passed; 4 failed**, all in CityBlockBootstrapTests. The Core test assembly passed **424/424**.
+- Root cause: the three temporary sprite-sheet residents were being spawned during EditMode bootstrap tests whenever the imported sprite assets were present. This inflated resident counts, affected prompt selection, and introduced extra social encounters.
+- Fixed SpawnVisualTestResidents() to spawn only when Application.isPlaying and the sprite assets are available. The three visual walkers remain enabled for actual Play Mode rendering tests; EditMode tests now see only authored/fallback gameplay residents.
+- Source commit: 75d43bb4e140fa406ac631cd9f25ffacfef6848c. Unity re-run pending; do not yet mark the suite green.
