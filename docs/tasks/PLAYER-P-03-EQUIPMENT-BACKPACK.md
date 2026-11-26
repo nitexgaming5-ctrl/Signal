@@ -315,3 +315,11 @@ Recommended next implementation slice: **P-03.5 — pocket-aware service-panel i
 - Added three targeted EditMode cases: repair with target and kit in separate grids; production consuming ingredients across backpack/pocket grids with output routed to a pocket; and multi-grid output failure restoring every ingredient grid and ownership record.
 - All of the above is source-level work only. The user must run Unity compilation and the full EditMode suite before any verification claim; Play Mode acceptance remains outstanding.
 - Next: finish the remaining direct-grid audit in customer/service panels and any other item consumers, then move to wearable presentation, temporary debug-loadout cleanup and end-to-end P-03 acceptance.
+
+
+### Temporary repair-debug starting loadout (2026-11-26)
+
+- Fresh Play Mode sessions now seed the equipped Canvas Backpack with a Worn Work Jacket, one ready-to-use Basic Patch Kit, and one full Basic Patch Kit recipe set: Fabric Roll, Thread Spool and Adhesive Tube.
+- The jacket instance is explicitly Worn, so a Basic Patch Kit can restore it to Good. The separate recipe materials let the player craft a replacement kit and test production without first shopping or scavenging.
+- Three additional distinct-footprint catalogue items are still added for general backpack placement/transfer testing. This remains temporary debug-only startup scaffolding; it is not permanent new-game starting inventory and must be removed during P-03 closeout.
+- Source change committed; Unity compilation, EditMode and Play Mode verification are pending.
