@@ -122,6 +122,14 @@ namespace Signal.Core
         /// <summary>Removes quantity from one exact stable stack identity without merging or consuming other stacks.</summary>
         public bool TryRemoveItemInstance(Guid itemInstanceId, int quantity)
         {
+            if (!TryRemoveItemInstanceSilently(itemInstanceId, quantity))
+                return false;
+            NotifyChanged();
+            return true;
+        }
+
+        internal bool TryRemoveItemInstanceSilently(Guid itemInstanceId, int quantity)
+        {
             if (itemInstanceId == Guid.Empty || quantity < 1)
                 return false;
 
@@ -135,8 +143,6 @@ namespace Signal.Core
             else
                 _items[index] = new PlacedItem(current.InstanceId, current.ItemInstanceId, current.Type,
                     current.X, current.Y, current.Rotated, current.Count - quantity, current.State);
-
-            Changed?.Invoke(this);
             return true;
         }
 
@@ -451,14 +457,21 @@ namespace Signal.Core
 
         public int Add(ItemType type, int count, ItemInstanceState state)
         {
+            int leftover = AddSilently(type, count, state, out bool changed);
+            if (changed)
+                NotifyChanged();
+            return leftover;
+        }
+
+        internal int AddSilently(ItemType type, int count, ItemInstanceState state, out bool changed)
+        {
+            changed = false;
             if (count < 1)
                 return 0;
-            if (type.MaxStack < 1)
-                return count; // an uninitialised ItemType can never be stored
+            if (!type.IsValid)
+                return count;
 
             int remaining = count;
-            bool changed = false;
-
             for (int i = 0; i < _items.Count && remaining > 0; i++)
             {
                 PlacedItem existing = _items[i];
@@ -486,9 +499,6 @@ namespace Signal.Core
                 remaining -= stack;
                 changed = true;
             }
-
-            if (changed)
-                Changed?.Invoke(this);
 
             return remaining;
         }
