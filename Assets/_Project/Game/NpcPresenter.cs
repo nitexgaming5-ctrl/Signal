@@ -42,6 +42,7 @@ namespace Signal.Game
         private readonly List<NpcTravelWaypoint> _travelRoute = new List<NpcTravelWaypoint>();
         private int _nextTravelWaypoint;
         private SpriteRenderer[] _visualRenderers = new SpriteRenderer[0];
+        private NpcSpriteSheetVisual _testSpriteVisual;
 
         public NpcCharacterDefinition Definition => _definition;
         public string NpcId => _definition != null ? _definition.NpcId : string.Empty;
@@ -87,6 +88,33 @@ namespace Signal.Game
 
             RefreshFromClock(true);
             _initialized = true;
+        }
+
+        /// <summary>
+        /// Applies one temporary rendering-test sprite sheet without changing this NPC's
+        /// identity, schedule, social state, dialogue or movement behaviour.
+        /// </summary>
+        public bool SetDebugSpriteSheet(int appearanceIndex)
+        {
+            if (!_initialized && _definition == null)
+                return false;
+
+            if (_testSpriteVisual == null)
+                _testSpriteVisual = gameObject.AddComponent<NpcSpriteSheetVisual>();
+            if (!_testSpriteVisual.Initialize(appearanceIndex))
+            {
+                Destroy(_testSpriteVisual);
+                _testSpriteVisual = null;
+                return false;
+            }
+
+            for (int i = 0; i < _visualRenderers.Length; i++)
+                if (_visualRenderers[i] != null)
+                    _visualRenderers[i].enabled = false;
+
+            _visualRenderers = new[] { _testSpriteVisual.Renderer };
+            UpdateLocationVisibility();
+            return true;
         }
 
         public void SetActivePlace(string place)
