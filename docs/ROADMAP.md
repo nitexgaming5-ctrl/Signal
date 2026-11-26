@@ -70,3 +70,11 @@ Crime consequences, police response, additional lawful/illicit activities, inves
 - **Source fix committed; verification pending.** SearchableContainerPanel no longer retains or hit-tests the live backpack inventory while the bag is dropped. GameSession and DirtyCashContactPanel now receive/use only accessible backpack references or an isolated empty grid. Personal pockets and automatic loot routing remain available.
 - Preserve the dropped bag's stable identity and exact contents; the fix does not mutate its storage.
 - Required next gate before P-03 closeout: Unity EditMode run, then Play Mode acceptance using B to drop the bag, opening Rhea's wardrobe and a street bin/searchable container, and recovering the same bag with its cargo intact.
+
+
+## P-03 — searchable-container pocket interaction (2026-11-26)
+
+- Implemented drag/drop from discovered searchable-container items into an exact personal pocket, and from a pocket into an exact searchable-container cell. Backpack↔pocket interaction and backpack rearrangement are preserved while the backpack is accessible.
+- Ownership, custody and transaction history flow through AssetTransferService; resident-property theft outcomes remain intact.
+- Two regression tests added. User-confirmed baseline was 504/504 before those additions; current expected suite total is 506, pending Unity verification.
+- Required acceptance: Rhea wardrobe and street container, both directions, exact pocket targeting, rejection of occupied/oversized drops, and repeat with backpack dropped before recovery.
