@@ -37,6 +37,7 @@ namespace Signal.Game
         private bool _interactionPaused;
         private float _dialoguePauseUntil;
         private bool _debugActivityOverride;
+        private bool _debugStreetOnly;
         private CityBlockBootstrap _city;
         private string _currentPlace = "Apartment";
         private readonly List<NpcTravelWaypoint> _travelRoute = new List<NpcTravelWaypoint>();
@@ -115,6 +116,26 @@ namespace Signal.Game
             _visualRenderers = new[] { _testSpriteVisual.Renderer };
             UpdateLocationVisibility();
             return true;
+        }
+
+        /// <summary>
+        /// Keeps a temporary rendering-test resident in the outdoor Street navigation region
+        /// for every schedule activity. This changes only that test resident's location routing.
+        /// </summary>
+        public void SetDebugStreetOnly()
+        {
+            if (_definition == null)
+                return;
+
+            _debugStreetOnly = true;
+            _currentPlace = "Street";
+            _destination = _definition.PositionFor(_activity);
+            _travelRoute.Clear();
+            _nextTravelWaypoint = 0;
+            NavigationFailed = false;
+            transform.position = new Vector3(_destination.x, _destination.y, 0f);
+            SyncSocialPosition();
+            UpdateLocationVisibility();
         }
 
         public void SetActivePlace(string place)
@@ -387,8 +408,11 @@ namespace Signal.Game
             _socialWorld.MoveNpc(NpcId, _currentPlace, transform.position.x, transform.position.y);
         }
 
-        private static string ActivityPlace(NpcActivity activity)
+        private string ActivityPlace(NpcActivity activity)
         {
+            if (_debugStreetOnly)
+                return "Street";
+
             switch (activity)
             {
                 case NpcActivity.Work: return "CornerShop";
