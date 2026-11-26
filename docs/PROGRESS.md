@@ -181,3 +181,6 @@ This addresses the compiler diagnostics supplied by the user. A fresh Unity comp
 - These are physical Core primitives only. Ownership/economic transaction integration and persistence are deliberately not wired yet; Game/UI must not call them directly until P-03.7b supplies the ownership-aware orchestration.
 - Commits: `513de74e7b92cad36a0baa5d7cc0d7f2852cabd8`, `b2a47e4c2978f8018ff5ee181f37c2c87f6a8af6`, `afffd44646322173d217b086a3ce76e6a7343580`.
 - No Unity compile or test result is claimed. Next: review and harden P-03.7a, then integrate ownership and persistent lineage in P-03.7b before UI work.
+
+
+- Compile fix after the first Unity pass: `StackMergeRecord`'s constructor was `internal`, but the EditMode test assembly constructs a record to verify duplicate-operation rejection. Made the constructor public; `StackLineageBook.TryRecordMerge` remains the validation boundary and rejects empty IDs, self-merges, invalid quantities and duplicate operation IDs. Commit: `fcb70dc75c5bc7f77be1c8fd0d3fb0943314463f`. Unity compilation/tests need to be rerun; no pass is claimed.
