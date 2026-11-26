@@ -184,3 +184,6 @@ Committed but not yet Unity-verified:
 - To test the supplied sprites, pull the latest branch and run Unity menu `Signal > Import NPC Rendering Test Sprites...`, selecting `signal_npc_sprites.zip`. This imports the three full sheets locally under `Assets/_Project/Resources/NpcSprites`; the binary art is intentionally not committed.
 - Once imported, CityBlockBootstrap adds exactly three generic city residents and randomly permutes the three appearances each session. They use existing generic schedules/movement and have no bespoke gameplay content. Other NPCs and the modular player renderer are untouched.
 - Runtime reads the 48×72 cells at 32 PPU, with Idle/Walk animation and four directions. Unity compile/Play Mode verification of this new source is pending.
+
+
+- NPC rendering-test clarification: the three sprite-sheet residents are strictly temporary visual tests and now remain outdoors in the Street region across all schedule activities. Their movement remains driven by the existing generic NPC schedule/pathfinding. No changes to Milo, Rhea, money cleaner, player visuals or gameplay. User confirmed 503/503 EditMode tests; Unity compile/visual check for this small routing adjustment is pending.
