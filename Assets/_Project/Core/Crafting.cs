@@ -79,15 +79,16 @@ namespace Signal.Core
             InventorySnapshot before = inventory.CreateSnapshot();
 
             foreach (var input in recipe.Inputs)
-                inventory.TryRemove(input.Type, input.Count);
+                inventory.TryRemoveSilently(input.Type, input.Count);
 
-            int leftover = inventory.Add(recipe.Output.Type, recipe.Output.Count);
+            int leftover = inventory.AddSilently(recipe.Output.Type, recipe.Output.Count, ItemInstanceState.Default, out bool outputChanged);
             if (leftover > 0)
             {
-                inventory.Restore(before);
+                inventory.RestoreSilently(before);
                 return CraftResult.NoSpaceForOutput;
             }
 
+            inventory.NotifyChanged();
             return CraftResult.Done;
         }
 
