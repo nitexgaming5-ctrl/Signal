@@ -110,3 +110,15 @@ W-01 is separate and inactive. Intended direction: seasonal temperature/weather,
 - Three EditMode regression tests added. Expected suite total: **509**, pending Unity verification; do not treat this as a confirmed pass yet.
 - Commits: 6ad663c32d77de09527bb6ecd49740270ded1596, 924f7cbc8032266809420df8b361954fd7462d84, 05f03a9d88e580ffac5f5e5f106bea6efe60d173.
 - Next: verify 509/509 and Play Mode across wardrobe + street container, including pocket↔pocket, in-container rearrangement, backpack→container, pocket→container, and dropped-backpack isolation.
+
+
+## Inventory & Grid Architecture Audit — 2026-11-26
+
+- User approved a dedicated stability audit of the original grid/inventory foundation and its integrations. This is a hardening pass, not a rewrite.
+- Phase 1 implemented: transfer and compound-operation inventory events are now published only after physical contents, ownership, account/payment state and transaction history have committed. Failed operations restore silently.
+- Covered: InventoryTransfer, AssetTransferService, ProductionService, RepairService, Crafting, CustomerContractService, CustomerRepairOrderService, IllicitExchangeService, DirtyCashCleaningService, RetailService, Shop and PlayerEquipmentLoadout.
+- Added ItemType validity checks at grid boundaries; default/uninitialised ItemType no longer passes CanPlace. InventorySnapshot now records grid dimensions and cannot be restored into a differently sized grid.
+- Added 13 Phase 1 regression tests. Together with the three searchable-container tests added immediately before this audit, there are 16 tests beyond the last explicit user-reported 506/506 baseline. Expected current total: **522**, pending Unity verification. No new pass is claimed.
+- Task card: docs/tasks/INVENTORY-GRID-AUDIT.md.
+- Phase 2 still open: audit save/load ordering, global stable-ID uniqueness, ownership/location reconciliation, equipped/dropped backpack restoration. Then audit UI drag math and remaining integration mutation call sites.
+- No Unity compile, EditMode run or Play Mode run has been performed by the assistant.
