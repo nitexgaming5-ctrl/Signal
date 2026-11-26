@@ -288,12 +288,12 @@ Implement three actual 1×1 personal pocket slots, separate from the backpack's 
 
 ## Remaining P-03 delivery sequence
 
-1. **Pocket-aware service integration:** complete an inventory-access audit and remove assumptions that the 8×6 backpack grid is the only player-carried container. First cover Retail SELL and Dirty Cash item selection; then home storage, workbench/production inputs and outputs, and any other item-consuming/producing panels. Transfers and transactions must remain atomic across the actual source/destination pocket or backpack grid. Never expose cargo inside a dropped backpack.
-2. **Wearable presentation:** add actual equipped-item visuals for Head, Torso, Legs and Feet where the supplied Body_A pack and authored item sprites support them. Do not fabricate unavailable art; document unsupported slots/variants and keep equipment state authoritative even when no overlay exists. Accessories and backpack visuals should remain distinct layers.
-3. **Remove temporary debug bootstrap:** remove the fresh-session debug backpack/cargo seeding once it is no longer needed for acceptance testing. Keep debug item spawning available as a deliberate test tool; do not turn the debug loadout into permanent starting gear.
-4. **End-to-end Play Mode acceptance:** run the complete backpack lifecycle, pockets, save/load, customer/retail/Dirty Cash/workbench/storage interactions, and wearable equip/unequip scenarios in the active HideoutSlice scene. Record only user-reported Unity results.
+1. **Verification gate:** rerun the complete 504-test EditMode suite after the Play Mode-only NPC visual-test spawn fix (commit `75d43bb4e140fa406ac631cd9f25ffacfef6848c`). The previous XML was 500/504; do not assume success.
+2. **P-03.6 — Wearable Presentation:** prepared in [the dedicated task card](PLAYER-P-03-6-WEARABLE-PRESENTATION.md). Inspect the actual user-imported wearable sprite/resource paths, dimensions, frame layouts, directions, pivots and compatibility before implementation. The Body_A base pack is not a complete wardrobe; do not invent assets or use item icons as overlays.
+3. **P-03.7 — Final cleanup and acceptance:** after the user finishes repair/production acceptance, remove the temporary fresh-session backpack/cargo debug seeding while retaining the deliberate F1 debug item spawner. Run the full backpack/pocket lifecycle, save/load, service-panel and wearable Play Mode acceptance in HideoutSlice.
+4. **Close P-03 only after** the latest full EditMode suite and all relevant Play Mode scenarios are reported passing by the user.
 
-Recommended next implementation slice: **P-03.5 — pocket-aware service-panel integration**, beginning with a focused audit of Retail SELL and Dirty Cash selection. This is the next dependency before visual polish because items must be usable consistently regardless of which carried container holds them.
+P-03.5 pocket-aware service integration and its direct-grid source audit are complete. Automatic receipts use accessible backpack capacity first, then the first suitable empty pocket P1 → P2 → P3; manual moves remain exact-target. Dropped-backpack cargo remains inaccessible.
 
 
 ### P-03.5 implementation checkpoint — service panels and hideout storage (2026-11-26)
