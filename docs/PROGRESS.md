@@ -361,3 +361,11 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 - The three temporary sprite-sheet test residents now stay in the outdoor Street navigation region for all schedule activities; their work/rest/social/home destinations are all street positions and their navigation place is forced to `Street`.
 - They continue using existing generic NPC schedules/pathfinding. No interior visits and no changes to named residents or gameplay.
 - Commits: `6a12aca89c4127291128153f371918078e9a5180`, `c9fbfb9210f4b1b78aa9bacffe4ce311e547029d`. Unity compile/visual check pending.
+
+
+## 2026-11-26 — P-03.5 audit and continuous NPC visual-test roaming
+
+- Three temporary sprite-test residents now roam indefinitely across the outdoor Street region using random destinations and the existing obstacle-aware pathfinder. They no longer wait at fixed schedule positions or enter buildings; schedule changes do not interrupt their roam loop.
+- Completed a source-level P-03.5 audit across Retail, Dirty Cash, Home Storage, Workbench repair/production, customer contracts/repair orders, searchable containers, and GameSession transfer/pickup flows. Accessible backpack + pockets are passed to the panels/services; dropped backpack cargo is excluded. No remaining direct-grid-only blocker was found in the reviewed paths.
+- Next: P-03.6 wearable presentation, pending actual imported player sprite/resource paths. Keep temporary repair-debug starting loadout until final P-03 cleanup. Do not guess local Resources asset names.
+- Commit: `bfcaecf0a98daabd17bf58abbeb14538959a38b9`. User's latest confirmed EditMode result remains 503/503; this roaming adjustment and remaining Play Mode acceptance need Unity verification.
