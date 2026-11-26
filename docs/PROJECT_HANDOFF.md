@@ -73,3 +73,12 @@ P-03.6 Wearable Presentation is parked as historical preparation, not an active 
 - Avoid case-collision paths `Content/Items/` and `Content/items/`; use a distinct folder until safely reconciled in Unity.
 - Build 0.01 saves are unversioned; incompatible experimental saves may be discarded/recreated.
 - Unity Editor is the authority for compile/tests/Play Mode.
+
+
+## Latest P-03 regression fix — dropped backpack isolation (2026-11-26)
+
+A user-reproduced glitch occurred after pressing B to drop the backpack and opening a resident wardrobe or street searchable container. Root cause was a UI reference leak: SearchableContainerPanel hid the backpack grid but retained and queried the real _inventory grid. The panel now substitutes an isolated empty 1×1 grid when backpack access is false and disables backpack-grid pointer hit-testing. GameSession passes only accessible inventory references to searchable and Dirty Cash panels; DirtyCashContactPanel independently normalizes inaccessible state. Pockets remain usable and incoming loot still uses the normal capacity selector. The real dropped backpack storage and cargo are not modified.
+
+Source commits: e8c57416a279af7bc6d0acaa69ba5e421a98d87b, c61532aad7e8102872c622e1beb9ed7f6bb10283, 73be827f6382cb92d0dddbe66bed9b955c79e269, a037dca3ca6ae61526ee065b0fd4c5bab987024b.
+
+**Not yet verified in Unity.** Next action: pull, run the full EditMode suite, then Play Mode test B-drop → Rhea wardrobe → street bin/container → recover backpack and verify exact original contents. Do not close P-03 until this passes.
