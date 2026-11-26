@@ -805,5 +805,36 @@ namespace Signal.Core.Tests
         {
             Assert.Throws<ArgumentNullException>(() => _grid.Restore(null));
         }
+
+        [Test]
+        public void DefaultItemTypeCannotPassPlacementValidation()
+        {
+            ItemType invalid = default;
+            Assert.That(invalid.IsValid, Is.False);
+            Assert.That(_grid.CanPlace(invalid, 0, 0, false), Is.False);
+            Assert.That(_grid.Place(invalid, 0, 0), Is.Null);
+        }
+
+        [Test]
+        public void RestoreRejectsSnapshotFromDifferentGridDimensionsWithoutChangingTarget()
+        {
+            var source = new GridInventory(2, 2);
+            source.Place(Item(2, 1), 0, 0);
+            InventorySnapshot snapshot = source.CreateSnapshot();
+
+            var target = new GridInventory(3, 2);
+            ItemType existing = Item();
+            target.Place(existing, 2, 1);
+            int changed = 0;
+            target.Changed += _ => changed++;
+
+            Assert.Throws<ArgumentException>(() => target.Restore(snapshot));
+
+            Assert.That(target.Items.Count, Is.EqualTo(1));
+            Assert.That(target.Items[0].Type, Is.EqualTo(existing));
+            Assert.That(target.Items[0].X, Is.EqualTo(2));
+            Assert.That(target.Items[0].Y, Is.EqualTo(1));
+            Assert.That(changed, Is.Zero);
+        }
     }
 }
