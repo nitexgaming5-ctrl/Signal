@@ -268,5 +268,37 @@ namespace Signal.Core.Tests
             Assert.That(ledger.Count, Is.Zero);
         }
 
+        [Test]
+        public void PurchaseNotifiesInventoryOnlyAfterBalancesOwnershipAndLedgerCommit()
+        {
+            var accounts = new EconomicAccountBook();
+            var customerAccount = new CleanMoneyAccount(100);
+            var ownerAccount = new CleanMoneyAccount(25);
+            accounts.TryRegister(Customer, customerAccount);
+            accounts.TryRegister(Owner, ownerAccount);
+            var ownership = new AssetOwnershipBook();
+            var ledger = new RetailTransactionLedger();
+            var inventory = new GridInventory();
+            var item = new ItemType(Guid.NewGuid(), 1, 1, 10);
+            bool observerSawCommittedState = false;
+            inventory.Changed += _ =>
+            {
+                observerSawCommittedState =
+                    inventory.CountOf(item) == 2 &&
+                    customerAccount.Balance == 70 &&
+                    ownerAccount.Balance == 55 &&
+                    ledger.Count == 1 &&
+                    inventory.Items.Count == 1 &&
+                    ownership.TryGetOwner(inventory.Items[0].ItemInstanceId, out EconomicActorId owner) &&
+                    owner == Customer;
+            };
+
+            RetailPurchaseResult result = CreateService(accounts, ownership, ledger).TryPurchase(
+                "old-bakery", inventory, Customer, Owner, item, ItemInstanceState.Default, 2, 15, 3, 610);
+
+            Assert.That(result.Success, Is.True);
+            Assert.That(observerSawCommittedState, Is.True);
+        }
+
     }
 }
