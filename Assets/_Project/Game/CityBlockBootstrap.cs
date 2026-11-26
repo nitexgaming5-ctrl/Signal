@@ -68,6 +68,63 @@ namespace Signal.Game
             return resident != null ? resident.Position : Vector2.zero;
         }
 
+        /// <summary>
+        /// Samples a genuinely walkable outdoor point for temporary rendering-test walkers.
+        /// Uses the same clearance as the city pathfinder and avoids nearby residents.
+        /// </summary>
+        public bool TryGetRandomStreetRoamPoint(string requesterNpcId, Vector2 currentPosition,
+            bool requireTravelDistance, out Vector2 point)
+        {
+            point = currentPosition;
+            CityNavigationMap.Region street = _navigationMap != null
+                ? _navigationMap.FindRegion("Street")
+                : null;
+            if (street == null || _navigationPathfinder == null)
+                return false;
+
+            float clearance = _navigationPathfinder.Clearance;
+            const float residentSeparation = 2.25f;
+            const float minimumTravelDistance = 3.5f;
+            for (int attempt = 0; attempt < 96; attempt++)
+            {
+                Vector2 candidate = new Vector2(
+                    Random.Range(street.Bounds.xMin + clearance + 0.5f,
+                        street.Bounds.xMax - clearance - 0.5f),
+                    Random.Range(street.Bounds.yMin + clearance + 0.5f,
+                        street.Bounds.yMax - clearance - 0.5f));
+
+                if (!_navigationMap.IsWalkable("Street", candidate, clearance))
+                    continue;
+                if (requireTravelDistance &&
+                    (candidate - currentPosition).sqrMagnitude <
+                    minimumTravelDistance * minimumTravelDistance)
+                    continue;
+
+                bool tooCloseToResident = false;
+                for (int i = 0; i < _residents.Count; i++)
+                {
+                    NpcPresenter resident = _residents[i];
+                    if (resident == null || resident.NpcId == requesterNpcId ||
+                        resident.CurrentPlace != "Street")
+                        continue;
+                    if ((resident.Position - candidate).sqrMagnitude <
+                        residentSeparation * residentSeparation)
+                    {
+                        tooCloseToResident = true;
+                        break;
+                    }
+                }
+
+                if (tooCloseToResident)
+                    continue;
+
+                point = candidate;
+                return true;
+            }
+
+            return false;
+        }
+
         public NpcActivity GetResidentActivity(string npcId)
         {
             NpcPresenter resident = FindResident(npcId);
