@@ -300,7 +300,7 @@ namespace Signal.Core.Tests
             var feeAccount = new CleanMoneyAccount();
             var ledger = new DirtyCashCleaningTransactionLedger();
             bool observerSawCommittedState = false;
-            inventory.Changed += _ =>
+            inventory.Changed += changedInventory =>
             {
                 observerSawCommittedState =
                     inventory.CountOf(cash) == 0 &&
