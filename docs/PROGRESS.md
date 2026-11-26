@@ -1,389 +1,79 @@
 # Progress — current repository truth
 
-Last reconciled: **2026-11-26**. This is the short status board. Session history is in [the November log](progress/LOG-2026-11.md); approved rules and implementation detail live in the linked decision/task documents.
+Last reconciled: **2026-11-26**. This is the concise status board. Historical detail belongs in [the November log](progress/LOG-2026-11.md); approved rules and acceptance detail belong in linked design/task documents.
 
 ## Project baseline
+- Unity **6000.6.9f1**, 2D URP.
+- Active architecture: `Signal.Core` (plain C#) + `Signal.Game` (Unity integration).
+- Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
+- Working branch: `chore/collaboration-workflow-and-audit`; keep `main` untouched.
+- Application version **0.01**. Save data has no schema-version field or automatic migration chain; incompatible experimental saves may be discarded/recreated.
+- **Latest user-confirmed full EditMode suite: 504/504 passed**, after the Play Mode-only guard for temporary NPC visual-test residents. One automatic-pocket-routing regression test was committed afterward; expected current suite is **505**, but 505 has not been confirmed. Do not report 505/505 as passing.
+- Unity Editor is authoritative for compilation, EditMode tests and Play Mode acceptance. Source review is not Unity verification.
 
-- Unity **6000.6.9f1**, 2D URP. Active architecture: `Signal.Core` (plain C#) + `Signal.Game` (Unity integration). Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
-- Working branch: `chore/collaboration-workflow-and-audit`. Keep `main` untouched.
-- Application version: **0.01**. Save snapshots are deliberately unversioned; there is no schema-version field, version gate or automatic migration chain. Older experimental saves may be incompatible after data-shape changes.
-- Last user-confirmed full EditMode result: **503/503 passed (2026-11-26)**. A later uploaded 504-test XML reported 500 passed / 4 failed; all four failures were traced to temporary NPC rendering-test residents spawning during EditMode. The Play Mode-only spawn guard is committed; a fresh 504-test rerun is pending. Do not claim the fix is verified until the new XML is reviewed.
-- The user reports the First Workshop and B-04 repair/trading loop working in Play Mode. B-06 uses a separate Worn jacket seeded in Milo's inventory for the entrusted-service test.
+## Strategic direction and sequence
+The user selected **Direction B — meaningful everyday livelihood**: repair, production, customers, services, relationships and a practical hideout. Keep one active gameplay initiative at a time.
 
-## Completed livelihood foundations — B-01 to B-06
+### Completed livelihood foundations — B-01 to B-06
+- **B-01 Production/workbench:** authored immediate recipes create physical goods.
+- **B-02 Customer contracts:** one active contract, physical whole-stack fulfilment and issuer-funded clean CARD.
+- **B-03 Practical upgrade:** Compact Sewing Machine unlocks the next recipe.
+- **B-04 Repair/restoration:** repair kits, item-state preservation and Rhea's textile buyer/supplier loop.
+- **B-05 Global NPC awareness & affinity:** bounded individual knowledge, local perception and separate relationship directions.
+- **B-06 Customer Repair Orders:** Milo entrusts a Worn Work Jacket; player repairs and returns the exact item for 35 CARD. Ownership/custody remain distinct; payment and return are atomic and replay-protected.
+- User confirmed **456/456** and successful B-06 Play Mode acceptance on 2026-11-25. Do not rebuild these foundations without a concrete defect. No additional story cast was authored.
 
-The first workshop, customer contract, practical hideout upgrade, repair/restoration loop, generic NPC awareness/relationship foundation and customer repair orders are implemented. The user confirmed **456/456 EditMode tests** and successful B-06 in-game testing on 2026-11-25.
+### Player Development
+- **P-01 Character Foundation & Appearance — implemented/user-verified.** Modular Body_A renderer, directional Idle/Walk, local ZIP importer and fallback. User imported the supplied pack and confirmed the enlarged character presentation.
+- **P-02 Attributes & Skills — implemented/user-verified.** Exactly two attributes: Armor and Heat Protection. Fixed starting skill-point budget, milestone awards, free respecialisation, save mapping and F2 allocation panel. User confirmed **467/467** after this implementation slice. Catalog tuning and actual skill-effect/milestone-trigger integrations remain provisional/future work.
+- **P-03 Equipment & Portable Backpack — core implementation largely complete; non-art closeout remains.** See [P-03 task card](tasks/PLAYER-P-03-EQUIPMENT-BACKPACK.md).
 
-**Player outcome:** make physical goods at the hideout, fulfil one authored customer request for clean CARD, then purchase a practical upgrade that unlocks another recipe.
+## P-03 current implementation truth
+Implemented in source:
+- Seven equipment slots: Head, Torso, Legs, Feet, Accessory 1–3. Backpack occupies one generic accessory slot.
+- Exact-instance equip/unequip preserves stable identity, item state and ownership.
+- Equipped backpack owns its 8×6 contents grid by stable backpack instance ID.
+- B drops the backpack; E recovers and re-equips the same item. Dropped contents remain inaccessible until recovery.
+- F5/F9 captures backpack equipped/dropped state, position, identity and contents.
+- Three persistent 1×1 pockets: P1/P2 ordinary; P3 hidden from ordinary-search enumeration and visibly marked HIDDEN.
+- Manual pocket moves are exact-target; pocket-to-pocket move/swap preserves identity/state/ownership.
+- Automatic receipts choose accessible backpack capacity first, then first suitable empty pocket P1 → P2 → P3. No destination prompt; oversized/rotated items cannot use pockets.
+- Pocket-aware integration/source audit covers Retail SELL, Dirty Cash selection, Home Storage, Searchable Container, workbench repair, multi-grid production, customer flows and GameSession receipt/transfer paths. Dropped-backpack cargo is excluded from accessible views.
+- Temporary fresh-session debug loadout seeds a backpack and repair/production test cargo. It is test scaffolding, not intended new-game inventory.
 
-Approved rules:
-- Player-operated hideout workshop first; keep Core compatible with NPC-owned production later.
-- Authored immediate recipes create physical inventory items.
-- Exactly one accepted/active customer contract at a time.
-- Fulfilment transfers one exact whole player-owned stack to the issuer's physical receiving inventory.
-- The issuer pays a fixed clean CARD reward from their existing resident account; no business account or minted money.
-- The Compact Sewing Machine is a one-time practical upgrade and unlocks the Reinforced Patch Kit recipe.
+Still outstanding:
+1. Run the complete current EditMode suite (expected **505**) and inspect the XML.
+2. Complete Play Mode acceptance: fresh session/debug loadout; equip/drop/recover; F5/F9 while equipped and dropped; pocket access while bag is dropped; manual exact-target moves/swaps; P3 ordinary-search exclusion contract; service flows with items split across backpack/pockets; ensure dropped cargo is inaccessible.
+3. Keep temporary repair/production cargo until the user finishes acceptance. At final P-03 closeout, remove only automatic fresh-session cargo seeding; retain the F1 debug item spawner.
+4. Record user-confirmed results. Do not mark P-03 complete before these checks.
 
-Implementation and authored content are committed. Do not rebuild these systems without a concrete defect:
-- [B-01 Production/workbench](tasks/LIVELIHOOD-B-01-PRODUCTION-WORKSHOP.md)
-- [B-02 Customer contracts](tasks/LIVELIHOOD-B-02-CUSTOMER-CONTRACTS.md)
-- [B-03 Practical upgrade](tasks/LIVELIHOOD-B-03-PRACTICAL-WORKSHOP-UPGRADE.md)
-- [Starter catalogue and Play Mode script](content/STARTER_CATALOGUE.md)
-- [Shared First Workshop overview](tasks/LIVELIHOOD-B1-B3-FIRST-WORKSHOP.md)
+**P-03.6 Wearable Presentation is paused/deferred.** The task card is historical preparation only, not the next implementation step. No new sprites, sprite templates, clothing overlays, wardrobe panel or art import work.
 
-## Reusable implemented foundations
+## Next strategic track — B-07 Neighbourhood Expansion
+B-07 remains the next Direction B initiative after P-03 non-art closeout. Add a compact connected area only when it has meaningful destinations and repeatable reasons to visit. Reuse the existing player/session, clock, inventory, accounts, NPC social world and save context. Before implementation, prepare a dedicated task specification covering player outcome, geography, destinations, practical interactions, system reuse, NPC scope, navigation, save/load and acceptance. Explain any genuinely new mechanic and obtain user approval before coding it.
 
+## Separate future track — W-01 Weather & Cold Exposure
+W-01 is separate and inactive. Intended direction: seasonal temperature/weather, rain, storms, snow/blizzards and gradual cold exposure; Heat Protection retains its name and mitigates cold only. No hot-weather/overheating gameplay. Detailed mechanics/balance remain open until W-01 is activated.
+
+## Reusable foundations — do not rebuild
 | Area | Existing foundation |
 |---|---|
-| World | Hideout, Street, CornerShop, Apartment and one persistent session |
-| Inventory/items | Grid inventory, stable stack GUIDs, quality/condition/authenticity/ownership, item knowledge and inspection |
-| Economy | Resident CARD accounts, ownership/custody, atomic transfers, fixed-price merchandise, condition-based buyback offers, separate service-payment ledger |
-| Workshop | Actor-aware production, one-active contract, physical fulfilment, issuer-paid reward, upgrade/recipe unlock |
-| Scavenging/crime | One-time searchable physical bins, resident-owned containers, theft outcomes and witness-scoped knowledge |
-| NPCs | Shared social world, local perception, individual knowledge, authored schedules, generic presenter and agenda threads |
-| Dirty Cash | Physical currency, explicit contact exchange/cleaning and separate transaction history |
-
-Specialist references: [Architecture](ARCHITECTURE.md), [Data Model](DATA_MODEL.md), [NPC framework](NPC_FRAMEWORK.md), [NPC simulation](NPC_SIMULATION.md), [NPC runtime](NPC_RUNTIME.md).
-
-## Test convenience and item inspection
-
-- `HideoutSlice.unity` now starts a fresh player session with **5000 CARD** (serialized `startingMoney`). Existing saves restore their saved balance and are not overwritten by this starting value.
-- Item inspection is already wired: open inventory with Tab, then right-click an item stack. The same viewer is also passed to searchable-container and storage item interactions. The viewer shows authored description/category/reference value and only item properties the player has learned; unknown properties remain hidden. Press Esc or the viewer's Close button to dismiss it.
-
-## Current verification and next action
-
-**Immediate verification:** rerun the complete **504-test EditMode suite** after commit `75d43bb4e140fa406ac631cd9f25ffacfef6848c`, which restricts the three temporary NPC sprite-test residents to Play Mode. The previous uploaded XML was 500/504; the rerun is pending.
-
-**Active initiative:** P-03 Equipment, Wearables & Portable Backpack. P-03.5 pocket-aware integration and its source audit are complete: Retail SELL, Dirty Cash selection, Home Storage, Searchable Container, workbench repair, multi-grid production, customer flows and GameSession item routing use accessible backpack/pocket inventories; dropped-backpack cargo remains inaccessible. Automatic receipts use backpack first, then first suitable pocket P1 → P2 → P3; manual transfers remain exact-target.
-
-**Next prepared phase:** [P-03.6 Wearable Presentation](tasks/PLAYER-P-03-6-WEARABLE-PRESENTATION.md). The implementation is deliberately gated on inspecting the user's actual locally imported wearable sprite paths and compatibility. The P-01 Body_A base pack is not a full wardrobe; do not guess paths, fabricate clothing art, or render inventory icons as body overlays.
-
-**P-03.7 closeout:** after the user finishes repair/production acceptance, remove only the temporary fresh-session debug backpack/cargo seeding (keep the deliberate debug item spawner), then run the complete backpack, pocket, save/load, service-panel and wearable Play Mode acceptance in HideoutSlice. Do not remove the debug loadout prematurely.
-
-B-07 Neighbourhood Expansion remains the next livelihood/world expansion track after Player Development; W-01 weather/cold exposure remains separate and inactive.
-
-## Completed initiative — B-05 Global NPC Awareness & Affinity
-
-B-05 is a generic NPC framework phase, not a character/cast-writing phase. Rhea, Milo and the existing Dirty Cash contact are framework/test residents only. Do not add residents, invent backstories or author the final cast until the main storyline and intended cast have been deliberately designed.
-
-Relationship ownership is explicitly directional:
-- Player→NPC: existing `PlayerRelationshipBook`, unchanged.
-- NPC→NPC: each observer's relationship map inside `NpcAgentState` / `NpcSocialWorld`.
-- NPC→player: a separate per-NPC opinion stored on `NpcAgentState` / `NpcSocialWorld`.
-- All three directions use the same `NpcRelationship` value model, but never share storage authority or register the player as an NPC.
-
-**Implemented and user-verified on 2026-11-25 (445/445 EditMode tests):**
-- Shared local perception, individual sourced knowledge, explicit knowledge sharing and directed NPC-to-NPC relationships.
-- F5/F9 persistence for each NPC's personal knowledge and directed NPC-to-NPC relationships.
-- New independent NPC→player opinion with neutral per-NPC default and validated get/set/adjust APIs.
-- F5/F9 persistence for NPC→player opinion, validated against registered stable NPC IDs and finite bounded values. Restore clears prior timeline state and rebuilds the transient event journal/presence separately.
-- Customer contracts now support authored outcomes in both directions: player→issuer through PlayerRelationshipBook and issuer→player through the issuer's own NpcAgentState. Both apply only after successful goods transfer, payment and contract completion; replay cannot award twice.
-- Generic agenda stages can gate on either relationship perspective, and agenda choices can award one-time outcomes in either direction. GameSession passes the shared NpcSocialWorld to the generic director; repeatable choices are forbidden from applying relationship deltas.
-- Added tests for independent directionality, persistence round-trip, contract success/replay/target validation, agenda gates/outcomes and repeatable-choice safeguards. These tests are included in the user's confirmed 445/445 full EditMode result.
-
-The user has now confirmed **445/445 EditMode tests passed (2026-11-25)** on the current B-05 implementation.
-
-Task specification: `tasks/LIVELIHOOD-B-05-GLOBAL-NPC-AWARENESS-AFFINITY.md`.
-
-## Developer debug item spawner
-
-- F1 opens the existing developer debug menu. Its Open item spawner action opens a searchable, scrollable catalogue panel with item icons, category, grid footprint and stack limit.
-- Clicking an entry adds one instance to the real player inventory using that definition's default instance state. The existing inventory capacity/stack rules apply; full inventory returns a visible message and does not silently discard the item.
-- Successful spawns are registered as player-owned through the existing ownership book and are ordinary inventory items, so the existing save/load path handles them.
-- The picker uses the same shared item-definition catalogue as inventory, inspection, shops and containers. That includes the 100 local survival-pack definitions plus definitions referenced by the scene, recipes, contracts, businesses, loot profiles, resident property and special-item fields. The active HideoutSlice scene explicitly assigns ITEM_A/B/C; the Work Jacket is registered through the repair target and loot/business content.
-- The current GitHub source contains no separate ItemDefinition named Wool. If Wool exists only in a local uncommitted asset, it will appear once added to a source catalogue the session loads; the spawner does not fabricate a duplicate definition.
-- Two focused EditMode tests cover panel binding/open-close and routing a selected definition through the spawn callback.
-- **EditMode cleanup fix:** `DebugItemSpawnerPanel.RefreshTiles` now uses deferred `Destroy` while playing and `DestroyImmediate` outside Play Mode. This avoids Unity's edit-mode destruction warning/error when the panel rebuilds its tiles during EditMode tests; runtime behaviour remains deferred and safe.
- The user subsequently confirmed **439/439** after the EditMode cleanup fix; the later B-05 directionality and agenda integration tests are now included in the confirmed **445/445** result.
-
-## Repository hazards and deferred scope
-
-
-
-- `Assets/_Project/Content/Items/` and `Assets/_Project/Content/items/` differ only by case and may collide on Windows. New authored content currently uses distinct folders such as `Content/WorkshopItems/`; preserve GUIDs and do not merge/rename those folders outside Unity Editor.
-- Deliberately deferred: universal supply/demand, automatic NPC shopping, finite stock simulation, market-wide/time-/demand-driven price changes, passive income, production timers/queues, procedural or concurrent customer jobs, partial-stack contract delivery, repair queues/random failure, broad relationship rewards, police response, global rumour cascades and new districts. Selective authored condition-based buyback is the approved narrow exception.
-
-## Documentation maintenance
-
-Keep this file concise. Append session history to `progress/LOG-2026-11.md`; keep approved rules in `DESIGN.md` / `decisions/`; keep implementation acceptance in the active task cards. The root `PROGRESS.md` is an intentional compatibility pointer to this canonical file.
-
-
-### B-05 naming and save-test correction
-- Shortened the new NPC social test names to describe one behavior each, renamed the restored knowledge local for clarity, and corrected the knowledge-sharing confidence expectation to `0.70` (listener trust `0.70` yields `1.0 * (0.35 + 0.70 * 0.5)`).
-- This is a focused test/readability correction; no runtime behavior or public API was changed. Unity verification remains required.
-
-
-## B-05 relationship outcome integration (completed)
-
-- Customer contracts route authored player→issuer and issuer→player outcomes to their distinct canonical owners. Both apply only after successful transfer/payment/completion and cannot be replayed.
-- Generic agenda gates and choices can read/write either player→NPC or NPC→player perspective; repeatable choices cannot farm relationship deltas.
-- These changes are included in the user's confirmed 445/445 full EditMode result.
-
-## Free Pixel Survival Items Pack — local licensed import
-
-- The user supplied 100 individual 32×32 icons. The pack licence permits game use but prohibits uploading the graphics to public repositories; Signal's GitHub repository is public.
-- The PNGs are therefore excluded by `.gitignore` at `Assets/_Project/Resources/SurvivalItems/Icons/*.png`. The importer and text manifest remain in the repository.
-- Local install: copy the ZIP's `Icons` folder into `Assets/_Project/Resources/SurvivalItems/`, then run **Tools → Signal → Import Survival Items Pack** in Unity. The editor importer creates 100 `ItemDefinition` assets under `Resources/SurvivalItems/Definitions`.
-- `GameSession` loads these definitions into the shared catalogue without granting them as starter items. `InventoryPanel` now displays authored sprites (including drag previews); `ItemViewerPanel` already displays the definition icon.
-- Names, categories, grid footprints, stack sizes and base reference values are first-pass interpretations. Base values are inspection/reference values, not shop prices. No new consumable, equipment, weapon, recipe or loot behaviour is assigned. Items are not automatically added to loot profiles or shop stock.
-- Unity import/compile/Play Mode verification remains pending.
-
-
-
-
-
-## Active initiative — B-06 Customer Repair Orders
-
-- The user approved the entrusted-item repair service. Existing Milo is the first framework/test issuer; no new NPC cast or story content is added.
-- The authored order seeds one Worn Work Jacket into Milo's registered inventory. F opens the repair-order panel; E remains the existing customer-contract interaction.
-- Acceptance moves the exact item into player custody while Milo remains its registered owner. The shared workbench repairs that active entrusted target with a player-owned Basic Patch Kit; Worn becomes Good.
-- Returning the exact item moves it back to Milo and atomically transfers 35 clean CARD from Milo to the player. A dedicated ServicePaymentTransactionLedger records the payment separately from physical asset transfers. Failed returns roll back item movement and both balances; one active customer job is enforced across contract and repair-order acceptance.
-- F5/F9 persists order phase, item location/owner, accounts and service-payment history.
-- Eleven focused EditMode tests cover ownership, repair, payment, replay, insufficient funds, player-account overflow, missing issuer account, receiver capacity and active/completed save/load. The user confirmed the full suite at **456/456** and reported the in-game flow passing.
-- Task card: tasks/LIVELIHOOD-B-06-CUSTOMER-REPAIR-ORDERS.md.
-
-
-## Player Development and weather design preparation (2026-11-25)
-
-- The user chose to intercalate character/skills customization before returning to the B-07 roadmap. B-07 remains Neighbourhood Expansion; Player Development is a parallel track and does not renumber Direction B.
-- P-01 Character Foundation & Appearance and P-02 Attributes & Skills specifications have been created. The current player is dynamically created by `RoomBootstrap.CreatePlayer()` with a placeholder SpriteRenderer; `PlayerMotor2D` currently owns input/velocity and has no formal animation/facing contract; `GameSession` is the composition root.
-- Confirmed player design: customize the existing player; fixed starting skill-point budget freely distributed; additional points awarded for important milestones; points manually spent; free redistribution at any time.
-- Exactly two attributes are approved: Armor and Heat Protection. Heat Protection keeps its name and protects against cold-related exposure only. No hot-weather/overheating mechanics are planned.
-- Clothing and armor are intended to have visual and gameplay effects. Full authoritative equipment/loadout is reserved for P-03; P-01 prepares visual layer seams and P-02 prepares attribute modifier calculation.
-- Candidate skills Repair, Production, Trading, Scavenging and Social remain provisional; numeric starting budget, rank caps/costs and milestone rewards remain open.
-- W-01 Dynamic Weather & Cold Exposure is documented as a separate future phase: dynamic seasonal weather including temperature changes, rain, storms, snow and blizzards; gradual cold exposure; shelter and effective Heat Protection reduce exposure. No implementation is authorized.
-- No gameplay code, assets, scenes, packages or tests were changed in this documentation milestone.
-
-
-## Player Development implementation slice — 2026-11-25
-
-- **P-01 code committed:** modular five-part Body_A player visual, shared idle/walk frame clock, Down/Side/Top facing and side mirroring. RoomBootstrap preserves existing physics/movement and uses a fallback placeholder until the supplied ZIP is imported.
-- **Character resource import:** Unity menu `Signal > Import World Build Character Pack...` extracts all Body_A PNG sheets into Resources and configures pixel-art texture settings. The archive is not checked into the repository; the user must select their supplied ZIP once in the Unity Editor. The supplied pack provides one modular base body, not a full clothing/armor wardrobe.
-- **P-02 code committed:** Armor and Heat Protection Core attributes; pure effective-attribute modifier calculator; skill book; configurable point progression; one-time milestone ledger; free respecialization; SaveData capture/restore; authored provisional skill catalog; F2 debug allocation panel.
-- Prototype catalog tuning is currently **8 starting points, rank cap 5, 1 point per rank**. These are editable prototype defaults, not final balance. Repair, Production, Trading, Scavenging and Social remain provisional. Skill ranks are persisted and allocated, but activity-specific skill effects have not been wired pending approval of their exact effects.
-- GameSession exposes `TryAwardPlayerMilestone`; no automatic milestone awards have been attached to activities yet. Only successful, stable-ID gameplay events should call it.
-- Eleven focused EditMode tests were added for attributes, modifier calculation, allocation, overspending, rank cap, respecialization, milestone idempotency, save/load and invalid data handling.
-- **Verification boundary:** the user-confirmed 456/456 baseline predates this code slice. Expected current suite count is **467**, but Unity compilation, tests and Play Mode have not yet been run. Do not mark this slice verified until the user reports the results.
-- B-07 Neighbourhood Expansion remains the original Direction B phase; Player Development is intercalated as a parallel track. W-01 remains a separate future weather/cold-exposure phase.
-
-
-## 2026-11-25 — Player character visual scale adjustment
-
-- Increased the modular character's five visual sprite layers to **1.8×** their previous local scale.
-- Applied scaling to the visual child layers only. The player root transform, Rigidbody2D, BoxCollider2D, movement speed, interaction range and camera configuration are unchanged; gameplay collision/physics sizing is preserved.
-- User should verify the larger appearance in Play Mode. Unity compilation and visual verification are pending.
-
-
-## P-03 first implementation slice — 2026-11-25
-
-- Added Core seven-slot equipment loadout: Head, Torso, Legs, Feet and three generic accessory slots. Equipment transfers preserve exact item identity/state and do not change ownership.
-- Added summed Armor/Heat Protection modifiers using the existing effective-attribute value model.
-- Added PortableStorageBook keyed by stable backpack item instance ID. Backpack contents remain in an independent GridInventory and a non-empty container cannot be discarded.
-- Added nine focused EditMode tests and Unity metadata for new files.
-- This is a Core foundation only: no Game item definitions, UI, F5/F9 persistence, wearable visuals or dropped-world backpack object yet. The user's 467/467 verification predates these nine tests; expected suite is 476, pending Unity.
-- Task card: tasks/PLAYER-P-03-EQUIPMENT-BACKPACK.md.
-
-
-## P-03 second implementation slice — backpack equipped (2026-11-25)
-
-- Expanded the temporary player inventory grid to 8×6 for test capacity. Final design remains 2–3 small personal pockets without a backpack; the large tabbed grid is intended to belong to the equipped backpack.
-- Added optional equipment metadata to ItemDefinition and prototype Resources assets: Canvas Backpack (Accessory 1, 8×6), Padded Work Jacket (Torso, Armor +2 / Heat Protection +1), Insulated Coat (Torso, Armor +0 / Heat Protection +3). These modifiers are provisional test values, not final balance.
-- Inventory controls: hover an item and press E to equip; press 1–7 to unequip ordinary equipment slots. Backpack unequip is intentionally blocked until physical drop/pickup is implemented.
-- Equipping Canvas Backpack attaches the existing 8×6 GridInventory to the backpack's stable item instance ID without copying contents. A provisional backpack silhouette is shown on the player.
-- F5/F9 capture and restore equipped item identity, definition, slot, modifiers, owner actor and item instance state. The current inventory contents continue to use the existing inventory save path.
-- Added two focused tests for attaching an existing inventory grid and restoring an equipped item without a free inventory cell. User's confirmed 476/476 baseline predates these additions; expected total 478, pending Unity compile/test.
-- Physical world backpack drop/pickup, no-backpack pocket restriction and final clothing visuals remain pending. See tasks/PLAYER-P-03-EQUIPMENT-BACKPACK.md.
-
-
-## 2026-11-25 — Unity folder metadata reconciliation
-
-- Corrected the two newly added SurvivalItems folder metadata files to preserve the GUIDs already generated in the user's local Unity project: SurvivalItems = dc080c683bb17b448ad72d35956ae8f4; Definitions = 0c275d1a215b0684e8fb75e43c9ca3c1.
-- The earlier repository values were different and blocked the user's pull because the matching local files were untracked. The repository now matches the user's supplied local metadata exactly. No local files were deleted or changed.
-- Repository housekeeping only; no gameplay code, assets, scenes or tests were changed.
-
-
-## 2026-11-25 — GameSession duplicate resolver compile fix
-
-- Removed the redundant second `FindItemDefinition(Guid)` method from `GameSession`. The existing earlier resolver remains the single canonical implementation and continues to search the registered item-definition catalogue.
-- This resolves the reported CS0111 duplicate-member declaration. Repository source was updated; Unity compilation and EditMode tests have not been run by the assistant and remain pending user verification.
-
-
-## P-03.3 Core backpack world-state foundation — 2026-11-25
-
-- Added `PortableBackpackWorldBook` with explicit Equipped/Dropped states and persistent world coordinates. A backpack can only enter this registry if the matching `PortableStorageBook` contents grid already exists under the same stable item instance ID.
-- Drop/recover transitions change only the physical state; the same contents grid and cargo item identities remain attached to the backpack.
-- Added `SavedPortableBackpack` plus a focused save mapper that rejects malformed, duplicate, invalid or unbacked records.
-- Added seven EditMode tests. The previous user-confirmed suite was 478/478; **485 is the expected count pending Unity compilation and test execution**, not yet verified.
-- This is a Core foundation only. GameSession integration, physical world object, interaction, active-inventory switching, no-backpack pockets and full F5/F9 wiring remain next. No Play Mode acceptance is claimed.
-- Next test game is specified in the P-03 task card; it must validate equipped → dropped → save/load while dropped → recovered → save/load while equipped, with cargo identity/content unchanged throughout.
-
-## P-03.3 Game integration — backpack drop and pickup (2026-11-25)
-
-- Added `PlayerEquipmentLoadout.TryTakeEquipped` so the backpack is removed from the equipment slot without being placed into its own storage grid.
-- GameSession now tracks Equipped/Dropped state, spawns a visible ground placeholder, drops with **B**, and recovers with **E** nearby. Recovery automatically equips the same stable backpack item instance.
-- Added a clickable **DROP BACKPACK [B]** button and a character/equipment sidebar beside the right-hand BACKPACK STORAGE grid. Seven equipment slots are shown; three pocket cells are visual placeholders only, with functional pocket storage still pending.
-- Dropping closes the inventory, hides the backpack grid and blocks pointer interaction with its contents. A full audit/gating of all other item-based interactions while storage is dropped remains necessary alongside the active pocket-inventory work.
-- F5/F9 now capture/restore the dropped item identity/state/owner/modifiers and its world coordinates, then recreate the dropped visual. Recovery after restore re-equips the same item.
-- Added one focused EditMode test for exact equipped-item extraction. Previous user-confirmed suite was 485/485; expected total is **486**, pending Unity compilation and test execution. No Play Mode acceptance is claimed yet.
-- User test sequence: equip and load cargo, B/button drop, verify inaccessible grid, E pickup/auto-equip, F5 while dropped, F9 and recover, then repeat save/load while equipped. Verify cargo identity/state/ownership.
-
-### Dropped-backpack access guard
-
-- While the backpack is dropped, GameSession now applies a conservative temporary gate to normal E/F interactions that could inspect, consume or receive items. Movement, pickup, F5/F9 and sleep remain available. This prevents workbench/shop/container flows from indirectly exposing the dropped bag's 8×6 contents.
-- This is deliberately temporary until the 2–3 pocket inventory is functional; then gameplay systems should route through the active carried inventory rather than globally blocking interactions.
-- Follow-up correction: dropped-backpack mode permits E at authored building/hideout doors and interior exits, and retains the navigation prompt. The temporary gate blocks item interactions, not world transitions.
-
-- HUD follow-up: the initial navigation allowlist matched only five exact door labels, so an authored prompt such as “E Exit building” could still be hidden even though the E interaction worked. Replaced the brittle exact-string list with a case-insensitive E-action check for enter/exit/leave/return wording. Unity verification remains pending.
-
-### P-03 HUD and API cleanup — 2026-11-25
-- Corrected the dropped-backpack HUD path: keep the raw CityBlock world prompt separate from modified nearby-interaction text, recognise transition wording even when the source prompt lacks an E prefix, and display an explicit `E` hint. This addresses the user's report that exiting worked but the HUD did not tell them to press E.
-- Replaced obsolete `FindObjectOfType<EventSystem>()` with `FindAnyObjectByType<EventSystem>()` in InventoryPanel (CS0618 cleanup).
-- User confirms **486/486 EditMode tests passing** after pulling the previous code. Latest cleanup commits are pending Unity recompilation, test rerun and Play Mode confirmation.
-
-
-### P-03 fresh-start inventory cleanup — 2026-11-25
-- Removed the automatic starting-item grant from new sessions. The configured `items` list remains the item catalogue source; it no longer seeds player cargo.
-- The temporary 8×6 player grid is now hidden/inaccessible unless a backpack is equipped. Its contents remain attached to the same backpack identity when dropped, recovered, saved or loaded.
-- Item-based E/F interactions are gated while no backpack is equipped; authored world navigation, sleep and F5/F9 remain available. The inventory panel explains that storage requires an equipped/recovered backpack.
-- To keep the fresh-start test path usable, a backpack spawned through the debug item spawner auto-equips when no backpack is equipped.
-- Existing save files are deliberately preserved. Loading an older save with F9 may restore its previous inventory contents; this cleanup does not erase player saves.
-- No new tests were added and no Unity compile/EditMode/Play Mode result is claimed. User should verify the new empty start, debug-spawned backpack auto-equip, storage visibility, and dropped-bag recovery.
-
-
-## P-03.4a — Backpack-independent social/mission interactions (2026-11-25)
-- Removed the global no-backpack E/F early return. NPC dialogue, agenda conversations, customer-request review/acceptance, and world navigation are no longer blocked by the absence of a backpack.
-- Added preflight capacity warnings for physical item receipts: repair-order acceptance, shop purchases, searchable-container loot, illicit-exchange Dirty Cash rewards, and production output. These checks run before the transactional service call, preserving money, ownership, inputs and source items on rejection.
-- Retail browsing and container inspection remain available without a backpack. Home-storage transfers and workbench access remain blocked until pocket storage exists, because those flows currently depend on the 8×6 inventory grid.
-- No-backpack HUD no longer overwrites useful NPC/mission prompts with a generic backpack warning.
-- No new tests were added in this subphase. The last user-confirmed suite is 486/486 before these code changes; Unity compile, EditMode rerun and Play Mode checks remain pending.
-- Next: P-03.4b functional three-slot 1×1 pocket storage, persistence, UI and pocket-aware routing. Pockets remain placeholders; do not mark P-03 complete.
-
-
-## P-03.4b — functional personal pockets (2026-11-25)
-- Added PlayerPocketBook: exactly three independent 1×1 pockets, each holding one stack of one 1×1 item. Larger footprints cannot be stored in pockets.
-- Added exact-stack transfer between backpack and pockets using InventoryTransfer, preserving stable item identity, count and instance state. These are internal player-container moves; ownership remains Player.
-- Registered pocket grids with EconomicContainerRegistry as Player containers.
-- Added SavedPocketItem and PlayerPocketSaveMapper; GameSession F5/F9 now captures/restores pocket index, stable item identity, stack quantity, item condition/quality/authenticity/ownership state and owner.
-- Character inventory UI now displays actual pocket contents. Hover a backpack item and press P to move it to the first free pocket; click an occupied pocket to move it into backpack storage (or inspect if no backpack is available). Ordinary 1×1 equipment can be unequipped into a free pocket without a backpack.
-- Item-receive routing now supports pockets for repair-order acceptance, retail purchase, searchable-container pickups and Dirty Cash exchange rewards. Milo's parcel opportunity can be accepted and tracked in pockets without a backpack; parcels inside a dropped backpack remain inaccessible.
-- Added eight focused Core tests for pocket capacity, footprint rules, identity/state-preserving transfers, failed-transfer atomicity and save/load validation. User confirmed 486/486 after P-03.4a; expected new total is 494, pending Unity execution. No Unity compile/test/Play Mode result is claimed.
-- Customer Contract now lists pocket-held goods, allowing qualifying contract fulfilment without a backpack. When no backpack is accessible, Retail and Dirty Cash panels switch to an empty carry view so dropped-bag cargo is not exposed; pocket-held items are not yet listed in Retail SELL or Dirty Cash selection. Home-storage transfer and workbench/production still require the backpack. P-03 remains active.
-
-## P-03.4b verification and UI follow-up (2026-11-25)
-- User confirmed **494/494 EditMode tests passed** for the functional-pocket implementation.
-- Follow-up UI fixes committed: drag-and-drop a backpack item directly onto a personal pocket; equip equippable items directly from a pocket with E; size the searchable-container player grid from the active GridInventory dimensions (8×6 for the current backpack rather than the old hardcoded 6×4 display).
-- The UI follow-up is not yet Unity-verified. Next: pull latest, compile, run EditMode suite, then Play Mode test pocket drops, pocket equipment, invalid footprint rejection and searchable-bin 8×6 visual alignment.
-
-## Debug-only fresh-session starting loadout (2026-11-26)
-- Added a temporary GameSession startup bootstrap for Play Mode testing. Each fresh session finds a compatible portable backpack definition (8×6), creates a unique backpack item instance, equips it through the normal equipment/storage/world-state path, then seeds up to three non-backpack items with distinct grid footprints into the backpack.
-- The seed items are selected from the loaded item catalogue, sorted largest footprint first, and placed through normal GridInventory placement. Ownership is registered to the Player. Existing item definitions and save schemas are unchanged.
-- This is explicitly debug/test scaffolding, not intended starting gear or final game balance. Remove this helper before establishing the real new-game starting inventory.
-- If no compatible backpack is available, the helper logs a warning and leaves the session otherwise unchanged. If fewer than three distinct item footprints exist in the catalogue, it seeds however many are available.
-- No Unity compile, EditMode or Play Mode result is claimed for this commit. User should pull and confirm the character spawns with an equipped backpack and 2–3 differently-sized items visible in its 8×6 grid.
-
-## Pocket UI follow-up and hidden-pocket design (2026-11-26)
-- Pocket cells now render the corresponding ItemDefinition sprite when one exists; when no sprite is authored, the cell displays the item name as a readable fallback rather than only an empty-looking slot.
-- Pocket-to-backpack drag/drop is now supported. Dragging an occupied pocket onto a valid backpack cell transfers the exact item stack to that precise cell, preserving stable instance identity and item state. Invalid/occupied destinations leave the item in its pocket. The existing click action remains available for inspecting a pocket item.
-- Added Core coverage for exact-position pocket transfer and atomic failure when the target cell is occupied. These tests have been added but have NOT yet been run in Unity; the last user-confirmed baseline remains 494/494.
-- User clarified the intended pocket layout: two ordinary personal pockets plus one hidden pocket, with the hidden pocket intended to preserve at least one object from police/search confiscation. This changes the current three-equivalent-pocket design. Do not implement hidden-pocket search/concealment rules until the user explicitly confirms the proposed rules. Proposed baseline for confirmation: all three pockets remain player-accessible; only the first two are exposed to ordinary inventory searches; the hidden slot is excluded from routine police searches and preserves its single 1x1 item. A special thorough/strip search could be a separate future rule if desired.
-
-### P-03 pocket roles and UI follow-up — 2026-11-26
-
-- Confirmed design: P1/P2 are ordinary pockets; P3 is hidden and visually distinguished with a light-red background and “HIDDEN” label.
-- PlayerPocketBook exposes only P1/P2 through its ordinary-search enumeration API. P3 remains accessible to the player but is omitted from routine-search results. Advanced searches (scanner/dogs/thorough search) remain undecided.
-- Backpack items are moved into the exact pocket the player drops them onto; there is no automatic first-free-pocket assignment. Pocket-to-backpack drag/drop targets the exact backpack cell.
-- Pocket cells render ItemDefinition icons where available, otherwise a readable text fallback.
-- Added a focused Core test for ordinary-search visibility. Unity compilation and test execution are pending; last user-confirmed baseline remains 494/494 before these additions.
-- Police search/confiscation is not yet a complete implemented gameplay flow. Future routine police-search code must query `GetItemsVisibleToOrdinarySearch()` and must not directly enumerate all pocket grids.
-
-### P-03 exact pocket-to-backpack test correction — 2026-11-26
-
-- Fixed `MovesPocketItemToExactBackpackDropCell`: its fixture incorrectly created a 2×1 item, which cannot legally enter a 1×1 pocket. The test now uses a valid 1×1 pocket item and continues to assert placement at the exact requested backpack coordinates. Production transfer validation is unchanged; larger/rotated items remain ineligible for pockets.
-
-
-### P-03 follow-up — direct pocket-to-pocket moves and swaps (2026-11-26)
-
-- Added direct drag-and-drop between personal pockets. Dragging onto an empty pocket moves the exact stack; dragging onto an occupied pocket swaps both stacks.
-- Pocket dragging is now available even when no backpack is equipped or the backpack is dropped. This keeps all three personal pockets independently usable.
-- Added an atomic Core single-stack swap primitive and PlayerPocketBook.TryMoveBetweenPockets. Stable item IDs, quantities, item state and ownership are preserved; both pocket grids are updated before change notifications fire.
-- Added three EditMode tests covering move-to-empty, occupied-pocket swap preservation, and invalid-move non-mutation. User's latest confirmed baseline is 494/494; expected current total is 500, pending Unity execution.
-- No Unity compile, EditMode or Play Mode result is claimed by this implementation pass.
-
-
-## P-03 checkpoint — 503/503 EditMode tests confirmed (2026-11-26)
-
-- User confirmed the full Unity EditMode suite passes **503/503** after the three targeted P-03.5 tests and pocket-aware repair/production/service integration.
-- Pocket items can be dragged directly to another pocket. Empty destinations receive the stack; occupied destinations swap stacks. Stable item IDs, counts, condition, quality, authenticity and ownership state are preserved.
-- Pocket dragging remains available without a backpack and while the backpack is dropped. P1/P2 ordinary-search visibility and P3 hidden-pocket exclusion remain unchanged.
-- **Next:** P-03.5 pocket-aware service-panel integration. Audit and support pocket-held items in Retail SELL and Dirty Cash selection first, then home storage and workbench/production inputs and outputs. Preserve atomic transactions and never expose dropped-backpack cargo.
-- Remaining P-03 work also includes wearable overlays constrained by the supplied Body_A art, removal of temporary fresh-session debug loadout seeding, and full Play Mode acceptance. The 503/503 result verifies EditMode tests only; no unreported Play Mode scenario is marked passed.
-
-
-## P-03.5 implementation checkpoint — source changes committed, verification pending (2026-11-26)
-
-- Retail SELL now lists owned accepted stacks across all accessible carried inventories: equipped backpack and P1/P2/P3. Sale execution resolves the actual source inventory by stable item instance ID.
-- Dirty Cash fence and cleaning selection now show pocket-held items separately from backpack cargo and resolve the selected ID against the actual source inventory.
-- Home Storage now lists backpack and pocket contents. STORE uses the exact source grid; TAKE routes through carry-capacity selection, including pockets when the backpack is unavailable or full.
-- Dropped-backpack contents remain excluded because the accessible inventory list includes the backpack only while equipped/accessibly carried, plus the three pockets at all times.
-- These are source changes only. Unity compile, EditMode tests and Play Mode acceptance are pending; do not report the previous 500/500 as verification of this new code.
-- Next: audit remaining direct-grid assumptions in customer/service panels and any other item consumers. Wearable visuals wait for the user's actual sprite assets.
-
-
-## P-03.5 implementation update — workbench and production included (2026-11-26)
-
-- Retail SELL, Dirty Cash selection and Home Storage now use all accessible carried grids (backpack when accessible plus P1/P2/P3), while excluding dropped-backpack cargo.
-- Workbench repair discovery spans all accessible grids. RepairService can consume a patch kit from a different grid than the target item, preserving item ownership and rolling back both grids on failure.
-- ProductionService can consume recipe ingredients across multiple accessible grids and place the output into a separately selected capacity-approved grid. The transaction snapshots all participating inventories and restores inventory/ownership state if output placement or history commit fails.
-- GameSession routes repair, production output, storage withdrawal, retail sale and Dirty Cash operations through actual source/destination grids.
-- Three targeted EditMode tests were added for split-grid repair and multi-grid production; the user subsequently confirmed the full suite at 503/503. Later NPC sprite-rendering additions are not included in that verification.
-- Next: audit remaining backpack-only assumptions in search/loot, customer/service panels and other inventory consumers. Then wearable visuals, debug-loadout cleanup and full Play Mode acceptance.
-
-- Searchable Container now displays the backpack only when accessible and shows P1/P2/P3 separately, marking P3 HIDDEN. Loot pickup remains capacity-aware and dropped-backpack cargo stays hidden.
-
-
-## 2026-11-26 — P-03 repair-loop debug starting loadout
-
-- Updated the temporary fresh-Play-Mode loadout to include a Worn Work Jacket, one Basic Patch Kit, and one complete recipe set (Fabric Roll, Thread Spool, Adhesive Tube), in addition to the equipped Canvas Backpack and three extra distinct-footprint test items.
-- This supports immediate repair testing and crafting a replacement Basic Patch Kit without relying on shop stock or scavenging. It remains debug-only scaffolding, not permanent starting gear.
-- Commit: `858097a06aba6b70a672549b8e61aa4b09847083`. Unity compilation and Play Mode verification pending.
-
-
-## 2026-11-26 — NPC sprite rendering smoke test
-
-- User confirmed **503/503 EditMode tests passed**. This is the new user-reported checkpoint; the NPC visual-only source changes below have not yet been compiled or tested in Unity.
-- Added `NpcSpriteSheetImporter` with menu `Signal > Import NPC Rendering Test Sprites...`. It extracts only the three full sprite sheets from the supplied `signal_npc_sprites.zip` into `Assets/_Project/Resources/NpcSprites` and configures readable, uncompressed, point-filtered textures. No art binaries are committed to the repository.
-- Added `NpcSpriteSheetVisual` to slice the supplied 48×72, 6×12 sheets at runtime (32 PPU), animate Idle/Walk in four directions, and follow the existing NPC transform. It changes rendering only.
-- City bootstrap adds exactly three generic visual-test residents when all three imported sheets are present. Their appearance assignments are randomly shuffled each session; their movement/schedules use the existing generic NPC systems. No named cast, unique dialogue, social mechanics, player visuals or equipment behaviour was changed.
-- After pulling, run `Signal > Import NPC Rendering Test Sprites...` and select the supplied `signal_npc_sprites.zip`, then enter Play Mode. Verify three generic residents appear and walk around the city. Existing NPCs remain unchanged.
-
-
-## 2026-11-26 — NPC rendering-test walkers restricted to outdoors
-
-- User confirmed **503/503 EditMode tests passing**.
-- The three temporary sprite-sheet test residents now stay in the outdoor Street navigation region for all schedule activities; their work/rest/social/home destinations are all street positions and their navigation place is forced to `Street`.
-- They continue using existing generic NPC schedules/pathfinding. No interior visits and no changes to named residents or gameplay.
-- Commits: `6a12aca89c4127291128153f371918078e9a5180`, `c9fbfb9210f4b1b78aa9bacffe4ce311e547029d`. Unity compile/visual check pending.
-
-
-## 2026-11-26 — P-03.5 audit and continuous NPC visual-test roaming
-
-- Three temporary sprite-test residents now roam indefinitely across the outdoor Street region using random destinations and the existing obstacle-aware pathfinder. They no longer wait at fixed schedule positions or enter buildings; schedule changes do not interrupt their roam loop.
-- Completed a source-level P-03.5 audit across Retail, Dirty Cash, Home Storage, Workbench repair/production, customer contracts/repair orders, searchable containers, and GameSession transfer/pickup flows. Accessible backpack + pockets are passed to the panels/services; dropped backpack cargo is excluded. No remaining direct-grid-only blocker was found in the reviewed paths.
-- Next: P-03.6 wearable presentation, pending actual imported player sprite/resource paths. Keep temporary repair-debug starting loadout until final P-03 cleanup. Do not guess local Resources asset names.
-- Commit: `bfcaecf0a98daabd17bf58abbeb14538959a38b9`. User's latest confirmed EditMode result remains 503/503; this roaming adjustment and remaining Play Mode acceptance need Unity verification.
-
-
-- Follow-up to outdoor NPC rendering-test report: the three walkers now relocate from their schedule-derived initial point onto a clearance-safe Street position before their first route, avoiding bench/furniture spawn overlap. Subsequent roam targets are sampled from the actual walkable Street region using the pathfinder's clearance and avoid clustering near other residents. They continue to use the existing pathfinder and retry when no safe target is found.
-- This is a source-level robustness fix; Unity compile and Play Mode confirmation are pending. The latest user-confirmed EditMode baseline remains 503/503 from before this rendering-only change.
-- Commits: c000c6158535544f1bdc9dbc806000f87a0a571c, 8365baa42116c5f2819d4f229dedb2488db48de9.
-
-
-- P-03 automatic receipt rule confirmed: incoming physical items continue to use the first suitable available space, backpack first, then P1 → P2 → P3. No destination prompt. Manual moves remain exact-pocket/player-directed; dropped backpack cargo remains inaccessible. Added Core contract comments and a regression test for deterministic first-empty-pocket fallback. Previous user-confirmed suite: 503/503; expected 504 after this addition, pending Unity run.
-
-
-## 2026-11-26 — EditMode regression: visual-test residents
-
-- Reviewed the uploaded Unity Test Runner XML: **500/504 passed; 4 failed**, all in CityBlockBootstrapTests. The Core test assembly passed **424/424**.
-- Root cause: the three temporary sprite-sheet residents were being spawned during EditMode bootstrap tests whenever the imported sprite assets were present. This inflated resident counts, affected prompt selection, and introduced extra social encounters.
-- Fixed SpawnVisualTestResidents() to spawn only when Application.isPlaying and the sprite assets are available. The three visual walkers remain enabled for actual Play Mode rendering tests; EditMode tests now see only authored/fallback gameplay residents.
-- Source commit: 75d43bb4e140fa406ac631cd9f25ffacfef6848c. Unity re-run pending; do not yet mark the suite green.
+| World | Hideout, Street, CornerShop, Apartment, persistent GameSession/player |
+| Inventory | Spatial grid, stable stack GUIDs, item state, three pockets, portable backpack lifecycle |
+| Ownership/economy | Ownership vs custody, atomic asset transfers, CARD accounts, service-payment ledger |
+| Workshop | Actor-aware repair/production, authored recipes, one-active customer job |
+| Scavenging/crime | One-time searchable bins, resident-owned containers, theft outcomes, witness-scoped knowledge |
+| NPCs | Shared NpcSocialWorld, local perception, individual knowledge, routines, directed relationships |
+| Dirty Cash | Physical currency, explicit exchange/cleaning and separate transaction history |
+| Player Development | Armor, Heat Protection, skills, points, milestones and save mapping |
+
+## Guardrails
+- One active gameplay initiative at a time; complete a coherent player-facing loop.
+- Core remains plain C#; Game owns Unity integration and authored content.
+- Reuse existing inventory, transaction, ownership, account and save authorities.
+- Persistent state needs current-build F5/F9 round-trip coverage.
+- No new Unity packages/dependencies without approval.
+- No universal supply/demand, automatic NPC shopping, passive revenue, global gossip or incidental simulation.
+- Do not author new story cast/backstories until the main storyline/cast are designed.
+- Do not run `dotnet` or `msbuild` for this Unity project.
+- Keep this file concise; append history to the November log.
