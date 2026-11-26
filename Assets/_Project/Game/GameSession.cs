@@ -395,13 +395,57 @@ namespace Signal.Game
                 return;
             }
 
-            // Pick up to three distinct item footprints. Prefer larger items first so
-            // the test grid immediately exercises placement, rotation and transfer logic.
+            // Seed the complete first-repair loop for quick Play Mode debugging:
+            // a Worn Work Jacket, one ready-to-use Basic Patch Kit, and one full
+            // recipe's worth of materials to craft another kit.
+            int added = 0;
+            var seededDefinitions = new HashSet<Guid>();
+            ItemInstanceState wornJacketState = new ItemInstanceState(ItemQuality.Standard,
+                ItemCondition.Worn, ItemAuthenticity.Genuine, ItemOwnershipStatus.Legitimate);
+
+            if (TryAddDebugStartingItem(repairTargetItem, wornJacketState))
+            {
+                added++;
+                if (repairTargetItem != null) seededDefinitions.Add(repairTargetItem.Id);
+            }
+            else
+                Debug.LogWarning("Debug starting loadout: the Work Jacket could not be seeded.", this);
+
+            ItemDefinition fabricRoll = FindDebugItemDefinition("Fabric Roll");
+            ItemDefinition threadSpool = FindDebugItemDefinition("Thread Spool");
+            ItemDefinition adhesiveTube = FindDebugItemDefinition("Adhesive Tube");
+            ItemDefinition[] repairMaterials = { fabricRoll, threadSpool, adhesiveTube };
+            foreach (ItemDefinition material in repairMaterials)
+            {
+                if (material == null)
+                {
+                    Debug.LogWarning("Debug starting loadout: a Basic Patch Kit recipe material is missing.", this);
+                    continue;
+                }
+                if (TryAddDebugStartingItem(material))
+                {
+                    added++;
+                    seededDefinitions.Add(material.Id);
+                }
+                else
+                    Debug.LogWarning("Debug starting loadout: could not seed " + material.DisplayName + ".", this);
+            }
+
+            if (TryAddDebugStartingItem(basicPatchKitItem))
+            {
+                added++;
+                if (basicPatchKitItem != null) seededDefinitions.Add(basicPatchKitItem.Id);
+            }
+            else
+                Debug.LogWarning("Debug starting loadout: the Basic Patch Kit could not be seeded.", this);
+
+            // Keep a few extra catalogue items for general backpack footprint and
+            // transfer testing, without duplicating the repair-loop items above.
             var candidates = new List<ItemDefinition>();
             var seenFootprints = new HashSet<string>(StringComparer.Ordinal);
             foreach (ItemDefinition definition in _allItemDefinitions)
             {
-                if (definition == null || definition.PortableBackpack)
+                if (definition == null || definition.PortableBackpack || seededDefinitions.Contains(definition.Id))
                     continue;
 
                 ItemType type;
@@ -426,39 +470,56 @@ namespace Signal.Game
                 return areaOrder != 0 ? areaOrder : string.Compare(left.DisplayName, right.DisplayName, StringComparison.Ordinal);
             });
 
-            int added = 0;
+            int extraAdded = 0;
             foreach (ItemDefinition definition in candidates)
             {
-                if (added >= 3)
+                if (extraAdded >= 3)
                     break;
-
-                ItemType type = definition.ToItemType();
-                bool placed = false;
-                for (int y = 0; y < _inventory.Height && !placed; y++)
+                if (TryAddDebugStartingItem(definition))
                 {
-                    for (int x = 0; x < _inventory.Width; x++)
-                    {
-                        if (!_inventory.CanPlace(type, x, y, false))
-                            continue;
-
-                        Guid itemId = Guid.NewGuid();
-                        int? localId = _inventory.Place(type, x, y, false, 1,
-                            itemId, definition.DefaultInstanceState);
-                        if (!localId.HasValue)
-                            continue;
-
-                        _assetOwnership.TryRegister(itemId, EconomicActorId.Player);
-                        placed = true;
-                        added++;
-                        break;
-                    }
+                    extraAdded++;
+                    added++;
                 }
             }
 
             RegisterUnownedPlayerAssets(_inventory);
             RefreshCarryPanelInventories();
-            Say("DEBUG LOADOUT: backpack equipped with " + added +
-                " differently-sized test item(s).", 5f);
+            Say("DEBUG LOADOUT: backpack equipped with Worn Work Jacket, Basic Patch Kit, repair recipe materials and " +
+                extraAdded + " extra test item(s).", 6f);
+        }
+
+        private ItemDefinition FindDebugItemDefinition(string displayName)
+        {
+            if (string.IsNullOrWhiteSpace(displayName))
+                return null;
+            foreach (ItemDefinition definition in _allItemDefinitions)
+                if (definition != null && string.Equals(definition.DisplayName, displayName,
+                    StringComparison.OrdinalIgnoreCase))
+                    return definition;
+            return null;
+        }
+
+        private bool TryAddDebugStartingItem(ItemDefinition definition, ItemInstanceState? state = null)
+        {
+            if (definition == null || _inventory == null || _assetOwnership == null)
+                return false;
+            ItemType type;
+            try { type = definition.ToItemType(); }
+            catch (InvalidOperationException) { return false; }
+            for (int y = 0; y < _inventory.Height; y++)
+                for (int x = 0; x < _inventory.Width; x++)
+                {
+                    if (!_inventory.CanPlace(type, x, y, false))
+                        continue;
+                    Guid instanceId = Guid.NewGuid();
+                    int? localId = _inventory.Place(type, x, y, false, 1, instanceId,
+                        state ?? definition.DefaultInstanceState);
+                    if (!localId.HasValue)
+                        continue;
+                    _assetOwnership.TryRegister(instanceId, EconomicActorId.Player);
+                    return true;
+                }
+            return false;
         }
 
         private void InitializeLivelihoodWorld()
