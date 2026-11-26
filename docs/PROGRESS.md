@@ -142,3 +142,11 @@ W-01 is separate and inactive. Intended direction: seasonal temperature/weather,
 - Source-level Game-layer sweep classified remaining direct inventory mutations as controlled creation/bootstrap/debug flows: container loot generation, authored resident-property stock, Milo parcel creation/restoration, debug item spawning and legacy inventory demo bootstrap. Interactive UI paths use central transfer services for cross-grid movement; single-grid rearrangement uses GridInventory.
 - Expected current EditMode total is now **531**: 25 tests beyond the last explicit user-reported 506/506 baseline. Pending Unity verification; no pass claimed.
 - Remaining acceptance: run 531 EditMode tests, then Play Mode save/load with duplicate/malformed test saves where feasible, equipped/dropped backpack, pockets and searchable containers. Verify repair, production, retail, shop sale and customer contract flows after transaction notification changes.
+
+
+### Phase 4 follow-up — GameSession item creation paths
+
+- Player/customer item seeding now uses silent placement, registers the item owner, then publishes the inventory change. Failed ownership registration removes the silent placement.
+- Debug spawner item creation registers ownership before the pocket/inventory change is published; failed pocket insertion removes the provisional owner record.
+- Debug starting backpack creation and Milo parcel backpack placement now avoid publishing an item before the associated placement/opportunity state is established.
+- These are source-level changes only and add no new gameplay rules. Expected EditMode suite remains **531**, pending Unity verification.
