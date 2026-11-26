@@ -222,7 +222,15 @@ namespace Signal.Game
         private void UpdatePointer(Keyboard keyboard, Mouse mouse)
         {
             Vector2 screen = mouse.position.ReadValue();
-            bool inGrid = TryGetHoverCell(screen, out int hoverX, out int hoverY, out Vector2 local);
+            bool backpackAccessible = _canAccessGrid == null || _canAccessGrid();
+            bool inGrid = backpackAccessible &&
+                TryGetHoverCell(screen, out int hoverX, out int hoverY, out Vector2 local);
+            if (!inGrid)
+            {
+                hoverX = 0;
+                hoverY = 0;
+                local = Vector2.zero;
+            }
 
             if (!_dragging && keyboard != null)
             {
@@ -247,8 +255,7 @@ namespace Signal.Game
             // or a personal pocket. Pockets remain usable without an equipped backpack.
             if (!_dragging && keyboard != null && keyboard.eKey.wasPressedThisFrame)
             {
-                bool canAccessGrid = _canAccessGrid == null || _canAccessGrid();
-                if (canAccessGrid && inGrid &&
+                if (backpackAccessible && inGrid &&
                     _inventory.TryGetItemAt(hoverX, hoverY, out PlacedItem equipTarget))
                 {
                     if (_equipItem != null && _equipItem(equipTarget))
@@ -265,7 +272,6 @@ namespace Signal.Game
                 }
             }
 
-            bool backpackAccessible = _canAccessGrid == null || _canAccessGrid();
             if (!_dragging && mouse.leftButton.wasPressedThisFrame &&
                 TryGetPocketIndex(screen, out int sourcePocketIndex) &&
                 _pockets != null && _pockets.GetPocket(sourcePocketIndex).Items.Count > 0)
