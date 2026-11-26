@@ -104,3 +104,11 @@ Crime consequences, police response, additional lawful/illicit activities, inves
 - InventoryPanel now prevents drop previews into an inaccessible backpack grid without freezing pocket drag ghost movement. InventoryDragMath rejects non-finite/overflowed geometry and invalid rotation footprints.
 - Added 7 regression tests in these phases. Cumulative expected suite total is **529** relative to the last explicit user-reported 506/506 baseline; pending Unity verification.
 - Phase 4: remaining Core/Game inventory mutation sweep, then full EditMode and Play Mode verification. See docs/tasks/INVENTORY-GRID-AUDIT.md.
+
+
+### Inventory audit — additional restore guards and source sweep
+
+- SaveMapper rejects aliased inventory-role arguments; SearchableContainerSaveMapper skips duplicate runtime destination containers. Two tests added.
+- Remaining direct Game-layer mutations were source-reviewed as controlled item creation/bootstrap/debug flows; cross-grid UI movement uses transfer services.
+- Expected suite total **531**, pending Unity verification (25 tests beyond last explicit user-reported 506/506).
+- Next: full EditMode run, then Play Mode save/load and feature-integration acceptance. Audit task card: docs/tasks/INVENTORY-GRID-AUDIT.md.
