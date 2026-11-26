@@ -187,3 +187,6 @@ Committed but not yet Unity-verified:
 
 
 - NPC rendering-test clarification: the three sprite-sheet residents are strictly temporary visual tests and now remain outdoors in the Street region across all schedule activities. Their movement remains driven by the existing generic NPC schedule/pathfinding. No changes to Milo, Rhea, money cleaner, player visuals or gameplay. User confirmed 503/503 EditMode tests; Unity compile/visual check for this small routing adjustment is pending.
+
+
+- Latest: three temporary NPC sprite-test residents now roam indefinitely outdoors via random street destinations and the existing pathfinder; they no longer wait at the bench or enter buildings. P-03.5 source audit reviewed Retail, Dirty Cash, Home Storage, Workbench repair/production, customer contracts/repair orders, searchable containers and GameSession item flows; no remaining direct-grid-only blocker found in those paths. Next P-03.6 is wearable presentation, but player sprite resources are user-local/not committed, so obtain their actual imported paths before wiring. Debug repair loadout remains temporary until P-03 final cleanup. Commit `bfcaecf0a98daabd17bf58abbeb14538959a38b9`; 503/503 user-confirmed previously, new roam and Play Mode acceptance pending.
