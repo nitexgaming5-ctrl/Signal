@@ -73,10 +73,16 @@ namespace Signal.Core
                 }
             }
 
+            var restoredDestinationIds = new HashSet<string>(StringComparer.Ordinal);
             for (int i = 0; i < destinations.Count; i++)
             {
                 SearchableContainer destination = destinations[i];
                 if (destination == null) continue;
+                if (!restoredDestinationIds.Add(destination.ContainerId))
+                {
+                    skipped++;
+                    continue;
+                }
                 destination.Reset();
 
                 if (!savedById.TryGetValue(destination.ContainerId, out SavedSearchableContainer saved))
