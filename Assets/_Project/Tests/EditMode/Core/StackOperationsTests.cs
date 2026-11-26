@@ -92,18 +92,18 @@ namespace Signal.Core.Tests
             grid.Place(type, 1, 0, count: 2, itemInstanceId: destinationId);
             var lineage = new StackLineageBook();
 
-            StackOperationResult result = StackOperations.Merge(grid, grid, sourceId, destinationId, 5, lineage);
+            StackOperationResult result = StackOperations.Merge(grid, grid, sourceId, destinationId, 7, lineage);
 
             Assert.That(result.Success, Is.True);
             Assert.That(result.ResultingStackId, Is.EqualTo(destinationId));
             Assert.That(grid.TryGetItemInstance(sourceId, out _), Is.False);
             Assert.That(grid.TryGetItemInstance(destinationId, out PlacedItem survivor), Is.True);
-            Assert.That(survivor.Count, Is.EqualTo(7));
+            Assert.That(survivor.Count, Is.EqualTo(9));
             Assert.That(grid.CountOf(type), Is.EqualTo(9));
             Assert.That(lineage.Merges.Count, Is.EqualTo(1));
             Assert.That(lineage.Merges[0].SourceStackId, Is.EqualTo(sourceId));
             Assert.That(lineage.Merges[0].DestinationStackId, Is.EqualTo(destinationId));
-            Assert.That(lineage.Merges[0].Quantity, Is.EqualTo(5));
+            Assert.That(lineage.Merges[0].Quantity, Is.EqualTo(7));
         }
 
         [Test]
