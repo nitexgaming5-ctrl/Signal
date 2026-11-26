@@ -158,3 +158,6 @@ See [P-01](tasks/PLAYER-P-01-CHARACTER-FOUNDATION-APPEARANCE.md), [P-02](tasks/P
 
 
 - P-03 automatic item receipts: user confirmed first-suitable-space behaviour. Route to accessible equipped backpack first, then first suitable pocket P1 → P2 → P3; do not prompt. Manual pocket moves remain exact-target. Core contract comments and regression test added; expected suite 504, pending Unity verification (last confirmed 503/503).
+
+
+- 2026-11-26 test follow-up: the uploaded 504-test XML reported 500 passed / 4 failed. All failures traced to the three temporary NPC sprite-test residents being included in EditMode bootstrap tests. Their spawning is now gated to Play Mode (Application.isPlaying), preserving the visual test while keeping EditMode test fixtures isolated. Commit 75d43bb4e140fa406ac631cd9f25ffacfef6848c; rerun pending.
