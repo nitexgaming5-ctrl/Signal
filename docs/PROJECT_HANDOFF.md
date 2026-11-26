@@ -190,3 +190,7 @@ Committed but not yet Unity-verified:
 
 
 - Latest: three temporary NPC sprite-test residents now roam indefinitely outdoors via random street destinations and the existing pathfinder; they no longer wait at the bench or enter buildings. P-03.5 source audit reviewed Retail, Dirty Cash, Home Storage, Workbench repair/production, customer contracts/repair orders, searchable containers and GameSession item flows; no remaining direct-grid-only blocker found in those paths. Next P-03.6 is wearable presentation, but player sprite resources are user-local/not committed, so obtain their actual imported paths before wiring. Debug repair loadout remains temporary until P-03 final cleanup. Commit `bfcaecf0a98daabd17bf58abbeb14538959a38b9`; 503/503 user-confirmed previously, new roam and Play Mode acceptance pending.
+
+
+- Outdoor rendering-test NPC follow-up: after the user reported all three walkers stopped at the bench, initial placement was changed to a clearance-safe sampled Street point rather than their schedule-derived location. New roaming destinations are sampled from the Street navigation region, checked with the pathfinder's clearance and spaced away from other residents. The A* pathfinder still handles obstacle avoidance. Unity compile and Play Mode confirmation are pending; 503/503 remains the last user-confirmed EditMode result.
+- Latest commits: c000c6158535544f1bdc9dbc806000f87a0a571c, 8365baa42116c5f2819d4f229dedb2488db48de9.
