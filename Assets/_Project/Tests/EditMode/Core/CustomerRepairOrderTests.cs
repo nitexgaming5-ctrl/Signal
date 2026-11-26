@@ -350,5 +350,26 @@ namespace Signal.Core.Tests
             Assert.That(owner, Is.EqualTo(fixture.Customer));
         }
 
+        [Test]
+        public void RepairOrderAcceptanceNotifiesOnlyAfterCustodyAndOrderStateCommit()
+        {
+            var fixture = new Fixture();
+            bool observerSawCommittedState = false;
+            fixture.CustomerInventory.Changed += _ =>
+            {
+                observerSawCommittedState =
+                    fixture.CustomerInventory.Items.Count == 0 &&
+                    fixture.PlayerInventory.TryGetItemInstance(fixture.JacketId, out _) &&
+                    fixture.Orders.HasActiveOrder &&
+                    fixture.Ownership.TryGetOwner(fixture.JacketId, out EconomicActorId owner) &&
+                    owner == fixture.Customer;
+            };
+
+            CustomerRepairOrderResult result = fixture.Accept();
+
+            Assert.That(result.Success, Is.True);
+            Assert.That(observerSawCommittedState, Is.True);
+        }
+
     }
 }
