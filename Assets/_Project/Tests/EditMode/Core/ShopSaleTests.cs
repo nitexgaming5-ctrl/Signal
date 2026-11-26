@@ -242,5 +242,32 @@ namespace Signal.Core.Tests
             Assert.That(ledger.Count, Is.Zero);
         }
 
+        [Test]
+        public void SaleNotifiesInventoryOnlyAfterOwnershipPaymentAndLedgerCommit()
+        {
+            ItemType item = Item();
+            var inventory = new GridInventory();
+            inventory.Place(item, 0, 0, count: 2);
+            Guid itemId = inventory.Items[0].ItemInstanceId;
+            var ownership = new AssetOwnershipBook();
+            Assert.That(ownership.TryRegister(itemId, Player), Is.True);
+            var account = new CleanMoneyAccount(10);
+            var ledger = new ShopSaleTransactionLedger();
+            bool observerSawCommittedState = false;
+            inventory.Changed += _ =>
+            {
+                observerSawCommittedState =
+                    inventory.Items.Count == 0 &&
+                    !ownership.TryGetOwner(itemId, out _) &&
+                    account.Balance == 24 &&
+                    ledger.Count == 1;
+            };
+
+            FulfilResult result = Sell(inventory, ownership, account, ledger, itemId, item, 2, 7);
+
+            Assert.That(result, Is.EqualTo(FulfilResult.Done));
+            Assert.That(observerSawCommittedState, Is.True);
+        }
+
     }
 }
