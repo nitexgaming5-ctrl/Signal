@@ -138,12 +138,19 @@ namespace Signal.Core
 
         internal bool TryRemoveItemInstance(Guid itemInstanceId)
         {
+            if (!TryRemoveItemInstanceSilently(itemInstanceId))
+                return false;
+            NotifyChanged();
+            return true;
+        }
+
+        internal bool TryRemoveItemInstanceSilently(Guid itemInstanceId)
+        {
             int index = _items.FindIndex(item => item.ItemInstanceId == itemInstanceId);
             if (index < 0)
                 return false;
 
             _items.RemoveAt(index);
-            Changed?.Invoke(this);
             return true;
         }
 
@@ -175,6 +182,14 @@ namespace Signal.Core
 
         internal bool TryPlaceTransferred(PlacedItem item)
         {
+            if (!TryPlaceTransferredSilently(item))
+                return false;
+            NotifyChanged();
+            return true;
+        }
+
+        internal bool TryPlaceTransferredSilently(PlacedItem item)
+        {
             if (item.ItemInstanceId == Guid.Empty || item.Count < 1 || item.Count > item.Type.MaxStack)
                 return false;
             if (_items.Exists(existing => existing.ItemInstanceId == item.ItemInstanceId))
@@ -184,7 +199,6 @@ namespace Signal.Core
 
             int localId = _nextInstanceId++;
             _items.Add(new PlacedItem(localId, item.ItemInstanceId, item.Type, x, y, item.Rotated, item.Count, item.State));
-            Changed?.Invoke(this);
             return true;
         }
 
@@ -216,6 +230,14 @@ namespace Signal.Core
 
         public bool TryUpdateItemState(Guid itemInstanceId, ItemInstanceState state)
         {
+            if (!TryUpdateItemStateSilently(itemInstanceId, state))
+                return false;
+            NotifyChanged();
+            return true;
+        }
+
+        internal bool TryUpdateItemStateSilently(Guid itemInstanceId, ItemInstanceState state)
+        {
             int index = _items.FindIndex(candidate => candidate.ItemInstanceId == itemInstanceId);
             if (index < 0)
                 return false;
@@ -226,7 +248,6 @@ namespace Signal.Core
 
             _items[index] = new PlacedItem(current.InstanceId, current.ItemInstanceId, current.Type,
                 current.X, current.Y, current.Rotated, current.Count, state);
-            Changed?.Invoke(this);
             return true;
         }
 
@@ -335,12 +356,22 @@ namespace Signal.Core
 
         public void Restore(InventorySnapshot snapshot)
         {
+            RestoreSilently(snapshot);
+            NotifyChanged();
+        }
+
+        internal void RestoreSilently(InventorySnapshot snapshot)
+        {
             if (snapshot == null)
                 throw new ArgumentNullException(nameof(snapshot));
 
             _items.Clear();
             _items.AddRange(snapshot.Items);
             _nextInstanceId = snapshot.NextInstanceId;
+        }
+
+        internal void NotifyChanged()
+        {
             Changed?.Invoke(this);
         }
 
@@ -392,11 +423,18 @@ namespace Signal.Core
 
         internal bool TryPlaceTransferred(PlacedItem item, int x, int y, bool rotated)
         {
+            if (!TryPlaceTransferredSilently(item, x, y, rotated))
+                return false;
+            NotifyChanged();
+            return true;
+        }
+
+        internal bool TryPlaceTransferredSilently(PlacedItem item, int x, int y, bool rotated)
+        {
             if (!CanPlaceTransferred(item, x, y, rotated))
                 return false;
 
             _items.Add(new PlacedItem(_nextInstanceId++, item.ItemInstanceId, item.Type, x, y, rotated, item.Count, item.State));
-            Changed?.Invoke(this);
             return true;
         }
 
