@@ -16,7 +16,7 @@ Signal is a top-down 2D urban RPG built on Unity 6000.6.9f1.
 ## Current verified baseline
 - Working branch: `chore/collaboration-workflow-and-audit`; keep `main` untouched.
 - Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
-- User confirmed **500/500 EditMode tests passing** after direct pocket-to-pocket moves/swaps (2026-11-26). P-03.5 source changes since that checkpoint cover Retail SELL, Dirty Cash selection, Home Storage, Searchable Container pocket display, workbench repair and multi-grid production across accessible pockets/backpack; three targeted EditMode tests were added, but these changes are not yet Unity-verified. Play Mode acceptance remains outstanding.
+- Last user-confirmed full EditMode result was **503/503**. A later uploaded 504-test XML reported 500/504; all four failures were traced to temporary NPC rendering-test residents spawning during EditMode. The fix is committed at 75d43bb4e140fa406ac631cd9f25ffacfef6848c; rerun pending. P-03.5 source integration is complete, but the latest code still needs Unity verification and Play Mode acceptance.
 - B-06 Customer Repair Orders is complete: entrusted item custody remains distinct from ownership; exact item return and 35 CARD payment are atomic and replay-protected.
 - B-04 repair/trading and the First Workshop have also been reported working in Play Mode.
 - Unity remains the authority for compile, test and Play Mode verification. Never infer a pass from source edits.
@@ -31,8 +31,8 @@ Candidate skills (Repair, Production, Trading, Scavenging, Social), starting bud
 ## Separate future phase — W-01 Weather
 Dynamic seasonal weather is planned: temperature changes, rain, storms, snow and blizzards. Player exposure consequences are cold-focused and gradual. Heat Protection mitigates cold exposure; shelter supports recovery. No hot-weather/overheating gameplay is planned. W-01 is separate from P-01/P-02 and is not authorized for implementation.
 
-## Next action — P-03.5 pocket-aware service-panel integration
-The user has confirmed **500/500 EditMode tests passing** on 2026-11-26. Resume the original P-03 Equipment & Backpack track. The current P-03.5 implementation already integrates Retail SELL, Dirty Cash selection, Home Storage, Searchable Container pocket display, workbench repair and multi-grid production. Continue auditing any remaining 8×6-backpack-only assumptions, preserve atomic transactions and stable item identity/ownership, and keep dropped-backpack cargo strictly inaccessible. See the P-03 task card for the complete remaining sequence.
+## Next action — verify 504 tests, then P-03.6 wearable presentation
+The last user-confirmed suite was 503/503. The subsequent 504-test XML showed 500/504 because three temporary NPC sprite-test residents contaminated EditMode bootstrap tests; a Play Mode-only spawn guard is committed and the full rerun is pending. P-03.5 source integration and the direct-grid audit are complete. The next prepared implementation phase is P-03.6 Wearable Presentation, but it must wait for inspection of the actual locally imported wearable sprite/resource paths. Do not guess paths, fabricate clothing art or use inventory icons as body overlays. See [P-03](docs/tasks/PLAYER-P-03-EQUIPMENT-BACKPACK.md) and [P-03.6](docs/tasks/PLAYER-P-03-6-WEARABLE-PRESENTATION.md).
 
 Current implementation:
 - Seven equipment slots are approved; Canvas Backpack occupies Accessory 1 and owns the 8×6 contents grid.
@@ -205,3 +205,11 @@ Committed but not yet Unity-verified:
 - Cause: temporary NPC sprite rendering-test residents were spawning in EditMode tests when local sprite assets existed, adding three unexpected residents and social interactions. This also changed which nearby resident supplied a talk prompt.
 - Fix committed: 75d43bb4e140fa406ac631cd9f25ffacfef6848c. SpawnVisualTestResidents() is now gated by Application.isPlaying as well as sprite asset availability. The three roaming visuals remain a Play Mode-only test feature.
 - Next action: rerun all 504 EditMode tests and share the fresh XML. Do not assume the fix passes until verified.
+
+
+## P-03.6 preparation and closeout boundary
+
+- P-03.6 task card: `docs/tasks/PLAYER-P-03-6-WEARABLE-PRESENTATION.md`. It records the five existing Body_A renderer layers, Idle/Walk and Down/Side/Top pose contract, 96×128 frame assumptions, 1.8 visual scale, separate backpack layer, and the required local asset preflight.
+- Ask for the actual imported wearable asset paths/listing before implementation. The Body_A base pack is not a complete wardrobe; do not invent resource names or use generic inventory icons as clothing overlays.
+- P-03.7 removes the temporary fresh-session repair/debug loadout only after the user finishes acceptance testing. Keep the deliberate F1 debug item spawner.
+- Latest 504-test rerun remains pending after the EditMode-only NPC spawn regression fix.
