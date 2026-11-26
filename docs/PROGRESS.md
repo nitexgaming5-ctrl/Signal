@@ -7,7 +7,7 @@ Last reconciled: **2026-11-26**. This is the short status board. Session history
 - Unity **6000.6.9f1**, 2D URP. Active architecture: `Signal.Core` (plain C#) + `Signal.Game` (Unity integration). Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
 - Working branch: `chore/collaboration-workflow-and-audit`. Keep `main` untouched.
 - Application version: **0.01**. Save snapshots are deliberately unversioned; there is no schema-version field, version gate or automatic migration chain. Older experimental saves may be incompatible after data-shape changes.
-- Latest user-reported full EditMode result: **500/500 passed (2026-11-26)** after direct pocket-to-pocket move/swap support. P-03.5 has since added two focused EditMode tests and changed Retail, Dirty Cash, storage, search and workbench inventory routing; these new source changes are not yet Unity-verified. B-05/B-06 and the earlier backpack lifecycle are user-verified.
+- Latest user-reported full EditMode result: **503/503 passed (2026-11-26)** after P-03.5 pocket-aware service and multi-grid repair/production integration. The later NPC sprite-rendering source changes are separate and still need Unity compile/Play Mode verification. B-05/B-06 and the earlier backpack lifecycle are user-verified.
 - The user reports the First Workshop and B-04 repair/trading loop working in Play Mode. B-06 uses a separate Worn jacket seeded in Milo's inventory for the entrusted-service test.
 
 ## Completed livelihood foundations — B-01 to B-06
@@ -308,13 +308,13 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 - No Unity compile, EditMode or Play Mode result is claimed by this implementation pass.
 
 
-## P-03 checkpoint — 500/500 EditMode tests confirmed (2026-11-26)
+## P-03 checkpoint — 503/503 EditMode tests confirmed (2026-11-26)
 
-- User confirmed the full Unity EditMode suite passes **500/500** after direct pocket-to-pocket move/swap support.
+- User confirmed the full Unity EditMode suite passes **503/503** after the three targeted P-03.5 tests and pocket-aware repair/production/service integration.
 - Pocket items can be dragged directly to another pocket. Empty destinations receive the stack; occupied destinations swap stacks. Stable item IDs, counts, condition, quality, authenticity and ownership state are preserved.
 - Pocket dragging remains available without a backpack and while the backpack is dropped. P1/P2 ordinary-search visibility and P3 hidden-pocket exclusion remain unchanged.
 - **Next:** P-03.5 pocket-aware service-panel integration. Audit and support pocket-held items in Retail SELL and Dirty Cash selection first, then home storage and workbench/production inputs and outputs. Preserve atomic transactions and never expose dropped-backpack cargo.
-- Remaining P-03 work also includes wearable overlays constrained by the supplied Body_A art, removal of temporary fresh-session debug loadout seeding, and full Play Mode acceptance. The 500/500 result verifies EditMode tests only; no unreported Play Mode scenario is marked passed.
+- Remaining P-03 work also includes wearable overlays constrained by the supplied Body_A art, removal of temporary fresh-session debug loadout seeding, and full Play Mode acceptance. The 503/503 result verifies EditMode tests only; no unreported Play Mode scenario is marked passed.
 
 
 ## P-03.5 implementation checkpoint — source changes committed, verification pending (2026-11-26)
@@ -333,7 +333,7 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 - Workbench repair discovery spans all accessible grids. RepairService can consume a patch kit from a different grid than the target item, preserving item ownership and rolling back both grids on failure.
 - ProductionService can consume recipe ingredients across multiple accessible grids and place the output into a separately selected capacity-approved grid. The transaction snapshots all participating inventories and restores inventory/ownership state if output placement or history commit fails.
 - GameSession routes repair, production output, storage withdrawal, retail sale and Dirty Cash operations through actual source/destination grids.
-- Three targeted EditMode tests were added for split-grid repair and multi-grid production. Unity compilation and the full suite have not yet been run against these changes. The last user-confirmed full-suite result remains 500/500 before this implementation.
+- Three targeted EditMode tests were added for split-grid repair and multi-grid production; the user subsequently confirmed the full suite at 503/503. Later NPC sprite-rendering additions are not included in that verification.
 - Next: audit remaining backpack-only assumptions in search/loot, customer/service panels and other inventory consumers. Then wearable visuals, debug-loadout cleanup and full Play Mode acceptance.
 
 - Searchable Container now displays the backpack only when accessible and shows P1/P2/P3 separately, marking P3 HIDDEN. Loot pickup remains capacity-aware and dropped-backpack cargo stays hidden.
