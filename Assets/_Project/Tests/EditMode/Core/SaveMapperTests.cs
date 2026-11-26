@@ -790,5 +790,37 @@ namespace Signal.Core.Tests
             Assert.That(data.npcPlayerRelationships, Is.Not.Null);
         }
 
+        [Test]
+        public void ApplyRejectsDuplicateStableItemIdAcrossPlayerInventoryAndHomeStorage()
+        {
+            ItemType type = Item(1, 1, 5);
+            Guid duplicateId = Guid.NewGuid();
+            var data = new SaveData();
+            data.items.Add(new SavedItem
+            {
+                typeId = type.Id.ToString(), instanceId = duplicateId.ToString(),
+                x = 0, y = 0, count = 1
+            });
+            data.storageItems.Add(new SavedItem
+            {
+                typeId = type.Id.ToString(), instanceId = duplicateId.ToString(),
+                x = 0, y = 0, count = 1
+            });
+
+            var world = new World();
+            var storage = new GridInventory();
+            var ownership = new AssetOwnershipBook();
+            LoadReport report = SaveMapper.Apply(data, world.Stats, world.Inventory, storage,
+                world.Clock, world.Heat, world.Rent, Resolver(type), assetOwnership: ownership);
+
+            Assert.That(report.Success, Is.True);
+            Assert.That(report.SkippedItems, Is.Zero);
+            Assert.That(report.SkippedStorageItems, Is.EqualTo(1));
+            Assert.That(world.Inventory.TryGetItemInstance(duplicateId, out _), Is.True);
+            Assert.That(storage.TryGetItemInstance(duplicateId, out _), Is.False);
+            Assert.That(ownership.TryGetOwner(duplicateId, out EconomicActorId owner), Is.True);
+            Assert.That(owner, Is.EqualTo(EconomicActorId.Player));
+        }
+
     }
 }
