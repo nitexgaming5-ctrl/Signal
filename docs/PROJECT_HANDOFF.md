@@ -197,3 +197,11 @@ Committed but not yet Unity-verified:
 
 
 - P-03 automatic receipt routing is now explicitly confirmed: use accessible backpack capacity first, then the first suitable empty pocket in P1 → P2 → P3 order; no destination prompt. Manual moves remain exact-pocket/player-directed. Added a Core regression test; last user-confirmed suite is 503/503 and expected count is 504, pending Unity verification.
+
+
+## Latest test-result follow-up (2026-11-26)
+
+- Uploaded test report: **500/504 passed, 4 failed**. All 4 failures were in CityBlockBootstrapTests; the Core assembly passed 424/424.
+- Cause: temporary NPC sprite rendering-test residents were spawning in EditMode tests when local sprite assets existed, adding three unexpected residents and social interactions. This also changed which nearby resident supplied a talk prompt.
+- Fix committed: 75d43bb4e140fa406ac631cd9f25ffacfef6848c. SpawnVisualTestResidents() is now gated by Application.isPlaying as well as sprite asset availability. The three roaming visuals remain a Play Mode-only test feature.
+- Next action: rerun all 504 EditMode tests and share the fresh XML. Do not assume the fix passes until verified.
