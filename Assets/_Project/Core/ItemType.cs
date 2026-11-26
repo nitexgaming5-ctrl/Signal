@@ -17,6 +17,7 @@ namespace Signal.Core
         public int Width => _width;
         public int Height => _height;
         public int MaxStack => _maxStack;
+        public bool IsValid => _id != Guid.Empty && _width > 0 && _height > 0 && _maxStack > 0;
 
         public ItemType(Guid id, int width, int height, int maxStack)
         {
