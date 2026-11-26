@@ -346,3 +346,12 @@ Recommended next implementation slice: **P-03.5 — pocket-aware service-panel i
 - SetDebugStreetOnly now moves each test resident to a randomly sampled, clearance-safe point in the Street navigation region before requesting its first route.
 - Each subsequent destination is sampled from the actual walkable Street region, uses the pathfinder's configured clearance, remains sufficiently far from the current position, and avoids clustering around other residents. Existing A* pathfinding continues to route around obstacles; failed sampling retries.
 - This is an isolated rendering-test fix and does not affect named NPCs or player gameplay. Unity compile and Play Mode visual confirmation are pending. The last user-confirmed EditMode result remains 503/503 before this change.
+
+
+### Automatic receipt destination rule (2026-11-26)
+
+- User confirmed automatic item receipts should continue filling the first suitable available space without asking for a destination.
+- GameSession's `GetCarryInventory` remains the single capacity selector: use the equipped, accessible backpack when it can accept the full item; otherwise select the first empty suitable pocket in deterministic P1 → P2 → P3 order. Larger or rotated items cannot fall back into 1×1 pockets. A dropped backpack is never considered accessible.
+- Manual inventory moves remain player-directed and continue to target the exact selected pocket; this automatic fallback must not be reused for manual drag/drop.
+- Added explicit Core documentation and a focused regression test for first-suitable pocket order and full-capacity rejection. Existing source audit found receipt callers for repair-order acceptance, production output, retail purchase and searchable-container pickup routed through the selector; exact GameSession flows still require Unity Play Mode acceptance.
+- User's last confirmed full suite remains 503/503 before this new test. Expected count is now 504; pending Unity compilation and EditMode execution. No new test result is claimed.
