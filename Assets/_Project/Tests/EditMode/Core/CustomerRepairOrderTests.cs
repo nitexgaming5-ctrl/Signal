@@ -355,7 +355,7 @@ namespace Signal.Core.Tests
         {
             var fixture = new Fixture();
             bool observerSawCommittedState = false;
-            fixture.CustomerInventory.Changed += _ =>
+            fixture.CustomerInventory.Changed += changedInventory =>
             {
                 observerSawCommittedState =
                     fixture.CustomerInventory.Items.Count == 0 &&
