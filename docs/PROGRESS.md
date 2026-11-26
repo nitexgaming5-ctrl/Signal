@@ -343,4 +343,4 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 
 - Updated the temporary fresh-Play-Mode loadout to include a Worn Work Jacket, one Basic Patch Kit, and one complete recipe set (Fabric Roll, Thread Spool, Adhesive Tube), in addition to the equipped Canvas Backpack and three extra distinct-footprint test items.
 - This supports immediate repair testing and crafting a replacement Basic Patch Kit without relying on shop stock or scavenging. It remains debug-only scaffolding, not permanent starting gear.
-- Commit: `905bf9b6857254293f530c100e8a97be4ecd1908`. Unity compilation and Play Mode verification pending.
+- Commit: `858097a06aba6b70a672549b8e61aa4b09847083`. Unity compilation and Play Mode verification pending.
