@@ -87,3 +87,12 @@ Crime consequences, police response, additional lawful/illicit activities, inves
 - Three EditMode regression tests added; expected suite total **509**, pending Unity verification.
 - Commits: 6ad663c32d77de09527bb6ecd49740270ded1596, 924f7cbc8032266809420df8b361954fd7462d84, 05f03a9d88e580ffac5f5e5f106bea6efe60d173.
 - Acceptance: run 509 EditMode tests; Play Mode verify all new paths in wardrobe and street container, including dropped-backpack isolation.
+
+
+## Inventory & Grid Architecture Audit (2026-11-26)
+
+- Approved as a stability checkpoint before further major development; preserve existing gameplay and avoid a rewrite.
+- Phase 1 core hardening implemented: transactional inventory notifications, silent rollback, item-definition validity and snapshot/grid dimension validation. Compound operations covered include transfers, production, repair, crafting, contracts, repair orders, Dirty Cash, retail, shop sales and equipment.
+- Added 13 Phase 1 tests plus three searchable-container tests from the preceding follow-up. Last explicit user-reported baseline 506/506; expected current suite 522, pending Unity verification.
+- Task card: docs/tasks/INVENTORY-GRID-AUDIT.md.
+- Remaining: persistence/identity reconciliation, UI drag/drop and capacity routing audit, remaining mutation call-site sweep, full EditMode and Play Mode verification.
