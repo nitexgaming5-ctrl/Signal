@@ -2095,7 +2095,7 @@ namespace Signal.Game
             if (_workspace != null)
                 _workspace.Refresh();
 
-            int skippedContainers = SearchableContainerSaveMapper.Apply(data, _searchableContainers, ResolveType);
+            int skippedContainers = SearchableContainerSaveMapper.Apply(data, _searchableContainers, ResolveType, _assetOwnership);
             RegisterSearchableContainerAssets();
             RegisterUnownedAccessibleAssets();
             _miloOpportunity = report.RestoredOpportunity != null &&
