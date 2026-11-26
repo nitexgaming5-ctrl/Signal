@@ -67,8 +67,8 @@ Accessories are generic, not hardcoded categories. Backpack consumes one accesso
 
 ## Current verification truth
 
-- Latest user-confirmed full EditMode suite: **504/504** after the Play Mode-only guard for temporary NPC visual-test residents.
-- One automatic-pocket-routing regression test was committed afterward. Expected current suite is **505**, but this has not been confirmed in Unity.
+- Latest user-confirmed full EditMode suite before the searchable-container pocket drag/drop regression tests: **504/504**.
+- Two additional EditMode regression tests were added for container↔pocket transfers. Expected current suite total: **506**, pending Unity confirmation.
 - Source audit for pocket-aware service integration is complete.
 - Full current-build Play Mode acceptance remains outstanding. Do not call P-03 complete until the user confirms the current EditMode suite and acceptance matrix below.
 
@@ -121,3 +121,14 @@ The user has paused sprite creation and wearable/wardrobe presentation. P-03.6 i
 - Pocket inventories remain available. Searchable-container loot receipt still routes through the existing capacity selector (accessible backpack first, then P1→P2→P3); with the bag dropped, that selector excludes _inventory.
 - The real dropped backpack grid, stable instance ID, ownership and cargo are not cleared, copied, reassigned or mutated by this fix.
 - Source changes are committed. Unity compilation, EditMode tests and Play Mode acceptance are pending; do not mark the regression closed until the user tests Rhea's wardrobe, a street bin, and bag recovery with the original cargo intact.
+
+
+## Searchable-container pocket drag/drop (2026-11-26)
+
+- User reported that the existing searchable-container UI (including resident wardrobes) displayed personal-pocket contents but did not support dragging items to/from those pockets.
+- SearchableContainerPanel now supports dragging a discovered container item into an explicitly selected P1/P2/P3 pocket, and dragging an item from a pocket into an exact cell in the active container. Pocket→backpack and backpack→pocket moves are also supported while the backpack is accessible; backpack rearrangement remains supported.
+- Container↔pocket transfers use AssetTransferService, preserving stable item identity/state and updating authoritative ownership/custody/transaction history. Theft when taking resident property still uses the existing witness/heat/progression outcome path. Returning an item to a resident container transfers ownership to that container's actor.
+- Empty/occupied pocket rules and 1×1 pocket footprint are enforced; invalid drops do not transfer anything. P3 remains player-accessible and retains its HIDDEN presentation.
+- Added two EditMode regression tests covering container→pocket and pocket→container ownership/identity/state/cell placement.
+- User-confirmed baseline immediately before these two tests: **504/504**. Expected current suite: **506 tests**, pending Unity run. No 506 pass is claimed.
+- Play Mode acceptance is still required for Rhea's wardrobe and a street searchable container, both with backpack equipped and dropped.
