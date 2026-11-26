@@ -217,7 +217,7 @@ namespace Signal.Core.Tests
         {
             var fixture = new Fixture(ItemCondition.Worn);
             bool observerSawCommittedState = false;
-            fixture.Inventory.Changed += _ =>
+            fixture.Inventory.Changed += changedInventory =>
             {
                 observerSawCommittedState =
                     fixture.Inventory.TryGetItemInstance(fixture.JacketId, out PlacedItem jacket) &&
