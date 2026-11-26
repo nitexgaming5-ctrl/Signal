@@ -254,5 +254,38 @@ namespace Signal.Core.Tests
             Assert.That(inventory.CountOf(cash), Is.Zero);
         }
 
+        [Test]
+        public void FenceExchangeNotifiesOnlyAfterGoodsCashOwnershipAndLedgersCommit()
+        {
+            ItemType accepted = Item();
+            ItemType cash = Item();
+            var player = new GridInventory(3, 2);
+            player.Place(accepted, 0, 0, count: 2, state: Stolen);
+            Guid stolenId = player.Items[0].ItemInstanceId;
+            var contact = new GridInventory(3, 2);
+            var ownership = new AssetOwnershipBook();
+            ownership.TryRegister(stolenId, Player);
+            var ledger = new IllicitExchangeTransactionLedger();
+            var economicLedger = new EconomicTransactionLedger();
+            bool observerSawCommittedState = false;
+            player.Changed += _ =>
+            {
+                observerSawCommittedState =
+                    player.CountOf(accepted) == 0 &&
+                    player.CountOf(cash) == 3 &&
+                    contact.TryGetItemInstance(stolenId, out _) &&
+                    ownership.TryGetOwner(stolenId, out EconomicActorId owner) &&
+                    owner == Contact &&
+                    ledger.Count == 1 &&
+                    economicLedger.Count == 1;
+            };
+
+            IllicitExchangeResult result = IllicitExchangeService.TryExchange(player, contact,
+                stolenId, accepted, 2, cash, 3, Contact, ownership, economicLedger, ledger, 2, 600);
+
+            Assert.That(result.Success, Is.True);
+            Assert.That(observerSawCommittedState, Is.True);
+        }
+
     }
 }
