@@ -112,3 +112,11 @@ Crime consequences, police response, additional lawful/illicit activities, inves
 - Remaining direct Game-layer mutations were source-reviewed as controlled item creation/bootstrap/debug flows; cross-grid UI movement uses transfer services.
 - Expected suite total **531**, pending Unity verification (25 tests beyond last explicit user-reported 506/506).
 - Next: full EditMode run, then Play Mode save/load and feature-integration acceptance. Audit task card: docs/tasks/INVENTORY-GRID-AUDIT.md.
+
+
+### Phase 4 follow-up — GameSession item creation paths
+
+- Player/customer item seeding now uses silent placement, registers the item owner, then publishes the inventory change. Failed ownership registration removes the silent placement.
+- Debug spawner item creation registers ownership before the pocket/inventory change is published; failed pocket insertion removes the provisional owner record.
+- Debug starting backpack creation and Milo parcel backpack placement now avoid publishing an item before the associated placement/opportunity state is established.
+- These are source-level changes only and add no new gameplay rules. Expected EditMode suite remains **531**, pending Unity verification.
