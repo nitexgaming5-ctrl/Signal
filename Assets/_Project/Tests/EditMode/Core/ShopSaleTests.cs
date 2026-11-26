@@ -206,7 +206,7 @@ namespace Signal.Core.Tests
             inventory.Place(item, 0, 0, count: 3);
             Guid id = inventory.Items[0].ItemInstanceId;
             int notifications = 0;
-            inventory.Changed += _ => notifications++;
+            inventory.Changed += changedInventory => notifications++;
 
             Assert.That(inventory.TryRemoveItemInstance(id, 0), Is.False);
             Assert.That(inventory.TryRemoveItemInstance(id, 4), Is.False);
