@@ -374,3 +374,6 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 - Follow-up to outdoor NPC rendering-test report: the three walkers now relocate from their schedule-derived initial point onto a clearance-safe Street position before their first route, avoiding bench/furniture spawn overlap. Subsequent roam targets are sampled from the actual walkable Street region using the pathfinder's clearance and avoid clustering near other residents. They continue to use the existing pathfinder and retry when no safe target is found.
 - This is a source-level robustness fix; Unity compile and Play Mode confirmation are pending. The latest user-confirmed EditMode baseline remains 503/503 from before this rendering-only change.
 - Commits: c000c6158535544f1bdc9dbc806000f87a0a571c, 8365baa42116c5f2819d4f229dedb2488db48de9.
+
+
+- P-03 automatic receipt rule confirmed: incoming physical items continue to use the first suitable available space, backpack first, then P1 → P2 → P3. No destination prompt. Manual moves remain exact-pocket/player-directed; dropped backpack cargo remains inaccessible. Added Core contract comments and a regression test for deterministic first-empty-pocket fallback. Previous user-confirmed suite: 503/503; expected 504 after this addition, pending Unity run.
