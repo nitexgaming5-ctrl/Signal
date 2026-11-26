@@ -1899,13 +1899,17 @@ namespace Signal.Game
             if (!_equippedBackpackInstanceId.HasValue && !definition.PortableBackpack)
             {
                 Guid pocketItemId = Guid.NewGuid();
+                if (!_assetOwnership.TryRegister(pocketItemId, EconomicActorId.Player))
+                    return "A unique item identity could not be created.";
                 if (!_playerPockets.TryAdd(type, pocketItemId, 1, definition.DefaultInstanceState, out _))
+                {
+                    _assetOwnership.TryRemove(pocketItemId, EconomicActorId.Player);
                     return "Your three personal pockets are full, or this item is too large.";
-                _assetOwnership.TryRegister(pocketItemId, EconomicActorId.Player);
+                }
                 return "Added " + displayName + " to your personal pockets.";
             }
 
-            int remaining = _inventory.Add(type, 1, definition.DefaultInstanceState);
+            int remaining = _inventory.AddSilently(type, 1, definition.DefaultInstanceState, out bool inventoryChanged);
             if (remaining > 0)
                 return "Inventory full. No " + displayName + " was added.";
 
@@ -1923,9 +1927,11 @@ namespace Signal.Game
                         return "Added and equipped " + displayName + ".";
                     break;
                 }
+                if (inventoryChanged) _inventory.NotifyChanged();
                 return "Added " + displayName + ", but it could not be equipped.";
             }
 
+            if (inventoryChanged) _inventory.NotifyChanged();
             return "Added " + displayName + " to your inventory.";
         }
 
