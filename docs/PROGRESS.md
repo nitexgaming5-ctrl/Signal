@@ -100,3 +100,13 @@ W-01 is separate and inactive. Intended direction: seasonal temperature/weather,
 - User confirmed **504/504** before the two new tests. Current expected suite total is **506**, pending Unity verification. No new pass is claimed.
 - Source commits: 2224a3baffffb3f7dfdc5c0e7aa0dffba10fdbb3 (panel interaction), f35ef49ce7dca66707ffc3ad243788fece0aa3c8 (GameSession transfer callbacks), 9e4c20fe275562c3249ce8aef9551cc0b2653fe9 (UI hint), 46d34a89bcb1336f4c1a628f72b1e1dcd7bf551c (backpack/pocket interaction continuity), ae853be9e0d1ce8c83ec6c3446cb50937ac8ccb0 (drag-origin handling), ee7850dab68dc0eb2ca06cd52e555690414db7e7 (regression tests).
 - Next: pull, run Unity EditMode tests, then Play Mode test pocket→wardrobe, wardrobe→pocket, pocket→street-container and street-container→pocket. Repeat with backpack dropped; verify cargo isolation and recovery remain intact.
+
+
+### P-03 searchable-container rearrangement follow-up (2026-11-26)
+
+- User confirmed **506/506** on the preceding build.
+- Shared searchable-container UI now supports pocket↔pocket moves/swaps, moving discovered items within the same container grid, and placing backpack items into exact container cells.
+- Same-container rearrangement uses the inventory's in-place move operation; backpack/pocket placement into containers uses AssetTransferService for ownership/custody consistency.
+- Three EditMode regression tests added. Expected suite total: **509**, pending Unity verification; do not treat this as a confirmed pass yet.
+- Commits: 6ad663c32d77de09527bb6ecd49740270ded1596, 924f7cbc8032266809420df8b361954fd7462d84, 05f03a9d88e580ffac5f5e5f106bea6efe60d173.
+- Next: verify 509/509 and Play Mode across wardrobe + street container, including pocket↔pocket, in-container rearrangement, backpack→container, pocket→container, and dropped-backpack isolation.
