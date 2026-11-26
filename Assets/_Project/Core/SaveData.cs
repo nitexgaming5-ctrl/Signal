@@ -1310,11 +1310,18 @@ namespace Signal.Core
             if (destination == null) return 0;
             destination.Clear();
             int skipped = 0;
+            var presentItemIds = new HashSet<Guid>();
+            AddInventoryItemIds(inventory, presentItemIds);
+            AddInventoryItemIds(storage, presentItemIds);
+            AddInventoryItemIds(contactInventory, presentItemIds);
+            AddInventoryItemIds(contractReceiverInventory, presentItemIds);
+
             if (savedOwners != null)
                 foreach (SavedAssetOwner saved in savedOwners)
                 {
                     if (saved == null || !Guid.TryParse(saved.instanceId, out Guid id) ||
-                        id == Guid.Empty || string.IsNullOrWhiteSpace(saved.actorId))
+                        id == Guid.Empty || string.IsNullOrWhiteSpace(saved.actorId) ||
+                        !presentItemIds.Contains(id))
                     { skipped++; continue; }
                     try
                     {
@@ -1329,6 +1336,13 @@ namespace Signal.Core
             if (contractReceiverInventory != null && !string.IsNullOrWhiteSpace(contractReceiverActorId))
                 RegisterMissingOwners(contractReceiverInventory, destination, new EconomicActorId(contractReceiverActorId));
             return skipped;
+        }
+
+        private static void AddInventoryItemIds(GridInventory inventory, HashSet<Guid> destination)
+        {
+            if (inventory == null || destination == null) return;
+            foreach (PlacedItem item in inventory.Items)
+                destination.Add(item.ItemInstanceId);
         }
 
         private static void RegisterMissingOwners(GridInventory inventory, AssetOwnershipBook ownership,
