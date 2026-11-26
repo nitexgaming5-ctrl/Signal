@@ -61,7 +61,7 @@ The user said to stop sprite work and return to roadmap/game development. Do not
 P-03.6 Wearable Presentation is parked as historical preparation, not an active dependency. Existing imported assets and already-committed temporary visual tests should not be removed or altered as part of this documentation handoff.
 
 ## Next actions
-1. Pull the active branch and run the current full EditMode suite (expected 505); inspect the XML and fix regressions.
+1. Pull the active branch and run the current full EditMode suite (expected 506); inspect the XML and fix regressions.
 2. Complete P-03 Play Mode matrix: fresh debug loadout; equip/drop/recover; save/load while equipped and dropped; P1/P2/P3 moves/swaps; P3 ordinary-search exclusion; service interactions with items split across backpack/pockets; ensure dropped cargo is inaccessible.
 3. Keep temporary repair/production cargo until the user confirms acceptance. Then remove only automatic fresh-session cargo seeding; retain F1 debug item spawner.
 4. Reconcile P-03 closeout status and then prepare the detailed B-07 Neighbourhood Expansion task specification. Do not start B-07 code until specification and any new mechanics are approved.
@@ -82,3 +82,12 @@ A user-reproduced glitch occurred after pressing B to drop the backpack and open
 Source commits: e8c57416a279af7bc6d0acaa69ba5e421a98d87b, c61532aad7e8102872c622e1beb9ed7f6bb10283, 73be827f6382cb92d0dddbe66bed9b955c79e269, a037dca3ca6ae61526ee065b0fd4c5bab987024b.
 
 **Not yet verified in Unity.** Next action: pull, run the full EditMode suite, then Play Mode test B-drop → Rhea wardrobe → street bin/container → recover backpack and verify exact original contents. Do not close P-03 until this passes.
+
+
+## Latest P-03 addition — searchable-container pocket drag/drop (2026-11-26)
+
+SearchableContainerPanel previously rendered pocket contents but only implemented container→backpack dragging. It now supports container→exact pocket, pocket→exact container cell, pocket↔backpack, and backpack rearrangement. Container↔pocket transfers use AssetTransferService, preserving identity/state and updating ownership/custody/transaction history. Theft outcomes remain routed through the existing resident-property logic. Two EditMode regression tests were added.
+
+User-confirmed suite baseline before these tests: **504/504**. Expected current total: **506**, not yet run in Unity. Source commits: 2224a3baffffb3f7dfdc5c0e7aa0dffba10fdbb3, f35ef49ce7dca66707ffc3ad243788fece0aa3c8, 9e4c20fe275562c3249ce8aef9551cc0b2653fe9, 46d34a89bcb1336f4c1a628f72b1e1dcd7bf551c, ae853be9e0d1ce8c83ec6c3446cb50937ac8ccb0, ee7850dab68dc0eb2ca06cd52e555690414db7e7.
+
+Next gate: run Unity tests and Play Mode acceptance in Rhea's wardrobe and a street searchable container. Test both transfer directions, exact pocket selection, occupied/oversized rejection, and repeat with backpack dropped; then recover and confirm original cargo remains intact.
