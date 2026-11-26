@@ -243,7 +243,7 @@ namespace Signal.Core.Tests
 
             var destination = new GridInventory(2, 2);
             bool unequipObserverSawCommittedState = false;
-            destination.Changed += _ =>
+            destination.Changed += changedInventory =>
             {
                 unequipObserverSawCommittedState =
                     destination.TryGetItemInstance(itemId, out _) &&
