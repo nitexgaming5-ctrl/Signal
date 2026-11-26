@@ -7,7 +7,7 @@ Last reconciled: **2026-11-26**. This is the short status board. Session history
 - Unity **6000.6.9f1**, 2D URP. Active architecture: `Signal.Core` (plain C#) + `Signal.Game` (Unity integration). Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
 - Working branch: `chore/collaboration-workflow-and-audit`. Keep `main` untouched.
 - Application version: **0.01**. Save snapshots are deliberately unversioned; there is no schema-version field, version gate or automatic migration chain. Older experimental saves may be incompatible after data-shape changes.
-- Latest user-reported full EditMode result: **503/503 passed (2026-11-26)** after P-03.5 pocket-aware service and multi-grid repair/production integration. The later NPC sprite-rendering source changes are separate and still need Unity compile/Play Mode verification. B-05/B-06 and the earlier backpack lifecycle are user-verified.
+- Last user-confirmed full EditMode result: **503/503 passed (2026-11-26)**. A later uploaded 504-test XML reported 500 passed / 4 failed; all four failures were traced to temporary NPC rendering-test residents spawning during EditMode. The Play Mode-only spawn guard is committed; a fresh 504-test rerun is pending. Do not claim the fix is verified until the new XML is reviewed.
 - The user reports the First Workshop and B-04 repair/trading loop working in Play Mode. B-06 uses a separate Worn jacket seeded in Milo's inventory for the entrusted-service test.
 
 ## Completed livelihood foundations — B-01 to B-06
@@ -52,13 +52,15 @@ Specialist references: [Architecture](ARCHITECTURE.md), [Data Model](DATA_MODEL.
 
 ## Current verification and next action
 
-**EditMode:** the user confirms **486/486 passed (2026-11-25)** after P-03.4a. P-03.4b adds eight Core tests; expected total is **494**, pending Unity execution.
+**Immediate verification:** rerun the complete **504-test EditMode suite** after commit `75d43bb4e140fa406ac631cd9f25ffacfef6848c`, which restricts the three temporary NPC sprite-test residents to Play Mode. The previous uploaded XML was 500/504; the rerun is pending.
 
-**Play Mode:** the user reports the First Workshop, repair/trading features and B-06 entrusted repair-order loop work correctly.
+**Active initiative:** P-03 Equipment, Wearables & Portable Backpack. P-03.5 pocket-aware integration and its source audit are complete: Retail SELL, Dirty Cash selection, Home Storage, Searchable Container, workbench repair, multi-grid production, customer flows and GameSession item routing use accessible backpack/pocket inventories; dropped-backpack cargo remains inaccessible. Automatic receipts use backpack first, then first suitable pocket P1 → P2 → P3; manual transfers remain exact-target.
 
-**Active initiative:** P-03 Equipment, Wearables & Portable Backpack. Seven equipment slots, equipped backpack identity, physical B/drop + E/recovery, F5/F9 backpack world state and three persistent 1×1 personal pockets are integrated. The character UI displays real pocket contents; P moves a hovered 1×1 backpack item into a pocket and clicking an occupied pocket moves it back. Selected item receipts route into available pockets. User confirmed 486/486 after P-03.4a; eight new Core tests bring the expected total to 494, pending Unity execution. Remaining work: service-panel pocket coverage, clothing overlays and full Play Mode acceptance. See [P-03 task card](tasks/PLAYER-P-03-EQUIPMENT-BACKPACK.md). B-07 Neighbourhood Expansion remains intact; W-01 remains separate.
+**Next prepared phase:** [P-03.6 Wearable Presentation](tasks/PLAYER-P-03-6-WEARABLE-PRESENTATION.md). The implementation is deliberately gated on inspecting the user's actual locally imported wearable sprite paths and compatibility. The P-01 Body_A base pack is not a full wardrobe; do not guess paths, fabricate clothing art, or render inventory icons as body overlays.
 
-The guaranteed Work Jacket entry is explicitly temporary test scaffolding and should be removed or changed back to a low-weight normal entry once the repair loop is fully validated.
+**P-03.7 closeout:** after the user finishes repair/production acceptance, remove only the temporary fresh-session debug backpack/cargo seeding (keep the deliberate debug item spawner), then run the complete backpack, pocket, save/load, service-panel and wearable Play Mode acceptance in HideoutSlice. Do not remove the debug loadout prematurely.
+
+B-07 Neighbourhood Expansion remains the next livelihood/world expansion track after Player Development; W-01 weather/cold exposure remains separate and inactive.
 
 ## Completed initiative — B-05 Global NPC Awareness & Affinity
 
