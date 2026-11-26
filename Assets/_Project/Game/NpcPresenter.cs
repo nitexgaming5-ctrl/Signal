@@ -38,6 +38,7 @@ namespace Signal.Game
         private float _dialoguePauseUntil;
         private bool _debugActivityOverride;
         private bool _debugStreetOnly;
+        private float _debugRoamPauseRemaining;
         private CityBlockBootstrap _city;
         private string _currentPlace = "Apartment";
         private readonly List<NpcTravelWaypoint> _travelRoute = new List<NpcTravelWaypoint>();
@@ -129,13 +130,14 @@ namespace Signal.Game
 
             _debugStreetOnly = true;
             _currentPlace = "Street";
-            _destination = _definition.PositionFor(_activity);
+            _destination = transform.position;
             _travelRoute.Clear();
             _nextTravelWaypoint = 0;
             NavigationFailed = false;
-            transform.position = new Vector3(_destination.x, _destination.y, 0f);
+            _debugRoamPauseRemaining = 0f;
             SyncSocialPosition();
             UpdateLocationVisibility();
+            TryPlanNextDebugRoamTarget();
         }
 
         public void SetActivePlace(string place)
@@ -235,7 +237,15 @@ namespace Signal.Game
 
             if (_initialized && !_debugSimulationPaused && !IsInteractionPaused &&
                 _clock != null && !_clock.IsPaused)
+            {
+                if (_debugStreetOnly && _travelRoute.Count == 0)
+                {
+                    _debugRoamPauseRemaining -= Time.deltaTime;
+                    if (_debugRoamPauseRemaining <= 0f)
+                        TryPlanNextDebugRoamTarget();
+                }
                 AdvanceMovement(Time.deltaTime);
+            }
         }
 
         public void DebugAdvanceMovement(float deltaTime)
@@ -335,6 +345,13 @@ namespace Signal.Game
         private void ApplyActivity(NpcActivity next, bool snapToDestination)
         {
             _activity = next;
+            if (_debugStreetOnly)
+            {
+                // Schedule changes do not stop or redirect rendering-test walkers.
+                if (_travelRoute.Count == 0)
+                    TryPlanNextDebugRoamTarget();
+                return;
+            }
             _destination = _definition.PositionFor(next);
             string targetPlace = ActivityPlace(next);
             _travelRoute.Clear();
@@ -364,6 +381,39 @@ namespace Signal.Game
             if (!_initialized || !NavigationFailed || _debugSimulationPaused || _debugActivityOverride)
                 return false;
             return TryPlanRouteToDestination();
+        }
+
+        private void TryPlanNextDebugRoamTarget()
+        {
+            if (!_debugStreetOnly || _city == null || _definition == null ||
+                _currentPlace != "Street" || _travelRoute.Count > 0)
+                return;
+
+            // Sample broadly across the outdoor street. The city pathfinder rejects
+            // candidates blocked by buildings, trees, benches and other navigation obstacles.
+            for (int attempt = 0; attempt < 18; attempt++)
+            {
+                Vector2 candidate = new Vector2(
+                    Random.Range(-6.0f, 25.5f),
+                    Random.Range(-24.0f, -1.5f));
+                if (Vector2.Distance(candidate, transform.position) < 3.5f)
+                    continue;
+
+                List<NpcTravelWaypoint> route = _city.BuildNpcTravelRoute(
+                    "Street", transform.position, "Street", candidate);
+                if (route == null || route.Count == 0)
+                    continue;
+
+                _destination = candidate;
+                _travelRoute.AddRange(route);
+                _nextTravelWaypoint = 0;
+                NavigationFailed = false;
+                return;
+            }
+
+            // Retry shortly rather than parking permanently if all sampled points
+            // happen to fall on blocked cells.
+            _debugRoamPauseRemaining = 0.35f;
         }
 
         private bool TryPlanRouteToDestination()
