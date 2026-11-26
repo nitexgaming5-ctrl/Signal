@@ -1,6 +1,6 @@
 # P-03.7 — Stack System & Inventory Interaction
 
-**Status:** Approved; implementation started  
+**Status:** In progress — P-03.7a Core split/merge primitives implemented; Unity verification pending  
 **Started:** 2026-11-27  
 **Branch:** `chore/collaboration-workflow-and-audit`  
 **Prerequisite:** Inventory & Grid Architecture Audit — user-confirmed 531/531 EditMode and Play Mode acceptance
@@ -122,3 +122,21 @@ Unique equipment, backpacks and other authored non-stackable items remain indivi
 - Do not mutate quantities directly from UI code.
 - Do not claim Unity compilation or tests until the user confirms them.
 - Keep wearable presentation paused; do not restart sprite/art work.
+
+
+## Implementation log — P-03.7a source pass
+
+Implemented in Core:
+- `StackOperations.CanMerge` validates identical ItemType and complete ItemInstanceState, valid distinct stable IDs, and stack capacity.
+- `StackOperations.Split` moves an exact quantity into an explicit destination cell, keeps the original ID on the remainder, creates a fresh ID for the new stack, and rolls back both grids on failure.
+- `StackOperations.Merge` moves up to the requested quantity/capacity, preserves the destination ID, reduces or retires the source ID, and records a merge lineage entry. Duplicate operation IDs cause rollback.
+- `StackLineageBook` stores merge lineage in the Core runtime model. Persistence and ownership-aware wrappers remain in P-03.7b.
+- Added nine Core regression tests for split, merge, state compatibility, quantity conservation, partial capacity, event timing and duplicate operation protection.
+
+Source files:
+- `Assets/_Project/Core/StackOperations.cs`
+- `Assets/_Project/Tests/EditMode/Core/StackOperationsTests.cs`
+
+Commits: `513de74e7b92cad36a0baa5d7cc0d7f2852cabd8`, `b2a47e4c2978f8018ff5ee181f37c2c87f6a8af6`, `afffd44646322173d217b086a3ce76e6a7343580`.
+
+Important boundary: these first-pass Core operations mutate physical stack quantities and lineage only. They do not yet change AssetOwnershipBook or economic transaction history. Do not call them directly from Game/UI until P-03.7b provides ownership-aware orchestration. No Unity compilation or test pass is claimed.
