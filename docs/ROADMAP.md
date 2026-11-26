@@ -150,7 +150,7 @@ See [P-01](tasks/PLAYER-P-01-CHARACTER-FOUNDATION-APPEARANCE.md), [P-02](tasks/P
 
 
 - P-03.5 source audit is complete across Retail, Dirty Cash, Home Storage, Workbench repair/production, Customer Contracts/Repair Orders, searchable containers and GameSession item-transfer paths. No remaining direct-grid-only blocker was identified; dropped backpack cargo remains excluded from accessible inventory views.
-- Next P-03 phase: P-03.6 wearable presentation, pending actual imported player sprite/resource paths. Temporary repair-debug loadout stays until P-03 final cleanup.
+- P-03.6 wearable presentation is prepared in [its task card](tasks/PLAYER-P-03-6-WEARABLE-PRESENTATION.md), pending actual imported wearable sprite/resource paths. P-03.7 is final debug-loadout cleanup and end-to-end acceptance; temporary repair-debug loadout stays until the user finishes testing.
 
 
 - Rendering-test follow-up: the three temporary outdoor sprite walkers now start from clearance-safe Street positions rather than schedule-derived bench/furniture positions. Their subsequent roam targets are sampled from walkable Street ground and spaced away from nearby residents, while the existing pathfinder handles routes around obstacles. Unity compile and Play Mode confirmation are pending; latest user-confirmed EditMode baseline remains 503/503.
@@ -161,3 +161,10 @@ See [P-01](tasks/PLAYER-P-01-CHARACTER-FOUNDATION-APPEARANCE.md), [P-02](tasks/P
 
 
 - 2026-11-26 test follow-up: the uploaded 504-test XML reported 500 passed / 4 failed. All failures traced to the three temporary NPC sprite-test residents being included in EditMode bootstrap tests. Their spawning is now gated to Play Mode (Application.isPlaying), preserving the visual test while keeping EditMode test fixtures isolated. Commit 75d43bb4e140fa406ac631cd9f25ffacfef6848c; rerun pending.
+
+
+## P-03.6 preparation checkpoint — Wearable Presentation (2026-11-26)
+
+- Created the P-03.6 task card with the current PlayerCharacterVisual renderer contract, actual Body_A Resources path pattern, equipment-authority boundary, asset preflight and acceptance criteria.
+- Implementation is intentionally blocked until the user's locally imported wearable sprite paths can be inspected. The existing base Body_A pack is not a complete wardrobe; generic ItemDefinition icons are not valid body overlays.
+- Immediate prerequisite remains the fresh 504-test EditMode rerun after the Play Mode-only NPC visual-test spawn guard. The prior XML was 500/504; no pass is claimed.
