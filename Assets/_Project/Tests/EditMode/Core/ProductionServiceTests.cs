@@ -237,5 +237,27 @@ namespace Signal.Core.Tests
         }
 
 
+        [Test]
+        public void ProductionNotifiesInventoryObserversOnlyAfterOwnershipAndHistoryCommit()
+        {
+            var fixture = new Fixture();
+            bool observerSawCommittedState = false;
+            fixture.Inventory.Changed += _ =>
+            {
+                observerSawCommittedState =
+                    fixture.Inventory.CountOf(fixture.Input) == 0 &&
+                    fixture.Inventory.CountOf(fixture.Output) == 1 &&
+                    fixture.History.Count == 1 &&
+                    fixture.Inventory.Items.Count == 1 &&
+                    fixture.Ownership.TryGetOwner(fixture.Inventory.Items[0].ItemInstanceId, out EconomicActorId owner) &&
+                    owner == fixture.Operator;
+            };
+
+            ProductionResult result = fixture.Produce(fixture.Recipe());
+
+            Assert.That(result.Success, Is.True);
+            Assert.That(observerSawCommittedState, Is.True);
+        }
+
     }
 }
