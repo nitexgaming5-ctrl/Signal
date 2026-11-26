@@ -10,7 +10,7 @@ namespace Signal.Game
     {
         private const int CellWidth = 48;
         private const int CellHeight = 72;
-        private const float PixelsPerUnit = 16f;
+        private const float PixelsPerUnit = 32f;
         private static readonly string[] ResourceNames =
         {
             "NpcSprites/npc1_hoodie",
