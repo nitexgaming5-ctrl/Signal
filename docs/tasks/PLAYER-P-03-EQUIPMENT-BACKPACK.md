@@ -338,3 +338,11 @@ Recommended next implementation slice: **P-03.5 — pocket-aware service-panel i
 - The three temporary sprite-test residents now autonomously roam the outdoor Street region indefinitely. Each chooses random street destinations and uses the city pathfinder to avoid obstacles; schedule changes do not send them back to fixed bench destinations or into interiors. This is a rendering test only, separate from P-03 gameplay.
 - Next: P-03.6 wearable presentation. Player character assets are imported locally and are not committed in the repository tree; wait for the actual imported sprite/resource paths before implementing clothing overlays. Keep temporary repair-debug starting inventory until final P-03 cleanup.
 - The latest user-confirmed EditMode result remains 503/503. New roaming code and full P-03 Play Mode acceptance remain unverified in Unity.
+
+
+### Outdoor rendering-test NPC roaming hardening (2026-11-26)
+
+- User reported that all three temporary sprite-test walkers were stopped at the outdoor bench. Their initial schedule-derived position could overlap furniture and prevent the pathfinder from establishing a valid first route.
+- SetDebugStreetOnly now moves each test resident to a randomly sampled, clearance-safe point in the Street navigation region before requesting its first route.
+- Each subsequent destination is sampled from the actual walkable Street region, uses the pathfinder's configured clearance, remains sufficiently far from the current position, and avoids clustering around other residents. Existing A* pathfinding continues to route around obstacles; failed sampling retries.
+- This is an isolated rendering-test fix and does not affect named NPCs or player gameplay. Unity compile and Play Mode visual confirmation are pending. The last user-confirmed EditMode result remains 503/503 before this change.
