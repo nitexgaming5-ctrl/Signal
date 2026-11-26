@@ -330,3 +330,11 @@ Recommended next implementation slice: **P-03.5 — pocket-aware service-panel i
 - The three temporary sprite-sheet walkers now use street positions for Work, Rest, Social and Home schedule destinations and a street-only navigation-place override. They cannot schedule routes into the CornerShop, Apartment or Hideout interiors.
 - Their generic schedules and pathfinding remain active. No named NPC or gameplay behaviour was changed.
 - User confirmed the existing suite at 503/503; this routing adjustment still requires Unity compile and Play Mode visual confirmation.
+
+
+### P-03.5 audit completion and outdoor NPC rendering-test roam (2026-11-26)
+
+- Source audit reviewed Retail SELL, Dirty Cash fence/cleaning, Home Storage, Workbench repair/production, Customer Contracts, Customer Repair Orders, searchable-container pickup, and GameSession item transfers. The reviewed panels receive accessible backpack + pocket grids or resolve the exact pocket source; `GetAccessibleCarryInventories()` excludes the dropped backpack grid. No remaining direct-grid-only blocker was identified in this pass.
+- The three temporary sprite-test residents now autonomously roam the outdoor Street region indefinitely. Each chooses random street destinations and uses the city pathfinder to avoid obstacles; schedule changes do not send them back to fixed bench destinations or into interiors. This is a rendering test only, separate from P-03 gameplay.
+- Next: P-03.6 wearable presentation. Player character assets are imported locally and are not committed in the repository tree; wait for the actual imported sprite/resource paths before implementing clothing overlays. Keep temporary repair-debug starting inventory until final P-03 cleanup.
+- The latest user-confirmed EditMode result remains 503/503. New roaming code and full P-03 Play Mode acceptance remain unverified in Unity.
