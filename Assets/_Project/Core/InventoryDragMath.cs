@@ -16,11 +16,16 @@ namespace Signal.Core
             cellY = 0;
 
             // The "!(a > b)" form also rejects NaN.
-            if (!(cellSize > 0f) || gridWidth < 1 || gridHeight < 1)
+            if (!(cellSize > 0f) || float.IsInfinity(cellSize) ||
+                gridWidth < 1 || gridHeight < 1)
                 return false;
             if (!(pointX >= 0f) || !(pointY >= 0f))
                 return false;
-            if (pointX >= gridWidth * cellSize || pointY >= gridHeight * cellSize)
+
+            float gridPixelWidth = gridWidth * cellSize;
+            float gridPixelHeight = gridHeight * cellSize;
+            if (float.IsInfinity(gridPixelWidth) || float.IsInfinity(gridPixelHeight) ||
+                pointX >= gridPixelWidth || pointY >= gridPixelHeight)
                 return false;
 
             cellX = Math.Min((int)(pointX / cellSize), gridWidth - 1);
@@ -35,6 +40,11 @@ namespace Signal.Core
         public static void RotateGrabOffsetClockwise(int offsetX, int offsetY, int footprintWidth, int footprintHeight,
                                                      out int newOffsetX, out int newOffsetY)
         {
+            if (footprintWidth < 1)
+                throw new ArgumentOutOfRangeException(nameof(footprintWidth), "Footprint width must be at least 1.");
+            if (footprintHeight < 1)
+                throw new ArgumentOutOfRangeException(nameof(footprintHeight), "Footprint height must be at least 1.");
+
             int x = Math.Max(0, Math.Min(offsetX, footprintWidth - 1));
             int y = Math.Max(0, Math.Min(offsetY, footprintHeight - 1));
 
