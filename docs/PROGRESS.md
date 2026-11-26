@@ -337,3 +337,10 @@ Keep this file concise. Append session history to `progress/LOG-2026-11.md`; kee
 - Next: audit remaining backpack-only assumptions in search/loot, customer/service panels and other inventory consumers. Then wearable visuals, debug-loadout cleanup and full Play Mode acceptance.
 
 - Searchable Container now displays the backpack only when accessible and shows P1/P2/P3 separately, marking P3 HIDDEN. Loot pickup remains capacity-aware and dropped-backpack cargo stays hidden.
+
+
+## 2026-11-26 — P-03 repair-loop debug starting loadout
+
+- Updated the temporary fresh-Play-Mode loadout to include a Worn Work Jacket, one Basic Patch Kit, and one complete recipe set (Fabric Roll, Thread Spool, Adhesive Tube), in addition to the equipped Canvas Backpack and three extra distinct-footprint test items.
+- This supports immediate repair testing and crafting a replacement Basic Patch Kit without relying on shop stock or scavenging. It remains debug-only scaffolding, not permanent starting gear.
+- Commit: `905bf9b6857254293f530c100e8a97be4ecd1908`. Unity compilation and Play Mode verification pending.
