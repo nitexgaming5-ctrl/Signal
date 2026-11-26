@@ -155,3 +155,6 @@ See [P-01](tasks/PLAYER-P-01-CHARACTER-FOUNDATION-APPEARANCE.md), [P-02](tasks/P
 
 - Rendering-test follow-up: the three temporary outdoor sprite walkers now start from clearance-safe Street positions rather than schedule-derived bench/furniture positions. Their subsequent roam targets are sampled from walkable Street ground and spaced away from nearby residents, while the existing pathfinder handles routes around obstacles. Unity compile and Play Mode confirmation are pending; latest user-confirmed EditMode baseline remains 503/503.
 - P-03.5 inventory access audit remains complete. P-03.6 wearable presentation is waiting for the user's actual player sprite/resource paths. Keep the temporary Basic Patch Kit debug starting loadout during remaining repair/production acceptance; remove it only during final P-03 cleanup after the user has finished using it.
+
+
+- P-03 automatic item receipts: user confirmed first-suitable-space behaviour. Route to accessible equipped backpack first, then first suitable pocket P1 → P2 → P3; do not prompt. Manual pocket moves remain exact-target. Core contract comments and regression test added; expected suite 504, pending Unity verification (last confirmed 503/503).
