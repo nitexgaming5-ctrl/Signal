@@ -383,7 +383,7 @@ namespace Signal.Game
             }
 
             Guid backpackId = Guid.NewGuid();
-            int? backpackLocalId = _inventory.Place(backpackType, 0, 0, false, 1,
+            int? backpackLocalId = _inventory.PlaceSilently(backpackType, 0, 0, false, 1,
                 backpackId, backpackDefinition.DefaultInstanceState);
             if (!backpackLocalId.HasValue || !_inventory.TryGet(backpackLocalId.Value, out PlacedItem backpackItem))
             {
@@ -391,9 +391,15 @@ namespace Signal.Game
                 return;
             }
 
-            _assetOwnership.TryRegister(backpackId, EconomicActorId.Player);
+            if (!_assetOwnership.TryRegister(backpackId, EconomicActorId.Player))
+            {
+                _inventory.TryRemoveItemInstanceSilently(backpackId);
+                Debug.LogWarning("Debug starting loadout skipped: the backpack identity was already registered.", this);
+                return;
+            }
             if (!TryEquipPlayerItem(backpackItem, _inventory))
             {
+                _inventory.NotifyChanged();
                 Debug.LogWarning("Debug starting loadout: the backpack item was created but could not be equipped.", this);
                 return;
             }
@@ -515,11 +521,16 @@ namespace Signal.Game
                     if (!_inventory.CanPlace(type, x, y, false))
                         continue;
                     Guid instanceId = Guid.NewGuid();
-                    int? localId = _inventory.Place(type, x, y, false, 1, instanceId,
+                    int? localId = _inventory.PlaceSilently(type, x, y, false, 1, instanceId,
                         state ?? definition.DefaultInstanceState);
                     if (!localId.HasValue)
                         continue;
-                    _assetOwnership.TryRegister(instanceId, EconomicActorId.Player);
+                    if (!_assetOwnership.TryRegister(instanceId, EconomicActorId.Player))
+                    {
+                        _inventory.TryRemoveItemInstanceSilently(instanceId);
+                        continue;
+                    }
+                    _inventory.NotifyChanged();
                     return true;
                 }
             return false;
@@ -630,11 +641,18 @@ namespace Signal.Game
             int? placedInstanceId = null;
             for (int y = 0; y < _contractReceiverInventory.Height && !placedInstanceId.HasValue; y++)
                 for (int x = 0; x < _contractReceiverInventory.Width && !placedInstanceId.HasValue; x++)
-                    placedInstanceId = _contractReceiverInventory.Place(type, x, y, state: state);
+                    placedInstanceId = _contractReceiverInventory.PlaceSilently(type, x, y, state: state);
             if (!placedInstanceId.HasValue ||
                 !_contractReceiverInventory.TryGet(placedInstanceId.Value, out PlacedItem placed) ||
                 !_assetOwnership.TryRegister(placed.ItemInstanceId, firstCustomerRepairOrder.IssuerActor))
+            {
+                if (placedInstanceId.HasValue &&
+                    _contractReceiverInventory.TryGet(placedInstanceId.Value, out PlacedItem failedSeed))
+                    _contractReceiverInventory.TryRemoveItemInstanceSilently(failedSeed.ItemInstanceId);
                 Debug.LogError("GameSession: could not seed the customer's entrusted Work Jacket.");
+            }
+            else
+                _contractReceiverInventory.NotifyChanged();
         }
 
         private string AcceptCustomerRepairOrder()
