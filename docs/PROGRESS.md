@@ -169,3 +169,15 @@ This addresses the compiler diagnostics supplied by the user. A fresh Unity comp
 - Created `docs/tasks/PLAYER-P-03-7-STACK-SYSTEM.md`. Implementation is sequenced as Core operations/lineage, ownership-aware transfers, UI controls, then universal service integration and acceptance.
 - Identity contract: whole move preserves ID; split keeps source ID and assigns a fresh ID to the new portion; merge keeps destination ID and retires the consumed source ID with persistent lineage. Merges require identical item type and complete instance state. Ownership-changing partial merges must be atomic and rejected if one-owner-per-stack cannot be preserved unambiguously.
 - Next: implement and test P-03.7a Core operations before wiring UI. Existing item stack-size asset values remain unchanged pending separate balance decisions.
+
+
+## P-03.7a — Core stack operations implemented (Unity verification pending)
+
+- Added `StackOperations.CanMerge`, atomic exact-quantity `Split` and capacity-limited `Merge` in `Signal.Core`.
+- Split retains the original stable ID on the remainder and gives the new portion a fresh GUID; item state is copied exactly.
+- Merge retains the destination stable ID, reduces/removes the source stack, and records source→destination lineage in `StackLineageBook`. Duplicate operation IDs reject and roll back the physical mutation.
+- Merge compatibility requires the same ItemType and complete ItemInstanceState; MaxStack limits are enforced.
+- Added nine Core tests covering split, merge, state mismatch, partial capacity, quantity conservation, observer timing and duplicate operation protection.
+- These are physical Core primitives only. Ownership/economic transaction integration and persistence are deliberately not wired yet; Game/UI must not call them directly until P-03.7b supplies the ownership-aware orchestration.
+- Commits: `513de74e7b92cad36a0baa5d7cc0d7f2852cabd8`, `b2a47e4c2978f8018ff5ee181f37c2c87f6a8af6`, `afffd44646322173d217b086a3ce76e6a7343580`.
+- No Unity compile or test result is claimed. Next: review and harden P-03.7a, then integrate ownership and persistent lineage in P-03.7b before UI work.
