@@ -226,8 +226,8 @@ namespace Signal.Game
             int hoverX = 0;
             int hoverY = 0;
             Vector2 local = Vector2.zero;
-            bool inGrid = backpackAccessible &&
-                TryGetHoverCell(screen, out hoverX, out hoverY, out local);
+            bool pointerOverGrid = TryGetHoverCell(screen, out hoverX, out hoverY, out local);
+            bool inGrid = backpackAccessible && pointerOverGrid;
 
             if (!_dragging && keyboard != null)
             {
