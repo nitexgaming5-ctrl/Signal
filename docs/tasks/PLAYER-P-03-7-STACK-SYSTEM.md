@@ -140,3 +140,6 @@ Source files:
 Commits: `513de74e7b92cad36a0baa5d7cc0d7f2852cabd8`, `b2a47e4c2978f8018ff5ee181f37c2c87f6a8af6`, `afffd44646322173d217b086a3ce76e6a7343580`.
 
 Important boundary: these first-pass Core operations mutate physical stack quantities and lineage only. They do not yet change AssetOwnershipBook or economic transaction history. Do not call them directly from Game/UI until P-03.7b provides ownership-aware orchestration. No Unity compilation or test pass is claimed.
+
+
+- Compile fix after the first Unity pass: `StackMergeRecord`'s constructor was `internal`, but the EditMode test assembly constructs a record to verify duplicate-operation rejection. Made the constructor public; `StackLineageBook.TryRecordMerge` remains the validation boundary and rejects empty IDs, self-merges, invalid quantities and duplicate operation IDs. Commit: `fcb70dc75c5bc7f77be1c8fd0d3fb0943314463f`. Unity compilation/tests need to be rerun; no pass is claimed.
