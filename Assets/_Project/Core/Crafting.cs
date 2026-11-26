@@ -81,7 +81,7 @@ namespace Signal.Core
             foreach (var input in recipe.Inputs)
                 inventory.TryRemoveSilently(input.Type, input.Count);
 
-            int leftover = inventory.AddSilently(recipe.Output.Type, recipe.Output.Count, ItemInstanceState.Default, out bool outputChanged);
+            int leftover = inventory.AddSilently(recipe.Output.Type, recipe.Output.Count, ItemInstanceState.Default, out _);
             if (leftover > 0)
             {
                 inventory.RestoreSilently(before);
