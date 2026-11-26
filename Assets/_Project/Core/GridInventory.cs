@@ -39,15 +39,19 @@ namespace Signal.Core
     /// <summary>A saved copy of an inventory's contents, used to undo a multi-step change.</summary>
     public sealed class InventorySnapshot
     {
-        internal InventorySnapshot(PlacedItem[] items, int nextInstanceId)
+        internal InventorySnapshot(PlacedItem[] items, int nextInstanceId, int width, int height)
         {
             Items = items;
             NextInstanceId = nextInstanceId;
+            Width = width;
+            Height = height;
         }
 
         internal PlacedItem[] Items { get; }
 
         internal int NextInstanceId { get; }
+        internal int Width { get; }
+        internal int Height { get; }
     }
 
     public sealed class GridInventory
@@ -84,7 +88,7 @@ namespace Signal.Core
 
         public bool CanPlace(ItemType type, int x, int y, bool rotated)
         {
-            return Fits(type, x, y, rotated, NoInstance);
+            return type.IsValid && Fits(type, x, y, rotated, NoInstance);
         }
 
         public int? Place(ItemType type, int x, int y, bool rotated = false, int count = 1, Guid? itemInstanceId = null, ItemInstanceState? state = null)
@@ -351,7 +355,7 @@ namespace Signal.Core
 
         public InventorySnapshot CreateSnapshot()
         {
-            return new InventorySnapshot(_items.ToArray(), _nextInstanceId);
+            return new InventorySnapshot(_items.ToArray(), _nextInstanceId, Width, Height);
         }
 
         public void Restore(InventorySnapshot snapshot)
@@ -364,6 +368,8 @@ namespace Signal.Core
         {
             if (snapshot == null)
                 throw new ArgumentNullException(nameof(snapshot));
+            if (snapshot.Width != Width || snapshot.Height != Height)
+                throw new ArgumentException("Inventory snapshots can only be restored to a grid with matching dimensions.", nameof(snapshot));
 
             _items.Clear();
             _items.AddRange(snapshot.Items);
@@ -416,7 +422,7 @@ namespace Signal.Core
         /// </summary>
         public bool CanPlaceTransferred(PlacedItem item, int x, int y, bool rotated)
         {
-            return item.ItemInstanceId != Guid.Empty && item.Count > 0 && item.Count <= item.Type.MaxStack &&
+            return item.Type.IsValid && item.ItemInstanceId != Guid.Empty && item.Count > 0 && item.Count <= item.Type.MaxStack &&
                 !_items.Exists(existing => existing.ItemInstanceId == item.ItemInstanceId) &&
                 Fits(item.Type, x, y, rotated, 0);
         }
@@ -509,6 +515,8 @@ namespace Signal.Core
 
         private bool Fits(ItemType type, int x, int y, bool rotated, int ignoreInstanceId)
         {
+            if (!type.IsValid)
+                return false;
             int w = FootprintWidth(type, rotated);
             int h = FootprintHeight(type, rotated);
 
