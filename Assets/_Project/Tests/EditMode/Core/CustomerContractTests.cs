@@ -261,7 +261,7 @@ namespace Signal.Core.Tests
             var fixture = new Fixture();
             Guid itemId = fixture.PlayerInventory.Items[0].ItemInstanceId;
             bool observerSawCommittedState = false;
-            fixture.PlayerInventory.Changed += _ =>
+            fixture.PlayerInventory.Changed += changedInventory =>
             {
                 observerSawCommittedState =
                     fixture.PlayerInventory.Items.Count == 0 &&
