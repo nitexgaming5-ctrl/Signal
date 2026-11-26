@@ -804,10 +804,8 @@ namespace Signal.Game
                 residentObject.transform.SetParent(transform, false);
                 NpcPresenter presenter = residentObject.AddComponent<NpcPresenter>();
                 presenter.Bind(definition, _clock, _socialWorld, this);
-                if (presenter.SetDebugSpriteSheet(appearances[i]))
-                    _residents.Add(presenter);
-                else
-                    Destroy(residentObject);
+                presenter.SetDebugSpriteSheet(appearances[i]);
+                _residents.Add(presenter);
             }
         }
 
