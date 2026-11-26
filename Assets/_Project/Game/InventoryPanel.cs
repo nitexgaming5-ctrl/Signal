@@ -223,14 +223,11 @@ namespace Signal.Game
         {
             Vector2 screen = mouse.position.ReadValue();
             bool backpackAccessible = _canAccessGrid == null || _canAccessGrid();
+            int hoverX = 0;
+            int hoverY = 0;
+            Vector2 local = Vector2.zero;
             bool inGrid = backpackAccessible &&
-                TryGetHoverCell(screen, out int hoverX, out int hoverY, out Vector2 local);
-            if (!inGrid)
-            {
-                hoverX = 0;
-                hoverY = 0;
-                local = Vector2.zero;
-            }
+                TryGetHoverCell(screen, out hoverX, out hoverY, out local);
 
             if (!_dragging && keyboard != null)
             {
