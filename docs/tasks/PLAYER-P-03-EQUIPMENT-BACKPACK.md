@@ -111,3 +111,13 @@ The user has paused sprite creation and wearable/wardrobe presentation. P-03.6 i
 - Debug fresh-session cargo is removed only after acceptance; F1 spawner remains.
 - PROGRESS, ROADMAP, this card and PROJECT_HANDOFF agree on final status and verification.
 - P-03 is marked complete only after those conditions are met.
+
+
+## Dropped-backpack panel isolation regression (2026-11-26)
+
+- User reproduced an access/UI glitch after pressing **B** to drop the backpack, then opening resident wardrobes and street searchable containers.
+- Root cause: SearchableContainerPanel.Open retained the live _inventory reference while separately hiding the backpack grid. Pointer hit-testing and drag/drop still queried that reference. The panel now substitutes an isolated empty 1×1 inventory whenever backpackAccessible is false and explicitly disables backpack-grid hit-testing in that state.
+- GameSession now passes only the accessible backpack grid (or the empty carry sentinel) into searchable-container and Dirty Cash panels. DirtyCashContactPanel.SetPlayerInventories independently normalizes inaccessible backpack state to an isolated empty grid, so it cannot retain the dropped bag reference.
+- Pocket inventories remain available. Searchable-container loot receipt still routes through the existing capacity selector (accessible backpack first, then P1→P2→P3); with the bag dropped, that selector excludes _inventory.
+- The real dropped backpack grid, stable instance ID, ownership and cargo are not cleared, copied, reassigned or mutated by this fix.
+- Source changes are committed. Unity compilation, EditMode tests and Play Mode acceptance are pending; do not mark the regression closed until the user tests Rhea's wardrobe, a street bin, and bag recovery with the original cargo intact.
