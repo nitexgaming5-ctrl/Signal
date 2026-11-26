@@ -110,5 +110,28 @@ namespace Signal.Core.Tests
         {
             Assert.Throws<ArgumentException>(() => new Ingredient(default(ItemType), 1));
         }
+        [Test]
+        public void SuccessfulCraftPublishesOnlyTheFinalInventoryStateOnce()
+        {
+            ItemType input = Item();
+            ItemType output = Item();
+            var inventory = new GridInventory(2, 1);
+            inventory.Place(input, 0, 0, count: 2);
+            var recipe = new Recipe(new[] { new Ingredient(input, 2) }, new Ingredient(output, 1));
+            int notifications = 0;
+            bool observerSawFinalState = false;
+            inventory.Changed += _ =>
+            {
+                notifications++;
+                observerSawFinalState = inventory.CountOf(input) == 0 && inventory.CountOf(output) == 1;
+            };
+
+            CraftResult result = Crafting.TryCraft(recipe, inventory);
+
+            Assert.That(result, Is.EqualTo(CraftResult.Done));
+            Assert.That(notifications, Is.EqualTo(1));
+            Assert.That(observerSawFinalState, Is.True);
+        }
+
     }
 }
