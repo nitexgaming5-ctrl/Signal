@@ -254,7 +254,7 @@ namespace Signal.Core.Tests
             var account = new CleanMoneyAccount(10);
             var ledger = new ShopSaleTransactionLedger();
             bool observerSawCommittedState = false;
-            inventory.Changed += _ =>
+            inventory.Changed += changedInventory =>
             {
                 observerSawCommittedState =
                     inventory.Items.Count == 0 &&
