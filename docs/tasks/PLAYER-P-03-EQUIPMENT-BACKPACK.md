@@ -1,6 +1,6 @@
 # P-03 — Equipment, Wearables & Portable Backpack
 
-**Status (2026-11-26):** User confirmed **500/500 EditMode tests passing** after direct pocket-to-pocket moves/swaps. Backpack drop/recovery, three persistent pockets, hidden-pocket visibility contract, pocket/backpack transfers and pocket swaps are implemented. P-03.5 source integration now covers Retail SELL, Dirty Cash fence/cleaning selection, Home Storage, workbench repair and production across accessible backpack/pocket grids. Two targeted EditMode tests were added for split-grid repair and production; the full suite has not yet been run against these changes. P-03 remains active: broader direct-grid audit, wearable visuals, debug-loadout cleanup and full Play Mode acceptance are outstanding.
+**Status (2026-11-26):** User confirmed **503/503 EditMode tests passing** after the three targeted P-03.5 tests and pocket-aware service/repair/production integration. Backpack drop/recovery, three persistent pockets, hidden-pocket visibility contract, pocket/backpack transfers and pocket swaps are implemented. P-03.5 source integration now covers Retail SELL, Dirty Cash fence/cleaning selection, Home Storage, workbench repair and production across accessible backpack/pocket grids. Three targeted EditMode tests were added for split-grid repair and multi-grid production; the user subsequently confirmed the full 503/503 suite. P-03 remains active: broader direct-grid audit, wearable visuals, debug-loadout cleanup and full Play Mode acceptance are outstanding.
 **Track:** Player Development
 **Dependency:** P-01 modular player visual and P-02 Armor/Heat Protection modifier contract.
 
@@ -280,9 +280,9 @@ Implement three actual 1×1 personal pocket slots, separate from the backpack's 
 - Play Mode check: with the backpack equipped and then again with it dropped, drag P1 onto empty P3; then drag P3 onto occupied P2 and confirm the two item stacks exchange positions. Confirm P3 remains marked HIDDEN and the routine-search visibility rule remains P1/P2 only.
 
 
-## Verified checkpoint — 500/500 (2026-11-26)
+## Verified checkpoint — 503/503 (2026-11-26)
 
-- User confirmed the complete Unity EditMode suite passes at **500/500** after the direct pocket-to-pocket move/swap implementation.
+- User confirmed the complete Unity EditMode suite passes at **503/503** after the direct pocket-to-pocket move/swap and P-03.5 pocket-aware service integration.
 - This verifies the automated suite only; it does not by itself certify all P-03 Play Mode scenarios.
 - Direct pocket moves/swaps preserve stable item identity, stack quantity, condition, quality, authenticity and ownership. P1/P2 remain ordinary; P3 remains player-accessible but excluded from ordinary-search enumeration.
 
