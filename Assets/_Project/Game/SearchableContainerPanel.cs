@@ -34,6 +34,8 @@ namespace Signal.Game
         private string _containerDisplayName;
         private Func<Guid, bool> _takeFirstFit;
         private Func<Guid, int, int, bool, bool> _takeAt;
+        private Func<Guid, int, bool> _takeToPocket;
+        private Func<Guid, int, int, bool, bool> _putFromPocketAt;
         private Action<PlacedItem> _inspectItem;
         private Font _font;
         private bool _built;
@@ -65,6 +67,8 @@ namespace Signal.Game
 
         private bool _dragging;
         private bool _dragFromPlayer;
+        private bool _dragFromPocket;
+        private int _dragSourcePocketIndex = -1;
         private Guid _draggedItemId;
         private PlacedItem _draggedItem;
         private int _grabX;
@@ -74,10 +78,14 @@ namespace Signal.Game
         public bool IsOpen => _open;
 
         public void Bind(IReadOnlyList<ItemDefinition> definitions, Func<Guid, bool> takeFirstFit,
-            Func<Guid, int, int, bool, bool> takeAt, Action<PlacedItem> inspectItem = null)
+            Func<Guid, int, int, bool, bool> takeAt, Action<PlacedItem> inspectItem = null,
+            Func<Guid, int, bool> takeToPocket = null,
+            Func<Guid, int, int, bool, bool> putFromPocketAt = null)
         {
             _takeFirstFit = takeFirstFit ?? throw new ArgumentNullException(nameof(takeFirstFit));
             _takeAt = takeAt ?? throw new ArgumentNullException(nameof(takeAt));
+            _takeToPocket = takeToPocket;
+            _putFromPocketAt = putFromPocketAt;
             _inspectItem = inspectItem;
             _visuals.Clear();
             if (definitions != null)
@@ -226,27 +234,34 @@ namespace Signal.Game
 
             bool inContainer = TryGetCell(_containerGrid, _container.Inventory.Width, _container.Inventory.Height,
                 screen, out int containerX, out int containerY, out _);
-            int playerX = 0;
-            int playerY = 0;
+            int playerX = 0, playerY = 0;
             bool inPlayer = _backpackAccessible && TryGetCell(_playerGrid,
-                _playerInventory.Width, _playerInventory.Height, screen,
-                out playerX, out playerY, out _);
+                _playerInventory.Width, _playerInventory.Height, screen, out playerX, out playerY, out _);
+            bool inPocket = TryGetCell(_pocketGrid, PlayerPocketBook.PocketCount, 1,
+                screen, out int pocketX, out _, out _);
 
             if (!_dragging)
             {
-                if (mouse.rightButton.wasPressedThisFrame && inContainer &&
-                    _container.Inventory.TryGetItemAt(containerX, containerY, out PlacedItem inspectedContainerItem) &&
-                    _container.IsDiscovered(inspectedContainerItem.ItemInstanceId))
+                if (mouse.rightButton.wasPressedThisFrame)
                 {
-                    _inspectItem?.Invoke(inspectedContainerItem);
-                    return;
-                }
-
-                if (mouse.rightButton.wasPressedThisFrame && inPlayer &&
-                    _playerInventory.TryGetItemAt(playerX, playerY, out PlacedItem inspectedPlayerItem))
-                {
-                    _inspectItem?.Invoke(inspectedPlayerItem);
-                    return;
+                    if (inContainer &&
+                        _container.Inventory.TryGetItemAt(containerX, containerY, out PlacedItem inspectedContainer) &&
+                        _container.IsDiscovered(inspectedContainer.ItemInstanceId))
+                    {
+                        _inspectItem?.Invoke(inspectedContainer);
+                        return;
+                    }
+                    if (inPlayer && _playerInventory.TryGetItemAt(playerX, playerY, out PlacedItem inspectedPlayer))
+                    {
+                        _inspectItem?.Invoke(inspectedPlayer);
+                        return;
+                    }
+                    if (inPocket && pocketX >= 0 && pocketX < _pocketInventories.Count &&
+                        _pocketInventories[pocketX].Items.Count > 0)
+                    {
+                        _inspectItem?.Invoke(_pocketInventories[pocketX].Items[0]);
+                        return;
+                    }
                 }
 
                 if (!mouse.leftButton.wasPressedThisFrame)
@@ -265,17 +280,23 @@ namespace Signal.Game
                         Refresh();
                         return;
                     }
-
                     _lastClickId = containerItem.ItemInstanceId;
                     _lastClickTime = Time.unscaledTime;
-                    BeginDrag(containerItem, containerX, containerY, false);
+                    BeginDrag(containerItem, containerX, containerY, false, false);
                 }
                 else if (inPlayer &&
                     _playerInventory.TryGetItemAt(playerX, playerY, out PlacedItem playerItem))
                 {
                     _lastClickId = Guid.Empty;
                     _lastClickTime = -10f;
-                    BeginDrag(playerItem, playerX, playerY, true);
+                    BeginDrag(playerItem, playerX, playerY, true, false);
+                }
+                else if (inPocket && pocketX >= 0 && pocketX < _pocketInventories.Count &&
+                    _pocketInventories[pocketX].Items.Count > 0)
+                {
+                    _lastClickId = Guid.Empty;
+                    _lastClickTime = -10f;
+                    BeginDrag(_pocketInventories[pocketX].Items[0], 0, 0, false, true, pocketX);
                 }
                 else
                 {
@@ -293,35 +314,97 @@ namespace Signal.Game
             if (keyboard != null && keyboard.rKey.wasPressedThisFrame)
                 RotateDrag();
 
-            int targetX = playerX - _grabX;
-            int targetY = playerY - _grabY;
-            bool canDrop = inPlayer && (_dragFromPlayer
-                ? _playerInventory.CanMove(_draggedItem.InstanceId, targetX, targetY, _dragRotated)
-                : _playerInventory.CanPlaceTransferred(_draggedItem, targetX, targetY, _dragRotated));
-            UpdateDragVisuals(screen, inPlayer, targetX, targetY, canDrop);
+            RectTransform targetGrid = null;
+            bool inTarget = false;
+            bool canDrop = false;
+            int targetX = 0, targetY = 0;
+            int targetPocket = -1;
 
+            if (!_dragFromPlayer && !_dragFromPocket)
+            {
+                // Container item → backpack or one explicitly selected personal pocket.
+                if (inPlayer)
+                {
+                    targetGrid = _playerGrid;
+                    inTarget = true;
+                    targetX = playerX - _grabX;
+                    targetY = playerY - _grabY;
+                    canDrop = _playerInventory.CanPlaceTransferred(_draggedItem, targetX, targetY, _dragRotated);
+                }
+                else if (inPocket)
+                {
+                    targetPocket = pocketX;
+                    targetGrid = _pocketGrid;
+                    inTarget = true;
+                    targetX = pocketX;
+                    targetY = 0;
+                    canDrop = targetPocket >= 0 && targetPocket < _pocketInventories.Count &&
+                        !_dragRotated && _pocketInventories[targetPocket].CanPlaceTransferred(_draggedItem, 0, 0, false);
+                }
+            }
+            else if (_dragFromPocket)
+            {
+                // Personal pocket → searchable container (or backpack, if equipped).
+                if (inContainer)
+                {
+                    targetGrid = _containerGrid;
+                    inTarget = true;
+                    targetX = containerX - _grabX;
+                    targetY = containerY - _grabY;
+                    canDrop = _container.Inventory.CanPlaceTransferred(_draggedItem, targetX, targetY, _dragRotated);
+                }
+                else if (inPlayer)
+                {
+                    targetGrid = _playerGrid;
+                    inTarget = true;
+                    targetX = playerX - _grabX;
+                    targetY = playerY - _grabY;
+                    canDrop = _playerInventory.CanPlaceTransferred(_draggedItem, targetX, targetY, _dragRotated);
+                }
+            }
+
+            UpdateDragVisuals(screen, targetGrid, inTarget, targetX, targetY, canDrop);
             if (mouse.leftButton.wasReleasedThisFrame)
             {
                 Guid itemId = _draggedItemId;
                 int localInstanceId = _draggedItem.InstanceId;
                 bool fromPlayer = _dragFromPlayer;
+                bool fromPocket = _dragFromPocket;
+                int sourcePocket = _dragSourcePocketIndex;
                 bool rotated = _dragRotated;
                 EndDrag();
+
                 if (canDrop)
                 {
-                    if (fromPlayer)
-                        _playerInventory.TryMove(localInstanceId, targetX, targetY, rotated);
-                    else
-                        _takeAt?.Invoke(itemId, targetX, targetY, rotated);
+                    if (!fromPlayer && !fromPocket)
+                    {
+                        if (targetPocket >= 0)
+                            _takeToPocket?.Invoke(itemId, targetPocket);
+                        else
+                            _takeAt?.Invoke(itemId, targetX, targetY, rotated);
+                    }
+                    else if (fromPocket && targetGrid == _containerGrid)
+                    {
+                        _putFromPocketAt?.Invoke(itemId, targetX, targetY, rotated);
+                    }
+                    else if (fromPocket && targetGrid == _playerGrid &&
+                        sourcePocket >= 0 && sourcePocket < _pocketInventories.Count)
+                    {
+                        InventoryTransfer.MoveStackAt(_pocketInventories[sourcePocket],
+                            _playerInventory, itemId, targetX, targetY, rotated);
+                    }
                 }
                 Refresh();
             }
         }
 
-        private void BeginDrag(PlacedItem item, int cellX, int cellY, bool fromPlayer)
+        private void BeginDrag(PlacedItem item, int cellX, int cellY, bool fromPlayer,
+            bool fromPocket, int sourcePocketIndex = -1)
         {
             _dragging = true;
             _dragFromPlayer = fromPlayer;
+            _dragFromPocket = fromPocket;
+            _dragSourcePocketIndex = sourcePocketIndex;
             _draggedItem = item;
             _draggedItemId = item.ItemInstanceId;
             _dragRotated = item.Rotated;
@@ -348,39 +431,41 @@ namespace Signal.Game
         {
             _dragging = false;
             _dragFromPlayer = false;
+            _dragFromPocket = false;
+            _dragSourcePocketIndex = -1;
             if (_dragGhost != null) _dragGhost.gameObject.SetActive(false);
             if (_dropPreview != null) _dropPreview.gameObject.SetActive(false);
         }
 
         private void EndDrag() => CancelDrag();
 
-        private void UpdateDragVisuals(Vector2 screen, bool inPlayer, int targetX, int targetY, bool canDrop)
+        private void UpdateDragVisuals(Vector2 screen, RectTransform targetGrid,
+            bool inTarget, int targetX, int targetY, bool canDrop)
         {
             float width = (_dragRotated ? _draggedItem.Type.Height : _draggedItem.Type.Width) * CellSize;
             float height = (_dragRotated ? _draggedItem.Type.Width : _draggedItem.Type.Height) * CellSize;
             _dragGhost.rectTransform.sizeDelta = new Vector2(width, height);
 
-            if (inPlayer)
+            if (inTarget && targetGrid != null)
             {
-                Vector3 targetWorld = _playerGrid.TransformPoint(
+                Vector3 targetWorld = targetGrid.TransformPoint(
                     new Vector3(targetX * CellSize, -targetY * CellSize, 0f));
                 _dragGhost.rectTransform.anchoredPosition = _root.InverseTransformPoint(targetWorld);
             }
             else if (RectTransformUtility.ScreenPointToLocalPointInRectangle(_root, screen, null, out Vector2 local))
             {
-                // Keep the cell originally grabbed under the pointer instead of centring the whole item on it.
                 _dragGhost.rectTransform.anchoredPosition = new Vector2(
                     local.x - _grabX * CellSize, local.y + _grabY * CellSize);
             }
 
-            if (!inPlayer)
+            if (!inTarget || targetGrid == null || targetGrid == _pocketGrid)
             {
                 _dropPreview.gameObject.SetActive(false);
                 return;
             }
+            _dropPreview.transform.SetParent(targetGrid, false);
             _dropPreview.color = canDrop ? new Color(0.2f, 0.9f, 0.75f, 0.35f) : new Color(0.9f, 0.25f, 0.3f, 0.35f);
-            SetTopLeft(_dropPreview.rectTransform, targetX * CellSize, targetY * CellSize,
-                width, height);
+            SetTopLeft(_dropPreview.rectTransform, targetX * CellSize, targetY * CellSize, width, height);
             _dropPreview.gameObject.SetActive(true);
         }
 
@@ -413,7 +498,7 @@ namespace Signal.Game
 
             for (int pocketIndex = 0; pocketIndex < _pocketInventories.Count; pocketIndex++)
                 foreach (PlacedItem item in _pocketInventories[pocketIndex].Items)
-                    CreateItemViewAt(item, _pocketItems, false, pocketIndex, 0);
+                    CreateItemViewAt(item, _pocketItems, _dragging && _dragFromPocket && item.ItemInstanceId == _draggedItemId, pocketIndex, 0);
 
             _playerTitle.text = _backpackAccessible
                 ? "BACKPACK STORAGE + PERSONAL POCKETS"
