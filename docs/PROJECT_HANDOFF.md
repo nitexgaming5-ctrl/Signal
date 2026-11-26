@@ -153,3 +153,14 @@ The first Unity compile after the audit exposed two integration issues:
 - In several Changed-event tests, the lambda parameter was named `_`. In C#, that identifier shadowed the intended `out _` discard, causing the compiler to try passing the event's GridInventory argument as an out PlacedItem/EconomicActorId. Those event parameters now use a named identifier, restoring true discard semantics.
 
 This addresses the compiler diagnostics supplied by the user. A fresh Unity compile and test run is still required; no new test pass is claimed.
+
+
+## 2026-11-27 — Current handoff: P-03.7 Stack System
+
+- Inventory & Grid Architecture Audit is user-verified complete: **531/531 EditMode tests passed**, and the user confirmed Play Mode acceptance passed.
+- Active task: `docs/tasks/PLAYER-P-03-7-STACK-SYSTEM.md`.
+- Approved controls: LMB drag whole stack; Shift+LMB quick-transfer; RMB inspect; Shift+RMB split half; Ctrl+RMB split one.
+- Existing code already has `ItemType.MaxStack`, compatible-state stacking in `GridInventory.Add`, `ItemInstanceState`, snapshots and stable stack IDs. The current cross-inventory transfer path moves whole stacks only; no complete player-facing split/merge/quantity-transfer system exists yet.
+- Identity contract: full move preserves ID; split preserves source ID and creates a fresh ID for the split portion; merge preserves destination ID, retires emptied source ID and records persistent lineage. Merge compatibility requires same definition and exact `ItemInstanceState`.
+- Ownership is per stack ID. Never merge across actor ownership by simply discarding an ID; implement the whole ownership/lineage operation atomically or reject ambiguous cases.
+- Start with P-03.7a Core operations + regression tests, then P-03.7b ownership-aware transfer, P-03.7c UI and P-03.7d universal integrations. Do not change authored `maxStack` values or start wearable sprite work.
