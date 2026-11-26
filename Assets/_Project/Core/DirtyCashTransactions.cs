@@ -253,7 +253,7 @@ namespace Signal.Core
             }
             if (!cleanAccount.TryCredit(payout) || (feeAmount > 0 && !feeAccount.TryCredit(feeAmount)))
             {
-                inventory.Restore(before);
+                inventory.RestoreSilently(before);
                 cleanAccount.Restore(balanceBefore);
                 feeAccount.Restore(feeBalanceBefore);
                 ownership.TryRegister(cashInstanceId, cleaner);
@@ -265,7 +265,7 @@ namespace Signal.Core
                 cleaner, feeRecipient, day, minuteOfDay);
             if (!ledger.TryRecord(transaction))
             {
-                inventory.Restore(before); cleanAccount.Restore(balanceBefore);
+                inventory.RestoreSilently(before); cleanAccount.Restore(balanceBefore);
                 feeAccount.Restore(feeBalanceBefore);
                 ownership.TryRegister(cashInstanceId, cleaner);
                 return new DirtyCashCleaningResult(DirtyCashCleaningStatus.TransactionFailed, null);
