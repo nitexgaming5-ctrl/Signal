@@ -759,6 +759,56 @@ namespace Signal.Game
                 presenter.Bind(definition, _clock, _socialWorld, this);
                 _residents.Add(presenter);
             }
+
+            SpawnVisualTestResidents();
+        }
+
+        /// <summary>
+        /// Adds exactly three generic city walkers solely to exercise the supplied NPC
+        /// sprite sheets. Their schedules and movement use the existing generic NPC systems.
+        /// </summary>
+        private void SpawnVisualTestResidents()
+        {
+            if (!NpcSpriteSheetVisual.AreAssetsAvailable)
+                return;
+
+            int[] appearances = { 0, 1, 2 };
+            for (int i = appearances.Length - 1; i > 0; i--)
+            {
+                int swap = Random.Range(0, i + 1);
+                int value = appearances[i];
+                appearances[i] = appearances[swap];
+                appearances[swap] = value;
+            }
+
+            for (int i = 0; i < 3; i++)
+            {
+                string suffix = (i + 1).ToString("00");
+                NpcCharacterDefinition definition = CreateTemporaryDefinition(
+                    "visual_test_resident_" + suffix,
+                    "Resident " + suffix,
+                    "Neighbour",
+                    "Just heading out for the day.",
+                    "Taking a little break.",
+                    "Nice day to be out in the neighbourhood.",
+                    "I'm home for the evening.",
+                    new Color32(78, 83, 76, 255),
+                    420 + (i * 35));
+
+                definition.WorkPosition = new Vector2(1000.8f + (i * 0.7f), 1000.3f);
+                definition.RestPosition = new Vector2(1.5f + (i * 2.4f), -18.2f + (i * 0.35f));
+                definition.SocialPosition = new Vector2(8.0f + (i * 3.0f), -13.8f - (i * 0.45f));
+                definition.HomePosition = new Vector2(1016.0f + (i * 0.7f), 1000f);
+
+                var residentObject = new GameObject(definition.DisplayName + " - Rendering Test");
+                residentObject.transform.SetParent(transform, false);
+                NpcPresenter presenter = residentObject.AddComponent<NpcPresenter>();
+                presenter.Bind(definition, _clock, _socialWorld, this);
+                if (presenter.SetDebugSpriteSheet(appearances[i]))
+                    _residents.Add(presenter);
+                else
+                    Destroy(residentObject);
+            }
         }
 
         private NpcCharacterDefinition CreateTemporaryDefinition(string id, string displayName, string role,
