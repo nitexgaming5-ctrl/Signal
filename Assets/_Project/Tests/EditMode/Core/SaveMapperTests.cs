@@ -822,5 +822,25 @@ namespace Signal.Core.Tests
             Assert.That(owner, Is.EqualTo(EconomicActorId.Player));
         }
 
+        [Test]
+        public void ApplySkipsOrphanedOwnershipRecordsWithoutPhysicalInventoryItems()
+        {
+            var data = new SaveData();
+            data.assetOwners.Add(new SavedAssetOwner
+            {
+                instanceId = Guid.NewGuid().ToString(),
+                actorId = EconomicActorId.Player.Value
+            });
+            var world = new World();
+            var ownership = new AssetOwnershipBook();
+
+            LoadReport report = SaveMapper.Apply(data, world.Stats, world.Inventory, null,
+                world.Clock, world.Heat, world.Rent, Resolver(), assetOwnership: ownership);
+
+            Assert.That(report.Success, Is.True);
+            Assert.That(report.SkippedAssetOwners, Is.EqualTo(1));
+            Assert.That(ownership.Count, Is.Zero);
+        }
+
     }
 }
