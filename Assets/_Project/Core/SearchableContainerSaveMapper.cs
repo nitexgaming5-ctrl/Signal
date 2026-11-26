@@ -51,12 +51,13 @@ namespace Signal.Core
 
         /// <returns>Number of saved container/item records that could not be restored.</returns>
         public static int Apply(SaveData source, IReadOnlyList<SearchableContainer> destinations,
-            Func<Guid, ItemType?> resolve)
+            Func<Guid, ItemType?> resolve, AssetOwnershipBook existingOwnership = null)
         {
             if (destinations == null) return 0;
             if (resolve == null) throw new ArgumentNullException(nameof(resolve));
 
             int skipped = 0;
+            var restoredItemIds = new HashSet<Guid>();
             var savedById = new Dictionary<string, SavedSearchableContainer>(StringComparer.Ordinal);
             if (source != null && source.searchableContainers != null)
             {
@@ -86,7 +87,9 @@ namespace Signal.Core
                     foreach (SavedItem item in saved.items)
                     {
                         if (item == null || !Guid.TryParse(item.typeId, out Guid typeId) ||
-                            !Guid.TryParse(item.instanceId, out Guid instanceId))
+                            !Guid.TryParse(item.instanceId, out Guid instanceId) || instanceId == Guid.Empty ||
+                            restoredItemIds.Contains(instanceId) ||
+                            (existingOwnership != null && existingOwnership.TryGetOwner(instanceId, out _)))
                         {
                             skipped++;
                             continue;
@@ -107,7 +110,12 @@ namespace Signal.Core
 
                         if (!type.HasValue || !destination.Inventory.Place(type.Value, item.x, item.y,
                             item.rotated, item.count, instanceId, state).HasValue)
+                        {
                             skipped++;
+                            continue;
+                        }
+
+                        restoredItemIds.Add(instanceId);
                     }
                 }
 
