@@ -176,3 +176,11 @@ Committed but not yet Unity-verified:
 
 
 - Latest debug convenience update: fresh Play Mode now starts with a Worn Work Jacket, a Basic Patch Kit, and Fabric Roll + Thread Spool + Adhesive Tube (one full Basic Patch Kit recipe), alongside the existing debug backpack and three extra footprint items. This is temporary and not permanent new-game inventory. Commit `858097a06aba6b70a672549b8e61aa4b09847083`; Unity verification pending.
+
+
+## NPC rendering test (2026-11-26)
+
+- Latest user-reported EditMode checkpoint: **503/503 passed**, before the visual-only NPC rendering addition below.
+- To test the supplied sprites, pull the latest branch and run Unity menu `Signal > Import NPC Rendering Test Sprites...`, selecting `signal_npc_sprites.zip`. This imports the three full sheets locally under `Assets/_Project/Resources/NpcSprites`; the binary art is intentionally not committed.
+- Once imported, CityBlockBootstrap adds exactly three generic city residents and randomly permutes the three appearances each session. They use existing generic schedules/movement and have no bespoke gameplay content. Other NPCs and the modular player renderer are untouched.
+- Runtime reads the 48×72 cells at 32 PPU, with Idle/Walk animation and four directions. Unity compile/Play Mode verification of this new source is pending.
