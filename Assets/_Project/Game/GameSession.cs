@@ -276,7 +276,8 @@ namespace Signal.Game
                     dirtyCashContactOffer.DirtyCashItem, dirtyCashContactOffer.AcceptedItem,
                     dirtyCashContactOffer.AcceptedQuantity, dirtyCashContactOffer.DirtyCashUnits,
                     dirtyCashContactOffer.CleaningFeePercent, ExchangeWithContact, CleanDirtyCash);
-                _dirtyCashPanel.SetPlayerInventories(_inventory, GetPocketInventories(), IsBackpackAccessible());
+                _dirtyCashPanel.SetPlayerInventories(IsBackpackAccessible() ? _inventory : _emptyCarryInventory,
+                    GetPocketInventories(), IsBackpackAccessible());
             }
             else
             {
@@ -2667,8 +2668,10 @@ namespace Signal.Game
             string displayName = _residentPropertyDefinitions.TryGetValue(containerId,
                 out ResidentPropertyContainerDefinition propertyDefinition)
                 ? propertyDefinition.DisplayName : null;
-            _containerPanel.Open(container, _inventory, GetPocketInventories(),
-                IsBackpackAccessible(), displayName);
+            bool backpackAccessible = IsBackpackAccessible();
+            GridInventory accessibleBackpack = backpackAccessible ? _inventory : _emptyCarryInventory;
+            _containerPanel.Open(container, accessibleBackpack, GetPocketInventories(),
+                backpackAccessible, displayName);
         }
 
         private SearchableContainer FindSearchableContainer(string containerId)
@@ -2858,7 +2861,8 @@ namespace Signal.Game
             GridInventory accessible = IsBackpackAccessible() ? _inventory : _emptyCarryInventory;
             if (_customerContractPanel != null) _customerContractPanel.SetPlayerInventory(accessible);
             if (_dirtyCashPanel != null)
-                _dirtyCashPanel.SetPlayerInventories(_inventory, GetPocketInventories(), IsBackpackAccessible());
+                _dirtyCashPanel.SetPlayerInventories(accessible, GetPocketInventories(),
+                    IsBackpackAccessible());
             List<GridInventory> carriedInventories = GetAccessibleCarryInventories();
             if (_retailPanel != null) _retailPanel.SetInventories(carriedInventories);
             if (_storagePanel != null)
