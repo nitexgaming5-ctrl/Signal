@@ -86,7 +86,7 @@ namespace Signal.Core
                 return new RetailPurchaseResult(RetailPurchaseStatus.AccountOverflow, null);
             }
 
-            if (customerInventory.Add(item, quantity, itemState) != 0)
+            if (customerInventory.AddSilently(item, quantity, itemState, out _) != 0)
             {
                 Rollback(customerInventory, inventoryBefore, customer, customerAccount, customerBalanceBefore,
                     ownerAccount, ownerBalanceBefore, null);
@@ -116,6 +116,7 @@ namespace Signal.Core
                 return new RetailPurchaseResult(RetailPurchaseStatus.CommitFailed, null);
             }
 
+            customerInventory.NotifyChanged();
             return new RetailPurchaseResult(RetailPurchaseStatus.Completed, transaction);
         }
 
@@ -126,7 +127,7 @@ namespace Signal.Core
             if (registeredIds != null)
                 for (int i = registeredIds.Count - 1; i >= 0; i--)
                     _ownership.TryRemove(registeredIds[i], customerActor);
-            inventory.Restore(inventoryBefore);
+            inventory.RestoreSilently(inventoryBefore);
             customer.Restore(customerBalance);
             owner.Restore(ownerBalance);
         }
