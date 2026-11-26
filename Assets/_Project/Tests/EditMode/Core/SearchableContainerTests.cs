@@ -344,5 +344,31 @@ namespace Signal.Core.Tests
             Assert.That(restored.Inventory.TryGetItemInstance(itemId, out _), Is.False);
         }
 
+        [Test]
+        public void SaveMapperRejectsDuplicateStableIdsAcrossSearchableContainers()
+        {
+            Guid typeId = Guid.NewGuid();
+            Guid itemId = Guid.NewGuid();
+            var type = new ItemType(typeId, 1, 1, 5);
+            var firstSource = new SearchableContainer("duplicate-bin-first");
+            var secondSource = new SearchableContainer("duplicate-bin-second");
+            Assert.That(firstSource.Inventory.Place(type, 0, 0, false, 1, itemId).HasValue, Is.True);
+            Assert.That(secondSource.Inventory.Place(type, 0, 0, false, 1, itemId).HasValue, Is.True);
+            Assert.That(firstSource.TryInitializeSearchOrder(new[] { itemId }), Is.True);
+            Assert.That(secondSource.TryInitializeSearchOrder(new[] { itemId }), Is.True);
+            var data = new SaveData();
+            SearchableContainerSaveMapper.Capture(new[] { firstSource, secondSource }, data);
+
+            var firstTarget = new SearchableContainer("duplicate-bin-first");
+            var secondTarget = new SearchableContainer("duplicate-bin-second");
+            int skipped = SearchableContainerSaveMapper.Apply(data,
+                new[] { firstTarget, secondTarget },
+                id => id == typeId ? type : (ItemType?)null);
+
+            Assert.That(skipped, Is.GreaterThanOrEqualTo(1));
+            Assert.That(firstTarget.Inventory.TryGetItemInstance(itemId, out _), Is.True);
+            Assert.That(secondTarget.Inventory.TryGetItemInstance(itemId, out _), Is.False);
+        }
+
     }
 }
