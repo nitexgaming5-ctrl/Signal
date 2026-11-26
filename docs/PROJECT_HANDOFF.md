@@ -194,3 +194,6 @@ Committed but not yet Unity-verified:
 
 - Outdoor rendering-test NPC follow-up: after the user reported all three walkers stopped at the bench, initial placement was changed to a clearance-safe sampled Street point rather than their schedule-derived location. New roaming destinations are sampled from the Street navigation region, checked with the pathfinder's clearance and spaced away from other residents. The A* pathfinder still handles obstacle avoidance. Unity compile and Play Mode confirmation are pending; 503/503 remains the last user-confirmed EditMode result.
 - Latest commits: c000c6158535544f1bdc9dbc806000f87a0a571c, 8365baa42116c5f2819d4f229dedb2488db48de9.
+
+
+- P-03 automatic receipt routing is now explicitly confirmed: use accessible backpack capacity first, then the first suitable empty pocket in P1 → P2 → P3 order; no destination prompt. Manual moves remain exact-pocket/player-directed. Added a Core regression test; last user-confirmed suite is 503/503 and expected count is 504, pending Unity verification.
