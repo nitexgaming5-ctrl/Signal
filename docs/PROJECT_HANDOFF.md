@@ -136,3 +136,11 @@ SaveMapper rejects aliased inventory-role arguments before clearing any grid. Se
 The remaining direct Game-layer inventory mutations were reviewed and classified as controlled creation/bootstrap/debug paths (container loot, authored resident-property stock, Milo parcel, debug spawner, legacy demo). Interactive cross-grid UI paths use transfer services; same-grid rearrangement uses GridInventory.
 
 Expected current suite: **531** (25 tests added beyond the last explicit user-reported 506/506 baseline), pending Unity verification. No 531 pass is claimed. Next run the full suite, then Play Mode acceptance across F5/F9, equipped/dropped backpack, pockets, searchable containers, storage, repair, production, retail, sales and contracts.
+
+
+### Phase 4 follow-up — GameSession item creation paths
+
+- Player/customer item seeding now uses silent placement, registers the item owner, then publishes the inventory change. Failed ownership registration removes the silent placement.
+- Debug spawner item creation registers ownership before the pocket/inventory change is published; failed pocket insertion removes the provisional owner record.
+- Debug starting backpack creation and Milo parcel backpack placement now avoid publishing an item before the associated placement/opportunity state is established.
+- These are source-level changes only and add no new gameplay rules. Expected EditMode suite remains **531**, pending Unity verification.
