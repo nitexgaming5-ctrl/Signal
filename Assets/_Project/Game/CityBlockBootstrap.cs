@@ -795,15 +795,18 @@ namespace Signal.Game
                     new Color32(78, 83, 76, 255),
                     420 + (i * 35));
 
-                definition.WorkPosition = new Vector2(1000.8f + (i * 0.7f), 1000.3f);
+                // Every schedule destination stays inside the outdoor Street region.
+                // The visual-test residents never visit the shop, apartment or hideout.
+                definition.WorkPosition = new Vector2(3.0f + (i * 3.2f), -17.0f);
                 definition.RestPosition = new Vector2(1.5f + (i * 2.4f), -18.2f + (i * 0.35f));
                 definition.SocialPosition = new Vector2(8.0f + (i * 3.0f), -13.8f - (i * 0.45f));
-                definition.HomePosition = new Vector2(1016.0f + (i * 0.7f), 1000f);
+                definition.HomePosition = new Vector2(16.0f + (i * 2.0f), -21.0f + (i * 0.4f));
 
                 var residentObject = new GameObject(definition.DisplayName + " - Rendering Test");
                 residentObject.transform.SetParent(transform, false);
                 NpcPresenter presenter = residentObject.AddComponent<NpcPresenter>();
                 presenter.Bind(definition, _clock, _socialWorld, this);
+                presenter.SetDebugStreetOnly();
                 presenter.SetDebugSpriteSheet(appearances[i]);
                 _residents.Add(presenter);
             }
