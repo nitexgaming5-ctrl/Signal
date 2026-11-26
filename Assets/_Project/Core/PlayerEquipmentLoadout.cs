@@ -54,10 +54,11 @@ namespace Signal.Core
                 !source.TryGetItemInstance(itemInstanceId, out PlacedItem item) || item.Count != 1)
                 return false;
 
-            if (!source.TryRemoveItemInstance(itemInstanceId, item.Count))
+            if (!source.TryRemoveItemInstanceSilently(itemInstanceId, item.Count))
                 return false;
 
             _equipped.Add(slot, new EquippedItem(slot, item, armorModifier, heatProtectionModifier));
+            source.NotifyChanged();
             return true;
         }
 
@@ -94,10 +95,11 @@ namespace Signal.Core
             if (destination == null || !_equipped.TryGetValue(slot, out EquippedItem equipped))
                 return false;
 
-            if (!destination.TryPlaceTransferred(equipped.Item))
+            if (!destination.TryPlaceTransferredSilently(equipped.Item))
                 return false;
 
             _equipped.Remove(slot);
+            destination.NotifyChanged();
             return true;
         }
 
