@@ -127,3 +127,12 @@ UI/drag-math hardening: InventoryPanel no longer considers an inaccessible backp
 Added four persistence tests and three drag-math tests. Together with the prior P-03 and Phase 1 tests, there are 23 tests beyond the last explicit user-reported 506/506 baseline. Expected current total **529**, pending Unity verification. No 529 pass is claimed.
 
 Task card: docs/tasks/INVENTORY-GRID-AUDIT.md. Phase 4 remains: sweep remaining Core/Game mutation call sites and save/load paths, then full Unity EditMode and Play Mode verification.
+
+
+### Inventory audit — latest persistence guardrails and source sweep
+
+SaveMapper rejects aliased inventory-role arguments before clearing any grid. SearchableContainerSaveMapper skips duplicate destination container IDs/references. Two regression tests cover these cases.
+
+The remaining direct Game-layer inventory mutations were reviewed and classified as controlled creation/bootstrap/debug paths (container loot, authored resident-property stock, Milo parcel, debug spawner, legacy demo). Interactive cross-grid UI paths use transfer services; same-grid rearrangement uses GridInventory.
+
+Expected current suite: **531** (25 tests added beyond the last explicit user-reported 506/506 baseline), pending Unity verification. No 531 pass is claimed. Next run the full suite, then Play Mode acceptance across F5/F9, equipped/dropped backpack, pockets, searchable containers, storage, repair, production, retail, sales and contracts.
