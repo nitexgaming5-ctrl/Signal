@@ -147,3 +147,7 @@ See [P-01](tasks/PLAYER-P-01-CHARACTER-FOUNDATION-APPEARANCE.md), [P-02](tasks/P
 
 **W-01 — Dynamic Weather & Cold Exposure** is a separate future phase, not part of P-01/P-02. The user wants dynamic seasonal weather (temperature changes, rain, storms, snow and blizzards), while player exposure consequences are cold-focused only. The attribute name remains **Heat Protection**; it protects against cold exposure. Exposure is gradual, with shelter and effective Heat Protection reducing risk. No hot-weather or overheating gameplay is planned. See [W-01 design](tasks/WEATHER-W-01-DYNAMIC-WEATHER-COLD-EXPOSURE-DESIGN.md). Detailed mechanics and balance remain open until W-01 is activated.
 
+
+
+- P-03.5 source audit is complete across Retail, Dirty Cash, Home Storage, Workbench repair/production, Customer Contracts/Repair Orders, searchable containers and GameSession item-transfer paths. No remaining direct-grid-only blocker was identified; dropped backpack cargo remains excluded from accessible inventory views.
+- Next P-03 phase: P-03.6 wearable presentation, pending actual imported player sprite/resource paths. Temporary repair-debug loadout stays until P-03 final cleanup.
