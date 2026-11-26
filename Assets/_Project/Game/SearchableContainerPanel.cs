@@ -390,6 +390,7 @@ namespace Signal.Game
             {
                 Guid itemId = _draggedItemId;
                 int localInstanceId = _draggedItem.InstanceId;
+                bool fromPlayer = _dragFromPlayer;
                 bool fromPocket = _dragFromPocket;
                 int sourcePocket = _dragSourcePocketIndex;
                 bool rotated = _dragRotated;
