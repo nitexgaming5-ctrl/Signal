@@ -221,5 +221,38 @@ namespace Signal.Core.Tests
             Assert.That(storage.TryRegister(Guid.NewGuid(), 4, -1), Is.False);
             Assert.That(storage.Count, Is.Zero);
         }
+        [Test]
+        public void EquipmentTransfersNotifyOnlyAfterLoadoutAndInventoryAgree()
+        {
+            var inventory = new GridInventory(2, 2);
+            ItemType type = CreateType();
+            Guid itemId = Guid.NewGuid();
+            Assert.That(inventory.Place(type, 0, 0, false, 1, itemId), Is.Not.Null);
+            var loadout = new PlayerEquipmentLoadout();
+            bool equipObserverSawCommittedState = false;
+            inventory.Changed += _ =>
+            {
+                equipObserverSawCommittedState =
+                    !inventory.TryGetItemInstance(itemId, out _) &&
+                    loadout.TryGet(EquipmentSlot.Torso, out EquippedItem equipped) &&
+                    equipped.Item.ItemInstanceId == itemId;
+            };
+
+            Assert.That(loadout.TryEquip(inventory, itemId, EquipmentSlot.Torso), Is.True);
+            Assert.That(equipObserverSawCommittedState, Is.True);
+
+            var destination = new GridInventory(2, 2);
+            bool unequipObserverSawCommittedState = false;
+            destination.Changed += _ =>
+            {
+                unequipObserverSawCommittedState =
+                    destination.TryGetItemInstance(itemId, out _) &&
+                    !loadout.IsOccupied(EquipmentSlot.Torso);
+            };
+
+            Assert.That(loadout.TryUnequip(destination, EquipmentSlot.Torso), Is.True);
+            Assert.That(unequipObserverSawCommittedState, Is.True);
+        }
+
     }
 }
