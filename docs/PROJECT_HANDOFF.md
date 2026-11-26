@@ -175,4 +175,4 @@ Committed but not yet Unity-verified:
 - Continue the direct backpack-grid assumption audit in search/loot and customer/service panels before wearable visuals and P-03 closeout.
 
 
-- Latest debug convenience update: fresh Play Mode now starts with a Worn Work Jacket, a Basic Patch Kit, and Fabric Roll + Thread Spool + Adhesive Tube (one full Basic Patch Kit recipe), alongside the existing debug backpack and three extra footprint items. This is temporary and not permanent new-game inventory. Commit `905bf9b6857254293f530c100e8a97be4ecd1908`; Unity verification pending.
+- Latest debug convenience update: fresh Play Mode now starts with a Worn Work Jacket, a Basic Patch Kit, and Fabric Roll + Thread Spool + Adhesive Tube (one full Basic Patch Kit recipe), alongside the existing debug backpack and three extra footprint items. This is temporary and not permanent new-game inventory. Commit `858097a06aba6b70a672549b8e61aa4b09847083`; Unity verification pending.
