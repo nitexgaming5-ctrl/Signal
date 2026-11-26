@@ -553,26 +553,27 @@ namespace Signal.Core
             if (criminalProgression != null)
                 criminalProgression.Restore(data.criminalProgressionPoints);
 
+            var restoredItemIds = new HashSet<Guid>();
             inventory.Clear();
-            int skipped = RestoreItems(data.items, inventory, resolve);
+            int skipped = RestoreItems(data.items, inventory, resolve, restoredItemIds);
 
             int skippedStorage = 0;
             if (storage != null)
             {
                 storage.Clear();
-                skippedStorage = RestoreItems(data.storageItems, storage, resolve);
+                skippedStorage = RestoreItems(data.storageItems, storage, resolve, restoredItemIds);
             }
             int skippedContact = 0;
             if (contactInventory != null)
             {
                 contactInventory.Clear();
-                skippedContact = RestoreItems(data.contactItems, contactInventory, resolve);
+                skippedContact = RestoreItems(data.contactItems, contactInventory, resolve, restoredItemIds);
             }
             int skippedContractReceiver = 0;
             if (contractReceiverInventory != null)
             {
                 contractReceiverInventory.Clear();
-                skippedContractReceiver = RestoreItems(data.contractReceiverItems, contractReceiverInventory, resolve);
+                skippedContractReceiver = RestoreItems(data.contractReceiverItems, contractReceiverInventory, resolve, restoredItemIds);
             }
 
             int skippedKnowledge = RestoreKnowledge(data.itemKnowledge, itemKnowledge);
@@ -1584,7 +1585,8 @@ namespace Signal.Core
             return skipped;
         }
 
-        private static int RestoreItems(List<SavedItem> savedItems, GridInventory destination, Func<Guid, ItemType?> resolve)
+        private static int RestoreItems(List<SavedItem> savedItems, GridInventory destination,
+            Func<Guid, ItemType?> resolve, HashSet<Guid> restoredItemIds)
         {
             int skipped = 0;
             if (savedItems == null)
@@ -1592,13 +1594,15 @@ namespace Signal.Core
 
             foreach (var saved in savedItems)
             {
-                if (saved == null || !Guid.TryParse(saved.typeId, out Guid id))
+                if (saved == null || !Guid.TryParse(saved.typeId, out Guid typeId) ||
+                    !Guid.TryParse(saved.instanceId, out Guid instanceId) ||
+                    instanceId == Guid.Empty || restoredItemIds.Contains(instanceId))
                 {
                     skipped++;
                     continue;
                 }
 
-                ItemType? type = resolve(id);
+                ItemType? type = resolve(typeId);
                 ItemInstanceState state;
                 try
                 {
@@ -1611,9 +1615,14 @@ namespace Signal.Core
                     continue;
                 }
 
-                if (!type.HasValue || !destination.Place(type.Value, saved.x, saved.y, saved.rotated, saved.count,
-                    Guid.TryParse(saved.instanceId, out Guid instanceId) ? instanceId : Guid.Empty, state).HasValue)
+                if (!type.HasValue || !destination.Place(type.Value, saved.x, saved.y, saved.rotated,
+                    saved.count, instanceId, state).HasValue)
+                {
                     skipped++;
+                    continue;
+                }
+
+                restoredItemIds.Add(instanceId);
             }
 
             return skipped;
