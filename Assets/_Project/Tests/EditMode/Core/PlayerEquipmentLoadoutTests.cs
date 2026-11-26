@@ -230,7 +230,7 @@ namespace Signal.Core.Tests
             Assert.That(inventory.Place(type, 0, 0, false, 1, itemId), Is.Not.Null);
             var loadout = new PlayerEquipmentLoadout();
             bool equipObserverSawCommittedState = false;
-            inventory.Changed += _ =>
+            inventory.Changed += changedInventory =>
             {
                 equipObserverSawCommittedState =
                     !inventory.TryGetItemInstance(itemId, out _) &&
