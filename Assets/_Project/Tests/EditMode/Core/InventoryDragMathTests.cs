@@ -59,5 +59,26 @@ namespace Signal.Core.Tests
             Assert.That(x, Is.EqualTo(0));
             Assert.That(y, Is.EqualTo(1));
         }
+        [Test]
+        public void TryGetCellRejectsInfiniteCellSize()
+        {
+            Assert.That(InventoryDragMath.TryGetCell(1f, 1f, float.PositiveInfinity, 6, 4, out _, out _), Is.False);
+        }
+
+        [Test]
+        public void TryGetCellRejectsGridPixelDimensionsThatOverflow()
+        {
+            Assert.That(InventoryDragMath.TryGetCell(0f, 0f, float.MaxValue, 2, 2, out _, out _), Is.False);
+        }
+
+        [Test]
+        public void RotateGrabOffsetRejectsInvalidFootprintDimensions()
+        {
+            Assert.Throws<System.ArgumentOutOfRangeException>(() =>
+                InventoryDragMath.RotateGrabOffsetClockwise(0, 0, 0, 1, out _, out _));
+            Assert.Throws<System.ArgumentOutOfRangeException>(() =>
+                InventoryDragMath.RotateGrabOffsetClockwise(0, 0, 1, 0, out _, out _));
+        }
+
     }
 }
