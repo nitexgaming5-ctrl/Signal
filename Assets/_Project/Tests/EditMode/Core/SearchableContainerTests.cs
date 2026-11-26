@@ -239,5 +239,87 @@ namespace Signal.Core.Tests
             Assert.That(owner, Is.EqualTo(resident));
             Assert.That(ledger.Count, Is.EqualTo(1));
         }
+
+        [Test]
+        public void DiscoveredContainerItemCanBeRepositionedWithinTheSameContainer()
+        {
+            var container = new SearchableContainer("reorganised-wardrobe");
+            var type = new ItemType(Guid.NewGuid(), 2, 1, 1);
+            var state = new ItemInstanceState(ItemQuality.Fine, ItemCondition.Good,
+                ItemAuthenticity.Genuine, ItemOwnershipStatus.Legitimate);
+            Assert.That(container.Inventory.Place(type, 0, 0, state: state).HasValue, Is.True);
+            PlacedItem original = container.Inventory.Items[0];
+            Assert.That(container.TryInitializeSearchOrder(new[] { original.ItemInstanceId }), Is.True);
+            Assert.That(container.TryStartSearch(), Is.True);
+            Assert.That(container.TryRevealNext(out _), Is.True);
+
+            Assert.That(container.Inventory.CanMove(original.InstanceId, 2, 1, false), Is.True);
+            Assert.That(container.Inventory.TryMove(original.InstanceId, 2, 1, false), Is.True);
+            Assert.That(container.Inventory.TryGetItemInstance(original.ItemInstanceId, out PlacedItem moved), Is.True);
+            Assert.That(moved.X, Is.EqualTo(2));
+            Assert.That(moved.Y, Is.EqualTo(1));
+            Assert.That(moved.State, Is.EqualTo(state));
+            Assert.That(moved.ItemInstanceId, Is.EqualTo(original.ItemInstanceId));
+        }
+
+        [Test]
+        public void PersonalPocketsCanBeReorganisedByMovingAndSwappingStacks()
+        {
+            var pockets = new PlayerPocketBook();
+            ItemType type = Item();
+            var firstState = new ItemInstanceState(ItemQuality.Fine, ItemCondition.Worn,
+                ItemAuthenticity.Genuine, ItemOwnershipStatus.Legitimate);
+            var secondState = new ItemInstanceState(ItemQuality.Poor, ItemCondition.Good,
+                ItemAuthenticity.Genuine, ItemOwnershipStatus.Stolen);
+            Assert.That(pockets.TryAdd(type, Guid.NewGuid(), 2, firstState, out int first), Is.True);
+            Assert.That(pockets.TryAdd(type, Guid.NewGuid(), 1, secondState, out int second), Is.True);
+            Guid firstId = pockets.GetPocket(first).Items[0].ItemInstanceId;
+            Guid secondId = pockets.GetPocket(second).Items[0].ItemInstanceId;
+
+            Assert.That(pockets.TryMoveBetweenPockets(first, 2), Is.True);
+            Assert.That(pockets.GetPocket(first).Items, Is.Empty);
+            Assert.That(pockets.GetPocket(2).Items[0].ItemInstanceId, Is.EqualTo(firstId));
+
+            Assert.That(pockets.TryMoveBetweenPockets(second, 2), Is.True);
+            Assert.That(pockets.GetPocket(second).Items[0].ItemInstanceId, Is.EqualTo(firstId));
+            Assert.That(pockets.GetPocket(2).Items[0].ItemInstanceId, Is.EqualTo(secondId));
+            Assert.That(pockets.GetPocket(second).Items[0].State, Is.EqualTo(firstState));
+            Assert.That(pockets.GetPocket(2).Items[0].State, Is.EqualTo(secondState));
+        }
+
+        [Test]
+        public void BackpackItemCanBePlacedAtAnExactCellInsideSearchableContainer()
+        {
+            var backpack = new GridInventory(4, 3);
+            var container = new SearchableContainer("backpack-return-wardrobe");
+            ItemType type = new ItemType(Guid.NewGuid(), 2, 1, 5);
+            var state = new ItemInstanceState(ItemQuality.Fine, ItemCondition.Good,
+                ItemAuthenticity.Genuine, ItemOwnershipStatus.Legitimate);
+            backpack.Place(type, 0, 0, count: 2, state: state);
+            Guid itemId = backpack.Items[0].ItemInstanceId;
+
+            var ownership = new AssetOwnershipBook();
+            Assert.That(ownership.TryRegister(itemId, EconomicActorId.Player), Is.True);
+            var containers = new EconomicContainerRegistry();
+            Assert.That(containers.TryRegister(backpack, EconomicActorId.Player), Is.True);
+            var resident = new EconomicActorId("resident:rhea");
+            Assert.That(containers.TryRegister(container.Inventory, resident), Is.True);
+            var ledger = new EconomicTransactionLedger();
+
+            AssetTransferResult result = new AssetTransferService(ownership, containers, ledger).TransferStackAt(
+                backpack, container.Inventory, itemId, 2, 1, false,
+                EconomicActorId.Player, resident, AssetTransferReason.Other, 1, 620);
+
+            Assert.That(result.Success, Is.True);
+            Assert.That(backpack.Items, Is.Empty);
+            Assert.That(container.Inventory.TryGetItemInstance(itemId, out PlacedItem placed), Is.True);
+            Assert.That(placed.X, Is.EqualTo(2));
+            Assert.That(placed.Y, Is.EqualTo(1));
+            Assert.That(placed.Count, Is.EqualTo(2));
+            Assert.That(placed.State, Is.EqualTo(state));
+            Assert.That(ownership.TryGetOwner(itemId, out EconomicActorId owner), Is.True);
+            Assert.That(owner, Is.EqualTo(resident));
+            Assert.That(ledger.Count, Is.EqualTo(1));
+        }
     }
 }
