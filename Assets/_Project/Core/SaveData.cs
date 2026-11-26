@@ -543,6 +543,12 @@ namespace Signal.Core
             if (rent == null) throw new ArgumentNullException(nameof(rent));
             if (resolve == null) throw new ArgumentNullException(nameof(resolve));
 
+            var roleInventories = new HashSet<GridInventory> { inventory };
+            if ((storage != null && !roleInventories.Add(storage)) ||
+                (contactInventory != null && !roleInventories.Add(contactInventory)) ||
+                (contractReceiverInventory != null && !roleInventories.Add(contractReceiverInventory)))
+                throw new ArgumentException("Each save inventory role must reference a distinct GridInventory.");
+
             if (data == null)
                 return new LoadReport { Success = false, Error = "No save data." };
 
