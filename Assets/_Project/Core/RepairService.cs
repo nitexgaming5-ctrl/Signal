@@ -121,8 +121,8 @@ namespace Signal.Core
 
             if (!targetInventory.TryUpdateItemStateSilently(targetInstanceId, repairedState))
             {
-                targetInventory.Restore(targetBefore);
-                if (!ReferenceEquals(targetInventory, kitInventory)) kitInventory.Restore(kitBefore);
+                targetInventory.RestoreSilently(targetBefore);
+                if (!ReferenceEquals(targetInventory, kitInventory)) kitInventory.RestoreSilently(kitBefore);
                 ownership.TryRegister(kitInstanceId, operatorActor);
                 return new RepairResult(RepairStatus.InventoryConflict);
             }
