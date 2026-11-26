@@ -287,5 +287,35 @@ namespace Signal.Core.Tests
             Assert.That(observerSawCommittedState, Is.True);
         }
 
+        [Test]
+        public void CleaningNotifiesInventoryOnlyAfterAccountsOwnershipAndLedgerCommit()
+        {
+            ItemType cash = Item();
+            var inventory = new GridInventory();
+            inventory.Place(cash, 0, 0, count: 3);
+            Guid cashId = inventory.Items[0].ItemInstanceId;
+            var ownership = new AssetOwnershipBook();
+            Assert.That(ownership.TryRegister(cashId, Player), Is.True);
+            var account = new CleanMoneyAccount(11);
+            var feeAccount = new CleanMoneyAccount();
+            var ledger = new DirtyCashCleaningTransactionLedger();
+            bool observerSawCommittedState = false;
+            inventory.Changed += _ =>
+            {
+                observerSawCommittedState =
+                    inventory.CountOf(cash) == 0 &&
+                    !ownership.TryGetOwner(cashId, out _) &&
+                    account.Balance == 35 &&
+                    feeAccount.Balance == 6 &&
+                    ledger.Count == 1;
+            };
+
+            DirtyCashCleaningResult result = DirtyCashCleaningService.TryClean(inventory,
+                cashId, cash, Player, ownership, account, feeAccount, Contact, 20, ledger, 3, 720);
+
+            Assert.That(result.Success, Is.True);
+            Assert.That(observerSawCommittedState, Is.True);
+        }
+
     }
 }
