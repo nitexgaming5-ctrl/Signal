@@ -96,3 +96,11 @@ Crime consequences, police response, additional lawful/illicit activities, inves
 - Added 13 Phase 1 tests plus three searchable-container tests from the preceding follow-up. Last explicit user-reported baseline 506/506; expected current suite 522, pending Unity verification.
 - Task card: docs/tasks/INVENTORY-GRID-AUDIT.md.
 - Remaining: persistence/identity reconciliation, UI drag/drop and capacity routing audit, remaining mutation call-site sweep, full EditMode and Play Mode verification.
+
+
+### Inventory & Grid Architecture Audit — Phases 2–3
+
+- Save/load now rejects duplicate stable item IDs across the four SaveMapper inventory grids; ownership restore skips orphaned IDs. Equipment, dropped backpack, pockets and searchable containers share the ownership-based duplicate guard; searchable containers also deduplicate against one another.
+- InventoryPanel now prevents drop previews into an inaccessible backpack grid without freezing pocket drag ghost movement. InventoryDragMath rejects non-finite/overflowed geometry and invalid rotation footprints.
+- Added 7 regression tests in these phases. Cumulative expected suite total is **529** relative to the last explicit user-reported 506/506 baseline; pending Unity verification.
+- Phase 4: remaining Core/Game inventory mutation sweep, then full EditMode and Play Mode verification. See docs/tasks/INVENTORY-GRID-AUDIT.md.
