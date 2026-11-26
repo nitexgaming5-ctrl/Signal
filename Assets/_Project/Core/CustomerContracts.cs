@@ -257,7 +257,7 @@ namespace Signal.Core
             int playerBalanceBefore = playerAccount.Balance;
             int payerBalanceBefore = payerAccount.Balance;
 
-            AssetTransferResult transfer = transfers.TransferStack(playerInventory, receiverInventory,
+            AssetTransferResult transfer = transfers.TransferStackDeferred(playerInventory, receiverInventory,
                 itemInstanceId, EconomicActorId.Player, receiverActor, AssetTransferReason.ContractDelivery,
                 day, minuteOfDay);
             if (!transfer.Success)
@@ -274,8 +274,8 @@ namespace Signal.Core
                 playerAccount.RestoreSilently(playerBalanceBefore);
                 ownership.TryTransferOwnership(itemInstanceId, receiverActor, EconomicActorId.Player);
                 economicTransactions.TryRemove(transfer.Transaction.TransactionId);
-                playerInventory.Restore(playerBefore);
-                receiverInventory.Restore(receiverBefore);
+                playerInventory.RestoreSilently(playerBefore);
+                receiverInventory.RestoreSilently(receiverBefore);
                 return Result(CustomerContractFulfilmentStatus.ContractStateConflict);
             }
 
@@ -285,6 +285,9 @@ namespace Signal.Core
                 npcSocialWorld.AdjustPlayerRelationship(npcOpinionNpcId,
                     npcFamiliarityDelta, npcTrustDelta, npcAffinityDelta);
 
+            // The transfer, payment, contract state and relationship outcomes are now committed.
+            playerInventory.NotifyChanged();
+            receiverInventory.NotifyChanged();
             return new CustomerContractFulfilmentResult(CustomerContractFulfilmentStatus.Completed,
                 transfer.Transaction, reward);
         }
