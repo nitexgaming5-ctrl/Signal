@@ -1505,6 +1505,8 @@ namespace Signal.Game
             foreach (SavedEquippedItem saved in data.equippedItems ?? new List<SavedEquippedItem>())
             {
                 if (saved == null || !Guid.TryParse(saved.instanceId, out Guid instanceId) ||
+                    instanceId == Guid.Empty ||
+                    (_assetOwnership != null && _assetOwnership.TryGetOwner(instanceId, out _)) ||
                     !Guid.TryParse(saved.typeId, out Guid typeId) ||
                     !Enum.IsDefined(typeof(EquipmentSlot), saved.slot) ||
                     !Enum.IsDefined(typeof(ItemQuality), saved.quality) ||
@@ -1559,7 +1561,8 @@ namespace Signal.Game
 
             SavedEquippedItem droppedSaved = data.droppedBackpack;
             if (droppedSaved != null && droppedSaved.portableBackpack &&
-                Guid.TryParse(droppedSaved.instanceId, out Guid droppedId) &&
+                Guid.TryParse(droppedSaved.instanceId, out Guid droppedId) && droppedId != Guid.Empty &&
+                (_assetOwnership == null || !_assetOwnership.TryGetOwner(droppedId, out _)) &&
                 Guid.TryParse(droppedSaved.typeId, out Guid droppedTypeId) &&
                 Enum.IsDefined(typeof(ItemQuality), droppedSaved.quality) &&
                 Enum.IsDefined(typeof(ItemCondition), droppedSaved.condition) &&
