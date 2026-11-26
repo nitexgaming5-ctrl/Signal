@@ -226,11 +226,11 @@ namespace Signal.Game
 
             bool inContainer = TryGetCell(_containerGrid, _container.Inventory.Width, _container.Inventory.Height,
                 screen, out int containerX, out int containerY, out _);
+            int playerX = 0;
+            int playerY = 0;
             bool inPlayer = _backpackAccessible && TryGetCell(_playerGrid,
                 _playerInventory.Width, _playerInventory.Height, screen,
-                out int playerX, out int playerY, out _);
-            if (!_backpackAccessible)
-                playerX = playerY = 0;
+                out playerX, out playerY, out _);
 
             if (!_dragging)
             {
