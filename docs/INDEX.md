@@ -145,6 +145,7 @@ When documents disagree, use the newest explicit decision and current implementa
 - `Assets/_Project/Game/PlayerDevelopmentCatalog.cs` and `Assets/_Project/Resources/PlayerDevelopment/DefaultPlayerDevelopmentCatalog.asset` — editable provisional skill definitions and prototype progression tuning.
 - `Assets/_Project/Game/PlayerDevelopmentPanel.cs` — F2 debug allocation UI.
 - `Assets/_Project/Game/PlayerCharacterVisual.cs` — modular Body_A player renderer.
+- `docs/tasks/PLAYER-P-03-6-WEARABLE-PRESENTATION.md` — prepared wearable overlay phase; implementation requires inspection of locally imported compatible wearable sprites.
 - `Assets/_Project/Editor/CharacterPackImporter.cs` — imports the supplied ZIP through the Unity Editor menu.
 - `Assets/_Project/Tests/EditMode/Core/PlayerDevelopmentTests.cs` — eleven focused tests.
 
