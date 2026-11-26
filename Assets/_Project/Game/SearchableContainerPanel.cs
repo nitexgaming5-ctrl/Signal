@@ -36,6 +36,8 @@ namespace Signal.Game
         private Func<Guid, int, int, bool, bool> _takeAt;
         private Func<Guid, int, bool> _takeToPocket;
         private Func<Guid, int, int, bool, bool> _putFromPocketAt;
+        private Func<Guid, int, int, bool, bool> _putFromBackpackAt;
+        private Func<int, int, bool> _movePocketBetweenPockets;
         private Action<PlacedItem> _inspectItem;
         private Font _font;
         private bool _built;
@@ -80,12 +82,16 @@ namespace Signal.Game
         public void Bind(IReadOnlyList<ItemDefinition> definitions, Func<Guid, bool> takeFirstFit,
             Func<Guid, int, int, bool, bool> takeAt, Action<PlacedItem> inspectItem = null,
             Func<Guid, int, bool> takeToPocket = null,
-            Func<Guid, int, int, bool, bool> putFromPocketAt = null)
+            Func<Guid, int, int, bool, bool> putFromPocketAt = null,
+            Func<Guid, int, int, bool, bool> putFromBackpackAt = null,
+            Func<int, int, bool> movePocketBetweenPockets = null)
         {
             _takeFirstFit = takeFirstFit ?? throw new ArgumentNullException(nameof(takeFirstFit));
             _takeAt = takeAt ?? throw new ArgumentNullException(nameof(takeAt));
             _takeToPocket = takeToPocket;
             _putFromPocketAt = putFromPocketAt;
+            _putFromBackpackAt = putFromBackpackAt;
+            _movePocketBetweenPockets = movePocketBetweenPockets;
             _inspectItem = inspectItem;
             _visuals.Clear();
             if (definitions != null)
@@ -322,8 +328,16 @@ namespace Signal.Game
 
             if (!_dragFromPlayer && !_dragFromPocket)
             {
-                // Container item → backpack or one explicitly selected personal pocket.
-                if (inPlayer)
+                // Container item → another cell in the same container, backpack, or a personal pocket.
+                if (inContainer)
+                {
+                    targetGrid = _containerGrid;
+                    inTarget = true;
+                    targetX = containerX - _grabX;
+                    targetY = containerY - _grabY;
+                    canDrop = _container.Inventory.CanMove(_draggedItem.InstanceId, targetX, targetY, _dragRotated);
+                }
+                else if (inPlayer)
                 {
                     targetGrid = _playerGrid;
                     inTarget = true;
@@ -344,8 +358,16 @@ namespace Signal.Game
             }
             else if (_dragFromPlayer)
             {
-                // Preserve backpack rearrangement and allow explicit backpack → pocket moves.
-                if (inPlayer)
+                // Backpack items can be rearranged, returned to the active container, or moved to a pocket.
+                if (inContainer)
+                {
+                    targetGrid = _containerGrid;
+                    inTarget = true;
+                    targetX = containerX - _grabX;
+                    targetY = containerY - _grabY;
+                    canDrop = _container.Inventory.CanPlaceTransferred(_draggedItem, targetX, targetY, _dragRotated);
+                }
+                else if (inPlayer)
                 {
                     targetGrid = _playerGrid;
                     inTarget = true;
@@ -366,8 +388,19 @@ namespace Signal.Game
             }
             else if (_dragFromPocket)
             {
-                // Personal pocket → searchable container (or backpack, if equipped).
-                if (inContainer)
+                // Personal pocket → another pocket, searchable container, or backpack (if equipped).
+                if (inPocket)
+                {
+                    targetPocket = pocketX;
+                    targetGrid = _pocketGrid;
+                    inTarget = true;
+                    targetX = pocketX;
+                    targetY = 0;
+                    canDrop = targetPocket >= 0 && targetPocket < _pocketInventories.Count &&
+                        targetPocket != _dragSourcePocketIndex && !_dragRotated &&
+                        _draggedItem.Type.Width == 1 && _draggedItem.Type.Height == 1;
+                }
+                else if (inContainer)
                 {
                     targetGrid = _containerGrid;
                     inTarget = true;
@@ -400,10 +433,16 @@ namespace Signal.Game
                 {
                     if (!fromPlayer && !fromPocket)
                     {
-                        if (targetPocket >= 0)
+                        if (targetGrid == _containerGrid)
+                            _container.Inventory.TryMove(localInstanceId, targetX, targetY, rotated);
+                        else if (targetPocket >= 0)
                             _takeToPocket?.Invoke(itemId, targetPocket);
                         else
                             _takeAt?.Invoke(itemId, targetX, targetY, rotated);
+                    }
+                    else if (fromPlayer && targetGrid == _containerGrid)
+                    {
+                        _putFromBackpackAt?.Invoke(itemId, targetX, targetY, rotated);
                     }
                     else if (fromPlayer && targetGrid == _playerGrid)
                     {
@@ -412,6 +451,12 @@ namespace Signal.Game
                     else if (fromPlayer && targetPocket >= 0 && targetPocket < _pocketInventories.Count)
                     {
                         InventoryTransfer.MoveStack(_playerInventory, _pocketInventories[targetPocket], itemId);
+                    }
+                    else if (fromPocket && targetGrid == _pocketGrid &&
+                        sourcePocket >= 0 && sourcePocket < _pocketInventories.Count &&
+                        targetPocket >= 0 && targetPocket < _pocketInventories.Count)
+                    {
+                        _movePocketBetweenPockets?.Invoke(sourcePocket, targetPocket);
                     }
                     else if (fromPocket && targetGrid == _containerGrid)
                     {
