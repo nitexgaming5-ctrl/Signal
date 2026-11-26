@@ -93,7 +93,16 @@ namespace Signal.Core
 
         public int? Place(ItemType type, int x, int y, bool rotated = false, int count = 1, Guid? itemInstanceId = null, ItemInstanceState? state = null)
         {
-            if (count < 1 || count > type.MaxStack)
+            int? placed = PlaceSilently(type, x, y, rotated, count, itemInstanceId, state);
+            if (placed.HasValue)
+                NotifyChanged();
+            return placed;
+        }
+
+        internal int? PlaceSilently(ItemType type, int x, int y, bool rotated = false, int count = 1,
+            Guid? itemInstanceId = null, ItemInstanceState? state = null)
+        {
+            if (!type.IsValid || count < 1 || count > type.MaxStack)
                 return null;
             if (!CanPlace(type, x, y, rotated))
                 return null;
@@ -104,7 +113,6 @@ namespace Signal.Core
 
             int id = _nextInstanceId++;
             _items.Add(new PlacedItem(id, stableId, type, x, y, rotated, count, state ?? ItemInstanceState.Default));
-            Changed?.Invoke(this);
             return id;
         }
 
