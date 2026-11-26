@@ -77,3 +77,15 @@ W-01 is separate and inactive. Intended direction: seasonal temperature/weather,
 - Do not author new story cast/backstories until the main storyline/cast are designed.
 - Do not run `dotnet` or `msbuild` for this Unity project.
 - Keep this file concise; append history to the November log.
+
+
+## 2026-11-26 — P-03 dropped-backpack panel isolation fix
+
+- User reproduced a glitch by pressing B to drop the backpack and then opening Rhea's wardrobe / street searchable containers.
+- Found that SearchableContainerPanel hid its backpack grid visually but retained the real _inventory reference. Its pointer hit-testing and drag/drop paths still queried that reference.
+- Hardened SearchableContainerPanel to use an isolated empty 1×1 grid whenever the backpack is inaccessible, and to skip backpack-grid pointer hit-testing entirely in that state.
+- GameSession now passes only the accessible backpack grid or the empty carry sentinel to SearchableContainerPanel and DirtyCashContactPanel. DirtyCashContactPanel also independently normalizes inaccessible state to an isolated empty grid.
+- Personal pockets remain available; loot receipts continue through the existing capacity-aware backpack→P1→P2→P3 selector, which excludes the dropped backpack.
+- The dropped backpack's actual storage grid and contents are untouched.
+- Commits: e8c57416a279af7bc6d0acaa69ba5e421a98d87b (searchable panel isolation), c61532aad7e8102872c622e1beb9ed7f6bb10283 (Dirty Cash isolation), 73be827f6382cb92d0dddbe66bed9b955c79e269 (GameSession panel bindings), a037dca3ca6ae61526ee065b0fd4c5bab987024b (pointer hit-test guard).
+- Verification pending: no Unity compile or test result is claimed. User must test B-drop → Rhea wardrobe → street bin/container, then recover the same backpack and confirm its original cargo is intact.
