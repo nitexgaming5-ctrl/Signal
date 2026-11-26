@@ -184,8 +184,6 @@ namespace Signal.Core
             source.NotifyChanged();
             if (!ReferenceEquals(source, destination))
                 destination.NotifyChanged();
-            else if (ReferenceEquals(source, destination))
-                destination.NotifyChanged();
 
             return new StackOperationResult(StackOperationStatus.Completed, accepted, destinationStackId);
         }
