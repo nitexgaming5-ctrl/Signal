@@ -370,5 +370,25 @@ namespace Signal.Core.Tests
             Assert.That(secondTarget.Inventory.TryGetItemInstance(itemId, out _), Is.False);
         }
 
+        [Test]
+        public void SaveMapperSkipsDuplicateDestinationContainerReferences()
+        {
+            Guid typeId = Guid.NewGuid();
+            Guid itemId = Guid.NewGuid();
+            var type = new ItemType(typeId, 1, 1, 5);
+            var source = new SearchableContainer("single-restore-target");
+            Assert.That(source.Inventory.Place(type, 0, 0, false, 1, itemId).HasValue, Is.True);
+            Assert.That(source.TryInitializeSearchOrder(new[] { itemId }), Is.True);
+            var data = new SaveData();
+            SearchableContainerSaveMapper.Capture(new[] { source }, data);
+            var target = new SearchableContainer("single-restore-target");
+
+            int skipped = SearchableContainerSaveMapper.Apply(data, new[] { target, target },
+                id => id == typeId ? type : (ItemType?)null);
+
+            Assert.That(skipped, Is.EqualTo(1));
+            Assert.That(target.Inventory.TryGetItemInstance(itemId, out _), Is.True);
+        }
+
     }
 }
