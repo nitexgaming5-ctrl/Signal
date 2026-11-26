@@ -151,3 +151,7 @@ See [P-01](tasks/PLAYER-P-01-CHARACTER-FOUNDATION-APPEARANCE.md), [P-02](tasks/P
 
 - P-03.5 source audit is complete across Retail, Dirty Cash, Home Storage, Workbench repair/production, Customer Contracts/Repair Orders, searchable containers and GameSession item-transfer paths. No remaining direct-grid-only blocker was identified; dropped backpack cargo remains excluded from accessible inventory views.
 - Next P-03 phase: P-03.6 wearable presentation, pending actual imported player sprite/resource paths. Temporary repair-debug loadout stays until P-03 final cleanup.
+
+
+- Rendering-test follow-up: the three temporary outdoor sprite walkers now start from clearance-safe Street positions rather than schedule-derived bench/furniture positions. Their subsequent roam targets are sampled from walkable Street ground and spaced away from nearby residents, while the existing pathfinder handles routes around obstacles. Unity compile and Play Mode confirmation are pending; latest user-confirmed EditMode baseline remains 503/503.
+- P-03.5 inventory access audit remains complete. P-03.6 wearable presentation is waiting for the user's actual player sprite/resource paths. Keep the temporary Basic Patch Kit debug starting loadout during remaining repair/production acceptance; remove it only during final P-03 cleanup after the user has finished using it.
