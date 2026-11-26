@@ -32,7 +32,7 @@ namespace Signal.Core
 
     public readonly struct StackMergeRecord
     {
-        internal StackMergeRecord(Guid operationId, Guid sourceStackId, Guid destinationStackId,
+        public StackMergeRecord(Guid operationId, Guid sourceStackId, Guid destinationStackId,
             Guid itemDefinitionId, int quantity)
         {
             OperationId = operationId;
