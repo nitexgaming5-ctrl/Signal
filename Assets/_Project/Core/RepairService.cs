@@ -109,17 +109,17 @@ namespace Signal.Core
             InventorySnapshot kitBefore = ReferenceEquals(targetInventory, kitInventory)
                 ? targetBefore : kitInventory.CreateSnapshot();
 
-            if (!kitInventory.TryRemoveItemInstance(kitInstanceId, 1))
+            if (!kitInventory.TryRemoveItemInstanceSilently(kitInstanceId, 1))
                 return new RepairResult(RepairStatus.InventoryConflict);
 
             if (!ownership.TryRemove(kitInstanceId, operatorActor))
             {
-                targetInventory.Restore(targetBefore);
-                if (!ReferenceEquals(targetInventory, kitInventory)) kitInventory.Restore(kitBefore);
+                targetInventory.RestoreSilently(targetBefore);
+                if (!ReferenceEquals(targetInventory, kitInventory)) kitInventory.RestoreSilently(kitBefore);
                 return new RepairResult(RepairStatus.OwnershipMismatch);
             }
 
-            if (!targetInventory.TryUpdateItemState(targetInstanceId, repairedState))
+            if (!targetInventory.TryUpdateItemStateSilently(targetInstanceId, repairedState))
             {
                 targetInventory.Restore(targetBefore);
                 if (!ReferenceEquals(targetInventory, kitInventory)) kitInventory.Restore(kitBefore);
@@ -129,6 +129,11 @@ namespace Signal.Core
 
             knowledge.RecordFact(targetInstanceId, ItemKnowledgeAspect.Condition,
                 (int)resultingCondition, ItemKnowledgeSource.DirectInspection, 1f, day, minuteOfDay);
+
+            // Publish only after the kit, repaired item, ownership and knowledge agree.
+            targetInventory.NotifyChanged();
+            if (!ReferenceEquals(targetInventory, kitInventory))
+                kitInventory.NotifyChanged();
             return new RepairResult(RepairStatus.Completed, resultingCondition);
         }
 
