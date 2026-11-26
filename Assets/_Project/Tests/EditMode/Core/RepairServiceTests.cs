@@ -212,5 +212,27 @@ namespace Signal.Core.Tests
         }
 
 
+        [Test]
+        public void RepairNotifiesObserversOnlyAfterKitAndTargetCommit()
+        {
+            var fixture = new Fixture(ItemCondition.Worn);
+            bool observerSawCommittedState = false;
+            fixture.Inventory.Changed += _ =>
+            {
+                observerSawCommittedState =
+                    fixture.Inventory.TryGetItemInstance(fixture.JacketId, out PlacedItem jacket) &&
+                    jacket.State.Condition == ItemCondition.Good &&
+                    !fixture.Inventory.TryGetItemInstance(fixture.BasicKitId, out _) &&
+                    !fixture.Ownership.TryGetOwner(fixture.BasicKitId, out _) &&
+                    fixture.Ownership.TryGetOwner(fixture.JacketId, out EconomicActorId owner) &&
+                    owner == fixture.Player;
+            };
+
+            RepairResult result = fixture.Repair(fixture.BasicKitId);
+
+            Assert.That(result.Success, Is.True);
+            Assert.That(observerSawCommittedState, Is.True);
+        }
+
     }
 }
