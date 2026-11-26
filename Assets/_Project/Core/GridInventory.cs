@@ -310,15 +310,20 @@ namespace Signal.Core
         /// </summary>
         public bool TryRemove(ItemType type, int count)
         {
-            return TryRemoveMatching(type, count, null);
+            return TryRemoveMatching(type, count, null, true);
         }
 
         public bool TryRemove(ItemType type, int count, ItemInstanceState state)
         {
-            return TryRemoveMatching(type, count, state);
+            return TryRemoveMatching(type, count, state, true);
         }
 
-        private bool TryRemoveMatching(ItemType type, int count, ItemInstanceState? state)
+        internal bool TryRemoveSilently(ItemType type, int count, ItemInstanceState? state = null)
+        {
+            return TryRemoveMatching(type, count, state, false);
+        }
+
+        private bool TryRemoveMatching(ItemType type, int count, ItemInstanceState? state, bool notify)
         {
             if (count < 1 || CountMatching(type, state) < count)
                 return false;
@@ -339,7 +344,8 @@ namespace Signal.Core
                     _items[i] = new PlacedItem(item.InstanceId, item.ItemInstanceId, item.Type, item.X, item.Y, item.Rotated, item.Count - taken, item.State);
             }
 
-            Changed?.Invoke(this);
+            if (notify)
+                NotifyChanged();
             return true;
         }
 
