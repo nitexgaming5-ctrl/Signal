@@ -117,7 +117,9 @@ namespace Signal.Game
             CancelDrag();
             _container = container;
             _containerDisplayName = string.IsNullOrWhiteSpace(displayName) ? "CONTAINER" : displayName.ToUpperInvariant();
-            _playerInventory = backpackInventory;
+            // Never retain the real backpack grid when the physical bag is dropped. The panel
+            // receives an isolated empty grid so every pointer/drag path is safe by construction.
+            _playerInventory = backpackAccessible ? backpackInventory : new GridInventory(1, 1);
             _backpackAccessible = backpackAccessible;
             _pocketInventories.Clear();
             if (pockets != null)
@@ -224,8 +226,11 @@ namespace Signal.Game
 
             bool inContainer = TryGetCell(_containerGrid, _container.Inventory.Width, _container.Inventory.Height,
                 screen, out int containerX, out int containerY, out _);
-            bool inPlayer = TryGetCell(_playerGrid, _playerInventory.Width, _playerInventory.Height,
-                screen, out int playerX, out int playerY, out _);
+            bool inPlayer = _backpackAccessible && TryGetCell(_playerGrid,
+                _playerInventory.Width, _playerInventory.Height, screen,
+                out int playerX, out int playerY, out _);
+            if (!_backpackAccessible)
+                playerX = playerY = 0;
 
             if (!_dragging)
             {
