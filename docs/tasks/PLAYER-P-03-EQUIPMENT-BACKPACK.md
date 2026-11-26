@@ -301,8 +301,7 @@ Recommended next implementation slice: **P-03.5 — pocket-aware service-panel i
 - Retail SELL now enumerates all accessible carried grids (equipped backpack plus P1/P2/P3), resolves sale by stable item ID through GameSession's source-inventory lookup, and refreshes when any carried grid changes.
 - Dirty Cash fence/cleaning panel now displays the 8×6 backpack grid only while the backpack is accessible, always displays the three personal pockets separately, and resolves selected stack IDs across those source inventories. The existing exchange/cleaning transaction services still receive the actual source grid from GameSession; no dropped-backpack cargo is enumerated.
 - Home Storage now lists items from every accessible carried grid. STORE transfers from the exact source grid; TAKE chooses a destination through GameSession's carry-capacity helper, so a pocket can receive an item when the backpack is absent/full (subject to the existing item-footprint rules).
-- These changes preserve existing transaction services and stable item identity. They are source-level implementation only: Unity compile, EditMode tests and Play Mode scenarios have not yet been run by the user.
-- Next: extend the same source-inventory model to workbench repair and production inputs/outputs, then audit other direct inventory assumptions.
+- This initial service/storage checkpoint was expanded by the implementation update immediately below; it is retained as session history. All source changes still require Unity compile, EditMode tests and Play Mode acceptance.
 
 
 ### P-03.5 implementation checkpoint — service panels, storage and workbench (2026-11-26)
@@ -315,4 +314,4 @@ Recommended next implementation slice: **P-03.5 — pocket-aware service-panel i
 - ProductionService now supports transactional ingredient consumption across multiple accessible grids and a separately selected output grid. It snapshots all participating grids and restores them plus ownership registrations on failure. GameSession chooses output capacity through the same backpack/pocket carry selector; producing no longer requires an equipped backpack when the pockets can receive the output.
 - Added three targeted EditMode cases: repair with target and kit in separate grids; production consuming ingredients across backpack/pocket grids with output routed to a pocket; and multi-grid output failure restoring every ingredient grid and ownership record.
 - All of the above is source-level work only. The user must run Unity compilation and the full EditMode suite before any verification claim; Play Mode acceptance remains outstanding.
-- Next: audit other direct backpack-grid assumptions (including search/loot and customer/service panels), then move to wearable presentation, temporary debug-loadout cleanup and end-to-end P-03 acceptance.
+- Next: finish the remaining direct-grid audit in customer/service panels and any other item consumers, then move to wearable presentation, temporary debug-loadout cleanup and end-to-end P-03 acceptance.
