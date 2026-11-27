@@ -115,3 +115,13 @@ This supersedes the narrower backpack-only follow-up. The user requires independ
 - [ ] Move save/load to stable storage identities with deterministic migration of legacy `storageItems` and single dropped-backpack data.
 - [ ] Verify all transfer, service and UI paths use only explicitly accessible inventories; run Unity compile, EditMode and Play Mode.
 
+
+
+### Storage isolation — persistence primitive added (2026-11-27)
+- [x] Add Core save records and a mapper that captures/restores every physical backpack's grid by stable backpack GUID; include dimensions and item instance/state data.
+- [x] Reject duplicate backpack storage IDs and duplicate physical item IDs during restore; unregister stale backpack registry mappings without clearing unrelated storage domains.
+- [ ] Wire per-backpack persistence into GameSession together with active-grid switching; do not serialize one backpack's contents through both legacy player items and per-backpack records.
+- [ ] Replace the single dropped-backpack item/visual with multi-instance tracking and implement the approved automatic swap.
+- [ ] Enable TEST LOADOUT with other backpacks dropped only after active-grid switching and persistence are safe.
+- [ ] Extend runtime storage registry coverage to NPC pockets and business stock; audit every UI/service access path.
+- [ ] Add deterministic migration for legacy saves and verify F5/F9 round trips in Play Mode.
