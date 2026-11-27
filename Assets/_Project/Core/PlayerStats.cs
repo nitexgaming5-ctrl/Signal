@@ -11,7 +11,7 @@ namespace Signal.Core
         {
             _cleanMoney = new CleanMoneyAccount(money);
             _cleanMoney.Changed += OnCleanMoneyChanged;
-            _health = Clamp(health);
+            _health = Clamp(health, _maximumHealth);
         }
         /// <summary>Compatibility view of the player's clean bank/card balance.</summary>
         public int Money => _cleanMoney.Balance;
