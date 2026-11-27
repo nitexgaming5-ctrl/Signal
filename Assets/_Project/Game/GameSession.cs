@@ -2156,6 +2156,13 @@ namespace Signal.Game
                         PlayerCharacterVisual restoredVisual = _room != null && _room.Player != null
                             ? _room.Player.GetComponent<PlayerCharacterVisual>() : null;
                         if (restoredVisual != null) restoredVisual.SetBackpackEquipped(false);
+                        if (_backpackWorldBook.TryGet(restoredBackpackId, out PortableBackpackWorldState inconsistentWorldState) &&
+                            inconsistentWorldState.Status == PortableBackpackWorldStatus.Equipped)
+                        {
+                            Vector2 fallbackDropPosition = _room != null && _room.Player != null
+                                ? (Vector2)_room.Player.position : Vector2.zero;
+                            _backpackWorldBook.TryDrop(restoredBackpackId, fallbackDropPosition.x, fallbackDropPosition.y);
+                        }
                         if (_backpackWorldBook.TryGet(restoredBackpackId, out PortableBackpackWorldState droppedState) &&
                             droppedState.Status == PortableBackpackWorldStatus.Dropped)
                             SpawnDroppedBackpackVisual(new Vector2(droppedState.WorldX, droppedState.WorldY));
