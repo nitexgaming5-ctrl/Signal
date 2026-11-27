@@ -457,8 +457,10 @@ namespace Signal.Game
             x = y = 0;
             if (grid == null || !type.IsStackable)
                 return false;
-            for (int row = 0; row <= grid.Height - type.Height; row++)
-                for (int column = 0; column <= grid.Width - type.Width; column++)
+            int footprintWidth = rotated ? type.Height : type.Width;
+            int footprintHeight = rotated ? type.Width : type.Height;
+            for (int row = 0; row <= grid.Height - footprintHeight; row++)
+                for (int column = 0; column <= grid.Width - footprintWidth; column++)
                     if (grid.CanPlace(type, column, row, rotated))
                     {
                         x = column;
@@ -708,7 +710,7 @@ namespace Signal.Game
             _root.pivot = new Vector2(0.5f, 0.5f);
             _root.anchoredPosition = Vector2.zero;
 
-            _title = NewText("Title", _root, "INVENTORY   SHIFT+LMB quick move   SHIFT+RMB split half   CTRL+RMB split 1   R rotate   ESC cancel   E equip   1-7 unequip   B drop", 13,
+            _title = NewText("Title", _root, "INVENTORY   Drag to chosen pocket   SHIFT+LMB quick move   SHIFT+RMB split half   CTRL+RMB split 1   R rotate   ESC cancel   E equip   1-7 unequip   B drop", 13,
                              TextAnchor.MiddleLeft, TitleColor);
 
             _characterRoot = NewRect("CharacterPanel", _root);
