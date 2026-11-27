@@ -1,6 +1,6 @@
 # P-03.7 — Stack System & Inventory Interaction
 
-**Status:** In progress — P-03.7a Core split/merge primitives implemented; Unity verification pending  
+**Status:** In progress — P-03.7a verified (540/540); P-03.7b source implemented, Unity verification pending  
 **Started:** 2026-11-27  
 **Branch:** `chore/collaboration-workflow-and-audit`  
 **Prerequisite:** Inventory & Grid Architecture Audit — user-confirmed 531/531 EditMode and Play Mode acceptance
