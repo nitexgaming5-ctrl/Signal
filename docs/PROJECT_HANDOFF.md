@@ -199,3 +199,7 @@ Next agent actions:
 3. Ask for full EditMode test result and inspect failures.
 4. Run Play Mode acceptance: no backpack, equipped backpack, B-drop, stale grid reference rejection, pocket/container transfers while dropped, F5/F9 while dropped, exact recovery.
 5. Only after user verification, proceed to P-03.7c UI (Shift+LMB quick transfer, Shift+RMB split half, Ctrl+RMB split one, stack count badges).
+
+### Retired stack IDs — additional guard
+
+StackLineageBook tracks retired IDs during runtime as well as in save data. Split ID generation excludes historical retired IDs; merge source/destination validation rejects retired IDs; rollback removes a provisional retired marker. A regression test deliberately reintroduces a retired GUID and verifies the ownership-aware service refuses it.
