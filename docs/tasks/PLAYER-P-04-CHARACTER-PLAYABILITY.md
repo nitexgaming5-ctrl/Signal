@@ -139,7 +139,7 @@ The user confirmed Unity Play Mode behavior and **571/571 EditMode tests passed*
 - The drag ghost now renders on a dedicated override-sorting Canvas at sorting order 200, above the HUD quickbar/inventory canvas. Commit: `1971e800a08011e8f031ecd79fdd67cb56d3a17d`.
 - Backpack isolation remains open. User approved automatic swap when recovering a dropped bag while another is equipped. Required behavior: drop current bag at player's feet, equip recovered bag, preserve independent contents, and keep every dropped bag inaccessible until recovered. F1 TEST LOADOUT must be able to equip a new backpack while other bags are dropped.
 - The currently active/restored/dropped backpack grid is now registered by stable backpack GUID (`PlayerBackpack/<GUID>/contents`) and access checks confirm the registry maps that identity to the active grid. However, the runtime still uses the session-wide `_inventory` rather than a distinct grid per physical bag, and tracks only one `_droppedBackpackItem`; do not remove the debug-loadout guard until per-backpack grids, swap, and save/load are implemented.
-- Last user-confirmed full EditMode suite: **576/576**. Play Mode verification of backpack identity registration and the drag overlay correction remains required.
+- Historical baseline at this point was **576/576**; subsequent allocator and persistence milestones brought the user-confirmed suite to **580/580**. Play Mode verification of backpack identity registration and the drag overlay correction remains required.
 
 
 ### Global storage identity foundation (2026-11-27)
@@ -160,3 +160,7 @@ The user confirmed Unity Play Mode behavior and **571/571 EditMode tests passed*
 - Two new tests cover two-bag round-trip isolation/dimensions and duplicate identity rejection. Expected suite count: 580; Unity verification pending.
 - Commits: 2462112a32e88de815f53b0305ce3b4cf1bf63e5, 8156a03390ab1d2184f813530f34b229e783d7cb, 8ff1da85acca6de1b727f2d9dcd734eea709285d, 68eb632cbd4f46b85dbe88751335c2cdd6aa5369, 34330e52abf2c30b7b95314565284eda135db6c4.
 - Not yet wired into GameSession: active grid switching must be completed first so legacy data.items and per-backpack storage records cannot duplicate the same contents. The single dropped-backpack runtime slot and debug-loadout restriction remain in place.
+
+
+### Latest storage verification — 2026-11-27
+The user confirmed **580/580** after adding independent per-backpack persistence round-trip and duplicate-identity tests. Core storage allocation and persistence primitives are verified. The runtime still aliases the equipped backpack to GameSession's session-wide `_inventory` and tracks only one dropped backpack. Next work is active-grid switching plus UI/service rebinding, followed by multi-bag swap and GameSession save/load integration. Do not mark global storage independence complete.
