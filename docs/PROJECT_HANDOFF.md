@@ -49,10 +49,10 @@ A later cleanup removed automatic fresh-session debug backpack/cargo; F1 spawner
 - Six general-purpose slots, stable item-instance references only; never duplicate/copy physical items.
 - One physical item can appear in at most one slot.
 - Assignable from accessible backpack grid or any personal pocket; equipped clothing/accessories excluded.
-- Tab inventory: RMB Inspect / Equip to Quick Slot 1–6; drag assignment, slot swap and drag-to-unassign.
+- Tab inventory has no duplicate quickbar row. The single bottom HUD quickbar is the drag/drop target while Tab is open: inventory/pocket→HUD slot assigns/replaces, HUD slot→HUD slot swaps, and HUD slot→inventory unassigns. RMB Inspect / Equip to Quick Slot 1–6 remains.
 - RMB reassignment moves the existing reference to the new slot.
 - Semi-transparent pointer-following drag ghost.
-- Always-visible bottom-centre six-slot HUD bar outside Tab, while the inventory row remains.
+- The only quickbar display is the always-visible bottom-centre six-slot HUD bar; it accepts drag/drop while Tab is open.
 - Dropped-backpack references persist but are unavailable until the same backpack is recovered; pocket entries remain available.
 - Save/load mapping persists and reconciles assignments.
 - User confirmed **563/563** after these changes.
@@ -61,9 +61,9 @@ A later cleanup removed automatic fresh-session debug backpack/cargo; F1 spawner
 
 - Core `PlayerQuickbar` owns selected-slot and holstered state. The held item is derived from the selected slot's existing GUID; inventory remains ownership authority.
 - Mouse wheel up/down cycles next/previous through all six positions, including empty slots, with wraparound.
-- Number keys 1–6 directly select slots 1–6. H holsters without clearing the assignment. Selecting an empty slot means empty hand.
+- Number keys 1–6 directly select slots 1–6. H toggles between holstered and unholstered without clearing the selected slot or assignment. Selecting an empty slot means empty hand.
 - All three controls are ignored while any supported menu/panel is open.
-- HUD remains display-only. It highlights the selected slot differently when active versus holstered; no HUD click interaction.
+- HUD slot clicks remain non-interactive, but while Tab is open the HUD slots are the drag/drop assignment surface. The HUD highlights the selected slot differently when active versus holstered.
 - If a held item in the backpack grid becomes inaccessible because the backpack is dropped, the active hand holsters but the slot assignment remains. Pocket items remain accessible.
 - F9/load resets the active hand to no selected slot and holstered; six assignments are restored as before.
 - No consumable use, tool action, weapon attack, combat, targeting, durability, or new art is included.
