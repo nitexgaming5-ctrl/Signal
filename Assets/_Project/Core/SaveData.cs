@@ -407,6 +407,7 @@ namespace Signal.Core
         public SavedEquippedItem droppedBackpack;
         public List<SavedPortableBackpack> portableBackpacks = new List<SavedPortableBackpack>();
         public List<SavedPocketItem> pocketItems = new List<SavedPocketItem>();
+        public List<string> quickbarItemInstanceIds = new List<string>();
     }
 
     public sealed class LoadReport
