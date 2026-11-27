@@ -203,3 +203,19 @@ This addresses the compiler diagnostics supplied by the user. A fresh Unity comp
 - Added a regression assertion that deliberately reintroduces a retired source GUID into a grid and verifies the stack service refuses to operate on it. Save restoration still purges such stale records from all supplied grids.
 
 - F9 backpack reconciliation also checks the restored world status: the 8×6 grid is authorized only when the world book says Equipped. A mismatched Dropped state fails closed and is represented as a dropped backpack rather than exposing its contents.
+
+## P-03.7c — Player inventory stack controls (source implemented; Unity verification pending)
+
+User confirmed the P-03.7b checkpoint at 550/550 EditMode tests. P-03.7c now has its first player-carried-inventory UI implementation:
+
+- Stack quantity remains visible on backpack items; pocket labels now also display quantities, including when an item has an icon.
+- P3 retains its explicit HIDDEN label even while occupied and displaying a stack count.
+- Shift+LMB quick-transfers an entire 1×1 stack between backpack and the first available personal pocket, or between pockets when the backpack is inaccessible.
+- Shift+RMB splits half the stack (integer floor; minimum one) and Ctrl+RMB splits one item.
+- Splits search for a valid empty cell in the accessible backpack first, then a free 1×1 pocket where the item fits. If no destination exists, the UI does not mutate the source.
+- All split requests route through GameSession.SplitPlayerStack → StackTransferService; the UI never calls StackOperations directly.
+- Existing LMB drag, RMB inspect, R rotate, ESC cancel, E equip, digit unequip and B drop controls are retained.
+- Added two EditMode regression tests for same-grid split and 1×1 pocket-to-pocket split. Expected suite baseline is now 552; Unity compilation and full suite execution are pending.
+- Searchable-container Shift+LMB / partial-split integration and service-wide quantity audit remain P-03.7d work, not claimed complete here.
+
+Source commits: 2d8b2a098de1f0c4da759f5676a20ca71ecf8bf8, 2502dc89c302cb0ee65abb6c44b05274f4fa3ab8, fd6533636a1ad171b1ddf99f028d053e1105c923, 0055b65603453c91062b756d12560daa18cc994f.
