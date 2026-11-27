@@ -196,3 +196,12 @@ Access is a separate, temporary capability: the player can access only inventori
 Save data must serialize contents by storage identity, not by a single global `storageItems` list. Restore must rehydrate each identity into its own grid and reject duplicate identity-to-grid bindings. Legacy saves may be migrated only with an explicit, deterministic mapping; never silently attach all legacy contents to every bag/container.
 
 Regression coverage must prove bidirectional isolation: adding/removing/moving items in one inventory cannot mutate any other inventory; cross-inventory movement occurs only through an explicit validated transfer operation. This applies equally to player, NPC, world, business, escrow and portable storage.
+
+### Runtime storage identity registry (2026-11-27)
+
+`InventoryStorageId` identifies a storage location by kind, stable owner ID and optional slot ID. `InventoryStorageRegistry` enforces a one-to-one mapping between each registered identity and one `GridInventory` instance, supports reverse lookup for audits, and rejects both duplicate identities and attempts to register an already-bound grid under another identity. Registrations remain for the session lifetime so a storage location can become inaccessible without losing its contents identity.
+
+The registry deliberately does not grant player access, set item ownership, or determine economic custody. Those remain separate authorities. GameSession currently registers player pockets, hideout storage, the dirty-cash contact inventory, the first customer receiver/escrow inventory, street searchable containers and resident-owned searchable property containers.
+
+**Migration is incomplete:** physical backpack grids are not yet registered independently because the current GameSession still binds all backpacks to the session-wide `_inventory`; business stock and NPC-owned pocket runtime inventories are not yet wired. SaveData still contains legacy/global and per-feature storage fields. The registry foundation must not be mistaken for completion of the global isolation invariant.
+
