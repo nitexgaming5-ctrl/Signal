@@ -17,34 +17,24 @@ The user confirmed B-06's **456/456** EditMode baseline and in-game repair/retur
 ## Parallel Player Development track
 - **P-01 Character Foundation & Appearance:** modular Body_A renderer, directional Idle/Walk and local importer implemented; user imported the pack and confirmed presentation.
 - **P-02 Attributes & Skills:** exactly Armor and Heat Protection; fixed starting points, milestone awards and free respecialisation. Core/save/UI implementation user-verified at 467/467.
-- **P-03 Equipment & Portable Backpack:** equipment slots, backpack lifecycle, pockets, hidden-pocket visibility, pocket transfers/swaps and pocket-aware service integration implemented in source. Non-art acceptance/closeout remains. See [P-03](tasks/PLAYER-P-03-EQUIPMENT-BACKPACK.md).
+- **P-03 Equipment & Portable Backpack:** equipment slots, backpack lifecycle, pockets, hidden-pocket visibility, stack interactions and pocket-aware service integration implemented in source. P-03.7 is user-verified closed at 555/555 plus Play Mode acceptance. Automatic debug starting cargo has been removed in source; its post-cleanup Unity check remains. See [P-03](tasks/PLAYER-P-03-EQUIPMENT-BACKPACK.md).
 
 **Art boundary:** the user has paused sprite creation and wearable/wardrobe presentation. P-03.6 is parked; do not resume overlays, sprite templates, wardrobe preview or character-art work without explicit re-authorisation.
 
 ## Immediate sequence
 
-### 1. P-03.7d Stack System & Inventory Interaction
-- P-03.7a Core split/merge, P-03.7b ownership/persistence, and P-03.7c player UI are user-verified at 540/540, 550/550 and 552/552 respectively.
-- P-03.7d searchable-container quick-transfer, split, partial/full merge, resident-property theft integration and service quantity audit are complete.
-- User confirmed Unity compilation and **555/555 EditMode tests**, with no duplicate stack IDs after split/merge/save.
-- User confirmed no access to dropped-backpack contents and correct F5/F9 restoration for equipped and dropped backpacks; Play Mode acceptance is validated.
-- P-03.7 is closed. Finish P-03 non-art cleanup removed automatic fresh-session backpack/cargo seeding and retained the F1 debug item spawner. Re-run Unity compile/full EditMode suite and verify empty fresh start + F1 spawning after the cleanup commit.
+### 1. P-03 closeout
+- P-03.7a–d are complete. User confirmed Unity compilation, **555/555 EditMode tests**, stack-ID integrity, dropped-backpack isolation, equipped/dropped F5/F9 restoration and Play Mode acceptance.
+- P-03.7 is closed; do not reopen it.
+- A subsequent cleanup removed automatic fresh-session backpack/repair/production test cargo and retained the F1 debug spawner. This cleanup is source-committed but still needs its own fresh Unity compile/full EditMode run and Play Mode check (empty new game; F1 still works). This does not invalidate the P-03.7 result.
 - Wearable visuals remain deferred while the art boundary is in place.
 
-### 2. B-07 Neighbourhood Expansion
-This is the next strategic gameplay initiative after P-03 non-art closeout. The goal is not map size for its own sake. Add a compact, connected area only when it creates meaningful reasons to travel, revisit, meet people and use existing livelihoods.
+### 2. B-07 Neighbourhood Expansion — specification ready, approval pending
+The detailed proposal is in [B-07 task card](tasks/B-07-NEIGHBOURHOOD-EXPANSION.md). Recommended scope: one connected Market Lane/courtyard, one enterable second-hand/materials shop using existing fixed-stock retail, and two persistent public searchable containers. No new named residents, story content or gameplay mechanics are proposed.
 
-Before implementation, prepare a detailed task specification covering:
-- player outcome and how it extends the existing loop;
-- geographic connection to current Street/CornerShop/Apartment/Hideout spaces;
-- proposed destinations and their practical purpose;
-- existing systems reused (repair, production, retail, storage, customer work, NPC routines/relationships, scavenging);
-- whether any new mechanic is actually necessary (explain it and seek approval before coding);
-- resident scope, with no invented story cast/backstories;
-- travel/navigation, scene composition, save/load and performance implications;
-- acceptance criteria and Unity test/Play Mode plan.
+The proposal reuses the existing CityBlockBootstrap/location graph, navigation/pathfinding, retail, inventory/ownership/stack transfer, searchable-container and save/load authorities. It deliberately avoids empty map expansion, disconnected scenes, dynamic economy simulation and new mechanics.
 
-Do not implement an empty district, disconnected map, placeholder service or new mechanic merely to increase content count.
+**Await explicit user approval of the geography, destination, container count and no-new-resident/no-new-mechanic boundaries before implementation.** If the user changes any proposed interaction into a new mechanic, explain it and obtain approval before coding.
 
 ## Later / separate tracks
 
