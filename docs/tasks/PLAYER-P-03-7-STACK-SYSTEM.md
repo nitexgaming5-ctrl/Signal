@@ -143,3 +143,34 @@ Important boundary: these first-pass Core operations mutate physical stack quant
 
 
 - Compile fix after the first Unity pass: `StackMergeRecord`'s constructor was `internal`, but the EditMode test assembly constructs a record to verify duplicate-operation rejection. Made the constructor public; `StackLineageBook.TryRecordMerge` remains the validation boundary and rejects empty IDs, self-merges, invalid quantities and duplicate operation IDs. Commit: `fcb70dc75c5bc7f77be1c8fd0d3fb0943314463f`. Unity compilation/tests need to be rerun; no pass is claimed.
+
+## Implementation log — P-03.7b source pass (Unity verification pending)
+
+Implemented the ownership-aware Core orchestration and GameSession authorization/persistence wiring:
+
+- Added ItemType.Equippable, ItemType.PortableBackpack and ItemType.IsStackable. Equippable items and portable backpacks now expose an effective MaxStack of 1 even if an asset has a larger serialized value; authored ordinary-material stack limits are unchanged.
+- Added StackTransferService:
+  - Partial split requires registered source/destination containers and a verified source owner.
+  - The original ID and remainder stay with the source; the new stack gets a fresh ID, exact item state and an explicit owner.
+  - Cross-owner split requires the destination container's custodian to be the new owner and records an EconomicTransaction for the new stack ID and moved quantity.
+  - Failed ownership/ledger commits restore both inventories and remove provisional ownership without publishing Changed events.
+  - Theft splits mark only the transferred portion Stolen, matching the existing whole-stack theft semantics.
+  - Merge rejects cross-owner stacks, preserves destination ID, records owner/custodian/timestamp/quantity lineage, and retires the source ownership record only when the source stack is fully consumed.
+- Extended StackMergeRecord with owner, source/destination custodian, operation kind, day/minute and source-retired metadata. Duplicate operation IDs are rejected and can be rolled back if the wider transaction fails.
+- Added StackLineageSaveMapper and SavedStackMergeRecord. F5 captures merge lineage; F9 restores validated records after all inventory containers are restored. A retired source ID found in a restored inventory is removed together with its ownership record, preventing malformed/stale saves from resurrecting a consumed stack identity.
+- Hardened backpack-grid authorization: _inventory is no longer registered at session startup. It is registered only while a backpack is equipped, unregistered on drop, and reconciled after F9. A stale reference to a dropped backpack grid is therefore rejected by StackTransferService even if a caller bypasses the UI.
+- Added ten StackTransferServiceTests covering same-owner split, cross-owner split and transaction history, duplicate-ledger rollback, cross-owner merge rejection, partial/full same-owner merge identity, ownership/custody lineage, F5/F9 lineage restoration and retired-ID cleanup, non-stackable equipment/backpacks, and unregistered dropped-backpack grid rejection.
+
+Source files:
+- Assets/_Project/Core/ItemType.cs
+- Assets/_Project/Core/StackOperations.cs
+- Assets/_Project/Core/StackTransferService.cs
+- Assets/_Project/Core/StackLineageSaveMapper.cs
+- Assets/_Project/Core/SaveData.cs
+- Assets/_Project/Game/ItemDefinition.cs
+- Assets/_Project/Game/GameSession.cs
+- Assets/_Project/Tests/EditMode/Core/StackTransferServiceTests.cs
+
+Source commits include: c5ff1c2fd60d9fb069de9f6dd8ea9a580d976b81, 2dc732aa32d2856e23b05246f6d6bcdd4f90f895, 413587b8c7f64158757260244aa38cab6d092b007, ff57dc7f5162015cd17ec1c2b1da98f50a315027, a6973678708e5225c8ddca7b4d512918585923b1, 6b2ed39dbc296e192a1c02f9a5ed5d2fc00e8e5e, 96a53c220457d1f6f9f62e6b8780794beccf6612.
+
+Important boundary: P-03.7b is source-implemented but not yet Unity-compiled or user-verified. Do not wire UI controls directly to raw StackOperations; use GameSession.StackTransfers. Next: inspect/fix any Unity compile diagnostics, then run the full EditMode suite and Play Mode dropped-backpack acceptance before starting P-03.7c UI.
