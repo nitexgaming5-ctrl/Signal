@@ -40,9 +40,9 @@ Implemented. B-06 Customer Repair Orders is user-verified: Milo entrusts a Worn 
 - Manual pocket moves target the exact selected slot. Pocket-to-pocket move/swap is supported.
 - Automatic item receipts choose accessible backpack capacity first, then first suitable empty pocket P1→P2→P3. Oversized/rotated items cannot use pockets.
 - Retail SELL, Dirty Cash selection, Home Storage, Searchable Container, repair, multi-grid production, customer flows and GameSession receipt paths have been audited/integrated for accessible backpack/pocket inventory. Dropped cargo must never be exposed.
-- Temporary fresh-session debug loadout provides backpack + repair/production test cargo. It is not intended new-game inventory and must remain until the user finishes acceptance testing.
+- Automatic fresh-session debug backpack/cargo seeding has now been removed. Fresh games should start without a backpack or test cargo; the F1 debug item spawner remains the deliberate test path.
 
-**P-03.7 is closed and user-verified.** The user confirmed Unity compilation, **555/555 EditMode tests**, no duplicate stack IDs after split/merge/save, no access to dropped-backpack contents, correct F5/F9 restoration for equipped and dropped backpacks, and the Play Mode acceptance matrix. P-03 non-art closeout remains: confirm no automatic temporary repair/production cargo is granted on a fresh game; retain the F1 debug spawner. Wearable presentation remains paused.
+**P-03.7 is closed and user-verified.** The user confirmed Unity compilation, **555/555 EditMode tests**, no duplicate stack IDs after split/merge/save, no access to dropped-backpack contents, correct F5/F9 restoration for equipped and dropped backpacks, and the Play Mode acceptance matrix. P-03 non-art closeout source cleanup: automatic debug seeding was removed from GameSession and F1 spawner retained. The latest cleanup needs a fresh Unity compile/full EditMode run and Play Mode confirmation of empty fresh start + F1 spawner. Wearable presentation remains paused.
 
 ## Verification truth
 - Latest user-confirmed full EditMode result: **552/552** after P-03.7c.
@@ -62,7 +62,7 @@ P-03.6 Wearable Presentation is parked as historical preparation, not an active 
 
 ## Next actions
 1. P-03.7 verification is complete: user-confirmed 555/555 EditMode, Unity compile, identity/persistence invariants and Play Mode acceptance.
-2. Complete P-03 non-art closeout by verifying fresh-game inventory has no temporary automatic repair/production cargo; retain the F1 debug item spawner.
+2. Pull the latest cleanup commit, run Unity compilation and the full EditMode suite, then verify a fresh game has no backpack/test cargo and F1 still spawns/equips items.
 3. Prepare the detailed B-07 Neighbourhood Expansion specification. Do not start B-07 implementation until the spec and any genuinely new mechanics are approved.
 
 ## Technical safeguards
