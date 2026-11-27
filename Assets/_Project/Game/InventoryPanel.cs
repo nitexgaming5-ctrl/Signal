@@ -58,6 +58,7 @@ namespace Signal.Game
         private readonly Image[] _hudQuickbarSlots = new Image[PlayerQuickbar.SlotCount];
         private readonly Text[] _hudQuickbarLabels = new Text[PlayerQuickbar.SlotCount];
         private RectTransform _hudQuickbarRoot;
+        private RectTransform _dragOverlayRoot;
         private RectTransform _contextMenuRoot;
         private RectTransform _quickbarSubmenuRoot;
         private Guid _contextItemInstanceId;
@@ -844,7 +845,15 @@ namespace Signal.Game
             _preview = NewImage("DropPreview", _gridRect, ValidDropColor);
             _preview.gameObject.SetActive(false);
 
-            _ghost = NewImage("DragGhost", canvasObject.transform, Color.white);
+            var dragOverlayObject = new GameObject("DragOverlayCanvas", typeof(RectTransform), typeof(Canvas));
+            dragOverlayObject.transform.SetParent(canvasObject.transform, false);
+            Canvas dragOverlayCanvas = dragOverlayObject.GetComponent<Canvas>();
+            dragOverlayCanvas.overrideSorting = true;
+            dragOverlayCanvas.sortingOrder = 200;
+            _dragOverlayRoot = dragOverlayObject.GetComponent<RectTransform>();
+            Stretch(_dragOverlayRoot);
+
+            _ghost = NewImage("DragGhost", _dragOverlayRoot, Color.white);
             _ghostLabel = NewText("Label", _ghost.transform, string.Empty, LabelFontSize, TextAnchor.MiddleCenter, InkColor);
             Stretch(_ghostLabel.rectTransform);
             _ghost.gameObject.SetActive(false);
@@ -1110,8 +1119,8 @@ namespace Signal.Game
 
         private void UpdateDragGhost(Vector2 screen, float width, float height)
         {
-            if (_ghost == null || _ghost.transform.parent is not RectTransform canvasRect ||
-                !RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, screen, null, out Vector2 local))
+            if (_ghost == null || _dragOverlayRoot == null ||
+                !RectTransformUtility.ScreenPointToLocalPointInRectangle(_dragOverlayRoot, screen, null, out Vector2 local))
                 return;
             RectTransform ghostRect = _ghost.rectTransform;
             ghostRect.anchorMin = ghostRect.anchorMax = new Vector2(0.5f, 0.5f);
@@ -1119,8 +1128,7 @@ namespace Signal.Game
             ghostRect.anchoredPosition = local;
             ghostRect.sizeDelta = new Vector2(width, height);
 
-            // The HUD quickbar is created after the ghost on the same overlay canvas.
-            // Keep the live drag visual above every sibling, including the quickbar.
+            // A dedicated override-sorting canvas guarantees the ghost stays above the HUD quickbar.
             ghostRect.SetAsLastSibling();
         }
 
