@@ -264,7 +264,8 @@ namespace Signal.Game
             _containerPanel = gameObject.AddComponent<SearchableContainerPanel>();
             _containerPanel.Bind(_allItemDefinitions, TakeSearchableItem, TakeSearchableItemAt, _itemViewer.Open,
                 TakeSearchableItemToPocket, PutPocketItemIntoSearchableContainer,
-                PutBackpackItemIntoSearchableContainer, MovePocketToPocket);
+                PutBackpackItemIntoSearchableContainer, MovePocketToPocket,
+                PutPlayerItemIntoSearchableContainer, SplitSearchableStack, MergeSearchableStacks);
             _storagePanel = gameObject.AddComponent<StoragePanel>();
             _storagePanel.Bind(_inventory, _storage, _allItemDefinitions, _itemViewer.Open, _itemKnowledge);
             _storagePanel.SetCarriedInventories(GetAccessibleCarryInventories(),
@@ -2879,6 +2880,123 @@ namespace Signal.Game
                 return false;
             }
             Say("Item placed in " + _activeSearchableContainer.ContainerId + ".");
+            return true;
+        }
+
+        private bool PutPlayerItemIntoSearchableContainer(Guid itemInstanceId)
+        {
+            if (_activeSearchableContainer == null || !TryGetPlayerItem(itemInstanceId, out GridInventory source, out PlacedItem item) ||
+                (ReferenceEquals(source, _inventory) && !IsBackpackAccessible()))
+                return false;
+
+            for (int y = 0; y < _activeSearchableContainer.Inventory.Height; y++)
+                for (int x = 0; x < _activeSearchableContainer.Inventory.Width; x++)
+                    if (_activeSearchableContainer.Inventory.CanPlace(item.Type, x, y, item.Rotated))
+                    {
+                        bool moved = ReferenceEquals(source, _inventory)
+                            ? PutBackpackItemIntoSearchableContainer(itemInstanceId, x, y, item.Rotated)
+                            : PutPocketItemIntoSearchableContainer(itemInstanceId, x, y, item.Rotated);
+                        if (moved) return true;
+                    }
+
+            Say("There is no room in this container. Nothing was transferred.", 4f);
+            return false;
+        }
+
+        private bool SplitSearchableStack(GridInventory source, GridInventory destination,
+            Guid itemInstanceId, int quantity, int x, int y, bool rotated)
+        {
+            if (_stackTransfers == null || _activeSearchableContainer == null ||
+                source == null || destination == null || itemInstanceId == Guid.Empty || quantity < 1)
+                return false;
+
+            bool fromContainer = ReferenceEquals(source, _activeSearchableContainer.Inventory);
+            bool toContainer = ReferenceEquals(destination, _activeSearchableContainer.Inventory);
+            if (fromContainer == toContainer) return false;
+
+            EconomicActorId containerActor;
+            if (!_searchableActors.TryGetValue(_activeSearchableContainer.ContainerId, out containerActor))
+                return false;
+
+            StackTransferResult result;
+            if (fromContainer)
+            {
+                if (!_activeSearchableContainer.IsDiscovered(itemInstanceId) || !IsPlayerCarryGrid(destination) ||
+                    (ReferenceEquals(destination, _inventory) && !IsBackpackAccessible()))
+                    return false;
+
+                bool isTheft = _residentPropertyDefinitions.TryGetValue(_activeSearchableContainer.ContainerId,
+                    out ResidentPropertyContainerDefinition property);
+                string witnessNpcId = null;
+                if (isTheft && _city.TryGetNearestResidentWithin(property.InteractionPosition,
+                    property.WitnessRadius, out string nearbyWitness))
+                    witnessNpcId = nearbyWitness;
+
+                result = _stackTransfers.Split(source, destination, itemInstanceId, quantity, x, y,
+                    containerActor, EconomicActorId.Player,
+                    isTheft ? AssetTransferReason.Theft : AssetTransferReason.Scavenging,
+                    _clock.Day, _clock.MinuteOfDay, rotated: rotated);
+                if (!result.Success)
+                {
+                    Say("That stack could not be split into your carried inventory. Nothing changed.", 4f);
+                    return false;
+                }
+                if (isTheft)
+                {
+                    if (result.Transaction == null)
+                    {
+                        Debug.LogError("A successful property stack split did not produce its theft transaction.");
+                        return false;
+                    }
+                    RecordTheft(property, result.Transaction, witnessNpcId);
+                }
+            }
+            else
+            {
+                if (!toContainer || !IsPlayerCarryGrid(source) ||
+                    (ReferenceEquals(source, _inventory) && !IsBackpackAccessible()))
+                    return false;
+                result = _stackTransfers.Split(source, destination, itemInstanceId, quantity, x, y,
+                    EconomicActorId.Player, containerActor, AssetTransferReason.Other,
+                    _clock.Day, _clock.MinuteOfDay, rotated: rotated);
+                if (!result.Success)
+                {
+                    Say("That stack could not be split into this container. Nothing changed.", 4f);
+                    return false;
+                }
+            }
+
+            Say("Split " + quantity + " item" + (quantity == 1 ? string.Empty : "s") + " into a new stack.");
+            return true;
+        }
+
+        private bool MergeSearchableStacks(GridInventory source, GridInventory destination,
+            Guid sourceStackId, Guid destinationStackId, int quantity)
+        {
+            if (_stackTransfers == null || _activeSearchableContainer == null ||
+                source == null || destination == null || quantity < 1)
+                return false;
+
+            bool sourcePlayer = IsPlayerCarryGrid(source) &&
+                (!ReferenceEquals(source, _inventory) || IsBackpackAccessible());
+            bool destinationPlayer = IsPlayerCarryGrid(destination) &&
+                (!ReferenceEquals(destination, _inventory) || IsBackpackAccessible());
+            bool sourceContainer = ReferenceEquals(source, _activeSearchableContainer.Inventory);
+            bool destinationContainer = ReferenceEquals(destination, _activeSearchableContainer.Inventory);
+            if (!(sourcePlayer || sourceContainer) || !(destinationPlayer || destinationContainer))
+                return false;
+
+            StackTransferResult result = _stackTransfers.Merge(source, destination, sourceStackId,
+                destinationStackId, quantity, _clock.Day, _clock.MinuteOfDay);
+            if (!result.Success)
+            {
+                Say(result.Status == StackTransferStatus.CrossOwnerMergeRejected
+                    ? "Those stacks have different owners and cannot be merged."
+                    : "Those stacks could not be merged. Both identities and quantities were preserved.", 4f);
+                return false;
+            }
+
+            Say("Merged " + result.Quantity + " item" + (result.Quantity == 1 ? string.Empty : "s") + ".");
             return true;
         }
 
