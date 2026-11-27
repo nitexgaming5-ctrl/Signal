@@ -45,6 +45,7 @@ namespace Signal.Core.Tests
             Assert.That(ownership.TryGetOwner(result.ResultingStackId, out EconomicActorId splitOwner), Is.True);
             Assert.That(splitOwner, Is.EqualTo(EconomicActorId.Player));
             Assert.That(transactions.Count, Is.Zero);
+            Assert.That(result.Transaction, Is.Null);
             Assert.That(observerSawOwnershipCommitted, Is.True);
         }
 
@@ -76,10 +77,49 @@ namespace Signal.Core.Tests
             Assert.That(ownership.TryGetOwner(result.ResultingStackId, out EconomicActorId splitOwner), Is.True);
             Assert.That(splitOwner, Is.EqualTo(resident));
             Assert.That(transactions.Count, Is.EqualTo(1));
+            Assert.That(result.Transaction, Is.Not.Null);
+            Assert.That(result.Transaction.TransactionId, Is.EqualTo(transactions.Transactions[0].TransactionId));
             Assert.That(transactions.Transactions[0].ItemInstanceId, Is.EqualTo(result.ResultingStackId));
             Assert.That(transactions.Transactions[0].Quantity, Is.EqualTo(4));
             Assert.That(transactions.Transactions[0].FromActor, Is.EqualTo(EconomicActorId.Player));
             Assert.That(transactions.Transactions[0].ToActor, Is.EqualTo(resident));
+        }
+
+        [Test]
+        public void TheftSplitMarksOnlyTransferredPortionStolenAndReturnsItsTransaction()
+        {
+            var source = new GridInventory(2, 1);
+            var destination = new GridInventory(2, 1);
+            var resident = new EconomicActorId("resident:property-owner");
+            var ownership = new AssetOwnershipBook();
+            var containers = new EconomicContainerRegistry();
+            var transactions = new EconomicTransactionLedger();
+            var lineage = new StackLineageBook();
+            containers.TryRegister(source, resident);
+            containers.TryRegister(destination, EconomicActorId.Player);
+            ItemType type = Stackable();
+            Guid sourceId = Guid.NewGuid();
+            source.Place(type, 0, 0, count: 9, itemInstanceId: sourceId, state: FineWorn());
+            ownership.TryRegister(sourceId, resident);
+            var service = new StackTransferService(ownership, containers, transactions, lineage);
+
+            StackTransferResult result = service.Split(source, destination, sourceId, 3, 0, 0,
+                resident, EconomicActorId.Player, AssetTransferReason.Theft, 4, 210);
+
+            Assert.That(result.Success, Is.True);
+            Assert.That(result.Transaction, Is.Not.Null);
+            Assert.That(result.Transaction.ItemInstanceId, Is.EqualTo(result.ResultingStackId));
+            Assert.That(result.Transaction.Quantity, Is.EqualTo(3));
+            Assert.That(result.Transaction.Reason, Is.EqualTo(AssetTransferReason.Theft));
+            Assert.That(result.Transaction.FromActor, Is.EqualTo(resident));
+            Assert.That(result.Transaction.ToActor, Is.EqualTo(EconomicActorId.Player));
+            Assert.That(source.TryGetItemInstance(sourceId, out PlacedItem remainder), Is.True);
+            Assert.That(remainder.Count, Is.EqualTo(6));
+            Assert.That(remainder.State, Is.EqualTo(FineWorn()));
+            Assert.That(destination.TryGetItemInstance(result.ResultingStackId, out PlacedItem stolen), Is.True);
+            Assert.That(stolen.Count, Is.EqualTo(3));
+            Assert.That(stolen.State.OwnershipStatus, Is.EqualTo(ItemOwnershipStatus.Stolen));
+            Assert.That(transactions.Count, Is.EqualTo(1));
         }
 
         [Test]
