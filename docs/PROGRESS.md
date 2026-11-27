@@ -104,8 +104,14 @@ P-03.7 is closed and user-verified at **555/555**, including compile and Play Mo
 
 ### Debug test loadout (2026-11-27)
 - F1 Item Spawner now includes a one-click **TEST LOADOUT** action; it is opt-in and does not change fresh-session starting inventory.
-- It equips a Canvas Backpack if the player has none, then adds Bread ×5, Fabric Roll ×5, Thread Spool ×3, one Work Jacket and one Basic Patch Kit through the normal debug spawn/inventory path. Existing equipped backpacks are reused; a dropped backpack must be recovered first.
+- It equips a Canvas Backpack if the player has none, then adds Bread ×5, Fabric Roll ×5, Thread Spool ×3, one Work Jacket and one Basic Patch Kit through the normal debug spawn/inventory path. Existing equipped backpacks are reused. Current known defect: a dropped backpack still occupies the single session-wide inventory grid and blocks a replacement backpack; per-backpack storage isolation is the next fix.
 - Stack quantities are added one item at a time through normal inventory rules, so expected stack groupings are Bread 5, Fabric Roll 3+2, Thread Spool 2+1. This deliberately gives both stack top-up and multi-stack cases.
 - No quickbar assignments are overwritten. This loadout only seeds inventory; it does not implement consumable activation/use. Item-use remains a separate gameplay slice.
-- Added an EditMode callback test for the loadout action. Unity compilation, tests and Play Mode verification are pending.
+- Added an EditMode callback test for the loadout action. User has since confirmed **571/571** for the quickbar/H-toggle work. The drag-layer follow-up and backpack lifecycle correction still require Unity verification.
 - Commits: `c70907a557d48b16c5b9fb0e857693481b27d341`, `c3a9f4cf05b7afa316727c6a60765a24bf556fd7`.
+
+
+### Follow-up bug report (2026-11-27)
+- User confirmed the previous quickbar/H-toggle changes at **571/571**.
+- Drag ghost now promotes itself above all HUD siblings while dragging (commit `d980ebba7d53a3ffbfb602b74adb9593b1e652e4`). Needs Unity verification.
+- Backpack lifecycle defect identified: all backpacks currently share the single `_inventory` grid; dropping unregisters it but does not detach the session from that grid, and the debug loadout blocks replacement while a bag is dropped. Next correction is per-backpack grids, active-grid switching, independent dropped storage and save/load support. Awaiting user's choice on whether recovering a dropped bag while another is equipped should auto-swap (drop current at feet) or require manual drop first.
