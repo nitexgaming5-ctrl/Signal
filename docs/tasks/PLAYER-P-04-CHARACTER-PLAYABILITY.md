@@ -148,7 +148,7 @@ No numerical bonus, chance, price formula, quality roll or extra reward is impli
 5. **Tool scope:** no tool actions for now. Tools may be held through the quickbar, but they have no action behavior in this phase.
 6. **Initial skill-effect test:** confirmed in principle — one skill increases Health and one skill increases Heat Protection, for testing only. Skill identities and temporary rank formulas remain to be specified; do not invent them.
 
-P-04a can proceed with the approved Health attribute extension and the two temporary skill-effect tests once their skill IDs and rank formulas are defined. Do not invent combat or tool-use mechanics. The active-hand, quickbar controls and consumable activation contract above are confirmed. Weapon behavior remains a separately scoped future challenge.
+P-04a source implementation is committed with the Health attribute extension and two documented temporary skill-effect fixtures; the immediate gate is Unity verification. Do not invent combat or tool-use mechanics. The active-hand, quickbar controls and consumable activation contract above are confirmed. Weapon behavior remains a separately scoped future challenge.
 
 
 ## P-04a — implemented source checkpoint (2026-11-27)
