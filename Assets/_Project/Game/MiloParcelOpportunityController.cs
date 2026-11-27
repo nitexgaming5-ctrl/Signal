@@ -110,6 +110,12 @@ namespace Signal.Game
             _bound = true;
         }
 
+        public void SetInventory(GridInventory inventory)
+        {
+            if (inventory != null)
+                _inventory = inventory;
+        }
+
         public string GetPrompt(Vector2 playerPosition, string place)
         {
             if (!_bound)
