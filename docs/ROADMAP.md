@@ -83,3 +83,11 @@ See [P-04 task card](tasks/PLAYER-P-04-CHARACTER-PLAYABILITY.md) for implementat
 - No quickbar assignments are overwritten. This loadout only seeds inventory; it does not implement consumable activation/use. Item-use remains a separate gameplay slice.
 - Added an EditMode callback test for the loadout action. Unity compilation, tests and Play Mode verification are pending.
 - Commits: `c70907a557d48b16c5b9fb0e857693481b27d341`, `c3a9f4cf05b7afa316727c6a60765a24bf556fd7`.
+
+
+### P-04 follow-up — backpack storage isolation (2026-11-27)
+- [ ] Give every physical backpack its own persistent inventory grid keyed by stable item instance ID; active `_inventory` must always refer only to the equipped backpack's grid, or a non-backpack empty carry grid when none is equipped.
+- [ ] Dropping a bag immediately detaches its grid from all player-facing inventory/service access. Recovering a dropped bag while another is equipped performs the approved automatic swap (equipped bag drops at player's feet; recovered bag equips).
+- [ ] Track multiple dropped backpack instances and visuals; persist each bag's contents and world state independently.
+- [ ] Let F1 TEST LOADOUT equip a fresh backpack even if another backpack is dropped, without sharing or overwriting storage.
+- [x] Put the quickbar drag ghost on a dedicated high-sorting overlay Canvas (commit `1971e800a08011e8f031ecd79fdd67cb56d3a17d`).
