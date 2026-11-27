@@ -378,7 +378,7 @@ namespace Signal.Game
 
             if (_draggingFromQuickbar)
             {
-                UpdateQuickbarDragGhost(screen);
+                UpdateDragGhost(screen, 48f, 48f);
                 if (keyboard != null && keyboard.escapeKey.wasPressedThisFrame) { EndDrag(); return; }
                 if (mouse.leftButton.wasReleasedThisFrame)
                 {
@@ -417,7 +417,7 @@ namespace Signal.Game
                 out mergeDestination, out mergeTargetId, out targetPocket))
                 canDrop = true;
 
-            UpdateDragVisuals(local, inGrid, targetX, targetY, canDrop);
+            UpdateDragVisuals(local, screen, inGrid, targetX, targetY, canDrop);
 
             if (mouse.leftButton.wasReleasedThisFrame)
             {
@@ -714,16 +714,11 @@ namespace Signal.Game
             Refresh();
         }
 
-        private void UpdateDragVisuals(Vector2 local, bool inGrid, int targetX, int targetY, bool canDrop)
+        private void UpdateDragVisuals(Vector2 local, Vector2 screen, bool inGrid, int targetX, int targetY, bool canDrop)
         {
             float width = (_dragRotated ? _dragType.Height : _dragType.Width) * cellSize;
             float height = (_dragRotated ? _dragType.Width : _dragType.Height) * cellSize;
-
-            // Keep the cell the player grabbed under the cursor.
-            SetTopLeft(_ghost.rectTransform,
-                       local.x - (_grabX + 0.5f) * cellSize,
-                       -local.y - (_grabY + 0.5f) * cellSize,
-                       width, height);
+            UpdateDragGhost(screen, width, height);
 
             if (!inGrid)
             {
@@ -850,7 +845,7 @@ namespace Signal.Game
             _preview = NewImage("DropPreview", _gridRect, ValidDropColor);
             _preview.gameObject.SetActive(false);
 
-            _ghost = NewImage("DragGhost", _gridRect, Color.white);
+            _ghost = NewImage("DragGhost", canvasObject.transform, Color.white);
             _ghostLabel = NewText("Label", _ghost.transform, string.Empty, LabelFontSize, TextAnchor.MiddleCenter, InkColor);
             Stretch(_ghostLabel.rectTransform);
             _ghost.gameObject.SetActive(false);
@@ -1142,14 +1137,16 @@ namespace Signal.Game
             Refresh();
         }
 
-        private void UpdateQuickbarDragGhost(Vector2 screen)
+        private void UpdateDragGhost(Vector2 screen, float width, float height)
         {
-            if (_ghost == null || _gridRect == null ||
-                !RectTransformUtility.ScreenPointToLocalPointInRectangle(_gridRect, screen, null, out Vector2 local))
+            if (_ghost == null || _ghost.transform.parent is not RectTransform canvasRect ||
+                !RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, screen, null, out Vector2 local))
                 return;
-            const float ghostSize = 48f;
-            SetTopLeft(_ghost.rectTransform, local.x - ghostSize * 0.5f,
-                -local.y - ghostSize * 0.5f, ghostSize, ghostSize);
+            RectTransform ghostRect = _ghost.rectTransform;
+            ghostRect.anchorMin = ghostRect.anchorMax = new Vector2(0.5f, 0.5f);
+            ghostRect.pivot = new Vector2(0.5f, 0.5f);
+            ghostRect.anchoredPosition = local;
+            ghostRect.sizeDelta = new Vector2(width, height);
         }
 
         private void OpenContextMenu(PlacedItem item, Vector2 screen)
