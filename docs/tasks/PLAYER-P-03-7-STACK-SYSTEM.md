@@ -258,3 +258,14 @@ Source commits:
 - Renamed the LMB branch variable and its references to `draggedContainerItem`. This is a scope-only correction; interaction logic is unchanged.
 - Commit: `bb572b2f2633341a1a368a31f1ae178bf1eb7a1d`.
 - Unity compilation and the expected 553/553 EditMode suite remain pending user verification; searchable-container Play Mode acceptance also remains pending.
+
+### Drag-to-restack follow-up
+
+- Added direct drag-to-merge in the player inventory. Dragging a stack onto a compatible stack now merges quantities rather than requiring an empty cell.
+- Supported destinations include backpack→backpack, backpack→personal pocket, pocket→backpack, and pocket→another personal pocket. The source and destination must be distinct stacks.
+- The UI previews a valid merge only when `StackOperations.CanMerge` confirms matching item type and complete instance state plus remaining destination capacity. The `StackTransferService` remains authoritative for ownership, capacity, destination identity and lineage; cross-owner merges remain rejected.
+- Partial capacity is supported: the destination fills to MaxStack and any remainder retains the original source stack ID and ownership. The destination ID survives.
+- GameSession authorizes only player carry grids and rejects backpack-grid operations while the backpack is dropped/inaccessible.
+- Updated the inventory legend to advertise drag-to-restack.
+- Commits: `86ba1397ac77457fc0c9be41970afbcfa00ae601`, `cdf65030db48f21409dccb47d296952ce72e8c2e`, `2615a873e405b94a250269a337db7dd3c353277e`.
+- Unity compilation, the expected 553/553 EditMode suite, and Play Mode acceptance remain pending; no pass is claimed.
