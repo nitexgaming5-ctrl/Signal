@@ -118,7 +118,7 @@ namespace Signal.Core.Tests
             Assert.That(remainder.State, Is.EqualTo(FineWorn()));
             Assert.That(destination.TryGetItemInstance(result.ResultingStackId, out PlacedItem stolen), Is.True);
             Assert.That(stolen.Count, Is.EqualTo(3));
-            Assert.That(stolen.State.OwnershipStatus, Is.EqualTo(ItemOwnershipStatus.Stolen));
+            Assert.That(stolen.State.Ownership, Is.EqualTo(ItemOwnershipStatus.Stolen));
             Assert.That(transactions.Count, Is.EqualTo(1));
         }
 
