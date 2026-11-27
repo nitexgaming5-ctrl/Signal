@@ -397,7 +397,7 @@ namespace Signal.Game
         private void QuickTransferPocketStack(int sourcePocket, PlacedItem item)
         {
             if ((_canAccessGrid == null || _canAccessGrid()) &&
-                TryFindEmptyCell(_inventory, item.Type, out _, out _))
+                TryFindEmptyCell(_inventory, item.Type, false, out _, out _))
             {
                 if (_movePocketToBackpack?.Invoke(sourcePocket) == true)
                 {
