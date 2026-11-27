@@ -194,3 +194,15 @@ P-04a is implemented and user-verified: **557/557 EditMode tests passed**, with 
 - No Unity Editor compile or test run was performed by the assistant.
 - The current expected test count is not a pass claim.
 - Actual skill effects for Repair, Production, Trading, Scavenging and Social, and milestone-trigger wiring, remain future work.
+
+
+### P-04b usability follow-up — source implemented, verification pending (2026-11-27)
+
+- User confirmed the original P-04b implementation at **562/562** and confirmed quick slots are visible in Tab inventory.
+- RMB assignment of an item already present in another quick slot now moves its reference to the newly selected slot. An occupied destination is replaced without moving either physical inventory item. Implemented through Core `TryMoveAssignment` and covered by one additional regression test.
+- Dragging from a quickbar slot now displays a semi-transparent item ghost. Existing backpack/pocket drag ghost remains.
+- A second display-only six-slot quickbar now appears at bottom-centre HUD outside Tab inventory; the Tab inventory row is retained. HUD updates while the inventory is closed and when inventory/pocket contents change.
+- Expected EditMode suite: **563**, pending Unity compile/test verification.
+- Acceptance: RMB move from backpack and each pocket; moving an item between occupied/empty slots; drag ghost for backpack, pocket and quickbar sources; persistent HUD outside Tab; HUD refresh after item transfer/retirement; dropped backpack references disabled while pocket references remain available; F5/F9 quickbar persistence.
+
+Active-hand selection, scroll-wheel cycling and H holster remain future P-04c/P-04d work and were not added by this follow-up.
