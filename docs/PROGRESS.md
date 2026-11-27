@@ -39,7 +39,7 @@ Implemented in source:
 - Manual pocket moves are exact-target; pocket-to-pocket move/swap preserves identity/state/ownership.
 - Automatic receipts choose accessible backpack capacity first, then first suitable empty pocket P1 → P2 → P3. No destination prompt; oversized/rotated items cannot use pockets.
 - Pocket-aware integration/source audit covers Retail SELL, Dirty Cash selection, Home Storage, Searchable Container, workbench repair, multi-grid production, customer flows and GameSession receipt/transfer paths. Dropped-backpack cargo is excluded from accessible views.
-- Temporary fresh-session debug loadout seeds a backpack and repair/production test cargo. It is test scaffolding, not intended new-game inventory.
+- The automatic debug starting loadout has been removed: fresh sessions now start without a backpack or test cargo. Use the retained F1 debug item spawner to equip a backpack and spawn repair/production test items.
 
 P-03.7 stack-system status:
 1. P-03.7a Core operations — user-verified at 540/540.
@@ -49,7 +49,7 @@ P-03.7 stack-system status:
 
 P-03.7d acceptance is complete: the user confirmed successful Unity compilation, **555/555 EditMode tests**, no duplicate stack IDs after split/merge/save, no access to dropped-backpack cargo, and correct F5/F9 restoration of equipped and dropped backpacks. The user also confirmed the Play Mode acceptance matrix. P-03.7 is closed.
 
-P-03 non-art closeout remains: verify the temporary repair/production debug loadout is not being granted automatically in a fresh game; retain the F1 debug item spawner. Wearable presentation remains deferred until the user supplies/authorizes the relevant art assets. Do not remove test tools or alter art as part of this cleanup.
+P-03 non-art closeout source cleanup: automatic fresh-session backpack/cargo seeding has been removed; the F1 debug item spawner is retained. This small GameSession edit still needs a fresh Unity compile/full EditMode run and Play Mode confirmation that a new game starts empty and F1 spawning works. Wearable presentation remains deferred.
 
 **P-03.6 Wearable Presentation is paused/deferred.** The task card is historical preparation only, not the next implementation step. No new sprites, sprite templates, clothing overlays, wardrobe panel or art import work.
 
