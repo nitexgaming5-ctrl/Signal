@@ -1,6 +1,6 @@
 # P-04 — Character Playability: Progression, Active Equipment & Quickbar
 
-**Status:** Active specification — six-slot general-purpose quickbar, active-hand controls and consumable-use input confirmed; skill effects, weapon actions and practical tool actions remain approval gates.  
+**Status:** Active specification — six-slot quickbar/active-hand controls confirmed; Health is primary attribute; two temporary skill-effect tests approved; tool actions and weapon behavior deferred.  
 **Track:** Player Development  
 **Strategic priority:** Ahead of B-07 Neighbourhood Expansion.  
 **Dependencies:** P-01 character foundation, P-02 attributes/skills, P-03 equipment/inventory/backpack.
@@ -148,4 +148,4 @@ No numerical bonus, chance, price formula, quality roll or extra reward is impli
 5. **Tool scope:** selecting a tool only holds it. Identify the first one or two practical tool actions separately; existing repair/production tools are currently materials/ingredients.
 6. **Skill effects:** approve or revise the candidate skill list and effect proposals before numerical formulas are coded.
 
-P-04a can begin with an audit and UI/architecture refinement, but gameplay effects, new equipment categories and active-use mechanics must not be invented silently. The active-hand, quickbar controls and consumable activation contract above are confirmed. Await explicit approval of skill effects, combat and concrete tool-use mechanics before implementing those mechanics.
+P-04a can proceed with the approved Health attribute extension and the two temporary skill-effect tests once their skill IDs and rank formulas are defined. Do not invent combat or tool-use mechanics. The active-hand, quickbar controls and consumable activation contract above are confirmed. Weapon behavior remains a separately scoped future challenge.
