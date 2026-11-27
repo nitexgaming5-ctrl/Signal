@@ -136,3 +136,12 @@ Audit findings from `GameSession.cs`:
 - NPC pockets are a required independent storage domain; audit whether a concrete NPC inventory currently exists or whether it is a future domain before claiming implementation.
 
 Required regression suite: pairwise isolation between representative player/backpack/pocket/world-container/NPC/business/escrow inventories; explicit transfer-only movement; multiple backpacks with independent contents; drop/recover automatic swap; multiple dropped bags; save/load preserving every storage identity and its contents; legacy-save migration; no inaccessible inventory exposed through UI, services or quickbar.
+
+### Storage identity registry foundation (2026-11-27)
+- Added Core `InventoryStorageId` and `InventoryStorageRegistry`: stable typed identities map to one `GridInventory`, with reverse lookup and hard rejection of duplicate identities or grid aliasing. Registry entries remain for the session lifetime; access, item ownership and economic custody are intentionally separate.
+- Registered current independent runtime domains in `GameSession`: all three player pockets, hideout storage, dirty-cash contact inventory, the first customer contract/repair receiver inventory, every street searchable container, and every resident-owned searchable property container.
+- Added five Core regression tests for identity stability, duplicate/alias rejection, reverse lookup, and isolation between separate player/backpack/world test grids.
+- Source commits: `cd4b182015525429b1ebc97c22628a862b28ef89`, `bf4d54e9be82dfd61760528a11a1f6a3186f93d8`, `13ff69d98d661cd0bfeecff8ee9c9bb3a8cbf50a`, `bea52619e72a6ebe0f5e0ac4b50d3e4a4c481585`, `ffa503494a62593e0ffe99d4e57f06a569b57387`.
+- This is the first enforcement layer, not completion of the storage correction. Backpack grids are not yet registered independently because GameSession still aliases the active backpack to `_inventory`; business stock and NPC-owned pocket runtime inventories have not yet been added/connected; save/load remains on existing per-feature lists and legacy `storageItems`. Do not mark the global invariant complete.
+- Unity compilation and the full EditMode suite are pending; five new tests are expected. Play Mode should verify all current storage registration paths and check for duplicate-identity errors at startup.
+
