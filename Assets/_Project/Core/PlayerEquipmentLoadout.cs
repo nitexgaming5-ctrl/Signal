@@ -114,16 +114,17 @@ namespace Signal.Core
             if (baseAttributes == null)
                 throw new ArgumentNullException(nameof(baseAttributes));
 
-            long health = (long)baseAttributes.Health + skillHealthModifier;
-            long armor = baseAttributes.Armor;
-            long heat = (long)baseAttributes.HeatProtection + skillHeatProtectionModifier;
+            long armorModifier = 0;
+            long heatModifier = 0;
             foreach (EquippedItem item in _equipped.Values)
             {
-                armor += item.ArmorModifier;
-                heat += item.HeatProtectionModifier;
+                armorModifier += item.ArmorModifier;
+                heatModifier += item.HeatProtectionModifier;
             }
 
-            return new EffectiveCharacterAttributes(Clamp(health), Clamp(armor), Clamp(heat));
+            return CharacterAttributeCalculator.Calculate(baseAttributes,
+                ClampModifier(armorModifier), ClampModifier(heatModifier),
+                skillHealthModifier, skillHeatProtectionModifier);
         }
 
         public bool ContainsInstance(Guid itemInstanceId)
@@ -141,9 +142,9 @@ namespace Signal.Core
             return slot >= EquipmentSlot.Head && slot <= EquipmentSlot.Accessory3;
         }
 
-        private static int Clamp(long value)
+        private static int ClampModifier(long value)
         {
-            if (value <= 0) return 0;
+            if (value <= int.MinValue) return int.MinValue;
             return value >= int.MaxValue ? int.MaxValue : (int)value;
         }
     }
