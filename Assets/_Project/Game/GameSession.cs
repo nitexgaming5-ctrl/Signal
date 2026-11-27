@@ -161,6 +161,56 @@ namespace Signal.Game
                     milestoneId, points, sourceId);
         }
 
+        private EffectiveCharacterAttributes CalculateEffectiveCharacterAttributes()
+        {
+            if (_playerDevelopment == null)
+                return new EffectiveCharacterAttributes(100, 0, 0);
+
+            int equipmentArmor = 0;
+            int equipmentHeat = 0;
+            if (_playerEquipment != null)
+                foreach (EquippedItem equipped in _playerEquipment.Items)
+                {
+                    equipmentArmor = AddClampedModifier(equipmentArmor, equipped.ArmorModifier);
+                    equipmentHeat = AddClampedModifier(equipmentHeat, equipped.HeatProtectionModifier);
+                }
+
+            int skillHealth = 0;
+            int skillHeat = 0;
+            if (_playerDevelopmentCatalog != null)
+                foreach (PlayerSkillDefinition skill in _playerDevelopmentCatalog.Skills)
+                {
+                    if (skill == null)
+                        continue;
+                    int rank = _playerDevelopment.Skills.GetRank(skill.Id);
+                    skillHealth = AddClampedModifier(skillHealth, MultiplyClamped(skill.HealthPerRank, rank));
+                    skillHeat = AddClampedModifier(skillHeat, MultiplyClamped(skill.HeatProtectionPerRank, rank));
+                }
+
+            return CharacterAttributeCalculator.Calculate(_playerDevelopment.Attributes,
+                equipmentArmor, equipmentHeat, skillHealth, skillHeat);
+        }
+
+        private void RefreshPlayerMaximumHealth()
+        {
+            if (_stats == null || _playerDevelopment == null)
+                return;
+            EffectiveCharacterAttributes effective = CalculateEffectiveCharacterAttributes();
+            _stats.TrySetMaximumHealth(effective.Health);
+        }
+
+        private static int MultiplyClamped(int value, int multiplier)
+        {
+            long result = (long)value * multiplier;
+            return result >= int.MaxValue ? int.MaxValue : result <= 0 ? 0 : (int)result;
+        }
+
+        private static int AddClampedModifier(int current, int modifier)
+        {
+            long result = (long)current + modifier;
+            return result >= int.MaxValue ? int.MaxValue : result <= 0 ? 0 : (int)result;
+        }
+
         private void Start()
         {
             _stats = new PlayerStats(startingMoney);
@@ -231,7 +281,10 @@ namespace Signal.Game
                 _playerDevelopmentCatalog.StartingSkillPoints, _playerDevelopmentCatalog.MaximumSkillRank,
                 _playerDevelopmentCatalog.PointsPerRank);
             _playerDevelopmentPanel = gameObject.AddComponent<PlayerDevelopmentPanel>();
-            _playerDevelopmentPanel.Bind(_playerDevelopment, _playerDevelopmentCatalog);
+            _playerDevelopmentPanel.Bind(_playerDevelopment, _playerDevelopmentCatalog,
+                CalculateEffectiveCharacterAttributes, _stats);
+            _playerDevelopmentPanel.DevelopmentChanged += RefreshPlayerMaximumHealth;
+            RefreshPlayerMaximumHealth();
 
             _city = gameObject.AddComponent<CityBlockBootstrap>();
             _city.Build(_room.Player, _room.PlayerBody, camera, _clock, npcDefinitions);
@@ -1999,7 +2052,12 @@ namespace Signal.Game
                 _playerDevelopmentCatalog.StartingSkillPoints, _playerDevelopmentCatalog.MaximumSkillRank,
                 _playerDevelopmentCatalog.PointsPerRank);
             if (_playerDevelopmentPanel != null)
-                _playerDevelopmentPanel.Bind(_playerDevelopment, _playerDevelopmentCatalog);
+                _playerDevelopmentPanel.Bind(_playerDevelopment, _playerDevelopmentCatalog,
+                    CalculateEffectiveCharacterAttributes, _stats);
+            RefreshPlayerMaximumHealth();
+            // SaveMapper.Apply runs before development restoration; re-apply the saved current HP
+            // after the restored effective maximum is known so higher-health saves are not clipped.
+            _stats.Restore(_stats.Money, data.health);
             EnsureCustomerRepairItem();
             RefreshWorkshopUpgradeVisual();
             if (_workspace != null)
