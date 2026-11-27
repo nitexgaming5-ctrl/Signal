@@ -257,7 +257,8 @@ namespace Signal.Game
             _panel.Bind(_inventory, _allItemDefinitions, _itemViewer.Open, TryEquipPlayerItem, TryUnequipPlayerSlot,
                 _playerEquipment, DropPlayerBackpack, () => _equippedBackpackInstanceId.HasValue,
                 () => _equippedBackpackInstanceId.HasValue && !_droppedBackpackItem.HasValue,
-                _playerPockets, MoveItemToPocket, MovePocketToBackpack, EquipPocketItem, MovePocketToBackpackAt, MovePocketToPocket);
+                _playerPockets, MoveItemToPocket, MovePocketToBackpack, EquipPocketItem, MovePocketToBackpackAt,
+                MovePocketToPocket, SplitPlayerStack);
             _debugItemSpawnerPanel = gameObject.AddComponent<DebugItemSpawnerPanel>();
             _debugItemSpawnerPanel.Bind(_allItemDefinitions, SpawnDebugItem);
             _containerPanel = gameObject.AddComponent<SearchableContainerPanel>();
@@ -3108,6 +3109,43 @@ namespace Signal.Game
             }
             source = null;
             item = default;
+            return false;
+        }
+
+
+        private bool SplitPlayerStack(GridInventory source, GridInventory destination,
+            Guid itemInstanceId, int quantity, int x, int y)
+        {
+            if (_stackTransfers == null || source == null || destination == null ||
+                itemInstanceId == Guid.Empty || quantity < 1 ||
+                !IsPlayerCarryGrid(source) || !IsPlayerCarryGrid(destination))
+                return false;
+
+            if ((ReferenceEquals(source, _inventory) || ReferenceEquals(destination, _inventory)) &&
+                !IsBackpackAccessible())
+                return false;
+
+            StackTransferResult result = _stackTransfers.Split(source, destination, itemInstanceId,
+                quantity, x, y, EconomicActorId.Player, EconomicActorId.Player,
+                AssetTransferReason.Other, _clock.Day, _clock.MinuteOfDay);
+            if (!result.Success)
+            {
+                Say("That stack could not be split there. Its quantity and identity were left unchanged.", 4f);
+                return false;
+            }
+
+            Say("Split " + quantity + " item" + (quantity == 1 ? string.Empty : "s") + " into a new stack.");
+            return true;
+        }
+
+        private bool IsPlayerCarryGrid(GridInventory inventory)
+        {
+            if (inventory == null) return false;
+            if (ReferenceEquals(inventory, _inventory)) return true;
+            if (_playerPockets == null) return false;
+            for (int i = 0; i < PlayerPocketBook.PocketCount; i++)
+                if (ReferenceEquals(inventory, _playerPockets.GetPocket(i)))
+                    return true;
             return false;
         }
 
