@@ -1061,7 +1061,8 @@ namespace Signal.Game
 
         private void BeginQuickbarDrag(int slotIndex)
         {
-            if (_quickbar == null || slotIndex < 0 || slotIndex >= PlayerQuickbar.SlotCount || _quickbar.GetItem(slotIndex) == Guid.Empty) return;
+            if (_quickbar == null || slotIndex < 0 || slotIndex >= PlayerQuickbar.SlotCount ||
+                !TryFindQuickbarItem(_quickbar.GetItem(slotIndex), out _, out bool accessible) || !accessible) return;
             _dragging = true;
             _draggingFromQuickbar = true;
             _dragQuickbarSlot = slotIndex;
