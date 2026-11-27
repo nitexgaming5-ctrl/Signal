@@ -228,16 +228,22 @@ namespace Signal.Core.Tests
             var service = new StackTransferService(ownership, containers, transactions, lineage);
             Assert.That(service.Merge(source, destination, sourceId, destinationId, 2, 1, 5).Success, Is.True);
 
+            // Simulate a malformed/stale save that tries to resurrect the retired source identity.
+            source.Place(type, 0, 0, count: 1, itemInstanceId: sourceId);
+            ownership.TryRegister(sourceId, EconomicActorId.Player);
             var save = new SaveData();
             StackLineageSaveMapper.Capture(lineage, save);
             var restored = new StackLineageBook();
-            Assert.That(StackLineageSaveMapper.Apply(save, restored), Is.Zero);
+            Assert.That(StackLineageSaveMapper.Apply(save, restored, ownership, source, destination), Is.Zero);
+            Assert.That(source.TryGetItemInstance(sourceId, out _), Is.False);
+            Assert.That(ownership.TryGetOwner(sourceId, out _), Is.False);
             Assert.That(restored.Merges.Count, Is.EqualTo(1));
             Assert.That(restored.Merges[0].SourceStackId, Is.EqualTo(sourceId));
             Assert.That(restored.Merges[0].DestinationStackId, Is.EqualTo(destinationId));
             Assert.That(restored.Merges[0].Quantity, Is.EqualTo(2));
             Assert.That(restored.Merges[0].OwnerActorId, Is.EqualTo(EconomicActorId.Player.Value));
-            Assert.That(StackLineageSaveMapper.Apply(save, restored), Is.Zero);
+            Assert.That(restored.Merges[0].SourceRetired, Is.True);
+            Assert.That(StackLineageSaveMapper.Apply(save, restored, ownership, source, destination), Is.Zero);
             Assert.That(restored.Merges.Count, Is.EqualTo(1));
         }
 
