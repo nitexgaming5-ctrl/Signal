@@ -182,7 +182,7 @@ This addresses the compiler diagnostics supplied by the user. A fresh Unity comp
 
 ## Current checkpoint — P-03.7b source implementation (2026-11-27)
 
-The last user-confirmed baseline before this phase is 540/540 EditMode tests passed for P-03.7a. P-03.7b has now been implemented in repository source, but the user has not yet run Unity compilation/tests on this revision.
+The last user-confirmed baseline before this phase is 540/540 EditMode tests passed for P-03.7a. P-03.7b was subsequently verified by the user at 550/550 EditMode tests.
 
 Key additions:
 - StackTransferService is the only approved route for new ownership-aware split/merge operations. Raw StackOperations remains a Core primitive and must not be wired directly from UI.
