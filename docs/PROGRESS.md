@@ -184,3 +184,14 @@ This addresses the compiler diagnostics supplied by the user. A fresh Unity comp
 
 
 - Compile fix after the first Unity pass: `StackMergeRecord`'s constructor was `internal`, but the EditMode test assembly constructs a record to verify duplicate-operation rejection. Made the constructor public; `StackLineageBook.TryRecordMerge` remains the validation boundary and rejects empty IDs, self-merges, invalid quantities and duplicate operation IDs. Commit: `fcb70dc75c5bc7f77be1c8fd0d3fb0943314463f`. Unity compilation/tests need to be rerun; no pass is claimed.
+
+## P-03.7b — Ownership-aware stack transfers (source implemented; Unity verification pending)
+
+- Added StackTransferService to coordinate split/merge with live container registration, AssetOwnershipBook, EconomicTransactionLedger and StackLineageBook.
+- Same-owner splits preserve owner and create no economic transaction. Explicit cross-owner splits assign the new stack to the destination custodian and record the exact moved quantity; failed ledger/ownership commits roll back inventory and ownership before any Changed event.
+- Cross-owner merges are rejected. Same-owner merges retain destination identity, record owner/custodian/time/quantity lineage, and retire the source owner record only when fully consumed.
+- Equipment/backpack types are intrinsically non-stackable at the Core ItemType level; no authored ordinary-material MaxStack tuning was changed.
+- Added F5/F9 lineage persistence and restore-time removal of any stack ID recorded as retired, including stale IDs found in backpack, pockets, home storage, contacts, contract receiver or searchable containers.
+- Backpack _inventory registration now exists only while equipped. Drop unregisters it; recovery/F9 re-authorizes it. This closes the stale-grid-reference path for new stack transfers when a backpack is dropped.
+- Added ten focused EditMode regression tests. Unity compile and test execution are pending; no pass count is claimed.
+- Next: user runs Unity compile/full EditMode suite; fix any diagnostics; then Play Mode test B-drop → attempt transfer against stale backpack grid → F5/F9 while dropped → recover exact contents. P-03.7c UI remains gated on this verification.
