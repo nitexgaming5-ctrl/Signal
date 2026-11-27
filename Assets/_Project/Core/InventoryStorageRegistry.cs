@@ -107,6 +107,15 @@ namespace Signal.Core
             inventory != null && TryGet(identity, out GridInventory registered) &&
             ReferenceEquals(registered, inventory);
 
+        public bool TryUnregister(InventoryStorageId identity)
+        {
+            if (!identity.IsValid || !_byIdentity.TryGetValue(identity, out GridInventory inventory))
+                return false;
+            _byIdentity.Remove(identity);
+            _byInventory.Remove(inventory);
+            return true;
+        }
+
         public void Clear()
         {
             _byIdentity.Clear();
