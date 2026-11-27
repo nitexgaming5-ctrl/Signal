@@ -1,6 +1,6 @@
 # P-03.7 — Stack System & Inventory Interaction
 
-**Status:** In progress — P-03.7a verified (540/540); P-03.7b verified (550/550); P-03.7c source implemented, Unity verification pending  
+**Status:** In progress — P-03.7a verified (540/540); P-03.7b verified (550/550); P-03.7c verified (552/552); P-03.7d source implemented, Unity verification pending (expected 553 tests)  
 **Started:** 2026-11-27  
 **Branch:** `chore/collaboration-workflow-and-audit`  
 **Prerequisite:** Inventory & Grid Architecture Audit — user-confirmed 531/531 EditMode and Play Mode acceptance
@@ -118,7 +118,7 @@ Unique equipment, backpacks and other authored non-stackable items remain indivi
 - No new item categories or final stack-size balancing decisions.
 - Do not globally change existing ItemDefinition maxStack values merely to make tests convenient.
 - No per-unit GUID model for ordinary materials.
-- Do not bypass AssetTransferService for ownership-changing transfers.
+- Whole-stack ownership-changing transfers must use AssetTransferService. Quantity-changing partial transfers must use StackTransferService, which coordinates the same ownership book, container registry and economic transaction ledger. Never call raw StackOperations from Game/UI.
 - Do not mutate quantities directly from UI code.
 - Do not claim Unity compilation or tests until the user confirms them.
 - Keep wearable presentation paused; do not restart sprite/art work.
@@ -207,3 +207,47 @@ Source commits: 2d8b2a098de1f0c4da759f5676a20ca71ecf8bf8, 2502dc89c302cb0ee65abb
 - Additional source commits: 02b4d8f1d3322f0a03f0e9993af42c1dac5d8610, dfdd9f564c8d1febcb07891e81bb0b5165c512af, aff762ca81ffef03e850bf330af9b1fcb77dc1d2, eb743aaa0b373818ab7e26563699001fe4d78a1b, db5a968e215ab7a9cec74cd4511b71b1f06c58ca.
 
 Latest P-03.7c source commits after the first UI log: 02b4d8f1d3322f0a03f0e9993af42c1dac5d8610, dfdd9f564c8d1febcb07891e81bb0b5165c512af, aff762ca81ffef03e850bf330af9b1fcb77dc1d2, eb743aaa0b373818ab7e26563699001fe4d78a1b, db5a968e215ab7a9cec74cd4511b71b1f06c58ca.
+
+
+## P-03.7c — Player inventory UI verified
+
+The user confirmed **552/552 EditMode tests passed**. P-03.7c is closed.
+
+- Backpack and pocket controls: Shift+LMB quick-transfer, Shift+RMB split half, Ctrl+RMB split one.
+- Existing drag, inspect, rotation, cancel, equipment and backpack controls retained.
+- Added two regression tests for same-grid and pocket-to-pocket split placement.
+- Source changes and documentation were committed before the user's 552/552 confirmation.
+
+## P-03.7d — Searchable-container stack integration (source implemented; Unity verification pending)
+
+Implemented the first universal-integration slice:
+
+- Searchable-container UI now supports Shift+LMB quick-transfer in both directions: discovered container → carried inventory, and backpack/pocket → active container. Existing double-click take remains.
+- Shift+RMB splits half; Ctrl+RMB splits one. A container-origin split targets an accessible backpack cell first, then a free 1×1 pocket; a carried-item split targets an empty container cell. No destination means no mutation.
+- Dragging onto a compatible occupied stack attempts a quantity-aware merge. StackOperations compatibility is checked for preview; StackTransferService enforces owner equality and rejects cross-owner merges without mutation. Partial capacity is respected.
+- Resident-property split theft uses StackTransferService with Theft reason. Only the moved portion becomes Stolen; the returned EconomicTransaction is passed to the existing RecordTheft flow so witness/heat/progression behavior remains transaction-backed. Scavenged container splits retain Scavenging reason.
+- Whole-stack ownership-changing movement continues through AssetTransferService. Partial stack movement uses StackTransferService; raw StackOperations remain out of Game/UI.
+- The dropped-backpack boundary remains fail-closed: the panel receives an isolated grid when inaccessible; GameSession rejects inaccessible backpack references; the stack service requires registered source/destination containers.
+
+Service quantity audit (source-level):
+- ProductionService consumes exact recipe quantities across accessible grids. Partial source stacks retain their original ID, remaining quantity and owner; ownership is removed only when a stack is fully consumed. Failed production restores snapshots.
+- Retail purchase accepts an explicit quantity and AddSilently fills compatible player-owned stacks before creating new stacks. Shop sale fulfils the selected order quantity and retains the source stack identity/ownership when only part is sold.
+- Repair consumes one patch kit per repair; this is an authored single-kit action, not a bulk-material consumption path.
+- CustomerContractService intentionally requires the selected stack count to equal the authored required quantity and delivers that exact whole stack, matching the existing B-02 whole-stack contract design. Splitting lets the player form the exact required quantity first.
+- CustomerRepairOrderService transfers the exact entrusted item; it is not a stackable bulk order.
+- Dirty Cash exchange requires the exact authored accepted quantity; cleaning intentionally consumes the full selected Dirty Cash stack. The player can split first to choose a smaller amount.
+- Home Storage moves whole stacks without consuming quantities; splitting before storage is supported by the carried inventory UI.
+- No service-side quantity defect was identified in this source audit; existing semantics were preserved.
+
+Added one focused Core regression test verifying that a theft split marks only the transferred portion Stolen and returns the exact economic transaction. The same-owner split test asserts no economic transaction is produced; cross-owner split asserts the returned transaction matches the ledger.
+
+Source commits:
+- StackTransferService transaction exposure: 1752d5a79e42989bbb14580517705db4042e5bfc
+- Searchable-container controls: 20c9b5c209ad31fab96cbcadfa488953f9d1cd93
+- GameSession ownership/scenario integration: 8543b9cf36fc0b003c1fc7a2096ff8b4c6bec484
+- split compile-edge correction: 451b513d80105b101ce67e0cc21643baab37698a
+- theft-split regression: da0151d813d7bc06077b55fa08f2d2d7a293f935
+- theft state assertion correction: 3581d40c603f3df9d5d8d2337c5c0391fdc7573e
+- UI legend refinement: 7dce17c0aeea24171adb237379f528c150eb71f6
+
+**Verification:** P-03.7d has not yet been compiled or run in Unity. The user-confirmed baseline remains 552/552; with the new regression test, the expected current EditMode suite is **553**. Play Mode acceptance for searchable-container split/merge/quick-transfer is also pending.
