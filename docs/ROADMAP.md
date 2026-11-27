@@ -109,10 +109,10 @@ This supersedes the narrower backpack-only follow-up. The user requires independ
 - [x] Add typed stable storage identity and a session registry that rejects duplicate IDs and aliased `GridInventory` references.
 - [x] Register current independent player pockets, hideout storage, contact inventory, contract receiver inventory, street searchable containers and resident-owned searchable property containers.
 - [x] Add five Core regression tests for identity and alias invariants.
-- [ ] Wire the new registry-backed `PortableStorageBook` allocator into GameSession so every physical backpack owns a distinct grid and the active player inventory view switches to the equipped bag. Core allocation API and two isolation tests are committed; runtime still uses the compatibility overload that attaches `_inventory`.
+- [x] Wire the registry-backed `PortableStorageBook` allocator into GameSession: equipped physical backpacks receive distinct grids and the active player inventory view switches to the equipped bag. Unity compile/EditMode/Play Mode verification pending.
 - [ ] Convert dropped backpack state/visual tracking to multiple instances and implement automatic swap without merging storage.
 - [ ] Register future NPC pockets and business stock as their own inventories when those runtime systems are introduced.
-- [ ] Move save/load to stable storage identities with deterministic migration of legacy `storageItems` and single dropped-backpack data.
+- [x] Move backpack save/load to stable storage identities and migrate legacy single-backpack global `items` into the equipped/dropped bag. Unity F5/F9 verification pending.
 - [ ] Verify all transfer, service and UI paths use only explicitly accessible inventories; run Unity compile, EditMode and Play Mode.
 
 
@@ -120,7 +120,7 @@ This supersedes the narrower backpack-only follow-up. The user requires independ
 ### Storage isolation — persistence primitive added (2026-11-27)
 - [x] Add Core save records and a mapper that captures/restores every physical backpack's grid by stable backpack GUID; include dimensions and item instance/state data.
 - [x] Reject duplicate backpack storage IDs and duplicate physical item IDs during restore; unregister stale backpack registry mappings without clearing unrelated storage domains.
-- [ ] Wire per-backpack persistence into GameSession together with active-grid switching; do not serialize one backpack's contents through both legacy player items and per-backpack records.
+- [x] Wire per-backpack persistence into GameSession with a separate staging inventory for legacy `items`, preventing double serialization. Unity F5/F9 verification pending.
 - [ ] Replace the single dropped-backpack item/visual with multi-instance tracking and implement the approved automatic swap.
 - [ ] Enable TEST LOADOUT with other backpacks dropped only after active-grid switching and persistence are safe.
 - [ ] Extend runtime storage registry coverage to NPC pockets and business stock; audit every UI/service access path.
@@ -129,9 +129,15 @@ This supersedes the narrower backpack-only follow-up. The user requires independ
 
 ### Current storage implementation sequence — 2026-11-27
 - [x] Core independent backpack grid allocation and identity-keyed persistence primitives — user verified 580/580.
-- [ ] GameSession active-grid switching: equipped backpack uses its own grid; dropping immediately detaches that grid and exposes only pockets/staging access.
+- [x] GameSession active-grid switching and immediate detachment on drop; all relevant UI/service consumers rebind. Unity verification pending.
 - [ ] Rebind InventoryPanel, storage, retail, dirty-cash, customer, workshop and scenario consumers whenever the active backpack grid changes.
 - [ ] Support multiple dropped physical backpacks and the approved automatic swap, preserving each bag's own grid.
 - [ ] Integrate per-backpack records into F5/F9 and deterministic legacy-save migration.
 - [ ] Enable TEST LOADOUT with dropped bags only after the preceding runtime and persistence paths are safe.
 - [ ] Continue the universal inventory identity audit for NPC pockets and business stock; backpack work alone does not complete global storage independence.
+
+
+- [ ] Replace the singular dropped-backpack item/visual with GUID-keyed collections and persist every dropped bag's equipment metadata.
+- [ ] Implement the approved automatic swap: equipped bag drops at player's feet, recovered bag equips, each retains its own contents.
+- [ ] Remove the TEST LOADOUT dropped-backpack restriction only after multi-bag swap and persistence are verified.
+- [ ] Verify current runtime integration with Unity compile, 581 EditMode tests and Play Mode F5/F9/equip/drop/recover/quickbar checks (latest user-confirmed baseline: 580/580).
