@@ -91,3 +91,16 @@ See [P-04 task card](tasks/PLAYER-P-04-CHARACTER-PLAYABILITY.md) for implementat
 - [ ] Track multiple dropped backpack instances and visuals; persist each bag's contents and world state independently.
 - [ ] Let F1 TEST LOADOUT equip a fresh backpack even if another backpack is dropped, without sharing or overwriting storage.
 - [x] Put the quickbar drag ghost on a dedicated high-sorting overlay Canvas (commit `1971e800a08011e8f031ecd79fdd67cb56d3a17d`).
+
+
+### Storage architecture correction — global inventory isolation (2026-11-27)
+This supersedes the narrower backpack-only follow-up. The user requires independent contents for **every inventory, container and NPC pocket**.
+
+- [ ] Establish one stable storage identity → one unique `GridInventory` invariant across all runtime domains.
+- [ ] Audit all inventory construction, registration, service access, UI binding, save/load and stack-lineage paths for aliased grid instances.
+- [ ] Give each physical backpack its own persistent grid; support multiple dropped backpacks and the approved automatic swap.
+- [ ] Preserve independent player pockets, home storage, world/searchable containers, resident/NPC-owned pockets, business stock and contract/service escrow inventories.
+- [ ] Make all cross-inventory movement explicit, validated and atomic; no implicit shared backing grids.
+- [ ] Serialize contents by stable storage identity and migrate legacy saves deterministically.
+- [ ] Add pairwise isolation, transfer, access-control, save/load and regression tests for each storage domain.
+- [x] Quickbar drag ghost uses a dedicated high-sorting overlay Canvas (commit `1971e800a08011e8f031ecd79fdd67cb56d3a17d`).
