@@ -136,7 +136,7 @@ Persistence must be keyed by stable storage identity, with deterministic migrati
 - Historical note, superseded by the later active-grid integration below: at this earlier point the mapper was not yet called by GameSession. It is now wired to F5/F9 with a separate staging inventory to avoid double serialization.
 
 
-## Current next implementation — GameSession active backpack grid (2026-11-27)
+## Current next implementation — multi-dropped-backpack lifecycle (2026-11-27)
 
 - Verified latest EditMode suite: **580/580**, user-confirmed.
 - Core and GameSession now use distinct backpack grids and identity-keyed save/restore. The active inventory reference switches on equip/recovery and detaches on drop. Runtime still tracks one dropped-backpack item/visual.
