@@ -81,7 +81,7 @@ Accessories are generic, not hardcoded categories. Backpack consumes one accesso
 - Fix any regression before proceeding.
 
 ### 2. Backpack and pocket Play Mode matrix
-- Fresh session: verify temporary debug backpack/cargo appears as intended.
+- Fresh session: verify the player starts with three empty personal pockets and no backpack/test cargo. Use F1 debug spawner to create test inventory when needed.
 - Equip backpack; verify the exact cargo and character/backpack placeholder.
 - Drop with B and UI button; confirm backpack appears at the world position and the 8×6 grid is inaccessible.
 - Confirm P1/P2/P3 remain accessible while bag is dropped.
@@ -95,9 +95,8 @@ Accessories are generic, not hardcoded categories. Backpack consumes one accesso
 - Verify social/dialogue/mission/world navigation remains usable without a backpack.
 
 ### 3. Debug-loadout cleanup
-- Keep temporary fresh-session repair/production cargo until the user finishes acceptance.
-- At final closeout remove only automatic fresh-session backpack/cargo seeding.
-- Retain the deliberate F1 debug item spawner.
+- Automatic fresh-session backpack/repair/production cargo seeding has been removed after acceptance.
+- Retain the deliberate F1 debug item spawner as the only manual test-loadout path.
 - Do not alter authored item definitions or intended new-game inventory without a separate design decision.
 
 ## Explicitly paused — P-03.6 wearable presentation
@@ -108,7 +107,7 @@ The user has paused sprite creation and wearable/wardrobe presentation. P-03.6 i
 
 - Current full EditMode suite passes in Unity and the result is user-confirmed.
 - Backpack lifecycle, save/load, pockets, hidden-pocket contract and pocket-aware service interactions pass the Play Mode matrix.
-- Debug fresh-session cargo is removed only after acceptance; F1 spawner remains.
+- Fresh sessions start without debug cargo; F1 spawner remains. Re-verify this after the cleanup commit.
 - PROGRESS, ROADMAP, this card and PROJECT_HANDOFF agree on final status and verification.
 - P-03 is marked complete only after those conditions are met.
 
@@ -144,3 +143,8 @@ The user has paused sprite creation and wearable/wardrobe presentation. P-03.6 i
 - Added three EditMode regression tests: in-container repositioning, pocket move/swap, and backpack→container transfer. Expected suite total is **509**, pending Unity verification; 506/506 remains the last user-confirmed pass.
 - Source commits: 6ad663c32d77de09527bb6ecd49740270ded1596, 924f7cbc8032266809420df8b361954fd7462d84, 05f03a9d88e580ffac5f5e5f106bea6efe60d173.
 - Next gate: run EditMode suite (expected 509), then Play Mode test pocket↔pocket, container↔container reorganisation, backpack→container, and pocket→container in both Rhea's wardrobe and a street container. Repeat with the backpack dropped to confirm its cargo remains inaccessible.
+
+
+## 2026-11-27 — automatic debug loadout removed
+
+After the user confirmed P-03 stack and backpack acceptance, removed the automatic fresh-session backpack, repair items, recipe materials and footprint-test cargo. The player now begins with no backpack and empty personal pockets; the F1 developer menu and item spawner remain available for deliberate testing. Unity compile, full EditMode suite and Play Mode empty-start/F1-spawner checks are required after this cleanup commit.
