@@ -7,7 +7,7 @@
 
 ## Verification
 
-- **Latest user-confirmed full EditMode suite: 578/578 passed (2026-11-27).** This includes the P-04b quickbar usability follow-up.
+- **Latest user-confirmed full EditMode suite: 580/580 passed (2026-11-27).** This includes the two independent-backpack persistence tests.
 - P-04a: 557/557 confirmed.
 - P-04b initial assignment foundation: 562/562 confirmed; follow-up brought the suite to 563/563.
 - P-03.7: 555/555 plus Unity compile and Play Mode acceptance confirmed; closed.
@@ -67,7 +67,7 @@ P-03.7 is closed and user-verified at **555/555**, including compile and Play Mo
 - Loading resets the active hand to no selected slot and holstered while restoring the six assignments.
 - Seven new Core regression tests cover active selection/holster, reversible H toggling, empty-slot cycling/wraparound, invalidation/unassignment, backpack-style inaccessibility and load reset.
 - Source commits: `c17a9f7e27d06caf6066d5fd010594d51d33fd85`, `3f8157afb5ca80e744ed83d9ea25922b33f99e50`, `e0ea41bdf2b11a30b4a99941f7153979fd04223e`.
-- User verified the full P-04c EditMode suite at 571/571 and confirmed the active-hand/quickbar Play Mode behavior. Later storage work has a separate 578/578 user-confirmed baseline; the newest two persistence tests are pending.
+- User verified the full P-04c EditMode suite at 571/571 and confirmed the active-hand/quickbar Play Mode behavior. Subsequent storage registry, allocator and backpack persistence tests are now user-verified at 580/580.
 
 **P-04d — UI polish:** later follow-up after P-04c. The always-visible six-slot HUD and drag ghost have already been delivered in P-04b follow-up; do not duplicate them.
 
@@ -144,7 +144,7 @@ Required regression suite: pairwise isolation between representative player/back
 - Source commits: `cd4b182015525429b1ebc97c22628a862b28ef89`, `bf4d54e9be82dfd61760528a11a1f6a3186f93d8`, `13ff69d98d661cd0bfeecff8ee9c9bb3a8cbf50a`, `bea52619e72a6ebe0f5e0ac4b50d3e4a4c481585`, `ffa503494a62593e0ffe99d4e57f06a569b57387`.
 - Follow-up `GameSession` commit `53e88a8a3d281469b484f4ef5e2d76b495bb237d` now registers the currently equipped/restored/dropped backpack grid under `PlayerBackpack/<instance-guid>/contents`, and verifies that the registered identity resolves to the same grid before granting economic access. The registry mapping remains while the bag is dropped.
 - This is still not completion of storage isolation: GameSession still uses its session-wide `_inventory` as the grid attached to a backpack, so it cannot yet maintain distinct grids for multiple physical bags. Multiple dropped backpack metadata/visuals, automatic swap, per-backpack save/load, business stock and NPC-owned pocket runtime inventories remain open. Do not mark the global invariant complete.
-- User confirmed the full Unity EditMode suite at **576/576** after the storage-registry integration and compile correction. Runtime Play Mode verification of the new backpack identity registration and the drag overlay fix remains pending.
+- User confirmed **576/576** after registry integration, then **578/578** after the per-backpack allocator, and most recently **580/580** after identity-keyed backpack persistence tests. Runtime Play Mode verification of the new backpack identity registration and the drag overlay fix remains pending.
 
 ### Per-backpack storage allocation — Core step (2026-11-27)
 - Extended `PortableStorageBook` with a registry-backed registration overload. It creates a new `GridInventory` for each physical backpack GUID, derives the canonical `PlayerBackpack/<GUID>/contents` identity, and only commits the storage-book entry when the registry accepts the unique grid.
@@ -163,4 +163,11 @@ Required regression suite: pairwise isolation between representative player/back
 - Added two EditMode regression tests: independent two-backpack round-trip with dimensions and contents preserved; duplicate backpack/item identity rejection.
 - Commits: 2462112a32e88de815f53b0305ce3b4cf1bf63e5, 8156a03390ab1d2184f813530f34b229e783d7cb, 8ff1da85acca6de1b727f2d9dcd734eea709285d, 68eb632cbd4f46b85dbe88751335c2cdd6aa5369, 34330e52abf2c30b7b95314565284eda135db6c4, 3e45aa26826db7c91ba2baf1edc341acac8387f8.
 - This persistence mapper is not yet wired into GameSession.SaveGame/LoadGame. That integration must happen alongside active-grid switching so the same bag contents are not serialized twice through legacy data.items and the new per-backpack records. Runtime still has one _inventory grid and one dropped-backpack slot; automatic swap and debug-loadout changes remain open.
-- Expected EditMode suite count: 578 to 580. Unity compile/EditMode verification is pending; no 580/580 claim is made.
+- User has since confirmed **580/580** after these two persistence tests. GameSession integration and Play Mode verification remain open.
+
+
+### Current active storage implementation step (2026-11-27)
+- **Verified:** user confirmed 580/580 after the identity-keyed backpack save/restore mapper and duplicate-ID regression tests.
+- **Next:** wire the registry-backed per-backpack grids into GameSession. First establish active-grid switching and immediate detachment on drop, while rebinding every inventory UI/service consumer. Then implement multi-dropped-bag tracking, approved automatic swap, identity-keyed F5/F9 integration and deterministic legacy migration.
+- Current runtime limitation remains: GameSession still attaches the session-wide `_inventory` grid to a backpack and tracks one dropped backpack. The new Core mapper is not yet called by GameSession. Do not claim the global storage invariant complete.
+- Drag overlay and backpack runtime behavior still require fresh Unity Play Mode verification.
