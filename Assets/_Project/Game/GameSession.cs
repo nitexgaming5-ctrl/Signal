@@ -2137,11 +2137,6 @@ namespace Signal.Game
             int skippedPocketItems = PlayerPocketSaveMapper.Apply(data, _playerPockets, ResolveType, _assetOwnership);
             RefreshCarryPanelInventories();
             PortableBackpackWorldSaveMapper.Apply(data, _backpackWorldBook, _portableStorage);
-            StackLineageSaveMapper.Apply(data, _stackLineage);
-            if (_equippedBackpackInstanceId.HasValue)
-                EnsureBackpackGridRegistered();
-            else
-                _economicContainers.TryUnregister(_inventory);
             if (_equippedBackpackInstanceId.HasValue &&
                 !_backpackWorldBook.TryGet(_equippedBackpackInstanceId.Value, out _))
                 _backpackWorldBook.TryRegisterEquipped(_equippedBackpackInstanceId.Value, _portableStorage);
@@ -2164,6 +2159,15 @@ namespace Signal.Game
                 _workspace.Refresh();
 
             int skippedContainers = SearchableContainerSaveMapper.Apply(data, _searchableContainers, ResolveType, _assetOwnership);
+            var lineageInventories = new List<GridInventory>
+            {
+                _inventory, _storage, _contactInventory, _contractReceiverInventory,
+                _playerPockets.GetPocket(0), _playerPockets.GetPocket(1), _playerPockets.GetPocket(2)
+            };
+            foreach (SearchableContainer container in _searchableContainers)
+                if (container != null) lineageInventories.Add(container.Inventory);
+            int skippedStackLineage = StackLineageSaveMapper.Apply(data, _stackLineage,
+                _assetOwnership, lineageInventories.ToArray());
             RegisterSearchableContainerAssets();
             RegisterUnownedAccessibleAssets();
             _miloOpportunity = report.RestoredOpportunity != null &&
@@ -2188,7 +2192,7 @@ namespace Signal.Game
                 report.SkippedResidentAccounts + report.SkippedRetailTransactions + report.SkippedShopSaleTransactions +
                 report.SkippedCrimeOutcomes + report.SkippedContactItems +
                 report.SkippedIllicitExchangeTransactions + report.SkippedDirtyCashCleaningTransactions +
-                skippedContainers + report.SkippedProductionTransactions + report.SkippedCustomerContracts +
+                skippedContainers + skippedStackLineage + report.SkippedProductionTransactions + report.SkippedCustomerContracts +
                 report.SkippedWorkshopUpgradeIds + report.SkippedContractReceiverItems + report.SkippedCustomerRepairOrders + report.SkippedServicePaymentTransactions +
                 report.SkippedNpcAgendaProgress + report.SkippedNpcKnowledge +
                 report.SkippedNpcSocialRelationships + report.SkippedNpcPlayerRelationships > 0
