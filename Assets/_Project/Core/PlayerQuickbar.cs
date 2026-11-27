@@ -74,6 +74,19 @@ namespace Signal.Core
             return true;
         }
 
+        public int Reconcile(Func<Guid, bool> itemExists)
+        {
+            if (itemExists == null) return 0;
+            int cleared = 0;
+            for (int i = 0; i < _slots.Length; i++)
+            {
+                if (_slots[i] == Guid.Empty || itemExists(_slots[i])) continue;
+                _slots[i] = Guid.Empty;
+                cleared++;
+            }
+            return cleared;
+        }
+
         public void ClearItem(Guid itemInstanceId)
         {
             int slot = FindSlot(itemInstanceId);
