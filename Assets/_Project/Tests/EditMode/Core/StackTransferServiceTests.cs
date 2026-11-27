@@ -248,6 +248,14 @@ namespace Signal.Core.Tests
             Assert.That(lineage.Merges[0].SourceCustodianId, Is.EqualTo(EconomicActorId.Player.Value));
             Assert.That(lineage.Merges[0].Day, Is.EqualTo(2));
             Assert.That(lineage.Merges[0].MinuteOfDay, Is.EqualTo(75));
+            Assert.That(lineage.IsRetiredStackId(sourceId), Is.True);
+            source.Place(type, 0, 0, count: 1, itemInstanceId: sourceId);
+            ownership.TryRegister(sourceId, EconomicActorId.Player);
+            StackTransferResult reuseAttempt = service.Split(source, destination, sourceId, 1, 1, 0,
+                EconomicActorId.Player, EconomicActorId.Player, AssetTransferReason.Other, 2, 80);
+            Assert.That(reuseAttempt.Status, Is.EqualTo(StackTransferStatus.InvalidRequest));
+            Assert.That(source.TryGetItemInstance(sourceId, out PlacedItem resurrected), Is.True);
+            Assert.That(resurrected.Count, Is.EqualTo(1));
         }
 
         [Test]
