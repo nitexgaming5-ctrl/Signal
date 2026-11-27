@@ -219,3 +219,12 @@ P-03.7d searchable-container stack integration is source-implemented. The user v
 ### P-03.7 player inventory drag-to-restack
 
 A follow-up added direct drag-to-merge in `InventoryPanel`. Supported routes: backpack↔backpack, backpack↔pocket, pocket↔backpack and pocket↔pocket. The UI previews only `StackOperations.CanMerge`-compatible targets; GameSession routes through `StackTransferService.Merge`, which enforces ownership, capacity, lineage and destination identity. Partial merges preserve the source remainder ID; destination ID survives. Dropped backpack access remains blocked. Commits: `86ba1397ac77457fc0c9be41970afbcfa00ae601`, `cdf65030db48f21409dccb47d296952ce72e8c2e`, `2615a873e405b94a250269a337db7dd3c353277e`. Two added regressions cover same-grid partial backpack merging and full pocket-to-pocket merging. The UI captures requested quantity before drag cleanup. **Superseding verification:** user confirmed 555/555, Unity compile and Play Mode acceptance on 2026-11-27.
+
+
+### Confirmed item-action contract (2026-11-27)
+- Selecting a quickbar slot only draws/holds its assigned item. Selection, scrolling and switching slots never activate or consume it.
+- Healing items, energy drinks and other consumables require an intentional **left-click** to use. This prevents accidental consumption from slot selection.
+- Selecting a weapon or tool simply holds it in the active hand. Their later attack/tool-use actions are separate design work and are not implied by assignment or selection.
+- H holsters without clearing the slot; selecting the occupied slot again draws it. Empty slots leave the hand empty. Scroll-wheel cycling wraps between slots 6 and 1 and is ignored while a menu is open.
+- The real inventory item remains the single source of truth. Quickbar entries are identity references only; no dedicated weapon/tool slots and no duplicated equipment state.
+- This confirms the selection/consumable-use distinction only. It does not approve a combat system or any unconfirmed tool action.
