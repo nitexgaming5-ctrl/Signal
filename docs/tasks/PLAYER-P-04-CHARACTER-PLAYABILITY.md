@@ -1,6 +1,6 @@
 # P-04 — Character Playability: Progression, Active Equipment & Quickbar
 
-**Status:** Active specification — six-slot quickbar/active-hand controls confirmed; Health is primary attribute; two temporary skill-effect tests approved; tool actions and weapon behavior deferred.  
+**Status:** P-04a source implementation committed; Unity verification pending. P-04b/P-04c quickbar and active-hand controls remain specified, not implemented. Health is primary; temporary skill tests are authored; tool actions and weapon behavior deferred.  
 **Track:** Player Development  
 **Strategic priority:** Ahead of B-07 Neighbourhood Expansion.  
 **Dependencies:** P-01 character foundation, P-02 attributes/skills, P-03 equipment/inventory/backpack.
@@ -14,15 +14,15 @@ B-07 Neighbourhood Expansion is paused and must not be implemented while P-04 is
 ## 2. Current repository baseline (audit)
 
 ### Already implemented
-- P-02 Core progression currently implements Armor and Heat Protection, skill ranks, starting point budget, milestone point awards, free respecialisation and stable-ID save/load. Health is now approved as the primary third attribute; Core, UI and save mapping must be extended.
+- P-02 Core now stores base Health, Armor and Heat Protection. Health is the maximum-health attribute; current HP remains the separate PlayerStats resource. Effective maximum Health is applied to PlayerStats without changing damage/healing rules. Save mapping persists base Health and current HP separately.
 - Current catalog is explicitly provisional: 8 starting points, rank cap 5, one point per rank; candidate skills Repair, Production, Trading, Scavenging and Social.
-- F2 Player Development panel can allocate, deallocate and freely reset skill points.
+- F2 now opens the player-facing Character panel: it displays current/maximum Health, Armor, Heat Protection, skill ranks, descriptions, points and free respecialisation. The former F2-only debug presentation has been replaced.
 - P-03 equipment loadout supports Head, Torso, Legs, Feet and three generic accessory slots. Backpack occupies an accessory slot.
 - Exact-instance equipment transfer, item state and ownership preservation, backpack persistence, pockets and stack-aware inventory are implemented.
 - Inventory panel supports item movement, splitting, merging and current equipment/backpack shortcuts.
 
 ### Missing or incomplete
-- Skill ranks are stored but **do not yet affect the corresponding gameplay activities**.
+- The two temporary attribute-test skills now affect effective maximum Health and Heat Protection through the authoritative calculation path. Other skill ranks remain stored but do not yet affect their corresponding livelihood activities.
 - Milestone award API exists, but successful gameplay completion events are not comprehensively wired to authored milestone rewards.
 - F2 is a prototype/debug allocation panel, not a complete character-development experience.
 - Current equipment slots do not include a dedicated weapon or tool slot/category.
@@ -43,9 +43,9 @@ The player can:
 ### P-04a — Character development becomes gameplay-relevant
 - Replace the F2-only debug presentation with a proper player-facing Character panel while retaining a development/debug route if useful.
 - Show Health (primary), Armor and Heat Protection separately from skills.
-- Show each skill's current rank, next-rank cost, unspent points and an understandable description of its actual effect.
+- Show each skill's current rank, point allocation controls, unspent points and an understandable description of its current effect. Next-rank cost is the catalog's fixed points-per-rank value.
 - Preserve free respecialisation and the total-point invariant.
-- For initial skill-effect testing only, add two simple effects: one skill increases Health and one skill increases Heat Protection. These are temporary validation effects, not final balance. The exact skill identities and rank formulas must be recorded before implementation.
+- For initial skill-effect testing only, the authored catalog now includes `health_test` (Vitality test: +10 maximum Health per rank) and `heat_protection_test` (Cold Readiness test: +1 Heat Protection per rank). Both are explicitly temporary, replaceable pipeline fixtures, not final skill identities or balance.
 - Integrate skill modifiers through the authoritative character-attribute calculation path rather than adding duplicate calculations to UI. Health is primary; Armor and Heat Protection remain distinct attributes.
 - Award milestone points only after successful, committed gameplay events; use stable event IDs and existing idempotent progression authority.
 - Persist all progression and milestone state.
@@ -149,3 +149,19 @@ No numerical bonus, chance, price formula, quality roll or extra reward is impli
 6. **Initial skill-effect test:** confirmed in principle — one skill increases Health and one skill increases Heat Protection, for testing only. Skill identities and temporary rank formulas remain to be specified; do not invent them.
 
 P-04a can proceed with the approved Health attribute extension and the two temporary skill-effect tests once their skill IDs and rank formulas are defined. Do not invent combat or tool-use mechanics. The active-hand, quickbar controls and consumable activation contract above are confirmed. Weapon behavior remains a separately scoped future challenge.
+
+
+## P-04a — implemented source checkpoint (2026-11-27)
+
+**Scope delivered**
+- Added Health to `PlayerAttributeSet` and `EffectiveCharacterAttributes`, retaining exactly three attributes: Health, Armor and Heat Protection.
+- Health is implemented as maximum health, with current HP retained in `PlayerStats`. Effective maximum Health is recalculated when skill allocation changes; reducing the maximum clamps current HP safely. Existing damage behavior is unchanged.
+- The equipment loadout and temporary skill modifiers feed the same effective-attribute result. Core owns calculation; GameSession composes authored skill modifiers.
+- Added temporary authored skill fixtures: `health_test` gives +10 maximum Health per rank; `heat_protection_test` gives +1 Heat Protection per rank. Both are marked provisional/test-only and can be removed or replaced without changing the progression engine.
+- Updated the Character panel, HUD current/max HP display, base-attribute save mapping and load ordering. On load, the effective maximum is restored before the saved current HP is reapplied.
+- Added two Core regression tests. The prior user-confirmed full suite was 555/555; expected suite after these tests is **557**, pending Unity compile/full EditMode and Play Mode acceptance.
+
+**Not yet verified**
+- No Unity Editor compile or test run was performed by the assistant.
+- The current expected test count is not a pass claim.
+- Actual skill effects for Repair, Production, Trading, Scavenging and Social, and milestone-trigger wiring, remain future work.
