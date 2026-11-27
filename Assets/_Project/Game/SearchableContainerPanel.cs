@@ -525,9 +525,9 @@ namespace Signal.Game
 
             if (ReferenceEquals(source, _container.Inventory))
             {
-                if (_backpackAccessible && TryFindEmptyCell(_playerInventory, item, out int x, out int y))
+                if (_backpackAccessible && TryFindEmptyCell(_playerInventory, item, out int backpackX, out int backpackY))
                 {
-                    _splitStack(source, _playerInventory, item.ItemInstanceId, quantity, x, y, item.Rotated);
+                    _splitStack(source, _playerInventory, item.ItemInstanceId, quantity, backpackX, backpackY, item.Rotated);
                     Refresh();
                     return;
                 }
@@ -540,9 +540,9 @@ namespace Signal.Game
                             return;
                         }
             }
-            else if (TryFindEmptyCell(_container.Inventory, item, out int x, out int y))
+            else if (TryFindEmptyCell(_container.Inventory, item, out int containerX, out int containerY))
             {
-                _splitStack(source, _container.Inventory, item.ItemInstanceId, quantity, x, y, item.Rotated);
+                _splitStack(source, _container.Inventory, item.ItemInstanceId, quantity, containerX, containerY, item.Rotated);
                 Refresh();
                 return;
             }
@@ -553,7 +553,7 @@ namespace Signal.Game
         private static bool TryFindEmptyCell(GridInventory inventory, PlacedItem item, out int x, out int y)
         {
             x = y = 0;
-            if (inventory == null || item.Type == null) return false;
+            if (inventory == null) return false;
             for (int row = 0; row < inventory.Height; row++)
                 for (int column = 0; column < inventory.Width; column++)
                     if (inventory.CanPlace(item.Type, column, row, item.Rotated))
