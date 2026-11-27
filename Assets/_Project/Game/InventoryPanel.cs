@@ -218,12 +218,19 @@ namespace Signal.Game
         private void OnPocketChanged(GridInventory inventory)
         {
             if (_open) Refresh();
+            else RefreshQuickbarAfterStorageChange();
         }
 
         private void OnInventoryChanged(GridInventory inventory)
         {
-            if (_open)
-                Refresh();
+            if (_open) Refresh();
+            else RefreshQuickbarAfterStorageChange();
+        }
+
+        private void RefreshQuickbarAfterStorageChange()
+        {
+            _quickbar?.Reconcile(IsQuickbarItemPresent);
+            RefreshQuickbarViews();
         }
 
         private void Update()
@@ -237,7 +244,12 @@ namespace Signal.Game
             if (keyboard != null && keyboard.tabKey.wasPressedThisFrame)
                 SetOpen(!_open);
 
-            if (!_open || mouse == null)
+            if (!_open)
+            {
+                RefreshQuickbarAfterStorageChange();
+                return;
+            }
+            if (mouse == null)
                 return;
 
             UpdatePointer(keyboard, mouse);
