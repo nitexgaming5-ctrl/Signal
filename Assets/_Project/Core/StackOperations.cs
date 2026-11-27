@@ -68,6 +68,12 @@ namespace Signal.Core
         public Guid DestinationStackId { get; }
         public Guid ItemDefinitionId { get; }
         public int Quantity { get; }
+        public string OwnerActorId { get; }
+        public string SourceCustodianId { get; }
+        public string DestinationCustodianId { get; }
+        public StackLineageOperationKind OperationKind { get; }
+        public int Day { get; }
+        public int MinuteOfDay { get; }
     }
 
     /// <summary>
@@ -86,6 +92,10 @@ namespace Signal.Core
             if (record.OperationId == Guid.Empty || record.SourceStackId == Guid.Empty ||
                 record.DestinationStackId == Guid.Empty || record.SourceStackId == record.DestinationStackId ||
                 record.ItemDefinitionId == Guid.Empty || record.Quantity < 1 ||
+                !Enum.IsDefined(typeof(StackLineageOperationKind), record.OperationKind) ||
+                (record.OwnerActorId.Length > 0 && (record.SourceCustodianId.Length == 0 ||
+                    record.DestinationCustodianId.Length == 0 || record.Day < 1 ||
+                    record.MinuteOfDay < 0 || record.MinuteOfDay >= 1440)) ||
                 !_operationIds.Add(record.OperationId))
                 return false;
 
