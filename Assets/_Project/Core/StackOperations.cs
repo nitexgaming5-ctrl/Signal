@@ -42,13 +42,14 @@ namespace Signal.Core
         public StackMergeRecord(Guid operationId, Guid sourceStackId, Guid destinationStackId,
             Guid itemDefinitionId, int quantity, EconomicActorId owner,
             EconomicActorId sourceCustodian, EconomicActorId destinationCustodian,
-            StackLineageOperationKind operationKind, int day, int minuteOfDay)
+            StackLineageOperationKind operationKind, int day, int minuteOfDay, bool sourceRetired = false)
             : this(operationId, sourceStackId, destinationStackId, itemDefinitionId, quantity,
-                owner.Value, sourceCustodian.Value, destinationCustodian.Value, operationKind, day, minuteOfDay) { }
+                owner.Value, sourceCustodian.Value, destinationCustodian.Value, operationKind, day, minuteOfDay, sourceRetired) { }
 
         internal StackMergeRecord(Guid operationId, Guid sourceStackId, Guid destinationStackId,
             Guid itemDefinitionId, int quantity, string ownerActorId, string sourceCustodianId,
-            string destinationCustodianId, StackLineageOperationKind operationKind, int day, int minuteOfDay)
+            string destinationCustodianId, StackLineageOperationKind operationKind, int day, int minuteOfDay,
+            bool sourceRetired = false)
         {
             OperationId = operationId;
             SourceStackId = sourceStackId;
@@ -61,6 +62,7 @@ namespace Signal.Core
             OperationKind = operationKind;
             Day = day;
             MinuteOfDay = minuteOfDay;
+            SourceRetired = sourceRetired;
         }
 
         public Guid OperationId { get; }
@@ -74,6 +76,7 @@ namespace Signal.Core
         public StackLineageOperationKind OperationKind { get; }
         public int Day { get; }
         public int MinuteOfDay { get; }
+        public bool SourceRetired { get; }
     }
 
     /// <summary>
