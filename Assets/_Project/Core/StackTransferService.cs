@@ -21,11 +21,13 @@ namespace Signal.Core
 
     public readonly struct StackTransferResult
     {
-        internal StackTransferResult(StackTransferStatus status, int quantity, Guid resultingStackId)
-        { Status = status; Quantity = quantity; ResultingStackId = resultingStackId; }
+        internal StackTransferResult(StackTransferStatus status, int quantity, Guid resultingStackId,
+            EconomicTransaction transaction = null)
+        { Status = status; Quantity = quantity; ResultingStackId = resultingStackId; Transaction = transaction; }
         public StackTransferStatus Status { get; }
         public int Quantity { get; }
         public Guid ResultingStackId { get; }
+        public EconomicTransaction Transaction { get; }
         public bool Success => Status == StackTransferStatus.Completed;
     }
 
@@ -113,9 +115,10 @@ namespace Signal.Core
                 return Result(StackTransferStatus.TransferFailed);
             }
 
+            EconomicTransaction transaction = null;
             if (newOwner != actualOwner)
             {
-                var transaction = new EconomicTransaction(transactionId ?? Guid.NewGuid(), newStackId,
+                transaction = new EconomicTransaction(transactionId ?? Guid.NewGuid(), newStackId,
                     original.Type.Id, quantity, actualOwner, newOwner, reason, day, minuteOfDay);
                 if (!_transactions.TryRecord(transaction))
                 {
@@ -127,7 +130,7 @@ namespace Signal.Core
 
             source.NotifyChanged();
             if (!ReferenceEquals(source, destination)) destination.NotifyChanged();
-            return new StackTransferResult(StackTransferStatus.Completed, quantity, newStackId);
+            return new StackTransferResult(StackTransferStatus.Completed, quantity, newStackId, transaction);
         }
 
         /// <summary>
