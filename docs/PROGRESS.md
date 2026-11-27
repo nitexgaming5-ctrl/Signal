@@ -219,3 +219,6 @@ User confirmed the P-03.7b checkpoint at 550/550 EditMode tests. P-03.7c now has
 - Searchable-container Shift+LMB / partial-split integration and service-wide quantity audit remain P-03.7d work, not claimed complete here.
 
 Source commits: 2d8b2a098de1f0c4da759f5676a20ca71ecf8bf8, 2502dc89c302cb0ee65abb6c44b05274f4fa3ab8, fd6533636a1ad171b1ddf99f028d053e1105c923, 0055b65603453c91062b756d12560daa18cc994f.
+
+
+P-03.7c follow-up: split placement preserves rotated source footprints and keeps the manual exact-pocket drag instruction visible. Unity verification remains pending; expected suite count is 552.
