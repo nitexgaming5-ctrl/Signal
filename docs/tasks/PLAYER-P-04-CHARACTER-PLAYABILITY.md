@@ -62,7 +62,7 @@ No numerical bonus, chance, price formula, quality roll or extra reward is impli
 ### P-04b — Active hand item (quickbar-driven; no separate weapon/tool slots)
 - The six-slot quickbar is the authoritative active-item selector. The currently selected slot's assigned item is the item equipped/held in the player's hand.
 - Do not add a separate Weapon slot, Tool slot or duplicate Active Hand equipment slot. Do not repurpose the existing clothing/accessory slots.
-- Selecting another quickbar slot changes the active-hand item to that slot's item. An empty/unavailable slot leaves the hand empty.
+- Selecting another occupied quickbar slot draws that slot's item into the active hand. Selecting an empty/unavailable slot safely leaves the hand empty. Selection never activates or consumes an item.
 - **H** holsters the currently held item: active hand becomes empty, while all six assignments remain intact. Selecting another populated slot draws that item again.
 - Preserve exact physical item identity, item state, ownership, save/load and dropped-backpack isolation. The active hand is a reference/state over the real item, not a second copy or a second owner.
 - A weapon being held does not imply combat. Attack, damage, targeting, durability, ammunition and crime consequences remain out of scope unless separately designed and approved.
@@ -74,7 +74,7 @@ No numerical bonus, chance, price formula, quality roll or extra reward is impli
 - Every slot can be assigned any supported carried item type: healing/energy consumables, tools, weapons, backpacks and other suitable items. The bar is not restricted to consumables or a dedicated weapon/tool category.
 - Assign physical item instances/stacks by stable identity; assignment references the real item and never copies it or creates duplicate ownership.
 - The currently selected slot is the active hand item. Show the selected slot and held/holstered state clearly.
-- Scroll-wheel up selects the next slot; scroll-wheel down selects the previous slot, wrapping around the six slots. These inputs are active only while no menu is open.
+- Scroll-wheel up selects the next slot; scroll-wheel down selects the previous slot, wrapping from slot 6 to 1 and slot 1 to 6. These inputs are active only while no menu is open.
 - **H** holsters the active-hand item without clearing or changing the quickbar assignments. Selecting a populated slot draws its item again.
 - Number-key selection is not currently part of the confirmed control scheme.
 - Slot selection/drawing never uses or consumes an item. Supported consumables require an intentional left-click to activate; arbitrary assigned items cannot be consumed merely by selection.
@@ -148,4 +148,4 @@ No numerical bonus, chance, price formula, quality roll or extra reward is impli
 5. **Tool scope:** selecting a tool only holds it. Identify the first one or two practical tool actions separately; existing repair/production tools are currently materials/ingredients.
 6. **Skill effects:** approve or revise the candidate skill list and effect proposals before numerical formulas are coded.
 
-P-04a can begin with an audit and UI/architecture refinement, but gameplay effects, new equipment categories and active-use mechanics must not be invented silently. Await explicit approval of the relevant decisions before implementing those mechanics.
+P-04a can begin with an audit and UI/architecture refinement, but gameplay effects, new equipment categories and active-use mechanics must not be invented silently. The active-hand, quickbar controls and consumable activation contract above are confirmed. Await explicit approval of skill effects, combat and concrete tool-use mechanics before implementing those mechanics.
