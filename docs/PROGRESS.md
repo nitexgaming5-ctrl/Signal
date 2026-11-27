@@ -195,3 +195,9 @@ This addresses the compiler diagnostics supplied by the user. A fresh Unity comp
 - Backpack _inventory registration now exists only while equipped. Drop unregisters it; recovery/F9 re-authorizes it. This closes the stale-grid-reference path for new stack transfers when a backpack is dropped.
 - Added ten focused EditMode regression tests. Unity compile and test execution are pending; no pass count is claimed.
 - Next: user runs Unity compile/full EditMode suite; fix any diagnostics; then Play Mode test B-drop → attempt transfer against stale backpack grid → F5/F9 while dropped → recover exact contents. P-03.7c UI remains gated on this verification.
+
+### P-03.7b follow-up hardening — retired identity reuse
+
+- StackLineageBook now maintains a runtime retired-ID set. A fully consumed source ID cannot be used as a later merge source/destination, and rollback removes the retired marker together with the lineage record.
+- StackTransferService generates fresh split IDs while excluding both currently owned and historically retired IDs.
+- Added a regression assertion that deliberately reintroduces a retired source GUID into a grid and verifies the stack service refuses to operate on it. Save restoration still purges such stale records from all supplied grids.
