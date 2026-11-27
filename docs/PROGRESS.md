@@ -62,7 +62,7 @@ P-03.7 is closed and user-verified at **555/555**, including compile and Play Mo
 - Mouse wheel up/down cycles next/previous through all six slots with wraparound, including empty slots. Number keys 1–6 directly select their matching slots.
 - H toggles between holstered and unholstered while preserving the selected slot and assignment. Selecting an empty slot means empty hand.
 - Wheel, number keys and H are ignored while any supported gameplay/menu panel is open.
-- The six-slot HUD is display-only; selected/active and selected/holstered states receive distinct slot feedback. The Tab quickbar remains an assignment UI.
+- HUD slot clicks remain non-interactive; while Tab is open, the HUD slots accept drag/drop assignment, replacement, swapping and unassignment. Selected/active and selected/holstered states receive distinct feedback.
 - If a backpack-backed held item becomes inaccessible when its backpack is dropped, the hand holsters while its quickbar reference remains assigned. Pocket-backed items remain accessible.
 - Loading resets the active hand to no selected slot and holstered while restoring the six assignments.
 - Seven new Core regression tests cover active selection/holster, reversible H toggling, empty-slot cycling/wraparound, invalidation/unassignment, backpack-style inaccessibility and load reset.
