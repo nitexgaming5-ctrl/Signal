@@ -183,6 +183,16 @@ namespace Signal.Core.Tests
             Assert.That(restored.Progression.UnspentPoints, Is.EqualTo(7));
             Assert.That(restored.Attributes.Health, Is.EqualTo(100));
             Assert.That(restored.Skills.GetRank("repair"), Is.Zero);
+
+            var partialLegacySave = new SaveData
+            {
+                playerDevelopmentInitialized = true,
+                playerHealthAttribute = 0,
+                playerStartingSkillPoints = 7
+            };
+            PlayerDevelopmentState restoredPartial = PlayerDevelopmentSaveMapper.Restore(
+                partialLegacySave, Skills, 7, 4, 1);
+            Assert.That(restoredPartial.Attributes.Health, Is.EqualTo(100));
         }
 
         [Test]
