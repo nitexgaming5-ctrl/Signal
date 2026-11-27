@@ -149,6 +149,18 @@ namespace Signal.Core
         }
     }
 
+    public readonly struct PortableBackpackStorageEntry
+    {
+        public PortableBackpackStorageEntry(Guid backpackInstanceId, GridInventory contents)
+        {
+            BackpackInstanceId = backpackInstanceId;
+            Contents = contents;
+        }
+
+        public Guid BackpackInstanceId { get; }
+        public GridInventory Contents { get; }
+    }
+
     /// <summary>
     /// Keeps backpack contents keyed by the backpack's stable physical item identity.
     /// Dropping/picking up a backpack changes its world location, not this contents owner.
@@ -216,6 +228,23 @@ namespace Signal.Core
         {
             contents = null;
             return backpackInstanceId != Guid.Empty && _contents.TryGetValue(backpackInstanceId, out contents);
+        }
+
+        public IReadOnlyList<PortableBackpackStorageEntry> GetAll()
+        {
+            var entries = new List<PortableBackpackStorageEntry>(_contents.Count);
+            foreach (KeyValuePair<Guid, GridInventory> entry in _contents)
+                entries.Add(new PortableBackpackStorageEntry(entry.Key, entry.Value));
+            return entries.AsReadOnly();
+        }
+
+        /// <summary>Unregisters every backpack identity before clearing the book, retaining no stale registry aliases.</summary>
+        public void Clear(InventoryStorageRegistry registry)
+        {
+            if (registry != null)
+                foreach (Guid id in _contents.Keys)
+                    registry.TryUnregister(GetStorageIdentity(id));
+            _contents.Clear();
         }
 
         /// <summary>Detaches a registration without deleting the referenced inventory.</summary>
