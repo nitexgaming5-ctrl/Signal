@@ -386,5 +386,31 @@ namespace Signal.Core.Tests
             Assert.That(emptyStorageCount, Is.EqualTo(1));
         }
 
+        [Test]
+        public void ClearingPortableBackpacksUnregistersOnlyTheirStorageIdentities()
+        {
+            var registry = new InventoryStorageRegistry();
+            var book = new PortableStorageBook();
+            Guid backpackId = Guid.NewGuid();
+            var unrelated = new GridInventory(3, 2);
+            var unrelatedId = new InventoryStorageId(InventoryStorageKind.Hideout, "player", "main");
+
+            Assert.That(book.TryRegister(backpackId, 8, 6, registry), Is.True);
+            Assert.That(registry.TryRegister(unrelatedId, unrelated), Is.True);
+            Assert.That(registry.Count, Is.EqualTo(2));
+
+            book.Clear(registry);
+
+            Assert.That(book.Count, Is.Zero);
+            Assert.That(registry.Count, Is.EqualTo(1));
+            Assert.That(registry.TryGet(unrelatedId, out GridInventory retained), Is.True);
+            Assert.That(retained, Is.SameAs(unrelated));
+            Assert.That(registry.TryGet(PortableStorageBook.GetStorageIdentity(backpackId), out _), Is.False);
+
+            Assert.That(book.TryRegister(backpackId, 8, 6, registry), Is.True);
+            Assert.That(book.TryGetContents(backpackId, out GridInventory replacement), Is.True);
+            Assert.That(replacement, Is.Not.SameAs(unrelated));
+        }
+
     }
 }
