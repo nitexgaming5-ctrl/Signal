@@ -2202,22 +2202,30 @@ namespace Signal.Game
                 _inventory = activeBackpackGrid;
             else if (_equippedBackpackInstanceId.HasValue)
             {
-                // Deterministic legacy migration: old saves stored the equipped backpack's
-                // contents in the global items grid. Adopt that grid as this bag's private grid
-                // and allocate a separate empty staging inventory for future unequipped items.
+                // Deterministic legacy/corrupt-record fallback: old saves stored the equipped
+                // backpack's contents in the global items grid. If its identity-keyed record is
+                // missing or invalid, adopt that grid as this bag's private storage instead.
+                Guid equippedId = _equippedBackpackInstanceId.Value;
+                if (!_portableStorage.TryGetContents(equippedId, out _))
+                {
+                    _portableStorage.TryRegister(equippedId, _emptyCarryInventory);
+                    RegisterStorageIdentity(InventoryStorageKind.PlayerBackpack,
+                        equippedId.ToString("N"), "contents", _emptyCarryInventory);
+                }
                 _inventory = _emptyCarryInventory;
                 _emptyCarryInventory = new GridInventory(8, 6);
                 _economicContainers.TryRegister(_emptyCarryInventory, EconomicActorId.Player);
             }
             else if (_droppedBackpackItem.HasValue)
             {
-                if (!hasBackpackStorageRecords)
+                if (!_portableStorage.TryGetContents(_droppedBackpackItem.Value.Item.ItemInstanceId, out _))
                 {
-                    // Deterministic legacy migration: the old global items grid belonged to the
-                    // sole dropped backpack. Keep it attached to that bag and give the player a
-                    // fresh empty staging grid.
-                    // RestoreEquipment already attached this legacy global grid to the dropped
-                    // backpack identity. Only replace the player's active staging reference here.
+                    // Deterministic legacy/corrupt-record fallback: attach the old global grid
+                    // to the dropped physical backpack if its per-bag record is absent/invalid.
+                    Guid droppedId = _droppedBackpackItem.Value.Item.ItemInstanceId;
+                    _portableStorage.TryRegister(droppedId, _emptyCarryInventory);
+                    RegisterStorageIdentity(InventoryStorageKind.PlayerBackpack,
+                        droppedId.ToString("N"), "contents", _emptyCarryInventory);
                     _emptyCarryInventory = new GridInventory(8, 6);
                     _economicContainers.TryRegister(_emptyCarryInventory, EconomicActorId.Player);
                 }
