@@ -28,7 +28,7 @@ namespace Signal.Core
 
         public bool TrySetBaseValues(int health, int armor, int heatProtection)
         {
-            if (health < 0 || armor < 0 || heatProtection < 0)
+            if (health <= 0 || armor < 0 || heatProtection < 0)
                 return false;
             Health = health;
             Armor = armor;
