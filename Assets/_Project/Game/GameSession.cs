@@ -2030,7 +2030,7 @@ namespace Signal.Game
             if (inputBlocked || _playerQuickbar == null) return;
             if (keyboard != null)
             {
-                if (keyboard.hKey.wasPressedThisFrame) { _playerQuickbar.Holster(); return; }
+                if (keyboard.hKey.wasPressedThisFrame) { _playerQuickbar.ToggleHolster(); return; }
                 if (keyboard.digit1Key.wasPressedThisFrame) { _playerQuickbar.TrySelectSlot(0); return; }
                 if (keyboard.digit2Key.wasPressedThisFrame) { _playerQuickbar.TrySelectSlot(1); return; }
                 if (keyboard.digit3Key.wasPressedThisFrame) { _playerQuickbar.TrySelectSlot(2); return; }
