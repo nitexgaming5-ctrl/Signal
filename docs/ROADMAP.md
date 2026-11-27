@@ -122,15 +122,15 @@ This supersedes the narrower backpack-only follow-up. The user requires independ
 - [x] Reject duplicate backpack storage IDs and duplicate physical item IDs during restore; unregister stale backpack registry mappings without clearing unrelated storage domains.
 - [x] Wire per-backpack persistence into GameSession with a separate staging inventory for legacy `items`, preventing double serialization. Unity F5/F9 verification pending.
 - [ ] Replace the single dropped-backpack item/visual with multi-instance tracking and implement the approved automatic swap.
-- [ ] Enable TEST LOADOUT with other backpacks dropped only after active-grid switching and persistence are safe.
+- [ ] Enable TEST LOADOUT with other backpacks dropped only after multi-bag swap and persistence are safe.
 - [ ] Extend runtime storage registry coverage to NPC pockets and business stock; audit every UI/service access path.
-- [ ] Add deterministic migration for legacy saves and verify F5/F9 round trips in Play Mode.
+- [x] Add deterministic migration for legacy single-backpack saves from the old global `items` grid. [ ] Verify F5/F9 round trips in Play Mode.
 
 
 ### Current storage implementation sequence — 2026-11-27
 - [x] Core independent backpack grid allocation and identity-keyed persistence primitives — user verified 580/580.
 - [x] GameSession active-grid switching and immediate detachment on drop; all relevant UI/service consumers rebind. Unity verification pending.
-- [ ] Rebind InventoryPanel, storage, retail, dirty-cash, customer, workshop and scenario consumers whenever the active backpack grid changes.
+- [x] Rebind InventoryPanel, StoragePanel, RetailPanel, DirtyCashContactPanel, CustomerContractPanel, WorkbenchWorkspace and MiloParcelOpportunityController whenever the active backpack grid changes.
 - [ ] Support multiple dropped physical backpacks and the approved automatic swap, preserving each bag's own grid.
 - [ ] Integrate per-backpack records into F5/F9 and deterministic legacy-save migration.
 - [ ] Enable TEST LOADOUT with dropped bags only after the preceding runtime and persistence paths are safe.
