@@ -28,7 +28,7 @@ Implemented. B-06 Customer Repair Orders is user-verified: Milo entrusts a Worn 
 
 ### Player Development
 - **P-01:** modular Body_A player renderer, directional Idle/Walk and local asset importer; user imported the supplied pack and confirmed the enlarged character.
-- **P-02 / P-04a:** The original Armor/Heat Protection progression foundation was user-verified at 467/467. P-04a now source-implements Health as the primary maximum-health attribute alongside Armor and Heat Protection. Current HP remains the separate PlayerStats resource; the HUD shows current/max HP. Effective attributes combine equipment modifiers and authored skill modifiers. The Character panel replaces the former F2 debug-only view. Temporary catalog fixtures: `health_test` (+10 maximum Health/rank) and `heat_protection_test` (+1 Heat Protection/rank). Base Health and progression state are persisted; GameSession restores effective max before reapplying saved current HP. Two Core tests were added; expected full suite is 557, pending Unity verification. Actual livelihood skill effects and milestone trigger wiring remain future work.
+- **P-02 / P-04a:** The original Armor/Heat Protection progression foundation was user-verified at 467/467. P-04a added Health as the primary maximum-health attribute alongside Armor and Heat Protection. Current HP remains the separate PlayerStats resource; the HUD shows current/max HP. Effective attributes combine equipment modifiers and authored skill modifiers. The Character panel replaces the former F2 debug-only view. Temporary catalog fixtures: `health_test` (+10 maximum Health/rank) and `heat_protection_test` (+1 Heat Protection/rank). Base Health and progression state are persisted; GameSession restores effective max before reapplying saved current HP. User confirmed **557/557** and all connections/functionality tested good. Actual livelihood skill effects and milestone trigger wiring remain future work.
 - **P-03:** equipment, backpack and personal-pocket foundation substantially implemented; see below.
 
 ### P-03 current state
@@ -45,9 +45,8 @@ Implemented. B-06 Customer Repair Orders is user-verified: Milo entrusts a Worn 
 **P-03.7 is closed and user-verified.** The user confirmed Unity compilation, **555/555 EditMode tests**, no duplicate stack IDs after split/merge/save, no access to dropped-backpack contents, correct F5/F9 restoration for equipped and dropped backpacks, and the Play Mode acceptance matrix. A later, separate cleanup removed automatic debug seeding from GameSession and retained the F1 spawner; that cleanup alone needs a fresh Unity compile/full EditMode run and Play Mode confirmation of empty fresh start + F1 spawner. This does not reopen P-03.7. Wearable presentation remains paused.
 
 ## Verification truth
-- Latest user-confirmed full EditMode result: **552/552** after P-03.7c.
-- P-03.7d added Core regressions for theft splitting, same-grid partial merging and full pocket-to-pocket merging. Expected current suite: **555**; not yet user-confirmed. Run the complete suite in Unity and inspect the XML before claiming a pass.
-- P-03.7d searchable-container controls and service quantity audit are source-implemented; Play Mode acceptance remains outstanding.
+- Latest user-confirmed full EditMode result: **557/557** after P-04a (2026-11-27). The user confirmed all connections/functionality tested good.
+- P-03.7 remains separately closed at 555/555 with its previously confirmed Play Mode acceptance.
 - Do not claim compilation, tests or Play Mode success unless the user/current Unity tooling confirms it.
 - Do not run `dotnet` or `msbuild` for this Unity project.
 
@@ -61,7 +60,7 @@ The user said to stop sprite work and return to roadmap/game development. Do not
 P-03.6 Wearable Presentation is parked as historical preparation, not an active dependency. Existing imported assets and already-committed temporary visual tests should not be removed or altered as part of this documentation handoff.
 
 ## Next actions
-1. P-04 Character Playability is the active priority. **P-04a source implementation is committed; pull and verify first:** compile in Unity, run the full EditMode suite (expected 557), then test Character panel allocation/respecialisation and F5/F9 persistence of base Health, skill ranks and current/max HP. See `docs/tasks/PLAYER-P-04-CHARACTER-PLAYABILITY.md`. After verification, proceed to P-04b/P-04c quickbar and active-hand work.
+1. P-04 Character Playability remains the active priority. **P-04a is complete and user-verified at 557/557.** Next: P-04b quickbar assignment foundation. The approved design is the six-slot row in Tab inventory, RMB Inspect / Equip to Quick Slot→1–6, and drag/drop using the existing framework. Before coding, audit InventoryPanel's existing RMB and drag/drop routes, then resolve two edge rules: duplicate item assignment across multiple slots and references to currently equipped clothing/accessory items. See `docs/tasks/PLAYER-P-04-CHARACTER-PLAYABILITY.md`.
 2. Confirmed: no dedicated weapon/tool slots; slot selection only draws and never consumes/activates; supported consumables require intentional left-click; tools/weapons are simply held on selection; H holsters while preserving assignment; wheel up/down cycles next/previous with wraparound only when no menu is open. No tool actions or weapon attacks are in scope now; weapon behavior is a substantial separate future challenge.
 3. P-04a temporary test skill IDs/formulas are now recorded: `health_test` (+10 maximum Health/rank) and `heat_protection_test` (+1 Heat Protection/rank). Both are provisional fixtures only; no final balance or permanent skill mapping is implied.
 4. B-07 Neighbourhood Expansion is paused.
@@ -234,3 +233,14 @@ A follow-up added direct drag-to-merge in `InventoryPanel`. Supported routes: ba
 ## P-02/P-04 decision update — 2026-11-27
 
 Health is now the primary character attribute, alongside Armor and Heat Protection. P-04a source implementation defines Health as maximum HP while `PlayerStats.Health` remains current HP. The Character panel, effective calculation, temporary test skills and save/load ordering are implemented. `health_test` adds +10 maximum Health per rank; `heat_protection_test` adds +1 Heat Protection per rank. These are replaceable test fixtures, not final balance. Two Core tests were added; expected full suite is 557, pending Unity compile/EditMode/Play Mode verification. No tool-use or weapon-attack behavior is in scope for the current character/quickbar phase.
+
+
+## P-04b approved assignment specification (2026-11-27)
+
+- Tab inventory displays six quickbar slots in a dedicated row.
+- RMB on an inventory item opens a contextual menu, not immediate Inspect: **Inspect** and **Equip to Quick Slot → 1–6**.
+- Drag inventory item→quickbar slot assigns/replaces; old assignment remains physically in inventory. Drag quickbar slot→another slot swaps. Drag quickbar slot→inventory area unassigns; item remains in inventory.
+- Reuse existing drag/drop framework. Context-menu and drag/drop paths share one Core assignment API.
+- Quickbar entries reference stable physical item identities only. They never copy items, own items or duplicate ownership.
+- Moving an assigned item outside accessible carried inventory invalidates its assignment safely. A dropped backpack and its contents must never be made accessible through a quickbar reference.
+- P-04b is approved specification only, not implemented. Resolve duplicate assignment and equipped-item eligibility before coding. P-04c handles active hand; P-04d handles scroll/H behavior.
