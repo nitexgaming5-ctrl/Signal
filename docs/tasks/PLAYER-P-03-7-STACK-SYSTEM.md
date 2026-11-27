@@ -251,3 +251,10 @@ Source commits:
 - UI legend refinement: 7dce17c0aeea24171adb237379f528c150eb71f6
 
 **Verification:** P-03.7d has not yet been compiled or run in Unity. The user-confirmed baseline remains 552/552; with the new regression test, the expected current EditMode suite is **553**. Play Mode acceptance for searchable-container split/merge/quick-transfer is also pending.
+
+### P-03.7d compile diagnostic fix
+
+- Unity reported CS0136 in `SearchableContainerPanel.UpdatePointer`: the container-origin `out PlacedItem containerItem` declaration in the LMB drag branch conflicted with the same local name declared in the earlier RMB inspect/split branch.
+- Renamed the LMB branch variable and its references to `draggedContainerItem`. This is a scope-only correction; interaction logic is unchanged.
+- Commit: `bb572b2f2633341a1a368a31f1ae178bf1eb7a1d`.
+- Unity compilation and the expected 553/553 EditMode suite remain pending user verification; searchable-container Play Mode acceptance also remains pending.
