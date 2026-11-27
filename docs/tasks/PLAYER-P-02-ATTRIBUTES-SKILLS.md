@@ -1,6 +1,6 @@
 # P-02 — Player Attributes & Skills
 
-**Status:** Core progression and debug-panel slice committed; Unity verification pending.
+**Status:** Original two-attribute progression slice user-verified at 467/467; approved Health extension now required.
 **Track:** Player Development
 **Dependency:** P-01 establishes the persistent player character profile and composition boundary. P-02 may be developed against the profile contract, but should not duplicate appearance/rendering responsibilities.
 
