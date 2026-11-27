@@ -133,3 +133,10 @@ B-07 remains paused while P-04 is active.
 - No quickbar assignments are overwritten. This loadout only seeds inventory; it does not implement consumable activation/use. Item-use remains a separate gameplay slice.
 - Added an EditMode callback test for the loadout action. Unity compilation, tests and Play Mode verification are pending.
 - Commits: `c70907a557d48b16c5b9fb0e857693481b27d341`, `c3a9f4cf05b7afa316727c6a60765a24bf556fd7`.
+
+
+### 2026-11-27 follow-up — quickbar drag layer and backpack isolation
+- The drag ghost now renders on a dedicated override-sorting Canvas at sorting order 200, above the HUD quickbar/inventory canvas. Commit: `1971e800a08011e8f031ecd79fdd67cb56d3a17d`.
+- Backpack isolation remains open. User approved automatic swap when recovering a dropped bag while another is equipped. Required behavior: drop current bag at player's feet, equip recovered bag, preserve independent contents, and keep every dropped bag inaccessible until recovered. F1 TEST LOADOUT must be able to equip a new backpack while other bags are dropped.
+- Current architecture still shares `_inventory` across backpack identities and tracks only one `_droppedBackpackItem`; do not remove debug-loadout guard until per-backpack storage and save/load are implemented.
+- Last user-confirmed full EditMode suite: 571/571. Fresh Unity verification required after the full correction.
