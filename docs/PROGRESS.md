@@ -122,3 +122,17 @@ P-03.7 is closed and user-verified at **555/555**, including compile and Play Mo
 - Identified the current defect: GameSession stores only one `_droppedBackpackItem`, registers every backpack against the same `_inventory` grid, and leaves that grid as the active session inventory after drop. The current debug loadout explicitly refuses to spawn/equip a backpack while one is dropped.
 - Fixed the quickbar drag ghost layering by moving it to a dedicated override-sorting Canvas (sorting order 200), above the inventory/HUD canvas (100). Commit: `1971e800a08011e8f031ecd79fdd67cb56d3a17d`.
 - Backpack isolation/swap, multi-dropped-backpack tracking, save/load of each backpack's own contents, and debug-loadout behavior remain in progress; do not mark complete until implemented and Unity-verified. Last confirmed EditMode suite: 571/571.
+
+
+### Cross-world inventory ownership invariant (2026-11-27)
+The user clarified that the current backpack defect is one symptom of a broader architecture requirement: **all inventories, containers and NPC pockets must be independent from one another**. This is now the governing invariant for the storage correction, not a backpack-only patch.
+
+Every physical storage identity must own a unique mutable `GridInventory`: each backpack, player pocket, hideout storage, each world/searchable container, each NPC-owned pocket/inventory, each business stock inventory, and each contract/service escrow inventory. Access/custody changes must never share, retarget, merge or duplicate backing grids. Save/load must persist contents by stable storage identity.
+
+Audit findings from `GameSession.cs`:
+- Player backpack storage is currently initialized as one session-wide `_inventory` and backpack registration currently passes that same instance to `PortableStorageBook.TryRegister`; this defeats per-backpack isolation even though the Core data model describes a backpack-to-grid mapping.
+- Other distinct inventories are instantiated for player home storage, player pockets, contact inventory, customer contract receiver inventory, and individual searchable containers. Searchable containers are created per container ID. These are separate instances at construction, but the full ownership/access/save audit must verify that no later registration or restore path aliases them.
+- Current save data has legacy/global storage serialization and a single dropped-backpack path; backpack contents and world state must become per-storage/per-instance.
+- NPC pockets are a required independent storage domain; audit whether a concrete NPC inventory currently exists or whether it is a future domain before claiming implementation.
+
+Required regression suite: pairwise isolation between representative player/backpack/pocket/world-container/NPC/business/escrow inventories; explicit transfer-only movement; multiple backpacks with independent contents; drop/recover automatic swap; multiple dropped bags; save/load preserving every storage identity and its contents; legacy-save migration; no inaccessible inventory exposed through UI, services or quickbar.
