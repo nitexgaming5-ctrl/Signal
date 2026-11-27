@@ -166,15 +166,6 @@ namespace Signal.Game
             if (_playerDevelopment == null)
                 return new EffectiveCharacterAttributes(100, 0, 0);
 
-            int equipmentArmor = 0;
-            int equipmentHeat = 0;
-            if (_playerEquipment != null)
-                foreach (EquippedItem equipped in _playerEquipment.Items)
-                {
-                    equipmentArmor = AddClampedModifier(equipmentArmor, equipped.ArmorModifier);
-                    equipmentHeat = AddClampedModifier(equipmentHeat, equipped.HeatProtectionModifier);
-                }
-
             int skillHealth = 0;
             int skillHeat = 0;
             if (_playerDevelopmentCatalog != null)
@@ -187,8 +178,9 @@ namespace Signal.Game
                     skillHeat = AddClampedModifier(skillHeat, MultiplyClamped(skill.HeatProtectionPerRank, rank));
                 }
 
-            return CharacterAttributeCalculator.Calculate(_playerDevelopment.Attributes,
-                equipmentArmor, equipmentHeat, skillHealth, skillHeat);
+            return _playerEquipment != null
+                ? _playerEquipment.CalculateEffectiveAttributes(_playerDevelopment.Attributes, skillHealth, skillHeat)
+                : CharacterAttributeCalculator.Calculate(_playerDevelopment.Attributes, 0, 0, skillHealth, skillHeat);
         }
 
         private void RefreshPlayerMaximumHealth()
@@ -202,12 +194,6 @@ namespace Signal.Game
         private static int MultiplyClamped(int value, int multiplier)
         {
             long result = (long)value * multiplier;
-            return result >= int.MaxValue ? int.MaxValue : result <= 0 ? 0 : (int)result;
-        }
-
-        private static int AddClampedModifier(int current, int modifier)
-        {
-            long result = (long)current + modifier;
             return result >= int.MaxValue ? int.MaxValue : result <= 0 ? 0 : (int)result;
         }
 
