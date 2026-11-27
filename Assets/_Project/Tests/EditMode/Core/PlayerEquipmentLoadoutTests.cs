@@ -380,7 +380,10 @@ namespace Signal.Core.Tests
             Assert.That(registry.Count, Is.EqualTo(2));
             Assert.That(restored.TryGetContents(backpackId, out GridInventory firstRestored), Is.True);
             Assert.That(firstRestored.TryGetItemInstance(itemId, out _), Is.True);
-            Assert.That(restored.GetAll()[1].Contents.Items.Count, Is.Zero);
+            int emptyStorageCount = 0;
+            foreach (PortableBackpackStorageEntry entry in restored.GetAll())
+                if (entry.Contents.Items.Count == 0) emptyStorageCount++;
+            Assert.That(emptyStorageCount, Is.EqualTo(1));
         }
 
     }
