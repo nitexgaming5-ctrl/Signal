@@ -41,8 +41,6 @@ P-03.7 closed at **555/555** with compile and Play Mode acceptance. Equipment, s
 
 P-04b includes the six-slot general-purpose quickbar, RMB Inspect/Assign submenu, drag assignment/swap/unassign, reassignment movement, pointer-following drag ghost, persistent bottom-centre HUD bar, dropped-backpack access handling and save/load mapping. The duplicate quickbar row inside Tab has since been removed; the HUD bar is the sole drag/drop target while Tab is open. User confirmed **563/563** on 2026-11-27.
 
-P-04b includes the six-slot general-purpose quickbar, RMB Inspect/Assign submenu, drag assignment/swap/unassign, reassignment movement, pointer-following drag ghost, persistent bottom-centre HUD bar, dropped-backpack access handling and save/load mapping. The duplicate quickbar row inside Tab has since been removed; the HUD bar is the sole drag/drop target while Tab is open. User confirmed **563/563** on 2026-11-27.
-
 ### P-04c — Active hand and controls (implementation committed; verification pending)
 
 - The selected slot is the one item held in the player's hand. Core derives that item from the slot's stable item-instance reference; no duplicate held-item ID or ownership state exists.
@@ -53,7 +51,7 @@ P-04b includes the six-slot general-purpose quickbar, RMB Inspect/Assign submenu
 - HUD slot clicks remain non-interactive, but while Tab is open the HUD bar is the sole drag/drop assignment interface. Selected active and selected holstered states have distinct visual feedback.
 - When a backpack-backed held item becomes inaccessible because the backpack is dropped, the active hand holsters but the quickbar reference remains assigned. Pocket-backed items remain accessible.
 - Loading resets to no selected slot and holstered, while restoring all six quickbar assignments.
-- Five new Core regression tests cover selection/holster, empty-slot cycling and wraparound, invalidation/unassignment, inaccessible held items and load reset.
+- Seven new Core regression tests cover selection/holster, reversible H toggling, empty-slot cycling and wraparound, invalidation/unassignment, inaccessible held items and load reset.
 - No consumable activation, tool action, weapon attack, combat, targeting, durability or art changes are included.
 - Implementation commits: `c17a9f7e27d06caf6066d5fd010594d51d33fd85`, `3f8157afb5ca80e744ed83d9ea25922b33f99e50`, `e0ea41bdf2b11a30b4a99941f7153979fd04223e`.
 - Unity compile, full EditMode suite and Play Mode acceptance are still pending. The last user-confirmed baseline remains 563/563; do not claim the new tests passed until run in Unity.
