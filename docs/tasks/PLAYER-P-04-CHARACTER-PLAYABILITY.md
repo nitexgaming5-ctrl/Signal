@@ -86,7 +86,7 @@ B-07 remains paused while P-04 is active.
 
 ## 4. Verification required before closing P-04c
 
-**Do not mark P-04c complete until Unity compilation, the full EditMode suite and Play Mode acceptance are confirmed.** The last user-confirmed full suite is 563/563; five new Core tests have been added, so the expected total should be checked in Unity rather than assumed.
+**Do not mark P-04c complete until Unity compilation, the full EditMode suite and Play Mode acceptance are confirmed.** The last user-confirmed full suite is 563/563. Seven P-04c Core tests and one debug-loadout callback test have since been added; expected current total is 571, which must be confirmed in Unity.
 
 ### EditMode
 
