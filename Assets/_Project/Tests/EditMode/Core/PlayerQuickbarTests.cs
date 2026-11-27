@@ -23,6 +23,35 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void ToggleHolsterDrawsAndHolstersSameSelectedItem()
+        {
+            var bar = new PlayerQuickbar();
+            Guid item = Guid.NewGuid();
+            Assert.IsTrue(bar.TryAssign(2, item));
+            Assert.IsTrue(bar.TrySelectSlot(2));
+
+            Assert.IsTrue(bar.ToggleHolster());
+            Assert.IsTrue(bar.IsHolstered);
+            Assert.AreEqual(2, bar.SelectedSlot);
+            Assert.AreEqual(Guid.Empty, bar.HeldItemInstanceId);
+            Assert.AreEqual(item, bar.GetItem(2));
+
+            Assert.IsTrue(bar.ToggleHolster());
+            Assert.IsFalse(bar.IsHolstered);
+            Assert.AreEqual(item, bar.HeldItemInstanceId);
+            Assert.AreEqual(item, bar.GetItem(2));
+        }
+
+        [Test]
+        public void ToggleHolsterWithoutSelectedSlotDoesNothing()
+        {
+            var bar = new PlayerQuickbar();
+            Assert.IsFalse(bar.ToggleHolster());
+            Assert.IsTrue(bar.IsHolstered);
+            Assert.AreEqual(-1, bar.SelectedSlot);
+        }
+
+        [Test]
         public void CyclingVisitsEmptySlotsAndWrapsInBothDirections()
         {
             var bar = new PlayerQuickbar();
