@@ -77,8 +77,6 @@ namespace Signal.Core
                 return Result(StackTransferStatus.OwnershipMismatch);
             if (!original.Type.IsStackable || quantity >= original.Count || quantity > original.Count - 1)
                 return Result(StackTransferStatus.InsufficientQuantity);
-            if (_ownership.TryGetOwner(sourceStackId, out _) == false)
-                return Result(StackTransferStatus.OwnershipNotRegistered);
             if (newOwner != actualOwner && destinationCustodian != newOwner)
                 return Result(StackTransferStatus.OwnershipMismatch);
 
@@ -93,6 +91,16 @@ namespace Signal.Core
                     ? StackTransferStatus.DestinationFull : StackTransferStatus.TransferFailed);
 
             Guid newStackId = physical.ResultingStackId;
+            if (reason == AssetTransferReason.Theft)
+            {
+                var stolenState = new ItemInstanceState(original.State.Quality, original.State.Condition,
+                    original.State.Authenticity, ItemOwnershipStatus.Stolen);
+                if (!destination.TryUpdateItemStateSilently(newStackId, stolenState))
+                {
+                    Restore(source, destination, sourceBefore, destinationBefore);
+                    return Result(StackTransferStatus.TransferFailed);
+                }
+            }
             if (!_ownership.TryRegister(newStackId, newOwner))
             {
                 Restore(source, destination, sourceBefore, destinationBefore);
