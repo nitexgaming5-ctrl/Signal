@@ -8,7 +8,7 @@ Last reconciled: **2026-11-27**. This is the concise status board. Historical de
 - Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
 - Working branch: `chore/collaboration-workflow-and-audit`; keep `main` untouched.
 - Application version **0.01**. Save data has no schema-version field or automatic migration chain; incompatible experimental saves may be discarded/recreated.
-- **Latest user-confirmed full EditMode suite: 552/552 passed** (P-03.7c). P-03.7d now adds three Core regression tests (theft split, same-grid partial merge and pocket-to-pocket full merge); expected current suite is **555**, pending Unity verification. Do not report 553/553 as passing yet.
+- **Latest user-confirmed full EditMode suite: 552/552 passed** (P-03.7c). P-03.7d now adds three Core regression tests (theft split, same-grid partial merge and pocket-to-pocket full merge); expected current suite is **555**, pending Unity verification. Do not report 555/555 as passing yet.
 - Unity Editor is authoritative for compilation, EditMode tests and Play Mode acceptance. Source review is not Unity verification.
 
 ## Strategic direction and sequence
