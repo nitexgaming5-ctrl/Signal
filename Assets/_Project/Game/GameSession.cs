@@ -1807,8 +1807,6 @@ namespace Signal.Game
             AddDebugLoadoutItem(messages, "Basic_Patch_Kit");
 
             RefreshCarryPanelInventories();
-            _panel?.Refresh();
-            _storagePanel?.Refresh();
             _retailPanel?.SetInventories(GetAccessibleCarryInventories());
             return "TEST LOADOUT: " + string.Join(" ", messages);
         }
