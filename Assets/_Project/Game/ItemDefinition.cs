@@ -53,7 +53,7 @@ namespace Signal.Game
                     "ItemDefinition '" + name + "' has no valid id. Re-create the asset or select it in the Inspector so an id is generated.");
             }
 
-            return new ItemType(guid, gridWidth, gridHeight, maxStack);
+            return new ItemType(guid, gridWidth, gridHeight, maxStack, equippable, portableBackpack);
         }
 
         private void Reset()
