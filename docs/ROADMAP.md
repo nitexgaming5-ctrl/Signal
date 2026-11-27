@@ -26,7 +26,7 @@ The user confirmed B-06's **456/456** EditMode baseline and in-game repair/retur
 ### 1. P-03.7d Stack System & Inventory Interaction
 - P-03.7a Core split/merge, P-03.7b ownership/persistence, and P-03.7c player UI are user-verified at 540/540, 550/550 and 552/552 respectively.
 - P-03.7d adds searchable-container quick-transfer, split, partial/full merge and resident-property theft integration. Source-level service quantity audit is complete; Unity verification is pending.
-- Expected current EditMode suite: 553 (one new theft-split regression test beyond the user-confirmed 552 baseline).
+- Expected current EditMode suite: 555 (theft-split, same-grid partial-merge and pocket-to-pocket full-merge regressions beyond the user-confirmed 552 baseline).
 - Complete Play Mode coverage for backpack/pockets/containers, ownership-aware merge rejection, theft split witness/no-witness, and dropped-backpack isolation.
 - Re-run relevant repair, production, retail, contract, Dirty Cash and Home Storage flows with split stacks.
 - Keep temporary fresh-session repair/production cargo until acceptance is complete. Then remove only automatic debug seeding; keep F1 debug item spawner.
@@ -142,9 +142,9 @@ The inventory/grid audit is now user-verified complete (**531/531 EditMode tests
 - P-03.7a Core split/merge primitives: user-verified at 540/540.
 - P-03.7b ownership-aware transfers, lineage persistence and dropped-backpack authorization: user-verified at 550/550.
 - P-03.7c player-carried inventory controls and quantity display: user-verified at 552/552.
-- P-03.7d searchable-container quick transfer/splitting/merging and service quantity audit: source implemented; expected suite 553, Unity verification and Play Mode acceptance pending.
+- P-03.7d searchable-container quick transfer/splitting/merging and service quantity audit: source implemented; expected suite 555, Unity verification and Play Mode acceptance pending.
 - Existing wearable presentation remains paused. No authored stack-size balancing changes are included.
 
-- P-03.7d source implementation is complete pending Unity verification. A CS0136 duplicate-local compile diagnostic in `SearchableContainerPanel` was fixed in `bb572b2f2633341a1a368a31f1ae178bf1eb7a1d`; await compilation, expected 553/553 EditMode tests, and Play Mode acceptance before closing the phase.
+- P-03.7d source implementation is complete pending Unity verification. A CS0136 duplicate-local compile diagnostic in `SearchableContainerPanel` was fixed in `bb572b2f2633341a1a368a31f1ae178bf1eb7a1d`; await compilation, expected 555/555 EditMode tests, and Play Mode acceptance before closing the phase.
 
-- P-03.7 player inventory drag-to-restack added: drag compatible stacks together across backpack and personal pockets; merges remain ownership-aware and preserve destination identity. Unity verification pending.
+- P-03.7 player inventory drag-to-restack added: drag compatible stacks together across backpack and personal pockets; merges remain ownership-aware and preserve destination identity. Added same-grid partial and pocket-to-pocket full-merge regressions; expected suite 555, Unity verification pending.
