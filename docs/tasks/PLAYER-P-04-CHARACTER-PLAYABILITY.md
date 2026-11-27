@@ -1,6 +1,6 @@
 # P-04 — Character Playability: Progression, Active Hand & Quickbar
 
-**Status:** P-04a and P-04b complete and user-verified. P-04c implementation committed; Unity verification pending.  
+**Status:** P-04a, P-04b and P-04c complete and user-verified. Follow-up drag-overlay fix and global storage-isolation initiative remain in progress.  
 **Track:** Player Development  
 **Priority:** Ahead of B-07 Neighbourhood Expansion.  
 **Dependencies:** P-01 character foundation, P-02 attributes/skills, P-03 equipment/inventory/backpack.
@@ -40,7 +40,7 @@ B-07 remains paused while P-04 is active.
 
 ## 3. P-04c — Active hand and controls
 
-<badge color="success">Implementation committed</badge> <badge color="warning">Unity verification pending</badge>
+<badge color="success">Complete — user verified</badge>
 
 ### Player-facing behavior
 
@@ -84,9 +84,9 @@ B-07 remains paused while P-04 is active.
 - `3f8157afb5ca80e744ed83d9ea25922b33f99e50` — HUD controls hint.
 - `e0ea41bdf2b11a30b4a99941f7153979fd04223e` — reset active hand on load.
 
-## 4. Verification required before closing P-04c
+## 4. P-04c verification — complete
 
-**Do not mark P-04c complete until Unity compilation, the full EditMode suite and Play Mode acceptance are confirmed.** The last user-confirmed full suite is 563/563. Seven P-04c Core tests and one debug-loadout callback test have since been added; expected current total is 571, which must be confirmed in Unity.
+The user confirmed Unity Play Mode behavior and **571/571 EditMode tests passed** on 2026-11-27. This closes P-04c. A later drag-overlay sorting correction still requires fresh Unity verification; the global storage-isolation initiative is tracked separately below.
 
 ### EditMode
 
@@ -98,7 +98,7 @@ B-07 remains paused while P-04 is active.
 - Inaccessible backpack-backed active item holsters without clearing its assignment.
 - Save/load preserves assignments but resets selected slot and held item.
 
-### Play Mode
+### Play Mode — user-confirmed acceptance
 
 - Draw an item from the accessible backpack grid and each of the three pockets.
 - Select slots using both number keys and wheel; verify wheel direction and wraparound.
