@@ -61,10 +61,10 @@ The user said to stop sprite work and return to roadmap/game development. Do not
 P-03.6 Wearable Presentation is parked as historical preparation, not an active dependency. Existing imported assets and already-committed temporary visual tests should not be removed or altered as part of this documentation handoff.
 
 ## Next actions
-1. The user has reprioritized character playability ahead of city expansion. Read `docs/tasks/PLAYER-P-04-CHARACTER-PLAYABILITY.md` and use it as the active proposal: meaningful skill effects, weapon/tool equipment, quick inventory bar.
-2. Audit/refine existing P-02/P-03 foundations. Do not silently invent skill formulas, equipment slots, combat or tool-use mechanics; obtain explicit approval for those decisions first.
-3. B-07 Neighbourhood Expansion is paused; do not implement it while P-04 is active.
-4. Separately, the automatic-debug-loadout cleanup still needs Unity compile/full EditMode and fresh-empty-start/F1-spawner verification. This is maintenance only and does not reopen P-03.7.
+1. P-04 Character Playability is the active priority: meaningful skill effects, dedicated weapon/tool equipment and a quick inventory bar. See `docs/tasks/PLAYER-P-04-CHARACTER-PLAYABILITY.md`.
+2. Obtain explicit approval of equipment layout, tool actions, weapon/combat scope, quickbar controls and skill effects before implementing those mechanics.
+3. B-07 Neighbourhood Expansion is paused.
+4. Separately, the automatic-debug-loadout cleanup still needs Unity compile/full EditMode and fresh-empty-start/F1-spawner verification. This maintenance check does not reopen P-03.7.
 
 ## Technical safeguards
 - Core must not reference UnityEngine; dependencies flow Game → Core.
