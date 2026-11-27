@@ -2175,14 +2175,19 @@ namespace Signal.Game
                 Say("Load failed: " + report.Error);
                 return;
             }
+            int skippedContainers = SearchableContainerSaveMapper.Apply(data, _searchableContainers, ResolveType, _assetOwnership);
             int skippedPocketItems = PlayerPocketSaveMapper.Apply(data, _playerPockets, ResolveType, _assetOwnership);
             RestoreEquipment(data);
             var restoredItemIds = new HashSet<Guid>();
-            foreach (PlacedItem item in _emptyCarryInventory.Items) restoredItemIds.Add(item.ItemInstanceId);
+            AddInventoryItemIds(_emptyCarryInventory, restoredItemIds);
+            AddInventoryItemIds(_storage, restoredItemIds);
+            AddInventoryItemIds(_contactInventory, restoredItemIds);
+            AddInventoryItemIds(_contractReceiverInventory, restoredItemIds);
             if (_playerPockets != null)
                 for (int pocketIndex = 0; pocketIndex < PlayerPocketBook.PocketCount; pocketIndex++)
-                    foreach (PlacedItem item in _playerPockets.GetPocket(pocketIndex).Items)
-                        restoredItemIds.Add(item.ItemInstanceId);
+                    AddInventoryItemIds(_playerPockets.GetPocket(pocketIndex), restoredItemIds);
+            foreach (SearchableContainer container in _searchableContainers)
+                if (container != null) AddInventoryItemIds(container.Inventory, restoredItemIds);
             bool hasBackpackStorageRecords = data.portableBackpackStorages != null &&
                 data.portableBackpackStorages.Count > 0;
             if (hasBackpackStorageRecords)
@@ -2283,7 +2288,6 @@ namespace Signal.Game
             if (_workspace != null)
                 _workspace.Refresh();
 
-            int skippedContainers = SearchableContainerSaveMapper.Apply(data, _searchableContainers, ResolveType, _assetOwnership);
             var lineageInventories = new List<GridInventory>
             {
                 _inventory, _storage, _contactInventory, _contractReceiverInventory,
@@ -3327,6 +3331,13 @@ namespace Signal.Game
                         owner == EconomicActorId.Player)
                         return true;
             return false;
+        }
+
+        private static void AddInventoryItemIds(GridInventory inventory, HashSet<Guid> destination)
+        {
+            if (inventory == null || destination == null) return;
+            foreach (PlacedItem item in inventory.Items)
+                destination.Add(item.ItemInstanceId);
         }
 
         private bool IsQuickbarItemPresent(Guid itemInstanceId)
