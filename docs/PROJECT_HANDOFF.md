@@ -216,3 +216,7 @@ Next: compile and run full EditMode suite; inspect any errors. Play Mode accepta
 ### P-03.7d current checkpoint
 
 P-03.7d searchable-container stack integration is source-implemented. The user verified P-03.7c at 552/552. Unity then reported CS0136 in `SearchableContainerPanel.UpdatePointer`; the duplicate local was renamed to `draggedContainerItem` in commit `bb572b2f2633341a1a368a31f1ae178bf1eb7a1d`. Recompile before treating P-03.7d as verified. Expected EditMode count: 553. Play Mode checks still needed for container quick-transfer, split, merge, ownership/theft behaviour, and dropped-backpack isolation.
+
+### P-03.7 player inventory drag-to-restack
+
+A follow-up added direct drag-to-merge in `InventoryPanel`. Supported routes: backpack↔backpack, backpack↔pocket, pocket↔backpack and pocket↔pocket. The UI previews only `StackOperations.CanMerge`-compatible targets; GameSession routes through `StackTransferService.Merge`, which enforces ownership, capacity, lineage and destination identity. Partial merges preserve the source remainder ID; destination ID survives. Dropped backpack access remains blocked. Commits: `86ba1397ac77457fc0c9be41970afbcfa00ae601`, `cdf65030db48f21409dccb47d296952ce72e8c2e`, `2615a873e405b94a250269a337db7dd3c353277e`. Recompile and run the full suite; P-03.7d still awaits 553/553 and Play Mode acceptance.
