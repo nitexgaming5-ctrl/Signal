@@ -3336,6 +3336,13 @@ namespace Signal.Game
             if (_playerPockets != null)
                 for (int i = 0; i < PlayerPocketBook.PocketCount; i++)
                     if (_playerPockets.GetPocket(i).TryGetItemInstance(itemInstanceId, out _)) return true;
+
+            // Quickbar assignments are references, not access grants. Preserve a reference while
+            // its physical backpack is dropped; active-hand access is checked separately.
+            if (_portableStorage != null)
+                foreach (PortableBackpackStorageEntry entry in _portableStorage.GetAll())
+                    if (entry.Contents != null && entry.Contents.TryGetItemInstance(itemInstanceId, out _))
+                        return true;
             return false;
         }
 
