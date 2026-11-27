@@ -125,3 +125,13 @@ This supersedes the narrower backpack-only follow-up. The user requires independ
 - [ ] Enable TEST LOADOUT with other backpacks dropped only after active-grid switching and persistence are safe.
 - [ ] Extend runtime storage registry coverage to NPC pockets and business stock; audit every UI/service access path.
 - [ ] Add deterministic migration for legacy saves and verify F5/F9 round trips in Play Mode.
+
+
+### Current storage implementation sequence — 2026-11-27
+- [x] Core independent backpack grid allocation and identity-keyed persistence primitives — user verified 580/580.
+- [ ] GameSession active-grid switching: equipped backpack uses its own grid; dropping immediately detaches that grid and exposes only pockets/staging access.
+- [ ] Rebind InventoryPanel, storage, retail, dirty-cash, customer, workshop and scenario consumers whenever the active backpack grid changes.
+- [ ] Support multiple dropped physical backpacks and the approved automatic swap, preserving each bag's own grid.
+- [ ] Integrate per-backpack records into F5/F9 and deterministic legacy-save migration.
+- [ ] Enable TEST LOADOUT with dropped bags only after the preceding runtime and persistence paths are safe.
+- [ ] Continue the universal inventory identity audit for NPC pockets and business stock; backpack work alone does not complete global storage independence.
