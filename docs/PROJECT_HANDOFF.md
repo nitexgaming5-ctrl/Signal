@@ -42,11 +42,11 @@ Implemented. B-06 Customer Repair Orders is user-verified: Milo entrusts a Worn 
 - Retail SELL, Dirty Cash selection, Home Storage, Searchable Container, repair, multi-grid production, customer flows and GameSession receipt paths have been audited/integrated for accessible backpack/pocket inventory. Dropped cargo must never be exposed.
 - Temporary fresh-session debug loadout provides backpack + repair/production test cargo. It is not intended new-game inventory and must remain until the user finishes acceptance testing.
 
-**P-03 is not closed yet.** P-03.7a/7b/7c are user-verified (540/540, 550/550, 552/552). P-03.7d searchable-container quick-transfer/split/merge is implemented in source, with a service quantity audit; one new regression test makes the expected current suite **553**, pending Unity verification. Play Mode acceptance remains outstanding.
+**P-03 is not closed yet.** P-03.7a/7b/7c are user-verified (540/540, 550/550, 552/552). P-03.7d searchable-container quick-transfer/split/merge is implemented in source, with a service quantity audit; three P-03.7d regression tests make the expected current suite **555**, pending Unity verification. Play Mode acceptance remains outstanding.
 
 ## Verification truth
 - Latest user-confirmed full EditMode result: **552/552** after P-03.7c.
-- P-03.7d added one Core theft-split regression test. Expected current suite: **553**; not yet user-confirmed. Run the complete suite in Unity and inspect the XML before claiming a pass.
+- P-03.7d added Core regressions for theft splitting, same-grid partial merging and full pocket-to-pocket merging. Expected current suite: **555**; not yet user-confirmed. Run the complete suite in Unity and inspect the XML before claiming a pass.
 - P-03.7d searchable-container controls and service quantity audit are source-implemented; Play Mode acceptance remains outstanding.
 - Do not claim compilation, tests or Play Mode success unless the user/current Unity tooling confirms it.
 - Do not run `dotnet` or `msbuild` for this Unity project.
@@ -61,7 +61,7 @@ The user said to stop sprite work and return to roadmap/game development. Do not
 P-03.6 Wearable Presentation is parked as historical preparation, not an active dependency. Existing imported assets and already-committed temporary visual tests should not be removed or altered as part of this documentation handoff.
 
 ## Next actions
-1. Pull the active branch and run the current full EditMode suite (expected 553); inspect the XML and fix regressions.
+1. Pull the active branch and run the current full EditMode suite (expected 555); inspect the XML and fix regressions.
 2. Complete P-03.7d Play Mode: quick-transfer, split, merge and cross-owner rejection across container/backpack/pockets; test theft split with witness/no-witness.
 3. Re-run the P-03 matrix: equip/drop/recover; F5/F9 while equipped/dropped; P1/P2/P3 moves/swaps; P3 ordinary-search exclusion; service interactions with split quantities; ensure dropped cargo is inaccessible.
 4. Keep temporary repair/production cargo until acceptance is confirmed. Then remove only automatic fresh-session cargo seeding; retain F1 debug item spawner.
@@ -215,8 +215,8 @@ Next: compile and run full EditMode suite; inspect any errors. Play Mode accepta
 
 ### P-03.7d current checkpoint
 
-P-03.7d searchable-container stack integration is source-implemented. The user verified P-03.7c at 552/552. Unity then reported CS0136 in `SearchableContainerPanel.UpdatePointer`; the duplicate local was renamed to `draggedContainerItem` in commit `bb572b2f2633341a1a368a31f1ae178bf1eb7a1d`. Recompile before treating P-03.7d as verified. Expected EditMode count: 553. Play Mode checks still needed for container quick-transfer, split, merge, ownership/theft behaviour, and dropped-backpack isolation.
+P-03.7d searchable-container stack integration is source-implemented. The user verified P-03.7c at 552/552. Unity then reported CS0136 in `SearchableContainerPanel.UpdatePointer`; the duplicate local was renamed to `draggedContainerItem` in commit `bb572b2f2633341a1a368a31f1ae178bf1eb7a1d`. Recompile before treating P-03.7d as verified. Expected EditMode count: 555. Play Mode checks still needed for container quick-transfer, split, merge, ownership/theft behaviour, and dropped-backpack isolation.
 
 ### P-03.7 player inventory drag-to-restack
 
-A follow-up added direct drag-to-merge in `InventoryPanel`. Supported routes: backpack↔backpack, backpack↔pocket, pocket↔backpack and pocket↔pocket. The UI previews only `StackOperations.CanMerge`-compatible targets; GameSession routes through `StackTransferService.Merge`, which enforces ownership, capacity, lineage and destination identity. Partial merges preserve the source remainder ID; destination ID survives. Dropped backpack access remains blocked. Commits: `86ba1397ac77457fc0c9be41970afbcfa00ae601`, `cdf65030db48f21409dccb47d296952ce72e8c2e`, `2615a873e405b94a250269a337db7dd3c353277e`. Recompile and run the full suite; P-03.7d still awaits 553/553 and Play Mode acceptance.
+A follow-up added direct drag-to-merge in `InventoryPanel`. Supported routes: backpack↔backpack, backpack↔pocket, pocket↔backpack and pocket↔pocket. The UI previews only `StackOperations.CanMerge`-compatible targets; GameSession routes through `StackTransferService.Merge`, which enforces ownership, capacity, lineage and destination identity. Partial merges preserve the source remainder ID; destination ID survives. Dropped backpack access remains blocked. Commits: `86ba1397ac77457fc0c9be41970afbcfa00ae601`, `cdf65030db48f21409dccb47d296952ce72e8c2e`, `2615a873e405b94a250269a337db7dd3c353277e`. Recompile and run the full suite; P-03.7d still awaits 555/555 and Play Mode acceptance. Two added regressions cover same-grid partial backpack merging and full pocket-to-pocket merging.
