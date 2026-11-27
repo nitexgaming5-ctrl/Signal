@@ -181,6 +181,7 @@ namespace Signal.Core.Tests
             var restored = PlayerDevelopmentSaveMapper.Restore(new SaveData(), Skills, 7, 4, 1);
             Assert.That(restored.Progression.TotalPoints, Is.EqualTo(7));
             Assert.That(restored.Progression.UnspentPoints, Is.EqualTo(7));
+            Assert.That(restored.Attributes.Health, Is.EqualTo(100));
             Assert.That(restored.Skills.GetRank("repair"), Is.Zero);
         }
 
