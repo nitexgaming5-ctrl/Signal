@@ -189,6 +189,20 @@ namespace Signal.Game
             SetOpen(false);
         }
 
+        public void SetInventory(GridInventory inventory)
+        {
+            if (inventory == null || ReferenceEquals(_inventory, inventory)) return;
+            CancelDrag();
+            if (_inventory != null) _inventory.Changed -= OnInventoryChanged;
+            _inventory = inventory;
+            _inventory.Changed += OnInventoryChanged;
+            if (_built)
+            {
+                BuildGrid();
+                Refresh();
+            }
+        }
+
         public void SetOpen(bool open)
         {
             if (!open)
