@@ -23,13 +23,26 @@ The user confirmed B-06's **456/456** EditMode baseline and in-game repair/retur
 
 ## Immediate sequence
 
-### 1. P-03 closeout
+### 1. P-04 Character Playability — priority proposed by user
+The user has reprioritized Player Development ahead of neighbourhood expansion: the player must be able to develop skills, equip weapons/tools and use a quick inventory bar before more city geography is added. See [P-04 task card](tasks/PLAYER-P-04-CHARACTER-PLAYABILITY.md).
+
+P-04 is proposed in three connected slices: (a) make the existing progression system and skills meaningful in actual gameplay, (b) add dedicated active weapon/tool equipment without overloading clothing/accessory slots, and (c) add a persistent identity-safe quickbar. Existing P-02 and P-03 foundations must be reused. Exact skill effects, active-equipment layout, weapon action/combat scope, tool actions and quickbar controls require user approval before implementation.
+
+### 2. P-03 cleanup verification (separate maintenance check)
+The automatic fresh-session debug cargo removal is source-committed but still needs a fresh Unity compile/full EditMode run and Play Mode check (empty new game; F1 spawner works). This does not reopen P-03.7.
+
+### 3. B-07 Neighbourhood Expansion — paused
+The B-07 proposal remains in [its task card](tasks/B-07-NEIGHBOURHOOD-EXPANSION.md), but it is no longer the next implementation priority. Do not implement B-07 until the player-development priority has been completed or the user explicitly reprioritizes it.
+
+<!-- Previous sequencing notes retained below for history -->
+
+### 4. P-03 closeout
 - P-03.7a–d are complete. User confirmed Unity compilation, **555/555 EditMode tests**, stack-ID integrity, dropped-backpack isolation, equipped/dropped F5/F9 restoration and Play Mode acceptance.
 - P-03.7 is closed; do not reopen it.
 - A subsequent cleanup removed automatic fresh-session backpack/repair/production test cargo and retained the F1 debug spawner. This cleanup is source-committed but still needs its own fresh Unity compile/full EditMode run and Play Mode check (empty new game; F1 still works). This does not invalidate the P-03.7 result.
 - Wearable visuals remain deferred while the art boundary is in place.
 
-### 2. B-07 Neighbourhood Expansion — specification ready, approval pending
+### Historical proposal: B-07 Neighbourhood Expansion — paused, not active
 The detailed proposal is in [B-07 task card](tasks/B-07-NEIGHBOURHOOD-EXPANSION.md). Recommended scope: one connected Market Lane/courtyard, one enterable second-hand/materials shop using existing fixed-stock retail, and two persistent public searchable containers. No new named residents, story content or gameplay mechanics are proposed.
 
 The proposal reuses the existing CityBlockBootstrap/location graph, navigation/pathfinding, retail, inventory/ownership/stack transfer, searchable-container and save/load authorities. It deliberately avoids empty map expansion, disconnected scenes, dynamic economy simulation and new mechanics.
