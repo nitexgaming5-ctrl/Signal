@@ -201,3 +201,5 @@ This addresses the compiler diagnostics supplied by the user. A fresh Unity comp
 - StackLineageBook now maintains a runtime retired-ID set. A fully consumed source ID cannot be used as a later merge source/destination, and rollback removes the retired marker together with the lineage record.
 - StackTransferService generates fresh split IDs while excluding both currently owned and historically retired IDs.
 - Added a regression assertion that deliberately reintroduces a retired source GUID into a grid and verifies the stack service refuses to operate on it. Save restoration still purges such stale records from all supplied grids.
+
+- F9 backpack reconciliation also checks the restored world status: the 8×6 grid is authorized only when the world book says Equipped. A mismatched Dropped state fails closed and is represented as a dropped backpack rather than exposing its contents.
