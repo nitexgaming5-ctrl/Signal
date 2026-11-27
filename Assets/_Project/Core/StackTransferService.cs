@@ -63,7 +63,8 @@ namespace Signal.Core
                 !expectedOwner.IsValid || !newOwner.IsValid || quantity < 1 ||
                 (transactionId.HasValue && transactionId.Value == Guid.Empty) ||
                 day < 1 || minuteOfDay < 0 || minuteOfDay >= 1440 ||
-                !Enum.IsDefined(typeof(AssetTransferReason), reason))
+                !Enum.IsDefined(typeof(AssetTransferReason), reason) ||
+                (reason == AssetTransferReason.Theft && newOwner == expectedOwner))
                 return Result(StackTransferStatus.InvalidRequest);
 
             if (!_containers.TryGetCustodian(source, out _) ||
