@@ -2202,6 +2202,7 @@ namespace Signal.Game
                 // and allocate a separate empty staging inventory for future unequipped items.
                 _inventory = _emptyCarryInventory;
                 _emptyCarryInventory = new GridInventory(8, 6);
+                _economicContainers.TryRegister(_emptyCarryInventory, EconomicActorId.Player);
             }
             else if (_droppedBackpackItem.HasValue)
             {
@@ -2215,6 +2216,7 @@ namespace Signal.Game
                     RegisterStorageIdentity(InventoryStorageKind.PlayerBackpack,
                         legacyDroppedId.ToString("N"), "contents", _emptyCarryInventory);
                     _emptyCarryInventory = new GridInventory(8, 6);
+                    _economicContainers.TryRegister(_emptyCarryInventory, EconomicActorId.Player);
                 }
                 _inventory = _emptyCarryInventory;
             }
@@ -2257,6 +2259,7 @@ namespace Signal.Game
                     }
                     else
                         _equippedBackpackInstanceId = null;
+                    _inventory = _emptyCarryInventory;
                 }
             }
             else
@@ -2266,6 +2269,7 @@ namespace Signal.Game
                 savedDroppedState.Status == PortableBackpackWorldStatus.Dropped &&
                 _droppedBackpackVisual == null)
                 SpawnDroppedBackpackVisual(new Vector2(savedDroppedState.WorldX, savedDroppedState.WorldY));
+            RefreshCarryPanelInventories();
             _playerDevelopment = PlayerDevelopmentSaveMapper.Restore(data, _playerDevelopmentCatalog.GetSkillIds(),
                 _playerDevelopmentCatalog.StartingSkillPoints, _playerDevelopmentCatalog.MaximumSkillRank,
                 _playerDevelopmentCatalog.PointsPerRank);
