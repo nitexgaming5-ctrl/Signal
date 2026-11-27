@@ -124,3 +124,12 @@ B-07 remains paused while P-04 is active.
 - **P-04d:** remaining interface polish after P-04c is verified. The always-visible HUD bar, drag ghost and selected-slot feedback are already delivered; do not duplicate them.
 - Actual livelihood skill effects and milestone event wiring require their own connected proposals.
 - B-07 Neighbourhood Expansion remains paused until P-04 is complete or the user reprioritises it.
+
+
+### Debug test loadout (2026-11-27)
+- F1 Item Spawner now includes a one-click **TEST LOADOUT** action; it is opt-in and does not change fresh-session starting inventory.
+- It equips a Canvas Backpack if the player has none, then adds Bread ×5, Fabric Roll ×5, Thread Spool ×3, one Work Jacket and one Basic Patch Kit through the normal debug spawn/inventory path. Existing equipped backpacks are reused; a dropped backpack must be recovered first.
+- Stack quantities are added one item at a time through normal inventory rules, so expected stack groupings are Bread 5, Fabric Roll 3+2, Thread Spool 2+1. This deliberately gives both stack top-up and multi-stack cases.
+- No quickbar assignments are overwritten. This loadout only seeds inventory; it does not implement consumable activation/use. Item-use remains a separate gameplay slice.
+- Added an EditMode callback test for the loadout action. Unity compilation, tests and Play Mode verification are pending.
+- Commits: `c70907a557d48b16c5b9fb0e857693481b27d341`, `c3a9f4cf05b7afa316727c6a60765a24bf556fd7`.

@@ -100,3 +100,12 @@ P-03.7 is closed and user-verified at **555/555**, including compile and Play Mo
 - Art pause remains in force: no new sprites, wearable overlays, wardrobe presentation or character-art exploration.
 - Do not run `dotnet` or `msbuild` for this Unity project.
 - Historical detail belongs in [the November log](progress/LOG-2026-11.md); keep this status board concise.
+
+
+### Debug test loadout (2026-11-27)
+- F1 Item Spawner now includes a one-click **TEST LOADOUT** action; it is opt-in and does not change fresh-session starting inventory.
+- It equips a Canvas Backpack if the player has none, then adds Bread ×5, Fabric Roll ×5, Thread Spool ×3, one Work Jacket and one Basic Patch Kit through the normal debug spawn/inventory path. Existing equipped backpacks are reused; a dropped backpack must be recovered first.
+- Stack quantities are added one item at a time through normal inventory rules, so expected stack groupings are Bread 5, Fabric Roll 3+2, Thread Spool 2+1. This deliberately gives both stack top-up and multi-stack cases.
+- No quickbar assignments are overwritten. This loadout only seeds inventory; it does not implement consumable activation/use. Item-use remains a separate gameplay slice.
+- Added an EditMode callback test for the loadout action. Unity compilation, tests and Play Mode verification are pending.
+- Commits: `c70907a557d48b16c5b9fb0e857693481b27d341`, `c3a9f4cf05b7afa316727c6a60765a24bf556fd7`.
