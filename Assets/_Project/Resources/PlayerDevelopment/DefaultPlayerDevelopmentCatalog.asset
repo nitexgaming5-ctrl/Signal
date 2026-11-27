@@ -36,3 +36,17 @@ MonoBehaviour:
     displayName: Social
     description: Improve social and customer-facing activities.
     provisional: 1
+    healthPerRank: 0
+    heatProtectionPerRank: 0
+  - id: health_test
+    displayName: Vitality (test)
+    description: 'TEMPORARY PIPELINE TEST: +10 maximum Health per rank.'
+    provisional: 1
+    healthPerRank: 10
+    heatProtectionPerRank: 0
+  - id: heat_protection_test
+    displayName: Cold Readiness (test)
+    description: 'TEMPORARY PIPELINE TEST: +1 Heat Protection per rank.'
+    provisional: 1
+    healthPerRank: 0
+    heatProtectionPerRank: 1
