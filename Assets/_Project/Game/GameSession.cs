@@ -2211,10 +2211,8 @@ namespace Signal.Game
                     // Deterministic legacy migration: the old global items grid belonged to the
                     // sole dropped backpack. Keep it attached to that bag and give the player a
                     // fresh empty staging grid.
-                    Guid legacyDroppedId = _droppedBackpackItem.Value.Item.ItemInstanceId;
-                    _portableStorage.TryRegister(legacyDroppedId, _emptyCarryInventory);
-                    RegisterStorageIdentity(InventoryStorageKind.PlayerBackpack,
-                        legacyDroppedId.ToString("N"), "contents", _emptyCarryInventory);
+                    // RestoreEquipment already attached this legacy global grid to the dropped
+                    // backpack identity. Only replace the player's active staging reference here.
                     _emptyCarryInventory = new GridInventory(8, 6);
                     _economicContainers.TryRegister(_emptyCarryInventory, EconomicActorId.Player);
                 }
