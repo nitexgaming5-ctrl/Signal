@@ -163,7 +163,7 @@ The user confirmed Unity Play Mode behavior and **571/571 EditMode tests passed*
 
 
 ### Latest storage verification — 2026-11-27
-The user confirmed **580/580** after adding independent per-backpack persistence round-trip and duplicate-identity tests. Core storage allocation and persistence primitives are verified. The runtime still aliases the equipped backpack to GameSession's session-wide `_inventory` and tracks only one dropped backpack. Next work is active-grid switching plus UI/service rebinding, followed by multi-bag swap and GameSession save/load integration. Do not mark global storage independence complete.
+The user confirmed **580/580** after adding independent per-backpack persistence round-trip and duplicate-identity tests. Core storage allocation and persistence primitives are verified. GameSession active-grid switching, UI/service rebinding and identity-keyed F5/F9 integration have since been implemented. The runtime still tracks one dropped backpack; next work is multi-bag metadata/visuals and automatic swap. Do not mark global storage independence complete.
 
 
 ### 2026-11-27 — GameSession active-grid integration
