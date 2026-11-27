@@ -176,3 +176,23 @@ P-03 still owns actual clothing/armor item slots, physical item identity/custody
 - Eligible references resolve to items in the player's backpack grid or one of the three personal pockets. Equipped clothing/accessory items are not eligible.
 - If the backpack is dropped, references to items inside its grid remain saved but are unavailable until that same backpack is recovered. Personal-pocket references remain accessible.
 - `SaveData.quickbarItemInstanceIds` stores six string GUIDs. `PlayerQuickbarSaveMapper` rejects malformed, duplicate or missing identities. Save-time/UI reconciliation clears references to items that have left carried storage.
+
+
+## Inventory ownership and isolation invariant — 2026-11-27
+
+Every physical storage location is an independent inventory aggregate. A `GridInventory` instance belongs to exactly one storage identity for its lifetime; it must never be reused as the backing grid for a different owner or physical container. Item ownership and inventory custody remain separate authorities, but neither permits two inventories to share one mutable grid.
+
+Required independent storage identities include:
+- Each physical portable backpack (keyed by its stable backpack item-instance GUID), whether equipped, dropped, carried, or otherwise stored.
+- Each player personal pocket (each pocket remains its own 1×1 inventory).
+- Player hideout/home storage.
+- Every searchable world container, including bins and resident-owned property containers.
+- Every NPC-owned carried inventory/pocket set, keyed by stable NPC identity and pocket/storage identity.
+- Each business/shop stock inventory and each customer-contract/service escrow inventory.
+- Any future vehicle, workbench, parcel, stash or other physical storage.
+
+Access is a separate, temporary capability: the player can access only inventories made available by the current interaction/equipment state. Dropping, transferring, hiding, locking, or changing custody must not merge, clone, clear, or retarget another storage identity's contents.
+
+Save data must serialize contents by storage identity, not by a single global `storageItems` list. Restore must rehydrate each identity into its own grid and reject duplicate identity-to-grid bindings. Legacy saves may be migrated only with an explicit, deterministic mapping; never silently attach all legacy contents to every bag/container.
+
+Regression coverage must prove bidirectional isolation: adding/removing/moving items in one inventory cannot mutate any other inventory; cross-inventory movement occurs only through an explicit validated transfer operation. This applies equally to player, NPC, world, business, escrow and portable storage.
