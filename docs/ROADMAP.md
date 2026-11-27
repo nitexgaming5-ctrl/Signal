@@ -109,7 +109,7 @@ This supersedes the narrower backpack-only follow-up. The user requires independ
 - [x] Add typed stable storage identity and a session registry that rejects duplicate IDs and aliased `GridInventory` references.
 - [x] Register current independent player pockets, hideout storage, contact inventory, contract receiver inventory, street searchable containers and resident-owned searchable property containers.
 - [x] Add five Core regression tests for identity and alias invariants.
-- [ ] Allocate a distinct grid for every physical backpack and make the active player inventory a view of the currently equipped bag only. The currently active/restored backpack grid is now registered by GUID, but still aliases GameSession's `_inventory`.
+- [ ] Wire the new registry-backed `PortableStorageBook` allocator into GameSession so every physical backpack owns a distinct grid and the active player inventory view switches to the equipped bag. Core allocation API and two isolation tests are committed; runtime still uses the compatibility overload that attaches `_inventory`.
 - [ ] Convert dropped backpack state/visual tracking to multiple instances and implement automatic swap without merging storage.
 - [ ] Register future NPC pockets and business stock as their own inventories when those runtime systems are introduced.
 - [ ] Move save/load to stable storage identities with deterministic migration of legacy `storageItems` and single dropped-backpack data.
