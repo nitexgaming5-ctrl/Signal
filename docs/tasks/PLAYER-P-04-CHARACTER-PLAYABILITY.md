@@ -150,3 +150,13 @@ The user confirmed Unity Play Mode behavior and **571/571 EditMode tests passed*
 - Core allocator step: `PortableStorageBook` can now create a unique grid for each backpack GUID and bind it to `PlayerBackpack/<GUID>/contents`; canonical identity helper added. Two tests cover pairwise isolation and duplicate-registration rollback. Commits: `bd9ed8c515265120e6d5ad98e26bc1007fe9cd56`, `7d374b16991da37d864999c9f560ba7a0fe5b704`. Not yet wired into GameSession; legacy attach-existing-grid overload remains active.
 - Source commits: `cd4b182015525429b1ebc97c22628a862b28ef89`, `bf4d54e9be82dfd61760528a11a1f6a3186f93d8`, `13ff69d98d661cd0bfeecff8ee9c9bb3a8cbf50a`, `bea52619e72a6ebe0f5e0ac4b50d3e4a4c481585`, `ffa503494a62593e0ffe99d4e57f06a569b57387`.
 - Unity compile, full EditMode and Play Mode verification pending; expected five additional tests.
+
+
+### 2026-11-27 — Global storage isolation implementation notes
+
+- The user confirmed the full EditMode suite at 578/578 after the allocator step.
+- Added Core persistence records and PortableBackpackStorageSaveMapper for per-physical-backpack grid capture/restore by stable backpack GUID. Each restored bag gets a new independent grid and canonical registry binding; duplicate bag IDs and duplicate item instance IDs are rejected.
+- Added precise registry unregistration and a PortableStorageBook.Clear(registry) path so backpack restore can clear stale backpack mappings without deleting unrelated storage registrations.
+- Two new tests cover two-bag round-trip isolation/dimensions and duplicate identity rejection. Expected suite count: 580; Unity verification pending.
+- Commits: 2462112a32e88de815f53b0305ce3b4cf1bf63e5, 8156a03390ab1d2184f813530f34b229e783d7cb, 8ff1da85acca6de1b727f2d9dcd734eea709285d, 68eb632cbd4f46b85dbe88751335c2cdd6aa5369, 97a265342a62ad76dec67b5206a41c4484e0e0d3.
+- Not yet wired into GameSession: active grid switching must be completed first so legacy data.items and per-backpack storage records cannot duplicate the same contents. The single dropped-backpack runtime slot and debug-loadout restriction remain in place.
