@@ -268,4 +268,5 @@ Source commits:
 - GameSession authorizes only player carry grids and rejects backpack-grid operations while the backpack is dropped/inaccessible.
 - Updated the inventory legend to advertise drag-to-restack.
 - Commits: `86ba1397ac77457fc0c9be41970afbcfa00ae601`, `cdf65030db48f21409dccb47d296952ce72e8c2e`, `2615a873e405b94a250269a337db7dd3c353277e`.
-- Unity compilation, the expected 553/553 EditMode suite, and Play Mode acceptance remain pending; no pass is claimed.
+- Added Core regressions for same-grid partial merge and full pocket-to-pocket merge; these raise the expected total to 555.
+- Unity compilation, the expected 555/555 EditMode suite, and Play Mode acceptance remain pending; no pass is claimed.
