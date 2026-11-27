@@ -231,3 +231,5 @@ Source commits: 2d8b2a098de1f0c4da759f5676a20ca71ecf8bf8, 2502dc89c302cb0ee65abb
 P-03.7c follow-up: split placement preserves rotated source footprints and keeps the manual exact-pocket drag instruction visible. Unity verification remains pending; expected suite count is 552.
 
 Latest P-03.7c source commits after the first UI log: 02b4d8f1d3322f0a03f0e9993af42c1dac5d8610, dfdd9f564c8d1febcb07891e81bb0b5165c512af, aff762ca81ffef03e850bf330af9b1fcb77dc1d2, eb743aaa0b373818ab7e26563699001fe4d78a1b, db5a968e215ab7a9cec74cd4511b71b1f06c58ca.
+
+- **P-03.7d compile correction:** fixed Unity CS0136 in `SearchableContainerPanel.UpdatePointer` by renaming the second overlapping `containerItem` local to `draggedContainerItem` (commit `bb572b2f2633341a1a368a31f1ae178bf1eb7a1d`). Source-level audit remains complete; Unity compile, expected 553/553 EditMode tests, and Play Mode acceptance await user verification.
