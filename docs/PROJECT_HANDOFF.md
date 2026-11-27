@@ -102,3 +102,13 @@ A later cleanup removed automatic fresh-session debug backpack/cargo; F1 spawner
 
 ## Active follow-up — backpack isolation and swap (2026-11-27)
 User approved automatic swap: when near dropped Backpack A while Backpack B is equipped, pressing E drops B at the player's feet and equips A; each backpack retains independent contents. Dropping a backpack must immediately revoke access to its contents. The debug TEST LOADOUT must be able to equip a fresh backpack while another is dropped. Current code still has a single `_droppedBackpackItem` and maps every backpack to the same `_inventory`; debug loadout blocks while one is dropped. Do not remove that guard without introducing independent per-instance storage and persistence. The quickbar drag ghost was moved to a dedicated override-sorting Canvas (sorting order 200) in commit `1971e800a08011e8f031ecd79fdd67cb56d3a17d`. Backpack correction remains open and requires save/load coverage plus Unity verification; last user-confirmed suite is 571/571.
+
+
+## Global inventory isolation requirement (2026-11-27)
+The user clarified that the approved backpack correction must enforce a broader invariant: **every inventory, world container and NPC pocket owns independent contents**. Treat this as a cross-cutting storage architecture task, not a backpack-only patch.
+
+Required storage domains: each physical backpack (stable item-instance ID), each player pocket, hideout/home storage, each searchable/world container, each NPC/resident-owned pocket or carried inventory, each shop/business stock inventory, and each contract/service escrow inventory. One storage identity must map to one unique mutable `GridInventory` instance. Access/custody is separate from ownership; dropping or switching access must never retarget, merge, clear or duplicate contents. Cross-inventory movement only occurs through explicit validated atomic transfer operations.
+
+Audit note: GameSession currently registers the same session-wide `_inventory` grid for a backpack, so the apparent PortableStorageBook mapping is not sufficient for independent backpack storage. GameSession also creates separate player storage, pockets, contact inventory, contract receiver inventory and per-searchable-container grids; all registration, service, UI, save/load and stack-lineage paths still need an aliasing audit. NPC pockets are a required domain; verify whether they currently exist as runtime inventories before describing them as implemented.
+
+Persistence must be keyed by stable storage identity, with deterministic migration for legacy global/single-backpack save fields. Regression tests must check pairwise isolation and explicit transfers across player, backpack, pocket, world container, NPC, business and escrow inventories.
