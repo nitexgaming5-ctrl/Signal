@@ -164,8 +164,7 @@ namespace Signal.Game
         private void Start()
         {
             _stats = new PlayerStats(startingMoney);
-            // Temporary expanded test grid. P-03 will make this grid physically belong to the equipped backpack;
-            // the final no-backpack inventory will be reduced to 2-3 personal pockets.
+            // The expanded grid is inaccessible and unregistered until its backpack is equipped.
             _inventory = new GridInventory(8, 6);
             _storage = new GridInventory(8, 6);
             _emptyCarryInventory = new GridInventory(1, 1);
@@ -1844,6 +1843,7 @@ namespace Signal.Game
                 if (!_backpackWorldBook.TryRegisterEquipped(item.ItemInstanceId, _portableStorage))
                 {
                     _equippedBackpackInstanceId = null;
+                    _economicContainers.TryUnregister(_inventory);
                     _portableStorage.TryUnregister(item.ItemInstanceId);
                     _playerEquipment.TryUnequip(_inventory, definition.EquipmentSlot);
                     RefreshCarryPanelInventories();
@@ -2149,6 +2149,10 @@ namespace Signal.Game
                 _backpackWorldBook.TryGet(_droppedBackpackItem.Value.Item.ItemInstanceId, out PortableBackpackWorldState droppedState) &&
                 droppedState.Status == PortableBackpackWorldStatus.Dropped)
                 SpawnDroppedBackpackVisual(new Vector2(droppedState.WorldX, droppedState.WorldY));
+            if (_equippedBackpackInstanceId.HasValue)
+                EnsureBackpackGridRegistered();
+            else
+                _economicContainers.TryUnregister(_inventory);
             _playerDevelopment = PlayerDevelopmentSaveMapper.Restore(data, _playerDevelopmentCatalog.GetSkillIds(),
                 _playerDevelopmentCatalog.StartingSkillPoints, _playerDevelopmentCatalog.MaximumSkillRank,
                 _playerDevelopmentCatalog.PointsPerRank);
