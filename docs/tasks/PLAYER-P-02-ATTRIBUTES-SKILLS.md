@@ -1,6 +1,6 @@
 # P-02 — Player Attributes & Skills
 
-**Status:** Original two-attribute progression slice user-verified at 467/467; approved Health extension now required.
+**Status:** Original progression foundation user-verified at 467/467; Health extension implemented in P-04a source, Unity verification pending.
 **Track:** Player Development
 **Dependency:** P-01 establishes the persistent player character profile and composition boundary. P-02 may be developed against the profile contract, but should not duplicate appearance/rendering responsibilities.
 
@@ -25,12 +25,12 @@ The player can distribute a fixed starting skill-point budget among available sk
 ### Attributes
 
 1. The character has exactly three attributes: **Health**, **Armor** and **Heat Protection**. Health is the primary attribute. Do not add other generic RPG attributes without a separate decision.
-2. Health represents the character's life/survivability and is the primary character attribute. Its precise current/maximum-health, healing and damage rules remain to be specified; do not invent those mechanics as part of this attribute update.
+2. Health is the primary **maximum-health attribute**. The existing `PlayerStats.Health` remains the current-health resource; its maximum is supplied by effective Health. The current-health resource is saved separately. This does not add or change damage/healing actions or formulas.
 3. Armor represents protection against physical damage/threats when a supported damage source exists.
 4. Heat Protection represents protection against cold exposure, including cold associated with low temperatures, wind, rain and snow. The name remains Heat Protection by explicit user decision.
 5. No hot weather, heatwaves, overheating or heat exposure damage is in scope.
 6. Store base attribute values separately from effective values. Effective values are calculated from base values plus validated equipment/skill modifiers through one authoritative calculation path.
-7. Attribute caps, initial base values, exact numerical scales and physical-damage formula are tuning decisions and are intentionally not fixed by this specification.
+7. The current prototype base maximum Health is 100 to match the existing player-health baseline. It is a replaceable starting value, not final balance. Armor/Heat Protection starting values and final attribute tuning remain open. Physical-damage formula is not in scope.
 8. P-02 establishes the attribute data and calculation contract. It must not invent a combat system or apply speculative damage to the current game.
 
 ### Skills
@@ -131,3 +131,13 @@ No character classes/backgrounds, automatic use-based skill growth, generic attr
 ## Design update — Health promoted to primary attribute (2026-11-27)
 
 The user approved replacing the previous two-attribute design with three attributes: **Health (primary), Armor and Heat Protection**. The existing Core implementation/save mapping contains only Armor and Heat Protection and must be extended. Health's exact current/max-health model, starting value, cap, damage/healing rules and formulas remain open; do not invent a combat or damage system. For initial skill-pipeline testing, one skill will increase Health and another will increase Heat Protection. The skill identities and temporary rank formulas remain to be selected/documented before implementation.
+
+
+## P-04a Health extension — source implementation checkpoint (2026-11-27)
+
+- `PlayerAttributeSet` now stores positive base maximum Health alongside Armor and Heat Protection. `EffectiveCharacterAttributes` and the pure calculator expose all three effective values.
+- The existing current-health resource remains `PlayerStats.Health`; its effective maximum is updated from calculated Health. Damage and healing rules are unchanged. The HUD shows current/maximum Health.
+- Equipped Armor/Heat Protection modifiers and authored skill modifiers are combined through the Core attribute calculation/loadout path. The Core layer remains independent of Unity content.
+- The catalog now contains two explicitly temporary test skills: `health_test` (Vitality test: +10 maximum Health per rank) and `heat_protection_test` (Cold Readiness test: +1 Heat Protection per rank). These are pipeline fixtures only, not final skill identities or balance.
+- Base Health, Armor, Heat Protection, skill ranks and milestone awards are captured/restored by the existing development save mapper. GameSession reapplies saved current HP after restoring the effective maximum so a higher-Health save is not clipped by the initial default cap.
+- Two Core regression tests were added for temporary attribute modifiers and dynamic maximum Health. The previous user-verified suite was 555/555; expected current suite is 557, pending Unity compilation and full EditMode execution. No new Unity verification is claimed.
