@@ -64,6 +64,7 @@ namespace Signal.Game
         private Func<int, int, int, bool> _movePocketToBackpackAt;
         private Func<int, int, bool> _movePocketToPocket;
         private Func<GridInventory, GridInventory, Guid, int, int, int, bool, bool> _splitStack;
+        private Func<GridInventory, GridInventory, Guid, Guid, int, bool> _mergeStack;
         private Func<int, bool> _equipPocketItem;
         private bool _draggingFromPocket;
         private int _dragPocketIndex = -1;
@@ -106,7 +107,8 @@ namespace Signal.Game
             Func<int, bool> movePocketToBackpack = null, Func<int, bool> equipPocketItem = null,
             Func<int, int, int, bool> movePocketToBackpackAt = null,
             Func<int, int, bool> movePocketToPocket = null,
-            Func<GridInventory, GridInventory, Guid, int, int, int, bool, bool> splitStack = null)
+            Func<GridInventory, GridInventory, Guid, int, int, int, bool, bool> splitStack = null,
+            Func<GridInventory, GridInventory, Guid, Guid, int, bool> mergeStack = null)
         {
             if (inventory == null)
                 throw new ArgumentNullException(nameof(inventory));
@@ -130,6 +132,7 @@ namespace Signal.Game
             _movePocketToBackpackAt = movePocketToBackpackAt;
             _movePocketToPocket = movePocketToPocket;
             _splitStack = splitStack;
+            _mergeStack = mergeStack;
             _equipPocketItem = equipPocketItem;
             _inventory.Changed += OnInventoryChanged;
             if (_pockets != null)
@@ -344,6 +347,14 @@ namespace Signal.Game
                 ? _inventory.CanPlace(_dragType, targetX, targetY, _dragRotated)
                 : _inventory.CanMove(_dragId, targetX, targetY, _dragRotated));
 
+            GridInventory mergeSource = _draggingFromPocket ? _pockets?.GetPocket(_dragPocketIndex) : _inventory;
+            GridInventory mergeDestination = null;
+            Guid mergeTargetId = Guid.Empty;
+            int targetPocket = -1;
+            if (TryGetMergeTarget(screen, inGrid, hoverX, hoverY, mergeSource,
+                out mergeDestination, out mergeTargetId, out targetPocket))
+                canDrop = true;
+
             UpdateDragVisuals(local, inGrid, targetX, targetY, canDrop);
 
             if (mouse.leftButton.wasReleasedThisFrame)
@@ -353,13 +364,18 @@ namespace Signal.Game
                 bool rotated = _dragRotated;
                 bool fromPocket = _draggingFromPocket;
                 int sourcePocket = _dragPocketIndex;
-                int targetPocket = -1;
+                int releasePocket = -1;
                 bool dropIntoPocket = !canDrop && !rotated &&
-                    TryGetPocketIndex(screen, out targetPocket) && (!fromPocket || targetPocket != sourcePocket);
+                    TryGetPocketIndex(screen, out releasePocket) && (!fromPocket || releasePocket != sourcePocket);
 
                 EndDrag();
 
-                if (canDrop)
+                if (mergeTargetId != Guid.Empty && mergeSource != null && mergeDestination != null)
+                {
+                    _mergeStack?.Invoke(mergeSource, mergeDestination, itemInstanceId,
+                        mergeTargetId, _dragType.MaxStack);
+                }
+                else if (canDrop)
                 {
                     if (fromPocket)
                         _movePocketToBackpackAt?.Invoke(sourcePocket, targetX, targetY);
@@ -369,15 +385,53 @@ namespace Signal.Game
                 else if (dropIntoPocket)
                 {
                     if (fromPocket)
-                        _movePocketToPocket?.Invoke(sourcePocket, targetPocket);
+                        _movePocketToPocket?.Invoke(sourcePocket, releasePocket);
                     else if (itemInstanceId != Guid.Empty)
-                        _moveItemToPocket?.Invoke(itemInstanceId, targetPocket);
+                        _moveItemToPocket?.Invoke(itemInstanceId, releasePocket);
                 }
 
                 Refresh();
             }
         }
 
+
+        private bool TryGetMergeTarget(Vector2 screen, bool inGrid, int hoverX, int hoverY,
+            GridInventory source, out GridInventory destination, out Guid destinationStackId,
+            out int targetPocket)
+        {
+            destination = null;
+            destinationStackId = Guid.Empty;
+            targetPocket = -1;
+            if (_mergeStack == null || source == null || _dragItemInstanceId == Guid.Empty)
+                return false;
+
+            if (inGrid && _inventory.TryGetItemAt(hoverX, hoverY, out PlacedItem gridTarget) &&
+                gridTarget.ItemInstanceId != _dragItemInstanceId &&
+                source.TryGetItemInstance(_dragItemInstanceId, out PlacedItem dragged) &&
+                StackOperations.CanMerge(dragged, gridTarget))
+            {
+                destination = _inventory;
+                destinationStackId = gridTarget.ItemInstanceId;
+                return true;
+            }
+
+            if (TryGetPocketIndex(screen, out targetPocket) && _pockets != null &&
+                targetPocket >= 0 && targetPocket < PlayerPocketBook.PocketCount)
+            {
+                GridInventory pocket = _pockets.GetPocket(targetPocket);
+                if (!ReferenceEquals(source, pocket) && pocket.TryGetItemAt(0, 0, out PlacedItem pocketTarget) &&
+                    pocketTarget.ItemInstanceId != _dragItemInstanceId &&
+                    source.TryGetItemInstance(_dragItemInstanceId, out PlacedItem pocketDragged) &&
+                    StackOperations.CanMerge(pocketDragged, pocketTarget))
+                {
+                    destination = pocket;
+                    destinationStackId = pocketTarget.ItemInstanceId;
+                    return true;
+                }
+            }
+
+            return false;
+        }
 
         private static bool IsShiftDown(Keyboard keyboard) =>
             keyboard != null && (keyboard.leftShiftKey.isPressed || keyboard.rightShiftKey.isPressed);
