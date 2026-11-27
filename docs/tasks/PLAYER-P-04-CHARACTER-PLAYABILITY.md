@@ -1,6 +1,6 @@
 # P-04 — Character Playability: Progression, Active Equipment & Quickbar
 
-**Status:** P-04a implemented and user-verified at 557/557. P-04b interaction specification approved; implementation not started. P-04c active-hand/HUD controls remain specified, not implemented. Health is primary; temporary skill tests are authored; tool actions and weapon behavior deferred.  
+**Status:** P-04a complete and user-verified at 557/557. P-04b source implementation committed; Unity compile, EditMode and Play Mode verification pending. P-04c active-hand/HUD controls remain specified, not implemented. Health is primary; temporary skill tests are authored; tool actions and weapon behavior deferred.  
 **Track:** Player Development  
 **Strategic priority:** Ahead of B-07 Neighbourhood Expansion.  
 **Dependencies:** P-01 character foundation, P-02 attributes/skills, P-03 equipment/inventory/backpack.
@@ -61,7 +61,7 @@ No numerical bonus, chance, price formula, quality roll or extra reward is impli
 
 ### P-04b — Quickbar assignment foundation (context menu + inventory drag/drop)
 
-**Approved interaction design (2026-11-27; specification only, no implementation yet)**
+**Approved interaction design (2026-11-27; source implementation committed, Unity verification pending)**
 
 - The Tab inventory displays a dedicated six-slot quickbar row, visually separate from the inventory grid but within the same inventory mode.
 - Right-clicking an inventory item opens a contextual menu instead of immediately opening Inspect. The menu contains **Inspect** and **Equip to Quick Slot**; the latter opens a numbered submenu for slots 1–6.
@@ -77,14 +77,14 @@ No numerical bonus, chance, price formula, quality roll or extra reward is impli
 - The quickbar assignment UI does not select/use the item, consume it, or perform a tool/weapon action. Active-hand selection and controls remain P-04c.
 - Context-menu dismissal should follow existing UI conventions (outside click and Escape) after the code audit; do not introduce a new global input layer.
 
-**P-04b implementation breakdown**
-1. Audit `InventoryPanel`, current RMB inspect handling, drag-origin/drag-target abstractions, inventory layout sizing and GameSession/Core transfer callbacks. Document reusable entry points before editing.
-2. Add a Core-owned six-slot assignment model/service using stable item-instance IDs, validation and explicit assign/replace/swap/unassign operations. Keep Core Unity-free.
-3. Integrate assignment validity with existing inventory/equipment/backpack accessibility and stack-lineage authorities. No stale reference may grant access to dropped-backpack contents.
-4. Add the six-slot row to Tab inventory and extend the existing drag/drop path for inventory→quickbar, quickbar→quickbar swap and quickbar→inventory unassign.
-5. Add the RMB contextual menu with Inspect and Equip to Quick Slot→1–6; route both menu and drag/drop through the same assignment API.
-6. Persist the six assignments through the existing SaveData/GameSession path and restore only identities that remain valid and accessible.
-7. Add Core regression tests for assign, replace, swap, unassign, invalid identity, moved/sold/equipped item invalidation, stack split/merge/retirement and save/load. Add UI/Play Mode acceptance for both assignment paths and menu dismissal.
+**P-04b implementation breakdown and current status**
+1. **Done — audit.** `InventoryPanel` owns the current pointer-driven drag loop; there is no separate reusable drag/drop service. The existing loop and pocket/grid geometry were extended rather than introducing a second drag system. RMB previously opened Inspect directly for both backpack and pocket items.
+2. **Done — Core model.** Added `PlayerQuickbar`, six stable GUID references, duplicate prevention, replace/swap/unassign, reconciliation and save mapper. Core remains Unity-free.
+3. **Done — identity/access safety.** Backpack and pocket items are eligible; equipped clothing/accessory items are not. Dropped-backpack references persist but are disabled; reconciliation checks physical identity without granting access to the dropped grid.
+4. **Done — inventory UI source.** Added the six-slot row to Tab inventory, inventory/pocket→quickbar assignment, quickbar→quickbar swap and quickbar→inventory unassign.
+5. **Done — contextual menu source.** RMB opens Inspect / Equip to Quick Slot→1–6. Both menu and drag/drop call the same `PlayerQuickbar` model.
+6. **Done — persistence source.** Six item-instance references are saved/restored and invalid/duplicate IDs are skipped. Save-time and UI refresh reconciliation clear retired item references.
+7. **Added; verification pending.** Five Core regression tests cover unique assignment, replacement, swapping, unassigning, invalid/duplicate restore and save round-trip. Unity compile, full EditMode suite and Play Mode acceptance are still required.
 
 **P-04b edge rules confirmed by user (2026-11-27):** one physical item may occupy only one quickbar slot (prevents duplicate references). Eligible items may live in the accessible backpack grid or any of the three personal pockets; equipped clothing/accessory items are excluded. Dropping the backpack preserves assignments to items inside it but marks those slots unavailable until the same backpack is recovered. Pocket-backed entries remain accessible. The quickbar is a visual rendering only; physical items stay in their original inventory grid.
 
