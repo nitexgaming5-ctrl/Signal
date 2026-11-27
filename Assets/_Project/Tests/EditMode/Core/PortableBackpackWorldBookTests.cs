@@ -112,6 +112,46 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void NearestDroppedSelectionChoosesClosestBagWithinRadius()
+        {
+            Guid fartherId = Guid.NewGuid();
+            Guid nearerId = Guid.NewGuid();
+            PortableStorageBook storage = new PortableStorageBook();
+            Assert.That(storage.TryRegister(fartherId, 8, 6), Is.True);
+            Assert.That(storage.TryRegister(nearerId, 8, 6), Is.True);
+            var book = new PortableBackpackWorldBook();
+            Assert.That(book.TryRegisterEquipped(fartherId, storage), Is.True);
+            Assert.That(book.TryRegisterEquipped(nearerId, storage), Is.True);
+            Assert.That(book.TryDrop(fartherId, 1f, 0f), Is.True);
+            Assert.That(book.TryDrop(nearerId, 0.25f, 0f), Is.True);
+
+            Assert.That(book.TryGetNearestDropped(0f, 0f, 1f, out PortableBackpackWorldState nearest), Is.True);
+            Assert.That(nearest.BackpackInstanceId, Is.EqualTo(nearerId));
+            Assert.That(book.TryGetNearestDropped(0f, 0f, 0.1f, out _), Is.False);
+        }
+
+        [Test]
+        public void NearestDroppedSelectionUsesStableGuidTieBreakAndRejectsInvalidRadius()
+        {
+            Guid first = Guid.NewGuid();
+            Guid second = Guid.NewGuid();
+            Guid expected = first.CompareTo(second) < 0 ? first : second;
+            PortableStorageBook storage = new PortableStorageBook();
+            Assert.That(storage.TryRegister(first, 8, 6), Is.True);
+            Assert.That(storage.TryRegister(second, 8, 6), Is.True);
+            var book = new PortableBackpackWorldBook();
+            Assert.That(book.TryRegisterEquipped(first, storage), Is.True);
+            Assert.That(book.TryRegisterEquipped(second, storage), Is.True);
+            Assert.That(book.TryDrop(first, -1f, 0f), Is.True);
+            Assert.That(book.TryDrop(second, 1f, 0f), Is.True);
+
+            Assert.That(book.TryGetNearestDropped(0f, 0f, 1f, out PortableBackpackWorldState nearest), Is.True);
+            Assert.That(nearest.BackpackInstanceId, Is.EqualTo(expected));
+            Assert.That(book.TryGetNearestDropped(0f, 0f, -1f, out _), Is.False);
+            Assert.That(book.TryGetNearestDropped(float.NaN, 0f, 1f, out _), Is.False);
+        }
+
+        [Test]
         public void EquippedRestoreNormalizesWorldCoordinates()
         {
             Guid id = Guid.NewGuid();
