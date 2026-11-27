@@ -142,23 +142,23 @@ P-03 still owns actual clothing/armor item slots, physical item identity/custody
 - EquipmentSlot defines the seven approved slots: Head, Torso, Legs, Feet and Accessory1–3. All accessory slots are generic; backpacks are compatible accessories, not a hardcoded exclusive slot.
 - EquippedItem retains the exact PlacedItem and authored Armor/Heat Protection modifiers. PlayerEquipmentLoadout transfers exact single item instances between GridInventory and a slot, rejects duplicate identity/occupied slots, and aggregates effective attributes. It does not change AssetOwnershipBook.
 - PortableStorageBook maps a stable backpack item instance GUID to its own GridInventory. Contents are attached to the physical backpack identity rather than to the player or equipment slot.
-- GameSession integration, SaveData DTOs, visual wearables, UI and world drop/pickup are still pending. The world representation must reuse existing economic/container custody authorities and preserve the same backpack identity and nested contents.
+- Historical status at the first Core design checkpoint: GameSession integration, SaveData DTOs, UI and world drop/pickup were still pending. These gameplay/runtime paths have since been implemented in stages. Visual wearable presentation remains paused; the current active work is multiple dropped-bag metadata/visuals and automatic swapping.
 
 
 ## Equipped items and backpack association — P-03 second slice
 
 - Game `ItemDefinition` now optionally authors `Equippable`, `EquipmentSlot`, Armor and Heat Protection modifiers, and portable-backpack dimensions. Core remains Unity-free.
 - `SavedEquippedItem` stores stable item instance ID, definition ID, owner actor ID, slot, modifiers, item state and portable-backpack marker.
-- `GameSession` captures/restores equipped items alongside the existing `GridInventory` save path. The current backpack implementation binds the existing 8×6 player grid to the backpack instance ID without copying; this keeps current contents intact and avoids a parallel inventory representation.
-- Temporary test grid is 8×6. Final no-backpack state is approved as 2–3 personal pockets; restriction and active-grid switching await the physical backpack drop/pickup slice.
+- Historical single-backpack implementation: GameSession initially attached the session's existing 8×6 grid to the backpack. This was superseded on 2026-11-27 by registry-backed allocation of a distinct grid per physical backpack and identity-keyed F5/F9 persistence.
+- Current authored backpack dimensions are per ItemDefinition. Three independent 1×1 personal pockets remain accessible without a backpack. Active-grid switching and drop detachment are implemented; multiple dropped bags and automatic swap remain open.
 - Prototype item assets: Canvas Backpack (Accessory 1), Padded Work Jacket (Armor +2, Heat Protection +1), Insulated Coat (Armor +0, Heat Protection +3). Modifiers are test fixtures only.
 
 ## Backpack physical world state — P-03.3
 
 - `PortableBackpackWorldBook` maps a stable backpack item instance ID to Equipped or Dropped state and a world position. It requires the corresponding `PortableStorageBook` contents registration; drop/recovery transitions do not replace the contents grid.
-- `SavedPortableBackpack` persists world state and dropped coordinates. `SavedEquippedItem` persists an equipped backpack; `SaveData.droppedBackpack` preserves the exact item identity, definition, owner, slot, modifiers and item condition/state while the item is outside the loadout.
+- `SavedPortableBackpack` persists world state and dropped coordinates. `SavedEquippedItem` persists equipped metadata; legacy `SaveData.droppedBackpack` preserves the original single dropped bag. Multi-bag dropped metadata is the next save-schema/runtime increment.
 - `PortableBackpackWorldSaveMapper` captures/restores world state after the backpack contents grid is reattached. GameSession recreates a placeholder world visual for dropped state and E recovery restores the same item to Accessory 1.
-- The existing 8×6 player grid is the backpack's contents. PlayerPocketBook owns three independent GridInventory(1,1) instances; each pocket stores one stack of a 1×1 item and remains separate from the backpack when it is dropped. PlayerPocketSaveMapper serializes stable item IDs, stack counts, instance state and owner. The character UI displays live pocket contents and supports moving 1×1 stacks between backpack and pockets.
+- Each physical backpack now owns a distinct GridInventory allocated for its authored dimensions and keyed by its stable instance GUID. PlayerPocketBook owns three independent GridInventory(1,1) instances; each pocket stores one stack of a 1×1 item and remains separate from every backpack when dropped. PlayerPocketSaveMapper serializes stable item IDs, stack counts, instance state and owner. The character UI displays live pocket contents and supports moving 1×1 stacks between backpack and pockets.
 
 
 ## Personal pockets — P-03.4b
