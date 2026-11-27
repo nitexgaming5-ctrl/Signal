@@ -16,7 +16,7 @@ The user confirmed B-06's **456/456** EditMode baseline and in-game repair/retur
 
 ## Parallel Player Development track
 - **P-01 Character Foundation & Appearance:** modular Body_A renderer, directional Idle/Walk and local importer implemented; user imported the pack and confirmed presentation.
-- **P-02 Attributes & Skills:** original Armor/Heat Protection foundation was user-verified at 467/467. P-04a has now source-implemented the third attribute, Health (primary), as maximum Health; current HP remains a separate PlayerStats resource. The Character panel, effective calculation, equipment/skill modifier composition and base-attribute save mapping are updated. Temporary test skills are `health_test` (+10 maximum Health/rank) and `heat_protection_test` (+1 Heat Protection/rank). Unity verification is pending; expected full suite is 557.
+P-04a is user-verified at 557/557. P-04b added five Core tests; expected current suite is 562, pending Unity verification.
 - **P-03 Equipment & Portable Backpack:** equipment slots, backpack lifecycle, pockets, hidden-pocket visibility, stack interactions and pocket-aware service integration implemented in source. P-03.7 is user-verified closed at 555/555 plus Play Mode acceptance. Automatic debug starting cargo has been removed in source; its post-cleanup Unity check remains. See [P-03](tasks/PLAYER-P-03-EQUIPMENT-BACKPACK.md).
 
 **Art boundary:** the user has paused sprite creation and wearable/wardrobe presentation. P-03.6 is parked; do not resume overlays, sprite templates, wardrobe preview or character-art work without explicit re-authorisation.
