@@ -396,7 +396,8 @@ namespace Signal.Game
 
         private void QuickTransferPocketStack(int sourcePocket, PlacedItem item)
         {
-            if (_canAccessGrid == null || _canAccessGrid())
+            if ((_canAccessGrid == null || _canAccessGrid()) &&
+                TryFindEmptyCell(_inventory, item.Type, out _, out _))
             {
                 if (_movePocketToBackpack?.Invoke(sourcePocket) == true)
                 {
@@ -850,9 +851,12 @@ namespace Signal.Game
                 {
                     PlacedItem item = _pockets.GetPocket(i).Items[0];
                     ItemVisual visual = VisualFor(item.Type);
+                    string pocketName = i == PlayerPocketBook.HiddenPocketIndex
+                        ? "P3 · HIDDEN" : "P" + (i + 1);
+                    string countSuffix = item.Count > 1 ? " · x" + item.Count : string.Empty;
                     _pocketLabels[i].text = visual.Icon != null
-                        ? "P" + (i + 1) + (item.Count > 1 ? " · x" + item.Count : string.Empty)
-                        : "P" + (i + 1) + "\n" + visual.Label + (item.Count > 1 ? " x" + item.Count : string.Empty);
+                        ? pocketName + countSuffix
+                        : pocketName + "\n" + visual.Label + countSuffix;
                     _pocketLabels[i].color = TitleColor;
                     _pocketImages[i].sprite = visual.Icon;
                     _pocketImages[i].color = Color.white;
