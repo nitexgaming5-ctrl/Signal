@@ -23,12 +23,14 @@ The user confirmed B-06's **456/456** EditMode baseline and in-game repair/retur
 
 ## Immediate sequence
 
-### 1. P-03 non-art closeout
-- Run the current full EditMode suite (expected 505; last confirmed 504/504 before the additional automatic-pocket-routing test).
-- Resolve regressions before further gameplay expansion.
-- Complete Play Mode acceptance of backpack equip/drop/recovery, F5/F9 while equipped and dropped, pocket operations, hidden-pocket visibility contract and all pocket-aware service paths.
-- Keep temporary fresh-session repair/production cargo until acceptance is complete. Then remove only that automatic debug seeding; keep F1 debug item spawner.
-- Update P-03 status and record user verification. Wearable visuals are not a closeout dependency while art is paused.
+### 1. P-03.7d Stack System & Inventory Interaction
+- P-03.7a Core split/merge, P-03.7b ownership/persistence, and P-03.7c player UI are user-verified at 540/540, 550/550 and 552/552 respectively.
+- P-03.7d adds searchable-container quick-transfer, split, partial/full merge and resident-property theft integration. Source-level service quantity audit is complete; Unity verification is pending.
+- Expected current EditMode suite: 553 (one new theft-split regression test beyond the user-confirmed 552 baseline).
+- Complete Play Mode coverage for backpack/pockets/containers, ownership-aware merge rejection, theft split witness/no-witness, and dropped-backpack isolation.
+- Re-run relevant repair, production, retail, contract, Dirty Cash and Home Storage flows with split stacks.
+- Keep temporary fresh-session repair/production cargo until acceptance is complete. Then remove only automatic debug seeding; keep F1 debug item spawner.
+- Close P-03 only after user-confirmed tests and Play Mode acceptance. Wearable visuals are not a closeout dependency while art is paused.
 
 ### 2. B-07 Neighbourhood Expansion
 This is the next strategic gameplay initiative after P-03 non-art closeout. The goal is not map size for its own sake. Add a compact, connected area only when it creates meaningful reasons to travel, revisit, meet people and use existing livelihoods.
