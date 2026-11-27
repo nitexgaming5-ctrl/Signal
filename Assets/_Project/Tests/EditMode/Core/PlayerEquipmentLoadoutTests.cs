@@ -292,5 +292,96 @@ namespace Signal.Core.Tests
             Assert.That(unequipObserverSawCommittedState, Is.True);
         }
 
+        [Test]
+        public void BackpackStorageSaveMapperRoundTripsEachPhysicalBagIndependently()
+        {
+            var source = new PortableStorageBook();
+            var sourceRegistry = new InventoryStorageRegistry();
+            Guid firstBackpack = Guid.NewGuid();
+            Guid secondBackpack = Guid.NewGuid();
+            ItemType firstType = CreateType();
+            ItemType secondType = CreateType(2, 1);
+            Guid firstItem = Guid.NewGuid();
+            Guid secondItem = Guid.NewGuid();
+
+            Assert.That(source.TryRegister(firstBackpack, 8, 6, sourceRegistry), Is.True);
+            Assert.That(source.TryRegister(secondBackpack, 5, 4, sourceRegistry), Is.True);
+            Assert.That(source.TryGetContents(firstBackpack, out GridInventory first), Is.True);
+            Assert.That(source.TryGetContents(secondBackpack, out GridInventory second), Is.True);
+            Assert.That(first.Place(firstType, 0, 0, false, 1, firstItem), Is.Not.Null);
+            Assert.That(second.Place(secondType, 1, 1, false, 1, secondItem), Is.Not.Null);
+
+            var save = new SaveData();
+            PortableBackpackStorageSaveMapper.Capture(source, save);
+            Assert.That(save.portableBackpackStorages.Count, Is.EqualTo(2));
+
+            var restored = new PortableStorageBook();
+            var restoredRegistry = new InventoryStorageRegistry();
+            var restoredIds = new System.Collections.Generic.HashSet<Guid>();
+            int skipped = PortableBackpackStorageSaveMapper.Apply(save, restored, restoredRegistry,
+                id => id == firstType.Id ? firstType : id == secondType.Id ? secondType : (ItemType?)null,
+                restoredIds);
+
+            Assert.That(skipped, Is.Zero);
+            Assert.That(restored.TryGetContents(firstBackpack, out GridInventory restoredFirst), Is.True);
+            Assert.That(restored.TryGetContents(secondBackpack, out GridInventory restoredSecond), Is.True);
+            Assert.That(restoredFirst, Is.Not.SameAs(restoredSecond));
+            Assert.That(restoredFirst.Width, Is.EqualTo(8));
+            Assert.That(restoredSecond.Width, Is.EqualTo(5));
+            Assert.That(restoredRegistry.Owns(PortableStorageBook.GetStorageIdentity(firstBackpack), restoredFirst), Is.True);
+            Assert.That(restoredRegistry.Owns(PortableStorageBook.GetStorageIdentity(secondBackpack), restoredSecond), Is.True);
+            Assert.That(restoredFirst.TryGetItemInstance(firstItem, out _), Is.True);
+            Assert.That(restoredFirst.TryGetItemInstance(secondItem, out _), Is.False);
+            Assert.That(restoredSecond.TryGetItemInstance(secondItem, out _), Is.True);
+            Assert.That(restoredSecond.TryGetItemInstance(firstItem, out _), Is.False);
+        }
+
+        [Test]
+        public void BackpackStorageSaveMapperRejectsDuplicateBackpackAndItemIdentities()
+        {
+            ItemType type = CreateType();
+            Guid backpackId = Guid.NewGuid();
+            Guid itemId = Guid.NewGuid();
+            var save = new SaveData();
+            var first = new SavedPortableBackpackStorage
+            {
+                instanceId = backpackId.ToString("N"), width = 4, height = 3
+            };
+            first.items.Add(new SavedItem
+            {
+                typeId = type.Id.ToString("N"), instanceId = itemId.ToString("N"),
+                x = 0, y = 0, count = 1
+            });
+            save.portableBackpackStorages.Add(first);
+            var duplicateBackpack = new SavedPortableBackpackStorage
+            {
+                instanceId = backpackId.ToString("N"), width = 4, height = 3
+            };
+            save.portableBackpackStorages.Add(duplicateBackpack);
+            var second = new SavedPortableBackpackStorage
+            {
+                instanceId = Guid.NewGuid().ToString("N"), width = 4, height = 3
+            };
+            second.items.Add(new SavedItem
+            {
+                typeId = type.Id.ToString("N"), instanceId = itemId.ToString("N"),
+                x = 0, y = 0, count = 1
+            });
+            save.portableBackpackStorages.Add(second);
+
+            var restored = new PortableStorageBook();
+            var registry = new InventoryStorageRegistry();
+            int skipped = PortableBackpackStorageSaveMapper.Apply(save, restored, registry,
+                id => id == type.Id ? type : (ItemType?)null,
+                new System.Collections.Generic.HashSet<Guid>());
+
+            Assert.That(skipped, Is.EqualTo(2));
+            Assert.That(restored.Count, Is.EqualTo(2));
+            Assert.That(registry.Count, Is.EqualTo(2));
+            Assert.That(restored.TryGetContents(backpackId, out GridInventory firstRestored), Is.True);
+            Assert.That(firstRestored.TryGetItemInstance(itemId, out _), Is.True);
+            Assert.That(restored.GetAll()[1].Contents.Items.Count, Is.Zero);
+        }
+
     }
 }
