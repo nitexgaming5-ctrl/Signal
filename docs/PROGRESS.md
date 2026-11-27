@@ -49,10 +49,10 @@ P-03.7 is closed and user-verified at **555/555**, including compile and Play Mo
 - Exactly six general-purpose slots; eligible carried items can be assigned, including consumables, tools, weapons and backpacks.
 - Quickbar stores stable item-instance references only; it never owns/copies physical items. A physical item can appear in at most one slot.
 - Eligible locations: accessible backpack grid or any of three personal pockets. Equipped clothing/accessories are excluded.
-- Tab inventory supports RMB Inspect / Equip to Quick Slot 1–6, drag assignment, slot-to-slot swap and drag-to-unassign.
+- Tab inventory no longer renders a duplicate quickbar row. While Tab is open, the single bottom HUD quickbar is the drag/drop surface: inventory/pocket→HUD slot assigns or replaces, HUD slot→HUD slot swaps, and HUD slot→inventory unassigns. RMB Inspect / Equip to Quick Slot 1–6 remains available.
 - RMB reassignment moves an existing reference to the chosen slot; it does not duplicate it.
 - Dragging shows a semi-transparent item ghost following the pointer.
-- A second six-slot bar is visible at bottom-centre HUD outside Tab inventory; the Tab inventory row remains.
+- The only six-slot bar is the always-visible bottom-centre HUD quickbar; it remains the drag/drop target while Tab inventory is open.
 - If backpack is dropped, references to its contents persist but are disabled until that same backpack is recovered. Pocket references remain accessible.
 - Save/load persists the six assignments and reconciles invalid/retired identities.
 - User confirmed **563/563** after these changes. Play Mode acceptance should still cover the visible HUD and interactions as part of the next in-game check if not already completed.
@@ -60,12 +60,12 @@ P-03.7 is closed and user-verified at **555/555**, including compile and Play Mo
 **P-04c — Active hand and controls:** implementation committed; Unity verification pending.
 - Core `PlayerQuickbar` now owns selected-slot and holstered state. The held item is derived from the selected slot's existing stable item-instance reference; no duplicate item ID or inventory ownership is introduced.
 - Mouse wheel up/down cycles next/previous through all six slots with wraparound, including empty slots. Number keys 1–6 directly select their matching slots.
-- H holsters without clearing assignments. Selecting an empty slot means empty hand.
+- H toggles between holstered and unholstered while preserving the selected slot and assignment. Selecting an empty slot means empty hand.
 - Wheel, number keys and H are ignored while any supported gameplay/menu panel is open.
 - The six-slot HUD is display-only; selected/active and selected/holstered states receive distinct slot feedback. The Tab quickbar remains an assignment UI.
 - If a backpack-backed held item becomes inaccessible when its backpack is dropped, the hand holsters while its quickbar reference remains assigned. Pocket-backed items remain accessible.
 - Loading resets the active hand to no selected slot and holstered while restoring the six assignments.
-- Five new Core regression tests cover active selection/holster, empty-slot cycling/wraparound, invalidation/unassignment, backpack-style inaccessibility and load reset.
+- Seven new Core regression tests cover active selection/holster, reversible H toggling, empty-slot cycling/wraparound, invalidation/unassignment, backpack-style inaccessibility and load reset.
 - Source commits: `c17a9f7e27d06caf6066d5fd010594d51d33fd85`, `3f8157afb5ca80e744ed83d9ea25922b33f99e50`, `e0ea41bdf2b11a30b4a99941f7153979fd04223e`.
 - **Verification pending:** Unity compile, full EditMode suite (563/563 is the last user-confirmed baseline; five new tests have been added) and Play Mode acceptance.
 
