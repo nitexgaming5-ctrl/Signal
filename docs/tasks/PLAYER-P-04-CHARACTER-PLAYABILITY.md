@@ -140,3 +140,12 @@ B-07 remains paused while P-04 is active.
 - Backpack isolation remains open. User approved automatic swap when recovering a dropped bag while another is equipped. Required behavior: drop current bag at player's feet, equip recovered bag, preserve independent contents, and keep every dropped bag inaccessible until recovered. F1 TEST LOADOUT must be able to equip a new backpack while other bags are dropped.
 - Current architecture still shares `_inventory` across backpack identities and tracks only one `_droppedBackpackItem`; do not remove debug-loadout guard until per-backpack storage and save/load are implemented.
 - Last user-confirmed full EditMode suite: 571/571. Fresh Unity verification required after the full correction.
+
+
+### Global storage identity foundation (2026-11-27)
+- Added Core `InventoryStorageId` and `InventoryStorageRegistry`: one typed stable storage identity maps to one unique `GridInventory` instance; duplicate identities and grid aliasing are rejected. Reverse lookup supports audits. The registry does not grant access or determine item ownership/custody.
+- GameSession registers its existing independent player pockets, hideout storage, contact inventory, customer receiver/escrow inventory, street searchable containers and resident-owned searchable property containers.
+- Five new Core EditMode tests cover identity stability, duplicate/alias rejection and independent grid contents.
+- Remaining active work: per-backpack unique grids and active-grid switching; multiple dropped backpack items/visuals and approved automatic swap; debug TEST LOADOUT with dropped bags; identity-keyed save/load and deterministic legacy migration; business stock and future NPC pocket integration; audit all service/UI/transfer access paths.
+- Source commits: `cd4b182015525429b1ebc97c22628a862b28ef89`, `bf4d54e9be82dfd61760528a11a1f6a3186f93d8`, `13ff69d98d661cd0bfeecff8ee9c9bb3a8cbf50a`, `bea52619e72a6ebe0f5e0ac4b50d3e4a4c481585`, `ffa503494a62593e0ffe99d4e57f06a569b57387`.
+- Unity compile, full EditMode and Play Mode verification pending; expected five additional tests.
