@@ -1118,6 +1118,10 @@ namespace Signal.Game
             ghostRect.pivot = new Vector2(0.5f, 0.5f);
             ghostRect.anchoredPosition = local;
             ghostRect.sizeDelta = new Vector2(width, height);
+
+            // The HUD quickbar is created after the ghost on the same overlay canvas.
+            // Keep the live drag visual above every sibling, including the quickbar.
+            ghostRect.SetAsLastSibling();
         }
 
         private void OpenContextMenu(PlacedItem item, Vector2 screen)
