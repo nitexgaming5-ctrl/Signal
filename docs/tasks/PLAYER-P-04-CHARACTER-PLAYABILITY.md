@@ -173,5 +173,5 @@ The user confirmed **580/580** after adding independent per-backpack persistence
 - Rebound InventoryPanel, StoragePanel, RetailPanel, DirtyCashContactPanel, CustomerContractPanel, WorkbenchWorkspace and MiloParcelOpportunityController when the active grid changes.
 - Quickbar identity reconciliation now searches all registered backpack grids, preserving assignments while a bag is dropped. Active-hand accessibility still resolves only current carried inventories and holsters inaccessible bag items.
 - F5/F9 now use the per-backpack storage mapper and reserve the legacy `items` path for staging. Legacy single-backpack saves deterministically adopt their old global items grid as the bag's private contents.
-- Added one registry cleanup regression test. Expected suite: **581**; latest user-confirmed result remains **580/580** pending Unity verification.
+- Added one registry cleanup regression test. Expected suite: **581**; latest user-confirmed result is **581/581**; new proximity-selection tests are pending.
 - Commits: `3ef8447809dba93b58b67f210b8bdd9287f17b54`, `270d4427fb84a9ae7822c6bb34590403758a150a`, `7aa3f78c6e7ae7faf2872de91188e50da4f1fb61`, `cb2b3fe6a8cee57b258906601cc0fda1010e4d15`, `523b7199c3506f4de2609b0d196091c943bf6238`, `e0e44acb1cf06333b6f77cf9ab31e93b34af5245`, `24d34d773b8e6287103844ac0641f9299a95329a`.
