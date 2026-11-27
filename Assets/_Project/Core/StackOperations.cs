@@ -80,8 +80,7 @@ namespace Signal.Core
     }
 
     /// <summary>
-    /// Records the identity lineage of physical stack merges. Persistence and actor ownership
-    /// reconciliation are added by the Game/economy integration phase.
+    /// Records validated identity lineage for ownership-aware stack merges.
     /// </summary>
     public sealed class StackLineageBook
     {
@@ -90,7 +89,17 @@ namespace Signal.Core
 
         public IReadOnlyList<StackMergeRecord> Merges => _merges.AsReadOnly();
 
-        public bool ContainsOperation(Guid operationId) => _operationIds.Contains(operationId);\n\n        public bool TryRemoveMerge(Guid operationId)\n        {\n            if (operationId == Guid.Empty || !_operationIds.Remove(operationId)) return false;\n            for (int i = 0; i < _merges.Count; i++)\n                if (_merges[i].OperationId == operationId) { _merges.RemoveAt(i); return true; }\n            return false;\n        }\n\n        public bool TryRecordMerge(StackMergeRecord record)
+        public bool ContainsOperation(Guid operationId) => _operationIds.Contains(operationId);
+
+        public bool TryRemoveMerge(Guid operationId)
+        {
+            if (operationId == Guid.Empty || !_operationIds.Remove(operationId)) return false;
+            for (int i = 0; i < _merges.Count; i++)
+                if (_merges[i].OperationId == operationId) { _merges.RemoveAt(i); return true; }
+            return false;
+        }
+
+        public bool TryRecordMerge(StackMergeRecord record)
         {
             if (record.OperationId == Guid.Empty || record.SourceStackId == Guid.Empty ||
                 record.DestinationStackId == Guid.Empty || record.SourceStackId == record.DestinationStackId ||
