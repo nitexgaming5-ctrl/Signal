@@ -78,7 +78,9 @@ namespace Signal.Core.Tests
             var data = new SaveData();
             PlayerQuickbarSaveMapper.Capture(source, data);
             var restored = new PlayerQuickbar();
+            restored.TrySelectSlot(5);
             PlayerQuickbarSaveMapper.Apply(data, restored, id => id == item);
+            restored.ResetActiveHand();
             Assert.AreEqual(item, restored.GetItem(1));
             Assert.AreEqual(-1, restored.SelectedSlot);
             Assert.IsTrue(restored.IsHolstered);

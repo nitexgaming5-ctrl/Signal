@@ -2030,7 +2030,7 @@ namespace Signal.Game
             RestoreEquipment(data);
             int skippedPocketItems = PlayerPocketSaveMapper.Apply(data, _playerPockets, ResolveType, _assetOwnership);
             int skippedQuickbarItems = PlayerQuickbarSaveMapper.Apply(data, _playerQuickbar, IsQuickbarItemPresent);
-            _playerQuickbar.Holster(); // assignments persist; active hand never restores from a save.
+            _playerQuickbar.ResetActiveHand(); // assignments persist; every load starts with an empty, holstered hand.
             if (skippedQuickbarItems > 0)
                 Debug.LogWarning("GameSession: skipped " + skippedQuickbarItems + " invalid quickbar references while loading.");
             RefreshCarryPanelInventories();

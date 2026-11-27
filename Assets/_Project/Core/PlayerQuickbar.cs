@@ -40,6 +40,12 @@ namespace Signal.Core
             _isHolstered = true;
         }
 
+        public void ResetActiveHand()
+        {
+            _selectedSlot = -1;
+            _isHolstered = true;
+        }
+
         public bool ReconcileActiveHand(Func<Guid, bool> itemAccessible)
         {
             if (_isHolstered || _selectedSlot < 0) return false;
