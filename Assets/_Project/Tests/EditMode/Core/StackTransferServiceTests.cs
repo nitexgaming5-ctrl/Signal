@@ -77,6 +77,42 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void DuplicateEconomicTransactionRollsBackCrossOwnerSplitCompletely()
+        {
+            var source = new GridInventory(3, 1);
+            var destination = new GridInventory(3, 1);
+            var resident = new EconomicActorId("resident:test");
+            var ownership = new AssetOwnershipBook();
+            var containers = new EconomicContainerRegistry();
+            var transactions = new EconomicTransactionLedger();
+            containers.TryRegister(source, EconomicActorId.Player);
+            containers.TryRegister(destination, resident);
+            ItemType type = Stackable();
+            Guid sourceId = Guid.NewGuid();
+            source.Place(type, 0, 0, count: 9, itemInstanceId: sourceId);
+            ownership.TryRegister(sourceId, EconomicActorId.Player);
+            var service = new StackTransferService(ownership, containers, transactions, new StackLineageBook());
+            Guid transactionId = Guid.NewGuid();
+            StackTransferResult first = service.Split(source, destination, sourceId, 2, 0, 0,
+                EconomicActorId.Player, resident, AssetTransferReason.Gift, 1, 15, transactionId);
+            Assert.That(first.Success, Is.True);
+            Assert.That(source.TryGetItemInstance(sourceId, out PlacedItem afterFirst), Is.True);
+            Assert.That(afterFirst.Count, Is.EqualTo(7));
+            // The second split is routed to another empty cell but reuses the ledger transaction ID.
+            StackTransferResult duplicate = service.Split(source, destination, sourceId, 2, 1, 0,
+                EconomicActorId.Player, resident, AssetTransferReason.Gift, 1, 16, transactionId);
+            Assert.That(duplicate.Status, Is.EqualTo(StackTransferStatus.TransferFailed));
+            Assert.That(source.TryGetItemInstance(sourceId, out PlacedItem sourceAfterRollback), Is.True);
+            Assert.That(sourceAfterRollback.Count, Is.EqualTo(7));
+            Assert.That(destination.TryGetItemInstance(first.ResultingStackId, out PlacedItem firstSplit), Is.True);
+            Assert.That(firstSplit.Count, Is.EqualTo(2));
+            Assert.That(destination.Items.Count, Is.EqualTo(1));
+            Assert.That(ownership.TryGetOwner(first.ResultingStackId, out EconomicActorId owner), Is.True);
+            Assert.That(owner, Is.EqualTo(resident));
+            Assert.That(transactions.Count, Is.EqualTo(1));
+        }
+
+        [Test]
         public void CrossOwnerMergeIsRejectedWithoutChangingEitherStackOrOwnership()
         {
             var source = new GridInventory(2, 1);
