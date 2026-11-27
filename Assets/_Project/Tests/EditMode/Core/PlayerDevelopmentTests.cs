@@ -8,12 +8,14 @@ namespace Signal.Core.Tests
         private static readonly string[] Skills = { "repair", "production", "trading" };
 
         [Test]
-        public void AttributeSetContainsOnlyArmorAndHeatProtectionAndRejectsNegativeValues()
+        public void AttributeSetContainsHealthArmorAndHeatProtectionAndRejectsNegativeValues()
         {
-            var attributes = new PlayerAttributeSet(2, 3);
+            var attributes = new PlayerAttributeSet(120, 2, 3);
+            Assert.That(attributes.Health, Is.EqualTo(120));
             Assert.That(attributes.Armor, Is.EqualTo(2));
             Assert.That(attributes.HeatProtection, Is.EqualTo(3));
-            Assert.That(attributes.TrySetBaseValues(-1, 0), Is.False);
+            Assert.That(attributes.TrySetBaseValues(-1, 0, 0), Is.False);
+            Assert.That(attributes.Health, Is.EqualTo(120));
             Assert.That(attributes.Armor, Is.EqualTo(2));
         }
 
@@ -22,13 +24,45 @@ namespace Signal.Core.Tests
         {
             var attributes = new PlayerAttributeSet(2, 4);
             EffectiveCharacterAttributes effective = CharacterAttributeCalculator.Calculate(attributes, 3, -1);
+            Assert.That(effective.Health, Is.EqualTo(100));
             Assert.That(effective.Armor, Is.EqualTo(5));
             Assert.That(effective.HeatProtection, Is.EqualTo(3));
             EffectiveCharacterAttributes clamped = CharacterAttributeCalculator.Calculate(
                 new PlayerAttributeSet(int.MaxValue, 0), 1, -1);
+            Assert.That(clamped.Health, Is.EqualTo(100));
             Assert.That(clamped.Armor, Is.EqualTo(int.MaxValue));
             Assert.That(attributes.Armor, Is.EqualTo(2));
             Assert.That(attributes.HeatProtection, Is.EqualTo(4));
+        }
+
+        [Test]
+        public void TemporarySkillModifiersIncreaseEffectiveHealthAndHeatProtectionOnly()
+        {
+            var attributes = new PlayerAttributeSet(100, 2, 4);
+            EffectiveCharacterAttributes effective = CharacterAttributeCalculator.Calculate(
+                attributes, 3, -1, 20, 2);
+
+            Assert.That(effective.Health, Is.EqualTo(120));
+            Assert.That(effective.Armor, Is.EqualTo(5));
+            Assert.That(effective.HeatProtection, Is.EqualTo(5));
+            Assert.That(attributes.Health, Is.EqualTo(100));
+            Assert.That(attributes.HeatProtection, Is.EqualTo(4));
+        }
+
+        [Test]
+        public void PlayerStatsSupportsAttributeDrivenMaximumHealthWithoutChangingDamageRules()
+        {
+            var stats = new PlayerStats(0, 100);
+            Assert.That(stats.MaximumHealth, Is.EqualTo(100));
+            Assert.That(stats.TrySetMaximumHealth(120), Is.True);
+            Assert.That(stats.MaximumHealth, Is.EqualTo(120));
+            Assert.That(stats.Health, Is.EqualTo(100));
+            stats.Restore(0, 120);
+            stats.Damage(15);
+            Assert.That(stats.Health, Is.EqualTo(105));
+            Assert.That(stats.TrySetMaximumHealth(90), Is.True);
+            Assert.That(stats.MaximumHealth, Is.EqualTo(90));
+            Assert.That(stats.Health, Is.EqualTo(90));
         }
 
         [Test]
@@ -96,7 +130,7 @@ namespace Signal.Core.Tests
         public void SaveRoundTripPreservesAttributesSkillsAndMilestoneHistory()
         {
             var state = new PlayerDevelopmentState(Skills, 4, 5, 1);
-            state.Attributes.TrySetBaseValues(3, 2);
+            state.Attributes.TrySetBaseValues(125, 3, 2);
             state.Progression.TrySpendRank(state.Skills, "repair");
             state.Progression.TrySpendRank(state.Skills, "trading");
             state.Progression.TryAwardMilestone(state.Milestones, "first-restoration", 2, "repair-order-42");
@@ -105,6 +139,7 @@ namespace Signal.Core.Tests
             PlayerDevelopmentSaveMapper.Capture(state, save);
             PlayerDevelopmentState restored = PlayerDevelopmentSaveMapper.Restore(save, Skills, 4, 5, 1);
 
+            Assert.That(restored.Attributes.Health, Is.EqualTo(125));
             Assert.That(restored.Attributes.Armor, Is.EqualTo(3));
             Assert.That(restored.Attributes.HeatProtection, Is.EqualTo(2));
             Assert.That(restored.Skills.GetRank("repair"), Is.EqualTo(1));
