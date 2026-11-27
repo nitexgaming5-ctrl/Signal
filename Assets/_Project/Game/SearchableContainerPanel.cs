@@ -38,6 +38,9 @@ namespace Signal.Game
         private Func<Guid, int, int, bool, bool> _putFromPocketAt;
         private Func<Guid, int, int, bool, bool> _putFromBackpackAt;
         private Func<int, int, bool> _movePocketBetweenPockets;
+        private Func<Guid, bool> _putFirstFit;
+        private Func<GridInventory, GridInventory, Guid, int, int, int, bool, bool> _splitStack;
+        private Func<GridInventory, GridInventory, Guid, Guid, int, bool> _mergeStack;
         private Action<PlacedItem> _inspectItem;
         private Font _font;
         private bool _built;
@@ -84,7 +87,10 @@ namespace Signal.Game
             Func<Guid, int, bool> takeToPocket = null,
             Func<Guid, int, int, bool, bool> putFromPocketAt = null,
             Func<Guid, int, int, bool, bool> putFromBackpackAt = null,
-            Func<int, int, bool> movePocketBetweenPockets = null)
+            Func<int, int, bool> movePocketBetweenPockets = null,
+            Func<Guid, bool> putFirstFit = null,
+            Func<GridInventory, GridInventory, Guid, int, int, int, bool, bool> splitStack = null,
+            Func<GridInventory, GridInventory, Guid, Guid, int, bool> mergeStack = null)
         {
             _takeFirstFit = takeFirstFit ?? throw new ArgumentNullException(nameof(takeFirstFit));
             _takeAt = takeAt ?? throw new ArgumentNullException(nameof(takeAt));
@@ -92,6 +98,9 @@ namespace Signal.Game
             _putFromPocketAt = putFromPocketAt;
             _putFromBackpackAt = putFromBackpackAt;
             _movePocketBetweenPockets = movePocketBetweenPockets;
+            _putFirstFit = putFirstFit;
+            _splitStack = splitStack;
+            _mergeStack = mergeStack;
             _inspectItem = inspectItem;
             _visuals.Clear();
             if (definitions != null)
@@ -225,6 +234,9 @@ namespace Signal.Game
         private void UpdatePointer(Keyboard keyboard, Mouse mouse)
         {
             Vector2 screen = mouse.position.ReadValue();
+            bool shift = keyboard != null && (keyboard.leftShiftKey.isPressed || keyboard.rightShiftKey.isPressed);
+            bool control = keyboard != null && (keyboard.leftCtrlKey.isPressed || keyboard.rightCtrlKey.isPressed);
+
             if (mouse.leftButton.wasPressedThisFrame && _closeButton != null &&
                 RectTransformUtility.RectangleContainsScreenPoint(_closeButton.rectTransform, screen, null))
             {
@@ -250,22 +262,26 @@ namespace Signal.Game
             {
                 if (mouse.rightButton.wasPressedThisFrame)
                 {
+                    GridInventory source = null;
+                    PlacedItem selected = default;
                     if (inContainer &&
-                        _container.Inventory.TryGetItemAt(containerX, containerY, out PlacedItem inspectedContainer) &&
-                        _container.IsDiscovered(inspectedContainer.ItemInstanceId))
-                    {
-                        _inspectItem?.Invoke(inspectedContainer);
-                        return;
-                    }
-                    if (inPlayer && _playerInventory.TryGetItemAt(playerX, playerY, out PlacedItem inspectedPlayer))
-                    {
-                        _inspectItem?.Invoke(inspectedPlayer);
-                        return;
-                    }
-                    if (inPocket && pocketX >= 0 && pocketX < _pocketInventories.Count &&
+                        _container.Inventory.TryGetItemAt(containerX, containerY, out PlacedItem containerItem) &&
+                        _container.IsDiscovered(containerItem.ItemInstanceId))
+                    { source = _container.Inventory; selected = containerItem; }
+                    else if (inPlayer && _playerInventory.TryGetItemAt(playerX, playerY, out PlacedItem playerItem))
+                    { source = _playerInventory; selected = playerItem; }
+                    else if (inPocket && pocketX >= 0 && pocketX < _pocketInventories.Count &&
                         _pocketInventories[pocketX].Items.Count > 0)
+                    { source = _pocketInventories[pocketX]; selected = _pocketInventories[pocketX].Items[0]; }
+
+                    if (source != null)
                     {
-                        _inspectItem?.Invoke(_pocketInventories[pocketX].Items[0]);
+                        if (shift || control)
+                        {
+                            int quantity = control ? 1 : Math.Max(1, selected.Count / 2);
+                            TrySplitStack(source, selected, quantity);
+                        }
+                        else _inspectItem?.Invoke(selected);
                         return;
                     }
                 }
@@ -277,6 +293,12 @@ namespace Signal.Game
                     _container.Inventory.TryGetItemAt(containerX, containerY, out PlacedItem containerItem) &&
                     _container.IsDiscovered(containerItem.ItemInstanceId))
                 {
+                    if (shift)
+                    {
+                        _takeFirstFit?.Invoke(containerItem.ItemInstanceId);
+                        Refresh();
+                        return;
+                    }
                     if (_lastClickId == containerItem.ItemInstanceId &&
                         Time.unscaledTime - _lastClickTime <= DoubleClickWindow)
                     {
@@ -295,6 +317,12 @@ namespace Signal.Game
                 {
                     _lastClickId = Guid.Empty;
                     _lastClickTime = -10f;
+                    if (shift)
+                    {
+                        _putFirstFit?.Invoke(playerItem.ItemInstanceId);
+                        Refresh();
+                        return;
+                    }
                     BeginDrag(playerItem, playerX, playerY, true, false);
                 }
                 else if (inPocket && pocketX >= 0 && pocketX < _pocketInventories.Count &&
@@ -302,12 +330,16 @@ namespace Signal.Game
                 {
                     _lastClickId = Guid.Empty;
                     _lastClickTime = -10f;
-                    BeginDrag(_pocketInventories[pocketX].Items[0], 0, 0, false, true, pocketX);
+                    PlacedItem pocketItem = _pocketInventories[pocketX].Items[0];
+                    if (shift)
+                    {
+                        _putFirstFit?.Invoke(pocketItem.ItemInstanceId);
+                        Refresh();
+                        return;
+                    }
+                    BeginDrag(pocketItem, 0, 0, false, true, pocketX);
                 }
-                else
-                {
-                    return;
-                }
+                else return;
             }
 
             if (!_dragging) return;
@@ -328,7 +360,6 @@ namespace Signal.Game
 
             if (!_dragFromPlayer && !_dragFromPocket)
             {
-                // Container item → another cell in the same container, backpack, or a personal pocket.
                 if (inContainer)
                 {
                     targetGrid = _containerGrid;
@@ -358,7 +389,6 @@ namespace Signal.Game
             }
             else if (_dragFromPlayer)
             {
-                // Backpack items can be rearranged, returned to the active container, or moved to a pocket.
                 if (inContainer)
                 {
                     targetGrid = _containerGrid;
@@ -388,7 +418,6 @@ namespace Signal.Game
             }
             else if (_dragFromPocket)
             {
-                // Personal pocket → another pocket, searchable container, or backpack (if equipped).
                 if (inPocket)
                 {
                     targetPocket = pocketX;
@@ -418,18 +447,46 @@ namespace Signal.Game
                 }
             }
 
+            Guid mergeTargetId = Guid.Empty;
+            if (inTarget)
+            {
+                GridInventory destination = targetGrid == _containerGrid ? _container.Inventory :
+                    targetGrid == _playerGrid ? _playerInventory :
+                    targetPocket >= 0 && targetPocket < _pocketInventories.Count ? _pocketInventories[targetPocket] : null;
+                if (destination != null && destination.TryGetItemAt(targetX, targetY, out PlacedItem targetItem) &&
+                    targetItem.ItemInstanceId != _draggedItemId &&
+                    StackOperations.CanMerge(_draggedItem, targetItem))
+                {
+                    mergeTargetId = targetItem.ItemInstanceId;
+                    canDrop = true;
+                }
+            }
+
             UpdateDragVisuals(screen, targetGrid, inTarget, targetX, targetY, canDrop);
             if (mouse.leftButton.wasReleasedThisFrame)
             {
                 Guid itemId = _draggedItemId;
                 int localInstanceId = _draggedItem.InstanceId;
+                int sourceCount = _draggedItem.Count;
                 bool fromPlayer = _dragFromPlayer;
                 bool fromPocket = _dragFromPocket;
                 int sourcePocket = _dragSourcePocketIndex;
                 bool rotated = _dragRotated;
                 EndDrag();
 
-                if (canDrop)
+                if (canDrop && mergeTargetId != Guid.Empty)
+                {
+                    GridInventory source = fromPlayer ? _playerInventory :
+                        fromPocket && sourcePocket >= 0 && sourcePocket < _pocketInventories.Count
+                            ? _pocketInventories[sourcePocket] : _container.Inventory;
+                    GridInventory destination = targetGrid == _containerGrid ? _container.Inventory :
+                        targetGrid == _playerGrid ? _playerInventory :
+                        targetPocket >= 0 && targetPocket < _pocketInventories.Count
+                            ? _pocketInventories[targetPocket] : null;
+                    if (destination != null)
+                        _mergeStack?.Invoke(source, destination, itemId, mergeTargetId, sourceCount);
+                }
+                else if (canDrop)
                 {
                     if (!fromPlayer && !fromPocket)
                     {
@@ -441,36 +498,67 @@ namespace Signal.Game
                             _takeAt?.Invoke(itemId, targetX, targetY, rotated);
                     }
                     else if (fromPlayer && targetGrid == _containerGrid)
-                    {
                         _putFromBackpackAt?.Invoke(itemId, targetX, targetY, rotated);
-                    }
                     else if (fromPlayer && targetGrid == _playerGrid)
-                    {
                         _playerInventory.TryMove(localInstanceId, targetX, targetY, rotated);
-                    }
                     else if (fromPlayer && targetPocket >= 0 && targetPocket < _pocketInventories.Count)
-                    {
                         InventoryTransfer.MoveStack(_playerInventory, _pocketInventories[targetPocket], itemId);
-                    }
                     else if (fromPocket && targetGrid == _pocketGrid &&
                         sourcePocket >= 0 && sourcePocket < _pocketInventories.Count &&
                         targetPocket >= 0 && targetPocket < _pocketInventories.Count)
-                    {
                         _movePocketBetweenPockets?.Invoke(sourcePocket, targetPocket);
-                    }
                     else if (fromPocket && targetGrid == _containerGrid)
-                    {
                         _putFromPocketAt?.Invoke(itemId, targetX, targetY, rotated);
-                    }
                     else if (fromPocket && targetGrid == _playerGrid &&
                         sourcePocket >= 0 && sourcePocket < _pocketInventories.Count)
-                    {
                         InventoryTransfer.MoveStackAt(_pocketInventories[sourcePocket],
                             _playerInventory, itemId, targetX, targetY, rotated);
-                    }
                 }
                 Refresh();
             }
+        }
+
+        private void TrySplitStack(GridInventory source, PlacedItem item, int quantity)
+        {
+            if (_splitStack == null || source == null || item.Count < 2 || quantity < 1 || quantity >= item.Count)
+                return;
+
+            if (ReferenceEquals(source, _container.Inventory))
+            {
+                if (_backpackAccessible && TryFindEmptyCell(_playerInventory, item, out int x, out int y))
+                {
+                    _splitStack(source, _playerInventory, item.ItemInstanceId, quantity, x, y, item.Rotated);
+                    Refresh();
+                    return;
+                }
+                if (!item.Rotated && item.Type.Width == 1 && item.Type.Height == 1)
+                    for (int i = 0; i < _pocketInventories.Count; i++)
+                        if (_pocketInventories[i].CanPlace(item.Type, 0, 0, false))
+                        {
+                            _splitStack(source, _pocketInventories[i], item.ItemInstanceId, quantity, 0, 0, false);
+                            Refresh();
+                            return;
+                        }
+            }
+            else if (TryFindEmptyCell(_container.Inventory, item, out int x, out int y))
+            {
+                _splitStack(source, _container.Inventory, item.ItemInstanceId, quantity, x, y, item.Rotated);
+                Refresh();
+                return;
+            }
+
+            // No destination means no mutation; keep the original stack intact.
+        }
+
+        private static bool TryFindEmptyCell(GridInventory inventory, PlacedItem item, out int x, out int y)
+        {
+            x = y = 0;
+            if (inventory == null || item.Type == null) return false;
+            for (int row = 0; row < inventory.Height; row++)
+                for (int column = 0; column < inventory.Width; column++)
+                    if (inventory.CanPlace(item.Type, column, row, item.Rotated))
+                    { x = column; y = row; return true; }
+            return false;
         }
 
         private void BeginDrag(PlacedItem item, int cellX, int cellY, bool fromPlayer,
@@ -636,7 +724,7 @@ namespace Signal.Game
             _root.pivot = new Vector2(0.5f, 0.5f);
             _root.sizeDelta = new Vector2(1000f, 560f);
 
-            Text heading = NewText("Heading", _root, "CONTAINER SEARCH  —  Drag to rearrange / move items between grids   [R] rotate   [ESC] close", 18,
+            Text heading = NewText("Heading", _root, "CONTAINER SEARCH  —  Drag / Shift+LMB quick move / Shift+RMB split half / Ctrl+RMB split one / RMB inspect", 16,
                 TextAnchor.MiddleLeft, TitleColor);
             SetTopLeft(heading.rectTransform, 24f, 12f, 760f, 30f);
 
