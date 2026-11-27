@@ -14,7 +14,7 @@ B-07 Neighbourhood Expansion is paused and must not be implemented while P-04 is
 ## 2. Current repository baseline (audit)
 
 ### Already implemented
-- P-02 Core progression: exactly Armor and Heat Protection; skill ranks; starting point budget; milestone point awards; free respecialisation; stable-ID save/load.
+- P-02 Core progression currently implements Armor and Heat Protection, skill ranks, starting point budget, milestone point awards, free respecialisation and stable-ID save/load. Health is now approved as the primary third attribute; Core, UI and save mapping must be extended.
 - Current catalog is explicitly provisional: 8 starting points, rank cap 5, one point per rank; candidate skills Repair, Production, Trading, Scavenging and Social.
 - F2 Player Development panel can allocate, deallocate and freely reset skill points.
 - P-03 equipment loadout supports Head, Torso, Legs, Feet and three generic accessory slots. Backpack occupies an accessory slot.
@@ -42,11 +42,11 @@ The player can:
 
 ### P-04a — Character development becomes gameplay-relevant
 - Replace the F2-only debug presentation with a proper player-facing Character panel while retaining a development/debug route if useful.
-- Show Armor and Heat Protection separately from skills.
+- Show Health (primary), Armor and Heat Protection separately from skills.
 - Show each skill's current rank, next-rank cost, unspent points and an understandable description of its actual effect.
 - Preserve free respecialisation and the total-point invariant.
-- Finalize the skill catalogue and define a small, testable effect for each selected skill.
-- Integrate effects into existing authoritative services rather than adding duplicate calculations to UI.
+- For initial skill-effect testing only, add two simple effects: one skill increases Health and one skill increases Heat Protection. These are temporary validation effects, not final balance. The exact skill identities and rank formulas must be recorded before implementation.
+- Integrate skill modifiers through the authoritative character-attribute calculation path rather than adding duplicate calculations to UI. Health is primary; Armor and Heat Protection remain distinct attributes.
 - Award milestone points only after successful, committed gameplay events; use stable event IDs and existing idempotent progression authority.
 - Persist all progression and milestone state.
 
@@ -101,7 +101,7 @@ No numerical bonus, chance, price formula, quality roll or extra reward is impli
 - No general combat system, enemy AI, targeting, damage model or police/combat consequences by implication.
 - No item durability/repair degradation beyond existing ItemInstanceState.
 - No skill XP grind or repeated-action point farming.
-- No new generic attributes; only Armor and Heat Protection.
+- No attributes beyond the now-confirmed three: Health (primary), Armor and Heat Protection.
 - No paid/cooldown/penalty respecialisation.
 - No changes to backpack/pocket rules, stack sizes or economy balance without separate approval.
 - No art/sprite creation or wearable overlays while the art pause remains active.
@@ -110,7 +110,7 @@ No numerical bonus, chance, price formula, quality roll or extra reward is impli
 
 ### Progression
 - Character UI accurately reflects Core ranks and point accounting.
-- Every approved skill has a demonstrable effect in its corresponding existing activity.
+- The two approved test skills demonstrably modify Health and Heat Protection through the authoritative attribute path; their temporary test formulas are documented and clearly marked non-final.
 - Milestone rewards occur only after successful completion and cannot duplicate on replay/save-load.
 - Respecialisation preserves all earned points and resets all allocated ranks.
 - F5/F9 round-trip preserves base attributes, skill ranks, point totals and milestone history.
@@ -145,7 +145,7 @@ No numerical bonus, chance, price formula, quality roll or extra reward is impli
 2. **Controls:** confirmed — scroll up/down selects next/previous slot only when no menu is open; H holsters the held item while preserving assignments. Number keys are not currently specified.
 3. **Consumable use:** confirmed — selecting/drawing a consumable never consumes it; an intentional left-click is required to use it.
 4. **Weapon scope:** selecting a weapon only holds it. Attack/action behavior remains a separate design decision and requires a dedicated proposal before implementation.
-5. **Tool scope:** selecting a tool only holds it. Identify the first one or two practical tool actions separately; existing repair/production tools are currently materials/ingredients.
-6. **Skill effects:** approve or revise the candidate skill list and effect proposals before numerical formulas are coded.
+5. **Tool scope:** no tool actions for now. Tools may be held through the quickbar, but they have no action behavior in this phase.
+6. **Initial skill-effect test:** confirmed in principle — one skill increases Health and one skill increases Heat Protection, for testing only. Skill identities and temporary rank formulas remain to be specified; do not invent them.
 
 P-04a can proceed with the approved Health attribute extension and the two temporary skill-effect tests once their skill IDs and rank formulas are defined. Do not invent combat or tool-use mechanics. The active-hand, quickbar controls and consumable activation contract above are confirmed. Weapon behavior remains a separately scoped future challenge.
