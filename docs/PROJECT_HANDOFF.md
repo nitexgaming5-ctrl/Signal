@@ -242,5 +242,5 @@ Health is now the primary character attribute, alongside Armor and Heat Protecti
 - Drag inventory item→quickbar slot assigns/replaces; old assignment remains physically in inventory. Drag quickbar slot→another slot swaps. Drag quickbar slot→inventory area unassigns; item remains in inventory.
 - Reuse existing drag/drop framework. Context-menu and drag/drop paths share one Core assignment API.
 - Quickbar entries reference stable physical item identities only. They never copy items, own items or duplicate ownership.
-- Moving an assigned item outside accessible carried inventory invalidates its assignment safely. A dropped backpack and its contents must never be made accessible through a quickbar reference.
+Quickbar may visually reference items in the accessible backpack or any personal pocket, but never owns/copies them. Dropping the backpack preserves assignments while disabling backpack-backed entries until recovery; dropped contents must never become accessible through quickbar.
 - P-04b is approved specification only, not implemented. Resolve duplicate assignment and equipped-item eligibility before coding. P-04c handles active hand; P-04d handles scroll/H behavior.
