@@ -147,6 +147,7 @@ namespace Signal.Core
         public int operationKind;
         public int day;
         public int minuteOfDay;
+        public bool sourceRetired;
     }
 
     [Serializable]
