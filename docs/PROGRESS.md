@@ -8,7 +8,7 @@ Last reconciled: **2026-11-27**. This is the concise status board. Historical de
 - Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
 - Working branch: `chore/collaboration-workflow-and-audit`; keep `main` untouched.
 - Application version **0.01**. Save data has no schema-version field or automatic migration chain; incompatible experimental saves may be discarded/recreated.
-- **Latest user-confirmed full EditMode suite: 552/552 passed** (P-03.7c). P-03.7d now adds three Core regression tests (theft split, same-grid partial merge and pocket-to-pocket full merge); expected current suite is **555**, pending Unity verification. Do not report 555/555 as passing yet.
+- **Latest user-confirmed full EditMode suite: 555/555 passed** (P-03.7d, 2026-11-27). User also confirmed Unity compilation, stack-ID integrity after split/merge/save, dropped-backpack isolation and F5/F9 restoration for equipped and dropped backpacks.
 - Unity Editor is authoritative for compilation, EditMode tests and Play Mode acceptance. Source review is not Unity verification.
 
 ## Strategic direction and sequence
@@ -45,14 +45,11 @@ P-03.7 stack-system status:
 1. P-03.7a Core operations — user-verified at 540/540.
 2. P-03.7b ownership-aware split/merge, lineage persistence and dropped-backpack authorization — user-verified at 550/550.
 3. P-03.7c backpack/pocket UI controls — user-verified at 552/552.
-4. P-03.7d searchable-container quick-transfer/split/merge source implementation and service quantity audit — implemented in source; expected current suite 555, Unity verification pending.
+4. P-03.7d searchable-container quick-transfer/split/merge and service quantity audit — **user-verified at 555/555**, with Unity compilation and Play Mode acceptance confirmed.
 
-Still required before P-03 closes:
-- Run the full current EditMode suite (expected 555) and inspect XML.
-- Play Mode: Shift+LMB both directions; Shift+RMB/Ctrl+RMB from container, backpack and pockets; partial/full merge, incompatible state, different-owner rejection; resident-property theft split with witness/no-witness; repeat with backpack dropped; F5/F9 while equipped and dropped.
-- Re-run existing repair, production, retail, customer-contract, Dirty Cash and Home Storage acceptance where stack quantities are involved.
-- Keep temporary repair/production debug cargo until acceptance is complete. At final P-03 closeout, remove only automatic fresh-session cargo seeding; retain F1 debug spawner.
-- Record exact user-reported results. Do not close P-03 before these checks.
+P-03.7d acceptance is complete: the user confirmed successful Unity compilation, **555/555 EditMode tests**, no duplicate stack IDs after split/merge/save, no access to dropped-backpack cargo, and correct F5/F9 restoration of equipped and dropped backpacks. The user also confirmed the Play Mode acceptance matrix. P-03.7 is closed.
+
+P-03 non-art closeout remains: verify the temporary repair/production debug loadout is not being granted automatically in a fresh game; retain the F1 debug item spawner. Wearable presentation remains deferred until the user supplies/authorizes the relevant art assets. Do not remove test tools or alter art as part of this cleanup.
 
 **P-03.6 Wearable Presentation is paused/deferred.** The task card is historical preparation only, not the next implementation step. No new sprites, sprite templates, clothing overlays, wardrobe panel or art import work.
 
