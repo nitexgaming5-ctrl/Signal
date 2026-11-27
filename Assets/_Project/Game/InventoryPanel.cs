@@ -764,7 +764,7 @@ namespace Signal.Game
             _root.pivot = new Vector2(0.5f, 0.5f);
             _root.anchoredPosition = Vector2.zero;
 
-            _title = NewText("Title", _root, "INVENTORY   Drag to chosen pocket   SHIFT+LMB quick move   SHIFT+RMB split half   CTRL+RMB split 1   R rotate   ESC cancel   E equip   1-7 unequip   B drop", 13,
+            _title = NewText("Title", _root, "INVENTORY   Drag onto stack to restack   Drag to chosen pocket   SHIFT+LMB quick move   SHIFT+RMB split half   CTRL+RMB split 1   R rotate   ESC cancel   E equip   1-7 unequip   B drop", 13,
                              TextAnchor.MiddleLeft, TitleColor);
 
             _characterRoot = NewRect("CharacterPanel", _root);
