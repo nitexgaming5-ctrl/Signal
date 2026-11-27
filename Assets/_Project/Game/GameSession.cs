@@ -209,9 +209,9 @@ namespace Signal.Game
         {
             _stats = new PlayerStats(startingMoney);
             // The expanded grid is inaccessible and unregistered until its backpack is equipped.
-            _inventory = new GridInventory(8, 6);
+            _emptyCarryInventory = new GridInventory(8, 6);
+            _inventory = _emptyCarryInventory;
             _storage = new GridInventory(8, 6);
-            _emptyCarryInventory = new GridInventory(1, 1);
             _playerPockets = new PlayerPocketBook();
             _playerQuickbar = new PlayerQuickbar();
             _playerEquipment = new PlayerEquipmentLoadout();
@@ -1392,7 +1392,8 @@ namespace Signal.Game
                 return;
 
             _playerEquipment.Clear();
-            _portableStorage.Clear();
+            _portableStorage.Clear(_inventoryStorages);
+            _inventory = _emptyCarryInventory;
             _equippedBackpackInstanceId = null;
             _droppedBackpackItem = null;
             if (_droppedBackpackVisual != null) Destroy(_droppedBackpackVisual);
@@ -1547,6 +1548,9 @@ namespace Signal.Game
             }
             _droppedBackpackItem = equipped;
             _equippedBackpackInstanceId = null;
+            // Detach the player-facing inventory reference immediately. The dropped bag's grid
+            // remains registered to its physical GUID and is no longer reachable through carry UI.
+            _inventory = _emptyCarryInventory;
             RefreshCarryPanelInventories();
             PlayerCharacterVisual visual = _room != null && _room.Player != null ? _room.Player.GetComponent<PlayerCharacterVisual>() : null;
             if (visual != null) visual.SetBackpackEquipped(false);
@@ -1576,6 +1580,14 @@ namespace Signal.Game
             if (!_droppedBackpackItem.HasValue || _droppedBackpackItem.Value.Item.ItemInstanceId != backpackId ||
                 !_backpackWorldBook.TryRecover(backpackId)) return false;
             EquippedItem dropped = _droppedBackpackItem.Value;
+            if (!_portableStorage.TryGetContents(backpackId, out GridInventory recoveredContents))
+            {
+                _backpackWorldBook.TryDrop(backpackId,
+                    _droppedBackpackVisual != null ? _droppedBackpackVisual.transform.position.x : _room.Player.position.x,
+                    _droppedBackpackVisual != null ? _droppedBackpackVisual.transform.position.y : _room.Player.position.y);
+                Say("The backpack's private storage could not be found. It remains on the ground.", 4f);
+                return false;
+            }
             if (!_playerEquipment.TryRestoreEquipped(backpackId, dropped.Item.Type, dropped.Item.State,
                 dropped.Slot, dropped.ArmorModifier, dropped.HeatProtectionModifier))
             {
@@ -1584,8 +1596,10 @@ namespace Signal.Game
                 Say("The backpack could not be equipped. It remains on the ground.", 4f);
                 return false;
             }
+            _inventory = recoveredContents;
             if (!EnsureBackpackGridRegistered(backpackId))
             {
+                _inventory = _emptyCarryInventory;
                 _playerEquipment.TryTakeEquipped(dropped.Slot, out _);
                 Vector2 failedPosition = _droppedBackpackVisual != null ? (Vector2)_droppedBackpackVisual.transform.position : (Vector2)_room.Player.position;
                 _backpackWorldBook.TryDrop(backpackId, failedPosition.x, failedPosition.y);
@@ -1705,12 +1719,13 @@ namespace Signal.Game
                 return false;
             }
             if (definition.PortableBackpack &&
-                (definition.BackpackWidth != _inventory.Width || definition.BackpackHeight != _inventory.Height))
+                (definition.BackpackWidth < 1 || definition.BackpackHeight < 1))
             {
-                Say("This prototype backpack capacity does not match the current test inventory grid.", 4f);
+                Say("This backpack has invalid storage dimensions.", 4f);
                 return false;
             }
 
+            GridInventory previousActiveInventory = _inventory;
             if (!_playerEquipment.TryEquip(sourceInventory, item.ItemInstanceId, definition.EquipmentSlot,
                 definition.ArmorModifier, definition.HeatProtectionModifier))
             {
@@ -1720,17 +1735,23 @@ namespace Signal.Game
 
             if (definition.PortableBackpack)
             {
-                if (!_portableStorage.TryRegister(item.ItemInstanceId, _inventory))
+                if (!_portableStorage.TryRegister(item.ItemInstanceId, definition.BackpackWidth,
+                    definition.BackpackHeight, _inventoryStorages) ||
+                    !_portableStorage.TryGetContents(item.ItemInstanceId, out GridInventory backpackContents))
                 {
-                    _playerEquipment.TryUnequip(_inventory, definition.EquipmentSlot);
-                    Say("The backpack could not attach its inventory. Nothing was changed.", 4f);
+                    _playerEquipment.TryUnequip(sourceInventory, definition.EquipmentSlot);
+                    Say("The backpack could not allocate its private inventory. Nothing was changed.", 4f);
                     return false;
                 }
 
+                _inventory = backpackContents;
                 if (!EnsureBackpackGridRegistered(item.ItemInstanceId))
                 {
+                    _inventory = previousActiveInventory;
                     _portableStorage.TryUnregister(item.ItemInstanceId);
-                    _playerEquipment.TryUnequip(_inventory, definition.EquipmentSlot);
+                    _inventoryStorages.TryUnregister(PortableStorageBook.GetStorageIdentity(item.ItemInstanceId));
+                    _economicContainers.TryUnregister(backpackContents);
+                    _playerEquipment.TryUnequip(sourceInventory, definition.EquipmentSlot);
                     Say("Backpack storage could not be authorised. Nothing was changed.", 4f);
                     return false;
                 }
@@ -1743,9 +1764,11 @@ namespace Signal.Game
                 if (!_backpackWorldBook.TryRegisterEquipped(item.ItemInstanceId, _portableStorage))
                 {
                     _equippedBackpackInstanceId = null;
-                    _economicContainers.TryUnregister(_inventory);
+                    _inventory = previousActiveInventory;
+                    _economicContainers.TryUnregister(backpackContents);
                     _portableStorage.TryUnregister(item.ItemInstanceId);
-                    _playerEquipment.TryUnequip(_inventory, definition.EquipmentSlot);
+                    _inventoryStorages.TryUnregister(PortableStorageBook.GetStorageIdentity(item.ItemInstanceId));
+                    _playerEquipment.TryUnequip(sourceInventory, definition.EquipmentSlot);
                     RefreshCarryPanelInventories();
                     if (visual != null) visual.SetBackpackEquipped(false);
                     Say("Backpack world state could not be registered. Nothing was changed.", 4f);
@@ -2088,7 +2111,7 @@ namespace Signal.Game
         private void SaveGame()
         {
             Vector2 position = _room.PlayerBody.position;
-            SaveData data = SaveMapper.Capture(_stats, _inventory, _storage, _clock, _heat, _rent,
+            SaveData data = SaveMapper.Capture(_stats, _emptyCarryInventory, _storage, _clock, _heat, _rent,
                                                _city.CurrentPlace, position.x, position.y, _itemKnowledge,
                                                _playerDiscoveries, _miloOpportunity, _playerRelationships,
                                                _assetOwnership, _economicTransactions, _economicAccounts, _retailTransactions,
@@ -2103,6 +2126,7 @@ namespace Signal.Game
             _playerQuickbar.Reconcile(IsQuickbarItemPresent);
             PlayerQuickbarSaveMapper.Capture(_playerQuickbar, data);
             CaptureEquipment(data);
+            PortableBackpackStorageSaveMapper.Capture(_portableStorage, data);
             if (_droppedBackpackItem.HasValue)
                 data.droppedBackpack = ToSavedEquippedItem(_droppedBackpackItem.Value, _assetOwnership);
             PortableBackpackWorldSaveMapper.Capture(_backpackWorldBook, data);
@@ -2137,7 +2161,7 @@ namespace Signal.Game
             if (_workshopUpgradePanel != null) _workshopUpgradePanel.Close();
             if (_npcAgendaPanel != null) _npcAgendaPanel.Close();
             _activeSearchableContainer = null;
-            LoadReport report = SaveMapper.Apply(data, _stats, _inventory, _storage, _clock, _heat, _rent,
+            LoadReport report = SaveMapper.Apply(data, _stats, _emptyCarryInventory, _storage, _clock, _heat, _rent,
                 ResolveType, _itemKnowledge, _playerDiscoveries, _playerRelationships, _assetOwnership, _economicTransactions,
                 _economicAccounts, _retailTransactions, _shopSaleTransactions, _criminalProgression, _crimeOutcomes,
                 _contactInventory, _illicitExchanges, _dirtyCashCleanings,
@@ -2148,8 +2172,43 @@ namespace Signal.Game
                 Say("Load failed: " + report.Error);
                 return;
             }
-            RestoreEquipment(data);
             int skippedPocketItems = PlayerPocketSaveMapper.Apply(data, _playerPockets, ResolveType, _assetOwnership);
+            RestoreEquipment(data);
+            var restoredItemIds = new HashSet<Guid>();
+            foreach (PlacedItem item in _emptyCarryInventory.Items) restoredItemIds.Add(item.ItemInstanceId);
+            if (_playerPockets != null)
+                for (int pocketIndex = 0; pocketIndex < PlayerPocketBook.PocketCount; pocketIndex++)
+                    foreach (PlacedItem item in _playerPockets.GetPocket(pocketIndex).Items)
+                        restoredItemIds.Add(item.ItemInstanceId);
+            bool hasBackpackStorageRecords = data.portableBackpackStorages != null &&
+                data.portableBackpackStorages.Count > 0;
+            if (hasBackpackStorageRecords)
+            {
+                int skippedBackpackItems = PortableBackpackStorageSaveMapper.Apply(data, _portableStorage,
+                    _inventoryStorages, ResolveType, restoredItemIds);
+                if (skippedBackpackItems > 0)
+                    Debug.LogWarning("GameSession: skipped " + skippedBackpackItems + " invalid backpack storage records/items while loading.");
+            }
+            if (_equippedBackpackInstanceId.HasValue && hasBackpackStorageRecords &&
+                _portableStorage.TryGetContents(_equippedBackpackInstanceId.Value, out GridInventory activeBackpackGrid))
+                _inventory = activeBackpackGrid;
+            else if (_droppedBackpackItem.HasValue)
+            {
+                if (!hasBackpackStorageRecords)
+                {
+                    // Deterministic legacy migration: the old global items grid belonged to the
+                    // sole dropped backpack. Keep it attached to that bag and give the player a
+                    // fresh empty staging grid.
+                    Guid legacyDroppedId = _droppedBackpackItem.Value.Item.ItemInstanceId;
+                    _portableStorage.TryRegister(legacyDroppedId, _emptyCarryInventory);
+                    RegisterStorageIdentity(InventoryStorageKind.PlayerBackpack,
+                        legacyDroppedId.ToString("N"), "contents", _emptyCarryInventory);
+                    _emptyCarryInventory = new GridInventory(8, 6);
+                }
+                _inventory = _emptyCarryInventory;
+            }
+            else
+                _inventory = _emptyCarryInventory;
             int skippedQuickbarItems = PlayerQuickbarSaveMapper.Apply(data, _playerQuickbar, IsQuickbarItemPresent);
             _playerQuickbar.ResetActiveHand(); // assignments persist; every load starts with an empty, holstered hand.
             if (skippedQuickbarItems > 0)
@@ -3215,6 +3274,8 @@ namespace Signal.Game
                 _storagePanel.SetCarriedInventories(carriedInventories,
                     item => GetCarryInventory(item.Type, item.Rotated, item.State));
             if (_workspace != null) _workspace.SetCarriedInventories(carriedInventories);
+            if (_panel != null) _panel.SetInventory(_inventory);
+            if (_miloScenario != null) _miloScenario.SetInventory(_inventory);
         }
 
         private GridInventory GetCarryInventory(ItemType type, bool rotated = false,
