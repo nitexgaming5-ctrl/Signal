@@ -1,6 +1,6 @@
 # P-03.7 — Stack System & Inventory Interaction
 
-**Status:** In progress — P-03.7a verified (540/540); P-03.7b verified (550/550); P-03.7c verified (552/552); P-03.7d source implemented, Unity verification pending (expected 553 tests)  
+**Status:** In progress — P-03.7a verified (540/540); P-03.7b verified (550/550); P-03.7c verified (552/552); P-03.7d source implemented, Unity verification pending (expected 555 tests)  
 **Started:** 2026-11-27  
 **Branch:** `chore/collaboration-workflow-and-audit`  
 **Prerequisite:** Inventory & Grid Architecture Audit — user-confirmed 531/531 EditMode and Play Mode acceptance
@@ -250,14 +250,14 @@ Source commits:
 - theft state assertion correction: 3581d40c603f3df9d5d8d2337c5c0391fdc7573e
 - UI legend refinement: 7dce17c0aeea24171adb237379f528c150eb71f6
 
-**Verification:** P-03.7d has not yet been compiled or run in Unity. The user-confirmed baseline remains 552/552; with the new regression test, the expected current EditMode suite is **553**. Play Mode acceptance for searchable-container split/merge/quick-transfer is also pending.
+**Verification:** P-03.7d has not yet been compiled or run in Unity. The user-confirmed baseline remains 552/552; with the theft-split test and two stack-merge tests, the expected current EditMode suite is **555**. Play Mode acceptance for searchable-container split/merge/quick-transfer is also pending.
 
 ### P-03.7d compile diagnostic fix
 
 - Unity reported CS0136 in `SearchableContainerPanel.UpdatePointer`: the container-origin `out PlacedItem containerItem` declaration in the LMB drag branch conflicted with the same local name declared in the earlier RMB inspect/split branch.
 - Renamed the LMB branch variable and its references to `draggedContainerItem`. This is a scope-only correction; interaction logic is unchanged.
 - Commit: `bb572b2f2633341a1a368a31f1ae178bf1eb7a1d`.
-- Unity compilation and the expected 553/553 EditMode suite remain pending user verification; searchable-container Play Mode acceptance also remains pending.
+- Unity compilation and the expected 555/555 EditMode suite remain pending user verification; searchable-container Play Mode acceptance also remains pending.
 
 ### Drag-to-restack follow-up
 
