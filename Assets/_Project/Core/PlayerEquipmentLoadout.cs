@@ -116,7 +116,7 @@ namespace Signal.Core
                 heat += item.HeatProtectionModifier;
             }
 
-            return new EffectiveCharacterAttributes(Clamp(armor), Clamp(heat));
+            return new EffectiveCharacterAttributes(baseAttributes.Health, Clamp(armor), Clamp(heat));
         }
 
         public bool ContainsInstance(Guid itemInstanceId)
