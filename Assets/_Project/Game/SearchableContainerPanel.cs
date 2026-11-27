@@ -290,27 +290,27 @@ namespace Signal.Game
                     return;
 
                 if (inContainer &&
-                    _container.Inventory.TryGetItemAt(containerX, containerY, out PlacedItem containerItem) &&
-                    _container.IsDiscovered(containerItem.ItemInstanceId))
+                    _container.Inventory.TryGetItemAt(containerX, containerY, out PlacedItem draggedContainerItem) &&
+                    _container.IsDiscovered(draggedContainerItem.ItemInstanceId))
                 {
                     if (shift)
                     {
-                        _takeFirstFit?.Invoke(containerItem.ItemInstanceId);
+                        _takeFirstFit?.Invoke(draggedContainerItem.ItemInstanceId);
                         Refresh();
                         return;
                     }
-                    if (_lastClickId == containerItem.ItemInstanceId &&
+                    if (_lastClickId == draggedContainerItem.ItemInstanceId &&
                         Time.unscaledTime - _lastClickTime <= DoubleClickWindow)
                     {
                         _lastClickId = Guid.Empty;
                         _lastClickTime = -10f;
-                        _takeFirstFit?.Invoke(containerItem.ItemInstanceId);
+                        _takeFirstFit?.Invoke(draggedContainerItem.ItemInstanceId);
                         Refresh();
                         return;
                     }
-                    _lastClickId = containerItem.ItemInstanceId;
+                    _lastClickId = draggedContainerItem.ItemInstanceId;
                     _lastClickTime = Time.unscaledTime;
-                    BeginDrag(containerItem, containerX, containerY, false, false);
+                    BeginDrag(draggedContainerItem, containerX, containerY, false, false);
                 }
                 else if (inPlayer &&
                     _playerInventory.TryGetItemAt(playerX, playerY, out PlacedItem playerItem))
