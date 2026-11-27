@@ -114,7 +114,7 @@ P-03.7 is closed and user-verified at **555/555**, including compile and Play Mo
 ### Follow-up bug report (2026-11-27)
 - User confirmed the previous quickbar/H-toggle changes at **571/571**.
 - Drag ghost now promotes itself above all HUD siblings while dragging (commit `d980ebba7d53a3ffbfb602b74adb9593b1e652e4`). Needs Unity verification.
-- Backpack lifecycle defect identified: all backpacks currently share the single `_inventory` grid; dropping unregisters it but does not detach the session from that grid, and the debug loadout blocks replacement while a bag is dropped. Next correction is per-backpack grids, active-grid switching, independent dropped storage and save/load support. Awaiting user's choice on whether recovering a dropped bag while another is equipped should auto-swap (drop current at feet) or require manual drop first.
+- Backpack lifecycle defect identified: all backpacks currently share the single `_inventory` grid; dropping unregisters it but does not detach the session from that grid, and the debug loadout blocks replacement while a bag is dropped. Next correction is per-backpack grids, active-grid switching, independent dropped storage and save/load support. User approved automatic swap: the currently equipped bag drops at the player's feet and the recovered bag equips.
 
 
 ### Backpack isolation + drag-layer correction (2026-11-27)
