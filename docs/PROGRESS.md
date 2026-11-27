@@ -8,7 +8,7 @@ Last reconciled: **2026-11-27**. This is the concise status board. Historical de
 - Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
 - Working branch: `chore/collaboration-workflow-and-audit`; keep `main` untouched.
 - Application version **0.01**. Save data has no schema-version field or automatic migration chain; incompatible experimental saves may be discarded/recreated.
-- **Latest user-confirmed full EditMode suite: 552/552 passed** (P-03.7c). P-03.7d added one Core regression test; expected current suite is **553**, pending Unity verification. Do not report 553/553 as passing yet.
+- **Latest user-confirmed full EditMode suite: 552/552 passed** (P-03.7c). P-03.7d now adds three Core regression tests (theft split, same-grid partial merge and pocket-to-pocket full merge); expected current suite is **555**, pending Unity verification. Do not report 553/553 as passing yet.
 - Unity Editor is authoritative for compilation, EditMode tests and Play Mode acceptance. Source review is not Unity verification.
 
 ## Strategic direction and sequence
@@ -45,10 +45,10 @@ P-03.7 stack-system status:
 1. P-03.7a Core operations — user-verified at 540/540.
 2. P-03.7b ownership-aware split/merge, lineage persistence and dropped-backpack authorization — user-verified at 550/550.
 3. P-03.7c backpack/pocket UI controls — user-verified at 552/552.
-4. P-03.7d searchable-container quick-transfer/split/merge source implementation and service quantity audit — implemented in source; expected current suite 553, Unity verification pending.
+4. P-03.7d searchable-container quick-transfer/split/merge source implementation and service quantity audit — implemented in source; expected current suite 555, Unity verification pending.
 
 Still required before P-03 closes:
-- Run the full current EditMode suite (expected 553) and inspect XML.
+- Run the full current EditMode suite (expected 555) and inspect XML.
 - Play Mode: Shift+LMB both directions; Shift+RMB/Ctrl+RMB from container, backpack and pockets; partial/full merge, incompatible state, different-owner rejection; resident-property theft split with witness/no-witness; repeat with backpack dropped; F5/F9 while equipped and dropped.
 - Re-run existing repair, production, retail, customer-contract, Dirty Cash and Home Storage acceptance where stack quantities are involved.
 - Keep temporary repair/production debug cargo until acceptance is complete. At final P-03 closeout, remove only automatic fresh-session cargo seeding; retain F1 debug spawner.
@@ -232,6 +232,6 @@ P-03.7c follow-up: split placement preserves rotated source footprints and keeps
 
 Latest P-03.7c source commits after the first UI log: 02b4d8f1d3322f0a03f0e9993af42c1dac5d8610, dfdd9f564c8d1febcb07891e81bb0b5165c512af, aff762ca81ffef03e850bf330af9b1fcb77dc1d2, eb743aaa0b373818ab7e26563699001fe4d78a1b, db5a968e215ab7a9cec74cd4511b71b1f06c58ca.
 
-- **P-03.7d compile correction:** fixed Unity CS0136 in `SearchableContainerPanel.UpdatePointer` by renaming the second overlapping `containerItem` local to `draggedContainerItem` (commit `bb572b2f2633341a1a368a31f1ae178bf1eb7a1d`). Source-level audit remains complete; Unity compile, expected 553/553 EditMode tests, and Play Mode acceptance await user verification.
+- **P-03.7d compile correction:** fixed Unity CS0136 in `SearchableContainerPanel.UpdatePointer` by renaming the second overlapping `containerItem` local to `draggedContainerItem` (commit `bb572b2f2633341a1a368a31f1ae178bf1eb7a1d`). Source-level audit remains complete; Unity compile, expected 555/555 EditMode tests, and Play Mode acceptance await user verification.
 
-- **P-03.7 drag-to-restack follow-up:** player inventory now supports dragging a stack onto a compatible occupied stack across backpack/backpack, backpack/pocket, pocket/backpack and pocket/pocket. GameSession routes merges through StackTransferService; same-owner/state/capacity checks, destination-ID survival, partial remainder identity and dropped-backpack access guards remain authoritative. UI legend updated. Commits: `86ba1397ac77457fc0c9be41970afbcfa00ae601`, `cdf65030db48f21409dccb47d296952ce72e8c2e`, `2615a873e405b94a250269a337db7dd3c353277e`. Unity verification pending.
+- **P-03.7 drag-to-restack follow-up:** player inventory now supports dragging a stack onto a compatible occupied stack across backpack/backpack, backpack/pocket, pocket/backpack and pocket/pocket. GameSession routes merges through StackTransferService; same-owner/state/capacity checks, destination-ID survival, partial remainder identity and dropped-backpack access guards remain authoritative. UI legend updated. Commits: `86ba1397ac77457fc0c9be41970afbcfa00ae601`, `cdf65030db48f21409dccb47d296952ce72e8c2e`, `2615a873e405b94a250269a337db7dd3c353277e`. Unity verification pending. Added two focused Core regressions for same-grid partial merging and full pocket-to-pocket merging; expected current EditMode count is 555.
