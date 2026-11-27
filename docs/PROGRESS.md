@@ -146,3 +146,11 @@ Required regression suite: pairwise isolation between representative player/back
 - This is still not completion of storage isolation: GameSession still uses its session-wide `_inventory` as the grid attached to a backpack, so it cannot yet maintain distinct grids for multiple physical bags. Multiple dropped backpack metadata/visuals, automatic swap, per-backpack save/load, business stock and NPC-owned pocket runtime inventories remain open. Do not mark the global invariant complete.
 - User confirmed the full Unity EditMode suite at **576/576** after the storage-registry integration and compile correction. Runtime Play Mode verification of the new backpack identity registration and the drag overlay fix remains pending.
 
+### Per-backpack storage allocation — Core step (2026-11-27)
+- Extended `PortableStorageBook` with a registry-backed registration overload. It creates a new `GridInventory` for each physical backpack GUID, derives the canonical `PlayerBackpack/<GUID>/contents` identity, and only commits the storage-book entry when the registry accepts the unique grid.
+- Added `GetStorageIdentity(Guid)` so runtime and save/load code share one canonical identity format rather than reconstructing it independently.
+- Added two EditMode tests: two backpacks receive different grids with bidirectional content isolation; duplicate registration leaves both book and registry unchanged.
+- Commits: `bd9ed8c515265120e6d5ad98e26bc1007fe9cd56`, `7d374b16991da37d864999c9f560ba7a0fe5b704`.
+- This is a Core allocation primitive only. GameSession still needs to switch the active inventory view, preserve old bag contents on drop/swap, support multiple dropped physical items/visuals, and save/restore every bag by identity. The legacy overload that attaches an existing grid remains for existing runtime compatibility until that integration is completed.
+- Expected EditMode count increase: +2 (576 to 578). Unity compile, EditMode and Play Mode verification are pending.
+
