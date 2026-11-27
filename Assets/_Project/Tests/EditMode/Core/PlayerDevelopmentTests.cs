@@ -15,6 +15,7 @@ namespace Signal.Core.Tests
             Assert.That(attributes.Armor, Is.EqualTo(2));
             Assert.That(attributes.HeatProtection, Is.EqualTo(3));
             Assert.That(attributes.TrySetBaseValues(-1, 0, 0), Is.False);
+            Assert.That(attributes.TrySetBaseValues(0, 0, 0), Is.False);
             Assert.That(attributes.Health, Is.EqualTo(120));
             Assert.That(attributes.Armor, Is.EqualTo(2));
         }
