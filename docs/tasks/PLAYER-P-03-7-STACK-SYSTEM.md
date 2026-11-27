@@ -174,3 +174,9 @@ Source files:
 Source commits include: c5ff1c2fd60d9fb069de9f6dd8ea9a580d976b81, 2dc732aa32d2856e23b05246f6d6bcdd4f90f895, 413587b8c7f64158757260244aa38cab6d092b007, ff57dc7f5162015cd17ec1c2b1da98f50a315027, a6973678708e5225c8ddca7b4d512918585923b1, 6b2ed39dbc296e192a1c02f9a5ed5d2fc00e8e5e, 96a53c220457d1f6f9f62e6b8780794beccf6612.
 
 Important boundary: P-03.7b is source-implemented but not yet Unity-compiled or user-verified. Do not wire UI controls directly to raw StackOperations; use GameSession.StackTransfers. Next: inspect/fix any Unity compile diagnostics, then run the full EditMode suite and Play Mode dropped-backpack acceptance before starting P-03.7c UI.
+
+### P-03.7b follow-up hardening — retired identity reuse
+
+- StackLineageBook now maintains a runtime retired-ID set. A fully consumed source ID cannot be used as a later merge source/destination, and rollback removes the retired marker together with the lineage record.
+- StackTransferService generates fresh split IDs while excluding both currently owned and historically retired IDs.
+- Added a regression assertion that deliberately reintroduces a retired source GUID into a grid and verifies the stack service refuses to operate on it. Save restoration still purges such stale records from all supplied grids.
