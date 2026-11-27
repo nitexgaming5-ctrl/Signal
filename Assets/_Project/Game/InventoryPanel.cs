@@ -189,7 +189,10 @@ namespace Signal.Game
         public void SetOpen(bool open)
         {
             if (!open)
+            {
                 CancelDrag();
+                CloseContextMenu();
+            }
 
             _open = open;
 
@@ -235,6 +238,7 @@ namespace Signal.Game
                 return;
 
             UpdatePointer(keyboard, mouse);
+            if (_open) { RefreshQuickbarViews(); RefreshCharacterPanel(); }
         }
 
         private void UpdatePointer(Keyboard keyboard, Mouse mouse)
@@ -920,7 +924,7 @@ namespace Signal.Game
             buttonImage.color = new Color32(0x8B, 0x4A, 0x2B, 0xFF);
             _dropButton = buttonObject.GetComponent<Button>();
             _dropButton.targetGraphic = buttonImage;
-            _dropButton.onClick.AddListener(() => _dropBackpack?.Invoke());
+            _dropButton.onClick.AddListener(() => { _dropBackpack?.Invoke(); Refresh(); });
             SetTopLeft(buttonObject.GetComponent<RectTransform>(), 10f, 356f, 196f, 42f);
             Text buttonLabel = NewText("ButtonLabel", buttonObject.transform, "DROP BACKPACK  [B]", 13,
                 TextAnchor.MiddleCenter, Color.white);
