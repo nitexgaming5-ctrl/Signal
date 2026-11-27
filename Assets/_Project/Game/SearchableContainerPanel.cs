@@ -724,7 +724,7 @@ namespace Signal.Game
             _root.pivot = new Vector2(0.5f, 0.5f);
             _root.sizeDelta = new Vector2(1000f, 560f);
 
-            Text heading = NewText("Heading", _root, "CONTAINER SEARCH  —  Drag / Shift+LMB quick move / Shift+RMB split half / Ctrl+RMB split one / RMB inspect", 16,
+            Text heading = NewText("Heading", _root, "CONTAINER SEARCH  —  Shift+LMB quick move · Shift+RMB split half · Ctrl+RMB split one · RMB inspect", 16,
                 TextAnchor.MiddleLeft, TitleColor);
             SetTopLeft(heading.rectTransform, 24f, 12f, 760f, 30f);
 
