@@ -1,6 +1,6 @@
 # Progress — current repository truth
 
-Last reconciled: **2026-11-26**. This is the concise status board. Historical detail belongs in [the November log](progress/LOG-2026-11.md); approved rules and acceptance detail belong in linked design/task documents.
+Last reconciled: **2026-11-27**. This is the concise status board. Historical detail belongs in [the November log](progress/LOG-2026-11.md); approved rules and acceptance detail belong in linked design/task documents.
 
 ## Project baseline
 - Unity **6000.6.9f1**, 2D URP.
@@ -8,7 +8,7 @@ Last reconciled: **2026-11-26**. This is the concise status board. Historical de
 - Active scene: `Assets/_Project/Scenes/HideoutSlice.unity`.
 - Working branch: `chore/collaboration-workflow-and-audit`; keep `main` untouched.
 - Application version **0.01**. Save data has no schema-version field or automatic migration chain; incompatible experimental saves may be discarded/recreated.
-- **Latest user-confirmed full EditMode suite: 504/504 passed**, after the Play Mode-only guard for temporary NPC visual-test residents. One automatic-pocket-routing regression test was committed afterward; expected current suite is **505**, but 505 has not been confirmed. Do not report 505/505 as passing.
+- **Latest user-confirmed full EditMode suite: 552/552 passed** (P-03.7c). P-03.7d added one Core regression test; expected current suite is **553**, pending Unity verification. Do not report 553/553 as passing yet.
 - Unity Editor is authoritative for compilation, EditMode tests and Play Mode acceptance. Source review is not Unity verification.
 
 ## Strategic direction and sequence
@@ -41,11 +41,18 @@ Implemented in source:
 - Pocket-aware integration/source audit covers Retail SELL, Dirty Cash selection, Home Storage, Searchable Container, workbench repair, multi-grid production, customer flows and GameSession receipt/transfer paths. Dropped-backpack cargo is excluded from accessible views.
 - Temporary fresh-session debug loadout seeds a backpack and repair/production test cargo. It is test scaffolding, not intended new-game inventory.
 
-Still outstanding:
-1. Run the complete current EditMode suite (expected **505**) and inspect the XML.
-2. Complete Play Mode acceptance: fresh session/debug loadout; equip/drop/recover; F5/F9 while equipped and dropped; pocket access while bag is dropped; manual exact-target moves/swaps; P3 ordinary-search exclusion contract; service flows with items split across backpack/pockets; ensure dropped cargo is inaccessible.
-3. Keep temporary repair/production cargo until the user finishes acceptance. At final P-03 closeout, remove only automatic fresh-session cargo seeding; retain the F1 debug item spawner.
-4. Record user-confirmed results. Do not mark P-03 complete before these checks.
+P-03.7 stack-system status:
+1. P-03.7a Core operations — user-verified at 540/540.
+2. P-03.7b ownership-aware split/merge, lineage persistence and dropped-backpack authorization — user-verified at 550/550.
+3. P-03.7c backpack/pocket UI controls — user-verified at 552/552.
+4. P-03.7d searchable-container quick-transfer/split/merge source implementation and service quantity audit — implemented in source; expected current suite 553, Unity verification pending.
+
+Still required before P-03 closes:
+- Run the full current EditMode suite (expected 553) and inspect XML.
+- Play Mode: Shift+LMB both directions; Shift+RMB/Ctrl+RMB from container, backpack and pockets; partial/full merge, incompatible state, different-owner rejection; resident-property theft split with witness/no-witness; repeat with backpack dropped; F5/F9 while equipped and dropped.
+- Re-run existing repair, production, retail, customer-contract, Dirty Cash and Home Storage acceptance where stack quantities are involved.
+- Keep temporary repair/production debug cargo until acceptance is complete. At final P-03 closeout, remove only automatic fresh-session cargo seeding; retain F1 debug spawner.
+- Record exact user-reported results. Do not close P-03 before these checks.
 
 **P-03.6 Wearable Presentation is paused/deferred.** The task card is historical preparation only, not the next implementation step. No new sprites, sprite templates, clothing overlays, wardrobe panel or art import work.
 
