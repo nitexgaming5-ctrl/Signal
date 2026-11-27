@@ -50,6 +50,45 @@ namespace Signal.Core
             return _states.TryGetValue(id, out state);
         }
 
+        /// <summary>
+        /// Selects the closest dropped backpack within the supplied radius. Equal-distance
+        /// candidates are resolved by stable GUID order so interaction does not depend on
+        /// dictionary enumeration order.
+        /// </summary>
+        public bool TryGetNearestDropped(float x, float y, float maxDistance,
+            out PortableBackpackWorldState nearest)
+        {
+            nearest = default;
+            if (!IsFinite(x) || !IsFinite(y) || !IsFinite(maxDistance) || maxDistance < 0f)
+                return false;
+
+            float maxDistanceSquared = maxDistance * maxDistance;
+            float nearestDistanceSquared = float.MaxValue;
+            bool found = false;
+            foreach (PortableBackpackWorldState candidate in _states.Values)
+            {
+                if (candidate.Status != PortableBackpackWorldStatus.Dropped)
+                    continue;
+
+                float dx = candidate.WorldX - x;
+                float dy = candidate.WorldY - y;
+                float distanceSquared = dx * dx + dy * dy;
+                if (distanceSquared > maxDistanceSquared)
+                    continue;
+
+                if (!found || distanceSquared < nearestDistanceSquared ||
+                    (distanceSquared == nearestDistanceSquared &&
+                     candidate.BackpackInstanceId.CompareTo(nearest.BackpackInstanceId) < 0))
+                {
+                    nearest = candidate;
+                    nearestDistanceSquared = distanceSquared;
+                    found = true;
+                }
+            }
+
+            return found;
+        }
+
         public IReadOnlyList<PortableBackpackWorldState> GetAll() =>
             new List<PortableBackpackWorldState>(_states.Values).AsReadOnly();
 
