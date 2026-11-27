@@ -28,12 +28,13 @@ namespace Signal.Core
                     destinationCustodianId = record.DestinationCustodianId,
                     operationKind = (int)record.OperationKind,
                     day = record.Day,
-                    minuteOfDay = record.MinuteOfDay
+                    minuteOfDay = record.MinuteOfDay,
+                    sourceRetired = record.SourceRetired
                 });
             }
         }
 
-        public static int Apply(SaveData source, StackLineageBook destination)
+        public static int Apply(SaveData source, StackLineageBook destination, AssetOwnershipBook ownership = null, params GridInventory[] inventories)
         {
             if (destination == null) throw new ArgumentNullException(nameof(destination));
             destination.Clear();
@@ -56,12 +57,34 @@ namespace Signal.Core
                     var record = new StackMergeRecord(operationId, sourceId, destinationId, definitionId,
                         saved.quantity, saved.ownerActorId, saved.sourceCustodianId,
                         saved.destinationCustodianId, (StackLineageOperationKind)saved.operationKind,
-                        saved.day, saved.minuteOfDay);
+                        saved.day, saved.minuteOfDay, saved.sourceRetired);
                     if (!destination.TryRecordMerge(record)) skipped++;
                 }
                 catch (ArgumentException) { skipped++; }
+            }
+            var retiredIds = new HashSet<Guid>();
+            foreach (StackMergeRecord record in destination.Merges)
+                if (record.SourceRetired) retiredIds.Add(record.SourceStackId);
+
+            if (retiredIds.Count > 0 && inventories != null)
+            {
+                foreach (GridInventory inventory in inventories)
+                {
+                    if (inventory == null) continue;
+                    bool changed = false;
+                    foreach (Guid retiredId in retiredIds)
+                    {
+                        if (!inventory.TryGetItemInstance(retiredId, out _)) continue;
+                        if (inventory.TryRemoveItemInstanceSilently(retiredId))
+                            changed = true;
+                        if (ownership != null && ownership.TryGetOwner(retiredId, out EconomicActorId owner))
+                            ownership.TryRemove(retiredId, owner);
+                    }
+                    if (changed) inventory.NotifyChanged();
+                }
             }
             return skipped;
         }
     }
 }
+
