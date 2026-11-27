@@ -161,5 +161,5 @@ The user superseded P-02's former two-attribute model: **Health is the primary a
 - Right-click an inventory item for **Inspect** or **Equip to Quick Slot → 1–6**.
 - Reuse the existing drag/drop framework: inventory item→slot assigns/replaces; slot→slot swaps; slot→inventory unassigns. Replacing a slot never removes the previously assigned item from inventory.
 - Context menu and drag/drop route through one Core assignment API. Quickbar stores stable identity references only; it never owns or duplicates physical items.
-- Moving an assigned item outside accessible carried inventory must invalidate the reference safely. Dropped backpack cargo must never be exposed through quickbar state.
+Quickbar references may render items stored in the backpack or any personal pocket; they never own/copy items. Dropping the backpack preserves but disables backpack-backed entries until recovery; dropped contents remain inaccessible.
 - This is approved design, not implementation. Two edge rules remain open before coding: duplicate assignment of one item to multiple slots, and whether equipped clothing/accessory items can be assigned.
