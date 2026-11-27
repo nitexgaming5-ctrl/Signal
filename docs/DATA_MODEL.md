@@ -205,3 +205,10 @@ The registry deliberately does not grant player access, set item ownership, or d
 
 **Migration is incomplete:** GameSession registers the current backpack grid under its physical backpack GUID (`PlayerBackpack/<GUID>/contents`) and checks that identity before economic access (commit `53e88a8a3d281469b484f4ef5e2d76b495bb237d`). Core now also exposes a registry-backed `PortableStorageBook` allocator that creates a distinct grid for each GUID and binds it to the canonical identity (commits `bd9ed8c515265120e6d5ad98e26bc1007fe9cd56` and `7d374b16991da37d864999c9f560ba7a0fe5b704`). GameSession does not yet use that allocator; it still attaches the session-wide `_inventory` through the compatibility overload. Active-grid switching, multiple dropped bags, per-backpack save/load and deterministic legacy migration remain open; business stock and NPC-owned pocket runtime inventories are not yet wired. The registry and allocator foundations must not be mistaken for completion of the global isolation invariant.
 
+
+
+## Portable backpack storage persistence (2026-11-27)
+
+Each physical backpack is persisted independently through SavedPortableBackpackStorage, keyed by the backpack's stable item-instance GUID. The record stores grid dimensions and each contained item's stable instance ID, type ID, position, rotation, quantity and item-state fields. PortableBackpackStorageSaveMapper rebuilds a new GridInventory per backpack and registers it under PlayerBackpack/<GUID>/contents. It accepts a shared restored-item-ID set so duplicate physical item identities across inventory domains are rejected.
+
+The mapper is currently a Core persistence primitive only. GameSession still needs to switch its active inventory references to the equipped backpack's own grid before the mapper can be wired into F5/F9. Until then, using both legacy data.items and per-backpack records would duplicate the same active bag contents. Legacy-save migration and multi-dropped-backpack runtime state are not yet implemented.
