@@ -55,6 +55,7 @@ namespace Signal.Game
         private AssetOwnershipBook _assetOwnership;
         private EconomicTransactionLedger _economicTransactions;
         private EconomicContainerRegistry _economicContainers;
+        private InventoryStorageRegistry _inventoryStorages;
         private AssetTransferService _assetTransfers;
         private StackLineageBook _stackLineage;
         private StackTransferService _stackTransfers;
@@ -219,9 +220,15 @@ namespace Signal.Game
             _assetOwnership = new AssetOwnershipBook();
             _economicTransactions = new EconomicTransactionLedger();
             _economicContainers = new EconomicContainerRegistry();
+            _inventoryStorages = new InventoryStorageRegistry();
             for (int pocketIndex = 0; pocketIndex < PlayerPocketBook.PocketCount; pocketIndex++)
-                _economicContainers.TryRegister(_playerPockets.GetPocket(pocketIndex), EconomicActorId.Player);
+            {
+                GridInventory pocket = _playerPockets.GetPocket(pocketIndex);
+                _economicContainers.TryRegister(pocket, EconomicActorId.Player);
+                RegisterStorageIdentity(InventoryStorageKind.PlayerPocket, "player", pocketIndex.ToString(), pocket);
+            }
             _economicContainers.TryRegister(_storage, EconomicActorId.Player);
+            RegisterStorageIdentity(InventoryStorageKind.Hideout, "player", "main", _storage);
             _assetTransfers = new AssetTransferService(_assetOwnership, _economicContainers, _economicTransactions);
             _stackLineage = new StackLineageBook();
             _stackTransfers = new StackTransferService(_assetOwnership, _economicContainers, _economicTransactions, _stackLineage);
@@ -239,6 +246,7 @@ namespace Signal.Game
             _workshopProgression = new WorkshopProgressionBook();
             _contactInventory = new GridInventory(8, 6);
             _economicContainers.TryRegister(_contactInventory, DirtyCashContactActorId);
+            RegisterStorageIdentity(InventoryStorageKind.ContactInventory, DirtyCashContactNpcId, "dirty-cash-offer", _contactInventory);
             _itemKnowledge = new ItemKnowledgeBook();
             _playerDiscoveries = new PlayerDiscoveryLedger();
             _npcAgendaProgress = new NpcAgendaProgressBook();
@@ -434,6 +442,9 @@ namespace Signal.Game
 
             _contractReceiverActor = new EconomicActorId("resident:" + issuerNpcId);
             _contractReceiverInventory = new GridInventory(8, 6);
+            RegisterStorageIdentity(InventoryStorageKind.ContractEscrow, _contractReceiverActor.Value,
+                firstCustomerContract != null ? firstCustomerContract.Id : firstCustomerRepairOrder.Id,
+                _contractReceiverInventory);
             if (!_economicContainers.TryRegister(_contractReceiverInventory, _contractReceiverActor))
             {
                 Debug.LogError("GameSession: could not register the contract receiver inventory.");
@@ -2545,6 +2556,24 @@ namespace Signal.Game
             }
         }
 
+        private void RegisterStorageIdentity(InventoryStorageKind kind, string ownerId,
+            string slotId, GridInventory inventory)
+        {
+            if (_inventoryStorages == null || inventory == null)
+                return;
+            try
+            {
+                var identity = new InventoryStorageId(kind, ownerId, slotId);
+                if (!_inventoryStorages.TryRegister(identity, inventory))
+                    Debug.LogError("GameSession: storage identity '" + identity +
+                        "' is duplicated or its GridInventory is already assigned to another storage.");
+            }
+            catch (ArgumentException exception)
+            {
+                Debug.LogError("GameSession: invalid inventory storage identity: " + exception.Message);
+            }
+        }
+
         private void CreateSearchableContainers()
         {
             _searchableContainers.Clear();
@@ -2557,6 +2586,7 @@ namespace Signal.Game
                 string id = ids[i];
                 var container = new SearchableContainer(id, 8, 6);
                 _searchableContainers.Add(container);
+                RegisterStorageIdentity(InventoryStorageKind.WorldContainer, id, "contents", container.Inventory);
                 var actor = new EconomicActorId("world:" + id);
                 _searchableActors[id] = actor;
                 _economicContainers.TryRegister(container.Inventory, actor);
@@ -2590,6 +2620,7 @@ namespace Signal.Game
                 var container = new SearchableContainer(definition.ContainerId, 8, 6);
                 var owner = new EconomicActorId("resident:" + definition.OwnerNpcId);
                 _searchableContainers.Add(container);
+                RegisterStorageIdentity(InventoryStorageKind.WorldContainer, definition.ContainerId, "contents", container.Inventory);
                 _searchableActors.Add(definition.ContainerId, owner);
                 _residentPropertyDefinitions.Add(definition.ContainerId, definition);
                 _economicContainers.TryRegister(container.Inventory, owner);
