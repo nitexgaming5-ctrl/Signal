@@ -2138,17 +2138,39 @@ namespace Signal.Game
             int skippedPocketItems = PlayerPocketSaveMapper.Apply(data, _playerPockets, ResolveType, _assetOwnership);
             RefreshCarryPanelInventories();
             PortableBackpackWorldSaveMapper.Apply(data, _backpackWorldBook, _portableStorage);
-            if (_equippedBackpackInstanceId.HasValue &&
-                !_backpackWorldBook.TryGet(_equippedBackpackInstanceId.Value, out _))
-                _backpackWorldBook.TryRegisterEquipped(_equippedBackpackInstanceId.Value, _portableStorage);
-            if (_droppedBackpackItem.HasValue &&
-                _backpackWorldBook.TryGet(_droppedBackpackItem.Value.Item.ItemInstanceId, out PortableBackpackWorldState droppedState) &&
-                droppedState.Status == PortableBackpackWorldStatus.Dropped)
-                SpawnDroppedBackpackVisual(new Vector2(droppedState.WorldX, droppedState.WorldY));
             if (_equippedBackpackInstanceId.HasValue)
-                EnsureBackpackGridRegistered();
+            {
+                Guid restoredBackpackId = _equippedBackpackInstanceId.Value;
+                if (!_backpackWorldBook.TryGet(restoredBackpackId, out _))
+                    _backpackWorldBook.TryRegisterEquipped(restoredBackpackId, _portableStorage);
+                bool worldStateAllowsAccess =
+                    _backpackWorldBook.TryGet(restoredBackpackId, out PortableBackpackWorldState restoredBackpackState) &&
+                    restoredBackpackState.Status == PortableBackpackWorldStatus.Equipped;
+                if (!worldStateAllowsAccess || !EnsureBackpackGridRegistered())
+                {
+                    _economicContainers.TryUnregister(_inventory);
+                    if (_playerEquipment.TryTakeEquipped(EquipmentSlot.Accessory1, out EquippedItem inconsistentBackpack))
+                    {
+                        _droppedBackpackItem = inconsistentBackpack;
+                        _equippedBackpackInstanceId = null;
+                        PlayerCharacterVisual restoredVisual = _room != null && _room.Player != null
+                            ? _room.Player.GetComponent<PlayerCharacterVisual>() : null;
+                        if (restoredVisual != null) restoredVisual.SetBackpackEquipped(false);
+                        if (_backpackWorldBook.TryGet(restoredBackpackId, out PortableBackpackWorldState droppedState) &&
+                            droppedState.Status == PortableBackpackWorldStatus.Dropped)
+                            SpawnDroppedBackpackVisual(new Vector2(droppedState.WorldX, droppedState.WorldY));
+                    }
+                    else
+                        _equippedBackpackInstanceId = null;
+                }
+            }
             else
                 _economicContainers.TryUnregister(_inventory);
+            if (_droppedBackpackItem.HasValue &&
+                _backpackWorldBook.TryGet(_droppedBackpackItem.Value.Item.ItemInstanceId, out PortableBackpackWorldState savedDroppedState) &&
+                savedDroppedState.Status == PortableBackpackWorldStatus.Dropped &&
+                _droppedBackpackVisual == null)
+                SpawnDroppedBackpackVisual(new Vector2(savedDroppedState.WorldX, savedDroppedState.WorldY));
             _playerDevelopment = PlayerDevelopmentSaveMapper.Restore(data, _playerDevelopmentCatalog.GetSkillIds(),
                 _playerDevelopmentCatalog.StartingSkillPoints, _playerDevelopmentCatalog.MaximumSkillRank,
                 _playerDevelopmentCatalog.PointsPerRank);
