@@ -30,16 +30,37 @@ namespace Signal.Core
         public bool Success => Status == StackOperationStatus.Completed;
     }
 
+    public enum StackLineageOperationKind { Merge = 0 }
+
     public readonly struct StackMergeRecord
     {
         public StackMergeRecord(Guid operationId, Guid sourceStackId, Guid destinationStackId,
             Guid itemDefinitionId, int quantity)
+            : this(operationId, sourceStackId, destinationStackId, itemDefinitionId, quantity,
+                string.Empty, string.Empty, string.Empty, StackLineageOperationKind.Merge, 1, 0) { }
+
+        public StackMergeRecord(Guid operationId, Guid sourceStackId, Guid destinationStackId,
+            Guid itemDefinitionId, int quantity, EconomicActorId owner,
+            EconomicActorId sourceCustodian, EconomicActorId destinationCustodian,
+            StackLineageOperationKind operationKind, int day, int minuteOfDay)
+            : this(operationId, sourceStackId, destinationStackId, itemDefinitionId, quantity,
+                owner.Value, sourceCustodian.Value, destinationCustodian.Value, operationKind, day, minuteOfDay) { }
+
+        internal StackMergeRecord(Guid operationId, Guid sourceStackId, Guid destinationStackId,
+            Guid itemDefinitionId, int quantity, string ownerActorId, string sourceCustodianId,
+            string destinationCustodianId, StackLineageOperationKind operationKind, int day, int minuteOfDay)
         {
             OperationId = operationId;
             SourceStackId = sourceStackId;
             DestinationStackId = destinationStackId;
             ItemDefinitionId = itemDefinitionId;
             Quantity = quantity;
+            OwnerActorId = ownerActorId ?? string.Empty;
+            SourceCustodianId = sourceCustodianId ?? string.Empty;
+            DestinationCustodianId = destinationCustodianId ?? string.Empty;
+            OperationKind = operationKind;
+            Day = day;
+            MinuteOfDay = minuteOfDay;
         }
 
         public Guid OperationId { get; }
@@ -60,7 +81,7 @@ namespace Signal.Core
 
         public IReadOnlyList<StackMergeRecord> Merges => _merges.AsReadOnly();
 
-        public bool TryRecordMerge(StackMergeRecord record)
+        public bool ContainsOperation(Guid operationId) => _operationIds.Contains(operationId);\n\n        public bool TryRemoveMerge(Guid operationId)\n        {\n            if (operationId == Guid.Empty || !_operationIds.Remove(operationId)) return false;\n            for (int i = 0; i < _merges.Count; i++)\n                if (_merges[i].OperationId == operationId) { _merges.RemoveAt(i); return true; }\n            return false;\n        }\n\n        public bool TryRecordMerge(StackMergeRecord record)
         {
             if (record.OperationId == Guid.Empty || record.SourceStackId == Guid.Empty ||
                 record.DestinationStackId == Guid.Empty || record.SourceStackId == record.DestinationStackId ||
@@ -90,14 +111,14 @@ namespace Signal.Core
             return source.ItemInstanceId != Guid.Empty && destination.ItemInstanceId != Guid.Empty &&
                 source.ItemInstanceId != destination.ItemInstanceId &&
                 source.Type.IsValid && destination.Type.IsValid &&
-                source.Type == destination.Type && source.Type.MaxStack > 1 &&
+                source.Type == destination.Type && source.Type.IsStackable &&
                 source.State == destination.State && source.Count > 0 && destination.Count > 0 &&
                 destination.Count < destination.Type.MaxStack;
         }
 
         public static StackOperationResult Split(GridInventory source, GridInventory destination,
             Guid sourceStackId, int quantity, int destinationX, int destinationY, bool rotated = false,
-            Guid? newStackId = null)
+            Guid? newStackId = null, bool notify = true)
         {
             if (source == null || destination == null || sourceStackId == Guid.Empty ||
                 quantity < 1 || (newStackId.HasValue && newStackId.Value == Guid.Empty))
@@ -105,7 +126,7 @@ namespace Signal.Core
 
             if (!source.TryGetItemInstance(sourceStackId, out PlacedItem original))
                 return Result(StackOperationStatus.SourceNotFound);
-            if (original.Type.MaxStack <= 1 || quantity >= original.Count)
+            if (!original.Type.IsStackable || quantity >= original.Count || original.Count > original.Type.MaxStack || quantity > original.Count - 1)
                 return Result(StackOperationStatus.InsufficientQuantity);
 
             Guid splitId = newStackId ?? Guid.NewGuid();
@@ -137,7 +158,7 @@ namespace Signal.Core
 
         public static StackOperationResult Merge(GridInventory source, GridInventory destination,
             Guid sourceStackId, Guid destinationStackId, int quantity, StackLineageBook lineage,
-            Guid? operationId = null)
+            Guid? operationId = null, StackMergeRecord? recordOverride = null, bool notify = true)
         {
             if (source == null || destination == null || lineage == null ||
                 sourceStackId == Guid.Empty || destinationStackId == Guid.Empty ||
