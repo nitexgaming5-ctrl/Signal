@@ -42,7 +42,7 @@ Implemented. B-06 Customer Repair Orders is user-verified: Milo entrusts a Worn 
 - Retail SELL, Dirty Cash selection, Home Storage, Searchable Container, repair, multi-grid production, customer flows and GameSession receipt paths have been audited/integrated for accessible backpack/pocket inventory. Dropped cargo must never be exposed.
 - Temporary fresh-session debug loadout provides backpack + repair/production test cargo. It is not intended new-game inventory and must remain until the user finishes acceptance testing.
 
-**P-03 is not closed yet.** P-03.7a/7b/7c are user-verified (540/540, 550/550, 552/552). P-03.7d searchable-container quick-transfer/split/merge is implemented in source, with a service quantity audit; three P-03.7d regression tests make the expected current suite **555**, pending Unity verification. Play Mode acceptance remains outstanding.
+**P-03.7 is closed and user-verified.** The user confirmed Unity compilation, **555/555 EditMode tests**, no duplicate stack IDs after split/merge/save, no access to dropped-backpack contents, correct F5/F9 restoration for equipped and dropped backpacks, and the Play Mode acceptance matrix. P-03 non-art closeout remains: confirm no automatic temporary repair/production cargo is granted on a fresh game; retain the F1 debug spawner. Wearable presentation remains paused.
 
 ## Verification truth
 - Latest user-confirmed full EditMode result: **552/552** after P-03.7c.
@@ -61,11 +61,9 @@ The user said to stop sprite work and return to roadmap/game development. Do not
 P-03.6 Wearable Presentation is parked as historical preparation, not an active dependency. Existing imported assets and already-committed temporary visual tests should not be removed or altered as part of this documentation handoff.
 
 ## Next actions
-1. Pull the active branch and run the current full EditMode suite (expected 555); inspect the XML and fix regressions.
-2. Complete P-03.7d Play Mode: quick-transfer, split, merge and cross-owner rejection across container/backpack/pockets; test theft split with witness/no-witness.
-3. Re-run the P-03 matrix: equip/drop/recover; F5/F9 while equipped/dropped; P1/P2/P3 moves/swaps; P3 ordinary-search exclusion; service interactions with split quantities; ensure dropped cargo is inaccessible.
-4. Keep temporary repair/production cargo until acceptance is confirmed. Then remove only automatic fresh-session cargo seeding; retain F1 debug item spawner.
-5. Reconcile P-03 closeout and prepare the detailed B-07 Neighbourhood Expansion specification. Do not start B-07 code until the spec and any new mechanics are approved.
+1. P-03.7 verification is complete: user-confirmed 555/555 EditMode, Unity compile, identity/persistence invariants and Play Mode acceptance.
+2. Complete P-03 non-art closeout by verifying fresh-game inventory has no temporary automatic repair/production cargo; retain the F1 debug item spawner.
+3. Prepare the detailed B-07 Neighbourhood Expansion specification. Do not start B-07 implementation until the spec and any genuinely new mechanics are approved.
 
 ## Technical safeguards
 - Core must not reference UnityEngine; dependencies flow Game → Core.
