@@ -25,7 +25,7 @@ The user selected **Direction B — meaningful everyday livelihood**: repair, pr
 
 ## Verification snapshot
 
-- **Latest full EditMode suite: 578/578 passed**, user-confirmed 2026-11-27 after P-04b usability follow-up.
+- **Latest full EditMode suite: 580/580 passed**, user-confirmed 2026-11-27 after P-04b usability follow-up.
 - P-04a: 557/557 confirmed.
 - P-04b initial assignment foundation: 562/562 confirmed; usability follow-up: 563/563 confirmed.
 - P-03.7: 555/555 plus Unity compile and Play Mode acceptance confirmed; closed.
@@ -131,6 +131,15 @@ Persistence must be keyed by stable storage identity, with deterministic migrati
 - Added SavedPortableBackpackStorage records and PortableBackpackStorageSaveMapper to capture/restore one independent grid per physical backpack GUID, including dimensions, item instance IDs, placement and item state.
 - Restore binds each newly allocated grid to PlayerBackpack/<GUID>/contents in InventoryStorageRegistry. Duplicate backpack IDs and duplicate item instance IDs (using a shared caller-owned set) are skipped; separate backpack grids remain isolated.
 - Added InventoryStorageRegistry.TryUnregister and PortableStorageBook.Clear(registry) to remove stale backpack bindings without clearing unrelated registry domains.
-- Added two regression tests for independent backpack round-trip and duplicate identity rejection. Expected suite count is now 580, pending Unity verification.
+- Added two regression tests for independent backpack round-trip and duplicate identity rejection. User has since confirmed **580/580**. GameSession runtime integration and Play Mode verification remain pending.
 - Commits: 2462112a32e88de815f53b0305ce3b4cf1bf63e5, 8156a03390ab1d2184f813530f34b229e783d7cb, 8ff1da85acca6de1b727f2d9dcd734eea709285d, 68eb632cbd4f46b85dbe88751335c2cdd6aa5369, 34330e52abf2c30b7b95314565284eda135db6c4, 3e45aa26826db7c91ba2baf1edc341acac8387f8.
 - Important: the mapper is deliberately not called from GameSession yet. Save/load wiring must be coordinated with runtime active-grid switching to avoid double-serializing the currently attached backpack grid through both legacy data.items and the new per-bag records.
+
+
+## Current next implementation — GameSession active backpack grid (2026-11-27)
+
+- Verified latest EditMode suite: **580/580**, user-confirmed.
+- Core now supports distinct backpack grids and identity-keyed save/restore. GameSession is not yet wired to those primitives; it still uses one `_inventory` grid and one dropped-backpack slot.
+- Next slice: make the equipped backpack's own grid the active `_inventory`, detach to a non-bag staging grid immediately on drop, and rebind inventory panels/services to the active grid. Preserve pocket references and quickbar reconciliation. Keep the current single dropped-backpack limitation until multi-instance tracking and swap can be implemented coherently.
+- Do not wire the new mapper into GameSession until the active grid no longer aliases legacy `data.items`; otherwise the equipped bag may be saved twice.
+- User must run Unity compilation and EditMode tests, then Play Mode acceptance for upcoming runtime changes.
