@@ -115,3 +115,10 @@ P-03.7 is closed and user-verified at **555/555**, including compile and Play Mo
 - User confirmed the previous quickbar/H-toggle changes at **571/571**.
 - Drag ghost now promotes itself above all HUD siblings while dragging (commit `d980ebba7d53a3ffbfb602b74adb9593b1e652e4`). Needs Unity verification.
 - Backpack lifecycle defect identified: all backpacks currently share the single `_inventory` grid; dropping unregisters it but does not detach the session from that grid, and the debug loadout blocks replacement while a bag is dropped. Next correction is per-backpack grids, active-grid switching, independent dropped storage and save/load support. Awaiting user's choice on whether recovering a dropped bag while another is equipped should auto-swap (drop current at feet) or require manual drop first.
+
+
+### Backpack isolation + drag-layer correction (2026-11-27)
+- User approved automatic backpack swapping: equipping a dropped backpack while another is equipped drops the currently equipped backpack at the player's feet, equips the recovered backpack, and keeps each backpack's contents independent. The debug TEST LOADOUT must be able to equip a fresh backpack while another is dropped.
+- Identified the current defect: GameSession stores only one `_droppedBackpackItem`, registers every backpack against the same `_inventory` grid, and leaves that grid as the active session inventory after drop. The current debug loadout explicitly refuses to spawn/equip a backpack while one is dropped.
+- Fixed the quickbar drag ghost layering by moving it to a dedicated override-sorting Canvas (sorting order 200), above the inventory/HUD canvas (100). Commit: `1971e800a08011e8f031ecd79fdd67cb56d3a17d`.
+- Backpack isolation/swap, multi-dropped-backpack tracking, save/load of each backpack's own contents, and debug-loadout behavior remain in progress; do not mark complete until implemented and Unity-verified. Last confirmed EditMode suite: 571/571.
