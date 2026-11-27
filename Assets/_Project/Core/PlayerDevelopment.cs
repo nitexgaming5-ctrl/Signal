@@ -6,19 +6,31 @@ namespace Signal.Core
     /// <summary>Base character attributes. Equipment modifiers are applied by the pure calculator.</summary>
     public sealed class PlayerAttributeSet
     {
+        public int Health { get; private set; }
         public int Armor { get; private set; }
         public int HeatProtection { get; private set; }
 
-        public PlayerAttributeSet(int armor = 0, int heatProtection = 0)
+        public PlayerAttributeSet() : this(100, 0, 0) { }
+
+        // Compatibility constructor for the original Armor/Heat Protection pair.
+        public PlayerAttributeSet(int armor, int heatProtection) : this(100, armor, heatProtection) { }
+
+        public PlayerAttributeSet(int health, int armor, int heatProtection)
         {
-            if (!TrySetBaseValues(armor, heatProtection))
-                throw new ArgumentOutOfRangeException(nameof(armor), "Player attributes cannot be negative.");
+            if (!TrySetBaseValues(health, armor, heatProtection))
+                throw new ArgumentOutOfRangeException(nameof(health), "Player attributes cannot be negative.");
         }
 
         public bool TrySetBaseValues(int armor, int heatProtection)
         {
-            if (armor < 0 || heatProtection < 0)
+            return TrySetBaseValues(Health, armor, heatProtection);
+        }
+
+        public bool TrySetBaseValues(int health, int armor, int heatProtection)
+        {
+            if (health < 0 || armor < 0 || heatProtection < 0)
                 return false;
+            Health = health;
             Armor = armor;
             HeatProtection = heatProtection;
             return true;
@@ -27,11 +39,13 @@ namespace Signal.Core
 
     public struct EffectiveCharacterAttributes
     {
+        public int Health { get; }
         public int Armor { get; }
         public int HeatProtection { get; }
 
-        public EffectiveCharacterAttributes(int armor, int heatProtection)
+        public EffectiveCharacterAttributes(int health, int armor, int heatProtection)
         {
+            Health = Math.Max(0, health);
             Armor = Math.Max(0, armor);
             HeatProtection = Math.Max(0, heatProtection);
         }
@@ -43,11 +57,20 @@ namespace Signal.Core
         public static EffectiveCharacterAttributes Calculate(PlayerAttributeSet baseAttributes,
             int equipmentArmorModifier, int equipmentHeatProtectionModifier)
         {
+            return Calculate(baseAttributes, equipmentArmorModifier, equipmentHeatProtectionModifier, 0, 0);
+        }
+
+        public static EffectiveCharacterAttributes Calculate(PlayerAttributeSet baseAttributes,
+            int equipmentArmorModifier, int equipmentHeatProtectionModifier,
+            int skillHealthModifier, int skillHeatProtectionModifier)
+        {
             if (baseAttributes == null)
                 throw new ArgumentNullException(nameof(baseAttributes));
             return new EffectiveCharacterAttributes(
+                AddClamped(baseAttributes.Health, skillHealthModifier),
                 AddClamped(baseAttributes.Armor, equipmentArmorModifier),
-                AddClamped(baseAttributes.HeatProtection, equipmentHeatProtectionModifier));
+                AddClamped(baseAttributes.HeatProtection,
+                    AddClamped(equipmentHeatProtectionModifier, skillHeatProtectionModifier)));
         }
 
         private static int AddClamped(int baseValue, int modifier)
@@ -244,6 +267,7 @@ namespace Signal.Core
             if (destination == null) throw new ArgumentNullException(nameof(destination));
 
             destination.playerDevelopmentInitialized = true;
+            destination.playerHealthAttribute = state.Attributes.Health;
             destination.playerArmor = state.Attributes.Armor;
             destination.playerHeatProtection = state.Attributes.HeatProtection;
             destination.playerStartingSkillPoints = state.Progression.StartingPoints;
@@ -277,7 +301,9 @@ namespace Signal.Core
             if (source == null || !source.playerDevelopmentInitialized)
                 return state;
 
-            state.Attributes.TrySetBaseValues(Math.Max(0, source.playerArmor), Math.Max(0, source.playerHeatProtection));
+            state.Attributes.TrySetBaseValues(
+                source.playerHealthAttribute > 0 ? source.playerHealthAttribute : 100,
+                Math.Max(0, source.playerArmor), Math.Max(0, source.playerHeatProtection));
 
             if (source.playerMilestoneAwards != null)
             {
