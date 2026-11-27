@@ -45,9 +45,9 @@ Implemented. B-06 Customer Repair Orders is user-verified: Milo entrusts a Worn 
 **P-03 is not closed yet.** P-03.7a/7b/7c are user-verified (540/540, 550/550, 552/552). P-03.7d searchable-container quick-transfer/split/merge is implemented in source, with a service quantity audit; one new regression test makes the expected current suite **553**, pending Unity verification. Play Mode acceptance remains outstanding.
 
 ## Verification truth
-- Latest user-confirmed full EditMode result: **504/504** after the Play Mode-only guard for temporary NPC visual-test residents.
-- One automatic-pocket-routing regression test was committed afterward. Expected current suite: **505**; not yet user-confirmed. Run the complete suite in Unity and inspect the XML before claiming a pass.
-- P-03 service integration has been source-audited, but full Play Mode acceptance remains outstanding.
+- Latest user-confirmed full EditMode result: **552/552** after P-03.7c.
+- P-03.7d added one Core theft-split regression test. Expected current suite: **553**; not yet user-confirmed. Run the complete suite in Unity and inspect the XML before claiming a pass.
+- P-03.7d searchable-container controls and service quantity audit are source-implemented; Play Mode acceptance remains outstanding.
 - Do not claim compilation, tests or Play Mode success unless the user/current Unity tooling confirms it.
 - Do not run `dotnet` or `msbuild` for this Unity project.
 
