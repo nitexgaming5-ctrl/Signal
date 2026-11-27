@@ -104,3 +104,14 @@ This supersedes the narrower backpack-only follow-up. The user requires independ
 - [ ] Serialize contents by stable storage identity and migrate legacy saves deterministically.
 - [ ] Add pairwise isolation, transfer, access-control, save/load and regression tests for each storage domain.
 - [x] Quickbar drag ghost uses a dedicated high-sorting overlay Canvas (commit `1971e800a08011e8f031ecd79fdd67cb56d3a17d`).
+
+### Storage identity registry foundation — implementation update (2026-11-27)
+- [x] Add typed stable storage identity and a session registry that rejects duplicate IDs and aliased `GridInventory` references.
+- [x] Register current independent player pockets, hideout storage, contact inventory, contract receiver inventory, street searchable containers and resident-owned searchable property containers.
+- [x] Add five Core regression tests for identity and alias invariants.
+- [ ] Register every physical backpack against its own distinct grid and make the active player inventory a view of the currently equipped bag only.
+- [ ] Convert dropped backpack state/visual tracking to multiple instances and implement automatic swap without merging storage.
+- [ ] Register future NPC pockets and business stock as their own inventories when those runtime systems are introduced.
+- [ ] Move save/load to stable storage identities with deterministic migration of legacy `storageItems` and single dropped-backpack data.
+- [ ] Verify all transfer, service and UI paths use only explicitly accessible inventories; run Unity compile, EditMode and Play Mode.
+
