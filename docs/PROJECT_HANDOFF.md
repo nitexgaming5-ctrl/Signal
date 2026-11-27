@@ -28,7 +28,7 @@ Implemented. B-06 Customer Repair Orders is user-verified: Milo entrusts a Worn 
 
 ### Player Development
 - **P-01:** modular Body_A player renderer, directional Idle/Walk and local asset importer; user imported the supplied pack and confirmed the enlarged character.
-- **P-02:** Armor and Heat Protection only; fixed starting skill points, milestone awards, free respecialisation, save mapping and F2 panel. User confirmed 467/467 after the implementation slice. Skill-effect and milestone-trigger integrations remain future work.
+- **P-02:** The original verified implementation contains Armor and Heat Protection, fixed starting skill points, milestone awards, free respecialisation, save mapping and the F2 panel. User confirmed 467/467 for that baseline. The user has since approved **Health as the primary third attribute**, alongside Armor and Heat Protection; Core state, effective-value calculation, UI and save mapping still require extension and fresh Unity verification. Two temporary skill-effect tests are approved: one skill increases Health and one increases Heat Protection. Skill IDs and temporary rank formulas remain to be defined. Skill-effect and milestone-trigger integrations remain future work.
 - **P-03:** equipment, backpack and personal-pocket foundation substantially implemented; see below.
 
 ### P-03 current state
