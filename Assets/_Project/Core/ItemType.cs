@@ -18,10 +18,10 @@ namespace Signal.Core
         public Guid Id => _id;
         public int Width => _width;
         public int Height => _height;
-        public int MaxStack => _maxStack;
+        public int MaxStack => _equippable || _portableBackpack ? 1 : _maxStack;
         public bool Equippable => _equippable;
         public bool PortableBackpack => _portableBackpack;
-        public bool IsStackable => IsValid && _maxStack > 1 && !_equippable && !_portableBackpack;
+        public bool IsStackable => IsValid && MaxStack > 1;
         public bool IsValid => _id != Guid.Empty && _width > 0 && _height > 0 && _maxStack > 0;
 
         public ItemType(Guid id, int width, int height, int maxStack, bool equippable = false, bool portableBackpack = false)
