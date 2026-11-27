@@ -248,8 +248,8 @@ namespace Signal.Core.Tests
             ItemType backpack = new ItemType(Guid.NewGuid(), 1, 1, 10, true, true);
             Assert.That(equippable.IsStackable, Is.False);
             Assert.That(backpack.IsStackable, Is.False);
-            Assert.That(equippable.MaxStack, Is.EqualTo(10));
-            Assert.That(backpack.MaxStack, Is.EqualTo(10));
+            Assert.That(equippable.MaxStack, Is.EqualTo(1));
+            Assert.That(backpack.MaxStack, Is.EqualTo(1));
         }
     }
 }
