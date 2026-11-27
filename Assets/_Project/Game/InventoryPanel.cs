@@ -51,6 +51,16 @@ namespace Signal.Game
         private readonly Dictionary<Guid, ItemVisual> _visuals = new Dictionary<Guid, ItemVisual>();
 
         private GridInventory _inventory;
+        private PlayerQuickbar _quickbar;
+        private readonly Button[] _quickbarButtons = new Button[PlayerQuickbar.SlotCount];
+        private readonly Image[] _quickbarImages = new Image[PlayerQuickbar.SlotCount];
+        private readonly Text[] _quickbarLabels = new Text[PlayerQuickbar.SlotCount];
+        private RectTransform _quickbarRoot;
+        private RectTransform _contextMenuRoot;
+        private RectTransform _quickbarSubmenuRoot;
+        private Guid _contextItemInstanceId;
+        private bool _draggingFromQuickbar;
+        private int _dragQuickbarSlot = -1;
         private Action<PlacedItem> _inspectItem;
         private Func<PlacedItem, bool> _equipItem;
         private Func<EquipmentSlot, bool> _unequipItem;
@@ -108,7 +118,8 @@ namespace Signal.Game
             Func<int, int, int, bool> movePocketToBackpackAt = null,
             Func<int, int, bool> movePocketToPocket = null,
             Func<GridInventory, GridInventory, Guid, int, int, int, bool, bool> splitStack = null,
-            Func<GridInventory, GridInventory, Guid, Guid, int, bool> mergeStack = null)
+            Func<GridInventory, GridInventory, Guid, Guid, int, bool> mergeStack = null,
+            PlayerQuickbar quickbar = null)
         {
             if (inventory == null)
                 throw new ArgumentNullException(nameof(inventory));
@@ -119,6 +130,7 @@ namespace Signal.Game
                 _inventory.Changed -= OnInventoryChanged;
 
             _inventory = inventory;
+            _quickbar = quickbar;
             _inspectItem = inspectItem;
             _equipItem = equipItem;
             _unequipItem = unequipItem;
@@ -228,6 +240,13 @@ namespace Signal.Game
         private void UpdatePointer(Keyboard keyboard, Mouse mouse)
         {
             Vector2 screen = mouse.position.ReadValue();
+            if (_contextMenuRoot != null && _contextMenuRoot.gameObject.activeSelf)
+            {
+                if ((keyboard != null && keyboard.escapeKey.wasPressedThisFrame) ||
+                    (mouse.leftButton.wasPressedThisFrame && !RectTransformUtility.RectangleContainsScreenPoint(_contextMenuRoot, screen, null) &&
+                     (_quickbarSubmenuRoot == null || !RectTransformUtility.RectangleContainsScreenPoint(_quickbarSubmenuRoot, screen, null))))
+                { CloseContextMenu(); return; }
+            }
             bool backpackAccessible = _canAccessGrid == null || _canAccessGrid();
             int hoverX = 0;
             int hoverY = 0;
@@ -286,7 +305,7 @@ namespace Signal.Game
                     else if (IsShiftDown(keyboard))
                         SplitPocketStack(sourcePocketIndex, pocketItem, Mathf.Max(1, pocketItem.Count / 2));
                     else
-                        _inspectItem?.Invoke(pocketItem);
+                        OpenContextMenu(pocketItem, screen);
                     return;
                 }
 
@@ -299,6 +318,9 @@ namespace Signal.Game
                     return;
                 }
             }
+
+            if (!_dragging && mouse.leftButton.wasPressedThisFrame && TryGetQuickbarSlot(screen, out int quickbarSourceSlot))
+            { BeginQuickbarDrag(quickbarSourceSlot); return; }
 
             if (!backpackAccessible && !_dragging)
                 return;
@@ -314,7 +336,7 @@ namespace Signal.Game
                     else if (IsShiftDown(keyboard))
                         SplitBackpackStack(inspected, Mathf.Max(1, inspected.Count / 2));
                     else
-                        _inspectItem?.Invoke(inspected);
+                        OpenContextMenu(inspected, screen);
                     return;
                 }
 
@@ -332,13 +354,30 @@ namespace Signal.Game
                 BeginDrag(hit, hoverX, hoverY);
             }
 
+            if (_draggingFromQuickbar)
+            {
+                if (keyboard != null && keyboard.escapeKey.wasPressedThisFrame) { EndDrag(); return; }
+                if (mouse.leftButton.wasReleasedThisFrame)
+                {
+                    int targetSlot = -1;
+                    bool overQuickbar = TryGetQuickbarSlot(screen, out targetSlot);
+                    bool overInventory = (TryGetHoverCell(screen, out _, out _, out _) && backpackAccessible) || TryGetPocketIndex(screen, out _);
+                    int sourceSlot = _dragQuickbarSlot;
+                    CancelDrag();
+                    if (overQuickbar) _quickbar?.TrySwap(sourceSlot, targetSlot);
+                    else if (overInventory) _quickbar?.TryUnassign(sourceSlot);
+                    Refresh();
+                }
+                return;
+            }
+
             if (keyboard != null && keyboard.escapeKey.wasPressedThisFrame)
             {
                 EndDrag();
                 return;
             }
 
-            if (keyboard != null && keyboard.rKey.wasPressedThisFrame)
+            if (keyboard != null && keyboard.rKey.wasPressedThisFrame && !_draggingFromQuickbar)
                 RotateDrag();
 
             int targetX = hoverX - _grabX;
@@ -366,12 +405,15 @@ namespace Signal.Game
                 int sourcePocket = _dragPocketIndex;
                 int requestedMergeQuantity = _dragType.MaxStack;
                 int releasePocket = -1;
+                bool dropIntoQuickbar = TryGetQuickbarSlot(screen, out int releaseQuickbarSlot);
                 bool dropIntoPocket = !canDrop && !rotated &&
                     TryGetPocketIndex(screen, out releasePocket) && (!fromPocket || releasePocket != sourcePocket);
 
                 EndDrag();
 
-                if (mergeTargetId != Guid.Empty && mergeSource != null && mergeDestination != null)
+                if (dropIntoQuickbar && itemInstanceId != Guid.Empty)
+                    _quickbar?.TryReplace(releaseQuickbarSlot, itemInstanceId);
+                else if (mergeTargetId != Guid.Empty && mergeSource != null && mergeDestination != null)
                 {
                     _mergeStack?.Invoke(mergeSource, mergeDestination, itemInstanceId,
                         mergeTargetId, requestedMergeQuantity);
@@ -623,6 +665,8 @@ namespace Signal.Game
                 return;
 
             _dragging = false;
+            _draggingFromQuickbar = false;
+            _dragQuickbarSlot = -1;
             _draggingFromPocket = false;
             _dragPocketIndex = -1;
 
@@ -681,7 +725,10 @@ namespace Signal.Game
             if (canAccess)
                 foreach (PlacedItem item in _inventory.Items)
                     CreateItemView(item);
+            _quickbar?.Reconcile(IsQuickbarItemPresent);
+            _quickbar?.Reconcile(IsQuickbarItemPresent);
             RefreshPocketViews();
+            RefreshQuickbarViews();
             RefreshCharacterPanel();
         }
 
@@ -786,6 +833,7 @@ namespace Signal.Game
             _ghost.gameObject.SetActive(false);
 
             BuildCharacterPanel();
+            BuildQuickbar();
             _built = true;
         }
 
@@ -798,12 +846,13 @@ namespace Signal.Game
 
             const float characterWidth = 220f;
             float contentWidth = characterWidth + 24f + gridWidth;
-            _root.sizeDelta = new Vector2(contentWidth + Padding * 2f, Mathf.Max(gridHeight, 430f) + Padding * 2f + TitleHeight);
+            _root.sizeDelta = new Vector2(contentWidth + Padding * 2f, Mathf.Max(gridHeight, 430f) + Padding * 2f + TitleHeight + 92f);
             SetTopLeft(_title.rectTransform, Padding, Padding * 0.5f, contentWidth, TitleHeight);
             SetTopLeft(_characterRoot, Padding, Padding + TitleHeight, characterWidth, Mathf.Max(gridHeight, 430f));
             SetTopLeft(_backpackTitle.rectTransform, Padding + characterWidth + 24f, Padding + TitleHeight, gridWidth, 22f);
             SetTopLeft(_gridRect, Padding + characterWidth + 24f, Padding + TitleHeight + 24f, gridWidth, gridHeight);
             SetTopLeft(_emptyState.rectTransform, Padding + characterWidth + 24f, Padding + TitleHeight + 24f, gridWidth, gridHeight);
+            SetTopLeft(_quickbarRoot, Padding + characterWidth + 24f, Padding + TitleHeight + 28f + gridHeight + 12f, gridWidth, 76f);
 
             for (int y = 0; y < _inventory.Height; y++)
             {
@@ -899,6 +948,46 @@ namespace Signal.Game
             if (_dropButton != null) _dropButton.interactable = hasBackpack;
         }
 
+        private bool IsQuickbarItemPresent(Guid id)
+        {
+            if (id == Guid.Empty) return false;
+            if (_inventory != null && _inventory.TryGetItemInstance(id, out _)) return true;
+            if (_pockets != null)
+                for (int i = 0; i < PlayerPocketBook.PocketCount; i++)
+                    if (_pockets.GetPocket(i).TryGetItemInstance(id, out _)) return true;
+            return false;
+        }
+
+        private bool TryFindQuickbarItem(Guid id, out PlacedItem item, out bool accessible)
+        {
+            accessible = false;
+            if (_inventory != null && _inventory.TryGetItemInstance(id, out item))
+            { accessible = _canAccessGrid == null || _canAccessGrid(); return true; }
+            if (_pockets != null)
+                for (int i = 0; i < PlayerPocketBook.PocketCount; i++)
+                    if (_pockets.GetPocket(i).TryGetItemInstance(id, out item)) { accessible = true; return true; }
+            item = default;
+            return false;
+        }
+
+        private void RefreshQuickbarViews()
+        {
+            if (_quickbar == null) return;
+            for (int i = 0; i < PlayerQuickbar.SlotCount; i++)
+            {
+                Guid id = _quickbar.GetItem(i);
+                if (id == Guid.Empty || !TryFindQuickbarItem(id, out PlacedItem item, out bool accessible))
+                { _quickbarImages[i].sprite = null; _quickbarImages[i].gameObject.SetActive(false); _quickbarLabels[i].text = (i + 1).ToString(); _quickbarButtons[i].interactable = false; continue; }
+                ItemVisual visual = VisualFor(item.Type);
+                _quickbarImages[i].sprite = visual.Icon;
+                _quickbarImages[i].color = accessible ? Color.white : new Color(0.35f, 0.35f, 0.35f, 0.75f);
+                _quickbarImages[i].gameObject.SetActive(visual.Icon != null);
+                _quickbarLabels[i].text = visual.Icon == null ? visual.Label : (i + 1).ToString();
+                if (item.Count > 1) _quickbarLabels[i].text += " x" + item.Count;
+                _quickbarButtons[i].interactable = accessible;
+            }
+        }
+
         private void RefreshPocketViews()
         {
             for (int i = 0; i < PlayerPocketBook.PocketCount; i++)
@@ -929,6 +1018,117 @@ namespace Signal.Game
                     _pocketButtons[i].interactable = false;
                 }
             }
+        }
+
+        private void BuildQuickbar()
+        {
+            Image background = NewImage("QuickbarBackground", _root, new Color32(0x18, 0x1D, 0x25, 0xFF));
+            _quickbarRoot = background.rectTransform;
+            Text title = NewText("QuickbarTitle", _quickbarRoot, "QUICK SLOTS", 11, TextAnchor.MiddleLeft, FallbackColor);
+            SetTopLeft(title.rectTransform, 2f, 0f, 100f, 16f);
+            for (int i = 0; i < PlayerQuickbar.SlotCount; i++)
+            {
+                Image slotImage = NewImage("QuickSlot_" + (i + 1), _quickbarRoot, CellColor);
+                slotImage.raycastTarget = true;
+                Button button = slotImage.gameObject.AddComponent<Button>();
+                button.targetGraphic = slotImage;
+                _quickbarButtons[i] = button;
+                _quickbarImages[i] = NewImage("QuickSlotIcon", slotImage.transform, Color.white);
+                _quickbarImages[i].preserveAspect = true;
+                SetTopLeft(_quickbarImages[i].rectTransform, 6f, 5f, 40f, 40f);
+                _quickbarLabels[i] = NewText("QuickSlotLabel", slotImage.transform, (i + 1).ToString(), 10, TextAnchor.LowerRight, TitleColor);
+                SetTopLeft(_quickbarLabels[i].rectTransform, 2f, 2f, 50f, 18f);
+                SetTopLeft(slotImage.rectTransform, 4f + i * 58f, 18f, 54f, 54f);
+            }
+        }
+
+        private bool TryGetQuickbarSlot(Vector2 screen, out int slotIndex)
+        {
+            slotIndex = -1;
+            for (int i = 0; i < _quickbarButtons.Length; i++)
+            {
+                Button button = _quickbarButtons[i];
+                if (button == null || !button.gameObject.activeInHierarchy) continue;
+                if (RectTransformUtility.RectangleContainsScreenPoint(button.GetComponent<RectTransform>(), screen, null))
+                { slotIndex = i; return true; }
+            }
+            return false;
+        }
+
+        private void BeginQuickbarDrag(int slotIndex)
+        {
+            if (_quickbar == null || slotIndex < 0 || slotIndex >= PlayerQuickbar.SlotCount || _quickbar.GetItem(slotIndex) == Guid.Empty) return;
+            _dragging = true;
+            _draggingFromQuickbar = true;
+            _dragQuickbarSlot = slotIndex;
+        }
+
+        private void OpenContextMenu(PlacedItem item, Vector2 screen)
+        {
+            CloseContextMenu();
+            if (item.ItemInstanceId == Guid.Empty || _quickbar == null) return;
+            _contextItemInstanceId = item.ItemInstanceId;
+            _contextMenuRoot = NewRect("ItemContextMenu", _root);
+            Image background = NewImage("ContextBackground", _contextMenuRoot, new Color32(0x12, 0x16, 0x1D, 0xFF));
+            background.raycastTarget = true;
+            Stretch(background.rectTransform);
+            _contextMenuRoot.anchorMin = _contextMenuRoot.anchorMax = new Vector2(0.5f, 0.5f);
+            _contextMenuRoot.pivot = new Vector2(0f, 1f);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(_root, screen, null, out Vector2 local);
+            _contextMenuRoot.anchoredPosition = local;
+            _contextMenuRoot.sizeDelta = new Vector2(190f, 72f);
+            AddContextButton("Inspect", 0, () =>
+            { if (TryFindQuickbarItem(_contextItemInstanceId, out PlacedItem found, out _)) _inspectItem?.Invoke(found); CloseContextMenu(); });
+            AddContextButton("Equip to Quick Slot  ▶", 34, ShowQuickbarSubmenu);
+        }
+
+        private void AddContextButton(string label, float y, Action action)
+        {
+            Image image = NewImage("ContextOption", _contextMenuRoot, CellColor);
+            image.raycastTarget = true;
+            Button button = image.gameObject.AddComponent<Button>();
+            button.targetGraphic = image;
+            SetTopLeft(image.rectTransform, 4f, 4f + y, 182f, 30f);
+            Text text = NewText("ContextOptionLabel", image.transform, label, 12, TextAnchor.MiddleLeft, TitleColor);
+            SetTopLeft(text.rectTransform, 8f, 0f, 174f, 30f);
+            button.onClick.AddListener(() => action?.Invoke());
+        }
+
+        private void ShowQuickbarSubmenu()
+        {
+            if (_quickbarSubmenuRoot != null) Destroy(_quickbarSubmenuRoot.gameObject);
+            _quickbarSubmenuRoot = NewRect("QuickbarSubmenu", _root);
+            Image background = NewImage("SubmenuBackground", _quickbarSubmenuRoot, new Color32(0x12, 0x16, 0x1D, 0xFF));
+            Stretch(background.rectTransform);
+            _quickbarSubmenuRoot.anchorMin = _quickbarSubmenuRoot.anchorMax = new Vector2(0.5f, 0.5f);
+            _quickbarSubmenuRoot.pivot = new Vector2(0f, 1f);
+            _quickbarSubmenuRoot.anchoredPosition = _contextMenuRoot.anchoredPosition + new Vector2(194f, 0f);
+            _quickbarSubmenuRoot.sizeDelta = new Vector2(150f, 192f);
+            for (int i = 0; i < PlayerQuickbar.SlotCount; i++)
+            {
+                int slot = i;
+                Image image = NewImage("QuickbarOption", _quickbarSubmenuRoot, CellColor);
+                image.raycastTarget = true;
+                Button button = image.gameObject.AddComponent<Button>();
+                button.targetGraphic = image;
+                SetTopLeft(image.rectTransform, 4f, 4f + i * 31f, 142f, 28f);
+                Text label = NewText("QuickbarOptionLabel", image.transform,
+                    "Slot " + (i + 1) + (_quickbar.GetItem(i) != Guid.Empty ? "  · replace" : ""), 12, TextAnchor.MiddleLeft, TitleColor);
+                SetTopLeft(label.rectTransform, 8f, 0f, 134f, 28f);
+                button.onClick.AddListener(() =>
+                {
+                    if (TryFindQuickbarItem(_contextItemInstanceId, out _, out bool accessible) && accessible)
+                        _quickbar.TryReplace(slot, _contextItemInstanceId);
+                    CloseContextMenu(); Refresh();
+                });
+            }
+        }
+
+        private void CloseContextMenu()
+        {
+            if (_contextMenuRoot != null) Destroy(_contextMenuRoot.gameObject);
+            if (_quickbarSubmenuRoot != null) Destroy(_quickbarSubmenuRoot.gameObject);
+            _contextMenuRoot = null; _quickbarSubmenuRoot = null; _contextItemInstanceId = Guid.Empty;
         }
 
         private static void ClearChildren(RectTransform parent)
