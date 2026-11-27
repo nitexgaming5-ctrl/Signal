@@ -364,6 +364,7 @@ namespace Signal.Game
                 bool rotated = _dragRotated;
                 bool fromPocket = _draggingFromPocket;
                 int sourcePocket = _dragPocketIndex;
+                int requestedMergeQuantity = _dragType.MaxStack;
                 int releasePocket = -1;
                 bool dropIntoPocket = !canDrop && !rotated &&
                     TryGetPocketIndex(screen, out releasePocket) && (!fromPocket || releasePocket != sourcePocket);
@@ -373,7 +374,7 @@ namespace Signal.Game
                 if (mergeTargetId != Guid.Empty && mergeSource != null && mergeDestination != null)
                 {
                     _mergeStack?.Invoke(mergeSource, mergeDestination, itemInstanceId,
-                        mergeTargetId, _dragType.MaxStack);
+                        mergeTargetId, requestedMergeQuantity);
                 }
                 else if (canDrop)
                 {
