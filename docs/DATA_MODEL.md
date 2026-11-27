@@ -167,3 +167,12 @@ P-03 still owns actual clothing/armor item slots, physical item identity/custody
 - All three pocket grids are registered with EconomicContainerRegistry as player-owned containers so existing atomic transfer services can receive physical assets into them.
 - SavedPocketItem and PlayerPocketSaveMapper persist pocket index, item definition/instance IDs, quantity, quality, condition, authenticity, ownership status and owner actor. GameSession captures/restores pockets independently of the backpack's 8×6 contents, so they remain available while the backpack is dropped.
 - Item-receipt routing currently selects an available backpack grid or pocket for customer repair-order acceptance, retail purchase and searchable-container pickup. Milo's parcel opportunity can also place/locate its parcel in a personal pocket. CustomerContractPanel enumerates pocket items and fulfils from the source pocket. Retail SELL and Dirty Cash selection do not yet enumerate pockets; those panels switch to an empty carry view whenever the backpack is inaccessible, preventing access to dropped cargo.
+
+
+## Player Quickbar (P-04b)
+
+- `PlayerQuickbar` owns exactly six slot references (`Guid` item-instance IDs), not physical items or inventory grids.
+- A physical item identity may appear in at most one quickbar slot. Replacing, swapping and unassigning slots only changes references; it never moves, copies or changes item quantity.
+- Eligible references resolve to items in the player's backpack grid or one of the three personal pockets. Equipped clothing/accessory items are not eligible.
+- If the backpack is dropped, references to items inside its grid remain saved but are unavailable until that same backpack is recovered. Personal-pocket references remain accessible.
+- `SaveData.quickbarItemInstanceIds` stores six string GUIDs. `PlayerQuickbarSaveMapper` rejects malformed, duplicate or missing identities. Save-time/UI reconciliation clears references to items that have left carried storage.
