@@ -250,6 +250,9 @@ namespace Signal.Game
                     (mouse.leftButton.wasPressedThisFrame && !RectTransformUtility.RectangleContainsScreenPoint(_contextMenuRoot, screen, null) &&
                      (_quickbarSubmenuRoot == null || !RectTransformUtility.RectangleContainsScreenPoint(_quickbarSubmenuRoot, screen, null))))
                 { CloseContextMenu(); return; }
+                // While a context menu is open, block the underlying inventory pointer loop.
+                // Unity's EventSystem still receives the click and dispatches the menu button.
+                return;
             }
             bool backpackAccessible = _canAccessGrid == null || _canAccessGrid();
             int hoverX = 0;
