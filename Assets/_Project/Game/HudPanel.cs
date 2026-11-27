@@ -61,7 +61,7 @@ namespace Signal.Game
         {
             _status.text = _clock.Label
                          + "    CARD $" + _stats.CleanMoney.Balance
-                         + "    HP " + _stats.Health;
+                         + "    HP " + _stats.Health + " / " + _stats.MaximumHealth;
         }
 
         private void Build()
