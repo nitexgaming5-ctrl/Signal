@@ -6,7 +6,7 @@
 
 ## Player outcome
 
-The player can distribute a fixed starting skill-point budget among available skills, earn additional points from important authored gameplay milestones, spend points manually, and freely redistribute all allocated skill points at any time. The character has exactly two attributes: Armor and Heat Protection.
+The player can distribute a fixed starting skill-point budget among available skills, earn additional points from important authored gameplay milestones, spend points manually, and freely redistribute all allocated skill points at any time. The character has three attributes, with **Health as the primary attribute**, alongside Armor and Heat Protection.
 
 ## Confirmed player decisions
 
@@ -15,7 +15,7 @@ The player can distribute a fixed starting skill-point budget among available sk
 - Skill progression uses points the player allocates.
 - New skill points are awarded by important milestones, not by repetitive action XP.
 - Respecialization is free and available at any time.
-- Exactly two attributes: **Armor** and **Heat Protection**.
+- Three attributes: **Health** (primary), **Armor** and **Heat Protection**. This supersedes the earlier two-attribute decision.
 - Armor is the physical-protection attribute.
 - Heat Protection retains that exact name and is used for cold-weather/environmental exposure protection. No hot-weather/overheating gameplay is planned.
 - Clothing and armor are intended to have both visual and gameplay effects; authoritative equipment implementation belongs to P-03. P-02 must define a clean modifier interface without inventing equipment slots or duplicating inventory state.
@@ -24,13 +24,14 @@ The player can distribute a fixed starting skill-point budget among available sk
 
 ### Attributes
 
-1. The character has only Armor and Heat Protection as attributes in this system. Do not add Strength, Endurance, Dexterity, Intelligence, Charisma or other generic RPG attributes.
-2. Armor represents protection against physical damage/threats when a supported damage source exists.
-3. Heat Protection represents protection against cold exposure, including cold associated with low temperatures, wind, rain and snow. The name remains Heat Protection by explicit user decision.
-4. No hot weather, heatwaves, overheating or heat exposure damage is in scope.
-5. Store base attribute values separately from effective values. Effective values are calculated from base values plus validated equipment modifiers when P-03 provides a loadout.
-6. Attribute caps, initial base values, exact numerical scales and physical-damage formula are tuning decisions and are intentionally not fixed by this specification.
-7. P-02 establishes the attribute data and calculation contract. It must not invent a combat system or apply speculative damage to the current game.
+1. The character has exactly three attributes: **Health**, **Armor** and **Heat Protection**. Health is the primary attribute. Do not add other generic RPG attributes without a separate decision.
+2. Health represents the character's life/survivability and is the primary character attribute. Its precise current/maximum-health, healing and damage rules remain to be specified; do not invent those mechanics as part of this attribute update.
+3. Armor represents protection against physical damage/threats when a supported damage source exists.
+4. Heat Protection represents protection against cold exposure, including cold associated with low temperatures, wind, rain and snow. The name remains Heat Protection by explicit user decision.
+5. No hot weather, heatwaves, overheating or heat exposure damage is in scope.
+6. Store base attribute values separately from effective values. Effective values are calculated from base values plus validated equipment/skill modifiers through one authoritative calculation path.
+7. Attribute caps, initial base values, exact numerical scales and physical-damage formula are tuning decisions and are intentionally not fixed by this specification.
+8. P-02 establishes the attribute data and calculation contract. It must not invent a combat system or apply speculative damage to the current game.
 
 ### Skills
 
@@ -60,11 +61,11 @@ The exact starting budget, skill rank cap, point cost per rank, milestone list/r
 ## Proposed architecture
 
 ### Core (plain C#)
-- `PlayerAttributeSet`: validated base Armor and Heat Protection values.
+- `PlayerAttributeSet`: validated base Health, Armor and Heat Protection values.
 - `PlayerSkillBook`: stable skill-ID → rank state, validation and allocation.
 - `PlayerSkillProgression`: starting budget, total earned points, unspent points and point-spend operations.
 - `PlayerMilestoneLedger`: stable milestone IDs and one-time point-award records.
-- `CharacterAttributeCalculator`: derives effective Armor/Heat Protection from base values and supplied equipment modifiers.
+- `CharacterAttributeCalculator`: derives effective Health, Armor and Heat Protection from base values and supplied equipment/skill modifiers.
 - Optional immutable result/value objects for allocation previews and milestone award results.
 
 ### Game/content
@@ -90,7 +91,7 @@ P-02 owns base attribute state and a pure calculation contract. P-03 owns the ac
 ## Save/load
 
 Persist:
-- base Armor and Heat Protection;
+- base Health, Armor and Heat Protection;
 - skill ranks by stable skill ID;
 - starting/total earned/unspent point state (or the minimal canonical values from which these are safely derived);
 - stable milestone award IDs and their point amounts/source identity.
@@ -99,7 +100,7 @@ Do not serialize ScriptableObject references. Unknown skill/milestone IDs must b
 
 ## Acceptance criteria
 
-- Exactly Armor and Heat Protection exist as player attributes.
+- Exactly Health, Armor and Heat Protection exist as player attributes; Health is primary.
 - The fixed starting skill budget can be freely distributed among valid authored skills.
 - Invalid IDs, negative ranks, negative point amounts and overspending are rejected.
 - A milestone can award points once; duplicate event delivery/reload cannot award twice.
@@ -112,12 +113,12 @@ Do not serialize ScriptableObject references. Unknown skill/milestone IDs must b
 
 ## Explicit exclusions
 
-No character classes/backgrounds, automatic use-based skill growth, generic attributes beyond Armor and Heat Protection, final balance values, full equipment loadout, combat/damage implementation, hot-weather systems, cold exposure simulation, weather simulation or NPC skill systems.
+No character classes/backgrounds, automatic use-based skill growth, generic attributes beyond Health, Armor and Heat Protection, final balance values, full equipment loadout, combat/damage implementation, hot-weather systems, cold exposure simulation, weather simulation or NPC skill systems.
 
 
 ## Implementation slice committed (2026-11-25)
 
-- Added Core `PlayerAttributeSet` with exactly Armor and Heat Protection, plus a pure `CharacterAttributeCalculator` seam for future equipment modifiers.
+- Added Core `PlayerAttributeSet` with exactly Armor and Heat Protection, plus a pure `CharacterAttributeCalculator` seam for future equipment modifiers. This is the pre-Health implementation baseline and must be extended: Health is now the primary third attribute.
 - Added `PlayerSkillBook`, `PlayerSkillProgression`, `PlayerMilestoneLedger` and `PlayerDevelopmentState`. Point spending validates skill IDs, budget and maximum rank. Milestone awards are stable-ID, one-time and reject invalid rewards. Free respecialization returns every allocated point.
 - Added save capture/restore using primitive values and stable IDs only. Unknown skills and invalid/duplicate milestone awards are safely ignored; over-budget malformed ranks are restored deterministically within the available budget.
 - Added an authored `PlayerDevelopmentCatalog` asset. Its current prototype values are **8 starting points, rank cap 5, and 1 point per rank**. Repair, Production, Trading, Scavenging and Social are explicitly flagged provisional and can be edited in the catalog.
@@ -125,3 +126,8 @@ No character classes/backgrounds, automatic use-based skill growth, generic attr
 - Skill ranks are stored and allocated, but activity-specific gameplay effects are intentionally not invented or wired yet. The final skill catalogue and what each skill modifies still need design/tuning. Equipment modifiers are P-03's responsibility.
 
 **Not yet verified:** Unity compilation, full EditMode suite and F2/F5/F9 Play Mode acceptance. The last user-confirmed baseline was 456/456 before these 11 new tests; expected suite count is now 467, pending Unity execution.
+
+
+## Design update — Health promoted to primary attribute (2026-11-27)
+
+The user approved replacing the previous two-attribute design with three attributes: **Health (primary), Armor and Heat Protection**. The existing Core implementation/save mapping contains only Armor and Heat Protection and must be extended. Health's exact current/max-health model, starting value, cap, damage/healing rules and formulas remain open; do not invent a combat or damage system. For initial skill-pipeline testing, one skill will increase Health and another will increase Heat Protection. The skill identities and temporary rank formulas remain to be selected/documented before implementation.
