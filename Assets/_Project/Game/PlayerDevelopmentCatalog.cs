@@ -11,18 +11,25 @@ namespace Signal.Game
         [SerializeField] private string displayName;
         [SerializeField, TextArea] private string description;
         [SerializeField] private bool provisional = true;
+        [SerializeField, Min(0)] private int healthPerRank;
+        [SerializeField, Min(0)] private int heatProtectionPerRank;
 
         public string Id => id;
         public string DisplayName => displayName;
         public string Description => description;
         public bool IsProvisional => provisional;
+        public int HealthPerRank => healthPerRank;
+        public int HeatProtectionPerRank => heatProtectionPerRank;
 
-        public PlayerSkillDefinition(string id, string displayName, string description, bool provisional = true)
+        public PlayerSkillDefinition(string id, string displayName, string description,
+            bool provisional = true, int healthPerRank = 0, int heatProtectionPerRank = 0)
         {
             this.id = id;
             this.displayName = displayName;
             this.description = description;
             this.provisional = provisional;
+            this.healthPerRank = Math.Max(0, healthPerRank);
+            this.heatProtectionPerRank = Math.Max(0, heatProtectionPerRank);
         }
     }
 
@@ -60,7 +67,11 @@ namespace Signal.Game
                 new PlayerSkillDefinition("production", "Production", "Improve practical production work."),
                 new PlayerSkillDefinition("trading", "Trading", "Improve buying, selling and commercial work."),
                 new PlayerSkillDefinition("scavenging", "Scavenging", "Improve finding and evaluating useful goods."),
-                new PlayerSkillDefinition("social", "Social", "Improve social and customer-facing activities.")
+                new PlayerSkillDefinition("social", "Social", "Improve social and customer-facing activities."),
+                new PlayerSkillDefinition("health_test", "Vitality (test)",
+                    "TEMPORARY PIPELINE TEST: +10 maximum Health per rank.", true, healthPerRank: 10),
+                new PlayerSkillDefinition("heat_protection_test", "Cold Readiness (test)",
+                    "TEMPORARY PIPELINE TEST: +1 Heat Protection per rank.", true, heatProtectionPerRank: 1)
             };
             return catalog;
         }
