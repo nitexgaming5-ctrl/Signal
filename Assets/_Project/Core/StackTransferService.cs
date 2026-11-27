@@ -163,7 +163,7 @@ namespace Signal.Core
             if (accepted < 1) return Result(StackTransferStatus.DestinationFull);
             var record = new StackMergeRecord(id, sourceStackId, destinationStackId, sourceItem.Type.Id,
                 accepted, sourceOwner, sourceCustodian, destinationCustodian,
-                StackLineageOperationKind.Merge, day, minuteOfDay);
+                StackLineageOperationKind.Merge, day, minuteOfDay, accepted == sourceItem.Count);
 
             InventorySnapshot sourceBefore = source.CreateSnapshot();
             InventorySnapshot destinationBefore = ReferenceEquals(source, destination)
