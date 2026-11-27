@@ -86,16 +86,23 @@ namespace Signal.Core
     {
         private readonly List<StackMergeRecord> _merges = new List<StackMergeRecord>();
         private readonly HashSet<Guid> _operationIds = new HashSet<Guid>();
+        private readonly HashSet<Guid> _retiredStackIds = new HashSet<Guid>();
 
         public IReadOnlyList<StackMergeRecord> Merges => _merges.AsReadOnly();
 
         public bool ContainsOperation(Guid operationId) => _operationIds.Contains(operationId);
+        public bool IsRetiredStackId(Guid stackId) => stackId != Guid.Empty && _retiredStackIds.Contains(stackId);
 
         public bool TryRemoveMerge(Guid operationId)
         {
             if (operationId == Guid.Empty || !_operationIds.Remove(operationId)) return false;
             for (int i = 0; i < _merges.Count; i++)
-                if (_merges[i].OperationId == operationId) { _merges.RemoveAt(i); return true; }
+                if (_merges[i].OperationId == operationId)
+                {
+                    if (_merges[i].SourceRetired) _retiredStackIds.Remove(_merges[i].SourceStackId);
+                    _merges.RemoveAt(i);
+                    return true;
+                }
             return false;
         }
 
@@ -103,6 +110,7 @@ namespace Signal.Core
         {
             if (record.OperationId == Guid.Empty || record.SourceStackId == Guid.Empty ||
                 record.DestinationStackId == Guid.Empty || record.SourceStackId == record.DestinationStackId ||
+                _retiredStackIds.Contains(record.SourceStackId) || _retiredStackIds.Contains(record.DestinationStackId) ||
                 record.ItemDefinitionId == Guid.Empty || record.Quantity < 1 ||
                 !Enum.IsDefined(typeof(StackLineageOperationKind), record.OperationKind) ||
                 ((record.OwnerActorId.Length > 0 || record.SourceCustodianId.Length > 0 ||
@@ -114,6 +122,7 @@ namespace Signal.Core
                 return false;
 
             _merges.Add(record);
+            if (record.SourceRetired) _retiredStackIds.Add(record.SourceStackId);
             return true;
         }
 
@@ -121,6 +130,7 @@ namespace Signal.Core
         {
             _merges.Clear();
             _operationIds.Clear();
+            _retiredStackIds.Clear();
         }
     }
 
@@ -192,6 +202,8 @@ namespace Signal.Core
                 (operationId.HasValue && operationId.Value == Guid.Empty))
                 return Result(StackOperationStatus.InvalidRequest);
 
+            if (lineage.IsRetiredStackId(sourceStackId) || lineage.IsRetiredStackId(destinationStackId))
+                return Result(StackOperationStatus.InvalidRequest);
             if (!source.TryGetItemInstance(sourceStackId, out PlacedItem sourceItem))
                 return Result(StackOperationStatus.SourceNotFound);
             if (!destination.TryGetItemInstance(destinationStackId, out PlacedItem destinationItem))
