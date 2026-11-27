@@ -64,7 +64,7 @@ P-03.6 Wearable Presentation is parked as historical preparation, not an active 
 1. P-04 Character Playability is the active priority. **P-04a source implementation is committed; pull and verify first:** compile in Unity, run the full EditMode suite (expected 557), then test Character panel allocation/respecialisation and F5/F9 persistence of base Health, skills and current/max HP. See `docs/tasks/PLAYER-P-04-CHARACTER-PLAYABILITY.md`. After verification, proceed to P-04b/P-04c quickbar and active-hand work.
 2. Confirmed: no dedicated weapon/tool slots; slot selection only draws and never consumes/activates; supported consumables require intentional left-click; tools/weapons are simply held on selection; H holsters while preserving assignment; wheel up/down cycles next/previous with wraparound only when no menu is open. No tool actions or weapon attacks are in scope now; weapon behavior is a substantial separate future challenge.
 3. P-04a temporary test skill IDs/formulas are now recorded: `health_test` (+10 maximum Health/rank) and `heat_protection_test` (+1 Heat Protection/rank). Both are provisional fixtures only; no final balance or permanent skill mapping is implied.
-3. B-07 Neighbourhood Expansion is paused.
+4. B-07 Neighbourhood Expansion is paused.
 4. Separately, the automatic-debug-loadout cleanup still needs Unity compile/full EditMode and fresh-empty-start/F1-spawner verification. This maintenance check does not reopen P-03.7.
 
 ## Technical safeguards
