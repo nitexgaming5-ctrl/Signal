@@ -56,6 +56,8 @@ namespace Signal.Game
         private EconomicTransactionLedger _economicTransactions;
         private EconomicContainerRegistry _economicContainers;
         private AssetTransferService _assetTransfers;
+        private StackLineageBook _stackLineage;
+        private StackTransferService _stackTransfers;
         private EconomicAccountBook _economicAccounts;
         private RetailTransactionLedger _retailTransactions;
         private RetailService _retailService;
@@ -131,6 +133,8 @@ namespace Signal.Game
         public AssetOwnershipBook AssetOwnership => _assetOwnership;
         public EconomicTransactionLedger EconomicTransactions => _economicTransactions;
         public AssetTransferService AssetTransfers => _assetTransfers;
+        public StackTransferService StackTransfers => _stackTransfers;
+        public StackLineageBook StackLineage => _stackLineage;
         public EconomicAccountBook EconomicAccounts => _economicAccounts;
         public RetailTransactionLedger RetailTransactions => _retailTransactions;
         public RetailService Retail => _retailService;
@@ -172,11 +176,12 @@ namespace Signal.Game
             _assetOwnership = new AssetOwnershipBook();
             _economicTransactions = new EconomicTransactionLedger();
             _economicContainers = new EconomicContainerRegistry();
-            _economicContainers.TryRegister(_inventory, EconomicActorId.Player);
             for (int pocketIndex = 0; pocketIndex < PlayerPocketBook.PocketCount; pocketIndex++)
                 _economicContainers.TryRegister(_playerPockets.GetPocket(pocketIndex), EconomicActorId.Player);
             _economicContainers.TryRegister(_storage, EconomicActorId.Player);
             _assetTransfers = new AssetTransferService(_assetOwnership, _economicContainers, _economicTransactions);
+            _stackLineage = new StackLineageBook();
+            _stackTransfers = new StackTransferService(_assetOwnership, _economicContainers, _economicTransactions, _stackLineage);
             _economicAccounts = new EconomicAccountBook();
             _economicAccounts.TryRegister(EconomicActorId.Player, _stats.CleanMoney);
             _retailTransactions = new RetailTransactionLedger();
@@ -1616,6 +1621,15 @@ namespace Signal.Game
             }
         }
 
+        private bool EnsureBackpackGridRegistered()
+        {
+            if (_economicContainers == null || _inventory == null)
+                return false;
+            if (_economicContainers.TryGetCustodian(_inventory, out EconomicActorId current))
+                return current == EconomicActorId.Player;
+            return _economicContainers.TryRegister(_inventory, EconomicActorId.Player);
+        }
+
         private bool DropPlayerBackpack()
         {
             if (!_equippedBackpackInstanceId.HasValue || _playerEquipment == null ||
@@ -1623,8 +1637,10 @@ namespace Signal.Game
                 equipped.Item.ItemInstanceId != _equippedBackpackInstanceId.Value)
                 return false;
             Vector2 position = _room != null && _room.Player != null ? (Vector2)_room.Player.position : Vector2.zero;
-            if (!_backpackWorldBook.TryDrop(equipped.Item.ItemInstanceId, position.x, position.y))
+            if (!_backpackWorldBook.TryDrop(equipped.Item.ItemInstanceId, position.x, position.y) ||
+                !_economicContainers.TryUnregister(_inventory))
             {
+                _backpackWorldBook.TryRecover(equipped.Item.ItemInstanceId);
                 _playerEquipment.TryRestoreEquipped(equipped.Item.ItemInstanceId, equipped.Item.Type,
                     equipped.Item.State, equipped.Slot, equipped.ArmorModifier, equipped.HeatProtectionModifier);
                 Say("The backpack could not be dropped. It remains equipped.", 4f);
@@ -1667,6 +1683,14 @@ namespace Signal.Game
                 Vector2 pos = _droppedBackpackVisual != null ? (Vector2)_droppedBackpackVisual.transform.position : (Vector2)_room.Player.position;
                 _backpackWorldBook.TryDrop(backpackId, pos.x, pos.y);
                 Say("The backpack could not be equipped. It remains on the ground.", 4f);
+                return false;
+            }
+            if (!EnsureBackpackGridRegistered())
+            {
+                _playerEquipment.TryTakeEquipped(dropped.Slot, out _);
+                Vector2 failedPosition = _droppedBackpackVisual != null ? (Vector2)_droppedBackpackVisual.transform.position : (Vector2)_room.Player.position;
+                _backpackWorldBook.TryDrop(backpackId, failedPosition.x, failedPosition.y);
+                Say("The backpack storage could not be re-authorised. It remains on the ground.", 4f);
                 return false;
             }
             _droppedBackpackItem = null;
@@ -1804,6 +1828,13 @@ namespace Signal.Game
                     return false;
                 }
 
+                if (!EnsureBackpackGridRegistered())
+                {
+                    _portableStorage.TryUnregister(item.ItemInstanceId);
+                    _playerEquipment.TryUnequip(_inventory, definition.EquipmentSlot);
+                    Say("Backpack storage could not be authorised. Nothing was changed.", 4f);
+                    return false;
+                }
                 _equippedBackpackInstanceId = item.ItemInstanceId;
                 RefreshCarryPanelInventories();
                 PlayerCharacterVisual visual = _room != null && _room.Player != null
@@ -2060,6 +2091,7 @@ namespace Signal.Game
             if (_droppedBackpackItem.HasValue)
                 data.droppedBackpack = ToSavedEquippedItem(_droppedBackpackItem.Value, _assetOwnership);
             PortableBackpackWorldSaveMapper.Capture(_backpackWorldBook, data);
+            StackLineageSaveMapper.Capture(_stackLineage, data);
             SearchableContainerSaveMapper.Capture(_searchableContainers, data);
 
             try
@@ -2105,6 +2137,11 @@ namespace Signal.Game
             int skippedPocketItems = PlayerPocketSaveMapper.Apply(data, _playerPockets, ResolveType, _assetOwnership);
             RefreshCarryPanelInventories();
             PortableBackpackWorldSaveMapper.Apply(data, _backpackWorldBook, _portableStorage);
+            StackLineageSaveMapper.Apply(data, _stackLineage);
+            if (_equippedBackpackInstanceId.HasValue)
+                EnsureBackpackGridRegistered();
+            else
+                _economicContainers.TryUnregister(_inventory);
             if (_equippedBackpackInstanceId.HasValue &&
                 !_backpackWorldBook.TryGet(_equippedBackpackInstanceId.Value, out _))
                 _backpackWorldBook.TryRegisterEquipped(_equippedBackpackInstanceId.Value, _portableStorage);
