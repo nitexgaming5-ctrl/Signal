@@ -1,6 +1,6 @@
 # P-04 — Character Playability: Progression, Active Equipment & Quickbar
 
-**Status:** Active specification — six-slot general-purpose quickbar direction confirmed; equipment layout, skill effects and item-action contracts still require decisions.  
+**Status:** Active specification — six-slot general-purpose quickbar direction confirmed; skill effects and item-action contracts still require decisions; active-hand and scroll-wheel behavior are confirmed.  
 **Track:** Player Development  
 **Strategic priority:** Ahead of B-07 Neighbourhood Expansion.  
 **Dependencies:** P-01 character foundation, P-02 attributes/skills, P-03 equipment/inventory/backpack.
@@ -34,9 +34,9 @@ B-07 Neighbourhood Expansion is paused and must not be implemented while P-04 is
 The player can:
 1. Open a clear character-development interface and understand attributes, skills, ranks, points and what each skill actually improves.
 2. Earn skill points through important completed milestones, allocate them freely and respecialise without penalty.
-3. Equip a weapon or practical tool into an intentional active-equipment slot and have that item represented by its exact physical instance.
-4. Assign any suitable carried item—consumables (healing/energy), tools, weapons, backpacks and other item types—to one of six general-purpose quickbar slots; select and activate it through a validated item-action contract.
-5. Save/load progression, equipped gear and quickbar assignments without duplicating items or exposing inaccessible dropped-backpack contents.
+3. Assign any suitable carried item—healing items, energy drinks, tools, weapons, backpacks and other supported items—to one of six general-purpose quickbar slots. The currently selected slot is the item equipped in the player's hand.
+4. Holster the currently held item with **H** without deleting its quickbar assignment. Scroll-wheel up/down selects the next/previous quickbar item when no menu is open.
+5. Save/load progression, active-hand selection, holstered state and quickbar assignments without duplicating items or exposing inaccessible dropped-backpack contents.
 
 ## 4. Proposed implementation sequence
 
@@ -59,20 +59,23 @@ The player can:
 
 No numerical bonus, chance, price formula, quality roll or extra reward is implied by this list. Each effect needs an explicit design decision before implementation.
 
-### P-04b — Active weapon/tool equipment
-- Extend the current equipment model without repurposing clothing/accessory slots.
-- Add authored equipment categories and compatible dedicated slot(s).
-- Equip/unequip exact physical item instances through the existing ownership-aware inventory paths.
-- Preserve item state, ownership, save/load and dropped-backpack isolation.
-- Make active equipment visible in the character UI and available to the relevant player action.
-- A weapon slot alone does not imply combat. Attack, damage, targeting, durability, ammunition and crime consequences remain out of scope unless separately designed and approved.
-- Tools should only perform actions for which an existing or separately approved gameplay interaction exists.
+### P-04b — Active hand item (quickbar-driven; no separate weapon/tool slots)
+- The six-slot quickbar is the authoritative active-item selector. The currently selected slot's assigned item is the item equipped/held in the player's hand.
+- Do not add a separate Weapon slot, Tool slot or duplicate Active Hand equipment slot. Do not repurpose the existing clothing/accessory slots.
+- Selecting another quickbar slot changes the active-hand item to that slot's item. An empty/unavailable slot leaves the hand empty.
+- **H** holsters the currently held item: active hand becomes empty, while all six assignments remain intact. Selecting another populated slot draws that item again.
+- Preserve exact physical item identity, item state, ownership, save/load and dropped-backpack isolation. The active hand is a reference/state over the real item, not a second copy or a second owner.
+- A weapon being held does not imply combat. Attack, damage, targeting, durability, ammunition and crime consequences remain out of scope unless separately designed and approved.
+- Tools and consumables only perform actions for which an existing or separately approved gameplay interaction exists.
 
 ### P-04c — Six-slot general-purpose quickbar
 - Add a small always-visible six-slot quickbar to the HUD.
 - Every slot can be assigned any supported carried item type: healing/energy consumables, tools, weapons, backpacks and other suitable items. The bar is not restricted to consumables or a dedicated weapon/tool category.
 - Assign physical item instances/stacks by stable identity; assignment references the real item and never copies it or creates duplicate ownership.
-- Provide clear selected-slot state. Keyboard mapping (proposed 1–6) and optional mouse-wheel selection remain input details to finalize.
+- The currently selected slot is the active hand item. Show the selected slot and held/holstered state clearly.
+- Scroll-wheel up selects the next slot; scroll-wheel down selects the previous slot, wrapping around the six slots. These inputs are active only while no menu is open.
+- **H** holsters the active-hand item without clearing or changing the quickbar assignments. Selecting a populated slot draws its item again.
+- Number-key selection is not currently part of the confirmed control scheme.
 - Use/activate only items with an explicitly supported action contract; do not consume arbitrary inventory items merely because they are assigned.
 - Handle depleted, moved, merged, split, sold, transferred, equipped or inaccessible items safely. Invalid assignments should clear or visibly become unavailable according to a documented policy.
 - Backpack drop must never make its contents usable through stale quickbar references.
@@ -119,8 +122,10 @@ No numerical bonus, chance, price formula, quality roll or extra reward is impli
 
 ### Quickbar
 - Six slots; assign, replace, clear and select slots.
+- The selected slot's item is the active-hand item; no separate weapon/tool equipment slot duplicates it.
+- Scroll up/down cycles next/previous slot only when no menu is open; verify wraparound at both ends.
+- H holsters the active item but preserves slot assignments; selecting a populated slot draws it again.
 - Verify assignment and selection for different item categories, including healing/energy consumables, tools, weapons and a backpack.
-- Keyboard selection and HUD selection state are clear.
 - Only supported items/actions can be activated.
 - Stack quantity changes are reflected immediately.
 - Moving/splitting/merging/transferring/equipping/selling an assigned stack never creates duplicates or activates the wrong item.
@@ -133,8 +138,8 @@ No numerical bonus, chance, price formula, quality roll or extra reward is impli
 
 ## 8. Decisions required before implementation
 
-1. **Equipment layout:** recommended starting point is one dedicated Weapon slot plus two dedicated Tool slots, separate from the seven existing clothing/accessory slots. Alternative: one shared Active Hand slot that accepts either a weapon or a tool.
-2. **Quickbar:** six general-purpose slots accepting any suitable carried item type is confirmed. Proposed keyboard mapping is 1–6; confirm or revise the input mapping when the HUD/input slice is designed.
+1. **Active hand:** confirmed — the currently selected quickbar slot is the item equipped in the player's hand. There are no separate weapon/tool slots.
+2. **Controls:** confirmed — scroll up/down selects next/previous slot only when no menu is open; H holsters the held item while preserving assignments. Number keys are not currently specified.
 3. **Weapon scope:** equipping/visual selection only for the first slice, or do you want an actual attack/action loop designed now? The latter is a separate combat mechanic and requires a dedicated proposal.
 4. **Tool scope:** identify the first one or two practical tools/actions to support. Existing repair/production tools are currently materials/ingredients; making them held, activated tools changes their gameplay contract.
 5. **Skill effects:** approve or revise the candidate skill list and effect proposals before numerical formulas are coded.
