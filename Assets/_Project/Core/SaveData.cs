@@ -134,6 +134,22 @@ namespace Signal.Core
     }
 
     [Serializable]
+    public sealed class SavedStackMergeRecord
+    {
+        public string operationId;
+        public string sourceStackId;
+        public string destinationStackId;
+        public string itemDefinitionId;
+        public int quantity;
+        public string ownerActorId;
+        public string sourceCustodianId;
+        public string destinationCustodianId;
+        public int operationKind;
+        public int day;
+        public int minuteOfDay;
+    }
+
+    [Serializable]
     public sealed class SavedEconomicAccount
     {
         public string actorId;
@@ -358,6 +374,7 @@ namespace Signal.Core
         public List<SavedPlayerRelationship> playerRelationships = new List<SavedPlayerRelationship>();
         public List<SavedAssetOwner> assetOwners = new List<SavedAssetOwner>();
         public List<SavedEconomicTransaction> economicTransactions = new List<SavedEconomicTransaction>();
+        public List<SavedStackMergeRecord> stackMergeLineage = new List<SavedStackMergeRecord>();
         public List<SavedEconomicAccount> residentAccounts = new List<SavedEconomicAccount>();
         public List<SavedRetailTransaction> retailTransactions = new List<SavedRetailTransaction>();
         public List<SavedShopSaleTransaction> shopSaleTransactions = new List<SavedShopSaleTransaction>();
