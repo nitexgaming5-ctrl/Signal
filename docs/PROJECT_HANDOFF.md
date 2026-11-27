@@ -85,8 +85,16 @@ A later cleanup removed automatic fresh-session debug backpack/cargo; F1 spawner
 
 ### Debug test loadout (2026-11-27)
 - F1 Item Spawner now includes a one-click **TEST LOADOUT** action; it is opt-in and does not change fresh-session starting inventory.
-- It equips a Canvas Backpack if the player has none, then adds Bread ×5, Fabric Roll ×5, Thread Spool ×3, one Work Jacket and one Basic Patch Kit through the normal debug spawn/inventory path. Existing equipped backpacks are reused; a dropped backpack must be recovered first.
+- It equips a Canvas Backpack if the player has none, then adds Bread ×5, Fabric Roll ×5, Thread Spool ×3, one Work Jacket and one Basic Patch Kit through the normal debug spawn/inventory path. Existing equipped backpacks are reused. Known defect: a dropped backpack still occupies the single session-wide grid and blocks replacement; per-backpack storage isolation is pending.
 - Stack quantities are added one item at a time through normal inventory rules, so expected stack groupings are Bread 5, Fabric Roll 3+2, Thread Spool 2+1. This deliberately gives both stack top-up and multi-stack cases.
 - No quickbar assignments are overwritten. This loadout only seeds inventory; it does not implement consumable activation/use. Item-use remains a separate gameplay slice.
 - Added an EditMode callback test for the loadout action. Unity compilation, tests and Play Mode verification are pending.
 - Commits: `c70907a557d48b16c5b9fb0e857693481b27d341`, `c3a9f4cf05b7afa316727c6a60765a24bf556fd7`.
+
+
+### Current follow-up — 2026-11-27
+- User confirmed the quickbar/H-toggle work at **571/571**.
+- Drag ghost z-order follow-up committed as `d980ebba7d53a3ffbfb602b74adb9593b1e652e4`: it is promoted to the last sibling on the overlay canvas during dragging so it appears above the HUD quickbar. Unity verification pending.
+- Backpack bug diagnosis: `GameSession` uses one `_inventory` grid for every physical backpack. Dropping unregisters the grid but keeps the same reference as the session inventory; debug loadout refuses a replacement while a dropped bag exists. Do not merely remove that guard. Correct design is one distinct grid per backpack identity, active-grid switching on equip/drop, multiple independently recoverable dropped bags, and save/load persistence for every bag.
+- Await user decision: if the player recovers an old dropped bag while wearing another, should this automatically drop the currently worn bag at the player's feet and swap, or require the player to drop the current bag first?
+- No backpack lifecycle code changed yet. Preserve the confirmed 571/571 baseline; re-run Unity tests after the pending fixes.
