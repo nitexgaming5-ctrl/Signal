@@ -70,8 +70,10 @@ No numerical bonus, chance, price formula, quality roll or extra reward is impli
 - Drag an inventory item onto a quickbar slot to assign it. Dropping onto an occupied slot replaces that slot's assignment; the previously assigned item remains in its normal inventory location.
 - Drag one quickbar slot onto another to swap their assignments. Drag an assigned quickbar entry back into the inventory area to unassign it; the physical item remains in inventory.
 - Context-menu assignment and drag/drop assignment must call the same authoritative Core assignment operation and produce identical results.
-- Quickbar entries are references to stable item-instance identities, never item copies and never a second inventory owner.
-- Moving an assigned item out of the accessible carried inventory (including selling, transferring, equipping, or moving it into an inaccessible dropped backpack) must not leave a usable stale assignment. Identity-changing stack operations must reconcile references against surviving item IDs; retired/consumed identities must be cleared safely.
+- Quickbar entries are references to stable item-instance identities, never item copies and never a second inventory owner. They may reference items in the accessible backpack grid or any personal pocket; the quickbar is only a rendering of that real item in its existing grid.
+- Clothing/accessory items already equipped in the character equipment loadout are not eligible. The item must be in carried storage (backpack or pocket), not a clothing/equipment slot.
+- If the backpack is dropped, assignments pointing into that backpack are preserved but marked unavailable/non-interactive until the same backpack is recovered. They must never expose or permit interaction with dropped-backpack contents. Pocket assignments remain accessible.
+- Selling, transferring, consuming, or otherwise retiring an assigned physical item clears its assignment. Identity-changing stack split/merge operations must reconcile references against surviving item IDs so no stale or duplicated item identity remains.
 - The quickbar assignment UI does not select/use the item, consume it, or perform a tool/weapon action. Active-hand selection and controls remain P-04c.
 - Context-menu dismissal should follow existing UI conventions (outside click and Escape) after the code audit; do not introduce a new global input layer.
 
@@ -84,7 +86,7 @@ No numerical bonus, chance, price formula, quality roll or extra reward is impli
 6. Persist the six assignments through the existing SaveData/GameSession path and restore only identities that remain valid and accessible.
 7. Add Core regression tests for assign, replace, swap, unassign, invalid identity, moved/sold/equipped item invalidation, stack split/merge/retirement and save/load. Add UI/Play Mode acceptance for both assignment paths and menu dismissal.
 
-**P-04b decisions still requiring confirmation before implementation:** whether the same physical item may be assigned to more than one quickbar slot, and whether a quickbar slot should be allowed to reference an item currently equipped in a clothing/accessory slot. The safe default is to avoid duplicate assignments and reference only accessible carried items unless the user chooses otherwise. Do not silently decide these edge cases in code.
+**P-04b edge rules confirmed by user (2026-11-27):** one physical item may occupy only one quickbar slot (prevents duplicate references). Eligible items may live in the accessible backpack grid or any of the three personal pockets; equipped clothing/accessory items are excluded. Dropping the backpack preserves assignments to items inside it but marks those slots unavailable until the same backpack is recovered. Pocket-backed entries remain accessible. The quickbar is a visual rendering only; physical items stay in their original inventory grid.
 
 ### P-04c — Active hand item (quickbar-driven; no separate weapon/tool slots)
 - The six-slot quickbar is the authoritative active-item selector. The currently selected slot's assigned item is the item equipped/held in the player's hand.
