@@ -1457,6 +1457,8 @@ namespace Signal.Game
                 if (saved.portableBackpack)
                 {
                     _equippedBackpackInstanceId = instanceId;
+                    RegisterStorageIdentity(InventoryStorageKind.PlayerBackpack,
+                        instanceId.ToString("N"), "contents", _inventory);
                     if (visual != null)
                         visual.SetBackpackEquipped(true);
                 }
@@ -1486,6 +1488,8 @@ namespace Signal.Game
                     {
                         _droppedBackpackItem = new EquippedItem(EquipmentSlot.Accessory1, droppedPlaced,
                             droppedSaved.armorModifier, droppedSaved.heatProtectionModifier);
+                        RegisterStorageIdentity(InventoryStorageKind.PlayerBackpack,
+                            droppedId.ToString("N"), "contents", _inventory);
                         if (!_assetOwnership.TryGetOwner(droppedId, out _))
                         {
                             EconomicActorId owner = string.IsNullOrWhiteSpace(droppedSaved.ownerActorId)
@@ -1501,10 +1505,24 @@ namespace Signal.Game
             }
         }
 
-        private bool EnsureBackpackGridRegistered()
+        private bool EnsureBackpackGridRegistered(Guid backpackInstanceId)
         {
-            if (_economicContainers == null || _inventory == null)
+            if (backpackInstanceId == Guid.Empty || _economicContainers == null ||
+                _inventoryStorages == null || _inventory == null)
                 return false;
+
+            InventoryStorageId storageId = new InventoryStorageId(
+                InventoryStorageKind.PlayerBackpack, backpackInstanceId.ToString("N"), "contents");
+            if (_inventoryStorages.TryGet(storageId, out GridInventory registeredContents))
+            {
+                if (!ReferenceEquals(registeredContents, _inventory))
+                    return false;
+            }
+            else if (!_inventoryStorages.TryRegister(storageId, _inventory))
+            {
+                return false;
+            }
+
             if (_economicContainers.TryGetCustodian(_inventory, out EconomicActorId current))
                 return current == EconomicActorId.Player;
             return _economicContainers.TryRegister(_inventory, EconomicActorId.Player);
@@ -1523,7 +1541,7 @@ namespace Signal.Game
                 _backpackWorldBook.TryRecover(equipped.Item.ItemInstanceId);
                 _playerEquipment.TryRestoreEquipped(equipped.Item.ItemInstanceId, equipped.Item.Type,
                     equipped.Item.State, equipped.Slot, equipped.ArmorModifier, equipped.HeatProtectionModifier);
-                EnsureBackpackGridRegistered();
+                EnsureBackpackGridRegistered(equipped.Item.ItemInstanceId);
                 Say("The backpack could not be dropped. It remains equipped.", 4f);
                 return false;
             }
@@ -1566,7 +1584,7 @@ namespace Signal.Game
                 Say("The backpack could not be equipped. It remains on the ground.", 4f);
                 return false;
             }
-            if (!EnsureBackpackGridRegistered())
+            if (!EnsureBackpackGridRegistered(backpackId))
             {
                 _playerEquipment.TryTakeEquipped(dropped.Slot, out _);
                 Vector2 failedPosition = _droppedBackpackVisual != null ? (Vector2)_droppedBackpackVisual.transform.position : (Vector2)_room.Player.position;
@@ -1709,7 +1727,7 @@ namespace Signal.Game
                     return false;
                 }
 
-                if (!EnsureBackpackGridRegistered())
+                if (!EnsureBackpackGridRegistered(item.ItemInstanceId))
                 {
                     _portableStorage.TryUnregister(item.ItemInstanceId);
                     _playerEquipment.TryUnequip(_inventory, definition.EquipmentSlot);
@@ -2146,7 +2164,7 @@ namespace Signal.Game
                 bool worldStateAllowsAccess =
                     _backpackWorldBook.TryGet(restoredBackpackId, out PortableBackpackWorldState restoredBackpackState) &&
                     restoredBackpackState.Status == PortableBackpackWorldStatus.Equipped;
-                if (!worldStateAllowsAccess || !EnsureBackpackGridRegistered())
+                if (!worldStateAllowsAccess || !EnsureBackpackGridRegistered(restoredBackpackId))
                 {
                     _economicContainers.TryUnregister(_inventory);
                     if (_playerEquipment.TryTakeEquipped(EquipmentSlot.Accessory1, out EquippedItem inconsistentBackpack))
