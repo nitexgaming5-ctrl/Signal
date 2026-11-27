@@ -22,6 +22,8 @@ namespace Signal.Game
 
         private readonly List<ItemDefinition> _definitions = new List<ItemDefinition>();
         private Func<ItemDefinition, string> _spawn;
+        private Func<string> _spawnTestLoadout;
+        private Button _testLoadoutButton;
         private Font _font;
         private bool _open;
         private string _filter = string.Empty;
@@ -37,12 +39,22 @@ namespace Signal.Game
         public bool IsOpen => _open;
         public int ItemCount => _definitions.Count;
 
-        public void Bind(IReadOnlyList<ItemDefinition> definitions, Func<ItemDefinition, string> spawn)
+        public string SpawnTestLoadout()
+        {
+            if (_spawnTestLoadout == null)
+                return "The test loadout is not connected.";
+            _status = _spawnTestLoadout() ?? string.Empty;
+            if (_statusText != null) _statusText.text = _status;
+            return _status;
+        }
+
+        public void Bind(IReadOnlyList<ItemDefinition> definitions, Func<ItemDefinition, string> spawn, Func<string> spawnTestLoadout = null)
         {
             if (spawn == null)
                 throw new ArgumentNullException(nameof(spawn));
 
             _spawn = spawn;
+            _spawnTestLoadout = spawnTestLoadout;
             _definitions.Clear();
             var registeredIds = new HashSet<Guid>();
             if (definitions != null)
@@ -159,8 +171,12 @@ namespace Signal.Game
                 RefreshTiles();
             });
 
+            _testLoadoutButton = NewButton("TestLoadout", rootRect, "TEST LOADOUT", new Vector2(464f, 62f), new Vector2(190f, 38f));
+            _testLoadoutButton.onClick.AddListener(() => SpawnTestLoadout());
+            _testLoadoutButton.gameObject.SetActive(_spawnTestLoadout != null);
+
             _count = NewText("Count", rootRect, string.Empty, 14, TextAnchor.MiddleRight, MutedColor);
-            SetTopLeft(_count.rectTransform, 560f, 64f, 458f, 34f);
+            SetTopLeft(_count.rectTransform, 666f, 64f, 352f, 34f);
 
             Image viewportImage = NewImage("Viewport", rootRect, new Color32(0x12, 0x16, 0x1D, 0xFF));
             RectTransform viewport = viewportImage.rectTransform;

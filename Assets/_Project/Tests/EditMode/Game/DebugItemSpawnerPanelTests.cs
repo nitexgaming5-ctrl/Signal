@@ -66,6 +66,33 @@ namespace Signal.Game.Tests
             }
         }
 
+        [Test]
+        public void TestLoadoutButtonCallbackCanBeInvokedAndReportsResult()
+        {
+            var host = new GameObject("DebugItemSpawnerHost");
+            ItemDefinition item = CreateDefinition("Test Wool", "Materials");
+            bool called = false;
+            try
+            {
+                var panel = host.AddComponent<DebugItemSpawnerPanel>();
+                panel.Bind(new[] { item }, _ => "Added.", () =>
+                {
+                    called = true;
+                    return "TEST LOADOUT: ready.";
+                });
+
+                string result = panel.SpawnTestLoadout();
+
+                Assert.That(called, Is.True);
+                Assert.That(result, Is.EqualTo("TEST LOADOUT: ready."));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(host);
+                UnityEngine.Object.DestroyImmediate(item);
+            }
+        }
+
         private static ItemDefinition CreateDefinition(string displayName, string category)
         {
             ItemDefinition definition = ScriptableObject.CreateInstance<ItemDefinition>();

@@ -307,7 +307,7 @@ namespace Signal.Game
                 _playerPockets, MoveItemToPocket, MovePocketToBackpack, EquipPocketItem, MovePocketToBackpackAt,
                 MovePocketToPocket, SplitPlayerStack, MergePlayerStacks, _playerQuickbar);
             _debugItemSpawnerPanel = gameObject.AddComponent<DebugItemSpawnerPanel>();
-            _debugItemSpawnerPanel.Bind(_allItemDefinitions, SpawnDebugItem);
+            _debugItemSpawnerPanel.Bind(_allItemDefinitions, SpawnDebugItem, SpawnDebugTestLoadout);
             _containerPanel = gameObject.AddComponent<SearchableContainerPanel>();
             _containerPanel.Bind(_allItemDefinitions, TakeSearchableItem, TakeSearchableItemAt, _itemViewer.Open,
                 TakeSearchableItemToPocket, PutPocketItemIntoSearchableContainer,
@@ -1777,6 +1777,90 @@ namespace Signal.Game
 
             Say("Unequipped " + slot + ".", 3f);
             return true;
+        }
+
+        private string SpawnDebugTestLoadout()
+        {
+            if (_droppedBackpackItem.HasValue)
+                return "Recover your dropped backpack before loading the test kit.";
+
+            var messages = new List<string>();
+            if (!_equippedBackpackInstanceId.HasValue)
+            {
+                ItemDefinition backpack = FindDebugItemDefinition("CanvasBackpack");
+                if (backpack == null)
+                    return "Test loadout unavailable: Canvas Backpack is missing from the item catalogue.";
+                string backpackResult = SpawnDebugItem(backpack);
+                if (!_equippedBackpackInstanceId.HasValue)
+                    return "Test loadout stopped: " + backpackResult;
+                messages.Add(backpackResult);
+            }
+            else
+            {
+                messages.Add("Using your currently equipped backpack.");
+            }
+
+            AddDebugLoadoutStack(messages, "Item_Bread", 5);
+            AddDebugLoadoutStack(messages, "Fabric_Roll", 5);
+            AddDebugLoadoutStack(messages, "Thread_Spool", 3);
+            AddDebugLoadoutItem(messages, "Item_WorkJacket");
+            AddDebugLoadoutItem(messages, "Basic_Patch_Kit");
+
+            RefreshCarryPanelInventories();
+            _panel?.Refresh();
+            _storagePanel?.Refresh();
+            _retailPanel?.SetInventories(GetAccessibleCarryInventories());
+            return "TEST LOADOUT: " + string.Join(" ", messages);
+        }
+
+        private ItemDefinition FindDebugItemDefinition(string assetName)
+        {
+            foreach (ItemDefinition definition in _allItemDefinitions)
+                if (definition != null && string.Equals(definition.name, assetName, StringComparison.Ordinal))
+                    return definition;
+            return null;
+        }
+
+        private void AddDebugLoadoutItem(List<string> messages, string assetName)
+        {
+            ItemDefinition definition = FindDebugItemDefinition(assetName);
+            if (definition == null)
+            {
+                messages.Add(assetName + " missing.");
+                return;
+            }
+
+            string result = SpawnDebugItem(definition);
+            messages.Add(result);
+        }
+
+        private void AddDebugLoadoutStack(List<string> messages, string assetName, int quantity)
+        {
+            ItemDefinition definition = FindDebugItemDefinition(assetName);
+            if (definition == null)
+            {
+                messages.Add(assetName + " missing.");
+                return;
+            }
+
+            int added = 0;
+            for (int i = 0; i < quantity; i++)
+            {
+                string result = SpawnDebugItem(definition);
+                if (result.StartsWith("Added ", StringComparison.Ordinal))
+                    added++;
+                else
+                {
+                    messages.Add("Added " + added + "/" + quantity + " " +
+                        (string.IsNullOrWhiteSpace(definition.DisplayName) ? definition.name : definition.DisplayName) +
+                        "; " + result);
+                    return;
+                }
+            }
+
+            messages.Add("Added " + added + " " +
+                (string.IsNullOrWhiteSpace(definition.DisplayName) ? definition.name : definition.DisplayName) +
+                " (stacked by normal inventory rules).");
         }
 
         private string SpawnDebugItem(ItemDefinition definition)
