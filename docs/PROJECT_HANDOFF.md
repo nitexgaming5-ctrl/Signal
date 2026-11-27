@@ -254,3 +254,14 @@ P-04b source implementation is committed; Unity verification is pending. The two
 - Assignment never moves or duplicates physical items. Backpack and all three pockets are eligible; equipped clothing/accessory items are excluded. A dropped backpack's slots render disabled until recovery.
 - Five Core tests added in `PlayerQuickbarTests.cs`. Expected full suite **562**, pending Unity. Do not claim compile/tests/Play Mode until user runs Unity.
 - Acceptance checklist: compile; run all 562 EditMode tests; RMB Inspect from backpack and each pocket; RMB assignment to all six slots; drag backpack/pocket item to empty and occupied slots; drag slot-to-slot swap; drag slot back to inventory to unassign; verify one item cannot occupy two slots; drop backpack and confirm nested slots disable but remain assigned, pocket slots still work; recover bag and confirm assignments return; sell/transfer/equip/merge an assigned item and confirm stale reference clears; F5/F9 save/load round-trip all six slots.
+
+
+## 2026-11-27 — P-04 quickbar follow-up (latest source, verification pending)
+
+User confirmed the P-04b baseline at **562/562** and that quick slots show inside Tab inventory. Three follow-up issues were reported and source fixes committed:
+- RMB submenu assignment now calls `PlayerQuickbar.TryMoveAssignment`: choosing another slot moves the same item-instance reference out of its previous slot. Occupied destination references are replaced, but physical inventory items do not move or duplicate.
+- A semi-transparent item ghost is shown while dragging from a quickbar slot. Existing backpack/pocket drag ghost remains.
+- A second six-slot, display-only quickbar is rendered bottom-centre on the HUD outside Tab inventory; the Tab inventory row remains. Inventory/pocket change events and closed-inventory updates refresh/reconcile the HUD.
+- One Core regression test was added. Expected suite: **563** (not yet user-verified).
+
+Next verification: Unity compile, full **563/563** EditMode suite, RMB reassignment from backpack and each pocket (including occupied destination), drag ghost from backpack/pocket/quickbar, persistent HUD visibility outside Tab, HUD refresh after moving/transferring/retiring items, dropped-backpack entries disabled while pocket entries remain available, and F5/F9 persistence. Active-hand selection and wheel/H controls remain later P-04 work.
