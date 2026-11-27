@@ -8,6 +8,7 @@ namespace Signal.Core
         public static void Capture(StackLineageBook source, SaveData destination)
         {
             if (destination == null) throw new ArgumentNullException(nameof(destination));
+            if (destination.stackMergeLineage == null) destination.stackMergeLineage = new List<SavedStackMergeRecord>();
             destination.stackMergeLineage.Clear();
             if (source == null) return;
             foreach (StackMergeRecord record in source.Merges)
