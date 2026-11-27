@@ -40,6 +40,14 @@ namespace Signal.Core
             _isHolstered = true;
         }
 
+        /// <summary>Toggles the selected slot between held and holstered without changing its assignment.</summary>
+        public bool ToggleHolster()
+        {
+            if (_selectedSlot < 0) return false;
+            _isHolstered = !_isHolstered;
+            return true;
+        }
+
         public void ResetActiveHand()
         {
             _selectedSlot = -1;
