@@ -140,4 +140,12 @@ This supersedes the narrower backpack-only follow-up. The user requires independ
 - [ ] Replace the singular dropped-backpack item/visual with GUID-keyed collections and persist every dropped bag's equipment metadata.
 - [ ] Implement the approved automatic swap: equipped bag drops at player's feet, recovered bag equips, each retains its own contents.
 - [ ] Remove the TEST LOADOUT dropped-backpack restriction only after multi-bag swap and persistence are verified.
-- [ ] Verify current runtime integration with Unity compile, 581 EditMode tests and Play Mode F5/F9/equip/drop/recover/quickbar checks (latest user-confirmed baseline: 580/580).
+- [ ] Verify current runtime integration with Unity compile, 581 EditMode tests and Play Mode F5/F9/equip/drop/recover/quickbar checks (latest user-confirmed baseline: 581/581).
+
+
+### Multi-backpack selection foundation — 2026-11-27
+- [x] Add deterministic nearest-dropped-backpack selection to the Core world-state book, including range validation and stable GUID tie-breaking.
+- [x] Add two proximity-selection regression tests. Expected full suite: 583; latest user-confirmed baseline: 581/581.
+- [ ] Replace singular GameSession dropped-item/visual fields with GUID-keyed collections and persist every dropped bag's item metadata.
+- [ ] Implement automatic swap while preserving each bag's independent contents grid.
+- [ ] Enable TEST LOADOUT with previously dropped bags only after runtime swap and save/load are safe.
