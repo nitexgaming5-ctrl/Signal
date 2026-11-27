@@ -1,6 +1,6 @@
 # P-04 — Character Playability: Progression, Active Equipment & Quickbar
 
-**Status:** Proposed priority shift and implementation specification — awaiting user approval of equipment layout and gameplay-effect details.  
+**Status:** Active specification — six-slot general-purpose quickbar direction confirmed; equipment layout, skill effects and item-action contracts still require decisions.  
 **Track:** Player Development  
 **Strategic priority:** Ahead of B-07 Neighbourhood Expansion.  
 **Dependencies:** P-01 character foundation, P-02 attributes/skills, P-03 equipment/inventory/backpack.
@@ -35,7 +35,7 @@ The player can:
 1. Open a clear character-development interface and understand attributes, skills, ranks, points and what each skill actually improves.
 2. Earn skill points through important completed milestones, allocate them freely and respecialise without penalty.
 3. Equip a weapon or practical tool into an intentional active-equipment slot and have that item represented by its exact physical instance.
-4. Assign eligible carried items to a compact quickbar, select them with keyboard shortcuts and use them through validated gameplay actions.
+4. Assign any suitable carried item—consumables (healing/energy), tools, weapons, backpacks and other item types—to one of six general-purpose quickbar slots; select and activate it through a validated item-action contract.
 5. Save/load progression, equipped gear and quickbar assignments without duplicating items or exposing inaccessible dropped-backpack contents.
 
 ## 4. Proposed implementation sequence
@@ -68,10 +68,11 @@ No numerical bonus, chance, price formula, quality roll or extra reward is impli
 - A weapon slot alone does not imply combat. Attack, damage, targeting, durability, ammunition and crime consequences remain out of scope unless separately designed and approved.
 - Tools should only perform actions for which an existing or separately approved gameplay interaction exists.
 
-### P-04c — Quick inventory bar
-- Add a small always-visible quickbar to the HUD.
-- Assign eligible physical inventory stack instances to slots; assignment references stable item identity, it does not copy items or create duplicate ownership.
-- Select slots through keyboard shortcuts and provide a clear selected-slot state.
+### P-04c — Six-slot general-purpose quickbar
+- Add a small always-visible six-slot quickbar to the HUD.
+- Every slot can be assigned any supported carried item type: healing/energy consumables, tools, weapons, backpacks and other suitable items. The bar is not restricted to consumables or a dedicated weapon/tool category.
+- Assign physical item instances/stacks by stable identity; assignment references the real item and never copies it or creates duplicate ownership.
+- Provide clear selected-slot state. Keyboard mapping (proposed 1–6) and optional mouse-wheel selection remain input details to finalize.
 - Use/activate only items with an explicitly supported action contract; do not consume arbitrary inventory items merely because they are assigned.
 - Handle depleted, moved, merged, split, sold, transferred, equipped or inaccessible items safely. Invalid assignments should clear or visibly become unavailable according to a documented policy.
 - Backpack drop must never make its contents usable through stale quickbar references.
@@ -117,7 +118,8 @@ No numerical bonus, chance, price formula, quality roll or extra reward is impli
 - Dropped backpack contents remain inaccessible.
 
 ### Quickbar
-- Assign, replace, clear and select slots.
+- Six slots; assign, replace, clear and select slots.
+- Verify assignment and selection for different item categories, including healing/energy consumables, tools, weapons and a backpack.
 - Keyboard selection and HUD selection state are clear.
 - Only supported items/actions can be activated.
 - Stack quantity changes are reflected immediately.
@@ -132,7 +134,7 @@ No numerical bonus, chance, price formula, quality roll or extra reward is impli
 ## 8. Decisions required before implementation
 
 1. **Equipment layout:** recommended starting point is one dedicated Weapon slot plus two dedicated Tool slots, separate from the seven existing clothing/accessory slots. Alternative: one shared Active Hand slot that accepts either a weapon or a tool.
-2. **Quickbar size:** recommended five slots mapped to keys 1–5, with mouse-wheel selection optional later. Confirm desired slot count/input.
+2. **Quickbar:** six general-purpose slots accepting any suitable carried item type is confirmed. Proposed keyboard mapping is 1–6; confirm or revise the input mapping when the HUD/input slice is designed.
 3. **Weapon scope:** equipping/visual selection only for the first slice, or do you want an actual attack/action loop designed now? The latter is a separate combat mechanic and requires a dedicated proposal.
 4. **Tool scope:** identify the first one or two practical tools/actions to support. Existing repair/production tools are currently materials/ingredients; making them held, activated tools changes their gameplay contract.
 5. **Skill effects:** approve or revise the candidate skill list and effect proposals before numerical formulas are coded.
