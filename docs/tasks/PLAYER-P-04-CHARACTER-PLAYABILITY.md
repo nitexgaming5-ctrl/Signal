@@ -26,7 +26,7 @@ B-07 Neighbourhood Expansion is paused and must not be implemented while P-04 is
 - Milestone award API exists, but successful gameplay completion events are not comprehensively wired to authored milestone rewards.
 - F2 is a prototype/debug allocation panel, not a complete character-development experience.
 - Current equipment slots do not include a dedicated weapon or tool slot/category.
-- No authoritative quickbar/hotbar assignment, selection, use or persistence system currently exists.
+- P-04b now provides an authoritative six-slot identity-reference assignment model and Tab inventory assignment UI. Active-hand selection/use controls remain future P-04c/P-04d work.
 - Existing equipment metadata is provisional; no weapon combat/attack system should be assumed to exist.
 
 ## 3. Player outcome
