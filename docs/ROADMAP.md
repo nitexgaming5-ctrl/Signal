@@ -134,3 +134,11 @@ This addresses the compiler diagnostics supplied by the user. A fresh Unity comp
 ## 2026-11-27 — P-03.7 Stack System & Inventory Interaction
 
 The inventory/grid audit is now user-verified complete (**531/531 EditMode tests and Play Mode acceptance passed**). The next active P-03 foundation task is stack interaction: quantity labels, split half/one, quick-transfer, partial transfers, compatible merges and persistent stack lineage. See `docs/tasks/PLAYER-P-03-7-STACK-SYSTEM.md` for the approved identity, ownership, input and acceptance contracts. Do not proceed to unrelated roadmap work until this phase is integrated and verified.
+
+## P-03.7 — Stack System & Inventory Interaction
+
+- P-03.7a Core split/merge primitives: implemented; last user-confirmed suite result 540/540.
+- P-03.7b ownership-aware transfer service, lineage persistence, retired-ID reconciliation and dropped-backpack container authorization: source implemented; Unity verification pending.
+- P-03.7c inventory controls and stack quantity display: not started; gated on P-03.7b compile/test/Play Mode verification.
+- P-03.7d universal service integration and end-to-end acceptance: not started.
+- Existing wearable presentation remains paused. No authored stack-size balancing changes are included.
