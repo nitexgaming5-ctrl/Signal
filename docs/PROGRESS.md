@@ -57,14 +57,17 @@ P-03.7 is closed and user-verified at **555/555**, including compile and Play Mo
 - Save/load persists the six assignments and reconciles invalid/retired identities.
 - User confirmed **563/563** after these changes. Play Mode acceptance should still cover the visible HUD and interactions as part of the next in-game check if not already completed.
 
-**P-04c — Active hand and controls:** next proposal; not yet implemented or approved for coding.
-- Confirmed design rules: selected quickbar slot is the item held in the player's hand; no separate weapon/tool slots or duplicate active-equipment state.
-- H holsters the held item without clearing its assignment.
-- Mouse-wheel up/down selects next/previous slot with wraparound, only when no menu is open.
-- Selecting a slot only draws/holds its item; it never consumes or activates it.
-- Supported consumables require an intentional left-click to use. Tools/weapons are held only; their actions/attacks are out of scope.
-- Number keys 1–6 have not been approved.
-- See the P-04 task card for the next implementation proposition.
+**P-04c — Active hand and controls:** implementation committed; Unity verification pending.
+- Core `PlayerQuickbar` now owns selected-slot and holstered state. The held item is derived from the selected slot's existing stable item-instance reference; no duplicate item ID or inventory ownership is introduced.
+- Mouse wheel up/down cycles next/previous through all six slots with wraparound, including empty slots. Number keys 1–6 directly select their matching slots.
+- H holsters without clearing assignments. Selecting an empty slot means empty hand.
+- Wheel, number keys and H are ignored while any supported gameplay/menu panel is open.
+- The six-slot HUD is display-only; selected/active and selected/holstered states receive distinct slot feedback. The Tab quickbar remains an assignment UI.
+- If a backpack-backed held item becomes inaccessible when its backpack is dropped, the hand holsters while its quickbar reference remains assigned. Pocket-backed items remain accessible.
+- Loading resets the active hand to no selected slot and holstered while restoring the six assignments.
+- Five new Core regression tests cover active selection/holster, empty-slot cycling/wraparound, invalidation/unassignment, backpack-style inaccessibility and load reset.
+- Source commits: `c17a9f7e27d06caf6066d5fd010594d51d33fd85`, `3f8157afb5ca80e744ed83d9ea25922b33f99e50`, `e0ea41bdf2b11a30b4a99941f7153979fd04223e`.
+- **Verification pending:** Unity compile, full EditMode suite (563/563 is the last user-confirmed baseline; five new tests have been added) and Play Mode acceptance.
 
 **P-04d — UI polish:** later follow-up after P-04c. The always-visible six-slot HUD and drag ghost have already been delivered in P-04b follow-up; do not duplicate them.
 

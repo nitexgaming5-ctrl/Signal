@@ -57,17 +57,19 @@ A later cleanup removed automatic fresh-session debug backpack/cargo; F1 spawner
 - Save/load mapping persists and reconciles assignments.
 - User confirmed **563/563** after these changes.
 
-### Next: P-04c active hand and controls — proposal only
+### P-04c active hand and controls — implementation committed, verification pending
 
-Already-confirmed design:
-- The selected quickbar slot is the one item held in the player's hand. No separate weapon/tool slots or duplicate active-equipment state.
-- H holsters the held item without clearing its assignment.
-- Wheel up/down selects next/previous slot with wraparound, only when no menu is open.
-- Selecting a slot only draws/holds; it never consumes or activates the item.
-- Supported consumables require an intentional left-click to use. Tools/weapons are held only; no tool actions or weapon attacks now.
-- Number keys 1–6 are not approved.
-
-Before coding, present the P-04c implementation proposition and obtain approval for the remaining decisions: clicking HUD slots to select, whether wheel cycles through or skips empty slots, and whether active/holstered state persists through F5/F9. Do not silently decide these.
+- Core `PlayerQuickbar` owns selected-slot and holstered state. The held item is derived from the selected slot's existing GUID; inventory remains ownership authority.
+- Mouse wheel up/down cycles next/previous through all six positions, including empty slots, with wraparound.
+- Number keys 1–6 directly select slots 1–6. H holsters without clearing the assignment. Selecting an empty slot means empty hand.
+- All three controls are ignored while any supported menu/panel is open.
+- HUD remains display-only. It highlights the selected slot differently when active versus holstered; no HUD click interaction.
+- If a held item in the backpack grid becomes inaccessible because the backpack is dropped, the active hand holsters but the slot assignment remains. Pocket items remain accessible.
+- F9/load resets the active hand to no selected slot and holstered; six assignments are restored as before.
+- No consumable use, tool action, weapon attack, combat, targeting, durability, or new art is included.
+- Five Core regression tests were added. Last user-confirmed baseline is 563/563; the new tests and full suite still require Unity verification.
+- Source commits: `c17a9f7e27d06caf6066d5fd010594d51d33fd85`, `3f8157afb5ca80e744ed83d9ea25922b33f99e50`, `e0ea41bdf2b11a30b4a99941f7153979fd04223e`.
+- Next action: run Unity compile, all EditMode tests and the Play Mode acceptance checklist in the task card; do not mark P-04c complete until those pass.
 
 ## Project-wide constraints
 

@@ -1,6 +1,6 @@
 # P-04 — Character Playability: Progression, Active Hand & Quickbar
 
-**Status:** P-04a complete (557/557); P-04b complete (563/563). P-04c is the next proposal and is not yet authorised for implementation.  
+**Status:** P-04a and P-04b complete and user-verified. P-04c implementation committed; Unity verification pending.  
 **Track:** Player Development  
 **Priority:** Ahead of B-07 Neighbourhood Expansion.  
 **Dependencies:** P-01 character foundation, P-02 attributes/skills, P-03 equipment/inventory/backpack.
@@ -11,7 +11,7 @@ Make the player a coherent RPG character before expanding city geography: meanin
 
 B-07 remains paused while P-04 is active.
 
-## 2. Verified implementation
+## 2. Verified prior implementation
 
 ### P-04a — Attributes and development
 
@@ -37,77 +37,90 @@ B-07 remains paused while P-04 is active.
 - Always-visible six-slot HUD bar appears bottom-centre outside Tab inventory; the Tab inventory row remains.
 - Dropped-backpack references persist but are unavailable until the same backpack is recovered. Pocket entries remain accessible.
 - Save/load persists assignments and reconciles invalid/retired identities.
-- User confirmed the follow-up at **563/563**.
 
-## 3. Confirmed active-hand rules
+## 3. P-04c — Active hand and controls
 
-These are already user-approved and should not be reopened as broad design questions:
+<badge color="success">Implementation committed</badge> <badge color="warning">Unity verification pending</badge>
 
-1. The currently selected quickbar slot is the item held in the player's hand.
-2. There are no dedicated weapon/tool slots and no duplicated active-equipment state.
-3. **H** holsters the held item without clearing its quickbar assignment.
-4. Mouse-wheel up/down selects next/previous quickbar slot, with wraparound, only when no menu is open.
-5. Selecting a slot only draws/holds its item. It never consumes or activates it.
-6. Supported consumables require an intentional left-click to use.
-7. Tools/weapons are held only. Tool actions and weapon attacks are explicitly out of scope for this phase.
-8. Number keys 1–6 have not been approved.
-9. The quickbar remains a reference to carried physical inventory; it never duplicates ownership.
+### Player-facing behavior
 
-## 4. Next proposal — P-04c Active Hand & Controls
+1. The selected quickbar slot is the item held in the player's hand.
+2. Mouse wheel up selects the next slot; mouse wheel down selects the previous slot. Cycling wraps around and visits all six slots, including empty ones.
+3. Number keys **1–6** directly select their matching quickbar slots.
+4. **H** holsters the held item without clearing its quickbar assignment. Selecting a slot again draws it.
+5. Selecting an empty slot means empty hand.
+6. Mouse wheel, number keys and H are ignored while any supported gameplay/menu panel is open.
+7. The six-slot HUD is display-only; clicking it does nothing. The Tab quickbar remains an assignment UI.
+8. Selecting a slot only draws/holds its item. It never consumes or activates it.
+9. Supported consumables require an intentional left-click to use in a later phase. Tools/weapons are held only; tool actions and weapon attacks are out of scope.
 
-**Status: proposal only. Do not implement until the user explicitly approves the scope and resolves the open decisions below.**
+### Core and inventory authority
 
-### Intended player outcome
+- The existing Core `PlayerQuickbar` owns selected-slot and holstered state.
+- The held item is derived from the selected slot's existing stable item-instance GUID. No second held-item GUID or duplicate ownership is introduced.
+- Selecting an empty slot produces no held item while retaining the selected slot.
+- If a selected item is removed/retired, the active hand safely holsters as the reference is reconciled.
+- If an item inside the backpack grid becomes inaccessible because the backpack is dropped, the active hand holsters but the quickbar reference remains assigned and unavailable until the backpack is recovered.
+- Pocket-backed items remain accessible.
+- H preserves the selected slot so the player can reselect it; loading resets to no selected slot and holstered.
 
-The six-slot HUD becomes functional as the player's active-hand selector. The player can draw an assigned item, holster it, and cycle through slots without opening inventory. This is an item-selection/presentation loop only, not an item-use/combat system.
+### Persistence
 
-### Proposed implementation breakdown
+- The six quickbar assignments continue to use the existing save mapper.
+- Active/holstered state is not persisted.
+- F9/load restores the six assignments, then resets active-hand state to no selected slot and holstered. This avoids unexpectedly drawing an item after load.
 
-**P-04c.1 — Core active-hand state**
-- Extend the existing `PlayerQuickbar` authority with a selected slot and holstered/active state, or introduce a minimal adjacent Core value object if separation is cleaner.
-- Do not store a second item ID for the held item. Resolve the held item from the selected slot's existing stable item-instance reference.
-- Selecting a populated slot marks it active and resolves its physical item through the existing accessible inventory/pocket authorities.
-- Selecting an empty slot must never resolve a stale or inaccessible item. Exact cycling behavior is an open decision below.
-- If an assigned item is retired, transferred, sold, consumed or otherwise becomes unavailable, reconcile the active-hand state safely without creating a phantom held item.
-- If the backpack is dropped, an item referenced from its contents must not remain accessible/held. Pocket-backed entries remain usable as references.
+### Implementation files
 
-**P-04c.2 — Input and UI integration**
-- Mouse-wheel up/down cycles next/previous with wraparound only when no menu is open.
-- H holsters: active-hand presentation is cleared; all six assignments remain.
-- Selecting a populated slot again draws it.
-- Proposed direct HUD interaction: left-clicking a visible quickbar slot selects it. This is not the same as clicking in the world to activate a supported consumable. Please confirm this interaction.
-- No number-key shortcuts in this slice unless separately approved.
-- Show a clear active-slot highlight and distinguish holstered from active state without adding another item panel or duplicating inventory state.
+- `Assets/_Project/Core/PlayerQuickbar.cs` — selected-slot, held-item derivation, cycle, holster and accessibility reconciliation.
+- `Assets/_Project/Game/GameSession.cs` — number-key, mouse-wheel and H input; menu gating; load reset; accessibility check.
+- `Assets/_Project/Game/InventoryPanel.cs` — selected/active and selected/holstered slot feedback in both quickbar rows; HUD remains non-interactive.
+- `Assets/_Project/Game/HudPanel.cs` — controls hint.
+- `Assets/_Project/Tests/EditMode/Core/PlayerQuickbarTests.cs` — five new regression tests.
 
-**P-04c.3 — Persistence**
-- Persist only the minimal selected-slot/holstered state if the user wants the active hand restored after F5/F9.
-- Alternative safe policy: assignments persist as today, but every loaded session starts holstered. This avoids restoring an unexpected held item.
-- Either policy must resolve against current item identity/accessibility; never restore a phantom item.
+### Source commits
 
-**P-04c.4 — Regression and acceptance**
-- Core tests: selecting populated/empty slots, H holster, reselect after holster, wheel wraparound in both directions, selected item retirement/reconciliation, duplicate/reference invariants.
-- Game/input tests: wheel and H are ignored while any menu is open; wheel direction is correct; HUD active-slot/holster indicator matches Core state.
-- Play Mode: draw from backpack and each pocket, holster, reselect, cycle across slot 6→1 and 1→6, test empty slots per approved policy, drop backpack while holding a backpack-backed item, and verify pocket-backed references remain available.
-- F5/F9 acceptance follows the approved persistence policy.
-- Full EditMode suite and Play Mode acceptance required.
+- `c17a9f7e27d06caf6066d5fd010594d51d33fd85` — P-04c active hand and quickbar controls.
+- `3f8157afb5ca80e744ed83d9ea25922b33f99e50` — HUD controls hint.
+- `e0ea41bdf2b11a30b4a99941f7153979fd04223e` — reset active hand on load.
 
-### Open decisions — please confirm before implementation
+## 4. Verification required before closing P-04c
 
-1. **HUD click:** Should left-clicking one of the six visible HUD slots select/draw that item? (Recommended: yes. It provides direct selection without adding unapproved number-key controls.)
-2. **Empty slots during wheel cycling:** Should the wheel visit all six positions, including empty slots, or skip empty slots and select the next populated slot? (Recommended: visit all six positions; it makes wheel movement deterministic and keeps slot positions meaningful. An empty selected slot means empty hand.)
-3. **F5/F9 active-hand persistence:** Should the selected/holstered state be saved and restored, or should every loaded session start holstered while keeping all six assignments? (Recommended: load holstered for safety; quickbar assignments remain persistent.)
+**Do not mark P-04c complete until Unity compilation, the full EditMode suite and Play Mode acceptance are confirmed.** The last user-confirmed full suite is 563/563; five new Core tests have been added, so the expected total should be checked in Unity rather than assumed.
 
-### Explicit exclusions
+### EditMode
 
-- No number-key mapping 1–6.
-- No consumable activation/use implementation in this slice; left-click use is a confirmed later interaction contract, not permission to build a use system now.
-- No tool actions, weapon attacks, combat, targeting, durability, reload, animation/art work or new item categories.
+- Active selection derives the held item from the selected slot.
+- H holsters while preserving all six assignments; selecting again draws.
+- Wheel cycling visits empty slots and wraps 6→1 and 1→6.
+- Number keys 1–6 select the exact matching slot.
+- Unassigning/removing an active item safely holsters.
+- Inaccessible backpack-backed active item holsters without clearing its assignment.
+- Save/load preserves assignments but resets selected slot and held item.
+
+### Play Mode
+
+- Draw an item from the accessible backpack grid and each of the three pockets.
+- Select slots using both number keys and wheel; verify wheel direction and wraparound.
+- Verify empty slots produce empty hand and still occupy their wheel positions.
+- Press H; verify the hand is holstered, assignments remain, and reselecting draws again.
+- Open Tab, storage, workbench, retail, customer, NPC, debug and other supported panels; verify wheel, number keys and H do not change the active hand while a menu is open.
+- Drop the backpack while holding an item from its grid: verify the hand holsters and the slot remains assigned/unavailable. Recover the same backpack and reselect.
+- Verify pocket-backed references remain accessible when the backpack is dropped.
+- Click the HUD slots: verify they are display-only.
+- F5/F9 round trip: assignments persist, but load begins with no selected slot and an empty/holstered hand.
+
+## 5. Explicit exclusions
+
+- No consumable activation/use implementation in this slice.
+- No tool actions, weapon attacks, combat, targeting, durability, reload or action animations.
 - No new sprites, wearable overlays or wardrobe presentation while the art pause is active.
 - No city expansion, NPC cast or story content.
 - No changes to inventory ownership, backpack/pocket rules, stack behavior or economy.
+- No number-key alternatives beyond the approved number row 1–6.
 
-## 5. Later work
+## 6. Later work
 
-- **P-04d:** remaining interface polish after active-hand selection is verified. The always-visible HUD bar and drag ghost are already delivered; do not duplicate them.
+- **P-04d:** remaining interface polish after P-04c is verified. The always-visible HUD bar, drag ghost and selected-slot feedback are already delivered; do not duplicate them.
 - Actual livelihood skill effects and milestone event wiring require their own connected proposals.
 - B-07 Neighbourhood Expansion remains paused until P-04 is complete or the user reprioritises it.
