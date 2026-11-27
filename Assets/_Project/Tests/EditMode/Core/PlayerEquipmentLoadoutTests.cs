@@ -195,6 +195,44 @@ namespace Signal.Core.Tests
             Assert.That(mainInventory.TryGetItemInstance(laterCargoId, out _), Is.True);
         }
 
+
+        [Test]
+        public void RegistryBackedRegistrationCreatesDistinctGridForEveryPhysicalBackpack()
+        {
+            var storage = new PortableStorageBook();
+            var registry = new InventoryStorageRegistry();
+            Guid firstBackpack = Guid.NewGuid();
+            Guid secondBackpack = Guid.NewGuid();
+
+            Assert.That(storage.TryRegister(firstBackpack, 8, 6, registry), Is.True);
+            Assert.That(storage.TryRegister(secondBackpack, 8, 6, registry), Is.True);
+            Assert.That(storage.TryGetContents(firstBackpack, out GridInventory first), Is.True);
+            Assert.That(storage.TryGetContents(secondBackpack, out GridInventory second), Is.True);
+            Assert.That(first, Is.Not.SameAs(second));
+            Assert.That(registry.Owns(PortableStorageBook.GetStorageIdentity(firstBackpack), first), Is.True);
+            Assert.That(registry.Owns(PortableStorageBook.GetStorageIdentity(secondBackpack), second), Is.True);
+
+            Guid firstItem = Guid.NewGuid();
+            Guid secondItem = Guid.NewGuid();
+            Assert.That(first.Place(CreateType(), 0, 0, false, 1, firstItem), Is.Not.Null);
+            Assert.That(second.Place(CreateType(), 0, 0, false, 1, secondItem), Is.Not.Null);
+            Assert.That(first.TryGetItemInstance(secondItem, out _), Is.False);
+            Assert.That(second.TryGetItemInstance(firstItem, out _), Is.False);
+        }
+
+        [Test]
+        public void RegistryBackedBackpackRegistrationRejectsDuplicateWithoutCreatingAnAlias()
+        {
+            var storage = new PortableStorageBook();
+            var registry = new InventoryStorageRegistry();
+            Guid backpackId = Guid.NewGuid();
+
+            Assert.That(storage.TryRegister(backpackId, 8, 6, registry), Is.True);
+            Assert.That(storage.TryRegister(backpackId, 8, 6, registry), Is.False);
+            Assert.That(storage.Count, Is.EqualTo(1));
+            Assert.That(registry.Count, Is.EqualTo(1));
+        }
+
         [Test]
         public void EmptyBackpackStorageCanBeRemovedButNonEmptyStorageCannotBeDiscarded()
         {
