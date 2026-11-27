@@ -138,8 +138,8 @@ The user confirmed Unity Play Mode behavior and **571/571 EditMode tests passed*
 ### 2026-11-27 follow-up — quickbar drag layer and backpack isolation
 - The drag ghost now renders on a dedicated override-sorting Canvas at sorting order 200, above the HUD quickbar/inventory canvas. Commit: `1971e800a08011e8f031ecd79fdd67cb56d3a17d`.
 - Backpack isolation remains open. User approved automatic swap when recovering a dropped bag while another is equipped. Required behavior: drop current bag at player's feet, equip recovered bag, preserve independent contents, and keep every dropped bag inaccessible until recovered. F1 TEST LOADOUT must be able to equip a new backpack while other bags are dropped.
-- Current architecture still shares `_inventory` across backpack identities and tracks only one `_droppedBackpackItem`; do not remove debug-loadout guard until per-backpack storage and save/load are implemented.
-- Last user-confirmed full EditMode suite: 571/571. Fresh Unity verification required after the full correction.
+- The currently active/restored/dropped backpack grid is now registered by stable backpack GUID (`PlayerBackpack/<GUID>/contents`) and access checks confirm the registry maps that identity to the active grid. However, the runtime still uses the session-wide `_inventory` rather than a distinct grid per physical bag, and tracks only one `_droppedBackpackItem`; do not remove the debug-loadout guard until per-backpack grids, swap, and save/load are implemented.
+- Last user-confirmed full EditMode suite: **576/576**. Play Mode verification of backpack identity registration and the drag overlay correction remains required.
 
 
 ### Global storage identity foundation (2026-11-27)
