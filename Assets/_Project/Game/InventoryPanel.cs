@@ -415,7 +415,8 @@ namespace Signal.Game
 
                 EndDrag();
 
-                if (dropIntoQuickbar && itemInstanceId != Guid.Empty)
+                if (dropIntoQuickbar && itemInstanceId != Guid.Empty &&
+                    TryFindQuickbarItem(itemInstanceId, out _, out bool quickbarItemAccessible) && quickbarItemAccessible)
                     _quickbar?.TryReplace(releaseQuickbarSlot, itemInstanceId);
                 else if (mergeTargetId != Guid.Empty && mergeSource != null && mergeDestination != null)
                 {
@@ -1082,7 +1083,7 @@ namespace Signal.Game
             _contextMenuRoot.anchoredPosition = local;
             _contextMenuRoot.sizeDelta = new Vector2(190f, 72f);
             AddContextButton("Inspect", 0, () =>
-            { if (TryFindQuickbarItem(_contextItemInstanceId, out PlacedItem found, out _)) _inspectItem?.Invoke(found); CloseContextMenu(); });
+            { if (TryFindQuickbarItem(_contextItemInstanceId, out PlacedItem found, out bool accessible) && accessible) _inspectItem?.Invoke(found); CloseContextMenu(); });
             AddContextButton("Equip to Quick Slot  ▶", 34, ShowQuickbarSubmenu);
         }
 
