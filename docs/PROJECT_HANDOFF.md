@@ -179,3 +179,23 @@ This addresses the compiler diagnostics supplied by the user. A fresh Unity comp
 
 
 - Compile fix after the first Unity pass: `StackMergeRecord`'s constructor was `internal`, but the EditMode test assembly constructs a record to verify duplicate-operation rejection. Made the constructor public; `StackLineageBook.TryRecordMerge` remains the validation boundary and rejects empty IDs, self-merges, invalid quantities and duplicate operation IDs. Commit: `fcb70dc75c5bc7f77be1c8fd0d3fb0943314463f`. Unity compilation/tests need to be rerun; no pass is claimed.
+
+## Current checkpoint — P-03.7b source implementation (2026-11-27)
+
+The last user-confirmed baseline before this phase is 540/540 EditMode tests passed for P-03.7a. P-03.7b has now been implemented in repository source, but the user has not yet run Unity compilation/tests on this revision.
+
+Key additions:
+- StackTransferService is the only approved route for new ownership-aware split/merge operations. Raw StackOperations remains a Core primitive and must not be wired directly from UI.
+- Cross-owner split is explicit, requires the destination container custodian to match the new owner, and records an economic transaction against the fresh split-stack ID. Failed transaction/ownership commits roll back silently.
+- Cross-owner merge is rejected. Same-owner merge stores persistent lineage including owner, both custodians, operation kind, quantity, timestamp and whether the source ID was retired.
+- F5/F9 persists lineage. On restore, any source ID explicitly marked retired is purged from all restored grids and its ownership record is removed.
+- Backpack grid registration is now an access-control boundary: unregistered before a backpack is equipped, removed when dropped, re-established on recovery/F9 only when equipped. New stack transfers reject stale references to dropped backpack storage.
+- Equipment and portable backpacks have effective MaxStack 1 in ItemType; ordinary item stack tuning is unchanged.
+- Ten new focused StackTransferServiceTests were added.
+
+Next agent actions:
+1. Ask the user to pull latest branch and compile in Unity.
+2. Fix any compile errors from the first run; do not assume compilation passed.
+3. Ask for full EditMode test result and inspect failures.
+4. Run Play Mode acceptance: no backpack, equipped backpack, B-drop, stale grid reference rejection, pocket/container transfers while dropped, F5/F9 while dropped, exact recovery.
+5. Only after user verification, proceed to P-03.7c UI (Shift+LMB quick transfer, Shift+RMB split half, Ctrl+RMB split one, stack count badges).
