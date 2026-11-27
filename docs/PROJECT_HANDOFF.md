@@ -203,3 +203,5 @@ Next agent actions:
 ### Retired stack IDs — additional guard
 
 StackLineageBook tracks retired IDs during runtime as well as in save data. Split ID generation excludes historical retired IDs; merge source/destination validation rejects retired IDs; rollback removes a provisional retired marker. A regression test deliberately reintroduces a retired GUID and verifies the ownership-aware service refuses it.
+
+- F9 backpack reconciliation also checks the restored world status: the 8×6 grid is authorized only when the world book says Equipped. A mismatched Dropped state fails closed and is represented as a dropped backpack rather than exposing its contents.
