@@ -163,3 +163,12 @@ The user superseded P-02's former two-attribute model: **Health is the primary a
 - Context menu and drag/drop route through one Core assignment API. Quickbar stores stable identity references only; it never owns or duplicates physical items.
 Quickbar references may render items stored in the backpack or any personal pocket; they never own/copy items. Dropping the backpack preserves but disables backpack-backed entries until recovery; dropped contents remain inaccessible.
 - Source implementation committed; Unity verification pending. One physical item occupies at most one slot; backpack and pocket items are eligible; equipped clothing/accessory items are excluded. Dropped-backpack assignments remain stored but disabled until recovery.
+
+
+### P-04b usability follow-up (2026-11-27)
+- User verified the P-04b baseline at **562/562** and confirmed the quick slots display inside Tab inventory.
+- Fixed RMB reassignment: selecting a different numbered slot moves an existing item reference out of its previous slot; it does not duplicate the reference or move the physical inventory item. An occupied destination loses only its prior quickbar reference.
+- Added drag ghost feedback for quickbar-origin drags; existing inventory/pocket drag ghost is retained.
+- Added an always-visible, display-only six-slot HUD at bottom centre, while retaining the Tab inventory quickbar. The HUD reconciles and refreshes while inventory is closed.
+- Added one Core regression test; expected suite is now **563**, pending user Unity verification.
+- Next: compile, run 563/563, test RMB reassignment from backpack and all pockets, drag ghost from backpack/pockets/quickbar, HUD visibility during gameplay, and stale-reference refresh after transfers/retirement/backpack drop. Active-hand selection and wheel/H controls remain separate later work.
