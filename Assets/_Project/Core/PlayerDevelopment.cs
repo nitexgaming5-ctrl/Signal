@@ -69,13 +69,18 @@ namespace Signal.Core
             return new EffectiveCharacterAttributes(
                 AddClamped(baseAttributes.Health, skillHealthModifier),
                 AddClamped(baseAttributes.Armor, equipmentArmorModifier),
-                AddClamped(baseAttributes.HeatProtection,
-                    AddClamped(equipmentHeatProtectionModifier, skillHeatProtectionModifier)));
+                AddClamped(baseAttributes.HeatProtection, equipmentHeatProtectionModifier,
+                    skillHeatProtectionModifier));
         }
 
         private static int AddClamped(int baseValue, int modifier)
         {
-            long result = (long)baseValue + modifier;
+            return AddClamped(baseValue, modifier, 0);
+        }
+
+        private static int AddClamped(int baseValue, int firstModifier, int secondModifier)
+        {
+            long result = (long)baseValue + firstModifier + secondModifier;
             if (result <= 0) return 0;
             return result >= int.MaxValue ? int.MaxValue : (int)result;
         }
