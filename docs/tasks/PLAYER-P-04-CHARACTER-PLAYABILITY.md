@@ -31,10 +31,10 @@ B-07 remains paused while P-04 is active.
 - Exactly six general-purpose quickbar slots. Suitable carried items include consumables, tools, weapons, backpacks and other supported items.
 - Quickbar entries are stable item-instance references only. They do not copy/move items or create a second owner. A physical item can occupy at most one slot.
 - Eligible sources: accessible backpack grid or any of three personal pockets. Equipped clothing/accessories are excluded.
-- Tab inventory supports RMB Inspect / Equip to Quick Slot 1–6, drag assignment, slot-to-slot swap and drag-to-unassign.
+- Tab inventory has no separate quickbar row. Its inventory/pocket items can be dragged onto the single bottom HUD quickbar while Tab is open; dragging HUD slots onto each other swaps them, and dragging a HUD slot back into inventory unassigns it. RMB Inspect / Equip to Quick Slot 1–6 remains.
 - Reassigning an already assigned item moves its reference from its old slot to the chosen slot. An occupied destination loses only its former quickbar reference.
 - Drag ghost follows the pointer in screen space.
-- Always-visible six-slot HUD bar appears bottom-centre outside Tab inventory; the Tab inventory row remains.
+- The only six-slot bar is the always-visible bottom-centre HUD quickbar; it remains visible and interactive as a drag/drop target while Tab inventory is open.
 - Dropped-backpack references persist but are unavailable until the same backpack is recovered. Pocket entries remain accessible.
 - Save/load persists assignments and reconciles invalid/retired identities.
 
@@ -50,7 +50,7 @@ B-07 remains paused while P-04 is active.
 4. **H** holsters the held item without clearing its quickbar assignment. Selecting a slot again draws it.
 5. Selecting an empty slot means empty hand.
 6. Mouse wheel, number keys and H are ignored while any supported gameplay/menu panel is open.
-7. The six-slot HUD is display-only; clicking it does nothing. The Tab quickbar remains an assignment UI.
+7. Clicking HUD slots does nothing. While Tab is open, however, the HUD slots are the sole quickbar drag/drop surface for assigning, replacing, swapping and unassigning references.
 8. Selecting a slot only draws/holds its item. It never consumes or activates it.
 9. Supported consumables require an intentional left-click to use in a later phase. Tools/weapons are held only; tool actions and weapon attacks are out of scope.
 
