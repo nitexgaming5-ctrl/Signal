@@ -77,6 +77,7 @@ namespace Signal.Game
         private GridInventory _storage;
         private GridInventory _emptyCarryInventory;
         private PlayerPocketBook _playerPockets;
+        private PlayerQuickbar _playerQuickbar;
         private PlayerEquipmentLoadout _playerEquipment;
         private PortableStorageBook _portableStorage;
         private PortableBackpackWorldBook _backpackWorldBook;
@@ -211,6 +212,7 @@ namespace Signal.Game
             _storage = new GridInventory(8, 6);
             _emptyCarryInventory = new GridInventory(1, 1);
             _playerPockets = new PlayerPocketBook();
+            _playerQuickbar = new PlayerQuickbar();
             _playerEquipment = new PlayerEquipmentLoadout();
             _portableStorage = new PortableStorageBook();
             _backpackWorldBook = new PortableBackpackWorldBook();
@@ -1950,6 +1952,8 @@ namespace Signal.Game
                                                _customerRepairOrders, _servicePaymentTransactions);
             PlayerDevelopmentSaveMapper.Capture(_playerDevelopment, data);
             PlayerPocketSaveMapper.Capture(_playerPockets, _assetOwnership, data);
+            _playerQuickbar.Reconcile(IsQuickbarItemPresent);
+            PlayerQuickbarSaveMapper.Capture(_playerQuickbar, data);
             CaptureEquipment(data);
             if (_droppedBackpackItem.HasValue)
                 data.droppedBackpack = ToSavedEquippedItem(_droppedBackpackItem.Value, _assetOwnership);
@@ -1998,6 +2002,9 @@ namespace Signal.Game
             }
             RestoreEquipment(data);
             int skippedPocketItems = PlayerPocketSaveMapper.Apply(data, _playerPockets, ResolveType, _assetOwnership);
+            int skippedQuickbarItems = PlayerQuickbarSaveMapper.Apply(data, _playerQuickbar, IsQuickbarItemPresent);
+            if (skippedQuickbarItems > 0)
+                Debug.LogWarning("GameSession: skipped " + skippedQuickbarItems + " invalid quickbar references while loading.");
             RefreshCarryPanelInventories();
             PortableBackpackWorldSaveMapper.Apply(data, _backpackWorldBook, _portableStorage);
             if (_equippedBackpackInstanceId.HasValue)
@@ -3076,6 +3083,16 @@ namespace Signal.Game
                         _assetOwnership.TryGetOwner(existing.ItemInstanceId, out EconomicActorId owner) &&
                         owner == EconomicActorId.Player)
                         return true;
+            return false;
+        }
+
+        private bool IsQuickbarItemPresent(Guid itemInstanceId)
+        {
+            if (itemInstanceId == Guid.Empty) return false;
+            if (_inventory != null && _inventory.TryGetItemInstance(itemInstanceId, out _)) return true;
+            if (_playerPockets != null)
+                for (int i = 0; i < PlayerPocketBook.PocketCount; i++)
+                    if (_playerPockets.GetPocket(i).TryGetItemInstance(itemInstanceId, out _)) return true;
             return false;
         }
 
