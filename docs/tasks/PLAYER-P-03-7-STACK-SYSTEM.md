@@ -1,6 +1,6 @@
 # P-03.7 — Stack System & Inventory Interaction
 
-**Status:** In progress — P-03.7a verified (540/540); P-03.7b verified (550/550); P-03.7c verified (552/552); P-03.7d source implemented, Unity verification pending (expected 555 tests)  
+**Status:** Complete — P-03.7a verified (540/540); P-03.7b verified (550/550); P-03.7c verified (552/552); P-03.7d verified (555/555) with Unity compilation and Play Mode acceptance confirmed by the user on 2026-11-27.  
 **Started:** 2026-11-27  
 **Branch:** `chore/collaboration-workflow-and-audit`  
 **Prerequisite:** Inventory & Grid Architecture Audit — user-confirmed 531/531 EditMode and Play Mode acceptance
@@ -271,3 +271,16 @@ Source commits:
 - Commits: `86ba1397ac77457fc0c9be41970afbcfa00ae601`, `cdf65030db48f21409dccb47d296952ce72e8c2e`, `2615a873e405b94a250269a337db7dd3c353277e`.
 - Added Core regressions for same-grid partial merge and full pocket-to-pocket merge; these raise the expected total to 555.
 - Unity compilation, the expected 555/555 EditMode suite, and Play Mode acceptance remain pending; no pass is claimed.
+
+
+## Final verification — 2026-11-27
+
+The user confirmed the latest branch was pulled and validated all P-03.7d acceptance gates:
+- Unity compilation succeeds.
+- Full EditMode suite: **555/555 passed**.
+- No duplicate live stack IDs after split, merge or save/load.
+- Dropped backpack contents remain inaccessible to inventory/service interactions.
+- F5/F9 correctly restores both equipped and dropped backpack states.
+- Play Mode acceptance matrix was validated across the stack/inventory flows, including dropped-backpack isolation and recovery.
+
+P-03.7 is closed. This records user-reported Unity verification; it is not a claim that the GitHub connector executed Unity.
