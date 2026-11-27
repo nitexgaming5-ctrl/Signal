@@ -179,6 +179,14 @@ Required regression suite: pairwise isolation between representative player/back
 - Rebound `InventoryPanel`, `StoragePanel`, `RetailPanel`, `DirtyCashContactPanel`, `CustomerContractPanel`, `WorkbenchWorkspace` and `MiloParcelOpportunityController` when the active grid changes.
 - Quickbar validation now searches all physical backpack grids so assignments to dropped-bag contents remain assigned; active-hand access still checks only accessible carried inventories and therefore holsters correctly.
 - F5/F9 now serialize per-backpack storage records separately from the legacy staging `items` grid. Load restores the active equipped bag's private grid; the legacy single-bag global grid migrates deterministically to the equipped or dropped backpack. Missing/invalid bag records fall back to adopting the legacy staging grid under that bag's stable identity. Before backpack restore, item GUIDs are collected from staging, hideout, contact, contract escrow, pockets and searchable containers so duplicate physical identities across those domains are rejected. This does not yet migrate multiple dropped bags because runtime still tracks one dropped item.
-- Added one regression test proving backpack registry cleanup preserves unrelated storage identities and permits the same bag identity to be registered again. Expected full EditMode suite: **581**; Unity verification pending. Last user-confirmed suite remains **580/580**.
+- Added one regression test proving backpack registry cleanup preserves unrelated storage identities and permits the same bag identity to be registered again. Expected full EditMode suite: **581**; Unity verification pending. Last user-confirmed suite is **581/581**.
 - Commits: `3ef8447809dba93b58b67f210b8bdd9287f17b54`, `270d4427fb84a9ae7822c6bb34590403758a150a`, `7aa3f78c6e7ae7faf2872de91188e50da4f1fb61`, `cb2b3fe6a8cee57b258906601cc0fda1010e4d15`, `523b7199c3506f4de2609b0d196091c943bf6238`, `e0e44acb1cf06333b6f77cf9ab31e93b34af5245`, `24d34d773b8e6287103844ac0641f9299a95329a`, `c359058b1e47b3c87c76f3be0599d789fb198946`, `2b4edd2bdbfbe000746859554ce96df604201e3d`.
 - Required verification: Unity compile + 581 EditMode tests; Play Mode equip/drop/recover, quickbar persistence, panel rebinding and F5/F9 round trips. No result is claimed yet.
+
+
+### Multi-backpack proximity selection foundation — 2026-11-27
+- Added `PortableBackpackWorldBook.TryGetNearestDropped(x, y, maxDistance, out state)`. It selects the nearest dropped physical backpack within range, rejects invalid coordinates/radii, and resolves equal-distance candidates by stable GUID order rather than dictionary iteration order.
+- Added two EditMode regression tests: nearest candidate/range filtering, and deterministic tie-breaking plus invalid-radius rejection.
+- This is the Core selection primitive only. GameSession still stores one dropped item/visual and automatic swap is not yet implemented.
+- Source commits: `0781acd6e90d7197cef8581c7a87610d8598a2b2`, `66db3032d0af00dd50d389fb7ac5413076c3f19a`.
+- Expected full EditMode suite: **583**. Latest user-confirmed result: **581/581** before these two tests; Unity verification pending.
