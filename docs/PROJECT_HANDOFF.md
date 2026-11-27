@@ -112,3 +112,12 @@ Required storage domains: each physical backpack (stable item-instance ID), each
 Audit note: GameSession currently registers the same session-wide `_inventory` grid for a backpack, so the apparent PortableStorageBook mapping is not sufficient for independent backpack storage. GameSession also creates separate player storage, pockets, contact inventory, contract receiver inventory and per-searchable-container grids; all registration, service, UI, save/load and stack-lineage paths still need an aliasing audit. NPC pockets are a required domain; verify whether they currently exist as runtime inventories before describing them as implemented.
 
 Persistence must be keyed by stable storage identity, with deterministic migration for legacy global/single-backpack save fields. Regression tests must check pairwise isolation and explicit transfers across player, backpack, pocket, world container, NPC, business and escrow inventories.
+
+### 2026-11-27 — Storage identity registry foundation
+- Added `InventoryStorageId` + `InventoryStorageRegistry` in Core. One stable typed storage identity maps to exactly one unique `GridInventory`; duplicate identities and shared grid instances are rejected. Reverse lookup supports auditing. Registry identity is separate from access, item ownership and economic custody.
+- GameSession now registers the three player pockets, hideout storage, dirty-cash contact inventory, customer receiver/escrow inventory, all street searchable containers and all resident-owned searchable property containers.
+- Added five EditMode Core tests covering stable IDs, duplicate/alias rejection and cross-grid isolation.
+- Commits: `cd4b182015525429b1ebc97c22628a862b28ef89`, `bf4d54e9be82dfd61760528a11a1f6a3186f93d8`, `13ff69d98d661cd0bfeecff8ee9c9bb3a8cbf50a`, `bea52619e72a6ebe0f5e0ac4b50d3e4a4c481585`, `ffa503494a62593e0ffe99d4e57f06a569b57387`.
+- Incomplete by design: backpack grids are not yet registered per backpack (the existing `_inventory` alias defect remains); multiple dropped backpack runtime items/visuals and per-backpack contents save/load are not implemented. Business stock inventories and NPC-owned pocket inventories are not currently wired as runtime grids. Do not remove the debug-loadout guard or claim global storage isolation complete yet.
+- Unity compilation, EditMode tests and Play Mode verification are pending. Expected +5 EditMode tests. Check startup logs for duplicate/invalid storage identity errors.
+
