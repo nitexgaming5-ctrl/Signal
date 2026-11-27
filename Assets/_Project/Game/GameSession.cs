@@ -1642,6 +1642,7 @@ namespace Signal.Game
                 _backpackWorldBook.TryRecover(equipped.Item.ItemInstanceId);
                 _playerEquipment.TryRestoreEquipped(equipped.Item.ItemInstanceId, equipped.Item.Type,
                     equipped.Item.State, equipped.Slot, equipped.ArmorModifier, equipped.HeatProtectionModifier);
+                EnsureBackpackGridRegistered();
                 Say("The backpack could not be dropped. It remains equipped.", 4f);
                 return false;
             }
