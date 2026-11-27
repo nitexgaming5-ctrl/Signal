@@ -197,6 +197,12 @@ namespace Signal.Game
             return result >= int.MaxValue ? int.MaxValue : result <= 0 ? 0 : (int)result;
         }
 
+        private static int AddClampedModifier(int current, int modifier)
+        {
+            long result = (long)current + modifier;
+            return result >= int.MaxValue ? int.MaxValue : result <= 0 ? 0 : (int)result;
+        }
+
         private void Start()
         {
             _stats = new PlayerStats(startingMoney);
