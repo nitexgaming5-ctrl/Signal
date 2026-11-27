@@ -134,6 +134,6 @@ The inventory/grid audit is now user-verified complete (**531/531 EditMode tests
 - P-03.7d searchable-container quick transfer/splitting/merging and service quantity audit: source implemented; expected suite 555, Unity verification and Play Mode acceptance pending.
 - Existing wearable presentation remains paused. No authored stack-size balancing changes are included.
 
-- P-03.7d source implementation is complete pending Unity verification. A CS0136 duplicate-local compile diagnostic in `SearchableContainerPanel` was fixed in `bb572b2f2633341a1a368a31f1ae178bf1eb7a1d`; await compilation, expected 555/555 EditMode tests, and Play Mode acceptance before closing the phase.
+- Historical note at this point was superseded on 2026-11-27: the user confirmed Unity compilation, 555/555 EditMode tests and Play Mode acceptance. P-03.7 is closed.
 
 - P-03.7 player inventory drag-to-restack added: drag compatible stacks together across backpack and personal pockets; merges remain ownership-aware and preserve destination identity. Added same-grid partial and pocket-to-pocket full-merge regressions; expected suite 555, Unity verification pending.
