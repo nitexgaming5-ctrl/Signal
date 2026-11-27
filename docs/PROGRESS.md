@@ -26,7 +26,7 @@ The user selected **Direction B — meaningful everyday livelihood**: repair, pr
 ### Player Development
 - **P-01 Character Foundation & Appearance — implemented/user-verified.** Modular Body_A renderer, directional Idle/Walk, local ZIP importer and fallback. User imported the supplied pack and confirmed the enlarged character presentation.
 - **P-02 Attributes & Skills — implemented/user-verified.** Exactly two attributes: Armor and Heat Protection. Fixed starting skill-point budget, milestone awards, free respecialisation, save mapping and F2 allocation panel. User confirmed **467/467** after this implementation slice. Catalog tuning and actual skill-effect/milestone-trigger integrations remain provisional/future work.
-- **P-03 Equipment & Portable Backpack — core implementation largely complete; non-art closeout remains.** See [P-03 task card](tasks/PLAYER-P-03-EQUIPMENT-BACKPACK.md).
+- **P-03 Equipment & Portable Backpack — P-03.7 closed and user-verified.** User confirmed 555/555, compile, stack/backpack persistence invariants and Play Mode acceptance. Automatic fresh-session debug cargo has since been removed in source; its separate post-cleanup Unity check remains. Wearable presentation is paused. See [P-03 task card](tasks/PLAYER-P-03-EQUIPMENT-BACKPACK.md).
 
 ## P-03 current implementation truth
 Implemented in source:
@@ -49,12 +49,12 @@ P-03.7 stack-system status:
 
 P-03.7d acceptance is complete: the user confirmed successful Unity compilation, **555/555 EditMode tests**, no duplicate stack IDs after split/merge/save, no access to dropped-backpack cargo, and correct F5/F9 restoration of equipped and dropped backpacks. The user also confirmed the Play Mode acceptance matrix. P-03.7 is closed.
 
-P-03 non-art closeout source cleanup: automatic fresh-session backpack/cargo seeding has been removed; the F1 debug item spawner is retained. This small GameSession edit still needs a fresh Unity compile/full EditMode run and Play Mode confirmation that a new game starts empty and F1 spawning works. Wearable presentation remains deferred.
+P-03 non-art closeout source cleanup: automatic fresh-session backpack/cargo seeding has been removed; the F1 debug item spawner is retained. This cleanup is separate from the closed P-03.7 milestone and still needs a fresh Unity compile/full EditMode run and Play Mode confirmation that a new game starts empty and F1 spawning works. Wearable presentation remains deferred.
 
 **P-03.6 Wearable Presentation is paused/deferred.** The task card is historical preparation only, not the next implementation step. No new sprites, sprite templates, clothing overlays, wardrobe panel or art import work.
 
 ## Next strategic track — B-07 Neighbourhood Expansion
-B-07 remains the next Direction B initiative after P-03 non-art closeout. Add a compact connected area only when it has meaningful destinations and repeatable reasons to visit. Reuse the existing player/session, clock, inventory, accounts, NPC social world and save context. Before implementation, prepare a dedicated task specification covering player outcome, geography, destinations, practical interactions, system reuse, NPC scope, navigation, save/load and acceptance. Explain any genuinely new mechanic and obtain user approval before coding it.
+**Specification prepared; awaiting explicit user approval.** See [B-07 task card](tasks/B-07-NEIGHBOURHOOD-EXPANSION.md). Recommended vertical slice: a connected Market Lane/courtyard attached to the current Street, one enterable second-hand/materials shop using existing fixed-stock retail, and two persistent public searchable containers. No new named residents, story content or mechanics. Reuse the existing location graph/pathfinder, retail, inventory/ownership/stack transfer, searchable-container and save/load authorities. Do not begin implementation until the user approves or revises the proposed geography and content choices. Any new gameplay mechanic requires its own explanation and explicit approval.
 
 ## Separate future track — W-01 Weather & Cold Exposure
 W-01 is separate and inactive. Intended direction: seasonal temperature/weather, rain, storms, snow/blizzards and gradual cold exposure; Heat Protection retains its name and mitigates cold only. No hot-weather/overheating gameplay. Detailed mechanics/balance remain open until W-01 is activated.
