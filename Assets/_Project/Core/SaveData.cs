@@ -322,6 +322,15 @@ namespace Signal.Core
     }
 
     [Serializable]
+    public sealed class SavedPortableBackpackStorage
+    {
+        public string instanceId;
+        public int width;
+        public int height;
+        public List<SavedItem> items = new List<SavedItem>();
+    }
+
+    [Serializable]
     public sealed class SavedEquippedItem
     {
         public string instanceId;
@@ -406,6 +415,7 @@ namespace Signal.Core
         public List<SavedEquippedItem> equippedItems = new List<SavedEquippedItem>();
         public SavedEquippedItem droppedBackpack;
         public List<SavedPortableBackpack> portableBackpacks = new List<SavedPortableBackpack>();
+        public List<SavedPortableBackpackStorage> portableBackpackStorages = new List<SavedPortableBackpackStorage>();
         public List<SavedPocketItem> pocketItems = new List<SavedPocketItem>();
         public List<string> quickbarItemInstanceIds = new List<string>();
     }
