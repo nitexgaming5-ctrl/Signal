@@ -1,6 +1,6 @@
 # P-04 — Character Playability: Progression, Active Equipment & Quickbar
 
-**Status:** P-04a source implementation committed; Unity verification pending. P-04b/P-04c quickbar and active-hand controls remain specified, not implemented. Health is primary; temporary skill tests are authored; tool actions and weapon behavior deferred.  
+**Status:** P-04a implemented and user-verified at 557/557. P-04b interaction specification approved; implementation not started. P-04c active-hand/HUD controls remain specified, not implemented. Health is primary; temporary skill tests are authored; tool actions and weapon behavior deferred.  
 **Track:** Player Development  
 **Strategic priority:** Ahead of B-07 Neighbourhood Expansion.  
 **Dependencies:** P-01 character foundation, P-02 attributes/skills, P-03 equipment/inventory/backpack.
@@ -59,7 +59,34 @@ The player can:
 
 No numerical bonus, chance, price formula, quality roll or extra reward is implied by this list. Each effect needs an explicit design decision before implementation.
 
-### P-04b — Active hand item (quickbar-driven; no separate weapon/tool slots)
+### P-04b — Quickbar assignment foundation (context menu + inventory drag/drop)
+
+**Approved interaction design (2026-11-27; specification only, no implementation yet)**
+
+- The Tab inventory displays a dedicated six-slot quickbar row, visually separate from the inventory grid but within the same inventory mode.
+- Right-clicking an inventory item opens a contextual menu instead of immediately opening Inspect. The menu contains **Inspect** and **Equip to Quick Slot**; the latter opens a numbered submenu for slots 1–6.
+- Selecting **Inspect** opens the existing inspection experience. Selecting a numbered quick slot assigns the item's stable physical identity to that slot.
+- Reuse the existing inventory drag/drop framework. Do not create a parallel drag system.
+- Drag an inventory item onto a quickbar slot to assign it. Dropping onto an occupied slot replaces that slot's assignment; the previously assigned item remains in its normal inventory location.
+- Drag one quickbar slot onto another to swap their assignments. Drag an assigned quickbar entry back into the inventory area to unassign it; the physical item remains in inventory.
+- Context-menu assignment and drag/drop assignment must call the same authoritative Core assignment operation and produce identical results.
+- Quickbar entries are references to stable item-instance identities, never item copies and never a second inventory owner.
+- Moving an assigned item out of the accessible carried inventory (including selling, transferring, equipping, or moving it into an inaccessible dropped backpack) must not leave a usable stale assignment. Identity-changing stack operations must reconcile references against surviving item IDs; retired/consumed identities must be cleared safely.
+- The quickbar assignment UI does not select/use the item, consume it, or perform a tool/weapon action. Active-hand selection and controls remain P-04c.
+- Context-menu dismissal should follow existing UI conventions (outside click and Escape) after the code audit; do not introduce a new global input layer.
+
+**P-04b implementation breakdown**
+1. Audit `InventoryPanel`, current RMB inspect handling, drag-origin/drag-target abstractions, inventory layout sizing and GameSession/Core transfer callbacks. Document reusable entry points before editing.
+2. Add a Core-owned six-slot assignment model/service using stable item-instance IDs, validation and explicit assign/replace/swap/unassign operations. Keep Core Unity-free.
+3. Integrate assignment validity with existing inventory/equipment/backpack accessibility and stack-lineage authorities. No stale reference may grant access to dropped-backpack contents.
+4. Add the six-slot row to Tab inventory and extend the existing drag/drop path for inventory→quickbar, quickbar→quickbar swap and quickbar→inventory unassign.
+5. Add the RMB contextual menu with Inspect and Equip to Quick Slot→1–6; route both menu and drag/drop through the same assignment API.
+6. Persist the six assignments through the existing SaveData/GameSession path and restore only identities that remain valid and accessible.
+7. Add Core regression tests for assign, replace, swap, unassign, invalid identity, moved/sold/equipped item invalidation, stack split/merge/retirement and save/load. Add UI/Play Mode acceptance for both assignment paths and menu dismissal.
+
+**P-04b decisions still requiring confirmation before implementation:** whether the same physical item may be assigned to more than one quickbar slot, and whether a quickbar slot should be allowed to reference an item currently equipped in a clothing/accessory slot. The safe default is to avoid duplicate assignments and reference only accessible carried items unless the user chooses otherwise. Do not silently decide these edge cases in code.
+
+### P-04c — Active hand item (quickbar-driven; no separate weapon/tool slots)
 - The six-slot quickbar is the authoritative active-item selector. The currently selected slot's assigned item is the item equipped/held in the player's hand.
 - Do not add a separate Weapon slot, Tool slot or duplicate Active Hand equipment slot. Do not repurpose the existing clothing/accessory slots.
 - Selecting another occupied quickbar slot draws that slot's item into the active hand. Selecting an empty/unavailable slot safely leaves the hand empty. Selection never activates or consumes an item.
@@ -69,7 +96,7 @@ No numerical bonus, chance, price formula, quality roll or extra reward is impli
 - Selecting an item never activates or consumes it. Healing items, energy drinks and other supported consumables require an intentional **left-click** to use, preventing accidental use while selecting/cycling slots. The exact effect/eligibility rules remain tied to each consumable's action contract.
 - Selecting a tool or weapon simply holds it in the active hand; selection does not perform an action. Actual tool actions and weapon/combat behavior are later, separately designed interactions.
 
-### P-04c — Six-slot general-purpose quickbar
+### P-04d — Six-slot quickbar HUD and controls
 - Add a small always-visible six-slot quickbar to the HUD.
 - Every slot can be assigned any supported carried item type: healing/energy consumables, tools, weapons, backpacks and other suitable items. The bar is not restricted to consumables or a dedicated weapon/tool category.
 - Assign physical item instances/stacks by stable identity; assignment references the real item and never copies it or creates duplicate ownership.
@@ -148,7 +175,7 @@ No numerical bonus, chance, price formula, quality roll or extra reward is impli
 5. **Tool scope:** no tool actions for now. Tools may be held through the quickbar, but they have no action behavior in this phase.
 6. **Initial skill-effect test:** confirmed in principle — one skill increases Health and one skill increases Heat Protection, for testing only. Skill identities and temporary rank formulas remain to be specified; do not invent them.
 
-P-04a source implementation is committed with the Health attribute extension and two documented temporary skill-effect fixtures; the immediate gate is Unity verification. Do not invent combat or tool-use mechanics. The active-hand, quickbar controls and consumable activation contract above are confirmed. Weapon behavior remains a separately scoped future challenge.
+P-04a is implemented and user-verified: **557/557 EditMode tests passed**, with the user confirming the relevant connections and functionality. P-04b's context-menu and drag/drop assignment design is approved, but no implementation has started. Before P-04b coding, resolve the two edge decisions recorded in its section (duplicate item assignment across slots; references to currently equipped clothing/accessory items). Do not invent combat or tool-use mechanics. The active-hand, quickbar controls and consumable activation contract above are confirmed. Weapon behavior remains a separately scoped future challenge.
 
 
 ## P-04a — implemented source checkpoint (2026-11-27)
