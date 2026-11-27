@@ -67,6 +67,8 @@ namespace Signal.Core
                 (reason == AssetTransferReason.Theft && newOwner == expectedOwner))
                 return Result(StackTransferStatus.InvalidRequest);
 
+            if (_lineage.IsRetiredStackId(sourceStackId))
+                return Result(StackTransferStatus.InvalidRequest);
             if (!_containers.TryGetCustodian(source, out _) ||
                 !_containers.TryGetCustodian(destination, out EconomicActorId destinationCustodian))
                 return Result(StackTransferStatus.ContainerNotRegistered);
@@ -85,13 +87,16 @@ namespace Signal.Core
             InventorySnapshot destinationBefore = ReferenceEquals(source, destination)
                 ? sourceBefore : destination.CreateSnapshot();
 
+            Guid newStackId;
+            do { newStackId = Guid.NewGuid(); }
+            while (_lineage.IsRetiredStackId(newStackId) || _ownership.TryGetOwner(newStackId, out _));
             StackOperationResult physical = StackOperations.Split(source, destination, sourceStackId,
-                quantity, destinationX, destinationY, rotated, null, false);
+                quantity, destinationX, destinationY, rotated, newStackId, false);
             if (!physical.Success)
                 return Result(physical.Status == StackOperationStatus.DestinationFull
                     ? StackTransferStatus.DestinationFull : StackTransferStatus.TransferFailed);
 
-            Guid newStackId = physical.ResultingStackId;
+            newStackId = physical.ResultingStackId;
             if (reason == AssetTransferReason.Theft)
             {
                 var stolenState = new ItemInstanceState(original.State.Quality, original.State.Condition,
@@ -156,6 +161,8 @@ namespace Signal.Core
             if (quantity > sourceItem.Count)
                 return Result(StackTransferStatus.InsufficientQuantity);
 
+            if (_lineage.IsRetiredStackId(sourceStackId) || _lineage.IsRetiredStackId(destinationStackId))
+                return Result(StackTransferStatus.InvalidRequest);
             Guid id = operationId ?? Guid.NewGuid();
             if (_lineage.ContainsOperation(id))
                 return Result(StackTransferStatus.DuplicateOperation);
