@@ -172,9 +172,11 @@ namespace Signal.Core
                 return Result(StackOperationStatus.DestinationFull);
             }
 
-            source.NotifyChanged();
-            if (!ReferenceEquals(source, destination))
-                destination.NotifyChanged();
+            if (notify)
+            {
+                source.NotifyChanged();
+                if (!ReferenceEquals(source, destination)) destination.NotifyChanged();
+            }
             return new StackOperationResult(StackOperationStatus.Completed, quantity, splitId);
         }
 
