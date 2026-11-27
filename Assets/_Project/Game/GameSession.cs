@@ -3114,7 +3114,7 @@ namespace Signal.Game
 
 
         private bool SplitPlayerStack(GridInventory source, GridInventory destination,
-            Guid itemInstanceId, int quantity, int x, int y)
+            Guid itemInstanceId, int quantity, int x, int y, bool rotated)
         {
             if (_stackTransfers == null || source == null || destination == null ||
                 itemInstanceId == Guid.Empty || quantity < 1 ||
@@ -3127,7 +3127,7 @@ namespace Signal.Game
 
             StackTransferResult result = _stackTransfers.Split(source, destination, itemInstanceId,
                 quantity, x, y, EconomicActorId.Player, EconomicActorId.Player,
-                AssetTransferReason.Other, _clock.Day, _clock.MinuteOfDay);
+                AssetTransferReason.Other, _clock.Day, _clock.MinuteOfDay, rotated: rotated);
             if (!result.Success)
             {
                 Say("That stack could not be split there. Its quantity and identity were left unchanged.", 4f);
