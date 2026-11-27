@@ -243,7 +243,7 @@ Health is now the primary character attribute, alongside Armor and Heat Protecti
 - Reuse existing drag/drop framework. Context-menu and drag/drop paths share one Core assignment API.
 - Quickbar entries reference stable physical item identities only. They never copy items, own items or duplicate ownership.
 Quickbar may visually reference items in the accessible backpack or any personal pocket, but never owns/copies them. Dropping the backpack preserves assignments while disabling backpack-backed entries until recovery; dropped contents must never become accessible through quickbar.
-- P-04b is approved specification only, not implemented. Resolve duplicate assignment and equipped-item eligibility before coding. P-04c handles active hand; P-04d handles scroll/H behavior.
+P-04b source implementation is committed; Unity verification is pending. The two edge rules are confirmed: unique item per slot, and backpack/pocket items eligible while equipped clothing/accessory items are excluded.
 
 
 ## P-04b source implementation handoff (2026-11-27)
