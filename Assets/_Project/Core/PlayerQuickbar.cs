@@ -55,6 +55,18 @@ namespace Signal.Core
             return true;
         }
 
+        /// <summary>Moves an item's existing reference to a chosen slot without duplicating it.</summary>
+        public bool TryMoveAssignment(int targetSlot, Guid itemInstanceId)
+        {
+            ValidateSlot(targetSlot);
+            if (itemInstanceId == Guid.Empty) return false;
+            int existingSlot = FindSlot(itemInstanceId);
+            if (existingSlot == targetSlot) return true;
+            if (existingSlot >= 0) _slots[existingSlot] = Guid.Empty;
+            _slots[targetSlot] = itemInstanceId;
+            return true;
+        }
+
         public bool TrySwap(int firstSlot, int secondSlot)
         {
             ValidateSlot(firstSlot);
