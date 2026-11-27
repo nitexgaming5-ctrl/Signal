@@ -28,6 +28,8 @@ namespace Signal.Game
         private static readonly Color FallbackColor = new Color32(0x6B, 0x72, 0x80, 0xFF);
         private static readonly Color ValidDropColor = new Color32(0x3E, 0xE6, 0xD2, 0x66);
         private static readonly Color InvalidDropColor = new Color32(0xE2, 0x4F, 0xB5, 0x66);
+        private static readonly Color ActiveSlotColor = new Color32(0x3E, 0xE6, 0xD2, 0xFF);
+        private static readonly Color HolsteredSlotColor = new Color32(0xC8, 0xA2, 0x4A, 0xFF);
 
         private static readonly Color[] Palette =
         {
@@ -56,6 +58,8 @@ namespace Signal.Game
         private readonly Image[] _quickbarImages = new Image[PlayerQuickbar.SlotCount];
         private readonly Text[] _quickbarLabels = new Text[PlayerQuickbar.SlotCount];
         private readonly Image[] _hudQuickbarImages = new Image[PlayerQuickbar.SlotCount];
+        private readonly Image[] _quickbarSlotBackgrounds = new Image[PlayerQuickbar.SlotCount];
+        private readonly Image[] _hudQuickbarSlots = new Image[PlayerQuickbar.SlotCount];
         private readonly Text[] _hudQuickbarLabels = new Text[PlayerQuickbar.SlotCount];
         private RectTransform _hudQuickbarRoot;
         private RectTransform _quickbarRoot;
@@ -995,6 +999,9 @@ namespace Signal.Game
             for (int i = 0; i < PlayerQuickbar.SlotCount; i++)
             {
                 Guid id = _quickbar.GetItem(i);
+                Color slotColor = _quickbar.SelectedSlot == i ? (_quickbar.IsHolstered ? HolsteredSlotColor : ActiveSlotColor) : CellColor;
+                if (_quickbarSlotBackgrounds[i] != null) _quickbarSlotBackgrounds[i].color = slotColor;
+                if (_hudQuickbarSlots[i] != null) _hudQuickbarSlots[i].color = slotColor;
                 if (id == Guid.Empty || !TryFindQuickbarItem(id, out PlacedItem item, out bool accessible))
                 { _quickbarImages[i].sprite = null; _quickbarImages[i].gameObject.SetActive(false); _quickbarLabels[i].text = (i + 1).ToString(); _quickbarButtons[i].interactable = false; continue; }
                 ItemVisual visual = VisualFor(item.Type);
@@ -1070,6 +1077,7 @@ namespace Signal.Game
                 Button button = slotImage.gameObject.AddComponent<Button>();
                 button.targetGraphic = slotImage;
                 _quickbarButtons[i] = button;
+                _quickbarSlotBackgrounds[i] = slotImage;
                 _quickbarImages[i] = NewImage("QuickSlotIcon", slotImage.transform, Color.white);
                 _quickbarImages[i].preserveAspect = true;
                 SetTopLeft(_quickbarImages[i].rectTransform, 6f, 5f, 40f, 40f);
@@ -1090,6 +1098,7 @@ namespace Signal.Game
             for (int i = 0; i < PlayerQuickbar.SlotCount; i++)
             {
                 Image slot = NewImage("HudQuickSlot_" + (i + 1), _hudQuickbarRoot, CellColor);
+                _hudQuickbarSlots[i] = slot;
                 RectTransform slotRect = slot.rectTransform;
                 slotRect.anchorMin = slotRect.anchorMax = new Vector2(0f, 0f);
                 slotRect.pivot = new Vector2(0f, 0f);

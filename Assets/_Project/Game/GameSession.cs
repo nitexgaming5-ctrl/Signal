@@ -932,6 +932,12 @@ namespace Signal.Game
                 dirtyCashOpen ? DirtyCashContactNpcId : null);
 
             bool scenarioChoiceOpen = _miloScenario != null && _miloScenario.HasPendingChoice;
+            _playerQuickbar.ReconcileActiveHand(id => TryGetPlayerItem(id, out _, out _));
+            bool quickbarInputBlocked = _debugMenuOpen || workspaceOpen || inventoryOpen || storageOpen ||
+                itemViewerOpen || retailOpen || containerOpen || dirtyCashOpen || contractOpen ||
+                repairOrderOpen || upgradeOpen || agendaOpen || itemSpawnerOpen || scenarioChoiceOpen ||
+                (_playerDevelopmentPanel != null && _playerDevelopmentPanel.IsOpen);
+            HandleQuickbarInput(keyboard, Mouse.current, quickbarInputBlocked);
             _motor.enabled = !inventoryOpen && !workspaceOpen && !storageOpen && !itemViewerOpen &&
                 !scenarioChoiceOpen && !retailOpen && !containerOpen && !dirtyCashOpen && !contractOpen && !repairOrderOpen && !upgradeOpen && !agendaOpen && !itemSpawnerOpen && !_debugMenuOpen &&
                 (_playerDevelopmentPanel == null || !_playerDevelopmentPanel.IsOpen);
@@ -1937,6 +1943,27 @@ namespace Signal.Game
                 Say("You slept. It is " + _clock.Label);
         }
 
+        private void HandleQuickbarInput(Keyboard keyboard, Mouse mouse, bool inputBlocked)
+        {
+            if (inputBlocked || _playerQuickbar == null) return;
+            if (keyboard != null)
+            {
+                if (keyboard.hKey.wasPressedThisFrame) { _playerQuickbar.Holster(); return; }
+                if (keyboard.digit1Key.wasPressedThisFrame) { _playerQuickbar.TrySelectSlot(0); return; }
+                if (keyboard.digit2Key.wasPressedThisFrame) { _playerQuickbar.TrySelectSlot(1); return; }
+                if (keyboard.digit3Key.wasPressedThisFrame) { _playerQuickbar.TrySelectSlot(2); return; }
+                if (keyboard.digit4Key.wasPressedThisFrame) { _playerQuickbar.TrySelectSlot(3); return; }
+                if (keyboard.digit5Key.wasPressedThisFrame) { _playerQuickbar.TrySelectSlot(4); return; }
+                if (keyboard.digit6Key.wasPressedThisFrame) { _playerQuickbar.TrySelectSlot(5); return; }
+            }
+            if (mouse != null)
+            {
+                float scroll = mouse.scroll.ReadValue().y;
+                if (scroll > 0f) _playerQuickbar.TryCycle(1);
+                else if (scroll < 0f) _playerQuickbar.TryCycle(-1);
+            }
+        }
+
         private void SaveGame()
         {
             Vector2 position = _room.PlayerBody.position;
@@ -2003,6 +2030,7 @@ namespace Signal.Game
             RestoreEquipment(data);
             int skippedPocketItems = PlayerPocketSaveMapper.Apply(data, _playerPockets, ResolveType, _assetOwnership);
             int skippedQuickbarItems = PlayerQuickbarSaveMapper.Apply(data, _playerQuickbar, IsQuickbarItemPresent);
+            _playerQuickbar.Holster(); // assignments persist; active hand never restores from a save.
             if (skippedQuickbarItems > 0)
                 Debug.LogWarning("GameSession: skipped " + skippedQuickbarItems + " invalid quickbar references while loading.");
             RefreshCarryPanelInventories();

@@ -7,6 +7,85 @@ namespace Signal.Core.Tests
     public sealed class PlayerQuickbarTests
     {
         [Test]
+        public void ActiveHandSelectsAndHolstersWithoutClearingAssignments()
+        {
+            var bar = new PlayerQuickbar();
+            Guid item = Guid.NewGuid();
+            Assert.IsTrue(bar.TryAssign(2, item));
+            Assert.IsTrue(bar.TrySelectSlot(2));
+            Assert.AreEqual(item, bar.HeldItemInstanceId);
+            bar.Holster();
+            Assert.IsTrue(bar.IsHolstered);
+            Assert.AreEqual(Guid.Empty, bar.HeldItemInstanceId);
+            Assert.AreEqual(item, bar.GetItem(2));
+            bar.TrySelectSlot(2);
+            Assert.AreEqual(item, bar.HeldItemInstanceId);
+        }
+
+        [Test]
+        public void CyclingVisitsEmptySlotsAndWrapsInBothDirections()
+        {
+            var bar = new PlayerQuickbar();
+            Guid item = Guid.NewGuid();
+            bar.TryAssign(0, item);
+            Assert.IsTrue(bar.TryCycle(1));
+            Assert.AreEqual(0, bar.SelectedSlot);
+            Assert.IsTrue(bar.TryCycle(1));
+            Assert.AreEqual(1, bar.SelectedSlot);
+            Assert.AreEqual(Guid.Empty, bar.HeldItemInstanceId);
+            Assert.IsTrue(bar.TryCycle(-1));
+            Assert.AreEqual(0, bar.SelectedSlot);
+            Assert.IsTrue(bar.TryCycle(-1));
+            Assert.AreEqual(5, bar.SelectedSlot);
+        }
+
+        [Test]
+        public void LosingOrUnassigningHeldItemSafelyHolsters()
+        {
+            var bar = new PlayerQuickbar();
+            Guid item = Guid.NewGuid();
+            bar.TryAssign(4, item);
+            bar.TrySelectSlot(4);
+            Assert.AreEqual(1, bar.Reconcile(id => false));
+            Assert.IsTrue(bar.IsHolstered);
+            Assert.AreEqual(4, bar.SelectedSlot);
+            bar.TryAssign(4, item);
+            bar.TrySelectSlot(4);
+            Assert.IsTrue(bar.TryUnassign(4));
+            Assert.IsTrue(bar.IsHolstered);
+        }
+
+        [Test]
+        public void InaccessibleHeldItemHolstersButKeepsItsQuickbarReference()
+        {
+            var bar = new PlayerQuickbar();
+            Guid item = Guid.NewGuid();
+            bar.TryAssign(3, item);
+            bar.TrySelectSlot(3);
+            Assert.IsTrue(bar.ReconcileActiveHand(id => false));
+            Assert.IsTrue(bar.IsHolstered);
+            Assert.AreEqual(Guid.Empty, bar.HeldItemInstanceId);
+            Assert.AreEqual(item, bar.GetItem(3));
+        }
+
+        [Test]
+        public void SaveLoadKeepsAssignmentsButStartsHolstered()
+        {
+            var source = new PlayerQuickbar();
+            Guid item = Guid.NewGuid();
+            source.TryAssign(1, item);
+            source.TrySelectSlot(1);
+            var data = new SaveData();
+            PlayerQuickbarSaveMapper.Capture(source, data);
+            var restored = new PlayerQuickbar();
+            PlayerQuickbarSaveMapper.Apply(data, restored, id => id == item);
+            Assert.AreEqual(item, restored.GetItem(1));
+            Assert.AreEqual(-1, restored.SelectedSlot);
+            Assert.IsTrue(restored.IsHolstered);
+            Assert.AreEqual(Guid.Empty, restored.HeldItemInstanceId);
+        }
+
+        [Test]
         public void AssignReplaceAndUniqueIdentityAreEnforced()
         {
             var bar = new PlayerQuickbar();

@@ -11,6 +11,43 @@ namespace Signal.Core
     {
         public const int SlotCount = 6;
         private readonly Guid[] _slots = new Guid[SlotCount];
+        private int _selectedSlot = -1;
+        private bool _isHolstered = true;
+
+        public int SelectedSlot => _selectedSlot;
+        public bool IsHolstered => _isHolstered;
+        public Guid HeldItemInstanceId => !_isHolstered && _selectedSlot >= 0 ? _slots[_selectedSlot] : Guid.Empty;
+
+        public bool TrySelectSlot(int slotIndex)
+        {
+            ValidateSlot(slotIndex);
+            _selectedSlot = slotIndex;
+            _isHolstered = false;
+            return true;
+        }
+
+        public bool TryCycle(int direction)
+        {
+            if (direction == 0) return false;
+            int next = _selectedSlot < 0
+                ? (direction > 0 ? 0 : SlotCount - 1)
+                : (_selectedSlot + (direction > 0 ? 1 : -1) + SlotCount) % SlotCount;
+            return TrySelectSlot(next);
+        }
+
+        public void Holster()
+        {
+            _isHolstered = true;
+        }
+
+        public bool ReconcileActiveHand(Func<Guid, bool> itemAccessible)
+        {
+            if (_isHolstered || _selectedSlot < 0) return false;
+            Guid item = _slots[_selectedSlot];
+            if (item == Guid.Empty || itemAccessible == null || itemAccessible(item)) return false;
+            _isHolstered = true;
+            return true;
+        }
 
         public Guid GetItem(int slotIndex)
         {
@@ -83,6 +120,7 @@ namespace Signal.Core
             ValidateSlot(slotIndex);
             if (_slots[slotIndex] == Guid.Empty) return false;
             _slots[slotIndex] = Guid.Empty;
+            if (_selectedSlot == slotIndex) _isHolstered = true;
             return true;
         }
 
@@ -94,6 +132,7 @@ namespace Signal.Core
             {
                 if (_slots[i] == Guid.Empty || itemExists(_slots[i])) continue;
                 _slots[i] = Guid.Empty;
+                if (_selectedSlot == i) _isHolstered = true;
                 cleared++;
             }
             return cleared;
@@ -102,12 +141,18 @@ namespace Signal.Core
         public void ClearItem(Guid itemInstanceId)
         {
             int slot = FindSlot(itemInstanceId);
-            if (slot >= 0) _slots[slot] = Guid.Empty;
+            if (slot >= 0)
+            {
+                _slots[slot] = Guid.Empty;
+                if (_selectedSlot == slot) _isHolstered = true;
+            }
         }
 
         public void Clear()
         {
             Array.Clear(_slots, 0, _slots.Length);
+            _selectedSlot = -1;
+            _isHolstered = true;
         }
 
         public Guid[] Capture()
