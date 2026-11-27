@@ -39,18 +39,18 @@ P-03.7 closed at **555/555** with compile and Play Mode acceptance. Equipment, s
 | P-04c | Active hand, selection, holster, wheel and number-key controls | Implemented — Unity verification pending |
 | P-04d | Remaining quickbar/interface polish | Later; avoid duplicating delivered HUD/drag ghost |
 
-P-04b includes the six-slot general-purpose quickbar, RMB Inspect/Assign submenu, drag assignment/swap/unassign, reassignment movement, pointer-following drag ghost, persistent bottom-centre HUD bar, dropped-backpack access handling and save/load mapping. User confirmed **563/563** on 2026-11-27.
+P-04b includes the six-slot general-purpose quickbar, RMB Inspect/Assign submenu, drag assignment/swap/unassign, reassignment movement, pointer-following drag ghost, persistent bottom-centre HUD bar, dropped-backpack access handling and save/load mapping. The duplicate quickbar row inside Tab has since been removed; the HUD bar is the sole drag/drop target while Tab is open. User confirmed **563/563** on 2026-11-27.
 
-P-04b includes the six-slot general-purpose quickbar, RMB Inspect/Assign submenu, drag assignment/swap/unassign, reassignment movement, pointer-following drag ghost, persistent bottom-centre HUD bar, dropped-backpack access handling and save/load mapping. User confirmed **563/563** on 2026-11-27.
+P-04b includes the six-slot general-purpose quickbar, RMB Inspect/Assign submenu, drag assignment/swap/unassign, reassignment movement, pointer-following drag ghost, persistent bottom-centre HUD bar, dropped-backpack access handling and save/load mapping. The duplicate quickbar row inside Tab has since been removed; the HUD bar is the sole drag/drop target while Tab is open. User confirmed **563/563** on 2026-11-27.
 
 ### P-04c — Active hand and controls (implementation committed; verification pending)
 
 - The selected slot is the one item held in the player's hand. Core derives that item from the slot's stable item-instance reference; no duplicate held-item ID or ownership state exists.
 - Mouse wheel up/down cycles next/previous through all six slots, including empty ones, with wraparound.
 - Number keys 1–6 directly select the corresponding slot.
-- H holsters without clearing the assignment. Selecting an empty slot means empty hand.
+- H toggles between holstered and unholstered without clearing the selected slot or assignment. Selecting an empty slot means empty hand.
 - All controls are ignored while any gameplay/menu panel is open.
-- HUD remains display-only; selected active and selected holstered states have distinct visual feedback. The Tab quickbar remains the assignment interface.
+- HUD slot clicks remain non-interactive, but while Tab is open the HUD bar is the sole drag/drop assignment interface. Selected active and selected holstered states have distinct visual feedback.
 - When a backpack-backed held item becomes inaccessible because the backpack is dropped, the active hand holsters but the quickbar reference remains assigned. Pocket-backed items remain accessible.
 - Loading resets to no selected slot and holstered, while restoring all six quickbar assignments.
 - Five new Core regression tests cover selection/holster, empty-slot cycling and wraparound, invalidation/unassignment, inaccessible held items and load reset.
