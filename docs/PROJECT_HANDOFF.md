@@ -67,7 +67,7 @@ A later cleanup removed automatic fresh-session debug backpack/cargo; F1 spawner
 - If a held item in the backpack grid becomes inaccessible because the backpack is dropped, the active hand holsters but the slot assignment remains. Pocket items remain accessible.
 - F9/load resets the active hand to no selected slot and holstered; six assignments are restored as before.
 - No consumable use, tool action, weapon attack, combat, targeting, durability, or new art is included.
-- Five Core regression tests were added. Last user-confirmed baseline is 563/563; the new tests and full suite still require Unity verification.
+- Seven Core P-04c regression tests plus one debug-loadout callback test have been added since the last user-confirmed 563/563 baseline. Expected current EditMode total: 571; verify in Unity rather than assuming it.
 - Source commits: `c17a9f7e27d06caf6066d5fd010594d51d33fd85`, `3f8157afb5ca80e744ed83d9ea25922b33f99e50`, `e0ea41bdf2b11a30b4a99941f7153979fd04223e`.
 - Next action: run Unity compile, all EditMode tests and the Play Mode acceptance checklist in the task card; do not mark P-04c complete until those pass.
 
