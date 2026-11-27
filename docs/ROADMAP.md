@@ -28,7 +28,7 @@ The user confirmed B-06's **456/456** EditMode baseline and in-game repair/retur
 - P-03.7d searchable-container quick-transfer, split, partial/full merge, resident-property theft integration and service quantity audit are complete.
 - User confirmed Unity compilation and **555/555 EditMode tests**, with no duplicate stack IDs after split/merge/save.
 - User confirmed no access to dropped-backpack contents and correct F5/F9 restoration for equipped and dropped backpacks; Play Mode acceptance is validated.
-- P-03.7 is closed. Finish P-03 non-art closeout by verifying no temporary repair/production cargo is automatically granted on a fresh game; retain the F1 debug item spawner.
+- P-03.7 is closed. Finish P-03 non-art cleanup removed automatic fresh-session backpack/cargo seeding and retained the F1 debug item spawner. Re-run Unity compile/full EditMode suite and verify empty fresh start + F1 spawning after the cleanup commit.
 - Wearable visuals remain deferred while the art boundary is in place.
 
 ### 2. B-07 Neighbourhood Expansion
