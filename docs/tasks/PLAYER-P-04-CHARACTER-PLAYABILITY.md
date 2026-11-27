@@ -47,7 +47,7 @@ B-07 remains paused while P-04 is active.
 1. The selected quickbar slot is the item held in the player's hand.
 2. Mouse wheel up selects the next slot; mouse wheel down selects the previous slot. Cycling wraps around and visits all six slots, including empty ones.
 3. Number keys **1–6** directly select their matching quickbar slots.
-4. **H** holsters the held item without clearing its quickbar assignment. Selecting a slot again draws it.
+4. **H** toggles between holstered and unholstered without clearing the selected slot or its quickbar assignment.
 5. Selecting an empty slot means empty hand.
 6. Mouse wheel, number keys and H are ignored while any supported gameplay/menu panel is open.
 7. Clicking HUD slots does nothing. While Tab is open, however, the HUD slots are the sole quickbar drag/drop surface for assigning, replacing, swapping and unassigning references.
@@ -62,7 +62,7 @@ B-07 remains paused while P-04 is active.
 - If a selected item is removed/retired, the active hand safely holsters as the reference is reconciled.
 - If an item inside the backpack grid becomes inaccessible because the backpack is dropped, the active hand holsters but the quickbar reference remains assigned and unavailable until the backpack is recovered.
 - Pocket-backed items remain accessible.
-- H preserves the selected slot so the player can reselect it; loading resets to no selected slot and holstered.
+- H preserves the selected slot and toggles its held/holstered state; loading resets to no selected slot and holstered.
 
 ### Persistence
 
@@ -74,9 +74,9 @@ B-07 remains paused while P-04 is active.
 
 - `Assets/_Project/Core/PlayerQuickbar.cs` — selected-slot, held-item derivation, cycle, holster and accessibility reconciliation.
 - `Assets/_Project/Game/GameSession.cs` — number-key, mouse-wheel and H input; menu gating; load reset; accessibility check.
-- `Assets/_Project/Game/InventoryPanel.cs` — selected/active and selected/holstered slot feedback in both quickbar rows; HUD remains non-interactive.
+- `Assets/_Project/Game/InventoryPanel.cs` — single HUD quickbar rendering, selected/active feedback and Tab-open drag/drop hit-testing.
 - `Assets/_Project/Game/HudPanel.cs` — controls hint.
-- `Assets/_Project/Tests/EditMode/Core/PlayerQuickbarTests.cs` — five new regression tests.
+- `Assets/_Project/Tests/EditMode/Core/PlayerQuickbarTests.cs` — seven new regression tests, including reversible H toggling.
 
 ### Source commits
 
@@ -91,7 +91,7 @@ B-07 remains paused while P-04 is active.
 ### EditMode
 
 - Active selection derives the held item from the selected slot.
-- H holsters while preserving all six assignments; selecting again draws.
+- H toggles to holstered and back to unholstered while preserving the selected slot and all six assignments.
 - Wheel cycling visits empty slots and wraps 6→1 and 1→6.
 - Number keys 1–6 select the exact matching slot.
 - Unassigning/removing an active item safely holsters.
@@ -103,11 +103,11 @@ B-07 remains paused while P-04 is active.
 - Draw an item from the accessible backpack grid and each of the three pockets.
 - Select slots using both number keys and wheel; verify wheel direction and wraparound.
 - Verify empty slots produce empty hand and still occupy their wheel positions.
-- Press H; verify the hand is holstered, assignments remain, and reselecting draws again.
+- Press H twice; verify the first press holsters and the second unholsters the same selected item without changing assignments.
 - Open Tab, storage, workbench, retail, customer, NPC, debug and other supported panels; verify wheel, number keys and H do not change the active hand while a menu is open.
 - Drop the backpack while holding an item from its grid: verify the hand holsters and the slot remains assigned/unavailable. Recover the same backpack and reselect.
 - Verify pocket-backed references remain accessible when the backpack is dropped.
-- Click the HUD slots: verify they are display-only.
+- Click HUD slots: verify clicks do nothing. Open Tab and verify inventory→HUD assignment, HUD→HUD swap, and HUD→inventory unassignment.
 - F5/F9 round trip: assignments persist, but load begins with no selected slot and an empty/holstered hand.
 
 ## 5. Explicit exclusions
