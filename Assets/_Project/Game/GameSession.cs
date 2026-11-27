@@ -1392,6 +1392,9 @@ namespace Signal.Game
                 return;
 
             _playerEquipment.Clear();
+            if (_portableStorage != null && _economicContainers != null)
+                foreach (PortableBackpackStorageEntry entry in _portableStorage.GetAll())
+                    _economicContainers.TryUnregister(entry.Contents);
             _portableStorage.Clear(_inventoryStorages);
             _inventory = _emptyCarryInventory;
             _equippedBackpackInstanceId = null;
@@ -2192,6 +2195,14 @@ namespace Signal.Game
             if (_equippedBackpackInstanceId.HasValue && hasBackpackStorageRecords &&
                 _portableStorage.TryGetContents(_equippedBackpackInstanceId.Value, out GridInventory activeBackpackGrid))
                 _inventory = activeBackpackGrid;
+            else if (_equippedBackpackInstanceId.HasValue)
+            {
+                // Deterministic legacy migration: old saves stored the equipped backpack's
+                // contents in the global items grid. Adopt that grid as this bag's private grid
+                // and allocate a separate empty staging inventory for future unequipped items.
+                _inventory = _emptyCarryInventory;
+                _emptyCarryInventory = new GridInventory(8, 6);
+            }
             else if (_droppedBackpackItem.HasValue)
             {
                 if (!hasBackpackStorageRecords)
