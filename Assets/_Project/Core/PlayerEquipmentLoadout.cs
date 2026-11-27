@@ -105,18 +105,25 @@ namespace Signal.Core
 
         public EffectiveCharacterAttributes CalculateEffectiveAttributes(PlayerAttributeSet baseAttributes)
         {
+            return CalculateEffectiveAttributes(baseAttributes, 0, 0);
+        }
+
+        public EffectiveCharacterAttributes CalculateEffectiveAttributes(PlayerAttributeSet baseAttributes,
+            int skillHealthModifier, int skillHeatProtectionModifier)
+        {
             if (baseAttributes == null)
                 throw new ArgumentNullException(nameof(baseAttributes));
 
+            long health = (long)baseAttributes.Health + skillHealthModifier;
             long armor = baseAttributes.Armor;
-            long heat = baseAttributes.HeatProtection;
+            long heat = (long)baseAttributes.HeatProtection + skillHeatProtectionModifier;
             foreach (EquippedItem item in _equipped.Values)
             {
                 armor += item.ArmorModifier;
                 heat += item.HeatProtectionModifier;
             }
 
-            return new EffectiveCharacterAttributes(baseAttributes.Health, Clamp(armor), Clamp(heat));
+            return new EffectiveCharacterAttributes(Clamp(health), Clamp(armor), Clamp(heat));
         }
 
         public bool ContainsInstance(Guid itemInstanceId)
