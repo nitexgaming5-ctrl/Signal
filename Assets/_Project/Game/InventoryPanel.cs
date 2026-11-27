@@ -63,7 +63,7 @@ namespace Signal.Game
         private Func<int, bool> _movePocketToBackpack;
         private Func<int, int, int, bool> _movePocketToBackpackAt;
         private Func<int, int, bool> _movePocketToPocket;
-        private Func<GridInventory, GridInventory, Guid, int, int, int, bool> _splitStack;
+        private Func<GridInventory, GridInventory, Guid, int, int, int, bool, bool> _splitStack;
         private Func<int, bool> _equipPocketItem;
         private bool _draggingFromPocket;
         private int _dragPocketIndex = -1;
@@ -106,7 +106,7 @@ namespace Signal.Game
             Func<int, bool> movePocketToBackpack = null, Func<int, bool> equipPocketItem = null,
             Func<int, int, int, bool> movePocketToBackpackAt = null,
             Func<int, int, bool> movePocketToPocket = null,
-            Func<GridInventory, GridInventory, Guid, int, int, int, bool> splitStack = null)
+            Func<GridInventory, GridInventory, Guid, int, int, int, bool, bool> splitStack = null)
         {
             if (inventory == null)
                 throw new ArgumentNullException(nameof(inventory));
@@ -416,16 +416,16 @@ namespace Signal.Game
         {
             if (_splitStack == null || item.Count <= 1)
                 return;
-            if (TryFindEmptyCell(_inventory, item.Type, out int x, out int y))
+            if (TryFindEmptyCell(_inventory, item.Type, item.Rotated, out int x, out int y))
             {
-                _splitStack(_inventory, _inventory, item.ItemInstanceId, quantity, x, y);
+                _splitStack(_inventory, _inventory, item.ItemInstanceId, quantity, x, y, item.Rotated);
                 Refresh();
                 return;
             }
             if (_pockets != null && item.Type.Width == 1 && item.Type.Height == 1 &&
                 !item.Rotated && _pockets.TryFindAvailablePocket(item.Type, out int pocketIndex, out GridInventory pocket, false))
             {
-                _splitStack(_inventory, pocket, item.ItemInstanceId, quantity, 0, 0);
+                _splitStack(_inventory, pocket, item.ItemInstanceId, quantity, 0, 0, false);
                 Refresh();
             }
         }
@@ -437,9 +437,9 @@ namespace Signal.Game
             GridInventory source = _pockets.GetPocket(sourcePocket);
             if (_canAccessGrid == null || _canAccessGrid())
             {
-                if (TryFindEmptyCell(_inventory, item.Type, out int x, out int y))
+                if (TryFindEmptyCell(_inventory, item.Type, false, out int x, out int y))
                 {
-                    _splitStack(source, _inventory, item.ItemInstanceId, quantity, x, y);
+                    _splitStack(source, _inventory, item.ItemInstanceId, quantity, x, y, false);
                     Refresh();
                     return;
                 }
@@ -447,19 +447,19 @@ namespace Signal.Game
             if (_pockets.TryFindAvailablePocket(item.Type, out int targetPocket, out GridInventory destination, false) &&
                 targetPocket != sourcePocket)
             {
-                _splitStack(source, destination, item.ItemInstanceId, quantity, 0, 0);
+                _splitStack(source, destination, item.ItemInstanceId, quantity, 0, 0, false);
                 Refresh();
             }
         }
 
-        private static bool TryFindEmptyCell(GridInventory grid, ItemType type, out int x, out int y)
+        private static bool TryFindEmptyCell(GridInventory grid, ItemType type, bool rotated, out int x, out int y)
         {
             x = y = 0;
             if (grid == null || !type.IsStackable)
                 return false;
             for (int row = 0; row <= grid.Height - type.Height; row++)
                 for (int column = 0; column <= grid.Width - type.Width; column++)
-                    if (grid.CanPlace(type, column, row, false))
+                    if (grid.CanPlace(type, column, row, rotated))
                     {
                         x = column;
                         y = row;
