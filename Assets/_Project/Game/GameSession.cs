@@ -443,7 +443,7 @@ namespace Signal.Game
             _contractReceiverActor = new EconomicActorId("resident:" + issuerNpcId);
             _contractReceiverInventory = new GridInventory(8, 6);
             RegisterStorageIdentity(InventoryStorageKind.ContractEscrow, _contractReceiverActor.Value,
-                firstCustomerContract != null ? firstCustomerContract.Id : firstCustomerRepairOrder.Id,
+                (firstCustomerContract != null ? firstCustomerContract.Id : firstCustomerRepairOrder.Id).ToString("N"),
                 _contractReceiverInventory);
             if (!_economicContainers.TryRegister(_contractReceiverInventory, _contractReceiverActor))
             {
