@@ -324,6 +324,64 @@ namespace Signal.Core.Tests
             Assert.That(restored.Merges.Count, Is.EqualTo(1));
         }
 
+
+        [Test]
+        public void SameGridSplitCreatesNewStackInFirstFreeCellAndPreservesOriginalIdentity()
+        {
+            var inventory = new GridInventory(4, 1);
+            var ownership = new AssetOwnershipBook();
+            var containers = new EconomicContainerRegistry();
+            var transactions = new EconomicTransactionLedger();
+            containers.TryRegister(inventory, EconomicActorId.Player);
+            ItemType type = Stackable();
+            Guid sourceId = Guid.NewGuid();
+            inventory.Place(type, 0, 0, count: 9, itemInstanceId: sourceId, state: FineWorn());
+            ownership.TryRegister(sourceId, EconomicActorId.Player);
+            var service = new StackTransferService(ownership, containers, transactions, new StackLineageBook());
+
+            StackTransferResult result = service.Split(inventory, inventory, sourceId, 4, 1, 0,
+                EconomicActorId.Player, EconomicActorId.Player, AssetTransferReason.Other, 1, 20);
+
+            Assert.That(result.Success, Is.True);
+            Assert.That(inventory.TryGetItemInstance(sourceId, out PlacedItem remainder), Is.True);
+            Assert.That(remainder.Count, Is.EqualTo(5));
+            Assert.That(inventory.TryGetItemInstance(result.ResultingStackId, out PlacedItem split), Is.True);
+            Assert.That(split.Count, Is.EqualTo(4));
+            Assert.That(split.State, Is.EqualTo(FineWorn()));
+            Assert.That(inventory.Items.Count, Is.EqualTo(2));
+            Assert.That(ownership.TryGetOwner(result.ResultingStackId, out EconomicActorId owner), Is.True);
+            Assert.That(owner, Is.EqualTo(EconomicActorId.Player));
+        }
+
+        [Test]
+        public void PocketToPocketSplitFitsOneByOnePocketAndPreservesBothStackIds()
+        {
+            var sourcePocket = new GridInventory(1, 1);
+            var destinationPocket = new GridInventory(1, 1);
+            var ownership = new AssetOwnershipBook();
+            var containers = new EconomicContainerRegistry();
+            var transactions = new EconomicTransactionLedger();
+            containers.TryRegister(sourcePocket, EconomicActorId.Player);
+            containers.TryRegister(destinationPocket, EconomicActorId.Player);
+            ItemType type = Stackable();
+            Guid sourceId = Guid.NewGuid();
+            sourcePocket.Place(type, 0, 0, count: 7, itemInstanceId: sourceId);
+            ownership.TryRegister(sourceId, EconomicActorId.Player);
+            var service = new StackTransferService(ownership, containers, transactions, new StackLineageBook());
+
+            StackTransferResult result = service.Split(sourcePocket, destinationPocket, sourceId, 1, 0, 0,
+                EconomicActorId.Player, EconomicActorId.Player, AssetTransferReason.Other, 1, 25);
+
+            Assert.That(result.Success, Is.True);
+            Assert.That(sourcePocket.TryGetItemInstance(sourceId, out PlacedItem remainder), Is.True);
+            Assert.That(remainder.Count, Is.EqualTo(6));
+            Assert.That(destinationPocket.TryGetItemInstance(result.ResultingStackId, out PlacedItem split), Is.True);
+            Assert.That(split.Count, Is.EqualTo(1));
+            Assert.That(sourcePocket.Items.Count, Is.EqualTo(1));
+            Assert.That(destinationPocket.Items.Count, Is.EqualTo(1));
+            Assert.That(transactions.Count, Is.Zero);
+        }
+
         [Test]
         public void EquippableAndPortableBackpackTypesAreNeverStackable()
         {
