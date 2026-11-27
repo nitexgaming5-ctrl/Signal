@@ -25,7 +25,7 @@ The user selected **Direction B — meaningful everyday livelihood**: repair, pr
 
 ## Verification snapshot
 
-- **Latest full EditMode suite: 563/563 passed**, user-confirmed 2026-11-27 after P-04b usability follow-up.
+- **Latest full EditMode suite: 578/578 passed**, user-confirmed 2026-11-27 after P-04b usability follow-up.
 - P-04a: 557/557 confirmed.
 - P-04b initial assignment foundation: 562/562 confirmed; usability follow-up: 563/563 confirmed.
 - P-03.7: 555/555 plus Unity compile and Play Mode acceptance confirmed; closed.
@@ -124,3 +124,13 @@ Persistence must be keyed by stable storage identity, with deterministic migrati
 - Next Core increment: `PortableStorageBook.TryRegister(Guid, width, height, InventoryStorageRegistry)` now allocates a distinct grid per physical backpack and binds it to the canonical stable identity. `GetStorageIdentity(Guid)` centralizes identity construction. Two regression tests cover distinct grids, bidirectional content isolation and duplicate-registration rollback. Commits: `bd9ed8c515265120e6d5ad98e26bc1007fe9cd56`, `7d374b16991da37d864999c9f560ba7a0fe5b704`.
 - This allocator is not yet wired into `GameSession`: current runtime still attaches `_inventory` via the compatibility overload. Next work must switch the active inventory view and add per-bag save/load before enabling automatic swap or lifting the debug-loadout guard. Expected suite count is 578; fresh Unity verification is pending.
 
+
+
+## 2026-11-27 — Per-backpack persistence Core primitives
+
+- Added SavedPortableBackpackStorage records and PortableBackpackStorageSaveMapper to capture/restore one independent grid per physical backpack GUID, including dimensions, item instance IDs, placement and item state.
+- Restore binds each newly allocated grid to PlayerBackpack/<GUID>/contents in InventoryStorageRegistry. Duplicate backpack IDs and duplicate item instance IDs (using a shared caller-owned set) are skipped; separate backpack grids remain isolated.
+- Added InventoryStorageRegistry.TryUnregister and PortableStorageBook.Clear(registry) to remove stale backpack bindings without clearing unrelated registry domains.
+- Added two regression tests for independent backpack round-trip and duplicate identity rejection. Expected suite count is now 580, pending Unity verification.
+- Commits: 2462112a32e88de815f53b0305ce3b4cf1bf63e5, 8156a03390ab1d2184f813530f34b229e783d7cb, 8ff1da85acca6de1b727f2d9dcd734eea709285d, 68eb632cbd4f46b85dbe88751335c2cdd6aa5369, 97a265342a62ad76dec67b5206a41c4484e0e0d3, 3e45aa26826db7c91ba2baf1edc341acac8387f8.
+- Important: the mapper is deliberately not called from GameSession yet. Save/load wiring must be coordinated with runtime active-grid switching to avoid double-serializing the currently attached backpack grid through both legacy data.items and the new per-bag records.
