@@ -139,16 +139,8 @@ The inventory/grid audit is now user-verified complete (**531/531 EditMode tests
 
 ## P-03.7 — Stack System & Inventory Interaction
 
-- P-03.7a Core split/merge primitives: implemented; last user-confirmed suite result 540/540.
-- P-03.7b ownership-aware transfer service, lineage persistence, retired-ID reconciliation and dropped-backpack container authorization: source implemented; Unity verification pending.
-- P-03.7c inventory controls and stack quantity display: not started; gated on P-03.7b compile/test/Play Mode verification.
-- P-03.7d universal service integration and end-to-end acceptance: not started.
-- Existing wearable presentation remains paused. No authored stack-size balancing changes are included.
-
-## P-03.7 — Stack System & Inventory Interaction
-
 - P-03.7a Core split/merge primitives: user-verified at 540/540.
 - P-03.7b ownership-aware transfers, lineage persistence and dropped-backpack authorization: user-verified at 550/550.
-- P-03.7c player-carried inventory controls and quantity display: source implemented; Unity verification pending (two new regression tests; expected suite total 552).
-- P-03.7d searchable-container quick transfer/splitting, universal service integration and end-to-end acceptance: not started.
+- P-03.7c player-carried inventory controls and quantity display: user-verified at 552/552.
+- P-03.7d searchable-container quick transfer/splitting/merging and service quantity audit: source implemented; expected suite 553, Unity verification and Play Mode acceptance pending.
 - Existing wearable presentation remains paused. No authored stack-size balancing changes are included.
