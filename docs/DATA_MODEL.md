@@ -76,9 +76,9 @@ The current `SaveData` snapshot persists:
 - Save the stable IDs and domain state required to reconstruct relationships; rebuild Unity references and runtime container registrations from authored content/live objects.
 
 
-## Planned Player Development data model (not implemented)
+## Player Development data model
 
-The following is the approved design target for P-01/P-02, not a statement that these runtime types already exist.
+This section records the implemented P-01/P-02 foundation and the current P-04a extension.
 
 ### Authored definitions (Game)
 
@@ -90,11 +90,11 @@ The following is the approved design target for P-01/P-02, not a statement that 
 ### Runtime domains (Core)
 
 - `PlayerCharacterProfile`: stable appearance selection IDs; no Unity object references.
-- `PlayerAttributeSet`: exactly two base attributes, Armor and Heat Protection.
+- `PlayerAttributeSet`: exactly three base attributes — Health (primary maximum-health attribute), Armor and Heat Protection.
 - `PlayerSkillBook`: skill ID to rank state.
 - `PlayerSkillProgression`: fixed starting point budget, earned/unspent point accounting and validated spend/redistribution.
 - `PlayerMilestoneLedger`: stable one-time milestone award identities and amounts.
-- `CharacterAttributeCalculator`: pure calculation of effective Armor/Heat Protection from base values plus supplied equipment modifiers. Actual loadout and item mapping belong to the later equipment phase.
+- `CharacterAttributeCalculator`: pure calculation of effective Health, Armor and Heat Protection from base values plus supplied equipment/skill modifiers. P-03 owns the equipment loadout and item-to-modifier mapping.
 
 Candidate skills (Repair, Production, Trading, Scavenging, Social) are not yet a locked catalogue. Starting budget, rank caps, costs and milestone rewards remain tuning decisions.
 
@@ -102,7 +102,7 @@ Candidate skills (Repair, Production, Trading, Scavenging, Social) are not yet a
 
 Future SaveData additions should store only stable IDs and primitive values:
 - player appearance selection IDs;
-- base Armor and Heat Protection;
+- base Health, Armor and Heat Protection;
 - skill ranks and canonical point totals;
 - one-time milestone award records.
 
@@ -116,15 +116,16 @@ W-01 is a separate future phase. Its likely Core state includes a shared weather
 ## Player Development — implemented first-slice model
 
 The following Core types now exist:
-- `PlayerAttributeSet`: base Armor and Heat Protection.
-- `EffectiveCharacterAttributes` and `CharacterAttributeCalculator`: pure calculation seam combining base values with supplied equipment modifiers; P-03 still owns the loadout.
+- `PlayerAttributeSet`: base maximum Health, Armor and Heat Protection.
+- `EffectiveCharacterAttributes` and `CharacterAttributeCalculator`: pure calculation of all three effective attributes. P-03's equipment loadout combines its equipment modifiers with supplied skill modifiers.
+- Current HP remains the separate `PlayerStats.Health` resource; effective Health supplies its maximum. Damage/healing rules are unchanged by P-04a.
 - `PlayerSkillBook`: stable skill ID/rank map.
 - `PlayerSkillProgression`: configurable starting points, rank cap, point cost, earned milestone points and unspent/allocated accounting.
 - `PlayerMilestoneLedger`: one-time stable milestone awards with source identity.
 - `PlayerDevelopmentState`: aggregate of attributes, skills, milestones and progression.
 - `PlayerDevelopmentSaveMapper`: persists primitive values and stable IDs; no Unity object references.
 
-The current authored Game catalog is a prototype: 8 starting points, maximum rank 5 and one point per rank. The five entries (Repair, Production, Trading, Scavenging, Social) are marked provisional. These values and entries are content data, not final balance. Activity-specific effects are not yet connected; each skill's actual effect contract remains to be defined.
+The current authored Game catalog is a prototype: 8 starting points, maximum rank 5 and one point per rank. Repair, Production, Trading, Scavenging and Social remain provisional candidates. Two additional provisional test fixtures validate the attribute pipeline: `health_test` adds +10 maximum Health per rank and `heat_protection_test` adds +1 Heat Protection per rank. These are replaceable test values, not final balance or permanent skill mappings. The other livelihood skills do not yet have activity-specific effects.
 
 ## Player appearance — implemented first-slice presentation
 
