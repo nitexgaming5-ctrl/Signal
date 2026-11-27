@@ -97,7 +97,7 @@ A later cleanup removed automatic fresh-session debug backpack/cargo; F1 spawner
 - Drag ghost z-order follow-up committed as `d980ebba7d53a3ffbfb602b74adb9593b1e652e4`: it is promoted to the last sibling on the overlay canvas during dragging so it appears above the HUD quickbar. Unity verification pending.
 - Backpack bug diagnosis: `GameSession` uses one `_inventory` grid for every physical backpack. Dropping unregisters the grid but keeps the same reference as the session inventory; debug loadout refuses a replacement while a dropped bag exists. Do not merely remove that guard. Correct design is one distinct grid per backpack identity, active-grid switching on equip/drop, multiple independently recoverable dropped bags, and save/load persistence for every bag.
 - Await user decision: if the player recovers an old dropped bag while wearing another, should this automatically drop the currently worn bag at the player's feet and swap, or require the player to drop the current bag first?
-- No backpack lifecycle code changed yet. Preserve the confirmed 571/571 baseline; re-run Unity tests after the pending fixes.
+- No backpack lifecycle correction has been implemented yet; the storage identity registry foundation is now in place. Preserve the confirmed 571/571 baseline and re-run Unity tests after the pending fixes.
 
 
 ## Active follow-up — backpack isolation and swap (2026-11-27)
