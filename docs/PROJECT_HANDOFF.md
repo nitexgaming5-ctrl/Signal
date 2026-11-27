@@ -62,7 +62,8 @@ P-03.6 Wearable Presentation is parked as historical preparation, not an active 
 
 ## Next actions
 1. P-04 Character Playability is the active priority: meaningful skill effects and a six-slot quickbar that doubles as the active hand. See `docs/tasks/PLAYER-P-04-CHARACTER-PLAYABILITY.md`.
-2. Confirmed: no dedicated weapon/tool slots; slot selection only draws and never consumes/activates; supported consumables require intentional left-click; tools/weapons are simply held on selection; H holsters while preserving assignment; wheel up/down cycles next/previous with wraparound only when no menu is open. Their actual actions, combat scope and skill effects still need explicit design approval.
+2. Confirmed: no dedicated weapon/tool slots; slot selection only draws and never consumes/activates; supported consumables require intentional left-click; tools/weapons are simply held on selection; H holsters while preserving assignment; wheel up/down cycles next/previous with wraparound only when no menu is open. No tool actions or weapon attacks are in scope now; weapon behavior is a substantial separate future challenge.
+3. Superseding P-02 decision (2026-11-27): **Health is the primary character attribute**, alongside Armor and Heat Protection. The former exactly-two-attributes rule is obsolete. User approved temporary skill tests: one skill increases Health, one skill increases Heat Protection; skill IDs and rank formulas remain to be specified.
 3. B-07 Neighbourhood Expansion is paused.
 4. Separately, the automatic-debug-loadout cleanup still needs Unity compile/full EditMode and fresh-empty-start/F1-spawner verification. This maintenance check does not reopen P-03.7.
 
@@ -228,3 +229,8 @@ A follow-up added direct drag-to-merge in `InventoryPanel`. Supported routes: ba
 - H holsters without clearing the slot; selecting the occupied slot again draws it. Empty slots leave the hand empty. Scroll-wheel cycling wraps between slots 6 and 1 and is ignored while a menu is open.
 - The real inventory item remains the single source of truth. Quickbar entries are identity references only; no dedicated weapon/tool slots and no duplicated equipment state.
 - This confirms the selection/consumable-use distinction only. It does not approve a combat system or any unconfirmed tool action.
+
+
+## P-02/P-04 decision update — 2026-11-27
+
+Health is now the primary character attribute, alongside Armor and Heat Protection. This supersedes all earlier statements that P-02 has exactly two attributes. The original P-02 implementation and 467/467 user verification cover only Armor and Heat Protection; Health requires Core/UI/save/effective-value integration and fresh Unity verification. Two temporary skill-effect tests are approved: one skill increases Health and one skill increases Heat Protection. Do not invent skill IDs or rank formulas. No tool-use or weapon-attack behavior is in scope for the current character/quickbar phase.
