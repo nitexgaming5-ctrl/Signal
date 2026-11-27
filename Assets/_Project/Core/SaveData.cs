@@ -397,6 +397,7 @@ namespace Signal.Core
         public List<SavedNpcSocialRelationship> npcSocialRelationships = new List<SavedNpcSocialRelationship>();
         public List<SavedNpcPlayerRelationship> npcPlayerRelationships = new List<SavedNpcPlayerRelationship>();
         public bool playerDevelopmentInitialized;
+        public int playerHealthAttribute = 100;
         public int playerArmor;
         public int playerHeatProtection;
         public int playerStartingSkillPoints;
