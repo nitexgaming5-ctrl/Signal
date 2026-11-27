@@ -7,7 +7,7 @@
 
 ## Verification
 
-- **Latest user-confirmed full EditMode suite: 563/563 passed (2026-11-27).** This includes the P-04b quickbar usability follow-up.
+- **Latest user-confirmed full EditMode suite: 578/578 passed (2026-11-27).** This includes the P-04b quickbar usability follow-up.
 - P-04a: 557/557 confirmed.
 - P-04b initial assignment foundation: 562/562 confirmed; follow-up brought the suite to 563/563.
 - P-03.7: 555/555 plus Unity compile and Play Mode acceptance confirmed; closed.
@@ -154,3 +154,13 @@ Required regression suite: pairwise isolation between representative player/back
 - This is a Core allocation primitive only. GameSession still needs to switch the active inventory view, preserve old bag contents on drop/swap, support multiple dropped physical items/visuals, and save/restore every bag by identity. The legacy overload that attaches an existing grid remains for existing runtime compatibility until that integration is completed.
 - Expected EditMode count increase: +2 (576 to 578). Unity compile, EditMode and Play Mode verification are pending.
 
+
+
+### Per-backpack persistence primitives — Core step (2026-11-27)
+- Added PortableBackpackStorageSaveMapper to capture each physical backpack's contents under its stable backpack instance GUID, including grid dimensions and each item's stable identity/state.
+- Restore allocates a distinct grid per saved backpack, registers it under PlayerBackpack/<GUID>/contents, rejects duplicate backpack identities, and uses a caller-supplied shared item-ID set to reject duplicate physical item identities across storage domains.
+- Added precise registry unregistration and PortableStorageBook.Clear(registry) so a future restore can remove stale backpack identity bindings without clearing unrelated storage registrations. Added a storage-entry snapshot API for save capture.
+- Added two EditMode regression tests: independent two-backpack round-trip with dimensions and contents preserved; duplicate backpack/item identity rejection.
+- Commits: 2462112a32e88de815f53b0305ce3b4cf1bf63e5, 8156a03390ab1d2184f813530f34b229e783d7cb, 8ff1da85acca6de1b727f2d9dcd734eea709285d, 68eb632cbd4f46b85dbe88751335c2cdd6aa5369, 97a265342a62ad76dec67b5206a41c4484e0e0d3, 3e45aa26826db7c91ba2baf1edc341acac8387f8.
+- This persistence mapper is not yet wired into GameSession.SaveGame/LoadGame. That integration must happen alongside active-grid switching so the same bag contents are not serialized twice through legacy data.items and the new per-backpack records. Runtime still has one _inventory grid and one dropped-backpack slot; automatic swap and debug-loadout changes remain open.
+- Expected EditMode suite count: 578 to 580. Unity compile/EditMode verification is pending; no 580/580 claim is made.
