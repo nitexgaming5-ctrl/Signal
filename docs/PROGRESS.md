@@ -119,7 +119,7 @@ P-03.7 is closed and user-verified at **555/555**, including compile and Play Mo
 
 ### Backpack isolation + drag-layer correction (2026-11-27)
 - User approved automatic backpack swapping: equipping a dropped backpack while another is equipped drops the currently equipped backpack at the player's feet, equips the recovered backpack, and keeps each backpack's contents independent. The debug TEST LOADOUT must be able to equip a fresh backpack while another is dropped.
-- Identified the current defect: GameSession stores only one `_droppedBackpackItem`, registers every backpack against the same `_inventory` grid, and leaves that grid as the active session inventory after drop. The current debug loadout explicitly refuses to spawn/equip a backpack while one is dropped.
+- Historical diagnosis at the start of this initiative: GameSession stored one `_droppedBackpackItem`, aliased every backpack to `_inventory`, and left the dropped grid active. The active-grid alias and access-detachment defects have since been corrected; multiple dropped-bag tracking and automatic swap remain open.
 - Fixed the quickbar drag ghost layering by moving it to a dedicated override-sorting Canvas (sorting order 200), above the inventory/HUD canvas (100). Commit: `1971e800a08011e8f031ecd79fdd67cb56d3a17d`.
 - Backpack isolation/swap, multi-dropped-backpack tracking, save/load of each backpack's own contents, and debug-loadout behavior remain in progress; do not mark complete until implemented and Unity-verified. Last confirmed EditMode suite: 571/571.
 
@@ -143,7 +143,7 @@ Required regression suite: pairwise isolation between representative player/back
 - Added five Core regression tests for identity stability, duplicate/alias rejection, reverse lookup, and isolation between separate player/backpack/world test grids.
 - Source commits: `cd4b182015525429b1ebc97c22628a862b28ef89`, `bf4d54e9be82dfd61760528a11a1f6a3186f93d8`, `13ff69d98d661cd0bfeecff8ee9c9bb3a8cbf50a`, `bea52619e72a6ebe0f5e0ac4b50d3e4a4c481585`, `ffa503494a62593e0ffe99d4e57f06a569b57387`.
 - Follow-up `GameSession` commit `53e88a8a3d281469b484f4ef5e2d76b495bb237d` now registers the currently equipped/restored/dropped backpack grid under `PlayerBackpack/<instance-guid>/contents`, and verifies that the registered identity resolves to the same grid before granting economic access. The registry mapping remains while the bag is dropped.
-- This is still not completion of storage isolation: GameSession still uses its session-wide `_inventory` as the grid attached to a backpack, so it cannot yet maintain distinct grids for multiple physical bags. Multiple dropped backpack metadata/visuals, automatic swap, per-backpack save/load, business stock and NPC-owned pocket runtime inventories remain open. Do not mark the global invariant complete.
+- Runtime now allocates a distinct registry-backed grid for each equipped physical backpack, switches `_inventory` to that grid, and detaches to the staging grid on drop. F5/F9 now capture/restore per-backpack storage records, with deterministic migration of the legacy single-bag global `items` grid. Multiple dropped backpack metadata/visuals, automatic swap, business stock and NPC-owned pocket runtime inventories remain open. Do not mark the global invariant complete.
 - User confirmed **576/576** after registry integration, then **578/578** after the per-backpack allocator, and most recently **580/580** after identity-keyed backpack persistence tests. Runtime Play Mode verification of the new backpack identity registration and the drag overlay fix remains pending.
 
 ### Per-backpack storage allocation — Core step (2026-11-27)
@@ -151,7 +151,7 @@ Required regression suite: pairwise isolation between representative player/back
 - Added `GetStorageIdentity(Guid)` so runtime and save/load code share one canonical identity format rather than reconstructing it independently.
 - Added two EditMode tests: two backpacks receive different grids with bidirectional content isolation; duplicate registration leaves both book and registry unchanged.
 - Commits: `bd9ed8c515265120e6d5ad98e26bc1007fe9cd56`, `7d374b16991da37d864999c9f560ba7a0fe5b704`.
-- This is a Core allocation primitive only. GameSession still needs to switch the active inventory view, preserve old bag contents on drop/swap, support multiple dropped physical items/visuals, and save/restore every bag by identity. The legacy overload that attaches an existing grid remains for existing runtime compatibility until that integration is completed.
+- The registry-backed allocator is now wired into GameSession for the currently equipped bag. The compatibility overload remains only for deterministic migration of legacy saves. Multiple dropped physical items/visuals and automatic swap remain open.
 - Expected EditMode count increase: +2 (576 to 578). Unity compile, EditMode and Play Mode verification are pending.
 
 
@@ -162,12 +162,23 @@ Required regression suite: pairwise isolation between representative player/back
 - Added precise registry unregistration and PortableStorageBook.Clear(registry) so a future restore can remove stale backpack identity bindings without clearing unrelated storage registrations. Added a storage-entry snapshot API for save capture.
 - Added two EditMode regression tests: independent two-backpack round-trip with dimensions and contents preserved; duplicate backpack/item identity rejection.
 - Commits: 2462112a32e88de815f53b0305ce3b4cf1bf63e5, 8156a03390ab1d2184f813530f34b229e783d7cb, 8ff1da85acca6de1b727f2d9dcd734eea709285d, 68eb632cbd4f46b85dbe88751335c2cdd6aa5369, 34330e52abf2c30b7b95314565284eda135db6c4, 3e45aa26826db7c91ba2baf1edc341acac8387f8.
-- This persistence mapper is not yet wired into GameSession.SaveGame/LoadGame. That integration must happen alongside active-grid switching so the same bag contents are not serialized twice through legacy data.items and the new per-backpack records. Runtime still has one _inventory grid and one dropped-backpack slot; automatic swap and debug-loadout changes remain open.
+- The persistence mapper is now called by GameSession F5/F9. The legacy `items` grid is reserved for the empty staging inventory, while each backpack's contents are captured under its own physical GUID. Legacy single-backpack saves migrate their old global items grid into the equipped/dropped backpack's private grid. Runtime still tracks one dropped-backpack item/visual; automatic swap and debug-loadout changes remain open.
 - User has since confirmed **580/580** after these two persistence tests. GameSession integration and Play Mode verification remain open.
 
 
 ### Current active storage implementation step (2026-11-27)
 - **Verified:** user confirmed 580/580 after the identity-keyed backpack save/restore mapper and duplicate-ID regression tests.
-- **Next:** wire the registry-backed per-backpack grids into GameSession. First establish active-grid switching and immediate detachment on drop, while rebinding every inventory UI/service consumer. Then implement multi-dropped-bag tracking, approved automatic swap, identity-keyed F5/F9 integration and deterministic legacy migration.
-- Current runtime limitation remains: GameSession still attaches the session-wide `_inventory` grid to a backpack and tracks one dropped backpack. The new Core mapper is not yet called by GameSession. Do not claim the global storage invariant complete.
+- **Completed in the current source step:** active-grid switching, immediate detachment on drop, rebinding InventoryPanel/Storage/Retail/Dirty Cash/Customer/Workbench/Milo consumers, identity-keyed F5/F9 persistence and deterministic legacy single-bag migration. **Next:** multi-dropped-bag metadata/visuals and the approved automatic swap.
+- Current runtime limitation: GameSession now uses one independent grid per physical backpack and detaches the active reference on drop, but still tracks only one dropped backpack. NPC pocket and business stock runtime inventories remain future work. Do not claim the global storage invariant complete.
 - Drag overlay and backpack runtime behavior still require fresh Unity Play Mode verification.
+
+
+### GameSession per-backpack active-grid integration (2026-11-27)
+- Equipped backpacks now receive their own registry-backed `GridInventory` from `PortableStorageBook`; the session's active `_inventory` reference switches to that grid only after allocation and registration succeed.
+- Dropping immediately switches the player-facing inventory reference to the separate staging grid. The dropped bag's original grid remains registered to its physical GUID and inaccessible through carry panels/services.
+- Rebound `InventoryPanel`, `StoragePanel`, `RetailPanel`, `DirtyCashContactPanel`, `CustomerContractPanel`, `WorkbenchWorkspace` and `MiloParcelOpportunityController` when the active grid changes.
+- Quickbar validation now searches all physical backpack grids so assignments to dropped-bag contents remain assigned; active-hand access still checks only accessible carried inventories and therefore holsters correctly.
+- F5/F9 now serialize per-backpack storage records separately from the legacy staging `items` grid. Load restores the active equipped bag's private grid; the legacy single-bag global grid migrates deterministically to the equipped or dropped backpack. This does not yet migrate multiple dropped bags because runtime still tracks one dropped item.
+- Added one regression test proving backpack registry cleanup preserves unrelated storage identities and permits the same bag identity to be registered again. Expected full EditMode suite: **581**; Unity verification pending. Last user-confirmed suite remains **580/580**.
+- Commits: `3ef8447809dba93b58b67f210b8bdd9287f17b54`, `270d4427fb84a9ae7822c6bb34590403758a150a`, `7aa3f78c6e7ae7faf2872de91188e50da4f1fb61`, `cb2b3fe6a8cee57b258906601cc0fda1010e4d15`, `523b7199c3506f4de2609b0d196091c943bf6238`, `e0e44acb1cf06333b6f77cf9ab31e93b34af5245`, `24d34d773b8e6287103844ac0641f9299a95329a`.
+- Required verification: Unity compile + 581 EditMode tests; Play Mode equip/drop/recover, quickbar persistence, panel rebinding and F5/F9 round trips. No result is claimed yet.
