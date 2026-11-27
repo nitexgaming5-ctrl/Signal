@@ -163,7 +163,7 @@ Required regression suite: pairwise isolation between representative player/back
 - Added two EditMode regression tests: independent two-backpack round-trip with dimensions and contents preserved; duplicate backpack/item identity rejection.
 - Commits: 2462112a32e88de815f53b0305ce3b4cf1bf63e5, 8156a03390ab1d2184f813530f34b229e783d7cb, 8ff1da85acca6de1b727f2d9dcd734eea709285d, 68eb632cbd4f46b85dbe88751335c2cdd6aa5369, 34330e52abf2c30b7b95314565284eda135db6c4, 3e45aa26826db7c91ba2baf1edc341acac8387f8.
 - The persistence mapper is now called by GameSession F5/F9. The legacy `items` grid is reserved for the empty staging inventory, while each backpack's contents are captured under its own physical GUID. Legacy single-backpack saves migrate their old global items grid into the equipped/dropped backpack's private grid. Runtime still tracks one dropped-backpack item/visual; automatic swap and debug-loadout changes remain open.
-- User has since confirmed **580/580** after these two persistence tests. GameSession integration and Play Mode verification remain open.
+- User has since confirmed **580/580** after these two persistence tests. GameSession active-grid and F5/F9 integration have since been implemented; Play Mode verification and multi-dropped-bag support remain open.
 
 
 ### Current active storage implementation step (2026-11-27)
