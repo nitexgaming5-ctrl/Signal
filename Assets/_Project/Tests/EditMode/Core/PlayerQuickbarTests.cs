@@ -21,6 +21,22 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void ReassigningItemMovesItsReferenceAndReplacesTarget()
+        {
+            var bar = new PlayerQuickbar();
+            Guid first = Guid.NewGuid();
+            Guid second = Guid.NewGuid();
+            Assert.IsTrue(bar.TryAssign(0, first));
+            Assert.IsTrue(bar.TryAssign(2, second));
+
+            Assert.IsTrue(bar.TryMoveAssignment(2, first));
+
+            Assert.AreEqual(Guid.Empty, bar.GetItem(0));
+            Assert.AreEqual(first, bar.GetItem(2));
+            Assert.AreEqual(-1, bar.FindSlot(second));
+        }
+
+        [Test]
         public void SwapAndUnassignOnlyChangeReferences()
         {
             var bar = new PlayerQuickbar();
