@@ -151,5 +151,13 @@ Persistence must be keyed by stable storage identity, with deterministic migrati
 - InventoryPanel, StoragePanel, RetailPanel, DirtyCashContactPanel, CustomerContractPanel, WorkbenchWorkspace and MiloParcelOpportunityController now rebind when the active grid changes.
 - Quickbar identity validation searches all registered backpack grids so dropped-bag assignments persist, while active-hand access remains limited to accessible grids.
 - F5/F9 now call `PortableBackpackStorageSaveMapper`; the staging inventory is passed to the legacy SaveMapper path to avoid double serialization. Legacy single-backpack global items migrate into the relevant bag. Restore collects existing item GUIDs from staging, hideout, contact, contract escrow, pockets and searchable containers before restoring backpack grids, rejecting cross-domain duplicate physical IDs. Missing/invalid per-bag records fall back to attaching the legacy staging grid to the affected bag rather than leaving it without contents.
-- Added one registry cleanup regression test. Expected suite count 581; latest user-confirmed result remains 580/580 pending the new run.
+- Added one registry cleanup regression test. Expected suite count 581; latest user-confirmed result is now 581/581.
 - Source commits: `3ef8447809dba93b58b67f210b8bdd9287f17b54`, `270d4427fb84a9ae7822c6bb34590403758a150a`, `7aa3f78c6e7ae7faf2872de91188e50da4f1fb61`, `cb2b3fe6a8cee57b258906601cc0fda1010e4d15`, `523b7199c3506f4de2609b0d196091c943bf6238`, `e0e44acb1cf06333b6f77cf9ab31e93b34af5245`, `24d34d773b8e6287103844ac0641f9299a95329a`, `c359058b1e47b3c87c76f3be0599d789fb198946`, `2b4edd2bdbfbe000746859554ce96df604201e3d`.
+
+
+### Multi-backpack proximity foundation — 2026-11-27
+- `PortableBackpackWorldBook.TryGetNearestDropped` now chooses the closest dropped bag within a supplied radius and uses stable GUID tie-breaking for equal distances. Invalid positions/radii are rejected.
+- Two regression tests cover nearest/range behavior and deterministic tie-breaking.
+- This does not yet make GameSession multi-bag capable: `_droppedBackpackItem` and `_droppedBackpackVisual` remain singular. Next: GUID-keyed dropped-item/visual collections, multi-bag save metadata, automatic swap, then TEST LOADOUT unlock.
+- Commits: `0781acd6e90d7197cef8581c7a87610d8598a2b2`, `66db3032d0af00dd50d389fb7ac5413076c3f19a`.
+- Expected EditMode suite: 583; latest user-confirmed baseline: 581/581.
