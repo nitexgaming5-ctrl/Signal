@@ -423,6 +423,73 @@ namespace Signal.Core.Tests
         }
 
         [Test]
+        public void SameGridPartialMergeKeepsDestinationIdentityAndSourceRemainder()
+        {
+            var inventory = new GridInventory(3, 1);
+            var ownership = new AssetOwnershipBook();
+            var containers = new EconomicContainerRegistry();
+            var transactions = new EconomicTransactionLedger();
+            var lineage = new StackLineageBook();
+            containers.TryRegister(inventory, EconomicActorId.Player);
+            ItemType type = Stackable(10);
+            Guid sourceId = Guid.NewGuid();
+            Guid destinationId = Guid.NewGuid();
+            inventory.Place(type, 0, 0, count: 5, itemInstanceId: sourceId, state: FineWorn());
+            inventory.Place(type, 1, 0, count: 3, itemInstanceId: destinationId, state: FineWorn());
+            ownership.TryRegister(sourceId, EconomicActorId.Player);
+            ownership.TryRegister(destinationId, EconomicActorId.Player);
+            var service = new StackTransferService(ownership, containers, transactions, lineage);
+
+            StackTransferResult result = service.Merge(inventory, inventory, sourceId, destinationId, 2, 1, 40);
+
+            Assert.That(result.Success, Is.True);
+            Assert.That(result.Quantity, Is.EqualTo(2));
+            Assert.That(inventory.TryGetItemInstance(sourceId, out PlacedItem sourceRemainder), Is.True);
+            Assert.That(sourceRemainder.Count, Is.EqualTo(3));
+            Assert.That(inventory.TryGetItemInstance(destinationId, out PlacedItem survivor), Is.True);
+            Assert.That(survivor.Count, Is.EqualTo(5));
+            Assert.That(survivor.State, Is.EqualTo(FineWorn()));
+            Assert.That(ownership.TryGetOwner(sourceId, out _), Is.True);
+            Assert.That(lineage.Merges.Count, Is.EqualTo(1));
+            Assert.That(lineage.Merges[0].SourceRetired, Is.False);
+        }
+
+        [Test]
+        public void PocketToPocketFullMergeRetiresSourceAndKeepsDestinationIdentity()
+        {
+            var sourcePocket = new GridInventory(1, 1);
+            var destinationPocket = new GridInventory(1, 1);
+            var ownership = new AssetOwnershipBook();
+            var containers = new EconomicContainerRegistry();
+            var transactions = new EconomicTransactionLedger();
+            var lineage = new StackLineageBook();
+            containers.TryRegister(sourcePocket, EconomicActorId.Player);
+            containers.TryRegister(destinationPocket, EconomicActorId.Player);
+            ItemType type = Stackable(10);
+            Guid sourceId = Guid.NewGuid();
+            Guid destinationId = Guid.NewGuid();
+            sourcePocket.Place(type, 0, 0, count: 4, itemInstanceId: sourceId);
+            destinationPocket.Place(type, 0, 0, count: 6, itemInstanceId: destinationId);
+            ownership.TryRegister(sourceId, EconomicActorId.Player);
+            ownership.TryRegister(destinationId, EconomicActorId.Player);
+            var service = new StackTransferService(ownership, containers, transactions, lineage);
+
+            StackTransferResult result = service.Merge(sourcePocket, destinationPocket, sourceId, destinationId, 4, 1, 45);
+
+            Assert.That(result.Success, Is.True);
+            Assert.That(result.Quantity, Is.EqualTo(4));
+            Assert.That(sourcePocket.Items, Is.Empty);
+            Assert.That(destinationPocket.TryGetItemInstance(destinationId, out PlacedItem survivor), Is.True);
+            Assert.That(survivor.Count, Is.EqualTo(10));
+            Assert.That(ownership.TryGetOwner(sourceId, out _), Is.False);
+            Assert.That(ownership.TryGetOwner(destinationId, out EconomicActorId destinationOwner), Is.True);
+            Assert.That(destinationOwner, Is.EqualTo(EconomicActorId.Player));
+            Assert.That(lineage.Merges.Count, Is.EqualTo(1));
+            Assert.That(lineage.Merges[0].SourceRetired, Is.True);
+            Assert.That(lineage.IsRetiredStackId(sourceId), Is.True);
+        }
+
+        [Test]
         public void EquippableAndPortableBackpackTypesAreNeverStackable()
         {
             ItemType equippable = new ItemType(Guid.NewGuid(), 1, 1, 10, true, false);
