@@ -13,6 +13,7 @@ namespace Signal.Game
         private Func<EffectiveCharacterAttributes> _effectiveAttributes;
         private PlayerStats _playerStats;
         private bool _isOpen;
+        private Vector2 _skillsScroll;
         private Rect _window = new Rect(24f, 72f, 460f, 590f);
 
         public bool IsOpen => _isOpen;
@@ -53,6 +54,7 @@ namespace Signal.Game
                 " / " + _state.Progression.TotalPoints);
             GUILayout.Space(4f);
 
+            _skillsScroll = GUILayout.BeginScrollView(_skillsScroll, GUILayout.Height(300f));
             foreach (PlayerSkillDefinition skill in _catalog.Skills)
             {
                 if (skill == null || !_state.Skills.Contains(skill.Id))
@@ -67,10 +69,14 @@ namespace Signal.Game
                     _state.Progression.TrySpendRank(_state.Skills, skill.Id))
                     DevelopmentChanged?.Invoke();
                 GUILayout.EndHorizontal();
+                GUILayout.Label("Next rank cost: " + _state.Progression.PointsPerRank + " point(s)");
                 if (!string.IsNullOrWhiteSpace(skill.Description))
                     GUILayout.Label(skill.Description);
+                if (skill.HealthPerRank == 0 && skill.HeatProtectionPerRank == 0)
+                    GUILayout.Label("Gameplay effect: pending implementation.");
                 GUILayout.EndVertical();
             }
+            GUILayout.EndScrollView();
 
             GUILayout.Space(8f);
             GUILayout.Label("Milestone points are awarded by completed gameplay events.");
