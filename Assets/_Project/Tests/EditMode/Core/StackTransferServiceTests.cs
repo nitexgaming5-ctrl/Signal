@@ -25,6 +25,11 @@ namespace Signal.Core.Tests
             source.Place(type, 0, 0, count: 12, itemInstanceId: sourceId, state: FineWorn());
             ownership.TryRegister(sourceId, EconomicActorId.Player);
             var service = new StackTransferService(ownership, containers, transactions, lineage);
+            bool observerSawOwnershipCommitted = false;
+            destination.Changed += changed => observerSawOwnershipCommitted =
+                destination.Items.Count == 1 &&
+                ownership.TryGetOwner(destination.Items[0].ItemInstanceId, out EconomicActorId eventOwner) &&
+                eventOwner == EconomicActorId.Player;
 
             StackTransferResult result = service.Split(source, destination, sourceId, 5, 0, 0,
                 EconomicActorId.Player, EconomicActorId.Player, AssetTransferReason.Other, 1, 30);
@@ -40,6 +45,7 @@ namespace Signal.Core.Tests
             Assert.That(ownership.TryGetOwner(result.ResultingStackId, out EconomicActorId splitOwner), Is.True);
             Assert.That(splitOwner, Is.EqualTo(EconomicActorId.Player));
             Assert.That(transactions.Count, Is.Zero);
+            Assert.That(observerSawOwnershipCommitted, Is.True);
         }
 
         [Test]
@@ -142,6 +148,69 @@ namespace Signal.Core.Tests
             Assert.That(destinationItem.Count, Is.EqualTo(3));
             Assert.That(lineage.Merges, Is.Empty);
             Assert.That(transactions.Count, Is.Zero);
+        }
+
+        [Test]
+        public void PartialSameOwnerMergeRetainsSourceIdentityAndOwnership()
+        {
+            var source = new GridInventory(2, 1);
+            var destination = new GridInventory(2, 1);
+            var ownership = new AssetOwnershipBook();
+            var containers = new EconomicContainerRegistry();
+            var transactions = new EconomicTransactionLedger();
+            var lineage = new StackLineageBook();
+            containers.TryRegister(source, EconomicActorId.Player);
+            containers.TryRegister(destination, EconomicActorId.Player);
+            ItemType type = Stackable(10);
+            Guid sourceId = Guid.NewGuid();
+            Guid destinationId = Guid.NewGuid();
+            source.Place(type, 0, 0, count: 8, itemInstanceId: sourceId);
+            destination.Place(type, 0, 0, count: 3, itemInstanceId: destinationId);
+            ownership.TryRegister(sourceId, EconomicActorId.Player);
+            ownership.TryRegister(destinationId, EconomicActorId.Player);
+            var service = new StackTransferService(ownership, containers, transactions, lineage);
+
+            StackTransferResult result = service.Merge(source, destination, sourceId, destinationId, 4, 1, 50);
+
+            Assert.That(result.Success, Is.True);
+            Assert.That(source.TryGetItemInstance(sourceId, out PlacedItem remainder), Is.True);
+            Assert.That(remainder.Count, Is.EqualTo(4));
+            Assert.That(ownership.TryGetOwner(sourceId, out EconomicActorId sourceOwner), Is.True);
+            Assert.That(sourceOwner, Is.EqualTo(EconomicActorId.Player));
+            Assert.That(destination.TryGetItemInstance(destinationId, out PlacedItem survivor), Is.True);
+            Assert.That(survivor.Count, Is.EqualTo(7));
+            Assert.That(lineage.Merges[0].SourceRetired, Is.False);
+        }
+
+        [Test]
+        public void UnregisteredBackpackGridCannotBeUsedAsMergeSource()
+        {
+            var backpackGrid = new GridInventory(2, 1);
+            var pocket = new GridInventory(1, 1);
+            var ownership = new AssetOwnershipBook();
+            var containers = new EconomicContainerRegistry();
+            var transactions = new EconomicTransactionLedger();
+            var lineage = new StackLineageBook();
+            containers.TryRegister(backpackGrid, EconomicActorId.Player);
+            containers.TryRegister(pocket, EconomicActorId.Player);
+            ItemType type = Stackable(10);
+            Guid backpackId = Guid.NewGuid();
+            Guid pocketId = Guid.NewGuid();
+            backpackGrid.Place(type, 0, 0, count: 4, itemInstanceId: backpackId);
+            pocket.Place(type, 0, 0, count: 2, itemInstanceId: pocketId);
+            ownership.TryRegister(backpackId, EconomicActorId.Player);
+            ownership.TryRegister(pocketId, EconomicActorId.Player);
+            containers.TryUnregister(backpackGrid);
+            var service = new StackTransferService(ownership, containers, transactions, lineage);
+
+            StackTransferResult result = service.Merge(backpackGrid, pocket, backpackId, pocketId, 2, 1, 5);
+
+            Assert.That(result.Status, Is.EqualTo(StackTransferStatus.ContainerNotRegistered));
+            Assert.That(backpackGrid.TryGetItemInstance(backpackId, out PlacedItem sourceItem), Is.True);
+            Assert.That(sourceItem.Count, Is.EqualTo(4));
+            Assert.That(pocket.TryGetItemInstance(pocketId, out PlacedItem destinationItem), Is.True);
+            Assert.That(destinationItem.Count, Is.EqualTo(2));
+            Assert.That(lineage.Merges, Is.Empty);
         }
 
         [Test]
@@ -256,6 +325,9 @@ namespace Signal.Core.Tests
             Assert.That(backpack.IsStackable, Is.False);
             Assert.That(equippable.MaxStack, Is.EqualTo(1));
             Assert.That(backpack.MaxStack, Is.EqualTo(1));
+            var grid = new GridInventory(2, 1);
+            Assert.That(grid.Place(equippable, 0, 0, count: 2).HasValue, Is.False);
+            Assert.That(grid.Place(backpack, 0, 0, count: 2).HasValue, Is.False);
         }
     }
 }
