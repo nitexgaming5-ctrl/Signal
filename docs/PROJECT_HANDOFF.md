@@ -119,10 +119,10 @@ Persistence must be keyed by stable storage identity, with deterministic migrati
 - Added five EditMode Core tests covering stable IDs, duplicate/alias rejection and cross-grid isolation.
 - Commits: `cd4b182015525429b1ebc97c22628a862b28ef89`, `bf4d54e9be82dfd61760528a11a1f6a3186f93d8`, `13ff69d98d661cd0bfeecff8ee9c9bb3a8cbf50a`, `bea52619e72a6ebe0f5e0ac4b50d3e4a4c481585`, `ffa503494a62593e0ffe99d4e57f06a569b57387`.
 - Follow-up commit `53e88a8a3d281469b484f4ef5e2d76b495bb237d` registers the current backpack grid under its stable `PlayerBackpack/<GUID>/contents` identity and checks identity-to-grid consistency before economic access. The identity persists while dropped.
-- Still incomplete: GameSession continues to attach the current `_inventory` grid to a backpack rather than allocating a distinct grid per physical bag; multiple dropped backpack item/visual tracking, automatic swap, per-backpack content persistence/migration, business stock inventories and NPC-owned pocket runtime inventories are not implemented. Keep the debug-loadout restriction until those paths are completed.
+- Runtime now allocates a distinct registry-backed grid per equipped physical backpack, switches the active inventory reference, detaches on drop, rebinds all inventory panels/services, and persists per-backpack storage records through F5/F9. Still incomplete: multiple dropped backpack item/visual tracking, automatic swap, business stock inventories and NPC-owned pocket runtime inventories. Keep the TEST LOADOUT dropped-bag guard until multi-bag swapping is complete.
 - User confirmed **576/576 EditMode tests** after this integration and the preceding compile correction. Play Mode verification remains pending; check startup logs for duplicate/invalid storage identity errors.
 - Next Core increment: `PortableStorageBook.TryRegister(Guid, width, height, InventoryStorageRegistry)` now allocates a distinct grid per physical backpack and binds it to the canonical stable identity. `GetStorageIdentity(Guid)` centralizes identity construction. Two regression tests cover distinct grids, bidirectional content isolation and duplicate-registration rollback. Commits: `bd9ed8c515265120e6d5ad98e26bc1007fe9cd56`, `7d374b16991da37d864999c9f560ba7a0fe5b704`.
-- This allocator is not yet wired into `GameSession`: current runtime still attaches `_inventory` via the compatibility overload. Next work must switch the active inventory view and add per-bag save/load before enabling automatic swap or lifting the debug-loadout guard. Expected suite count is 578; fresh Unity verification is pending.
+- The allocator is now wired into GameSession for normal equip/drop/recovery. The compatibility overload remains for deterministic migration of legacy single-bag saves. F5/F9 use the per-backpack mapper; multi-dropped-bag state and automatic swap remain open. Latest user-confirmed baseline: 580/580; the newest registry-cleanup test brings the expected total to 581, pending Unity verification.
 
 
 
@@ -139,7 +139,17 @@ Persistence must be keyed by stable storage identity, with deterministic migrati
 ## Current next implementation — GameSession active backpack grid (2026-11-27)
 
 - Verified latest EditMode suite: **580/580**, user-confirmed.
-- Core now supports distinct backpack grids and identity-keyed save/restore. GameSession is not yet wired to those primitives; it still uses one `_inventory` grid and one dropped-backpack slot.
-- Next slice: make the equipped backpack's own grid the active `_inventory`, detach to a non-bag staging grid immediately on drop, and rebind inventory panels/services to the active grid. Preserve pocket references and quickbar reconciliation. Keep the current single dropped-backpack limitation until multi-instance tracking and swap can be implemented coherently.
-- Do not wire the new mapper into GameSession until the active grid no longer aliases legacy `data.items`; otherwise the equipped bag may be saved twice.
+- Core and GameSession now use distinct backpack grids and identity-keyed save/restore. The active inventory reference switches on equip/recovery and detaches on drop. Runtime still tracks one dropped-backpack item/visual.
+- Next slice: replace the single dropped-backpack item/visual with GUID-keyed collections, persist full metadata for every dropped bag, and implement the approved automatic swap (drop currently equipped bag at the player's feet, then equip the recovered bag). Preserve every bag's private grid and allow TEST LOADOUT to equip another bag while previous bags remain dropped.
+- The active grid no longer aliases the legacy `data.items` save path: F5/F9 reserve that path for staging and use per-backpack storage records for bag contents. Unity compile/Play Mode verification is pending.
 - User must run Unity compilation and EditMode tests, then Play Mode acceptance for upcoming runtime changes.
+
+
+## GameSession active-grid integration — committed, verification pending (2026-11-27)
+
+- Equipped backpacks allocate and activate a distinct registry-backed grid; dropping switches the active player inventory reference to the staging grid while the dropped bag retains its own inaccessible contents.
+- InventoryPanel, StoragePanel, RetailPanel, DirtyCashContactPanel, CustomerContractPanel, WorkbenchWorkspace and MiloParcelOpportunityController now rebind when the active grid changes.
+- Quickbar identity validation searches all registered backpack grids so dropped-bag assignments persist, while active-hand access remains limited to accessible grids.
+- F5/F9 now call `PortableBackpackStorageSaveMapper`; the staging inventory is passed to the legacy SaveMapper path to avoid double serialization. Legacy single-backpack global items migrate into the relevant bag.
+- Added one registry cleanup regression test. Expected suite count 581; latest user-confirmed result remains 580/580 pending the new run.
+- Source commits: `3ef8447809dba93b58b67f210b8bdd9287f17b54`, `270d4427fb84a9ae7822c6bb34590403758a150a`, `7aa3f78c6e7ae7faf2872de91188e50da4f1fb61`, `cb2b3fe6a8cee57b258906601cc0fda1010e4d15`, `523b7199c3506f4de2609b0d196091c943bf6238`, `e0e44acb1cf06333b6f77cf9ab31e93b34af5245`, `24d34d773b8e6287103844ac0641f9299a95329a`.
