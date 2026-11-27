@@ -167,6 +167,36 @@ namespace Signal.Core
             return TryRegister(backpackInstanceId, new GridInventory(width, height));
         }
 
+        /// <summary>
+        /// Creates a distinct contents grid and binds it to the backpack's stable storage identity.
+        /// Registration is atomic: neither book is changed if the identity registry rejects it.
+        /// </summary>
+        public bool TryRegister(Guid backpackInstanceId, int width, int height,
+            InventoryStorageRegistry registry)
+        {
+            if (backpackInstanceId == Guid.Empty || width < 1 || height < 1 || registry == null ||
+                _contents.ContainsKey(backpackInstanceId))
+                return false;
+
+            var contents = new GridInventory(width, height);
+            InventoryStorageId identity = new InventoryStorageId(
+                InventoryStorageKind.PlayerBackpack, backpackInstanceId.ToString("N"), "contents");
+            if (!registry.TryRegister(identity, contents))
+                return false;
+
+            _contents.Add(backpackInstanceId, contents);
+            return true;
+        }
+
+        /// <summary>Returns the physical backpack storage identity associated with an instance ID.</summary>
+        public static InventoryStorageId GetStorageIdentity(Guid backpackInstanceId)
+        {
+            if (backpackInstanceId == Guid.Empty)
+                throw new ArgumentException("A valid backpack instance ID is required.", nameof(backpackInstanceId));
+            return new InventoryStorageId(InventoryStorageKind.PlayerBackpack,
+                backpackInstanceId.ToString("N"), "contents");
+        }
+
         /// <summary>Attaches an existing grid as this backpack instance's contents without copying items.</summary>
         public bool TryRegister(Guid backpackInstanceId, GridInventory existingContents)
         {
