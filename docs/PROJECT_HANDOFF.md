@@ -205,3 +205,9 @@ Next agent actions:
 StackLineageBook tracks retired IDs during runtime as well as in save data. Split ID generation excludes historical retired IDs; merge source/destination validation rejects retired IDs; rollback removes a provisional retired marker. A regression test deliberately reintroduces a retired GUID and verifies the ownership-aware service refuses it.
 
 - F9 backpack reconciliation also checks the restored world status: the 8×6 grid is authorized only when the world book says Equipped. A mismatched Dropped state fails closed and is represented as a dropped backpack rather than exposing its contents.
+
+## P-03.7c current work — player inventory stack controls (Unity verification pending)
+
+P-03.7b is user-verified at 550/550. Player InventoryPanel now implements Shift+LMB quick transfer between backpack and personal pockets, Shift+RMB split-half, Ctrl+RMB split-one, and visible stack counts on backpack/pocket items. P3 retains HIDDEN while occupied. Split operations route through GameSession.SplitPlayerStack and StackTransferService. Added two Core tests for same-grid and 1×1 pocket-to-pocket splitting; expected full suite is 552, not yet run by the user.
+
+Next: compile and run full EditMode suite; inspect any errors. Play Mode acceptance should cover splits from backpack and pockets, both modifiers, quick transfers with and without a backpack, full capacity no-op, count badges, P3 hidden label, and existing controls. Then continue P-03.7d searchable-container quick transfer/splitting and universal service quantity audit.
