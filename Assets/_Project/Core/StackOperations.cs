@@ -204,8 +204,14 @@ namespace Signal.Core
                 return Result(StackOperationStatus.DestinationFull);
 
             Guid transactionId = operationId ?? Guid.NewGuid();
-            var record = new StackMergeRecord(transactionId, sourceStackId, destinationStackId,
-                sourceItem.Type.Id, accepted);
+            if (lineage.ContainsOperation(transactionId))
+                return Result(StackOperationStatus.DuplicateOperation);
+            StackMergeRecord record = recordOverride ?? new StackMergeRecord(transactionId,
+                sourceStackId, destinationStackId, sourceItem.Type.Id, accepted);
+            if (record.OperationId != transactionId || record.SourceStackId != sourceStackId ||
+                record.DestinationStackId != destinationStackId || record.ItemDefinitionId != sourceItem.Type.Id ||
+                record.Quantity != accepted)
+                return Result(StackOperationStatus.InvalidRequest);
 
             InventorySnapshot sourceBefore = source.CreateSnapshot();
             InventorySnapshot destinationBefore = ReferenceEquals(source, destination)
@@ -226,10 +232,11 @@ namespace Signal.Core
                 return Result(StackOperationStatus.InvalidRequest);
             }
 
-            source.NotifyChanged();
-            if (!ReferenceEquals(source, destination))
-                destination.NotifyChanged();
-
+            if (notify)
+            {
+                source.NotifyChanged();
+                if (!ReferenceEquals(source, destination)) destination.NotifyChanged();
+            }
             return new StackOperationResult(StackOperationStatus.Completed, accepted, destinationStackId);
         }
 
