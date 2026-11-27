@@ -258,7 +258,7 @@ namespace Signal.Game
                 _playerEquipment, DropPlayerBackpack, () => _equippedBackpackInstanceId.HasValue,
                 () => _equippedBackpackInstanceId.HasValue && !_droppedBackpackItem.HasValue,
                 _playerPockets, MoveItemToPocket, MovePocketToBackpack, EquipPocketItem, MovePocketToBackpackAt,
-                MovePocketToPocket, SplitPlayerStack);
+                MovePocketToPocket, SplitPlayerStack, MergePlayerStacks);
             _debugItemSpawnerPanel = gameObject.AddComponent<DebugItemSpawnerPanel>();
             _debugItemSpawnerPanel.Bind(_allItemDefinitions, SpawnDebugItem);
             _containerPanel = gameObject.AddComponent<SearchableContainerPanel>();
@@ -3253,6 +3253,33 @@ namespace Signal.Game
             }
 
             Say("Split " + quantity + " item" + (quantity == 1 ? string.Empty : "s") + " into a new stack.");
+            return true;
+        }
+
+        private bool MergePlayerStacks(GridInventory source, GridInventory destination,
+            Guid sourceStackId, Guid destinationStackId, int quantity)
+        {
+            if (_stackTransfers == null || source == null || destination == null ||
+                !IsPlayerCarryGrid(source) || !IsPlayerCarryGrid(destination) ||
+                sourceStackId == Guid.Empty || destinationStackId == Guid.Empty ||
+                (ReferenceEquals(source, _inventory) || ReferenceEquals(destination, _inventory)) &&
+                !IsBackpackAccessible())
+                return false;
+
+            if (!source.TryGetItemInstance(sourceStackId, out PlacedItem sourceItem))
+                return false;
+
+            StackTransferResult result = _stackTransfers.Merge(source, destination, sourceStackId,
+                destinationStackId, Math.Min(quantity, sourceItem.Count), _clock.Day, _clock.MinuteOfDay);
+            if (!result.Success)
+            {
+                Say(result.Status == StackTransferStatus.CrossOwnerMergeRejected
+                    ? "Those stacks have different owners and cannot be combined."
+                    : "Those stacks cannot be combined. Nothing changed.", 4f);
+                return false;
+            }
+
+            Say("Restacked " + result.Quantity + " item" + (result.Quantity == 1 ? string.Empty : "s") + ".");
             return true;
         }
 
