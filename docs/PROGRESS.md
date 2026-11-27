@@ -53,8 +53,11 @@ P-03 non-art closeout source cleanup: automatic fresh-session backpack/cargo see
 
 **P-03.6 Wearable Presentation is paused/deferred.** The task card is historical preparation only, not the next implementation step. No new sprites, sprite templates, clothing overlays, wardrobe panel or art import work.
 
-## Next strategic track — B-07 Neighbourhood Expansion
-**Specification prepared; awaiting explicit user approval.** See [B-07 task card](tasks/B-07-NEIGHBOURHOOD-EXPANSION.md). Recommended vertical slice: a connected Market Lane/courtyard attached to the current Street, one enterable second-hand/materials shop using existing fixed-stock retail, and two persistent public searchable containers. No new named residents, story content or mechanics. Reuse the existing location graph/pathfinder, retail, inventory/ownership/stack transfer, searchable-container and save/load authorities. Do not begin implementation until the user approves or revises the proposed geography and content choices. Any new gameplay mechanic requires its own explanation and explicit approval.
+## Next strategic track — P-04 Character Playability
+**User reprioritized character development ahead of city expansion.** See [P-04 task card](tasks/PLAYER-P-04-CHARACTER-PLAYABILITY.md). The player should first gain meaningful skill effects, dedicated weapon/tool equipment and a quick inventory bar. Existing P-02/P-03 systems are foundations, not a reason to rebuild. The skill catalogue is provisional and effects are not wired; current equipment has only clothing/accessory slots; no quickbar exists. Exact skill formulas, active-equipment layout, tool actions, weapon/combat scope and quickbar controls require explicit approval before implementation.
+
+## Paused strategic track — B-07 Neighbourhood Expansion
+The Market Lane proposal remains documented in [B-07 task card](tasks/B-07-NEIGHBOURHOOD-EXPANSION.md), but is paused. Do not begin city expansion while P-04 is the active priority unless the user changes direction.
 
 ## Separate future track — W-01 Weather & Cold Exposure
 W-01 is separate and inactive. Intended direction: seasonal temperature/weather, rain, storms, snow/blizzards and gradual cold exposure; Heat Protection retains its name and mitigates cold only. No hot-weather/overheating gameplay. Detailed mechanics/balance remain open until W-01 is activated.
