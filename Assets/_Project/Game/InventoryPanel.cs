@@ -731,7 +731,6 @@ namespace Signal.Game
                 foreach (PlacedItem item in _inventory.Items)
                     CreateItemView(item);
             _quickbar?.Reconcile(IsQuickbarItemPresent);
-            _quickbar?.Reconcile(IsQuickbarItemPresent);
             RefreshPocketViews();
             RefreshQuickbarViews();
             RefreshCharacterPanel();
