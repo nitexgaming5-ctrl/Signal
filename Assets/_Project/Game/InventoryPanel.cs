@@ -55,6 +55,9 @@ namespace Signal.Game
         private readonly Button[] _quickbarButtons = new Button[PlayerQuickbar.SlotCount];
         private readonly Image[] _quickbarImages = new Image[PlayerQuickbar.SlotCount];
         private readonly Text[] _quickbarLabels = new Text[PlayerQuickbar.SlotCount];
+        private readonly Image[] _hudQuickbarImages = new Image[PlayerQuickbar.SlotCount];
+        private readonly Text[] _hudQuickbarLabels = new Text[PlayerQuickbar.SlotCount];
+        private RectTransform _hudQuickbarRoot;
         private RectTransform _quickbarRoot;
         private RectTransform _contextMenuRoot;
         private RectTransform _quickbarSubmenuRoot;
@@ -363,6 +366,7 @@ namespace Signal.Game
 
             if (_draggingFromQuickbar)
             {
+                UpdateQuickbarDragGhost(screen);
                 if (keyboard != null && keyboard.escapeKey.wasPressedThisFrame) { EndDrag(); return; }
                 if (mouse.leftButton.wasReleasedThisFrame)
                 {
@@ -841,6 +845,7 @@ namespace Signal.Game
 
             BuildCharacterPanel();
             BuildQuickbar();
+            BuildHudQuickbar(canvasObject.transform);
             _built = true;
         }
 
@@ -992,6 +997,24 @@ namespace Signal.Game
                 _quickbarLabels[i].text = visual.Icon == null ? visual.Label : (i + 1).ToString();
                 if (item.Count > 1) _quickbarLabels[i].text += " x" + item.Count;
                 _quickbarButtons[i].interactable = accessible;
+                if (_hudQuickbarImages[i] != null)
+                {
+                    _hudQuickbarImages[i].sprite = visual.Icon;
+                    _hudQuickbarImages[i].color = accessible ? Color.white : new Color(0.35f, 0.35f, 0.35f, 0.75f);
+                    _hudQuickbarImages[i].gameObject.SetActive(visual.Icon != null);
+                    _hudQuickbarLabels[i].text = visual.Icon == null ? visual.Label : (i + 1).ToString();
+                    if (item.Count > 1) _hudQuickbarLabels[i].text += " x" + item.Count;
+                }
+            }
+            for (int i = 0; i < PlayerQuickbar.SlotCount; i++)
+            {
+                if (_quickbar.GetItem(i) != Guid.Empty) continue;
+                if (_hudQuickbarImages[i] != null)
+                {
+                    _hudQuickbarImages[i].sprite = null;
+                    _hudQuickbarImages[i].gameObject.SetActive(false);
+                    _hudQuickbarLabels[i].text = (i + 1).ToString();
+                }
             }
         }
 
@@ -1049,6 +1072,32 @@ namespace Signal.Game
             }
         }
 
+        private void BuildHudQuickbar(Transform canvasRoot)
+        {
+            Image background = NewImage("HudQuickbarBackground", canvasRoot, new Color32(0x12, 0x16, 0x1D, 0xE8));
+            _hudQuickbarRoot = background.rectTransform;
+            _hudQuickbarRoot.anchorMin = _hudQuickbarRoot.anchorMax = new Vector2(0.5f, 0f);
+            _hudQuickbarRoot.pivot = new Vector2(0.5f, 0f);
+            _hudQuickbarRoot.anchoredPosition = new Vector2(0f, 22f);
+            _hudQuickbarRoot.sizeDelta = new Vector2(6f * 58f + 12f, 68f);
+            for (int i = 0; i < PlayerQuickbar.SlotCount; i++)
+            {
+                Image slot = NewImage("HudQuickSlot_" + (i + 1), _hudQuickbarRoot, CellColor);
+                RectTransform slotRect = slot.rectTransform;
+                slotRect.anchorMin = slotRect.anchorMax = new Vector2(0f, 0f);
+                slotRect.pivot = new Vector2(0f, 0f);
+                slotRect.anchoredPosition = new Vector2(6f + i * 58f, 7f);
+                slotRect.sizeDelta = new Vector2(54f, 54f);
+                _hudQuickbarImages[i] = NewImage("HudQuickSlotIcon", slot.transform, Color.white);
+                _hudQuickbarImages[i].preserveAspect = true;
+                _hudQuickbarImages[i].raycastTarget = false;
+                SetTopLeft(_hudQuickbarImages[i].rectTransform, 6f, 5f, 40f, 40f);
+                _hudQuickbarLabels[i] = NewText("HudQuickSlotLabel", slot.transform,
+                    (i + 1).ToString(), 10, TextAnchor.LowerRight, TitleColor);
+                SetTopLeft(_hudQuickbarLabels[i].rectTransform, 2f, 2f, 50f, 18f);
+            }
+        }
+
         private bool TryGetQuickbarSlot(Vector2 screen, out int slotIndex)
         {
             slotIndex = -1;
@@ -1065,10 +1114,30 @@ namespace Signal.Game
         private void BeginQuickbarDrag(int slotIndex)
         {
             if (_quickbar == null || slotIndex < 0 || slotIndex >= PlayerQuickbar.SlotCount ||
-                !TryFindQuickbarItem(_quickbar.GetItem(slotIndex), out _, out bool accessible) || !accessible) return;
+                !TryFindQuickbarItem(_quickbar.GetItem(slotIndex), out PlacedItem item, out bool accessible) || !accessible) return;
             _dragging = true;
             _draggingFromQuickbar = true;
             _dragQuickbarSlot = slotIndex;
+            _dragItemInstanceId = item.ItemInstanceId;
+            _dragType = item.Type;
+            ItemVisual visual = VisualFor(item.Type);
+            _ghost.sprite = visual.Icon;
+            _ghost.preserveAspect = visual.Icon != null;
+            _ghost.color = visual.Icon != null ? new Color(1f, 1f, 1f, 0.82f) : new Color(visual.Color.r, visual.Color.g, visual.Color.b, 0.82f);
+            _ghostLabel.text = visual.Label;
+            _ghostLabel.gameObject.SetActive(visual.Icon == null);
+            _ghost.gameObject.SetActive(true);
+            Refresh();
+        }
+
+        private void UpdateQuickbarDragGhost(Vector2 screen)
+        {
+            if (_ghost == null || _gridRect == null ||
+                !RectTransformUtility.ScreenPointToLocalPointInRectangle(_gridRect, screen, null, out Vector2 local))
+                return;
+            const float ghostSize = 48f;
+            SetTopLeft(_ghost.rectTransform, local.x - ghostSize * 0.5f,
+                -local.y - ghostSize * 0.5f, ghostSize, ghostSize);
         }
 
         private void OpenContextMenu(PlacedItem item, Vector2 screen)
@@ -1126,7 +1195,7 @@ namespace Signal.Game
                 button.onClick.AddListener(() =>
                 {
                     if (TryFindQuickbarItem(_contextItemInstanceId, out _, out bool accessible) && accessible)
-                        _quickbar.TryReplace(slot, _contextItemInstanceId);
+                        _quickbar.TryMoveAssignment(slot, _contextItemInstanceId);
                     CloseContextMenu(); Refresh();
                 });
             }
