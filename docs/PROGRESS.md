@@ -57,7 +57,7 @@ P-03.7 is closed and user-verified at **555/555**, including compile and Play Mo
 - Save/load persists the six assignments and reconciles invalid/retired identities.
 - User confirmed **563/563** after these changes. Play Mode acceptance should still cover the visible HUD and interactions as part of the next in-game check if not already completed.
 
-**P-04c — Active hand and controls:** implementation committed; Unity verification pending.
+**P-04c — Active hand and controls:** complete and user-verified at 571/571 plus Play Mode acceptance.
 - Core `PlayerQuickbar` now owns selected-slot and holstered state. The held item is derived from the selected slot's existing stable item-instance reference; no duplicate item ID or inventory ownership is introduced.
 - Mouse wheel up/down cycles next/previous through all six slots with wraparound, including empty slots. Number keys 1–6 directly select their matching slots.
 - H toggles between holstered and unholstered while preserving the selected slot and assignment. Selecting an empty slot means empty hand.
@@ -67,7 +67,7 @@ P-03.7 is closed and user-verified at **555/555**, including compile and Play Mo
 - Loading resets the active hand to no selected slot and holstered while restoring the six assignments.
 - Seven new Core regression tests cover active selection/holster, reversible H toggling, empty-slot cycling/wraparound, invalidation/unassignment, backpack-style inaccessibility and load reset.
 - Source commits: `c17a9f7e27d06caf6066d5fd010594d51d33fd85`, `3f8157afb5ca80e744ed83d9ea25922b33f99e50`, `e0ea41bdf2b11a30b4a99941f7153979fd04223e`.
-- **Verification pending:** Unity compile, full EditMode suite (563/563 is the last user-confirmed baseline; five new tests have been added) and Play Mode acceptance.
+- User verified the full P-04c EditMode suite at 571/571 and confirmed the active-hand/quickbar Play Mode behavior. Later storage work has a separate 578/578 user-confirmed baseline; the newest two persistence tests are pending.
 
 **P-04d — UI polish:** later follow-up after P-04c. The always-visible six-slot HUD and drag ghost have already been delivered in P-04b follow-up; do not duplicate them.
 
@@ -161,6 +161,6 @@ Required regression suite: pairwise isolation between representative player/back
 - Restore allocates a distinct grid per saved backpack, registers it under PlayerBackpack/<GUID>/contents, rejects duplicate backpack identities, and uses a caller-supplied shared item-ID set to reject duplicate physical item identities across storage domains.
 - Added precise registry unregistration and PortableStorageBook.Clear(registry) so a future restore can remove stale backpack identity bindings without clearing unrelated storage registrations. Added a storage-entry snapshot API for save capture.
 - Added two EditMode regression tests: independent two-backpack round-trip with dimensions and contents preserved; duplicate backpack/item identity rejection.
-- Commits: 2462112a32e88de815f53b0305ce3b4cf1bf63e5, 8156a03390ab1d2184f813530f34b229e783d7cb, 8ff1da85acca6de1b727f2d9dcd734eea709285d, 68eb632cbd4f46b85dbe88751335c2cdd6aa5369, 97a265342a62ad76dec67b5206a41c4484e0e0d3, 3e45aa26826db7c91ba2baf1edc341acac8387f8.
+- Commits: 2462112a32e88de815f53b0305ce3b4cf1bf63e5, 8156a03390ab1d2184f813530f34b229e783d7cb, 8ff1da85acca6de1b727f2d9dcd734eea709285d, 68eb632cbd4f46b85dbe88751335c2cdd6aa5369, 34330e52abf2c30b7b95314565284eda135db6c4, 3e45aa26826db7c91ba2baf1edc341acac8387f8.
 - This persistence mapper is not yet wired into GameSession.SaveGame/LoadGame. That integration must happen alongside active-grid switching so the same bag contents are not serialized twice through legacy data.items and the new per-backpack records. Runtime still has one _inventory grid and one dropped-backpack slot; automatic swap and debug-loadout changes remain open.
 - Expected EditMode suite count: 578 to 580. Unity compile/EditMode verification is pending; no 580/580 claim is made.
