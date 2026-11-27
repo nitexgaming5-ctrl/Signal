@@ -1,6 +1,6 @@
 # P-04 — Character Playability: Progression, Active Equipment & Quickbar
 
-**Status:** Active specification — six-slot general-purpose quickbar direction confirmed; skill effects and item-action contracts still require decisions; active-hand and scroll-wheel behavior are confirmed.  
+**Status:** Active specification — six-slot general-purpose quickbar, active-hand controls and consumable-use input confirmed; skill effects, weapon actions and practical tool actions remain approval gates.  
 **Track:** Player Development  
 **Strategic priority:** Ahead of B-07 Neighbourhood Expansion.  
 **Dependencies:** P-01 character foundation, P-02 attributes/skills, P-03 equipment/inventory/backpack.
@@ -66,7 +66,8 @@ No numerical bonus, chance, price formula, quality roll or extra reward is impli
 - **H** holsters the currently held item: active hand becomes empty, while all six assignments remain intact. Selecting another populated slot draws that item again.
 - Preserve exact physical item identity, item state, ownership, save/load and dropped-backpack isolation. The active hand is a reference/state over the real item, not a second copy or a second owner.
 - A weapon being held does not imply combat. Attack, damage, targeting, durability, ammunition and crime consequences remain out of scope unless separately designed and approved.
-- Tools and consumables only perform actions for which an existing or separately approved gameplay interaction exists.
+- Selecting an item never activates or consumes it. Healing items, energy drinks and other supported consumables require an intentional **left-click** to use, preventing accidental use while selecting/cycling slots. The exact effect/eligibility rules remain tied to each consumable's action contract.
+- Selecting a tool or weapon simply holds it in the active hand; selection does not perform an action. Actual tool actions and weapon/combat behavior are later, separately designed interactions.
 
 ### P-04c — Six-slot general-purpose quickbar
 - Add a small always-visible six-slot quickbar to the HUD.
@@ -76,7 +77,8 @@ No numerical bonus, chance, price formula, quality roll or extra reward is impli
 - Scroll-wheel up selects the next slot; scroll-wheel down selects the previous slot, wrapping around the six slots. These inputs are active only while no menu is open.
 - **H** holsters the active-hand item without clearing or changing the quickbar assignments. Selecting a populated slot draws its item again.
 - Number-key selection is not currently part of the confirmed control scheme.
-- Use/activate only items with an explicitly supported action contract; do not consume arbitrary inventory items merely because they are assigned.
+- Slot selection/drawing never uses or consumes an item. Supported consumables require an intentional left-click to activate; arbitrary assigned items cannot be consumed merely by selection.
+- Tools and weapons are held on selection only. Their later use/attack inputs and effects are outside this confirmed interaction rule and need separate approval.
 - Handle depleted, moved, merged, split, sold, transferred, equipped or inaccessible items safely. Invalid assignments should clear or visibly become unavailable according to a documented policy.
 - Backpack drop must never make its contents usable through stale quickbar references.
 - Persist slot assignments and restore them safely against current inventory identities.
@@ -126,7 +128,8 @@ No numerical bonus, chance, price formula, quality roll or extra reward is impli
 - Scroll up/down cycles next/previous slot only when no menu is open; verify wraparound at both ends.
 - H holsters the active item but preserves slot assignments; selecting a populated slot draws it again.
 - Verify assignment and selection for different item categories, including healing/energy consumables, tools, weapons and a backpack.
-- Only supported items/actions can be activated.
+- Selecting any slot never activates or consumes its item; left-click is required for a supported consumable use.
+- Tools/weapons are held without automatically performing an action; verify later action systems do not trigger on selection.
 - Stack quantity changes are reflected immediately.
 - Moving/splitting/merging/transferring/equipping/selling an assigned stack never creates duplicates or activates the wrong item.
 - Stale references after save/load or backpack drop fail safely.
@@ -140,8 +143,9 @@ No numerical bonus, chance, price formula, quality roll or extra reward is impli
 
 1. **Active hand:** confirmed — the currently selected quickbar slot is the item equipped in the player's hand. There are no separate weapon/tool slots.
 2. **Controls:** confirmed — scroll up/down selects next/previous slot only when no menu is open; H holsters the held item while preserving assignments. Number keys are not currently specified.
-3. **Weapon scope:** equipping/visual selection only for the first slice, or do you want an actual attack/action loop designed now? The latter is a separate combat mechanic and requires a dedicated proposal.
-4. **Tool scope:** identify the first one or two practical tools/actions to support. Existing repair/production tools are currently materials/ingredients; making them held, activated tools changes their gameplay contract.
-5. **Skill effects:** approve or revise the candidate skill list and effect proposals before numerical formulas are coded.
+3. **Consumable use:** confirmed — selecting/drawing a consumable never consumes it; an intentional left-click is required to use it.
+4. **Weapon scope:** selecting a weapon only holds it. Attack/action behavior remains a separate design decision and requires a dedicated proposal before implementation.
+5. **Tool scope:** selecting a tool only holds it. Identify the first one or two practical tool actions separately; existing repair/production tools are currently materials/ingredients.
+6. **Skill effects:** approve or revise the candidate skill list and effect proposals before numerical formulas are coded.
 
 P-04a can begin with an audit and UI/architecture refinement, but gameplay effects, new equipment categories and active-use mechanics must not be invented silently. Await explicit approval of the relevant decisions before implementing those mechanics.
