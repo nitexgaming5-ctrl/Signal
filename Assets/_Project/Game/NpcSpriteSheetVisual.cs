@@ -10,7 +10,7 @@ namespace Signal.Game
     {
         private const int CellWidth = 128;
         private const int CellHeight = 160;
-        private const float PixelsPerUnit = 48f;
+        private const float PixelsPerUnit = 56f;
         private const int IdleFrameCount = 3;
         private const int WalkFrameCount = 4;
         private static readonly string[] ResourceNames =
