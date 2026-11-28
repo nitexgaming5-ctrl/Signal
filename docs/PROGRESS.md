@@ -1,13 +1,13 @@
 # Progress — current repository truth
 
-**Last reconciled:** 2026-11-27  
+**Last reconciled:** 2026-11-28  
 **Branch:** `chore/collaboration-workflow-and-audit` (keep `main` untouched)  
 **Unity:** 6000.6.9f1 · 2D URP · active scene `Assets/_Project/Scenes/HideoutSlice.unity`  
 **Architecture:** `Signal.Core` (plain C# domain) + `Signal.Game` (Unity integration/UI/content)
 
 ## Verification
 
-- **Latest user-confirmed full EditMode suite: 580/580 passed (2026-11-27).** This includes the two independent-backpack persistence tests.
+- **Latest user-confirmed full EditMode suite: 583/583 passed (2026-11-27).** This includes the two independent-backpack persistence tests.
 - P-04a: 557/557 confirmed.
 - P-04b initial assignment foundation: 562/562 confirmed; follow-up brought the suite to 563/563.
 - P-03.7: 555/555 plus Unity compile and Play Mode acceptance confirmed; closed.
@@ -97,7 +97,7 @@ P-03.7 is closed and user-verified at **555/555**, including compile and Play Mo
 - Persistent state requires current-build F5/F9 round-trip coverage.
 - No new Unity packages/dependencies without approval.
 - Do not author new story cast/backstories until the main storyline/cast are designed.
-- Art pause remains in force: no new sprites, wearable overlays, wardrobe presentation or character-art exploration.
+- Art pause remains in force for new art creation, wearable overlays, wardrobe presentation and character-art exploration. Explicitly requested integration of user-supplied art assets is allowed.
 - Do not run `dotnet` or `msbuild` for this Unity project.
 - Historical detail belongs in [the November log](progress/LOG-2026-11.md); keep this status board concise.
 
@@ -190,3 +190,12 @@ Required regression suite: pairwise isolation between representative player/back
 - This is the Core selection primitive only. GameSession still stores one dropped item/visual and automatic swap is not yet implemented.
 - Source commits: `0781acd6e90d7197cef8581c7a87610d8598a2b2`, `66db3032d0af00dd50d389fb7ac5413076c3f19a`.
 - Expected full EditMode suite: **583**. Latest user-confirmed result: **581/581** before these two tests; Unity verification pending.
+
+
+### User-supplied city NPC sprite integration — 2026-11-28
+- Inspected the uploaded `TEST.zip`: it contains three character exports (`survivor_267285`, `survivor_715836`, `survivor_976103`), each with 128×160 composed directional Idle (3 frames) and Walk (4 frames) PNGs.
+- Updated `NpcSpriteSheetImporter` to select this archive, validate all 84 composed frames, pack each character into a 4-column × 8-row runtime sheet, and import three Resources textures. No layered source parts or generated character variants are required.
+- Updated `NpcSpriteSheetVisual` to consume the 128×160 sheets at 56 PPU and animate the actual 3 idle / 4 walk frames across Down/Left/Right/Up. It remains visual-only and reads the existing NPC transform.
+- Existing three randomized street-only rendering-test residents will use the three appearances once all three Resources textures are imported. Their identity, schedule, pathfinding, movement and social behaviour are unchanged.
+- Source commits: `658793768936308f83185767b0905588014e33a0`, `32abe8a9d38d596fc55568c1ef93228079cbb2a7`, `322227bdd0cefa185e4f11bf419acb1b9989d73d`.
+- Unity import, compilation and Play Mode scale/foot-alignment/directional-animation verification are pending. In Unity, run **Signal → Import NPC Rendering Test Sprites...**, select the uploaded `TEST.zip`, then enter Play Mode.
