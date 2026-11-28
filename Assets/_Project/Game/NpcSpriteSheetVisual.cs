@@ -3,14 +3,16 @@ using UnityEngine;
 namespace Signal.Game
 {
     /// <summary>
-    /// Lightweight visual-only renderer for the three temporary city NPC sprite tests.
+    /// Lightweight visual-only renderer for the three temporary city NPCs.
     /// It reads movement from the existing presenter transform; it owns no NPC behaviour.
     /// </summary>
     public sealed class NpcSpriteSheetVisual : MonoBehaviour
     {
-        private const int CellWidth = 48;
-        private const int CellHeight = 72;
-        private const float PixelsPerUnit = 32f;
+        private const int CellWidth = 128;
+        private const int CellHeight = 160;
+        private const float PixelsPerUnit = 48f;
+        private const int IdleFrameCount = 3;
+        private const int WalkFrameCount = 4;
         private static readonly string[] ResourceNames =
         {
             "NpcSprites/npc1_hoodie",
@@ -19,8 +21,8 @@ namespace Signal.Game
         };
 
         private SpriteRenderer _renderer;
-        private Sprite[,] _idle = new Sprite[4, 4];
-        private Sprite[,] _walk = new Sprite[4, 6];
+        private Sprite[,] _idle = new Sprite[4, IdleFrameCount];
+        private Sprite[,] _walk = new Sprite[4, WalkFrameCount];
         private Vector3 _lastPosition;
         private float _animationClock;
         private string _lastPose;
@@ -45,9 +47,10 @@ namespace Signal.Game
                 return false;
 
             Texture2D texture = Resources.Load<Texture2D>(ResourceNames[appearanceIndex]);
-            if (texture == null || texture.width != CellWidth * 6 || texture.height != CellHeight * 12)
+            if (texture == null || texture.width != CellWidth * WalkFrameCount ||
+                texture.height != CellHeight * 8)
             {
-                Debug.LogWarning("Signal NPC test sprite sheet is missing or has unexpected dimensions: " +
+                Debug.LogWarning("Signal NPC sprite sheet is missing or has unexpected dimensions: " +
                     ResourceNames[appearanceIndex]);
                 return false;
             }
@@ -55,9 +58,9 @@ namespace Signal.Game
             texture.filterMode = FilterMode.Point;
             for (int direction = 0; direction < 4; direction++)
             {
-                for (int frame = 0; frame < 4; frame++)
+                for (int frame = 0; frame < IdleFrameCount; frame++)
                     _idle[direction, frame] = CreateFrame(texture, direction, frame);
-                for (int frame = 0; frame < 6; frame++)
+                for (int frame = 0; frame < WalkFrameCount; frame++)
                     _walk[direction, frame] = CreateFrame(texture, 4 + direction, frame);
             }
 
@@ -76,8 +79,11 @@ namespace Signal.Game
         {
             // Sprite-sheet row zero is at the top; Unity texture coordinates start at bottom-left.
             float y = texture.height - ((row + 1) * CellHeight);
+            // The source export has a small transparent foot margin; place the visible sole on the NPC position.
+            const float FootPivotPixels = 14.5f;
             return Sprite.Create(texture, new Rect(column * CellWidth, y, CellWidth, CellHeight),
-                new Vector2(0.5f, 0f), PixelsPerUnit, 0, SpriteMeshType.FullRect);
+                new Vector2(0.5f, FootPivotPixels / CellHeight), PixelsPerUnit, 0,
+                SpriteMeshType.FullRect);
         }
 
         private void LateUpdate()
@@ -100,7 +106,7 @@ namespace Signal.Game
             }
 
             string pose = moving ? "Walk" : "Idle";
-            int frameCount = moving ? 6 : 4;
+            int frameCount = moving ? WalkFrameCount : IdleFrameCount;
             float framesPerSecond = moving ? 10f : 6f;
             _animationClock += Time.deltaTime;
             int frame = Mathf.FloorToInt(_animationClock * framesPerSecond) % frameCount;
@@ -117,9 +123,9 @@ namespace Signal.Game
         {
             for (int direction = 0; direction < 4; direction++)
             {
-                for (int frame = 0; frame < 4; frame++)
+                for (int frame = 0; frame < IdleFrameCount; frame++)
                     if (_idle[direction, frame] != null) Destroy(_idle[direction, frame]);
-                for (int frame = 0; frame < 6; frame++)
+                for (int frame = 0; frame < WalkFrameCount; frame++)
                     if (_walk[direction, frame] != null) Destroy(_walk[direction, frame]);
             }
         }
