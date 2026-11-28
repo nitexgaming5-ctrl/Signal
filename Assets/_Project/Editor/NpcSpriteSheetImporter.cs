@@ -143,7 +143,7 @@ namespace Signal.Game.Editor
                         }
                         finally
                         {
-                            DestroyImmediate(source);
+                            UnityEngine.Object.DestroyImmediate(source);
                         }
                     }
                 }
@@ -153,7 +153,7 @@ namespace Signal.Game.Editor
             }
             finally
             {
-                DestroyImmediate(atlas);
+                UnityEngine.Object.DestroyImmediate(atlas);
             }
         }
     }
