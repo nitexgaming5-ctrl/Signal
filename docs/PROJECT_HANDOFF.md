@@ -7,6 +7,10 @@
 
 Signal is a Unity 2D top-down urban RPG. Unity 6000.6.9f1; active scene `Assets/_Project/Scenes/HideoutSlice.unity`; architecture is `Signal.Core` (plain C# domain) + `Signal.Game` (Unity integration/UI/content).
 
+**Latest user-confirmed full EditMode suite:** 583/583 (2026-11-27). Unity verification remains authoritative for all subsequent changes.
+
+**Current small integration task:** user-supplied three-character city NPC sprite import is wired in code; the user must run `Signal → Import NPC Rendering Test Sprites...` with `TEST.zip`, then verify Unity compilation and Play Mode.
+
 ## Read first
 
 1. `AGENTS.md` — authority and workflow.
