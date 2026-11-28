@@ -161,3 +161,12 @@ Persistence must be keyed by stable storage identity, with deterministic migrati
 - This does not yet make GameSession multi-bag capable: `_droppedBackpackItem` and `_droppedBackpackVisual` remain singular. Next: GUID-keyed dropped-item/visual collections, multi-bag save metadata, automatic swap, then TEST LOADOUT unlock.
 - Commits: `0781acd6e90d7197cef8581c7a87610d8598a2b2`, `66db3032d0af00dd50d389fb7ac5413076c3f19a`.
 - Expected EditMode suite: 583; latest user-confirmed baseline: 581/581.
+
+
+## 2026-11-28 — User-supplied city NPC sprite integration
+
+- The user supplied `TEST.zip` with three composed character animation exports. Each character provides 3 idle and 4 walk frames for Down/Left/Right/Up, at 128×160 per frame.
+- Updated the editor importer to build the three Resources sheets directly from the archive's `Frames` directories, with strict path/frame/dimension validation. Updated the runtime visual to animate the actual source frame counts and align the foot baseline; it remains attached to the existing three randomized street-only test residents.
+- No NPC gameplay, identity, schedule, route or movement logic was changed. This imports only the composed frame images; source layer exports are not needed at runtime.
+- Commits: `658793768936308f83185767b0905588014e33a0`, `32abe8a9d38d596fc55568c1ef93228079cbb2a7`, `322227bdd0cefa185e4f11bf419acb1b9989d73d`.
+- Unity verification pending. Run **Signal → Import NPC Rendering Test Sprites...**, select `TEST.zip`, then compile and enter Play Mode. Check relative scale, foot alignment, all four facings and animation playback.
