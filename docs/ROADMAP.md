@@ -149,3 +149,9 @@ This supersedes the narrower backpack-only follow-up. The user requires independ
 - [ ] Replace singular GameSession dropped-item/visual fields with GUID-keyed collections and persist every dropped bag's item metadata.
 - [ ] Implement automatic swap while preserving each bag's independent contents grid.
 - [ ] Enable TEST LOADOUT with previously dropped bags only after runtime swap and save/load are safe.
+
+
+### City NPC appearance integration — 2026-11-28
+- [x] Adapt the existing visual-only three-walker renderer to the user-supplied 128×160 composed character frames.
+- [x] Add a Unity Editor import command that validates and packs all three characters' directional idle/walk frames into Resources textures.
+- [ ] User runs the importer with `TEST.zip`, then verifies compile and Play Mode appearance, scale, foot alignment and all directional animations.
